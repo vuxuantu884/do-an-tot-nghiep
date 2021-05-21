@@ -1,0 +1,63 @@
+include:
+  - project: yody-system/devops/cicd-templates
+    file: before-scripts-template.yml
+    ref: master
+
+cache:
+  key: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
+  paths:
+    - .m2/repository
+
+variables:
+  #SERVICE_PATH: /path # if you want to specify service path
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+
+stages:
+  - verify
+  - compile_build
+  - docker_build
+  - deploy
+  - tag
+  - notify
+
+docker build:
+  stage: docker_build
+  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  only:
+    refs:
+      - develop
+      - feature/sprint-4-pos
+  variables:
+    DOCKER_FILE: Dockerfile
+    SERVICE_NAME: yody-pos
+    DOCKER_IMAGE_NAME: yody-pos
+  script:
+    - bash deployment/dockerbuild.sh
+
+deploy to dev:
+  stage: deploy
+  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  dependencies: []
+  when: manual
+  only:
+    - develop
+    - feature/sprint-4-pos
+  variables:
+    HOST: dev.pos.yody.vn
+    NAMESPACE: dev
+    ENVIRONMENT: dev
+    SERVICE_NAME: yody-pos
+    DOCKER_IMAGE_NAME: yody-pos
+  script:
+    - bash deployment/deploy.sh pos
+
+tag:
+  stage: tag
+  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  only:
+    - tags
+  variables:
+    DOCKER_IMAGE_NAME: yody-pos
+  script:
+    - bash deployment/dockertag.sh $DOCKER_IMAGE_NAME $IMAGE_TAG $CI_COMMIT_TAG
+    - bash deployment/dockertag.sh $DOCKER_IMAGE_NAME-migration $IMAGE_TAG $CI_COMMIT_TAG

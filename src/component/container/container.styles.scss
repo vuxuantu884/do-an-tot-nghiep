@@ -1,0 +1,122 @@
+.yody-header {
+  padding: 18px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .yody-title {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 20px;
+    color: rgba(32, 32, 32, 0.9);
+  }
+}
+
+.header-left {
+  overflow: unset;
+  display: flex !important;
+  align-items: center;
+  .zoom-in {
+    transition: transform .2s ease;
+  }
+  .button-collspae {
+    border-radius: 50%;
+    padding: 0;
+    position: absolute;
+    right: -15px;
+    width: 30px;
+    height: 30px;
+    box-shadow: 0 0 2px 1px #eee;
+    background: #fff;
+    z-index: 1000;
+  }
+}
+.yody-menu {
+  height: calc(100% - 86px);
+  overflow: hidden;
+  overflow-y: scroll;
+  .ant-menu-item {
+    align-items: center;
+    display: flex;
+    a {
+      color: #95A1AC;
+      &:hover {
+        color: #2A2A86;
+      }
+    }
+    i {
+      color: #95A1AC;
+    }
+  }
+  
+  .ant-menu-item-selected {
+    a {
+      color: #2A2A86;
+    }
+    i {
+      color: #2A2A86;
+    }
+  }
+  
+  .ant-menu-inline .ant-menu-item:after {
+    border-right: none;
+  }
+  
+  .ant-menu-item-active {
+    a {
+      color: #2A2A86;
+    }
+    i {
+      color: #2A2A86;
+    }
+    .ant-menu-submenu-arrow {
+      color: #2A2A86;
+    }
+  }
+  
+  .ant-menu-submenu-selected {
+    .ant-menu-submenu-title {
+      color: #2A2A86;
+    }
+    .ant-menu-submenu-arrow {
+      &::before {
+        color: #2A2A86;
+      }
+      &::after {
+        color: #2A2A86;
+      }
+    }
+  }
+  
+  .ant-menu-submenu-active {
+    color: #2A2A86;
+  }
+  .ant-menu-submenu-title {
+    align-items: center;
+    display: flex;
+    padding-left: 24px;
+    color: #95A1AC;
+    .ant-menu-submenu-arrow, .ant-menu-submenu-expand-icon {
+      color: #95A1AC;
+    }
+    &:hover {
+      color: #2A2A86;
+      .ant-menu-submenu-arrow {
+        &::before {
+          color: #2A2A86;
+        }
+        &::after {
+          color: #2A2A86;
+        }
+      }
+    }
+  }
+}
+
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+  background-color: #F3F3F7;
+}
+
+.ant-menu-inline .ant-menu-item:after, .ant-menu-vertical-left .ant-menu-item:after, .ant-menu-vertical-right .ant-menu-item:after, .ant-menu-vertical .ant-menu-item:after {
+  border: none;
+}
