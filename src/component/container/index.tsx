@@ -30,10 +30,10 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   const {isLogin, isLoad: isLoadUser} = userReducer;
   const {isLoad} = bootstrapReducer;
   useLayoutEffect(() => {
-    if(!isLoad) {
+    if(!isLoad && isLogin) {
       dispatch(getBootstrapAction());
     }
-  }, [dispatch, isLoad])
+  }, [dispatch, isLoad, isLogin])
   if(isLoadUser && !isLogin) {
     return <Redirect to={`/login?returnUrl=${location.pathname}`} />
   }
