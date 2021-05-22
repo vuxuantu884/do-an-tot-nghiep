@@ -27,17 +27,17 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   const { location } = history;
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
-  const {isLogin} = userReducer;
+  const {isLogin, isLoad: isLoadUser} = userReducer;
   const {isLoad} = bootstrapReducer;
   useLayoutEffect(() => {
     if(!isLoad) {
       dispatch(getBootstrapAction());
     }
   }, [dispatch, isLoad])
-  if(!isLogin) {
+  if(isLoadUser && !isLogin) {
     return <Redirect to={`/login?returnUrl=${location.pathname}`} />
   }
-  if(isLoad) {
+  if( isLoad) {
     return <SplashScreen />
   }
   return (

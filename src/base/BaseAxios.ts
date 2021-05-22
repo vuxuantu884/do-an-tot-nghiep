@@ -11,7 +11,6 @@ BaseAxios.defaults.withCredentials =true;
 
 BaseAxios.interceptors.request.use(function (request: AxiosRequestConfig) {
   const token = getToken();
-  console.log('token', token);
   if(token != null) {
     request.headers['Authorization'] = `Bearer ${token}`
   }
