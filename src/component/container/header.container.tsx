@@ -4,9 +4,11 @@ import {Layout, Breadcrumb} from 'antd';
 import { Link } from 'react-router-dom';
 import menu from 'routes/menu';
 import {getListBreadcumb} from 'utils/AppUtils';
+import ButtonCreate from 'component/header/ButtonCreate';
 
 type HeaderContainerProps = {
-  headerRight?: React.ReactElement
+  isShowCreate: boolean
+  pathCreate: string 
   path: string
   title: string
 }
@@ -16,6 +18,7 @@ const {Item} = Breadcrumb;
 
 const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerProps) => {
   const {path} = props;
+  console.log(props);
   let listBreadcumb = getListBreadcumb(menu, path);
   return (
     <React.Fragment>
@@ -38,6 +41,11 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
               </Item>
             ))}
           </Breadcrumb>
+        </div>
+        <div>
+          {props.isShowCreate && (
+            <ButtonCreate path={props.pathCreate} />
+          )}
         </div>
       </Header>
     </React.Fragment>

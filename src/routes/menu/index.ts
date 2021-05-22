@@ -18,6 +18,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
+    isShowCreate: false,
+    pathCreate: ''
   },
   {
     path: "/products",
@@ -29,6 +31,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: product,
+    isShowCreate: false,
+    pathCreate: ''
   },
   {
     path: "/inventory",
@@ -40,6 +44,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
+    isShowCreate: false,
+    pathCreate: ''
   },
   {
     path: "/sale",
@@ -51,6 +57,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
+    isShowCreate: false,
+    pathCreate: ''
   },
   {
     path: "/bill",
@@ -62,6 +70,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
+    isShowCreate: false,
+    pathCreate: ''
   },
   {
     path: "/customer",
@@ -73,6 +83,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
+    isShowCreate: false,
+    pathCreate: ''
   },
   {
     path: "/promotion",
@@ -84,6 +96,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
+    isShowCreate: false,
+    pathCreate: ''
   },
   {
     path: "/report",
@@ -95,6 +109,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
+    isShowCreate: false,
+    pathCreate: ''
   },
   {
     path: "/setting",
@@ -106,6 +122,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: setting,
+    isShowCreate: false,
+    pathCreate: ''
   },
 ]
 

@@ -3,8 +3,8 @@ interface BaseResponse<T> {
   message: String;
   data: T;
   response_time: Date;
-  errors: any
-  request_id: String
+  errors: Array<string>;
+  request_id: String;
 }
 
 export default BaseResponse;

@@ -1,7 +1,9 @@
+import ButtonCreate from "component/header/ButtonCreate"
+
 const Dashboard = () => {
   return (
     <div>
-      Dashboards
+      <ButtonCreate path="a" />
     </div>
   )
 }

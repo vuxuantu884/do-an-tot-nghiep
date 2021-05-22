@@ -30,7 +30,7 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (props: SlidebarCont
   return (
     <Sider 
       collapsed={collapsed}
-      width={256}
+      width={250}
       style={{
         height: '100vh',
       }}>

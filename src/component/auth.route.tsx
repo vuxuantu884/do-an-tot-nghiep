@@ -7,13 +7,15 @@ type AuthRouteProps = {
   component: any;
   exact: boolean;
   title: string;
+  isShowCreate: boolean;
+  pathCreate: string;
 } 
 
 const AuthRoute: React.FC<AuthRouteProps> = (props: AuthRouteProps) => {
-  const {title, path, component: Component} = props;
+  const {title, path, component: Component, isShowCreate, pathCreate} = props;
   return (
     <Route path={path}>
-      <Container title={title}>
+      <Container isShowCreate={isShowCreate} pathCreate={pathCreate} title={title}>
         <Component />
       </Container>
     </Route>

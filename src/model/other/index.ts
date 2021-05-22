@@ -8,5 +8,7 @@ export interface RouteMenu {
   header: React.ReactNode | null
   icon: string,
   key: string,
+  isShowCreate: boolean,
+  pathCreate: string,
   component: React.ReactNode;
 }

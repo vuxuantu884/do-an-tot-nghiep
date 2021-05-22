@@ -1,0 +1,4 @@
+export const AuthType = {
+  LOGIN_REQUEST: 'LOGIN_REQUEST',
+  LOGIN_RESPONSE: 'LOGIN_RESPONSE',
+}

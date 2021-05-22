@@ -1,6 +1,6 @@
 import { LoadingReducerType } from 'model/reducers/LoadingReducerType';
 import { AnyAction } from 'redux';
-import LoadingType from 'domain/types/LoadingType';
+import LoadingType from 'domain/types/loading.type';
 
 const intitalState: LoadingReducerType = {
   isVisible: false
