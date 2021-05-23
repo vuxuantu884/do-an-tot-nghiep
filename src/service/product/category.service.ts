@@ -1,7 +1,7 @@
 import BaseAxios from "base/BaseAxios"
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig"
-import { CategoryResponse } from "model/response/CategoryResponse";
+import { CategoryResponse } from "model/response/category.response";
 import { isUndefinedOrNull } from "utils/AppUtils";
 
 export const getCategoryApi = (code: string, created_name: string, goods: string, name: string): Promise<BaseResponse<Array<CategoryResponse>>> => {

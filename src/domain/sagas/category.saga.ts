@@ -4,8 +4,10 @@ import BaseResponse from 'base/BaseResponse';
 import { HttpStatus } from 'config/HttpStatus';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
 import { CategoryType } from 'domain/types/product.type';
-import { CategoryResponse } from 'model/response/CategoryResponse';
+import { CategoryView } from 'model/other/category-view';
+import { CategoryResponse } from 'model/response/category.response';
 import { getCategoryApi } from 'service/product/category.service';
+import { convertCategory } from 'utils/AppUtils';
 import { showError } from 'utils/ToastUtils';
 
 function* getCategorySaga(action: YodyAction) {
@@ -16,7 +18,8 @@ function* getCategorySaga(action: YodyAction) {
     yield put(hideLoading());
     switch(response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        let arrResult: Array<CategoryView> = convertCategory(response.data);
+        setData(arrResult);
         break;
       default:
         response.errors.forEach((e) => showError(e));
