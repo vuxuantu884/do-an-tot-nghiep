@@ -1,6 +1,6 @@
 import React from 'react';
 import { RouteMenu } from "model/other";
-import { HEADER_TYPE } from 'component/container/header.container';
+import { HEADER_TYPE } from 'config/HeaderConfig';
 
 
 const Category = React.lazy(() => import ("screens/product/category.screen"));

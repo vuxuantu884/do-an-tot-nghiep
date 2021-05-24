@@ -1,4 +1,4 @@
-import { HEADER_TYPE } from "component/container/header.container";
+import { HEADER_TYPE } from "config/HeaderConfig";
 import { RouteMenu } from "model/other";
 import React from "react";
 
