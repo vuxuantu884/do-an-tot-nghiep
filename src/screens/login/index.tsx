@@ -2,14 +2,13 @@ import './login.scss'
 import logo from 'assets/img/logo.svg';
 import { Button, Form, Input } from 'antd';
 import { useCallback, useState } from 'react';
-import { Redirect, useLocation } from 'react-router';
+import { Redirect } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootReducerType } from 'model/reducers/RootReducerType';
 import { loginRequestAction } from 'domain/actions/auth.action';
+import { useQuery } from 'utils/useQuery';
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
+
 
 const Login = () => {
   const query = useQuery();

@@ -1,4 +1,6 @@
 import { RouteMenu } from "model/other";
+import { CategoryView } from "model/other/category-view";
+import { CategoryResponse } from "model/response/category.response";
 
 export const isUndefinedOrNull = (variable: any) => {
   if(variable && variable !== null) {
@@ -61,3 +63,46 @@ export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '
   return result;
 }
 
+export const convertCategory= (data: Array<CategoryResponse>) => {
+  let arr: Array<CategoryView> = [];
+  data.forEach((item) => {
+    let level = 0;
+    let temp = getArrCategory(item, level, null);
+    arr = [...arr, ...temp];
+  })
+  return arr;
+}
+
+const getArrCategory = (i: CategoryResponse, level: number, parent: CategoryResponse|null) => {
+  let arr: Array<CategoryView> = [];
+  let parentTemp = null;
+  if(parent !== null) {
+    parentTemp = {
+      id: parent.id,
+      name: parent.name,
+    }
+  }
+  arr.push({
+    id: i.id,
+    created_by: i.created_by,
+    created_date: i.created_date,
+    created_name: i.created_name,
+    updated_by: i.updated_by,
+    updated_name: i.updated_name,
+    updated_date: i.updated_date,
+    version: i.version,
+    code: i.code,
+    goods_name: i.goods_name,
+    gooods: i.gooods,
+    level: level,
+    parent: parentTemp,
+    name: i.name,
+  })
+  if(i.children.length > 0) {
+    i.children.forEach((i1) => {
+      let c = getArrCategory(i1, level + 1, i);
+      arr = [...arr, ...c];
+    })
+  }
+  return arr;
+}

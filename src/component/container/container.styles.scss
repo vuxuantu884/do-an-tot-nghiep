@@ -1,3 +1,5 @@
+$primary-color-blue: #2A2A86;
+
 .yody-header {
   padding: 18px 30px;
   display: flex;
@@ -119,4 +121,66 @@
 
 .ant-menu-inline .ant-menu-item:after, .ant-menu-vertical-left .ant-menu-item:after, .ant-menu-vertical-right .ant-menu-item:after, .ant-menu-vertical .ant-menu-item:after {
   border: none;
+}
+
+
+.yody-search-button {
+  background-color: #2A2A86;
+  border-radius: 5px;
+  color: #FFFFFF;
+  border: none;
+}
+
+.contain {
+  .ant-card-body {
+    padding: 20px 0px;
+  }
+  .view-control {
+    padding: 10px 25px;
+  }
+  .ant-table-cell {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 17px;
+    color: #737373;
+  }
+}
+
+.button-setting {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  border: none;
+  background-color: transparent;
+}
+
+.view-empty {
+  font-family: Inter;
+  font-style: normal;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .text-empty {
+    font-size: 14px;
+    line-height: 17px;
+    color: #37394D;
+    font-weight: 500; 
+  }
+  .buttom-empty {
+    padding: 10px 25px;
+    height: auto;
+    font-size: 14px;
+    line-height: 17px;
+    margin-top: 15px;
+    font-weight: 500; 
+    background: rgba(42, 42, 134, 0.05);
+    border-radius: 5px;
+    border: none;
+    color: $primary-color-blue;
+  }
 }

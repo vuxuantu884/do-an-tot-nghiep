@@ -11,9 +11,12 @@ const intitalState = {
 const userReducer = (state = intitalState, action: AnyAction) => {
   const {type} = action;
   switch (type) {
-    case AuthType.LOGIN_RESPONSE:
     case AppType.LOAD_USER_FROM_STORAGE_SUCCESS:
-      return {...state, isLogin: true}
+      return {...state, isLogin: true, isLoad: true};
+    case AppType.LOAD_USER_FROM_STORAGE_FAIL:
+      return {...state, isLogin: false, isLoad: true};
+    case AuthType.LOGIN_RESPONSE:
+      return {...state, isLogin: true,}
     default:
       return state;
   }

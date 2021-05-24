@@ -24,5 +24,5 @@ function* getBootstrapSaga() {
 }
 
 export function* bootstrapSaga() {
-  yield takeLatest(BootstrapType.GET_BOOTSTRAP_REQUEST, getBootstrapSaga)
+  yield takeLatest(BootstrapType.GET_BOOTSTRAP_REQUEST, getBootstrapSaga);
 }

@@ -1,6 +1,5 @@
 import React from 'react';
 import { RouteMenu } from "model/other";
-import ButtonCreate from "component/header/ButtonCreate"
 
 
 const Category = React.lazy(() => import ("screens/product/category.screen"));
@@ -9,7 +8,7 @@ const Color = React.lazy(() => import ("screens/product/color.screen"));
 const Material = React.lazy(() => import ("screens/product/material.screen"));
 const Size = React.lazy(() => import ("screens/product/size.screen"));
 const Supplier = React.lazy(() => import ("screens/product/supplier.screen"));
-
+const AddCategory = React.lazy(() => import ("screens/product/add-category.screen"))
 
 const product: Array<RouteMenu> = [
   {
@@ -33,8 +32,22 @@ const product: Array<RouteMenu> = [
     component: Category,
     key: "submenu22",
     isShow: true,
-    header: ButtonCreate,
-    subMenu: [],
+    header: null,
+    subMenu: [
+      {
+        path: "/products/categories/create",
+        exact: true,
+        title: "Thêm danh mục",
+        icon: 'icon-dot',
+        component: AddCategory,
+        key: "submenu221",
+        isShow: false,
+        header: null,
+        subMenu: [],
+        isShowCreate: false,
+        pathCreate: ''
+      }
+    ],
     isShowCreate: true,
     pathCreate: '/products/categories/create'
   },

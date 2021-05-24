@@ -18,7 +18,6 @@ const {Item} = Breadcrumb;
 
 const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerProps) => {
   const {path} = props;
-  console.log(props);
   let listBreadcumb = getListBreadcumb(menu, path);
   return (
     <React.Fragment>
