@@ -5,9 +5,11 @@ const { Step } = Steps;
 const CreateBillStep: React.FC = () => {
   return (
     <Steps progressDot>
-      <Step title="first step" />
-      <Step title="second step" />
-      <Step title="third step" />
+      <Step title="Đặt hàng" />
+      <Step title="Xác nhận" />
+      <Step title="Đóng gói" />
+      <Step title="Xuất kho" />
+      <Step title="Hoàn thành" />
     </Steps>
   )
 }
