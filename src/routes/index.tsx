@@ -30,7 +30,7 @@ const MainRoute = () => {
     <Switch>
       {
         listMenu().map((item: RouteMenu) => (
-          <AuthRoute pathCreate={item.pathCreate} isShowCreate={item.isShowCreate} key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
+          <AuthRoute type={item.type} object={item.object} key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
         ))
       }
       <Route path="/login" component={Login} />

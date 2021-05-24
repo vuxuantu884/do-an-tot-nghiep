@@ -16,8 +16,8 @@ const setting: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/setting/stores",
@@ -29,8 +29,8 @@ const setting: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/setting/printers",
@@ -42,8 +42,8 @@ const setting: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/setting/roles",
@@ -55,8 +55,8 @@ const setting: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   }
 ]
 

@@ -13,15 +13,15 @@ type ContainerProps = {
   title: string,
   header?: React.ReactNode
   children: React.ReactNode
-  isShowCreate: boolean,
-  pathCreate: string 
+  type: number,
+  object: any 
 }
 
 const SplashScreen = React.lazy(() => import ('screens/splash.screen'));
 
 const {Content} = Layout;
 const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
-  const {title, children, isShowCreate, pathCreate} = props;
+  const {title, children, type, object} = props;
   const dispatch = useDispatch();
   const history = useHistory();
   const { location } = history;
@@ -51,7 +51,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
         <Layout style={{
           backgroundColor: '#F4F4F7',
         }}>
-          <HeaderContainer isShowCreate={isShowCreate} pathCreate={pathCreate} path={location.pathname} title={title} />
+          <HeaderContainer type={type} object={object} path={location.pathname} title={title} />
           <Content style={{
             paddingLeft: 30,
             paddingRight: 30,

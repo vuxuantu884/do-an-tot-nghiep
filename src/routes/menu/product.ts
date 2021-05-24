@@ -1,5 +1,6 @@
 import React from 'react';
 import { RouteMenu } from "model/other";
+import { HEADER_TYPE } from 'component/container/header.container';
 
 
 const Category = React.lazy(() => import ("screens/product/category.screen"));
@@ -21,8 +22,8 @@ const product: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/products/categories",
@@ -44,12 +45,14 @@ const product: Array<RouteMenu> = [
         isShow: false,
         header: null,
         subMenu: [],
-        isShowCreate: false,
-        pathCreate: ''
+        type: 0,
+        object: null,
       }
     ],
-    isShowCreate: true,
-    pathCreate: '/products/categories/create'
+    type: HEADER_TYPE.BUTTON_CREATE,
+    object: {
+      pathCreate: '/products/categories/create'
+    },
   },
   {
     path: "/products/materials",
@@ -61,8 +64,8 @@ const product: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/products/sizes",
@@ -74,8 +77,8 @@ const product: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/products/colors",
@@ -87,8 +90,8 @@ const product: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/products/suppliers",
@@ -100,8 +103,8 @@ const product: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   }
 ]
 

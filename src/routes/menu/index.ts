@@ -2,6 +2,7 @@ import React from 'react';
 import { RouteMenu } from "model/other";
 import setting from './setting';
 import product from './product';
+import bill from './bill';
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/product"));
@@ -18,8 +19,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/products",
@@ -31,8 +32,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: product,
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/inventory",
@@ -44,8 +45,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/sale",
@@ -57,21 +58,21 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/bill",
     exact: true,
-    title: "Bán hàng",
+    title: "Đơn hàng",
     icon: 'icon-order',
     component: Inventory,
     key: "5",
     isShow: true,
     header: null,
-    subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    subMenu: bill,
+    type: 0,
+    object: null,
   },
   {
     path: "/customer",
@@ -83,8 +84,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/promotion",
@@ -96,8 +97,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/report",
@@ -109,8 +110,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
   {
     path: "/setting",
@@ -122,8 +123,8 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: setting,
-    isShowCreate: false,
-    pathCreate: ''
+    type: 0,
+    object: null,
   },
 ]
 
