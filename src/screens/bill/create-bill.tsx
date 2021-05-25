@@ -1,7 +1,16 @@
-import {Button, Select, Card, Divider, Input, Radio, Table, Row, Col, AutoComplete, Space} from "antd";
+import {Button, Select, Card, Divider, Checkbox, Input, Radio, Table, Row, Col, AutoComplete, Space, Typography} from "antd";
 import {Link} from "react-router-dom";
 import React from "react";
 import documentIcon from "../../assets/img/document.svg";
+import bithdayIcon from 'assets/img/bithday.svg';
+import editBlueIcon from 'assets/img/editBlue.svg';
+import deleteRedIcon from 'assets/img/deleteRed.svg';
+import pointIcon from 'assets/img/point.svg';
+import storeBluecon from 'assets/img/storeBlue.svg';
+import dhlIcon from 'assets/img/ghtk.svg';
+import ghtkIcon from 'assets/img/dhl.svg';
+import callIcon from 'assets/img/call.svg';
+import locationIcon from 'assets/img/location.svg';
 import peopleIcon from 'assets/img/people.svg';
 import truckIcon from 'assets/img/truck.svg';
 import walletIcon from 'assets/img/wallet.svg';
@@ -9,9 +18,43 @@ import productIcon from 'assets/img/cube.svg';
 import plusBlueIcon from 'assets/img/plus-blue.svg';
 import arrowDownIcon from 'assets/img/drow-down.svg';
 import warningCircleIcon from 'assets/img/warning-circle.svg';
-import {  SearchOutlined } from '@ant-design/icons';
+import {  SearchOutlined, ArrowRightOutlined } from '@ant-design/icons';
 
 const CreateBill = () => {
+
+  const dataSource = [
+    {
+      key: '1',
+      name: 'Mike',
+      age: 32,
+      address: '10 Downing Street',
+    },
+    {
+      key: '2',
+      name: 'John',
+      age: 42,
+      address: '10 Downing Street',
+    },
+  ];
+
+  const columns = [
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Age',
+      dataIndex: 'age',
+      key: 'age',
+    },
+    {
+      title: 'Address',
+      dataIndex: 'address',
+      key: 'address',
+    },
+  ];
+
   return (
     <div>
       <Row gutter={24}>
@@ -30,7 +73,7 @@ const CreateBill = () => {
                   </div>
                 }>
 
-            <div className="form-group form-group-with-search">
+            <div className="form-group form-group-with-search form-search-customer">
               <label htmlFor="" className="">Tên khách hàng</label>
               <div>
                 <AutoComplete>
@@ -43,13 +86,180 @@ const CreateBill = () => {
                 </AutoComplete>
               </div>
             </div>
+
+            <Row align="middle" justify="space-between" className="row-customer-detail">
+              <Row align="middle" className="customer-detail-name">
+                <Space>
+                  <span className="cdn-avatar"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"> <circle opacity="0.2" cx="16" cy="16" r="16" fill="#6966FF"/> <path d="M12.853 22L13.8132 19.1307H18.1882L19.1541 22H21.4041L17.3018 10.3636H14.6996L10.603 22H12.853ZM14.3814 17.4375L15.9553 12.75H16.0462L17.62 17.4375H14.3814Z" fill="#6C449F"/> </svg></span>
+                  <span >Đỗ Nguyệt Anh</span>
+                  <span className="cdn-level">VIP D</span>
+                </Space>
+
+              </Row>
+              <Space className="customer-detail-phone">
+                <span className="customer-detail-icon">
+                  <img src={callIcon} alt=""/>
+                </span>
+                <span className="customer-detail-text">0986868686</span>
+              </Space>
+              <Space className="customer-detail-point">
+                <span className="customer-detail-icon">
+                  <img src={pointIcon} alt=""/>
+                </span>
+                <span className="customer-detail-text">
+                  Tổng điểm <Typography.Text type="success" strong>1230</Typography.Text>
+                </span>
+              </Space>
+              <Space className="customer-detail-birthday">
+                <span className="customer-detail-icon">
+                  <img src={bithdayIcon} alt=""/>
+                </span>
+                <span className="customer-detail-text">25/04/1994</span>
+              </Space>
+              <Space className="customer-detail-action">
+                <Button type="text" className="p-0"><img src={editBlueIcon} alt=""/></Button>
+                <Button type="text" className="p-0"><img src={deleteRedIcon} alt=""/></Button>
+              </Space>
+            </Row>
+
+            <Divider/>
+
+            <div className="customer-info">
+              <Row gutter={24}>
+                <Col xs={24} lg={12} className="font-weight-500 customer-info-left">
+                  <div>Địa chỉ giao hàng</div>
+                  <Row className="customer-row-info">
+                    <img src={peopleIcon} alt="" style={{ width: 19 }} /> <span style={{ marginLeft: 9 }}>Na</span>
+                  </Row>
+                  <Row className="customer-row-info">
+                    <img src={callIcon} alt=""/> <span>0986868686</span>
+                  </Row>
+                  <Row className="customer-row-info">
+                    <img src={locationIcon} alt=""/> <span>YODY hub, Dưới chân cầu An Định, Tp. Hải Dương</span>
+                  </Row>
+                  <Row>
+                    <Button type="link" className="p-0 m-0">Thay đổi địa chỉ giao hàng</Button>
+                  </Row>
+                </Col>
+                <Col xs={24} lg={12} className="font-weight-500">
+                  <div className="form-group form-group-with-search">
+                    <div>
+                      <label htmlFor="" className="">Ghi chú của khách hàng</label>
+                    </div>
+                    <Input.TextArea placeholder="Điền ghi chú" rows={4} />
+                  </div>
+                </Col>
+              </Row>
+
+              <Divider/>
+
+              <div className="send-order-box">
+                <Row style={{ marginBottom: 15 }}>
+                  <Checkbox className="checkbox-style" checked onChange={() => console.log(1)}>Gửi hoá đơn</Checkbox>
+                </Row>
+                <Row gutter={24}>
+                  <Col xs={24} lg={12} className="font-weight-500 customer-info-left">
+                    <div>Địa chỉ gửi hoá đơn</div>
+                    <Row className="customer-row-info">
+                      <img src={peopleIcon} alt="" style={{ width: 19 }} /> <span style={{ marginLeft: 9 }}>Na</span>
+                    </Row>
+                    <Row className="customer-row-info">
+                      <img src={callIcon} alt=""/> <span>0986868686</span>
+                    </Row>
+                    <Row className="customer-row-info">
+                      <img src={locationIcon} alt=""/> <span>YODY hub, Dưới chân cầu An Định, Tp. Hải Dương</span>
+                    </Row>
+                    <Row>
+                      <Button type="link" className="p-0 m-0">Thay đổi địa chỉ gửi hoá đơn</Button>
+                    </Row>
+                  </Col>
+                  <Col xs={24} lg={12} className="font-weight-500">
+                    <div className="form-group form-group-with-search">
+                      <div>
+                        <label htmlFor="" className="">Email hoá đơn đến</label>
+                      </div>
+                      <Input placeholder="Nhập email hoá đơn đến" />
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+
           </Card>
           {/*--- end customer ---*/}
 
-          <Card className="card-block"
+          <Card className="card-block sale-online-product"
                 title={<div className="d-flex"><img src={productIcon} alt="" /> Sản phẩm</div>}
-                extra={<a href="#">More</a>}>
-            <p>Card content</p>
+                extra={
+                  <Row>
+                    <Space>
+                      <Space>
+                        <Checkbox className="checkbox-style" style={{ fontSize: 14 }}
+                                  onChange={() => console.log(1)}>Tách dòng</Checkbox>
+                      </Space>
+                      <Space>
+                        <label htmlFor="">Chính sách giá</label>
+                        <Select defaultValue="1" style={{ width: 130 }}>
+                          <Select.Option value="1">Giá bán lẻ</Select.Option>
+                          <Select.Option value="2">Giá bán buôn</Select.Option>
+                        </Select>
+                      </Space>
+                      <Button type="link" style={{ paddingRight: 0 }}>
+                        <img src={storeBluecon} alt=""/>
+                        Xem tồn
+                        <ArrowRightOutlined />
+                      </Button>
+                    </Space>
+                  </Row>
+                }>
+            <Row gutter={24}>
+              <Col xs={24} lg={8}>
+                <div className="form-group form-group-with-search">
+                  <label htmlFor="" className="">Cửa hàng</label>
+                  {/*<Input placeholder="Chuyển Khoản"*/}
+                  {/*       suffix={<img src={arrowDownIcon} alt="down" />}*/}
+                  {/*/>*/}
+
+                  <Select className="select-with-search" showSearch
+                          style={{ width: '100%' }}
+                          placeholder=""
+                  >
+                    <Select.Option value="1">YODY Kho Online</Select.Option>
+                    <Select.Option value="2">YODY Tứ Kỳ</Select.Option>
+                    <Select.Option value="3">YODY Nam Sách</Select.Option>
+                    <Select.Option value="4">YODY Hải Dương</Select.Option>
+                  </Select>
+                </div>
+              </Col>
+              <Col xs={24} lg={16}>
+                <div className="form-group form-group-with-search">
+                  <label htmlFor="" className="">Sản phẩm</label>
+                  <div>
+                    <AutoComplete>
+                      <Input
+                        placeholder="Tìm sản phẩm/ SKU/ mã vạch (F3)"
+                        prefix={<SearchOutlined style={{ color: '#ABB4BD' }} />}
+                      />
+                    </AutoComplete>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+
+            <Row className="sale-product-box">
+              <Table
+                locale={{
+                  emptyText: 'Không có sản phẩm'
+                }}
+                className="sale-product-box-table"
+                // rowKey={(record) => record.id}
+                dataSource={dataSource}
+                tableLayout="fixed"
+                columns={columns}
+                pagination={false}
+                // scroll={{ y: 300 }} sticky
+              />
+            </Row>
           </Card>
 
           <Card className="card-block card-block-normal"
@@ -120,17 +330,14 @@ const CreateBill = () => {
                     {/*       suffix={<img src={arrowDownIcon} alt="down" />}*/}
                     {/*/>*/}
 
-                    <Select
-                      showSearch
+                    <Select className="select-with-search" showSearch
                       style={{ width: '100%' }}
                       placeholder=""
                     >
-                      <Select.Option value="1">Not Identified</Select.Option>
-                      <Select.Option value="2">Closed</Select.Option>
+                      <Select.Option value="1">Chuyển khoản</Select.Option>
+                      <Select.Option value="2">COD</Select.Option>
                       <Select.Option value="3">Communicated</Select.Option>
                       <Select.Option value="4">Identified</Select.Option>
-                      <Select.Option value="5">Resolved</Select.Option>
-                      <Select.Option value="6">Cancelled</Select.Option>
                     </Select>
                   </div>
                 </Col>

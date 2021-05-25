@@ -23,11 +23,23 @@ $primary-color-blue: #2A2A86;
   box-shadow: unset;
 }
 
+.ant-select {
+  &:not(.ant-select-customize-input) {
+    .ant-select-selector {
+      border-radius: 5px;
+    }
+  }
+}
+
 .yody-header {
   padding: 18px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  background: rgb(244, 244, 247);
   .yody-title {
     font-family: Inter;
     font-style: normal;
@@ -57,7 +69,7 @@ $primary-color-blue: #2A2A86;
   }
 }
 .yody-menu {
-  height: calc(100% - 86px);
+  //height: calc(100% - 86px);
   overflow: hidden;
   overflow-y: auto;
   .ant-menu-item {
@@ -233,6 +245,7 @@ $primary-color-blue: #2A2A86;
   .ant-card-extra {
     label {
       margin-right: 10px;
+      font-size: 13px;
     }
   }
 }
@@ -266,11 +279,13 @@ $primary-color-blue: #2A2A86;
   .ant-select {
     width: 100%;
   }
-  .ant-select-selector {
-    border-radius: 5px !important;
-    border-color: #CFDCE9 !important;
-    padding: 2px 11px !important;
-    height: auto !important;
+  .select-with-search {
+    .ant-select-selector {
+      border-radius: 5px !important;
+      border-color: #CFDCE9 !important;
+      padding: 2px 11px !important;
+      height: auto !important;
+    }
   }
 }
 
@@ -320,4 +335,43 @@ $primary-color-blue: #2A2A86;
 
 .ant-divider-horizontal {
   margin: 19px 0;
+}
+
+.checkbox-style {
+  .ant-checkbox-inner {
+    border: 2px solid #d9d9d9;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.customer-info-left {
+  &>.ant-row {
+    margin-top: 13px;
+  }
+  .customer-row-info {
+    img {
+      width: 15px;
+    }
+    span {
+      margin-left: 13px;
+    }
+  }
+}
+
+.row-customer-detail {
+  .cdn-level {
+    background: rgba(93, 95, 239, 0.1);
+    color: #5D5FEF;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 10px;
+  }
+}
+
+.sale-online-product {
+  .ant-space-item {
+    height: 100%;
+  }
 }
