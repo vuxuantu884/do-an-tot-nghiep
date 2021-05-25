@@ -1,7 +1,8 @@
 import { delay, put, takeLatest } from "@redux-saga/core/effects";
-import { loginSuccessAction } from "domain/actions/auth.action";
+import { loginSuccessAction, logoutSuccessAction } from "domain/actions/auth.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { AuthType } from 'domain/types/auth.type';
-import { setToken } from "utils/LocalStorageUtils";
+import { removeToken, setToken } from "utils/LocalStorageUtils";
 
 function* loginSaga() {
   //TODO: call api login
@@ -11,6 +12,16 @@ function* loginSaga() {
   yield put(loginSuccessAction());
 }
 
+function* logoutSaga() {
+  yield put(showLoading());
+  yield removeToken();
+  //TODO: LOGOUT IN SERVER
+  yield delay(1000);
+  yield put(hideLoading());
+  yield put(logoutSuccessAction())
+}
+
 export function* authSaga() {
   yield takeLatest(AuthType.LOGIN_REQUEST, loginSaga)
+  yield takeLatest(AuthType.LOGOUT_REQUEST, logoutSaga)
 }
