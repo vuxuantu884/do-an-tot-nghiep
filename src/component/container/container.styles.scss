@@ -57,7 +57,7 @@ $primary-color-blue: #2A2A86;
   }
 }
 .yody-menu {
-  height: calc(100% - 86px);
+  height: calc(100% - 86px - 86px);
   overflow: hidden;
   overflow-y: auto;
   .ant-menu-item {
@@ -73,7 +73,6 @@ $primary-color-blue: #2A2A86;
       color: #95A1AC;
     }
   }
-  
   .ant-menu-item-selected {
     a {
       color: #2A2A86;
@@ -137,6 +136,51 @@ $primary-color-blue: #2A2A86;
     }
   }
 }
+
+.view-avatar {
+  padding: 24px 0px;
+  height: 88px;
+  box-shadow: 0 0 2px 1px #eee;
+  display: flex;
+  .menu-info {
+    width: 100%;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    height: auto;
+    color: #737373;
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #737373;
+    }
+    .right-avatar {
+      width: 100%;
+      margin-left: 12px;
+      display: flex;
+      flex-direction: column;
+      .t-name {
+        font-family: Inter;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 12px;
+        line-height: 15px;
+        color: #686868;
+      }
+      .t-position {
+        margin-top: 5px;
+        font-family: Inter;
+        font-style: normal;
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 15px;
+        color: #404040;
+      }
+    }
+  }
+}
+
 
 .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
   background-color: #F3F3F7;
