@@ -1,4 +1,4 @@
-import {Button, Card, Form, Input, Radio, Table, Row, Col, AutoComplete, Space} from "antd";
+import {Button, Select, Card, Divider, Input, Radio, Table, Row, Col, AutoComplete, Space} from "antd";
 import {Link} from "react-router-dom";
 import React from "react";
 import documentIcon from "../../assets/img/document.svg";
@@ -83,6 +83,16 @@ const CreateBill = () => {
                 </div>
               </Col>
             </Row>
+
+            <Divider/>
+
+            <Row>
+              <div className="form-group form-group-with-search">
+                <label htmlFor="" className="">Phí ship báo khách</label>
+                <Input placeholder="" alt="down"/>
+              </div>
+            </Row>
+
           </Card>
 
           <Card className="card-block card-block-normal"
@@ -99,14 +109,29 @@ const CreateBill = () => {
               </div>
             </div>
 
+            <Divider/>
+
             <div className="payment-method-content">
               <Row gutter={24}>
                 <Col xs={24} lg={12}>
                   <div className="form-group form-group-with-search">
                     <label htmlFor="" className="">Hình thức thanh toán</label>
-                    <Input placeholder="Chuyển Khoản"
-                           suffix={<img src={arrowDownIcon} alt="down" />}
-                    />
+                    {/*<Input placeholder="Chuyển Khoản"*/}
+                    {/*       suffix={<img src={arrowDownIcon} alt="down" />}*/}
+                    {/*/>*/}
+
+                    <Select
+                      showSearch
+                      style={{ width: '100%' }}
+                      placeholder=""
+                    >
+                      <Select.Option value="1">Not Identified</Select.Option>
+                      <Select.Option value="2">Closed</Select.Option>
+                      <Select.Option value="3">Communicated</Select.Option>
+                      <Select.Option value="4">Identified</Select.Option>
+                      <Select.Option value="5">Resolved</Select.Option>
+                      <Select.Option value="6">Cancelled</Select.Option>
+                    </Select>
                   </div>
                 </Col>
                 <Col xs={24} lg={12}>

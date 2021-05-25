@@ -266,6 +266,12 @@ $primary-color-blue: #2A2A86;
   .ant-select {
     width: 100%;
   }
+  .ant-select-selector {
+    border-radius: 5px !important;
+    border-color: #CFDCE9 !important;
+    padding: 2px 11px !important;
+    height: auto !important;
+  }
 }
 
 .form-group-with-search {
@@ -312,6 +318,6 @@ $primary-color-blue: #2A2A86;
   margin: 15px 0;
 }
 
-.payment-method-content {
-  margin-top: 20px;
+.ant-divider-horizontal {
+  margin: 19px 0;
 }
