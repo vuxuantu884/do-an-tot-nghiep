@@ -10,6 +10,34 @@ $primary-color-blue: #2A2A86;
   font-family: Inter;
 }
 
+.d-flex {
+  display: flex;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.m-0 {
+  margin: 0 !important;
+}
+
+.mb-0 {
+  margin-bottom: 0 !important;
+}
+
+.mt-0 {
+  margin-top: 0 !important;
+}
+
+.p-0 {
+  padding: 0 !important;
+}
+
 .notfound{
   position: fixed;
   display: flex;

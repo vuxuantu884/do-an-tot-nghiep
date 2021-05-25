@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom';
 import menu from 'routes/menu';
 import {getListBreadcumb} from 'utils/AppUtils';
 import ButtonCreate from 'component/header/ButtonCreate';
+import CreateBillStep from 'component/header/create-bill-step';
+import { HEADER_TYPE } from 'config/HeaderConfig';
 
 type HeaderContainerProps = {
-  isShowCreate: boolean
-  pathCreate: string 
+  type: number
+  object: any
   path: string
   title: string
 }
@@ -42,9 +44,14 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
           </Breadcrumb>
         </div>
         <div>
-          {props.isShowCreate && (
-            <ButtonCreate path={props.pathCreate} />
+          {props.type === HEADER_TYPE.BUTTON_CREATE && (
+            <ButtonCreate path={props.object.pathCreate} />
           )}
+          {
+            props.type === HEADER_TYPE.STEP && (
+              <CreateBillStep />
+            )
+          }
         </div>
       </Header>
     </React.Fragment>

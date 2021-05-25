@@ -1,5 +1,28 @@
 $primary-color-blue: #2A2A86;
 
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E1E1EE;
+}
+
+//.ant-input-affix-wrapper {
+//  border-radius: 5px;
+//}
+
+.required-label:after {
+  content: "*";
+  color: red;
+  margin-left: 5px;
+}
+
+.ant-input-affix-wrapper, .ant-input-search .ant-input:focus, .ant-input-search .ant-input:hover {
+  border-color: unset;
+  box-shadow: unset;
+}
+
 .yody-header {
   padding: 18px 30px;
   display: flex;
@@ -36,7 +59,7 @@ $primary-color-blue: #2A2A86;
 .yody-menu {
   height: calc(100% - 86px);
   overflow: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   .ant-menu-item {
     align-items: center;
     display: flex;
@@ -183,4 +206,112 @@ $primary-color-blue: #2A2A86;
     border: none;
     color: $primary-color-blue;
   }
+}
+
+.ant-breadcrumb {
+  font-size: 12px;
+  span:last-child {
+    color: $primary-color-blue;
+  }
+}
+
+.ant-steps-item {
+  .ant-steps-item-title {
+    font-size: 12px;
+  }
+}
+
+.card-block {
+  margin-bottom: 15px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px 1px #eee;
+  .ant-card-head-title {
+    img {
+      margin-right: 5px;
+    }
+  }
+  .ant-card-extra {
+    label {
+      margin-right: 10px;
+    }
+  }
+}
+
+.card-block:not(.card-block-normal) {
+  .ant-card-head-title, .ant-card-extra {
+    padding: 10px 0;
+  }
+}
+
+.form-group {
+  margin-bottom: 15px;
+  >.ant-input, >textarea {
+    border-radius: 5px;
+    border-color: #CFDCE9;
+    padding: 6px 11px;
+  }
+  label {
+    margin-bottom: 5px;
+    display: inline-block;
+    color: #4F687D;
+    font-size: 13px;
+  }
+  .ant-input-affix-wrapper {
+    border: 1px solid #CFDCE9;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding: 6px 11px;
+  }
+  .ant-select {
+    width: 100%;
+  }
+}
+
+.form-group-with-search {
+  button {
+    background: #D9D9E4;
+    border-radius: 5px !important;
+    padding: 0 9px;
+    margin: 2px 0;
+  }
+  .ant-input-search {
+    .ant-input-group {
+      border: 1px solid #CFDCE9;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      .ant-input-affix-wrapper {
+        border: 0;
+        width: calc(100% - 35px);
+      }
+    }
+  }
+}
+
+.btn-cancel, .btn-save {
+  font-weight: 500;
+  padding: 8px 15px;
+  min-width: 90px;
+  border-radius: 6px;
+  height: auto;
+}
+
+.btn-cancel {
+  margin-right: 12px;
+  background: rgba(42, 42, 134, .05);
+  border-color: rgba(42, 42, 134, .05);
+}
+
+.btn-save {
+  background: $primary-color-blue;
+  color: #fff;
+}
+
+.footer-row-btn {
+  margin: 15px 0;
+}
+
+.payment-method-content {
+  margin-top: 20px;
 }
