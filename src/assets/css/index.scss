@@ -112,3 +112,26 @@ $primary-color-blue: #2A2A86;
     border-color:$primary-color-blue;
   }
 }
+
+.yody-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  .yody-pagination-bold {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 17px;
+    color: #393939;
+  }
+}
+.yody-pagination-text {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 17px;
+  color: #808080;
+}

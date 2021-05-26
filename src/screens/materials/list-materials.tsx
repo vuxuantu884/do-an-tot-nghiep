@@ -4,11 +4,12 @@ import { Link, Redirect } from "react-router-dom";
 import search from 'assets/img/search.svg';
 import {MaterialResponse} from 'model/response/product/material.response';
 import ButtonSetting from "component/table/ButtonSetting";
-import { useQuery } from "utils/useQuery";
+import { getQueryParams, useQuery } from "utils/useQuery";
 import { PageConfig } from "config/PageConfig";
 import { useDispatch } from "react-redux";
 import { getMaterialAction } from "domain/actions/material.action";
 import { BaseMetadata } from "model/response/base-metadata.response";
+import CustomPagination from "component/table/CustomPagination";
 
 const ListMaterial: React.FC = () => {
   const [data, setData] = useState<Array<MaterialResponse>>([]);
@@ -57,6 +58,9 @@ const ListMaterial: React.FC = () => {
   const sort_column = query.get('sort_column');
   const sort_type = query.get('sort_type');
   const info = query.get('info');
+
+  const params = getQueryParams(query);
+  console.log(params);
 
   const onFinish = useCallback(() => {}, []);
   let limitInt = limit !== null ? parseInt(limit)  : 30;
@@ -120,23 +124,12 @@ const ListMaterial: React.FC = () => {
                   type: "checkbox",
                   columnWidth: 80,
                 }}
-                pagination={{
-                  pageSize: metadata.limit,
-                  total: metadata.total,
-                  current: metadata.page + 1,
-                  showSizeChanger: true,
-                  pageSizeOptions: PageConfig,
-                  showLessItems: true,
-                  showTotal: (total, range) => (
-                    <div>
-                      Hiển thị kết quả: {range[0]}-{range[1]}/{total} kết quả
-                    </div>
-                  )
-                }}
+                pagination={false}
                 dataSource={data}
                 columns={columns}
                 rowKey={(item) => item.id}
               />
+              <CustomPagination metadata={metadata} />
             </React.Fragment>
           )
         }
