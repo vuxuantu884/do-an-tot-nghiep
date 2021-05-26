@@ -1,6 +1,6 @@
 import {Button, Select, Card, Divider, Checkbox, Input, Radio, Table, Row, Col, Dropdown, Menu,
-  Tooltip, AutoComplete, Space, Typography, Descriptions, Popover, Modal, InputNumber} from "antd";
-import React, {useState} from "react";
+  Tooltip, AutoComplete, Space, Typography, Descriptions, Popover, InputNumber} from "antd";
+import React, {useCallback, useState} from "react";
 import documentIcon from "../../assets/img/document.svg";
 import bithdayIcon from 'assets/img/bithday.svg';
 import editBlueIcon from 'assets/img/editBlue.svg';
@@ -20,21 +20,33 @@ import arrowDownIcon from 'assets/img/drow-down.svg';
 import warningCircleIcon from 'assets/img/warning-circle.svg';
 import {  SearchOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { formatCurrency, replaceFormat } from "../../utils/AppUtils";
+import AddAddressModal from "./component/addAddressModal";
+import EditCustomerModal from "./component/editCustomerModal";
+import discountGroup from "./component/discountGroup";
+import DiscountGroup from "./component/discountGroup";
 
 const CreateBill = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
+  const [isVisibleAddress, setVisibleAddress] = useState(false);
   const showAddressModal = () => {
-    setIsModalVisible(true);
+    setVisibleAddress(true);
   };
+  const onCancleConfirmAddress = useCallback(() => {
+    setVisibleAddress(false);
+  }, []);
+  const onOkConfirmAddress = useCallback(() => {
+    setVisibleAddress(false);
+  }, []);
 
-  const saveAddressModal = () => {
-    setIsModalVisible(false);
+  const [isVisibleCustomer, setVisibleCustomer] = useState(false);
+  const showCustomerModal = () => {
+    setVisibleCustomer(true);
   };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
+  const onCancleConfirmCustomer = useCallback(() => {
+    setVisibleCustomer(false);
+  }, []);
+  const onOkConfirmCustomer = useCallback(() => {
+    setVisibleCustomer(false);
+  }, []);
 
   const OrderItemModel = [
     {}
@@ -43,7 +55,7 @@ const CreateBill = () => {
   const ProductColumn = {
     title: 'Sản phẩm',
     className: 'yody-pos-name',
-    width: 210,
+    // width: 210,
     render: (index: number) => {
       return (
         <div className="w-100" style={{ overflow: 'hidden' }}>
@@ -94,13 +106,13 @@ const CreateBill = () => {
 
   const AmountColumnt = {
     title: () => (
-      <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
-        <span>Số lượng</span>
+      <div>
+        <div>Số lượng</div>
         <span style={{ color: '#0080FF' }}>(3)</span>
       </div>
     ),
     className: 'yody-pos-quantity text-center',
-    width: 80,
+    // width: 80,
     render: (index: number) => {
       return (
         <div className="yody-pos-qtt">
@@ -119,7 +131,7 @@ const CreateBill = () => {
   const PriceColumnt = {
     title: 'Đơn giá',
     className: 'yody-pos-price text-right',
-    width: 100,
+    // width: 100,
     render: (index: number) => {
       return (
         <div className="yody-pos-price">
@@ -138,19 +150,6 @@ const CreateBill = () => {
     }
   };
 
-  const IntoPriceColumnt = {
-    title: 'Thành tiền',
-    width: 100,
-    className: 'yody-pos-amount text-right',
-    render: () => {
-      return (
-        <div>
-          300000
-        </div>
-      )
-    }
-  };
-
   const DiscountColumnt = {
     title: 'Chiết khấu',
     // align: 'center',
@@ -159,10 +158,10 @@ const CreateBill = () => {
     render: (index: number) => {
       return (
         <div className="site-input-group-wrapper">
-          {/*<InputGroupCustom index={index}*/}
-          {/*                  discountRate={getDiscountRate(a.discount_items)}*/}
-          {/*                  discountValue={getDiscountValue(a.discount_items)}*/}
-          {/*                  totalAmount={getAmountDiscount(a.discount_items)} />*/}
+          <DiscountGroup index={index}
+                            discountRate={0}
+                            discountValue={0}
+                            totalAmount={0} />
         </div>
       )
     }
@@ -170,9 +169,8 @@ const CreateBill = () => {
 
   const TotalPriceColumn = {
     title: 'Tổng tiền',
-    // align: 'center',
     className: 'yody-table-total-money text-right',
-    width: 100,
+    // width: 100,
     render: () => {
       return (
         <div>
@@ -184,7 +182,6 @@ const CreateBill = () => {
 
   const ActionColumn = {
     title: 'Thao tác',
-    // align: 'center',
     width: 80,
     className: 'yody-table-action text-center',
     render: (index: number) => {
@@ -209,8 +206,7 @@ const CreateBill = () => {
       )
     }
   };
-  const columns = [ProductColumn, AmountColumnt, PriceColumnt, IntoPriceColumnt, DiscountColumnt, TotalPriceColumn, ActionColumn];
-
+  const columns = [ProductColumn, AmountColumnt, PriceColumnt, DiscountColumnt, TotalPriceColumn, ActionColumn];
 
   return (
     <div>
@@ -251,14 +247,15 @@ const CreateBill = () => {
                   <span >Đỗ Nguyệt Anh</span>
                   <span className="cdn-level">VIP D</span>
                 </Space>
-
               </Row>
+
               <Space className="customer-detail-phone">
                 <span className="customer-detail-icon">
                   <img src={callIcon} alt=""/>
                 </span>
                 <span className="customer-detail-text">0986868686</span>
               </Space>
+
               <Space className="customer-detail-point">
                 <span className="customer-detail-icon">
                   <img src={pointIcon} alt=""/>
@@ -267,14 +264,16 @@ const CreateBill = () => {
                   Tổng điểm <Typography.Text type="success" strong>1230</Typography.Text>
                 </span>
               </Space>
+
               <Space className="customer-detail-birthday">
                 <span className="customer-detail-icon">
                   <img src={bithdayIcon} alt=""/>
                 </span>
                 <span className="customer-detail-text">25/04/1994</span>
               </Space>
+
               <Space className="customer-detail-action">
-                <Button type="text" className="p-0"><img src={editBlueIcon} alt=""/></Button>
+                <Button type="text" className="p-0" onClick={showCustomerModal}><img src={editBlueIcon} alt=""/></Button>
                 <Button type="text" className="p-0"><img src={deleteRedIcon} alt=""/></Button>
               </Space>
             </Row>
@@ -342,9 +341,9 @@ const CreateBill = () => {
 
               <div className="send-order-box">
                 <Row style={{ marginBottom: 15 }}>
-                  <Checkbox className="checkbox-style" checked onChange={() => console.log(1)}>Gửi hoá đơn</Checkbox>
+                  <Checkbox className="checkbox-style" onChange={() => console.log(1)}>Gửi hoá đơn</Checkbox>
                 </Row>
-                <Row gutter={24}>
+                <Row gutter={24} hidden={true}>
                   <Col xs={24} lg={12} className="font-weight-500 customer-info-left">
                     <div>Địa chỉ gửi hoá đơn</div>
                     <Row className="row-info customer-row-info">
@@ -575,7 +574,7 @@ const CreateBill = () => {
               </Row>
 
               {/*--- Tự giao hàng ----*/}
-              <Row gutter={24} className="ship-cod" hidden={false}>
+              <Row gutter={24} className="ship-cod" hidden={true}>
                 <Col xs={24} lg={12}>
                   <div className="form-group form-group-with-search form-search-customer">
                     <label htmlFor="" className="">Đối tác giao hàng</label>
@@ -655,8 +654,7 @@ const CreateBill = () => {
           </Card>
 
           <Card className="card-block card-block-normal"
-                title={<div className="d-flex"><img src={walletIcon} alt="" /> Thanh toán</div>}
-          >
+                title={<div className="d-flex"><img src={walletIcon} alt="" /> Thanh toán</div>}>
             <div className="payment-method-radio-list">
               <label htmlFor="" className="required-label"><i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i></label>
               <div style={{ marginTop: 15 }}>
@@ -671,12 +669,6 @@ const CreateBill = () => {
             <Divider/>
 
             <div className="payment-method-content">
-              <Row className="payment-later-box" hidden={true}>
-                <div className="form-group m-0">
-                  <label htmlFor=""><i>Bạn có thể xử lý thanh toán sau khi tạo đơn hàng.</i></label>
-                </div>
-              </Row>
-
               <Row gutter={24} className="payment-cod-box" hidden={false}>
                 <Col xs={24} lg={12}>
                   <div className="form-group form-group-with-search">
@@ -731,6 +723,12 @@ const CreateBill = () => {
                   <Button type="link" className="p-0">Thêm hình thức thanh toán</Button>
                 </Col>
               </Row>
+
+              <Row className="payment-later-box" hidden={true}>
+                <div className="form-group m-0">
+                  <label htmlFor=""><i>Bạn có thể xử lý thanh toán sau khi tạo đơn hàng.</i></label>
+                </div>
+              </Row>
             </div>
 
           </Card>
@@ -746,13 +744,22 @@ const CreateBill = () => {
               />
             </div>
             <div className="form-group form-group-with-search">
-              <div><label htmlFor="" className="">Tham chiếu</label> <span><img src={warningCircleIcon} alt="" /></span></div>
-              <Input placeholder="Điền tham chiếu"
-                suffix={<img src={arrowDownIcon} alt="down" />}
+              <div>
+                <label htmlFor="" className="">Tham chiếu</label>
+                <Tooltip title="Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng" className="tooltip-icon">
+                  <span><img src={warningCircleIcon} alt="" /></span>
+                </Tooltip>
+              </div>
+              <Input placeholder="Điền tham chiếu" suffix={<img src={arrowDownIcon} alt="down" />}
               />
             </div>
             <div className="form-group form-group-with-search mb-0">
-              <div><label htmlFor="" className="">Đường dẫn</label> <span><img src={warningCircleIcon} alt="" /></span></div>
+              <div>
+                <label htmlFor="" className="">Đường dẫn</label>
+                <Tooltip title="Thêm đường dẫn đơn hàng gốc trên kênh bán hàng" className="tooltip-icon">
+                  <span><img src={warningCircleIcon} alt="" /></span>
+                </Tooltip>
+              </div>
               <Input placeholder="Điền đường dẫn"
                 suffix={<img src={arrowDownIcon} alt="down" />}
               />
@@ -762,11 +769,21 @@ const CreateBill = () => {
           <Card className="card-block card-block-normal"
                 title={<div className="d-flex"><img src={documentIcon} alt="" /> Thông tin bổ sung</div>}>
             <div className="form-group form-group-with-search">
-              <div><label htmlFor="" className="">Ghi chú</label> <span><img src={warningCircleIcon} alt="" /></span></div>
+              <div>
+                <label htmlFor="" className="">Ghi chú</label>
+                <Tooltip title="Thêm thông tin ghi chú chăm sóc khách hàng" className="tooltip-icon">
+                  <span><img src={warningCircleIcon} alt="" /></span>
+                </Tooltip>
+              </div>
               <Input.TextArea placeholder="Điền ghi chú" />
             </div>
             <div className="form-group form-group-with-search mb-0">
-              <div><label htmlFor="" className="">Tag</label> <span><img src={warningCircleIcon} alt="" /></span></div>
+              <div>
+                <label htmlFor="" className="">Tag</label>
+                <Tooltip title="Thêm từ khóa để tiện lọc đơn hàng" className="tooltip-icon">
+                  <span><img src={warningCircleIcon} alt="" /></span>
+                </Tooltip>
+              </div>
               <Input placeholder="Thêm tag" />
             </div>
           </Card>
@@ -778,60 +795,8 @@ const CreateBill = () => {
         <Button type="default" className="btn-style btn-save">Lưu</Button>
       </Row>
 
-      <Modal title="Cập nhật địa chỉ" visible={isModalVisible}
-             okText="Lưu" cancelText="Hủy" className="update-shipping"
-             onOk={saveAddressModal} onCancel={handleCancel}>
-        <Row gutter={24}>
-          <Col xs={24} lg={12}>
-            <div className="form-group form-group-with-search">
-              <label htmlFor="" className="required-label">Tên người nhận</label>
-              <Input placeholder="Tên người nhận"
-                     suffix={<img src={arrowDownIcon} alt="down" />}
-              />
-            </div>
-          </Col>
-          <Col xs={24} lg={12}>
-            <div className="form-group form-group-with-search">
-              <label htmlFor="" className="">Khu vực</label>
-              <Select className="select-with-search" showSearch
-                      style={{ width: '100%' }}
-                      placeholder=""
-              >
-                <Select.Option value="1">Thanh Xuân</Select.Option>
-              </Select>
-            </div>
-          </Col>
-          <Col xs={24} lg={12}>
-            <div className="form-group form-group-with-search">
-              <label htmlFor="" className="required-label">Địa chỉ</label>
-              <Input placeholder="Địa chỉ" />
-            </div>
-          </Col>
-          <Col xs={24} lg={12}>
-            <div className="form-group form-group-with-search">
-              <label htmlFor="" className="">Khu vực</label>
-              <Select className="select-with-search" showSearch
-                      style={{ width: '100%' }}
-                      placeholder=""
-              >
-                <Select.Option value="1">Thanh Xuân</Select.Option>
-              </Select>
-            </div>
-          </Col>
-          <Col xs={24} lg={12}>
-            <div className="form-group form-group-with-search mb-0">
-              <label htmlFor="" className="required-label">Số điện thoại</label>
-              <Input placeholder="Số điện thoại" />
-            </div>
-          </Col>
-          <Col xs={24} lg={12}>
-            <div className="form-group form-group-with-search mb-0">
-              <label htmlFor="" className="required-label">Số điện thoại khác có thể gọi</label>
-              <Input placeholder="Nhập số điện thoại" />
-            </div>
-          </Col>
-        </Row>
-      </Modal>
+      <AddAddressModal visible={isVisibleAddress} onCancel={onCancleConfirmAddress} onOk={onOkConfirmAddress} />
+      <EditCustomerModal visible={isVisibleCustomer} onCancel={onCancleConfirmCustomer} onOk={onOkConfirmCustomer} />
     </div>
   )
 }

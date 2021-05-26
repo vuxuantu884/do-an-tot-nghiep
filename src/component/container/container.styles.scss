@@ -453,6 +453,14 @@ $primary-color-blue: #2A2A86;
 //  text-align: left;
 //}
 
+.sale-product-box {
+  .ant-table-thead {
+    >tr>th {
+      font-weight: 400;
+    }
+  }
+}
+
 .sale-product-box-payment {
   margin-top: 19px;
   button {
@@ -484,4 +492,12 @@ $primary-color-blue: #2A2A86;
     color: #0080FF;
     margin-left: 5px;
   }
+}
+
+.tooltip-icon {
+  margin-left: 5px;
+}
+
+.update-customer-modal {
+  min-width: 800px;
 }
