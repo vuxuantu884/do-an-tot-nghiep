@@ -22,7 +22,6 @@ import {  SearchOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { formatCurrency, replaceFormat } from "../../utils/AppUtils";
 import AddAddressModal from "./component/addAddressModal";
 import EditCustomerModal from "./component/editCustomerModal";
-import discountGroup from "./component/discountGroup";
 import DiscountGroup from "./component/discountGroup";
 
 const CreateBill = () => {
@@ -47,6 +46,11 @@ const CreateBill = () => {
   const onOkConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
+
+  const [isVisibleBilling, setVisibleBilling] = useState(true);
+  const showBillingAddress = () => {
+    setVisibleBilling(!isVisibleBilling);
+  };
 
   const OrderItemModel = [
     {}
@@ -341,9 +345,9 @@ const CreateBill = () => {
 
               <div className="send-order-box">
                 <Row style={{ marginBottom: 15 }}>
-                  <Checkbox className="checkbox-style" onChange={() => console.log(1)}>Gửi hoá đơn</Checkbox>
+                  <Checkbox className="checkbox-style" onChange={showBillingAddress}>Gửi hoá đơn</Checkbox>
                 </Row>
-                <Row gutter={24} hidden={true}>
+                <Row gutter={24} hidden={isVisibleBilling}>
                   <Col xs={24} lg={12} className="font-weight-500 customer-info-left">
                     <div>Địa chỉ gửi hoá đơn</div>
                     <Row className="row-info customer-row-info">

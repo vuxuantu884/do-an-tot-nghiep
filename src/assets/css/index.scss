@@ -1,7 +1,26 @@
 @import url('https://fonts.googleapis.com/css?family=Inter:ital,wght@0,100;0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
 
 $primary-color-blue: #2A2A86;
+$mobile-width: 991px;
+$tablet-width: 992px;
+$desktop-width: 1400px;
 
+@mixin mobile {
+  @media (max-width: #{$mobile-width}) {
+    @content;
+  }
+}
+
+@mixin tablet { @media (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 1px}) {
+  @content;
+}
+}
+
+@mixin desktop {
+  @media (min-width: #{$desktop-width}) {
+    @content;
+  }
+}
 
 * {
   margin: 0;
@@ -118,6 +137,9 @@ $primary-color-blue: #2A2A86;
 
 .ant-layout-sider {
   background-color: #fff;
+  @include mobile {
+    display: none;
+  }
 }
 
 .ant-btn-primary {

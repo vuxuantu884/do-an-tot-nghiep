@@ -1,4 +1,24 @@
 $primary-color-blue: #2A2A86;
+$mobile-width: 991px;
+$tablet-width: 992px;
+$desktop-width: 1400px;
+
+@mixin mobile {
+  @media (max-width: #{$mobile-width}) {
+    @content;
+  }
+}
+
+@mixin tablet { @media (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 1px}) {
+  @content;
+}
+}
+
+@mixin desktop {
+  @media (min-width: #{$desktop-width}) {
+    @content;
+  }
+}
 
 ::-webkit-scrollbar {
   width: 7px;
@@ -40,6 +60,9 @@ $primary-color-blue: #2A2A86;
   top: 0;
   z-index: 9;
   background: rgb(244, 244, 247);
+  @include mobile {
+    flex-wrap: wrap;
+  }
   .yody-title {
     font-family: Inter;
     font-style: normal;
