@@ -46,6 +46,16 @@ $primary-color-blue: #2A2A86;
   width: 100%;
 }
 
+.text-right {
+  text-align: right;
+}
+
+.ant-input-number.hide-handler-wrap {
+  .ant-input-number-handler-wrap {
+    display: none;
+  }
+}
+
 .notfound{
   position: fixed;
   display: flex;

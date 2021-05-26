@@ -1,6 +1,6 @@
-import {Button, Select, Card, Divider, Checkbox, Input, Radio, Table, Row, Col, AutoComplete, Space, Typography} from "antd";
-import {Link} from "react-router-dom";
-import React from "react";
+import {Button, Select, Card, Divider, Checkbox, Input, Radio, Table, Row, Col, Dropdown, Menu,
+  Tooltip, AutoComplete, Space, Typography, Descriptions, Popover, Modal, InputNumber} from "antd";
+import React, {useState} from "react";
 import documentIcon from "../../assets/img/document.svg";
 import bithdayIcon from 'assets/img/bithday.svg';
 import editBlueIcon from 'assets/img/editBlue.svg';
@@ -19,41 +19,198 @@ import plusBlueIcon from 'assets/img/plus-blue.svg';
 import arrowDownIcon from 'assets/img/drow-down.svg';
 import warningCircleIcon from 'assets/img/warning-circle.svg';
 import {  SearchOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { formatCurrency, replaceFormat } from "../../utils/AppUtils";
 
 const CreateBill = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const dataSource = [
-    {
-      key: '1',
-      name: 'Mike',
-      age: 32,
-      address: '10 Downing Street',
-    },
-    {
-      key: '2',
-      name: 'John',
-      age: 42,
-      address: '10 Downing Street',
-    },
+  const showAddressModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const saveAddressModal = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const OrderItemModel = [
+    {}
   ];
 
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
-      key: 'age',
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
-    },
-  ];
+  const ProductColumn = {
+    title: 'Sản phẩm',
+    className: 'yody-pos-name',
+    width: 210,
+    render: (index: number) => {
+      return (
+        <div className="w-100" style={{ overflow: 'hidden' }}>
+          <div className="d-flex align-items-center">
+            <Button onClick={() => console.log(1)} className="yody-pos-delete-item">
+              <img src={deleteRedIcon} alt="" />
+            </Button>
+            <div style={{ width: 'calc(100% - 32px)' }}>
+              <div className="yody-pos-sku"><Typography.Link>APN3340 - XXA - XL</Typography.Link></div>
+              <div className="yody-pos-varian">
+                <Tooltip title="Polo mắt chim nữ - xanh xám - XL" className="yody-pos-varian-name">
+                  <span>Polo mắt chim nữ - xanh xám - XL</span>
+                </Tooltip>
+                {/*<Button hidden={!(!a.show_note && a.note === '')} type="text" className="text-primary text-add-note" onClick={() => {*/}
+                {/*  window.requestAnimationFrame(() => setFocus(index));*/}
+                {/*  dispatch(showNoteAction(index))}}>Thêm ghi chú</Button>*/}
+              </div>
+            </div>
+          </div>
+
+          {/*{*/}
+          {/*  a.gifts.map((a, index1) => (*/}
+          {/*    <div key={index1} className="yody-pos-addition yody-pos-gift">*/}
+          {/*      <div><img src={giftIcon} alt=""/> {a.variant} <span>({a.quantity})</span></div>*/}
+          {/*    </div>*/}
+          {/*  ))*/}
+          {/*}*/}
+
+          {/*<div className="yody-pos-note" hidden={!a.show_note && a.note === ''}>*/}
+          {/*  <Input*/}
+          {/*    addonBefore={<EditOutlined />}*/}
+          {/*    maxLength={255}*/}
+          {/*    allowClear={true}*/}
+          {/*    onBlur={() => {*/}
+          {/*      if(a.note === '') {*/}
+          {/*        dispatch(hideNoteAction(index))*/}
+          {/*      }*/}
+          {/*    }}*/}
+          {/*    className="note"*/}
+          {/*    value={a.note}*/}
+          {/*    onChange={(e) => dispatch(onOrderItemNoteChange(index, e.target.value))}*/}
+          {/*    placeholder="Ghi chú" />*/}
+          {/*</div>*/}
+        </div>
+      )
+    }
+  };
+
+  const AmountColumnt = {
+    title: () => (
+      <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
+        <span>Số lượng</span>
+        <span style={{ color: '#0080FF' }}>(3)</span>
+      </div>
+    ),
+    className: 'yody-pos-quantity text-center',
+    width: 80,
+    render: (index: number) => {
+      return (
+        <div className="yody-pos-qtt">
+          <Input
+            onChange={(e) => console.log(1)}
+            value={3}
+            minLength={1}
+            maxLength={4}
+            onFocus={(e) => e.target.select()}
+            style={{ width: 60, textAlign: "right" }} />
+        </div>
+      )
+    }
+  };
+
+  const PriceColumnt = {
+    title: 'Đơn giá',
+    className: 'yody-pos-price text-right',
+    width: 100,
+    render: (index: number) => {
+      return (
+        <div className="yody-pos-price">
+          <InputNumber
+            className="hide-number-handle"
+            min={0}
+            // formatter={value => formatCurrency(value ? value : '0')}
+            // parser={value => replaceFormat(value ? value : '0')}
+            value={100000}
+            onChange={(e) => console.log(1)}
+            onFocus={(e) => e.target.select()}
+            style={{ maxWidth: 100, textAlign: "right" }}
+          />
+        </div>
+      )
+    }
+  };
+
+  const IntoPriceColumnt = {
+    title: 'Thành tiền',
+    width: 100,
+    className: 'yody-pos-amount text-right',
+    render: () => {
+      return (
+        <div>
+          300000
+        </div>
+      )
+    }
+  };
+
+  const DiscountColumnt = {
+    title: 'Chiết khấu',
+    // align: 'center',
+    width: 115,
+    className: 'yody-table-discount text-center',
+    render: (index: number) => {
+      return (
+        <div className="site-input-group-wrapper">
+          {/*<InputGroupCustom index={index}*/}
+          {/*                  discountRate={getDiscountRate(a.discount_items)}*/}
+          {/*                  discountValue={getDiscountValue(a.discount_items)}*/}
+          {/*                  totalAmount={getAmountDiscount(a.discount_items)} />*/}
+        </div>
+      )
+    }
+  };
+
+  const TotalPriceColumn = {
+    title: 'Tổng tiền',
+    // align: 'center',
+    className: 'yody-table-total-money text-right',
+    width: 100,
+    render: () => {
+      return (
+        <div>
+          1000000
+        </div>
+      )
+    }
+  };
+
+  const ActionColumn = {
+    title: 'Thao tác',
+    // align: 'center',
+    width: 80,
+    className: 'yody-table-action text-center',
+    render: (index: number) => {
+      const menu = (
+        <Menu className="yody-line-item-action-menu">
+          <Menu.Item key="0">
+            <Button type="text" className="p-0 m-0 w-100" >Thêm quà tặng</Button>
+          </Menu.Item>
+          <Menu.Item key="1">
+            <Button type="text" className="p-0 m-0 w-100">Thêm ghi chú</Button>
+          </Menu.Item>
+        </Menu>
+      );
+      return (
+        <div className="site-input-group-wrapper">
+          <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
+            <Button type="text" className="ant-dropdown-link circle-button yody-pos-action" onClick={e => console.log(1)}>
+              <img src={arrowDownIcon} alt="" />
+            </Button>
+          </Dropdown>
+        </div>
+      )
+    }
+  };
+  const columns = [ProductColumn, AmountColumnt, PriceColumnt, IntoPriceColumnt, DiscountColumnt, TotalPriceColumn, ActionColumn];
+
 
   return (
     <div>
@@ -128,17 +285,47 @@ const CreateBill = () => {
               <Row gutter={24}>
                 <Col xs={24} lg={12} className="font-weight-500 customer-info-left">
                   <div>Địa chỉ giao hàng</div>
-                  <Row className="customer-row-info">
+                  <Row className="row-info customer-row-info">
                     <img src={peopleIcon} alt="" style={{ width: 19 }} /> <span style={{ marginLeft: 9 }}>Na</span>
                   </Row>
-                  <Row className="customer-row-info">
+                  <Row className="row-info customer-row-info">
                     <img src={callIcon} alt=""/> <span>0986868686</span>
                   </Row>
-                  <Row className="customer-row-info">
+                  <Row className="row-info customer-row-info">
                     <img src={locationIcon} alt=""/> <span>YODY hub, Dưới chân cầu An Định, Tp. Hải Dương</span>
                   </Row>
                   <Row>
-                    <Button type="link" className="p-0 m-0">Thay đổi địa chỉ giao hàng</Button>
+                    <Popover placement="bottomLeft"
+                             title={
+                               <Row justify="space-between" align="middle" className="change-shipping-address-title">
+                                 <div style={{color: '#4F687D'}}>Thay đổi địa chỉ</div>
+                                 <Button type="link" onClick={showAddressModal}>Thêm địa chỉ mới</Button>
+                               </Row>
+                             }
+                             content={
+                               <div className="change-shipping-address-content">
+                                 <div className="shipping-address-row">
+                                   <div className="shipping-address-name">
+                                     Địa chỉ 1 <Button type="text" onClick={showAddressModal} className="p-0"><img src={editBlueIcon} alt=""/></Button>
+                                   </div>
+                                   <div className="shipping-customer-name">Nguyệt Anh String</div>
+                                   <div className="shipping-customer-mobile">0986868686</div>
+                                   <div className="shipping-customer-address">YODY hub, Dưới chân cầu An Định, Tp. Hải Dương</div>
+                                 </div>
+
+                                 <div className="shipping-address-row">
+                                   <div className="shipping-address-name">
+                                     Địa chỉ 2 <Button type="text" onClick={showAddressModal} className="p-0"><img src={editBlueIcon} alt=""/></Button>
+                                   </div>
+                                   <div className="shipping-customer-name">Nguyệt Anh String</div>
+                                   <div className="shipping-customer-mobile">0986868686</div>
+                                   <div className="shipping-customer-address">YODY hub, Dưới chân cầu An Định, Tp. Hải Dương</div>
+                                 </div>
+                               </div>
+                             }
+                             className="change-shipping-address">
+                      <Button type="link" className="p-0 m-0" >Thay đổi địa chỉ giao hàng</Button>
+                    </Popover>
                   </Row>
                 </Col>
                 <Col xs={24} lg={12} className="font-weight-500">
@@ -160,13 +347,13 @@ const CreateBill = () => {
                 <Row gutter={24}>
                   <Col xs={24} lg={12} className="font-weight-500 customer-info-left">
                     <div>Địa chỉ gửi hoá đơn</div>
-                    <Row className="customer-row-info">
+                    <Row className="row-info customer-row-info">
                       <img src={peopleIcon} alt="" style={{ width: 19 }} /> <span style={{ marginLeft: 9 }}>Na</span>
                     </Row>
-                    <Row className="customer-row-info">
+                    <Row className="row-info customer-row-info">
                       <img src={callIcon} alt=""/> <span>0986868686</span>
                     </Row>
-                    <Row className="customer-row-info">
+                    <Row className="row-info customer-row-info">
                       <img src={locationIcon} alt=""/> <span>YODY hub, Dưới chân cầu An Định, Tp. Hải Dương</span>
                     </Row>
                     <Row>
@@ -205,9 +392,11 @@ const CreateBill = () => {
                         </Select>
                       </Space>
                       <Button type="link" style={{ paddingRight: 0 }}>
-                        <img src={storeBluecon} alt=""/>
-                        Xem tồn
-                        <ArrowRightOutlined />
+                        <Space>
+                          <img src={storeBluecon} alt=""/>
+                          Xem tồn
+                          <ArrowRightOutlined />
+                        </Space>
                       </Button>
                     </Space>
                   </Row>
@@ -251,14 +440,55 @@ const CreateBill = () => {
                 locale={{
                   emptyText: 'Không có sản phẩm'
                 }}
-                className="sale-product-box-table"
-                // rowKey={(record) => record.id}
-                dataSource={dataSource}
-                tableLayout="fixed"
+                rowKey={record => record.uid}
                 columns={columns}
+                // dataSource={OrderItemModel}
+                className="sale-product-box-table w-100"
+                tableLayout="auto"
                 pagination={false}
-                // scroll={{ y: 300 }} sticky
               />
+            </Row>
+
+            <Row className="sale-product-box-payment" gutter={24}>
+              <Col xs={24} lg={12}>
+                <div className="payment-row"><Checkbox className="checkbox-style" onChange={() => console.log(1)}>Bỏ chiết khấu tự động</Checkbox></div>
+                <div className="payment-row"><Checkbox className="checkbox-style" onChange={() => console.log(1)}>Không tính thuế VAT</Checkbox></div>
+                <div className="payment-row"><Checkbox className="checkbox-style" onChange={() => console.log(1)}>Bỏ tích điểm tự động</Checkbox></div>
+              </Col>
+              <Col xs={24} lg={12}>
+                <Row className="payment-row" justify="space-between">
+                  <div className="font-weight-500">Tổng tiền</div>
+                  <div className="font-weight-500 payment-row-money">690.900</div>
+                </Row>
+
+                <Row className="payment-row" justify="space-between" align="middle">
+                  <Space align="center">
+                    <Typography.Link className="font-weight-500">Chiết khấu</Typography.Link>
+                    <div className="badge-style badge-danger">10% <Button type="text" className="p-0">x</Button></div>
+                  </Space>
+                  <div className="font-weight-500 ">69.090</div>
+                </Row>
+
+                <Row className="payment-row" justify="space-between" align="middle">
+                  <Space align="center">
+                    <Typography.Link className="font-weight-500">Mã giảm giá</Typography.Link>
+                    <div className="badge-style badge-primary">SN50 <Button type="text" className="p-0">x</Button></div>
+                  </Space>
+                  <div className="font-weight-500 ">41.810</div>
+                </Row>
+
+                <Row className="payment-row" justify="space-between">
+                  <div className="font-weight-500">Phí ship báo khách</div>
+                  <div className="font-weight-500 payment-row-money">20.000</div>
+                </Row>
+
+                <Row className="payment-row" justify="space-between">
+                  <div className="font-weight-500">Khách cần trả</div>
+                  <div className="font-weight-500 payment-row-money">
+                    <Typography.Text type="success" className="font-weight-500">600.000</Typography.Text>
+                  </div>
+                </Row>
+              </Col>
             </Row>
           </Card>
 
@@ -278,6 +508,7 @@ const CreateBill = () => {
                   </Radio.Group>
                 </div>
               </Col>
+
               <Col xs={24} lg={12}>
                 <div className="form-group form-group-with-search">
                   <label htmlFor="" className="">Hẹn giao</label>
@@ -296,13 +527,131 @@ const CreateBill = () => {
 
             <Divider/>
 
-            <Row>
-              <div className="form-group form-group-with-search">
-                <label htmlFor="" className="">Phí ship báo khách</label>
-                <Input placeholder="" alt="down"/>
-              </div>
-            </Row>
+            <div>
+              {/*--- đối tác ----*/}
+              <Row className="ship-box" hidden={false}>
+                <div className="form-group form-group-with-search">
+                  <label htmlFor="" className="">Phí ship báo khách</label>
+                  <InputNumber placeholder="" className="text-right hide-handler-wrap w-100"/>
+                </div>
+                <div className="table-ship w-100">
+                  <Descriptions title="" bordered layout="vertical">
+                    <Descriptions.Item label="Hãng vận chuyển">
+                      <div><img src={dhlIcon} alt=""/></div>
+                      <Divider/>
+                      <div><img src={ghtkIcon} alt=""/></div>
+                    </Descriptions.Item>
 
+                    <Descriptions.Item label="Dịch vụ chuyển phát">
+                      <div>
+                        <Space>
+                          <Radio>Chuyển phát nhanh PDE</Radio>
+                        </Space>
+                      </div>
+                      <Divider/>
+                      <div>
+                        <Row>
+                          <Space>
+                            <Radio>Đường bộ</Radio>
+                          </Space>
+                        </Row>
+                        <Row>
+                          <Space>
+                            <Radio>Đường bay</Radio>
+                          </Space>
+                        </Row>
+                      </div>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Cước phí">
+                      <div><Typography.Text type="success">18000</Typography.Text></div>
+                      <Divider/>
+                      <div>
+                        <Row><Typography.Text type="secondary">30000</Typography.Text></Row>
+                        <Row><Typography.Text type="secondary">50000</Typography.Text></Row>
+                      </div>
+                    </Descriptions.Item>
+                  </Descriptions>
+                </div>
+              </Row>
+
+              {/*--- Tự giao hàng ----*/}
+              <Row gutter={24} className="ship-cod" hidden={false}>
+                <Col xs={24} lg={12}>
+                  <div className="form-group form-group-with-search form-search-customer">
+                    <label htmlFor="" className="">Đối tác giao hàng</label>
+                    <div>
+                      <AutoComplete>
+                        <Input.Search
+                          placeholder="Chọn đối tác giao hàng"
+                          enterButton={<Button type="text"><img src={plusBlueIcon} alt="" /></Button>}
+                          prefix={<SearchOutlined style={{ color: '#ABB4BD' }} />}
+                          onSearch={() => console.log(1)}
+                          suffix={<img src={arrowDownIcon} alt="down" />}
+                        />
+                      </AutoComplete>
+                    </div>
+                  </div>
+                </Col>
+
+                <Col xs={24} lg={12}>
+                  <div className="form-group form-group-with-search form-search-customer">
+                    <label htmlFor="" className="">Phí ship báo khách</label>
+                    <div>
+                      <InputNumber placeholder="Nhập số tiền" className="text-right hide-handler-wrap w-100"/>
+                    </div>
+                  </div>
+                </Col>
+
+                <Col xs={24} lg={12}>
+                  <div className="form-group form-group-with-search form-search-customer">
+                    <label htmlFor="" className="">Phí ship trả đối tác giao hàng</label>
+                    <div>
+                      <InputNumber placeholder="Nhập số tiền" className="text-right hide-handler-wrap w-100"/>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+
+              {/*--- Nhận tại cửa hàng ----*/}
+              <div className="receive-at-store" hidden={true}>
+                <Row>Nhận tại cửa hàng</Row>
+                <Row className="row-info">
+                  <Space>
+                    <div className="row-info-icon">
+                      <img src={storeBluecon} alt=""/>
+                    </div>
+                    <div className="row-info-title">Cửa hàng</div>
+                    <div className="row-info-content"><Typography.Link>YODY Kho Online</Typography.Link></div>
+                  </Space>
+                </Row>
+                <Row className="row-info">
+                  <Space>
+                    <div className="row-info-icon">
+                      <img src={callIcon} alt=""/>
+                    </div>
+                    <div className="row-info-title">Điện thoại</div>
+                    <div className="row-info-content">0968563666</div>
+                  </Space>
+                </Row>
+                <Row className="row-info">
+                  <Space>
+                    <div className="row-info-icon">
+                      <img src={locationIcon} alt=""/>
+                    </div>
+                    <div className="row-info-title">Địa chỉ</div>
+                    <div className="row-info-content">Khu Tiểu Thủ CN Gia Xuyên - Phố ĐInh Lễ - Xã Gia Xuyên - TP Hải Dương</div>
+                  </Space>
+                </Row>
+              </div>
+
+              {/*--- Giao hàng sau ----*/}
+              <Row className="ship-later-box" hidden={true}>
+                <div className="form-group m-0">
+                  <label htmlFor=""><i>Bạn có thể xử lý giao hàng sau khi tạo và duyệt đơn hàng.</i></label>
+                </div>
+              </Row>
+
+            </div>
           </Card>
 
           <Card className="card-block card-block-normal"
@@ -322,7 +671,24 @@ const CreateBill = () => {
             <Divider/>
 
             <div className="payment-method-content">
-              <Row gutter={24}>
+              <Row className="payment-later-box" hidden={true}>
+                <div className="form-group m-0">
+                  <label htmlFor=""><i>Bạn có thể xử lý thanh toán sau khi tạo đơn hàng.</i></label>
+                </div>
+              </Row>
+
+              <Row gutter={24} className="payment-cod-box" hidden={false}>
+                <Col xs={24} lg={12}>
+                  <div className="form-group form-group-with-search">
+                    <label htmlFor="" className="">Tiền thu hộ</label>
+                    <div>
+                      <InputNumber min={0} placeholder="Nhập số tiền" className="text-right hide-handler-wrap w-100"/>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+
+              <Row gutter={24} hidden={true}>
                 <Col xs={24} lg={12}>
                   <div className="form-group form-group-with-search">
                     <label htmlFor="" className="">Hình thức thanh toán</label>
@@ -366,6 +732,7 @@ const CreateBill = () => {
                 </Col>
               </Row>
             </div>
+
           </Card>
         </Col>
 
@@ -410,6 +777,61 @@ const CreateBill = () => {
         <Button type="default" className="btn-style btn-cancel">Hủy</Button>
         <Button type="default" className="btn-style btn-save">Lưu</Button>
       </Row>
+
+      <Modal title="Cập nhật địa chỉ" visible={isModalVisible}
+             okText="Lưu" cancelText="Hủy" className="update-shipping"
+             onOk={saveAddressModal} onCancel={handleCancel}>
+        <Row gutter={24}>
+          <Col xs={24} lg={12}>
+            <div className="form-group form-group-with-search">
+              <label htmlFor="" className="required-label">Tên người nhận</label>
+              <Input placeholder="Tên người nhận"
+                     suffix={<img src={arrowDownIcon} alt="down" />}
+              />
+            </div>
+          </Col>
+          <Col xs={24} lg={12}>
+            <div className="form-group form-group-with-search">
+              <label htmlFor="" className="">Khu vực</label>
+              <Select className="select-with-search" showSearch
+                      style={{ width: '100%' }}
+                      placeholder=""
+              >
+                <Select.Option value="1">Thanh Xuân</Select.Option>
+              </Select>
+            </div>
+          </Col>
+          <Col xs={24} lg={12}>
+            <div className="form-group form-group-with-search">
+              <label htmlFor="" className="required-label">Địa chỉ</label>
+              <Input placeholder="Địa chỉ" />
+            </div>
+          </Col>
+          <Col xs={24} lg={12}>
+            <div className="form-group form-group-with-search">
+              <label htmlFor="" className="">Khu vực</label>
+              <Select className="select-with-search" showSearch
+                      style={{ width: '100%' }}
+                      placeholder=""
+              >
+                <Select.Option value="1">Thanh Xuân</Select.Option>
+              </Select>
+            </div>
+          </Col>
+          <Col xs={24} lg={12}>
+            <div className="form-group form-group-with-search mb-0">
+              <label htmlFor="" className="required-label">Số điện thoại</label>
+              <Input placeholder="Số điện thoại" />
+            </div>
+          </Col>
+          <Col xs={24} lg={12}>
+            <div className="form-group form-group-with-search mb-0">
+              <label htmlFor="" className="required-label">Số điện thoại khác có thể gọi</label>
+              <Input placeholder="Nhập số điện thoại" />
+            </div>
+          </Col>
+        </Row>
+      </Modal>
     </div>
   )
 }
