@@ -3,7 +3,7 @@ import { YodyAction } from 'base/BaseAction';
 import BaseResponse from 'base/BaseResponse';
 import { HttpStatus } from 'config/HttpStatus';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
-import { CategoryType } from 'domain/types/product.type';
+import { CategoryType } from 'domain/types/category.type';
 import { CategoryView } from 'model/other/category-view';
 import { CategoryResponse } from 'model/response/category.response';
 import { getCategoryApi } from 'service/product/category.service';

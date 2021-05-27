@@ -5,12 +5,14 @@ import { bootstrapSaga } from './bootstrap.saga';
 import { categorySaga } from './category.saga';
 import { materialSaga } from './material.saga';
 
+import { productSaga } from './product.saga';
 function* rootSaga(){
     yield all([
       appSaga(),
       bootstrapSaga(),
       authSaga(),
       categorySaga(),
+      productSaga(),
       materialSaga(),
     ]);
 }
