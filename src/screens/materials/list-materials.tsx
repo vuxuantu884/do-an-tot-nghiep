@@ -74,7 +74,7 @@ const ListMaterial: React.FC = () => {
          data.length === 0 ? (
             <div className="view-empty">
               <span className="text-empty">Danh sách chất liệu trống</span>
-              <Link to="/products/materials/create" className="buttom-empty">
+              <Link to="#" className="buttom-empty">
                 Thêm mới chất liệu
               </Link>
             </div>

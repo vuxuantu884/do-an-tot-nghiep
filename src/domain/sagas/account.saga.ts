@@ -4,28 +4,26 @@ import { YodyAction } from 'base/BaseAction';
 import BaseResponse from 'base/BaseResponse';
 import { HttpStatus } from 'config/HttpStatus';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
-import { ProductType } from 'domain/types/product.type';
-import { searchVariantsApi } from 'service/product/product.service';
+import { AccountType } from 'domain/types/account.type';
+import { getAccountByDepartment } from 'service/account/account.service';
 import { showError } from 'utils/ToastUtils';
 import { PageResponse } from 'model/response/base-metadata.response';
+import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
 
 
 
 
-
-function* searchVariantSaga(action: YodyAction) {
+function* searchAccountByDepartment(action: YodyAction) {
   const {
-    query,
-    setData,
-    setMetadata
+    department_id,
+    setData
   } = action.payload;
   try {
-    yield put(showLoading());
-    let response: BaseResponse<PageResponse<VariantResponse>> = yield call(searchVariantsApi, query);
-    yield put(hideLoading());
+    
+    let response: BaseResponse<PageResponse<AccountDetailResponse>> = yield call(getAccountByDepartment, department_id);
+    
     switch(response.code) {
       case HttpStatus.SUCCESS:
-        setMetadata(response.data.metadata);
         setData(response.data.items);
         break;
       default:
@@ -42,5 +40,5 @@ function* searchVariantSaga(action: YodyAction) {
 
 
 export function* productSaga() {
-  yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
+  yield takeLatest(AccountType.GET_ACCOUNT_DEPARTMENT_REQUEST, searchAccountByDepartment);
 }

@@ -1,22 +1,32 @@
-import {Drawer, Button, Card, Form,Col, Row, Input, Select, Table,DatePicker  } from "antd"
+import {InputNumber,Drawer, Button, Card, Form,Col, Row, Input, Select, Table,DatePicker  } from "antd"
 import { Link, useHistory } from "react-router-dom";
 import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { searchVariantsRequestAction } from "domain/actions/products.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useQuery } from "utils/useQuery";
 import search from 'assets/img/search.svg';
-import { CategoryParent, CategoryView } from "model/other/category-view";
+import { generateQuery } from "utils/AppUtils";
+import CustomPagination from "component/table/CustomPagination";
 import ButtonSetting from "component/table/ButtonSetting";
 import { VariantResponse } from "model/response/products/variant.response";
-
+import {SearchVariantQuery} from "model/query/search.variant.query";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import { BaseMetadata } from "model/response/base-metadata.response";
 
 const { Option } = Select;
-const Product = () => {
+const Product: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [visible, setVisible] = useState<boolean>(false);
+  const query = useQuery();
+  let [params, setPrams] = useState<SearchVariantQuery>(getQueryParams(query));
+  const [metadata, setMetadata] = useState<BaseMetadata>({
+    limit: params.limit ? params.limit : 30,
+    page: params.page ? params.page : 0,
+    total: 0,
+  });
+
   const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
   const brands = useMemo(() => {
     if (bootstrapReducer.data && bootstrapReducer.data.brand) {
@@ -24,50 +34,46 @@ const Product = () => {
     }
     return [];
   }, [bootstrapReducer]);
-  const query = useQuery();
-  const info = query.get('info');
-  const barcode = query.get('barcode');
-  const brand=query.get('brand');
+  const madeins = useMemo(() => {
+    if (bootstrapReducer.data && bootstrapReducer.data.currency) {
+      return bootstrapReducer.data.currency;
+    }
+    return [];
+  }, [bootstrapReducer]);
+
   const columns = [
     {
-      title: 'Mã danh mục',
-      dataIndex: 'code',
+      title: 'Mã sản phẩm',
+      dataIndex: 'sku',
       render: (text: string) => {
-        return <Link to="">{text}</Link>
+        return <Link to="#">{text}</Link>
       }
     },
     {
-      title: 'Danh mục',
-      render: (item: CategoryView) => (
-        <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
-          {
-            item.level > 0 && (
-              <div style={{
-                borderRadius: 2,
-                width: 20 * item.level,
-                height: 3,
-                background: 'rgba(42, 42, 134, 0.2)',
-                marginRight: 8
-              }}
-              />
-            )
-          }
-          <span>{item.name}</span>
-        </div>
-      )
+      title: 'Tên sản phẩm',
+      dataIndex: 'name',
     },
     {
-      title: 'Thuộc danh mục',
-      dataIndex: 'parent',
-      render: (item: CategoryParent) => item != null ? item.name : ''
+      title: 'Màu sắc',
+      dataIndex: 'color',
     },
     {
-      title: 'Ngành hàng',
-      dataIndex: 'goods_name',
+      title: 'Size',
+      dataIndex: 'size',
     },
     {
-      title: 'Người tạo',
-      dataIndex: 'created_name',
+      title: 'Nhà thiết kế',
+      dataIndex: 'product',
+      render: (product: any) => {
+        return <Link to="#">{product.designer}</Link>
+      }
+    },
+    {
+      title: 'Marchandiser',
+      dataIndex: 'product',
+      render: (product: any) => {
+        return <Link to="#">{product.merchandiser}</Link>
+      }
     },
     {
       title: () => <ButtonSetting />,
@@ -82,11 +88,20 @@ const Product = () => {
     setVisible(false);
   }, []);
   const onFinish = useCallback((values) => {
-    return history.push(`/products?info=${values.info}&barcode=${values.barcode}&brand=${values.brand}`);
-  }, [history]);
+    let newPrams ={...params, ...values, page: 0};
+    setPrams(newPrams);
+    let queryParam = generateQuery(newPrams);
+    history.push(`/products?${queryParam}`);
+  }, [history, params]);
+  const onPageSizeChange = useCallback((size: number) => {
+    params.limit = size;
+    let queryParam = generateQuery(params);
+    setPrams({...params});
+    history.push(`/products?${queryParam}`);
+  }, [history, params]);
   useLayoutEffect(() => {
-    dispatch(searchVariantsRequestAction(info,barcode, setData))
-  }, [dispatch, info, barcode]);
+      dispatch(searchVariantsRequestAction(params, setData, setMetadata));
+  }, [dispatch, params])
 
   
 
@@ -94,14 +109,7 @@ const Product = () => {
     <div>
       <Card className="contain">
         {
-          info === null && barcode === null && data.length === 0 ? (
-            <div className="view-empty">
-              <span className="text-empty">Danh sách danh mục trống</span>
-              <Link to="/products/categories/create" className="buttom-empty">
-                Thêm mới danh mục
-              </Link>
-            </div>
-          ) : (
+         
             <React.Fragment>
               <Card
                 className="view-control"
@@ -111,11 +119,7 @@ const Product = () => {
                 <Form
                   size="middle"
                   onFinish={onFinish}
-                  initialValues={{
-                    info: info != null ? info : '',
-                    barcode: barcode != null ? barcode : '',
-                    brand:brand!=null?brand:''
-                  }}
+                  initialValues={params}
                   layout="inline"
                 >
                   <Form.Item name="info">
@@ -125,7 +129,7 @@ const Product = () => {
                     <Input  style={{ width: 250 }} placeholder="Barcode" />
                   </Form.Item>
                   <Form.Item name="brand">
-                    <Select
+                    <Select defaultValue="" 
                       style={{
                         width: 250,
                       }}
@@ -144,23 +148,11 @@ const Product = () => {
                   </Form.Item>
                   <Form.Item>
                     <Button type="primary" htmlType="submit" className="yody-search-button">Lọc</Button>
-                    <Button type="primary" htmlType="button" className="yody-search-button" onClick={showDrawer}>Bộ lọc nâng cao</Button>
+                    <Button  className="yody-search-button" onClick={showDrawer}>Bộ lọc nâng cao</Button>
                   </Form.Item>
-                </Form>
-              </Card>
-              <Table
-                rowSelection={{
-                  type: "checkbox",
-                  columnWidth: 80,
-                }}
-                pagination={false}
-                dataSource={data}
-                columns={columns}
-                rowKey={(item) => item.id}
-              />
-              <Drawer
+                  <Drawer
           title="Create a new account"
-          width={720}
+          width={300}
           onClose={onClose}
           visible={visible}
           bodyStyle={{ paddingBottom: 80 }}
@@ -183,34 +175,26 @@ const Product = () => {
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
-                  name="name"
-                  label="Name"
-                  rules={[{ required: true, message: 'Please enter user name' }]}
+                  name="from_inventory"
+                  label="Tồn kho từ"
                 >
-                  <Input placeholder="Please enter user name" />
+                  <InputNumber  />
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item
-                  name="url"
-                  label="Url"
-                  rules={[{ required: true, message: 'Please enter url' }]}
+              <Form.Item
+                  name="to_inventory"
+                  label="đến"
                 >
-                  <Input
-                    style={{ width: '100%' }}
-                    addonBefore="http://"
-                    addonAfter=".com"
-                    placeholder="Please enter url"
-                  />
+                  <InputNumber />
                 </Form.Item>
               </Col>
             </Row>
             <Row gutter={16}>
-              <Col span={12}>
+              <Col span={24}>
                 <Form.Item
-                  name="owner"
-                  label="Owner"
-                  rules={[{ required: true, message: 'Please select an owner' }]}
+                  name="made_in"
+                  label="Xuất sứ"
                 >
                   <Select placeholder="Please select an owner">
                     <Option value="xiao">Xiaoxiao Fu</Option>
@@ -272,8 +256,25 @@ const Product = () => {
             </Row>
           </Form>
         </Drawer>
+                </Form>
+              </Card>
+              <Table
+                rowSelection={{
+                  type: "checkbox",
+                  columnWidth: 80,
+                }}
+                pagination={false}
+                dataSource={data}
+                columns={columns}
+                rowKey={(item) => item.id}
+              />
+              <CustomPagination
+                metadata={metadata} 
+                onPageSizeChange={onPageSizeChange}
+              />
+             
             </React.Fragment>
-          )
+          
         }
       </Card>
     </div>
