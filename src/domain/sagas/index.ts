@@ -3,6 +3,8 @@ import { appSaga } from './app.saga';
 import { authSaga } from './auth.saga';
 import { bootstrapSaga } from './bootstrap.saga';
 import { categorySaga } from './category.saga';
+import { materialSaga } from './material.saga';
+
 import { productSaga } from './product.saga';
 function* rootSaga(){
     yield all([
@@ -11,6 +13,7 @@ function* rootSaga(){
       authSaga(),
       categorySaga(),
       productSaga(),
+      materialSaga(),
     ]);
 }
 

@@ -1,22 +1,24 @@
+import { YodyAction } from 'base/BaseAction';
 import { AppType } from 'domain/types/app.type';
 import { AuthType } from 'domain/types/auth.type';
-import { AnyAction } from 'redux';;
 
 const intitalState = {
   isLogin: false,
   isLoad: false,
-  account: undefined,
+  account: null,
 };
 
-const userReducer = (state = intitalState, action: AnyAction) => {
-  const {type} = action;
+const userReducer = (state = intitalState, action: YodyAction) => {
+  const {type, payload} = action;
   switch (type) {
     case AppType.LOAD_USER_FROM_STORAGE_SUCCESS:
-      return {...state, isLogin: true, isLoad: true};
+      return {...state, isLogin: true, isLoad: true, account: payload.account};
     case AppType.LOAD_USER_FROM_STORAGE_FAIL:
       return {...state, isLogin: false, isLoad: true};
     case AuthType.LOGIN_RESPONSE:
-      return {...state, isLogin: true,}
+      return {...state, isLogin: true, isLoad: false};
+    case AuthType.LOGOUT_SUCCESS:
+      return {...state, isLogin: false};
     default:
       return state;
   }
