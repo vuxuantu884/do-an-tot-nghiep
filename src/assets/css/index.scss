@@ -33,6 +33,8 @@ a {
   &:hover &:focus {
     color: $primary-color-blue;
   }
+body {
+  color: #37394D;
 }
 
 .d-flex {
@@ -69,6 +71,14 @@ a {
 
 .w-100 {
   width: 100%;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
 }
 
 .text-right {
@@ -143,6 +153,10 @@ a {
 
 .ant-layout-sider {
   background-color: #fff;
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+  z-index: 10;
   @include mobile {
     display: none;
   }

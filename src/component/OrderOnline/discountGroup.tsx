@@ -2,7 +2,11 @@ import { Input, InputNumber, Select, Typography } from "antd";
 import React, {useCallback, useState} from "react";
 // import {orderDiscountTextChange} from "../../../domain/actions/orderOnline.action";
 import {useDispatch} from "react-redux";
+<<<<<<< HEAD:src/component/OrderOnline/discountGroup.tsx
 import {formatCurrency, replaceFormat} from "../../../../utils/AppUtils";
+=======
+import {formatCurrency, replaceFormat} from "../../utils/AppUtils";
+>>>>>>> feature/create-bill:src/screens/bill/component/discountGroup.tsx
 
 type DiscountGroupProps = {
   index: number;
