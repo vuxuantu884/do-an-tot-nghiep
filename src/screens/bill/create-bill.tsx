@@ -20,9 +20,9 @@ import arrowDownIcon from 'assets/img/drow-down.svg';
 import warningCircleIcon from 'assets/img/warning-circle.svg';
 import {  SearchOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { formatCurrency, replaceFormat } from "../../utils/AppUtils";
-import AddAddressModal from "./component/OrderOnline/addAddressModal";
-import EditCustomerModal from "./component/OrderOnline/editCustomerModal";
-import DiscountGroup from "./component/OrderOnline/discountGroup";
+import AddAddressModal from "../../component/OrderOnline/addAddressModal";
+import EditCustomerModal from "../../component/OrderOnline/editCustomerModal";
+import DiscountGroup from "../../component/OrderOnline/discountGroup";
 
 const CreateBill = () => {
   const [isVisibleAddress, setVisibleAddress] = useState(false);
