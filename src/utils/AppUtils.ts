@@ -1,6 +1,7 @@
 import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/category-view";
 import { CategoryResponse } from "model/response/category.response";
+import { AccountStore } from 'model/other/Account/AccountStore';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -28,6 +29,15 @@ export const findCurrentRoute = (routes: Array<RouteMenu> = [], path: string = '
     }
   })
   return obj;
+}
+
+export const haveAccess = (storeId: number, accountStores: Array<AccountStore>): boolean => {
+  let isHave = false;
+  let accountStoreFilter = accountStores.filter((store: AccountStore) => store.store_id === storeId);
+  if (accountStoreFilter.length > 0) {
+    return isHave = true;
+  }
+  return isHave;
 }
 
 export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '') => {
