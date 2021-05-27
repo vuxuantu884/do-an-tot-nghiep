@@ -154,10 +154,17 @@ body {
   top: 0;
   z-index: 10;
   @include mobile {
-    display: none;
+    //display: none;
+    position: fixed;
+    box-shadow: 0 0 2px 1px #eee;
   }
 }
 
+.ant-layout-sider.ant-layout-sider-collapsed {
+  @include mobile {
+    transform: translateX(-100%);
+  }
+}
 .ant-btn-primary {
   color: #fff;
   background: $primary-color-blue;

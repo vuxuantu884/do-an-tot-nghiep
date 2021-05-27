@@ -226,7 +226,7 @@ const CreateBill = () => {
     <div>
       <Row gutter={24}>
         <Col xs={24} lg={17}>
-          <Card className="card-block"
+          <Card className="card-block card-block-customer"
                 title={<div className="d-flex"><img src={peopleIcon} alt="" /> Khách hàng</div>}
                 extra={
                   <div className="d-flex align-items-center form-group-with-search">
