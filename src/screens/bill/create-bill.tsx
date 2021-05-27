@@ -20,9 +20,9 @@ import arrowDownIcon from 'assets/img/drow-down.svg';
 import warningCircleIcon from 'assets/img/warning-circle.svg';
 import {  SearchOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { formatCurrency, replaceFormat } from "../../utils/AppUtils";
-import AddAddressModal from "./component/addAddressModal";
-import EditCustomerModal from "./component/editCustomerModal";
-import DiscountGroup from "./component/discountGroup";
+import AddAddressModal from "../../component/OrderOnline/addAddressModal";
+import EditCustomerModal from "../../component/OrderOnline/editCustomerModal";
+import DiscountGroup from "../../component/OrderOnline/discountGroup";
 
 const CreateBill = () => {
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -50,6 +50,16 @@ const CreateBill = () => {
   const [isVisibleBilling, setVisibleBilling] = useState(true);
   const showBillingAddress = () => {
     setVisibleBilling(!isVisibleBilling);
+  };
+
+  const [selectedShipMethod, setSelectedShipMethod ] = useState(1);
+  const changeShipMethod = (value: number) => {
+    setSelectedShipMethod(value);
+  };
+
+  const [selectedPaymentMethod, setSelectedPaymentMethod ] = useState(1);
+  const changePaymentMethod = (value: number) => {
+    setSelectedPaymentMethod(value);
   };
 
   const OrderItemModel = [
@@ -383,24 +393,26 @@ const CreateBill = () => {
                 extra={
                   <Row>
                     <Space>
-                      <Space>
+                      <div>
                         <Checkbox className="checkbox-style" style={{ fontSize: 14 }}
                                   onChange={() => console.log(1)}>Tách dòng</Checkbox>
-                      </Space>
-                      <Space>
-                        <label htmlFor="">Chính sách giá</label>
+                      </div>
+                      <div>
+                        <label htmlFor="" style={{ marginRight: 10 }}>Chính sách giá</label>
                         <Select defaultValue="1" style={{ width: 130 }}>
                           <Select.Option value="1">Giá bán lẻ</Select.Option>
                           <Select.Option value="2">Giá bán buôn</Select.Option>
                         </Select>
-                      </Space>
-                      <Button type="link" style={{ paddingRight: 0 }}>
-                        <Space>
-                          <img src={storeBluecon} alt=""/>
-                          Xem tồn
-                          <ArrowRightOutlined />
-                        </Space>
-                      </Button>
+                      </div>
+                      <div className="view-inventory-box">
+                        <Button type="link" className="p-0">
+                          <Space>
+                            <img src={storeBluecon} alt=""/>
+                            Xem tồn
+                            <ArrowRightOutlined />
+                          </Space>
+                        </Button>
+                      </div>
                     </Space>
                   </Row>
                 }>
@@ -501,7 +513,7 @@ const CreateBill = () => {
               <Col xs={24} lg={12}>
                 <div><label htmlFor="" className="required-label"><i>Lựa chọn 1 trong hình thức giao hàng</i></label></div>
                 <div style={{ marginTop: 15 }}>
-                  <Radio.Group value={1}>
+                  <Radio.Group value={selectedShipMethod} onChange={(e) => changeShipMethod(e.target.value)}>
                     <Space direction="vertical">
                       <Radio value={1}>Chuyển đối tác giao hàng</Radio>
                       <Radio value={2}>Tự giao hàng</Radio>
@@ -532,12 +544,13 @@ const CreateBill = () => {
 
             <div>
               {/*--- đối tác ----*/}
-              <Row className="ship-box" hidden={false}>
+              <Row className="ship-box" hidden={selectedShipMethod !== 1}>
                 <div className="form-group form-group-with-search">
                   <label htmlFor="" className="">Phí ship báo khách</label>
                   <InputNumber placeholder="" className="text-right hide-handler-wrap w-100"/>
                 </div>
                 <div className="table-ship w-100">
+                  <Radio.Group className="w-100">
                   <Descriptions title="" bordered layout="vertical">
                     <Descriptions.Item label="Hãng vận chuyển">
                       <div><img src={dhlIcon} alt=""/></div>
@@ -548,19 +561,19 @@ const CreateBill = () => {
                     <Descriptions.Item label="Dịch vụ chuyển phát">
                       <div>
                         <Space>
-                          <Radio>Chuyển phát nhanh PDE</Radio>
+                          <Radio value={1}>Chuyển phát nhanh PDE</Radio>
                         </Space>
                       </div>
                       <Divider/>
                       <div>
                         <Row>
                           <Space>
-                            <Radio>Đường bộ</Radio>
+                            <Radio value={2}>Đường bộ</Radio>
                           </Space>
                         </Row>
                         <Row>
                           <Space>
-                            <Radio>Đường bay</Radio>
+                            <Radio value={3}>Đường bay</Radio>
                           </Space>
                         </Row>
                       </div>
@@ -574,11 +587,12 @@ const CreateBill = () => {
                       </div>
                     </Descriptions.Item>
                   </Descriptions>
+                  </Radio.Group>
                 </div>
               </Row>
 
               {/*--- Tự giao hàng ----*/}
-              <Row gutter={24} className="ship-cod" hidden={true}>
+              <Row gutter={24} className="ship-cod" hidden={selectedShipMethod !== 2}>
                 <Col xs={24} lg={12}>
                   <div className="form-group form-group-with-search form-search-customer">
                     <label htmlFor="" className="">Đối tác giao hàng</label>
@@ -616,7 +630,7 @@ const CreateBill = () => {
               </Row>
 
               {/*--- Nhận tại cửa hàng ----*/}
-              <div className="receive-at-store" hidden={true}>
+              <div className="receive-at-store" hidden={selectedShipMethod !== 3}>
                 <Row>Nhận tại cửa hàng</Row>
                 <Row className="row-info">
                   <Space>
@@ -648,7 +662,7 @@ const CreateBill = () => {
               </div>
 
               {/*--- Giao hàng sau ----*/}
-              <Row className="ship-later-box" hidden={true}>
+              <Row className="ship-later-box" hidden={selectedShipMethod !== 4}>
                 <div className="form-group m-0">
                   <label htmlFor=""><i>Bạn có thể xử lý giao hàng sau khi tạo và duyệt đơn hàng.</i></label>
                 </div>
@@ -662,7 +676,7 @@ const CreateBill = () => {
             <div className="payment-method-radio-list">
               <label htmlFor="" className="required-label"><i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i></label>
               <div style={{ marginTop: 15 }}>
-                <Radio.Group name="radiogroup" defaultValue={1}>
+                <Radio.Group name="radiogroup" value={selectedPaymentMethod} onChange={(e) => changePaymentMethod(e.target.value)}>
                   <Radio value={1}>COD</Radio>
                   <Radio value={2}>Thanh toán trước</Radio>
                   <Radio value={3}>Thanh toán sau</Radio>
@@ -673,7 +687,7 @@ const CreateBill = () => {
             <Divider/>
 
             <div className="payment-method-content">
-              <Row gutter={24} className="payment-cod-box" hidden={false}>
+              <Row gutter={24} className="payment-cod-box" hidden={selectedPaymentMethod !== 1}>
                 <Col xs={24} lg={12}>
                   <div className="form-group form-group-with-search">
                     <label htmlFor="" className="">Tiền thu hộ</label>
@@ -684,7 +698,7 @@ const CreateBill = () => {
                 </Col>
               </Row>
 
-              <Row gutter={24} hidden={true}>
+              <Row gutter={24} hidden={selectedPaymentMethod !== 2}>
                 <Col xs={24} lg={12}>
                   <div className="form-group form-group-with-search">
                     <label htmlFor="" className="">Hình thức thanh toán</label>
@@ -728,7 +742,7 @@ const CreateBill = () => {
                 </Col>
               </Row>
 
-              <Row className="payment-later-box" hidden={true}>
+              <Row className="payment-later-box" hidden={selectedPaymentMethod !== 3}>
                 <div className="form-group m-0">
                   <label htmlFor=""><i>Bạn có thể xử lý thanh toán sau khi tạo đơn hàng.</i></label>
                 </div>
