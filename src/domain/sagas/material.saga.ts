@@ -1,4 +1,4 @@
-import { deleteOneMaterialApi, deleteManyMaterialApi, getMaterialApi } from './../../service/product/material.service';
+import { deleteOneMaterialApi, deleteManyMaterialApi, getMaterialApi, createMaterialApi } from './../../service/product/material.service';
 import { call, put, takeLatest } from '@redux-saga/core/effects';
 import { YodyAction } from 'base/BaseAction';
 import BaseResponse from 'base/BaseResponse';
@@ -74,9 +74,29 @@ function* deleteManyMaterialSaga(action: YodyAction) {
   }
 }
 
+function* createMaterialSaga(action: YodyAction) {
+  let {request, onCreateSuccess} = action.payload;
+  try {
+    yield put(showLoading());
+    let response: BaseResponse<MaterialResponse> = yield call(createMaterialApi, request);
+    yield put(hideLoading());
+    switch(response.code) {
+      case HttpStatus.SUCCESS:
+        onCreateSuccess();
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    yield put(hideLoading());
+    showError('Có lỗi vui lòng thử lại sau');
+  }
+}
 
 export function* materialSaga() {
   yield takeLatest(MaterialType.GET_MATERIAL_REQUEST, getMaterialSaga);
   yield takeLatest(MaterialType.DELETE_ONE_MATERIAL_REQUEST, deleteOneMaterialSaga);
   yield takeLatest(MaterialType.DELETE_MANY_MATERIAL_REQUEST, deleteManyMaterialSaga);
+  yield takeLatest(MaterialType.CREATE_MATERIAL_REQUEST, createMaterialSaga);
 }
