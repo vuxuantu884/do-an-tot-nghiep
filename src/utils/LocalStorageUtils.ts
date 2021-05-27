@@ -9,4 +9,8 @@ const getToken = (): String | null => {
   return localStorage.getItem(ACCESS_TOKEN);
 };
 
-export {setToken, getToken};
+const removeToken = () => {
+  localStorage.removeItem(ACCESS_TOKEN);
+};
+
+export {setToken, getToken, removeToken};

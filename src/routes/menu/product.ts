@@ -6,7 +6,7 @@ import { HEADER_TYPE } from 'config/HeaderConfig';
 const Category = React.lazy(() => import ("screens/category/category.screen"));
 const Product = React.lazy(() => import ("screens/product"));
 const Color = React.lazy(() => import ("screens/product/color.screen"));
-const Material = React.lazy(() => import ("screens/product/material.screen"));
+const ListMaterial = React.lazy(() => import ("screens/materials/list-materials"));
 const Size = React.lazy(() => import ("screens/product/size.screen"));
 const Supplier = React.lazy(() => import ("screens/product/supplier.screen"));
 const AddCategory = React.lazy(() => import ("screens/category/add-category.screen"))
@@ -59,13 +59,15 @@ const product: Array<RouteMenu> = [
     exact: true,
     title: "Chất liệu",
     icon: 'icon-dot',
-    component: Material,
+    component: ListMaterial,
     key: "submenu23",
     isShow: true,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
+    type: HEADER_TYPE.BUTTON_CREATE,
+    object: {
+      pathCreate: '/products/materials/create'
+    },
   },
   {
     path: "/products/sizes",

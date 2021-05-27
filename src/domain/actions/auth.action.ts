@@ -8,3 +8,11 @@ export const loginRequestAction = (username: string, password: string) => {
 export const loginSuccessAction = () => {
   return BaseAction(AuthType.LOGIN_RESPONSE, null);
 }
+
+export const logoutAction = () => {
+  return BaseAction(AuthType.LOGOUT_REQUEST, null);
+}
+
+export const logoutSuccessAction = () => {
+  return BaseAction(AuthType.LOGOUT_SUCCESS, null);
+}
