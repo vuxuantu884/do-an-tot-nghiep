@@ -42,7 +42,6 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   }
   return (
     <div>
-      <LoadingScreen />
       <Layout style={{
         backgroundColor: 'white',
         minHeight: '100vh',
@@ -58,6 +57,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
             paddingTop: 5,
             paddingBottom: 5
           }}>
+            <LoadingScreen />
             {children}
           </Content>
         </Layout>

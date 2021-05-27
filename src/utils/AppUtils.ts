@@ -3,7 +3,7 @@ import { CategoryView } from "model/other/category-view";
 import { CategoryResponse } from "model/response/category.response";
 
 export const isUndefinedOrNull = (variable: any) => {
-  if(variable && variable !== null) {
+  if (variable && variable !== null) {
     return false;
   }
   return true;
@@ -15,12 +15,12 @@ export const findCurrentRoute = (routes: Array<RouteMenu> = [], path: string = '
     subMenu: '',
   };
   routes.forEach((route) => {
-    if(path.includes(route.path)) {
+    if (path.includes(route.path)) {
       obj.current = route.key;
     }
-    if(route.subMenu.length > 0) {
+    if (route.subMenu.length > 0) {
       route.subMenu.forEach((item) => {
-        if(path.includes(item.path)) {
+        if (path.includes(item.path)) {
           obj.current = item.key
           obj.subMenu = route.key;
         }
@@ -32,29 +32,29 @@ export const findCurrentRoute = (routes: Array<RouteMenu> = [], path: string = '
 
 export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '') => {
   let result: Array<RouteMenu> = [];
-  if(path === '' || path === '/') {
+  if (path === '' || path === '/') {
     return result;
   }
   result.push(routes[0]);
   routes.forEach((route) => {
-    if(route.path === path) {
+    if (route.path === path) {
       result.push(route);
     } else {
-      if(route.subMenu.length>0 ) {
+      if (route.subMenu.length > 0) {
         route.subMenu.forEach((route1) => {
-          if(route1.path === path) {
+          if (route1.path === path) {
             result.push(route);
             result.push(route1);
           } else {
-            if(route1.subMenu.length > 0) {
+            if (route1.subMenu.length > 0) {
               route1.subMenu.forEach((route2) => {
-                if(route2.path === path) {
+                if (route2.path === path) {
                   result.push(route);
                   result.push(route1);
                   result.push(route2);
                 }
               })
-            } 
+            }
           }
         })
       }
@@ -63,7 +63,9 @@ export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '
   return result;
 }
 
-export const convertCategory= (data: Array<CategoryResponse>) => {
+
+
+export const convertCategory = (data: Array<CategoryResponse>) => {
   let arr: Array<CategoryView> = [];
   data.forEach((item) => {
     let level = 0;
@@ -73,10 +75,10 @@ export const convertCategory= (data: Array<CategoryResponse>) => {
   return arr;
 }
 
-const getArrCategory = (i: CategoryResponse, level: number, parent: CategoryResponse|null) => {
+const getArrCategory = (i: CategoryResponse, level: number, parent: CategoryResponse | null) => {
   let arr: Array<CategoryView> = [];
   let parentTemp = null;
-  if(parent !== null) {
+  if (parent !== null) {
     parentTemp = {
       id: parent.id,
       name: parent.name,
@@ -98,7 +100,7 @@ const getArrCategory = (i: CategoryResponse, level: number, parent: CategoryResp
     parent: parentTemp,
     name: i.name,
   })
-  if(i.children.length > 0) {
+  if (i.children.length > 0) {
     i.children.forEach((i1) => {
       let c = getArrCategory(i1, level + 1, i);
       arr = [...arr, ...c];
@@ -115,4 +117,18 @@ export const formatCurrency = (currency: number | string): string => {
 export const replaceFormat = (currency: number | string): number => {
   let format = currency.toString();
   return parseInt(format.replace(/,/gi, ''));
+}
+export const generateQuery = (obj: any) => {
+  let a: string = Object.keys(obj).map((key, index) => {
+    let url = '';
+    if (obj[key]) {
+      url = key + '=' + obj[key] + '&'
+    }
+    return url
+  }).join('')
+  console.log(a.charAt(a.length - 1))
+  if (a.charAt(a.length - 1) === '&') {
+    a = a.substring(0, a.length - 1);
+  }
+  return a;
 }

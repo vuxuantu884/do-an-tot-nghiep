@@ -1,0 +1,1 @@
+export const PageConfig = [30, 50, 100];
