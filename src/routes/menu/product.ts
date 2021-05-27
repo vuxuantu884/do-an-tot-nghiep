@@ -3,14 +3,14 @@ import { RouteMenu } from "model/other";
 import { HEADER_TYPE } from 'config/HeaderConfig';
 
 
-const Category = React.lazy(() => import ("screens/product/category.screen"));
+const Category = React.lazy(() => import ("screens/category/category.screen"));
 const Product = React.lazy(() => import ("screens/product"));
 const Color = React.lazy(() => import ("screens/product/color.screen"));
 const ListMaterial = React.lazy(() => import ("screens/materials/list-materials"));
 const AddMaterial = React.lazy(() => import ("screens/materials/add-material"));
 const Size = React.lazy(() => import ("screens/product/size.screen"));
 const Supplier = React.lazy(() => import ("screens/product/supplier.screen"));
-const AddCategory = React.lazy(() => import ("screens/product/add-category.screen"))
+const AddCategory = React.lazy(() => import ("screens/category/add-category.screen"))
 
 const product: Array<RouteMenu> = [
   {
