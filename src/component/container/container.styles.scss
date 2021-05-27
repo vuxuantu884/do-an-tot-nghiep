@@ -235,10 +235,25 @@ $desktop-width: 1400px;
 
 .contain {
   .ant-card-body {
-    padding: 20px 0px;
+    padding: 10px 0px 0px 0px;
   }
   .view-control {
+    display: flex;
+    width: 100%;
     padding: 10px 25px;
+    .ant-card-body {
+      display: flex;
+      width: 100%;
+    }
+    .form-search {
+      justify-content: space-between;
+      display: flex;
+      width: 100%;
+      .right-form {
+        display: flex;
+      }
+    }
+    
   }
   .ant-table-cell {
     font-family: Inter;
@@ -492,7 +507,7 @@ $desktop-width: 1400px;
   padding-bottom: 20px;
   .ant-btn {
     font-weight: 500;
-    padding: 8px 15px;
+    padding: 6px 15px;
     min-width: 90px;
     border-radius: 6px;
     height: auto;
@@ -568,3 +583,8 @@ $desktop-width: 1400px;
 .update-customer-modal {
   min-width: 800px;
 }
+
+.yody-table {
+  margin: 10px 0;
+}
+
