@@ -12,3 +12,7 @@ export const getAcccountDetail = (): Promise<BaseResponse<AccountDetailResponse>
 export const loginApi = (request: LoginRequest): Promise<BaseResponse<LoginResponse>> => {
   return BaseAxios.post(`${ApiConfig.ACCOUNTS}/accounts/login`, request);
 }
+
+export const logoutApi = (): Promise<BaseResponse<string>> => {
+  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/logout`);
+}
