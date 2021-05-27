@@ -20,9 +20,9 @@ import arrowDownIcon from 'assets/img/drow-down.svg';
 import warningCircleIcon from 'assets/img/warning-circle.svg';
 import {  SearchOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { formatCurrency, replaceFormat } from "../../utils/AppUtils";
-import AddAddressModal from "../../component/OrderOnline/addAddressModal";
-import EditCustomerModal from "../../component/OrderOnline/editCustomerModal";
-import DiscountGroup from "../../component/OrderOnline/discountGroup";
+import AddAddressModal from "./component/addAddressModal";
+import EditCustomerModal from "./component/editCustomerModal";
+import DiscountGroup from "./component/discountGroup";
 
 const CreateBill = () => {
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -575,7 +575,7 @@ const CreateBill = () => {
                         </tr>
 
                         <tr>
-                          <td rowSpan="2">
+                          <td>
                             <img src={ghtkIcon} alt=""/>
                           </td>
                           <td>
