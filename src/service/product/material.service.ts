@@ -2,6 +2,7 @@ import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { MaterialQuery } from "model/query/material.query";
+import { CreateMaterialRequest } from "model/request/create-material.request";
 import { PageResponse } from "model/response/base-metadata.response";
 import { MaterialResponse } from "model/response/product/material.response";
 import { generateQuery } from "utils/AppUtils";
@@ -18,4 +19,8 @@ export const deleteOneMaterialApi = (id: number): Promise<BaseResponse<string>> 
 export const deleteManyMaterialApi = (ids: Array<number>): Promise<BaseResponse<string>> => {
   let idsParam =  ids.join(',');
   return BaseAxios.delete(`${ApiConfig.PRODUCT}/materials?ids=${idsParam}`);
+}
+
+export const createMaterialApi = (request: CreateMaterialRequest): Promise<BaseResponse<MaterialResponse>> => {
+  return BaseAxios.post(`${ApiConfig.PRODUCT}/materials`, request);
 }
