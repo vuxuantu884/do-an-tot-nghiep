@@ -1,4 +1,24 @@
 $primary-color-blue: #2A2A86;
+$mobile-width: 991px;
+$tablet-width: 992px;
+$desktop-width: 1400px;
+
+@mixin mobile {
+  @media (max-width: #{$mobile-width}) {
+    @content;
+  }
+}
+
+@mixin tablet { @media (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 1px}) {
+  @content;
+}
+}
+
+@mixin desktop {
+  @media (min-width: #{$desktop-width}) {
+    @content;
+  }
+}
 
 ::-webkit-scrollbar {
   width: 7px;
@@ -23,11 +43,26 @@ $primary-color-blue: #2A2A86;
   box-shadow: unset;
 }
 
+.ant-select {
+  &:not(.ant-select-customize-input) {
+    .ant-select-selector {
+      border-radius: 5px;
+    }
+  }
+}
+
 .yody-header {
   padding: 18px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  background: rgb(244, 244, 247);
+  @include mobile {
+    flex-wrap: wrap;
+  }
   .yody-title {
     font-family: Inter;
     font-style: normal;
@@ -277,6 +312,7 @@ $primary-color-blue: #2A2A86;
   .ant-card-extra {
     label {
       margin-right: 10px;
+      font-size: 13px;
     }
   }
 }
@@ -309,6 +345,14 @@ $primary-color-blue: #2A2A86;
   }
   .ant-select {
     width: 100%;
+  }
+  .select-with-search {
+    .ant-select-selector {
+      border-radius: 5px !important;
+      border-color: #CFDCE9 !important;
+      padding: 2px 11px !important;
+      height: auto !important;
+    }
   }
 }
 
@@ -356,6 +400,171 @@ $primary-color-blue: #2A2A86;
   margin: 15px 0;
 }
 
-.payment-method-content {
-  margin-top: 20px;
+.ant-divider-horizontal {
+  margin: 19px 0;
+}
+
+.checkbox-style {
+  .ant-checkbox-inner {
+    border: 2px solid #d9d9d9;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.customer-info-left {
+  &>.ant-row {
+    margin-top: 13px;
+  }
+  .customer-row-info {
+    img {
+      width: 15px;
+    }
+    span {
+      margin-left: 13px;
+    }
+  }
+}
+
+.row-customer-detail {
+  .cdn-level {
+    background: rgba(93, 95, 239, 0.1);
+    color: #5D5FEF;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 10px;
+  }
+}
+
+.sale-online-product {
+  .ant-space-item {
+    height: 100%;
+  }
+}
+
+.row-info {
+  margin-top: 13px;
+  img {
+    width: 15px;
+  }
+}
+
+.receive-at-store {
+  .row-info-title {
+    min-width: 70px;
+  }
+}
+
+.ant-popover-title {
+  padding: 0;
+  .change-shipping-address-title {
+    background: #EFF1FF;
+    padding: 10px 20px;
+  }
+}
+
+.ant-popover-inner-content {
+  padding: 0;
+  .change-shipping-address-content {
+    width: 600px;
+    .shipping-address-row {
+      padding: 15px 20px;
+      border-bottom: 1px solid #eee;
+      button {
+        height: auto;
+      }
+      &>div:not(.shipping-address-name) {
+        margin-top: 5px;
+      }
+    }
+  }
+}
+
+.ant-modal-header {
+  background: rgba(239, 241, 255, .4);
+  color: #4F687D;
+  font-weight: 500;
+}
+
+.ant-modal-footer {
+  border: 0;
+  padding-bottom: 20px;
+  .ant-btn {
+    font-weight: 500;
+    padding: 8px 15px;
+    min-width: 90px;
+    border-radius: 6px;
+    height: auto;
+  }
+}
+
+.update-shipping {
+  min-width: 600px;
+}
+
+.ant-input-number {
+  border: 0;
+  .ant-input-number-input {
+    height: auto;
+    border: 1px solid #CFDCE9;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding: 6px 11px;
+    //text-align: right;
+  }
+}
+
+//.ant-input-number-input::placeholder {
+//  text-align: left;
+//}
+
+.sale-product-box {
+  .ant-table-thead {
+    >tr>th {
+      font-weight: 400;
+    }
+  }
+}
+
+.sale-product-box-payment {
+  margin-top: 19px;
+  button {
+    height: auto;
+  }
+  .payment-row {
+    margin-top: 15px;
+  }
+}
+
+.badge-style {
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+.badge-danger {
+  background: rgba(226, 67, 67, 0.1);
+  color: #E24343;
+  button {
+    color: #E24343;
+    margin-left: 5px;
+  }
+}
+
+.badge-primary {
+  background: rgba(0, 128, 255, 0.1);
+  color: #0080FF;
+  button {
+    color: #0080FF;
+    margin-left: 5px;
+  }
+}
+
+.tooltip-icon {
+  margin-left: 5px;
+}
+
+.update-customer-modal {
+  min-width: 800px;
 }

@@ -109,6 +109,15 @@ const getArrCategory = (i: CategoryResponse, level: number, parent: CategoryResp
   return arr;
 }
 
+export const formatCurrency = (currency: number | string): string => {
+  let format = currency.toString();
+  return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+}
+
+export const replaceFormat = (currency: number | string): number => {
+  let format = currency.toString();
+  return parseInt(format.replace(/,/gi, ''));
+}
 export const generateQuery = (obj: any) => {
   let a: string = Object.keys(obj).map((key, index) => {
     let url = '';
