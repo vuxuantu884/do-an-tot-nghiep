@@ -1,4 +1,3 @@
-import React from 'react';
 import { Spin } from 'antd';
 import { Loading3QuartersOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
