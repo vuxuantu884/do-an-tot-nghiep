@@ -17,8 +17,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   let {isLogin} = userReducer;
   const onFinish = useCallback((values) => {
-    setLoading(true);
-    dispatch(loginRequestAction(values.username, values.password));
+    dispatch(loginRequestAction(values.username, values.password, setLoading));
   }, [dispatch]);
   if(isLogin) {
     let url = query.get('returnUrl');
@@ -37,7 +36,7 @@ const Login = () => {
             className="row-form"
             label="Tên đăng nhập"
             name="username"
-            rules={[{ required: true, message: 'Tên đăng nhập không được bỏ trống' }]}
+            rules={[{ required: true, message: 'Tên đăng nhập không được bỏ trống'}, {pattern: /^[a-zA-Z0-9]{4,20}$/, message: "Tên đăng nhập sai định dạng"}]}
           >
             <Input size="large" placeholder="Tên đăng nhập" />
           </Form.Item>
@@ -46,7 +45,7 @@ const Login = () => {
              className="row-form"
             label="Mật khẩu"
             name="password"
-            rules={[{ required: true, message: 'Mật khẩu không được bỏ trống' }]}
+            rules={[{ required: true, message: 'Mật khẩu không được bỏ trống' }, {min: 6, message: "Mật khẩu sai định dạng"}]}
           >
             <Input.Password size="large" placeholder="Mật khẩu" />
           </Form.Item>
