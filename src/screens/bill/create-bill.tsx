@@ -7,8 +7,8 @@ import editBlueIcon from 'assets/img/editBlue.svg';
 import deleteRedIcon from 'assets/img/deleteRed.svg';
 import pointIcon from 'assets/img/point.svg';
 import storeBluecon from 'assets/img/storeBlue.svg';
-import dhlIcon from 'assets/img/ghtk.svg';
-import ghtkIcon from 'assets/img/dhl.svg';
+import dhlIcon from 'assets/img/dhl.svg';
+import ghtkIcon from 'assets/img/ghtk.svg';
 import callIcon from 'assets/img/call.svg';
 import locationIcon from 'assets/img/location.svg';
 import peopleIcon from 'assets/img/people.svg';
@@ -120,7 +120,7 @@ const CreateBill = () => {
 
   const AmountColumnt = {
     title: () => (
-      <div>
+      <div className="text-center">
         <div>Số lượng</div>
         <span style={{ color: '#0080FF' }}>(3)</span>
       </div>
@@ -196,7 +196,7 @@ const CreateBill = () => {
 
   const ActionColumn = {
     title: 'Thao tác',
-    width: 80,
+    width: 85,
     className: 'yody-table-action text-center',
     render: (index: number) => {
       const menu = (
@@ -397,9 +397,9 @@ const CreateBill = () => {
                         <Checkbox className="checkbox-style" style={{ fontSize: 14 }}
                                   onChange={() => console.log(1)}>Tách dòng</Checkbox>
                       </div>
-                      <div>
+                      <div className="price-policy">
                         <label htmlFor="" style={{ marginRight: 10 }}>Chính sách giá</label>
-                        <Select defaultValue="1" style={{ width: 130 }}>
+                        <Select defaultValue="1" style={{ minWidth: 130 }}>
                           <Select.Option value="1">Giá bán lẻ</Select.Option>
                           <Select.Option value="2">Giá bán buôn</Select.Option>
                         </Select>
@@ -453,7 +453,11 @@ const CreateBill = () => {
             <Row className="sale-product-box">
               <Table
                 locale={{
-                  emptyText: 'Không có sản phẩm'
+                  emptyText: (
+                    <Button type="text" className="font-weight-500"
+                            style={{ color: '#2A2A86', background: 'rgba(42,42,134,0.05)', borderRadius: 5, padding: 8, height: 'auto', marginTop: 15, marginBottom: 15 }}
+                    >Thêm sản phẩm ngay (F3)</Button>
+                  )
                 }}
                 rowKey={record => record.uid}
                 columns={columns}
@@ -544,51 +548,53 @@ const CreateBill = () => {
 
             <div>
               {/*--- đối tác ----*/}
-              <Row className="ship-box" hidden={selectedShipMethod !== 1}>
-                <div className="form-group form-group-with-search">
-                  <label htmlFor="" className="">Phí ship báo khách</label>
-                  <InputNumber placeholder="" className="text-right hide-handler-wrap w-100"/>
-                </div>
-                <div className="table-ship w-100">
-                  <Radio.Group className="w-100">
-                  <Descriptions title="" bordered layout="vertical">
-                    <Descriptions.Item label="Hãng vận chuyển">
-                      <div><img src={dhlIcon} alt=""/></div>
-                      <Divider/>
-                      <div><img src={ghtkIcon} alt=""/></div>
-                    </Descriptions.Item>
+              <Row gutter={24} className="ship-box" hidden={selectedShipMethod !== 1}>
+                <Col xs={24} lg={12}>
+                  <div className="form-group form-group-with-search">
+                    <label htmlFor="" className="">Phí ship báo khách</label>
+                    <InputNumber placeholder="" className="text-right hide-handler-wrap w-100"/>
+                  </div>
+                </Col>
 
-                    <Descriptions.Item label="Dịch vụ chuyển phát">
-                      <div>
-                        <Space>
-                          <Radio value={1}>Chuyển phát nhanh PDE</Radio>
-                        </Space>
-                      </div>
-                      <Divider/>
-                      <div>
-                        <Row>
-                          <Space>
+                <Col span={24}>
+                  <div className="table-ship w-100">
+                    <div className="custom-table">
+                      <table className="w-100">
+                        <thead>
+                        <tr>
+                          <th>Hãng vận chuyển</th>
+                          <th>Dịch vụ chuyển phát</th>
+                          <th>Cước phí</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                          <td><img src={dhlIcon} alt=""/></td>
+                          <td><Radio value={1}>Chuyển phát nhanh PDE</Radio></td>
+                          <td><Typography.Text type="success">{formatCurrency(18000)}</Typography.Text></td>
+                        </tr>
+
+                        <tr>
+                          <td rowSpan="2">
+                            <img src={ghtkIcon} alt=""/>
+                          </td>
+                          <td>
                             <Radio value={2}>Đường bộ</Radio>
-                          </Space>
-                        </Row>
-                        <Row>
-                          <Space>
+                          </td>
+                          <td>{formatCurrency(30000)}</td>
+                        </tr>
+
+                        <tr>
+                          <td>
                             <Radio value={3}>Đường bay</Radio>
-                          </Space>
-                        </Row>
-                      </div>
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Cước phí">
-                      <div><Typography.Text type="success">18000</Typography.Text></div>
-                      <Divider/>
-                      <div>
-                        <Row><Typography.Text type="secondary">30000</Typography.Text></Row>
-                        <Row><Typography.Text type="secondary">50000</Typography.Text></Row>
-                      </div>
-                    </Descriptions.Item>
-                  </Descriptions>
-                  </Radio.Group>
-                </div>
+                          </td>
+                          <td>{formatCurrency(50000)}</td>
+                        </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </Col>
               </Row>
 
               {/*--- Tự giao hàng ----*/}

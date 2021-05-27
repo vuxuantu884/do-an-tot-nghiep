@@ -29,6 +29,10 @@ $desktop-width: 1400px;
   font-family: Inter;
 }
 
+body {
+  color: #37394D;
+}
+
 .d-flex {
   display: flex;
 }
@@ -63,6 +67,14 @@ $desktop-width: 1400px;
 
 .w-100 {
   width: 100%;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
 }
 
 .text-right {
