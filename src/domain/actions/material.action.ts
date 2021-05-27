@@ -16,6 +16,10 @@ export const getMaterialAction = (
   });
 }
 
-export const getMaterialSuccessAction = () => {
-  return BaseAction(MaterialType.GET_MATERIAL_SUCCESS, null);
+export const deleteOneMaterialAction = (id: number, onDeleteSuccess: () => void) => {
+  return BaseAction(MaterialType.DELETE_ONE_MATERIAL_REQUEST, {id, onDeleteSuccess});
+}
+
+export const deleteManyMaterialAction = (ids: Array<number>, onDeleteSuccess: () => void) => {
+  return BaseAction(MaterialType.DELETE_MANY_MATERIAL_REQUEST, {ids, onDeleteSuccess});
 }
