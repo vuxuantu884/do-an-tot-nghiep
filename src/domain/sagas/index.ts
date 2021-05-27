@@ -7,12 +7,14 @@ import { materialSaga } from './material.saga';
 import OrderOnlineSaga from './orderOnline.saga';
 import storeSaga  from './store.saga'
 
+import { productSaga } from './product.saga';
 function* rootSaga(){
     yield all([
       appSaga(),
       bootstrapSaga(),
       authSaga(),
       categorySaga(),
+      productSaga(),
       materialSaga(),
       storeSaga(),
       OrderOnlineSaga(),

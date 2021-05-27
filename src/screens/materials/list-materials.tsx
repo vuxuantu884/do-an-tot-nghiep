@@ -1,17 +1,31 @@
-import { Button, Card, Form, Input, Select, Table } from "antd";
+import { Button, Card, Form, Input, Table } from "antd";
 import React, { useCallback, useLayoutEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from 'assets/img/search.svg';
-import {MaterialResponse} from 'model/response/product/material.response';
+import { MaterialResponse } from 'model/response/product/material.response';
 import ButtonSetting from "component/table/ButtonSetting";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { generateQuery } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
-import { getMaterialAction } from "domain/actions/material.action";
+import { deleteManyMaterialAction, deleteOneMaterialAction, getMaterialAction } from "domain/actions/material.action";
 import { BaseMetadata } from "model/response/base-metadata.response";
 import CustomPagination from "component/table/CustomPagination";
 import { MaterialQuery } from "model/query/material.query";
+import ActionButton, { MenuAction } from "component/table/ActionButton";
+import {showWarning} from 'utils/ToastUtils';
 
+const action: Array<MenuAction> = [
+  {
+    id: 1,
+    name: "Xóa"
+  },
+  {
+    id: 1,
+    name: "Export"
+  },
+]
+
+const selected: Array<MaterialResponse> = [];
 const ListMaterial: React.FC = () => {
   const [data, setData] = useState<Array<MaterialResponse>>([]);
   const history = useHistory();
@@ -52,73 +66,105 @@ const ListMaterial: React.FC = () => {
       width: 70
     },
   ];
+  const onDeleteSuccess = useCallback(() => {
+    selected.splice(0, selected.length);
+    dispatch(getMaterialAction(params, setData, setMetadata));
+  }, [dispatch, params])
+  const onDelete = useCallback(() => {
+    if(selected.length === 0) {
+      showWarning('Vui lòng chọn phần từ cần xóa');
+      return;
+    }
+    if(selected.length === 1) {
+      let id = selected[0].id;
+      dispatch(deleteOneMaterialAction(id, onDeleteSuccess))
+      return;
+    }
+    let ids: Array<number> = [];
+    selected.forEach((a) => ids.push(a.id));
+    dispatch(deleteManyMaterialAction(ids, onDeleteSuccess))
+  }, [dispatch, onDeleteSuccess]);
+  const onSelect = useCallback((record) => {
+    selected.push(record);
+  }, []);
   const onFinish = useCallback((values) => {
-    let newPrams ={...params, ...values, page: 0};
+    let newPrams = { ...params, ...values, page: 0 };
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
     history.push(`/products/materials?${queryParam}`);
   }, [history, params]);
   const onPageSizeChange = useCallback((size: number) => {
     params.limit = size;
+    params.page = 0;
     let queryParam = generateQuery(params);
-    setPrams({...params});
-    history.push(`/products/materials?${queryParam}`);
+    setPrams({ ...params });
+    history.replace(`/products/materials?${queryParam}`);
   }, [history, params]);
+  const onPageChange = useCallback((page) => {
+    params.page = page - 1;
+    let queryParam = generateQuery(params);
+    setPrams({ ...params });
+    history.replace(`/products/materials?${queryParam}`);
+  }, [history, params]);
+  const onMenuClick = useCallback((index: number) => {
+    switch (index) {
+      case 0:
+        onDelete();
+        break;
+    }
+  }, [onDelete]);
   useLayoutEffect(() => {
-      dispatch(getMaterialAction(params, setData, setMetadata));
+    dispatch(getMaterialAction(params, setData, setMetadata));
   }, [dispatch, params])
   return (
     <div>
       <Card className="contain">
-        {
-         data.length === 0 ? (
-            <div className="view-empty">
-              <span className="text-empty">Danh sách chất liệu trống</span>
-              <Link to="/products/materials/create" className="buttom-empty">
-                Thêm mới chất liệu
-              </Link>
+        <Card
+          className="view-control"
+          style={{ display: 'flex' }}
+          bordered={false}
+        >
+          <Form
+            className="form-search"
+            size="middle"
+            onFinish={onFinish}
+            initialValues={params}
+            layout="inline"
+          >
+            <ActionButton onMenuClick={onMenuClick} menu={action} />
+            <div className="right-form">
+              <Form.Item className="form-group form-group-with-search" name="info">
+                <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Tên/Mã/ID nhân viên" />
+              </Form.Item>
+              <Form.Item className="form-group form-group-with-search" name="component">
+                <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Thành phần" />
+              </Form.Item>
+              <Form.Item className="form-group form-group-with-search" name="description">
+                <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Ghi chú" />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className="yody-search-button">Lọc</Button>
+              </Form.Item>
             </div>
-          ) : (
-            <React.Fragment>
-              <Card
-                className="view-control"
-                style={{ display: 'flex', justifyContent: 'flex-end' }}
-                bordered={false}
-              >
-                <Form
-                  size="middle"
-                  onFinish={onFinish}
-                  initialValues={params}
-                  layout="inline"
-                >
-                  <Form.Item name="info">
-                    <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Tên/Mã/Id nhân viên" />
-                  </Form.Item>
-                  <Form.Item name="component">
-                    <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Thành phần" />
-                  </Form.Item>
-                  <Form.Item>
-                    <Button type="primary" htmlType="submit" className="yody-search-button">Lọc</Button>
-                  </Form.Item>
-                </Form>
-              </Card>
-              <Table
-                rowSelection={{
-                  type: "checkbox",
-                  columnWidth: 80,
-                }}
-                pagination={false}
-                dataSource={data}
-                columns={columns}
-                rowKey={(item) => item.id}
-              />
-              <CustomPagination
-                metadata={metadata} 
-                onPageSizeChange={onPageSizeChange}
-              />
-            </React.Fragment>
-          )
-        }
+          </Form>
+        </Card>
+        <Table
+          rowSelection={{
+            type: "checkbox",
+            columnWidth: 80,
+            onSelect: onSelect,
+          }}
+          className="yody-table"
+          pagination={false}
+          dataSource={data}
+          columns={columns}
+          rowKey={(item) => item.id}
+        />
+        <CustomPagination
+          metadata={metadata}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+        />
       </Card>
     </div>
   )

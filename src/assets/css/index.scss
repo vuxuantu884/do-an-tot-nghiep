@@ -29,6 +29,12 @@ $desktop-width: 1400px;
   font-family: Inter;
 }
 
+a {
+  &:hover &:focus {
+    color: $primary-color-blue;
+  }
+}
+
 .d-flex {
   display: flex;
 }
@@ -172,13 +178,15 @@ $desktop-width: 1400px;
     .page-size-view {
       display: flex;
       align-items: center;
-      margin-right: 75px;
       .page-size-selected {
         margin-left: 25px;
         display: flex;
         align-items: center;
         color: #808080;
       }
+    }
+    .yody-page {
+      margin-left: 75px;
     }
   }
 }
@@ -201,4 +209,21 @@ $desktop-width: 1400px;
       color: $primary-color-blue;
     }
   }
+}
+
+.action-button {
+  border: 1px solid $primary-color-blue;
+  padding: 6px 15px;
+  border-radius: 5px;
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  color: $primary-color-blue;
+  &:hover {
+    color: $primary-color-blue;
+  }
+}
+
+.r-5 {
+  border-radius: 5px;
 }
