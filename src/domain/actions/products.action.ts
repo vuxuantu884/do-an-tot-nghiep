@@ -8,7 +8,3 @@ export const searchVariantsRequestAction = (info: string|null, barcode: string|n
   setData: (data: Array<VariantResponse>) => void) => {
   return BaseAction(ProductType.SEARCH_PRODUCT_REQUEST, {info, barcode,  setData});
 }
-
-export const getProductSuccessAction = () => {
-  return BaseAction(ProductType.GET_PRODUCT_SUCCESS, null);
-}
