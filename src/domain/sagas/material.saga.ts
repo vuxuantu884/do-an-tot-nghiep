@@ -11,21 +11,13 @@ import { showError } from 'utils/ToastUtils';
 
 function* getMaterialSaga(action: YodyAction) {
   const {
-    component,
-    created_name,
-    description,
-    info,
-    limit,
-    page,
-    sortType,
-    sortColumn,
+    query,
     setData,
     setMetadata
   } = action.payload;
   try {
     yield put(showLoading());
-    console.log(limit);
-    let response: BaseResponse<PageResponse<MaterialResponse>> = yield call(getMaterialApi, component, created_name, description, info, limit, page, sortColumn, sortType);
+    let response: BaseResponse<PageResponse<MaterialResponse>> = yield call(getMaterialApi, query);
     yield put(hideLoading());
     switch(response.code) {
       case HttpStatus.SUCCESS:

@@ -1,10 +1,10 @@
 import { BaseQuery } from "./base.query";
 
 export interface MaterialQuery extends BaseQuery {
-  component: string|null, 
-  created_name: string|null, 
-  description: string|null, 
-  info: string|null,
-  sort_column: string|null, 
-  sort_type: string|null
+  component?: string, 
+  created_name?: string, 
+  description?: string, 
+  info?: string,
+  sort_column?: string, 
+  sort_type?: string
 }

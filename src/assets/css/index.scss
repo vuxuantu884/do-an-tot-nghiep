@@ -126,6 +126,21 @@ $primary-color-blue: #2A2A86;
     line-height: 17px;
     color: #393939;
   }
+  .pagination-right {
+    display: flex;
+    align-items: center;
+    .page-size-view {
+      display: flex;
+      align-items: center;
+      margin-right: 75px;
+      .page-size-selected {
+        margin-left: 25px;
+        display: flex;
+        align-items: center;
+        color: #808080;
+      }
+    }
+  }
 }
 .yody-pagination-text {
   font-family: Inter;
@@ -134,4 +149,16 @@ $primary-color-blue: #2A2A86;
   font-size: 14px;
   line-height: 17px;
   color: #808080;
+}
+
+.ant-pagination-item-active {
+  border-radius: 50%;
+  background-color: rgba(42, 42, 134, 0.1);
+  border: none;
+  a {
+    color: $primary-color-blue;
+    &:hover {
+      color: $primary-color-blue;
+    }
+  }
 }

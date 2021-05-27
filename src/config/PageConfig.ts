@@ -1,1 +1,1 @@
-export const PageConfig = ['30', '50', '100'];
+export const PageConfig = [30, 50, 100];

@@ -1,25 +1,28 @@
 import { Button, Card, Form, Input, Select, Table } from "antd";
 import React, { useCallback, useLayoutEffect, useState } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import search from 'assets/img/search.svg';
 import {MaterialResponse} from 'model/response/product/material.response';
 import ButtonSetting from "component/table/ButtonSetting";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { PageConfig } from "config/PageConfig";
+import { generateQuery } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
 import { getMaterialAction } from "domain/actions/material.action";
 import { BaseMetadata } from "model/response/base-metadata.response";
 import CustomPagination from "component/table/CustomPagination";
+import { MaterialQuery } from "model/query/material.query";
 
 const ListMaterial: React.FC = () => {
   const [data, setData] = useState<Array<MaterialResponse>>([]);
-  const [metadata, setMetadata] = useState<BaseMetadata>({
-    limit: 0,
-    page: 0,
-    total: 0,
-  });
+  const history = useHistory();
   const dispatch = useDispatch();
   const query = useQuery();
+  let [params, setPrams] = useState<MaterialQuery>(getQueryParams(query));
+  const [metadata, setMetadata] = useState<BaseMetadata>({
+    limit: params.limit ? params.limit : 30,
+    page: params.page ? params.page : 0,
+    total: 0,
+  });
   const columns = [
     {
       title: 'Mã chất liệu',
@@ -49,31 +52,21 @@ const ListMaterial: React.FC = () => {
       width: 70
     },
   ];
-
-  const limit = query.get('limit');
-  const page = query.get('page');
-  const component = query.get('component');
-  const created_name = query.get('created_name');
-  const description = query.get('description');
-  const sort_column = query.get('sort_column');
-  const sort_type = query.get('sort_type');
-  const info = query.get('info');
-
-  const params = getQueryParams(query);
-  console.log(params);
-
-  const onFinish = useCallback(() => {}, []);
-  let limitInt = limit !== null ? parseInt(limit)  : 30;
-  let pageInt = page !== null ? parseInt(page) : 1;
-
+  const onFinish = useCallback((values) => {
+    let newPrams ={...params, ...values, page: 0};
+    setPrams(newPrams);
+    let queryParam = generateQuery(newPrams);
+    history.push(`/products/materials?${queryParam}`);
+  }, [history, params]);
+  const onPageSizeChange = useCallback((size: number) => {
+    params.limit = size;
+    let queryParam = generateQuery(params);
+    setPrams({...params});
+    history.push(`/products/materials?${queryParam}`);
+  }, [history, params]);
   useLayoutEffect(() => {
-    if(!Number.isNaN(limitInt) && !Number.isNaN(pageInt)) {
-      dispatch(getMaterialAction(component, created_name, description, info, limitInt, pageInt - 1, sort_column, sort_type, setData, setMetadata));
-    }
-  }, [component, created_name, description, dispatch, info, limit, limitInt, pageInt, sort_column, sort_type])
-  if((Number.isNaN(limitInt) || Number.isNaN(pageInt))) {
-    return <Redirect to='/products/materials' />
-  }
+      dispatch(getMaterialAction(params, setData, setMetadata));
+  }, [dispatch, params])
   return (
     <div>
       <Card className="contain">
@@ -95,24 +88,14 @@ const ListMaterial: React.FC = () => {
                 <Form
                   size="middle"
                   onFinish={onFinish}
-                  initialValues={{
-                   
-                  }}
+                  initialValues={params}
                   layout="inline"
                 >
-                  <Form.Item name="name">
+                  <Form.Item name="info">
                     <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Tên/Mã/Id nhân viên" />
                   </Form.Item>
-                  <Form.Item name="goods">
-                    <Select 
-                      style={{
-                        width: 250,
-                      }}
-                    >
-                      <Select.Option value="">
-                        Bộ phận
-                      </Select.Option>
-                    </Select>
+                  <Form.Item name="component">
+                    <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Thành phần" />
                   </Form.Item>
                   <Form.Item>
                     <Button type="primary" htmlType="submit" className="yody-search-button">Lọc</Button>
@@ -129,7 +112,10 @@ const ListMaterial: React.FC = () => {
                 columns={columns}
                 rowKey={(item) => item.id}
               />
-              <CustomPagination metadata={metadata} />
+              <CustomPagination
+                metadata={metadata} 
+                onPageSizeChange={onPageSizeChange}
+              />
             </React.Fragment>
           )
         }
