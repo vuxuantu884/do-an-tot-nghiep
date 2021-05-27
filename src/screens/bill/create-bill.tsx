@@ -575,7 +575,7 @@ const CreateBill = () => {
                         </tr>
 
                         <tr>
-                          <td rowSpan="2">
+                          <td>
                             <img src={ghtkIcon} alt=""/>
                           </td>
                           <td>

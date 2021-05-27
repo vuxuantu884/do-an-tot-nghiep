@@ -29,10 +29,7 @@ $desktop-width: 1400px;
   font-family: Inter;
 }
 
-a {
-  &:hover &:focus {
-    color: $primary-color-blue;
-  }
+
 body {
   color: #37394D;
 }
