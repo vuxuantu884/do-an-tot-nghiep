@@ -10,3 +10,12 @@ export const getMaterialApi = (query: MaterialQuery): Promise<BaseResponse<PageR
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PRODUCT}/materials?${queryString}`);
 }
+
+export const deleteOneMaterialApi = (id: number): Promise<BaseResponse<string>> => {
+  return BaseAxios.delete(`${ApiConfig.PRODUCT}/materials/${id}`);
+}
+
+export const deleteManyMaterialApi = (ids: Array<number>): Promise<BaseResponse<string>> => {
+  let idsParam =  ids.join(',');
+  return BaseAxios.delete(`${ApiConfig.PRODUCT}/materials?ids=${idsParam}`);
+}

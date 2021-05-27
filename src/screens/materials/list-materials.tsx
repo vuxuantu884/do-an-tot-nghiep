@@ -7,11 +7,12 @@ import ButtonSetting from "component/table/ButtonSetting";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { generateQuery } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
-import { getMaterialAction } from "domain/actions/material.action";
+import { deleteManyMaterialAction, deleteOneMaterialAction, getMaterialAction } from "domain/actions/material.action";
 import { BaseMetadata } from "model/response/base-metadata.response";
 import CustomPagination from "component/table/CustomPagination";
 import { MaterialQuery } from "model/query/material.query";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
+import {showWarning} from 'utils/ToastUtils';
 
 const action: Array<MenuAction> = [
   {
@@ -65,6 +66,24 @@ const ListMaterial: React.FC = () => {
       width: 70
     },
   ];
+  const onDeleteSuccess = useCallback(() => {
+    selected.splice(0, selected.length);
+    dispatch(getMaterialAction(params, setData, setMetadata));
+  }, [dispatch, params])
+  const onDelete = useCallback(() => {
+    if(selected.length === 0) {
+      showWarning('Vui lòng chọn phần từ cần xóa');
+      return;
+    }
+    if(selected.length === 1) {
+      let id = selected[0].id;
+      dispatch(deleteOneMaterialAction(id, onDeleteSuccess))
+      return;
+    }
+    let ids: Array<number> = [];
+    selected.forEach((a) => ids.push(a.id));
+    dispatch(deleteManyMaterialAction(ids, onDeleteSuccess))
+  }, [dispatch, onDeleteSuccess]);
   const onSelect = useCallback((record) => {
     selected.push(record);
   }, []);
@@ -90,9 +109,10 @@ const ListMaterial: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
       case 0:
+        onDelete();
         break;
     }
-  }, []);
+  }, [onDelete]);
   useLayoutEffect(() => {
     dispatch(getMaterialAction(params, setData, setMetadata));
   }, [dispatch, params])

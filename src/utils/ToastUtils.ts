@@ -29,3 +29,7 @@ export const showSuccess = (msg: string) => {
 export const showError = (msg: string) => {
   cogoToast.error(msg, option)
 }
+
+export const showWarning = (msg: string) => {
+  cogoToast.warn(msg, option)
+}
