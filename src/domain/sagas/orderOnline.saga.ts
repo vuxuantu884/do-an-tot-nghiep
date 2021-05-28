@@ -1,4 +1,4 @@
-import { OrderType } from './../types/product.type';
+import { OrderType } from './../types/order.type';
 import BaseResponse from 'base/BaseResponse';
 import { put, call, takeLatest } from 'redux-saga/effects';
 import { HttpStatus } from 'config/HttpStatus';
