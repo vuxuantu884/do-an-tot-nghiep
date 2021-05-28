@@ -22,6 +22,7 @@ $desktop-width: 1400px;
 
 ::-webkit-scrollbar {
   width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -62,6 +63,7 @@ $desktop-width: 1400px;
   background: rgb(244, 244, 247);
   @include mobile {
     flex-wrap: wrap;
+    //padding: 10px;
   }
   .yody-title {
     font-family: Inter;
@@ -91,6 +93,12 @@ $desktop-width: 1400px;
     z-index: 1000;
   }
 }
+
+.ant-layout-sider-collapsed .button-collspae {
+  transform: rotate(180deg);
+  right: -20px;
+}
+
 .yody-menu {
   height: calc(100% - 86px - 86px);
   overflow: hidden;
@@ -354,6 +362,9 @@ $desktop-width: 1400px;
   border-radius: 5px;
   box-shadow: 0 0 5px 1px #eee;
   .ant-card-head-title {
+    @include mobile {
+      flex: auto;
+    }
     img {
       margin-right: 5px;
     }
@@ -502,12 +513,12 @@ $desktop-width: 1400px;
 
 .sale-online-product {
   .ant-card-extra {
-    .ant-space-item {
-      height: 100%;
-      @include mobile {
-        height: auto;
-      }
-    }
+    //.ant-space-item {
+    //  height: 100%;
+    //  @include mobile {
+    //    height: auto;
+    //  }
+    //}
     .price-policy {
       margin: 10px 0;
     }
@@ -546,6 +557,9 @@ $desktop-width: 1400px;
   padding: 0;
   .change-shipping-address-content {
     width: 600px;
+    @include mobile {
+      width: 100%;
+    }
     .shipping-address-row {
       padding: 15px 20px;
       border-bottom: 1px solid #eee;
@@ -661,6 +675,12 @@ table {
 }
 
 .custom-table {
+  @include mobile {
+    overflow: auto;
+    img {
+      max-width: 100px;
+    }
+  }
   td, th {
     padding: 12px;
     border: 1px solid #eee;
@@ -671,4 +691,12 @@ table {
     color: #37394D;
   }
 
+}
+
+.ant-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  .ant-checkbox {
+    top: 0;
+  }
 }
