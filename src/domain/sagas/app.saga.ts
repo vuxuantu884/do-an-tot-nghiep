@@ -3,7 +3,7 @@ import { takeLatest, call, put } from "@redux-saga/core/effects";
 import { AppType } from "domain/types/app.type";
 import { getToken } from "utils/LocalStorageUtils";
 import { loadUserFromStorageSuccessAction, loadUserFromStorageFailAction} from 'domain/actions/app.action';
-import { getAcccountDetail } from 'service/accounts/account';
+import { getAcccountDetail } from 'service/accounts/account.service';
 import BaseResponse from 'base/BaseResponse';
 import { AccountDetailResponse } from 'model/response/accounts/account-detail.response';
 import { HttpStatus } from 'config/HttpStatus';

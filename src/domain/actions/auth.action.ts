@@ -1,5 +1,5 @@
 import BaseAction from "base/BaseAction"
-import { AuthType } from "domain/types/auth.type";
+import { AuthType } from "domain/types/account.type";
 
 export const loginRequestAction = (username: string, password: string, setLoading: (isLoading: boolean) => void) => {
   return BaseAction(AuthType.LOGIN_REQUEST, {username: username, password: password, setLoading});
