@@ -11,7 +11,7 @@ import ButtonSetting from "component/table/ButtonSetting";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { CategoryResponse } from "model/response/category.response";
 import { convertCategory, generateQuery } from "utils/AppUtils";
-import { CategoryQuery } from "model/query/categor.query";
+import { CategoryQuery } from "model/query/category.query";
 
 const action: Array<MenuAction> = [
   {

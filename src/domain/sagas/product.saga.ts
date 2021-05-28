@@ -7,17 +7,26 @@ import { hideLoading, showLoading } from 'domain/actions/loading.action';
 import { ProductType } from 'domain/types/product.type';
 import { searchVariantsApi } from 'service/product/product.service';
 import { showError } from 'utils/ToastUtils';
+import { PageResponse } from 'model/response/base-metadata.response';
+
+
+
+
 
 function* searchVariantSaga(action: YodyAction) {
-  const {info, barcode, setData} = action.payload;
+  const {
+    query,
+    setData,
+    setMetadata
+  } = action.payload;
   try {
     yield put(showLoading());
-    let response: BaseResponse<Array<VariantResponse>> = yield call(searchVariantsApi, info, barcode);
+    let response: BaseResponse<PageResponse<VariantResponse>> = yield call(searchVariantsApi, query);
     yield put(hideLoading());
     switch(response.code) {
       case HttpStatus.SUCCESS:
-        let arrResult: Array<VariantResponse> = response.data;
-        setData(arrResult);
+        setMetadata(response.data.metadata);
+        setData(response.data.items);
         break;
       default:
         response.errors.forEach((e) => showError(e));
@@ -28,6 +37,9 @@ function* searchVariantSaga(action: YodyAction) {
     showError('Có lỗi vui lòng thử lại sau');
   }
 }
+
+
+
 
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
