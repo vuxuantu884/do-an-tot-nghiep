@@ -3,23 +3,20 @@ import { YodyAction } from 'base/BaseAction';
 import BaseResponse from 'base/BaseResponse';
 import { HttpStatus } from 'config/HttpStatus';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
-import { CategoryType } from 'domain/types/product.type';
-import { CategoryView } from 'model/other/category-view';
+import { CategoryType } from 'domain/types/category.type';
 import { CategoryResponse } from 'model/response/category.response';
 import { getCategoryApi } from 'service/product/category.service';
-import { convertCategory } from 'utils/AppUtils';
 import { showError } from 'utils/ToastUtils';
 
 function* getCategorySaga(action: YodyAction) {
-  const {code, created_name, goods, name, setData} = action.payload;
+  const {query, setData} = action.payload;
   try {
     yield put(showLoading());
-    let response: BaseResponse<Array<CategoryResponse>> = yield call(getCategoryApi, code, created_name, goods, name);
+    let response: BaseResponse<Array<CategoryResponse>> = yield call(getCategoryApi, query);
     yield put(hideLoading());
     switch(response.code) {
       case HttpStatus.SUCCESS:
-        let arrResult: Array<CategoryView> = convertCategory(response.data);
-        setData(arrResult);
+        setData(response.data);
         break;
       default:
         response.errors.forEach((e) => showError(e));

@@ -16,7 +16,3 @@ export const searchVariantsRequestAction = (
     setMetadata
   });
 }
-
-export const getProductSuccessAction = () => {
-  return BaseAction(ProductType.GET_PRODUCT_SUCCESS, null);
-}

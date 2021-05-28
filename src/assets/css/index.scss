@@ -1,13 +1,38 @@
 @import url('https://fonts.googleapis.com/css?family=Inter:ital,wght@0,100;0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
 
 $primary-color-blue: #2A2A86;
+$mobile-width: 991px;
+$tablet-width: 992px;
+$desktop-width: 1400px;
 
+@mixin mobile {
+  @media (max-width: #{$mobile-width}) {
+    @content;
+  }
+}
+
+@mixin tablet { @media (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 1px}) {
+  @content;
+}
+}
+
+@mixin desktop {
+  @media (min-width: #{$desktop-width}) {
+    @content;
+  }
+}
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: Inter;
+}
+
+a {
+  &:hover &:focus {
+    color: $primary-color-blue;
+  }
 }
 
 .d-flex {
@@ -36,6 +61,24 @@ $primary-color-blue: #2A2A86;
 
 .p-0 {
   padding: 0 !important;
+}
+
+.font-weight-500 {
+  font-weight: 500;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.ant-input-number.hide-handler-wrap {
+  .ant-input-number-handler-wrap {
+    display: none;
+  }
 }
 
 .notfound{
@@ -100,6 +143,9 @@ $primary-color-blue: #2A2A86;
 
 .ant-layout-sider {
   background-color: #fff;
+  @include mobile {
+    display: none;
+  }
 }
 
 .ant-btn-primary {
@@ -132,13 +178,15 @@ $primary-color-blue: #2A2A86;
     .page-size-view {
       display: flex;
       align-items: center;
-      margin-right: 75px;
       .page-size-selected {
         margin-left: 25px;
         display: flex;
         align-items: center;
         color: #808080;
       }
+    }
+    .yody-page {
+      margin-left: 75px;
     }
   }
 }
@@ -161,4 +209,21 @@ $primary-color-blue: #2A2A86;
       color: $primary-color-blue;
     }
   }
+}
+
+.action-button {
+  border: 1px solid $primary-color-blue;
+  padding: 6px 15px;
+  border-radius: 5px;
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  color: $primary-color-blue;
+  &:hover {
+    color: $primary-color-blue;
+  }
+}
+
+.r-5 {
+  border-radius: 5px;
 }

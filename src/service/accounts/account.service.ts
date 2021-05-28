@@ -1,13 +1,18 @@
 import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
-import { PageResponse } from 'model/response/base-metadata.response';
+import { LoginRequest } from "model/request/login.request";
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
+import { LoginResponse } from "model/response/accounts/login.response";
 
 export const getAcccountDetail = (): Promise<BaseResponse<AccountDetailResponse>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/detail`);
 }
 
-export const getAccountByDepartment = (department_id:number): Promise<BaseResponse<PageResponse<AccountDetailResponse>>> => {
-  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts?department_ids=${department_id}`);
+export const loginApi = (request: LoginRequest): Promise<BaseResponse<LoginResponse>> => {
+  return BaseAxios.post(`${ApiConfig.ACCOUNTS}/accounts/login`, request);
+}
+
+export const logoutApi = (): Promise<BaseResponse<string>> => {
+  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/logout`);
 }
