@@ -13,3 +13,7 @@ export const MaterialType = {
 export const ProductType = {
   SEARCH_PRODUCT_REQUEST: 'SEARCH_PRODUCT_REQUEST',
 }
+export const SizeType = {
+  GET_ALL_SIZE_REQUEST: 'GET_ALL_SIZE_REQUEST',
+  SEARCH_SIZE_REQUEST: 'SEARCH_SIZE_REQUEST',
+}

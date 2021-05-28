@@ -5,6 +5,7 @@ import { bootstrapSaga } from './bootstrap.saga';
 import { categorySaga } from './category.saga';
 import { contentSaga } from './content.saga';
 import { materialSaga } from './material.saga';
+import { sizeSaga } from './size.saga';
 
 import { productSaga } from './product.saga';
 function* rootSaga(){
@@ -16,6 +17,7 @@ function* rootSaga(){
       productSaga(),
       materialSaga(),
       contentSaga(),
+      sizeSaga(),
     ]);
 }
 

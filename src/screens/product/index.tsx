@@ -4,6 +4,7 @@ import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { searchVariantsRequestAction } from "domain/actions/products.action";
 import { getCountry } from "domain/actions/content.action";
+import { getAllSize } from "domain/actions/size.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import search from 'assets/img/search.svg';
 import { generateQuery } from "utils/AppUtils";
@@ -14,6 +15,7 @@ import {SearchVariantQuery} from "model/query/search.variant.query";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { BaseMetadata } from "model/response/base-metadata.response";
 import { CountryResponse } from "model/response/content/country.response";
+import { SizeResponse } from "model/response/products/size.response";
 
 const { Option } = Select;
 const Product: React.FC = () => {
@@ -21,6 +23,7 @@ const Product: React.FC = () => {
   const dispatch = useDispatch();
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [made_ins, setMadeInData] = useState<Array<CountryResponse>>([]);
+  const [sizes, setSizesData] = useState<Array<SizeResponse>>([]);
   const [visible, setVisible] = useState<boolean>(false);
   const query = useQuery();
   let [params, setPrams] = useState<SearchVariantQuery>(getQueryParams(query));
@@ -37,6 +40,13 @@ const Product: React.FC = () => {
     }
     return [];
   }, [bootstrapReducer]);
+  const status = useMemo(() => {
+    if (bootstrapReducer.data && bootstrapReducer.data.product_status) {
+      return bootstrapReducer.data.product_status;
+    }
+    return [];
+  }, [bootstrapReducer]);
+
 
 
   const columns = [
@@ -101,6 +111,7 @@ const Product: React.FC = () => {
   useLayoutEffect(() => {
       dispatch(searchVariantsRequestAction(params, setData, setMetadata));
       dispatch(getCountry(setMadeInData));
+      dispatch(getAllSize(setSizesData));
   }, [dispatch, params])
 
   
@@ -152,7 +163,7 @@ const Product: React.FC = () => {
                   </Form.Item>
                   <Drawer
           title="Create a new account"
-          width={300}
+          width={400}
           onClose={onClose}
           visible={visible}
           bodyStyle={{ paddingBottom: 80 }}
@@ -170,8 +181,7 @@ const Product: React.FC = () => {
               </Button>
             </div>
           }
-        >
-         
+        >         
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
@@ -192,21 +202,8 @@ const Product: React.FC = () => {
             </Row>
             <Row gutter={16}>
               <Col span={24}>
-                {/* <Form.Item
-                  name="made_in"
-                  label="Xuất sứ"
-                >
-                  <Select placeholder="Please select an owner">made_ins
-                    <Option value="xiao">Xiaoxiao Fu</Option>
-                    <Option value="mao">Maomao Zhou</Option>
-                  </Select>
-                </Form.Item> */}
-
-                <Form.Item name="made_in">
-                    <Select defaultValue="" 
-                      style={{
-                        width: 250,
-                      }}
+                <Form.Item name="made_in"   label="Xuất xứ">
+                    <Select defaultValue=""  showSearch
                     >
                       <Select.Option value="">
                         Xuất sứ
@@ -221,10 +218,54 @@ const Product: React.FC = () => {
                     </Select>
                   </Form.Item>
               </Col>
-          
             </Row>
-            
-         
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="from_create_date"   label="Thời gian tạo từ">
+                <DatePicker />
+                  </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="to_create_date"   label="đến">
+                <DatePicker />
+                  </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item name="size"   label="Size">
+                    <Select defaultValue=""  showSearch
+                    >
+                      <Select.Option value="">
+                        Size
+                      </Select.Option>
+                      {
+                        sizes.map((item, index) => (
+                          <Select.Option key={index} value={item.id}>
+                            {item.code}
+                          </Select.Option>
+                        ))
+                      }
+                    </Select>
+                  </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="status"   label="Trạng thái">
+                    <Select defaultValue=""  showSearch >
+                      <Select.Option value="">
+                        Trạng thái
+                      </Select.Option>
+                      {
+                        status.map((item, index) => (
+                          <Select.Option key={index} value={item.value}>
+                            {item.name}
+                          </Select.Option>
+                        ))
+                      }
+                    </Select>
+                  </Form.Item>
+              </Col>
+            </Row>
         </Drawer>
                 </Form>
               </Card>
