@@ -1,4 +1,4 @@
-import { deleteOneMaterialApi, deleteManyMaterialApi, getMaterialApi, createMaterialApi } from './../../service/product/material.service';
+import { deleteOneMaterialApi, deleteManyMaterialApi, getMaterialApi, createMaterialApi, detailMaterialApi, updateMaterialApi } from './../../service/product/material.service';
 import { call, put, takeLatest } from '@redux-saga/core/effects';
 import { YodyAction } from 'base/BaseAction';
 import BaseResponse from 'base/BaseResponse';
@@ -94,9 +94,51 @@ function* createMaterialSaga(action: YodyAction) {
   }
 }
 
+function* detailMaterialSaga(action: YodyAction) {
+  let {id, setMaterial} = action.payload;
+  try {
+    yield put(showLoading());
+    let response: BaseResponse<MaterialResponse> = yield call(detailMaterialApi, id);
+    yield put(hideLoading());
+    switch(response.code) {
+      case HttpStatus.SUCCESS:
+        setMaterial(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    yield put(hideLoading());
+    showError('Có lỗi vui lòng thử lại sau');
+  }
+}
+
+function* updateMaterialSaga(action: YodyAction) {
+  let {id, request, onUpdateSuccess} = action.payload;
+  try {
+    yield put(showLoading());
+    let response: BaseResponse<MaterialResponse> = yield call(updateMaterialApi, id, request);
+    yield put(hideLoading());
+    switch(response.code) {
+      case HttpStatus.SUCCESS:
+        onUpdateSuccess();
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    yield put(hideLoading());
+    showError('Có lỗi vui lòng thử lại sau');
+  }
+}
+
 export function* materialSaga() {
   yield takeLatest(MaterialType.GET_MATERIAL_REQUEST, getMaterialSaga);
   yield takeLatest(MaterialType.DELETE_ONE_MATERIAL_REQUEST, deleteOneMaterialSaga);
   yield takeLatest(MaterialType.DELETE_MANY_MATERIAL_REQUEST, deleteManyMaterialSaga);
   yield takeLatest(MaterialType.CREATE_MATERIAL_REQUEST, createMaterialSaga);
+  yield takeLatest(MaterialType.DETAIL_MATERIAL_REQUEST, detailMaterialSaga);
+  yield takeLatest(MaterialType.UPDATE_MATERIAL_REQUEST, updateMaterialSaga);
 }
