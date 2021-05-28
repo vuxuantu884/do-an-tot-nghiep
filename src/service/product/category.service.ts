@@ -1,24 +1,13 @@
 import BaseAxios from "base/BaseAxios"
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig"
+import { CategoryQuery } from "model/query/categor.query";
 import { CategoryResponse } from "model/response/category.response";
-import { isUndefinedOrNull } from "utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
 
-export const getCategoryApi = (code: string, created_name: string, goods: string, name: string): Promise<BaseResponse<Array<CategoryResponse>>> => {
-  let params = '?';
-  if(!isUndefinedOrNull(code)) {
-    params = params + `&code=${code}`
-  }
-  if(!isUndefinedOrNull(created_name)) {
-    params = params + `&created_name=${created_name}`
-  }
-  if(!isUndefinedOrNull(goods)) {
-    params = params + `&goods=${goods}`
-  }
-  if(!isUndefinedOrNull(name)) {
-    params = params + `&name=${name}`
-  }
-  return BaseAxios.get(`${ApiConfig.PRODUCT}/categories${params}`)
+export const getCategoryApi = (query: CategoryQuery): Promise<BaseResponse<Array<CategoryResponse>>> => {
+  let params = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/categories?${params}`)
 }
 
 export const updateCategoryApi = (id: string) => {

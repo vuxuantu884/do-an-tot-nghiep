@@ -1,9 +1,10 @@
 import BaseAction from "base/BaseAction"
 import { CategoryType } from "domain/types/category.type";
-import { CategoryView } from "model/other/category-view";
+import { CategoryQuery } from "model/query/categor.query";
+import { CategoryResponse } from "model/response/category.response";
 
-export const getCategoryRequestAction = (code: string|null, created_name: string|null, goods: string|null, name: string|null, setData: (data: Array<CategoryView>) => void) => {
-  return BaseAction(CategoryType.GET_CATEGORY_REQUEST, {code, created_name, goods, name, setData});
+export const getCategoryRequestAction = (query: CategoryQuery, setData: (data: Array<CategoryResponse>) => void) => {
+  return BaseAction(CategoryType.GET_CATEGORY_REQUEST, {query, setData});
 }
 
 export const getCategorySuccessAction = () => {
