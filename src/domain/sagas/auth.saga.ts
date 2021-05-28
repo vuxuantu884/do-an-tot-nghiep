@@ -1,7 +1,7 @@
 import { delay, put, takeLatest } from "@redux-saga/core/effects";
 import { loginSuccessAction, logoutSuccessAction } from "domain/actions/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { AuthType } from 'domain/types/auth.type';
+import { AuthType } from 'domain/types/account.type';
 import { removeToken, setToken } from "utils/LocalStorageUtils";
 
 function* loginSaga() {

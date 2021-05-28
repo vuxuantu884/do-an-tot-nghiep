@@ -3,6 +3,7 @@ import { Link, useHistory } from "react-router-dom";
 import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { searchVariantsRequestAction } from "domain/actions/products.action";
+import { getCountry } from "domain/actions/content.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import search from 'assets/img/search.svg';
 import { generateQuery } from "utils/AppUtils";
@@ -12,12 +13,14 @@ import { VariantResponse } from "model/response/products/variant.response";
 import {SearchVariantQuery} from "model/query/search.variant.query";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { BaseMetadata } from "model/response/base-metadata.response";
+import { CountryResponse } from "model/response/content/country.response";
 
 const { Option } = Select;
 const Product: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [data, setData] = useState<Array<VariantResponse>>([]);
+  const [made_ins, setMadeInData] = useState<Array<CountryResponse>>([]);
   const [visible, setVisible] = useState<boolean>(false);
   const query = useQuery();
   let [params, setPrams] = useState<SearchVariantQuery>(getQueryParams(query));
@@ -34,12 +37,7 @@ const Product: React.FC = () => {
     }
     return [];
   }, [bootstrapReducer]);
-  const madeins = useMemo(() => {
-    if (bootstrapReducer.data && bootstrapReducer.data.currency) {
-      return bootstrapReducer.data.currency;
-    }
-    return [];
-  }, [bootstrapReducer]);
+
 
   const columns = [
     {
@@ -88,6 +86,7 @@ const Product: React.FC = () => {
     setVisible(false);
   }, []);
   const onFinish = useCallback((values) => {
+    debugger;
     let newPrams ={...params, ...values, page: 0};
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
@@ -101,6 +100,7 @@ const Product: React.FC = () => {
   }, [history, params]);
   useLayoutEffect(() => {
       dispatch(searchVariantsRequestAction(params, setData, setMetadata));
+      dispatch(getCountry(setMadeInData));
   }, [dispatch, params])
 
   
@@ -171,7 +171,7 @@ const Product: React.FC = () => {
             </div>
           }
         >
-          <Form layout="vertical" hideRequiredMark>
+         
             <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
@@ -192,69 +192,39 @@ const Product: React.FC = () => {
             </Row>
             <Row gutter={16}>
               <Col span={24}>
-                <Form.Item
+                {/* <Form.Item
                   name="made_in"
                   label="Xuất sứ"
                 >
-                  <Select placeholder="Please select an owner">
+                  <Select placeholder="Please select an owner">made_ins
                     <Option value="xiao">Xiaoxiao Fu</Option>
                     <Option value="mao">Maomao Zhou</Option>
                   </Select>
-                </Form.Item>
+                </Form.Item> */}
+
+                <Form.Item name="made_in">
+                    <Select defaultValue="" 
+                      style={{
+                        width: 250,
+                      }}
+                    >
+                      <Select.Option value="">
+                        Xuất sứ
+                      </Select.Option>
+                      {
+                        made_ins.map((item, index) => (
+                          <Select.Option key={index} value={item.name}>
+                            {item.name}
+                          </Select.Option>
+                        ))
+                      }
+                    </Select>
+                  </Form.Item>
               </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="type"
-                  label="Type"
-                  rules={[{ required: true, message: 'Please choose the type' }]}
-                >
-                  <Select placeholder="Please choose the type">
-                    <Option value="private">Private</Option>
-                    <Option value="public">Public</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
+          
             </Row>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  name="approver"
-                  label="Approver"
-                  rules={[{ required: true, message: 'Please choose the approver' }]}
-                >
-                  <Select placeholder="Please choose the approver">
-                    <Option value="jack">Jack Ma</Option>
-                    <Option value="tom">Tom Liu</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="dateTime"
-                  label="DateTime"
-                  rules={[{ required: true, message: 'Please choose the dateTime' }]}
-                >
-                 
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  name="description"
-                  label="Description"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'please enter url description',
-                    },
-                  ]}
-                >
-                  <Input.TextArea rows={4} placeholder="please enter url description" />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Form>
+            
+         
         </Drawer>
                 </Form>
               </Card>
