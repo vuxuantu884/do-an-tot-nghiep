@@ -1,7 +1,7 @@
 import BaseAction from "base/BaseAction"
 import { MaterialType } from "domain/types/product.type";
 import { MaterialQuery } from "model/query/material.query";
-import { CreateMaterialRequest } from "model/request/create-material.request";
+import { CreateMaterialRequest, UpdateMaterialRequest } from "model/request/create-material.request";
 import { BaseMetadata } from "model/response/base-metadata.response";
 import { MaterialResponse } from "model/response/product/material.response";
 
@@ -27,4 +27,12 @@ export const deleteManyMaterialAction = (ids: Array<number>, onDeleteSuccess: ()
 
 export const createMaterialAction = (request: CreateMaterialRequest, onCreateSuccess: () => void) => {
   return BaseAction(MaterialType.CREATE_MATERIAL_REQUEST, {request, onCreateSuccess});
+}
+
+export const detailMaterialAction = (id: number, setMaterial: (material: MaterialResponse) => void) => {
+  return BaseAction(MaterialType.DETAIL_MATERIAL_REQUEST, {id, setMaterial});
+}
+
+export const updateMaterialAction = (id: number, request: UpdateMaterialRequest, onUpdateSuccess: () => void) => {
+  return BaseAction(MaterialType.UPDATE_MATERIAL_REQUEST, {id, request, onUpdateSuccess});
 }

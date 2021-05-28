@@ -4,3 +4,7 @@ export interface CreateMaterialRequest {
   description: string,
   name: string,
 }
+
+export interface UpdateMaterialRequest extends CreateMaterialRequest {
+  version: number,
+}
