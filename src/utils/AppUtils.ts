@@ -30,6 +30,26 @@ export const findCurrentRoute = (routes: Array<RouteMenu> = [], path: string = '
   return obj;
 }
 
+const checkPath = (p1: string, p2: string) => {
+  if(p1.includes(":") || p2.includes(":")) {
+    if(p1.includes(":")) {
+      let urls1  = p1.split("/");
+      let urls2  = p2.split("/");
+      let index = urls1.findIndex((a) => a.includes(":"));
+      urls1[index] = urls2[index];
+      return urls1.join("/") === urls2.join("/")
+    }
+  }
+  if(p2.includes(":")) {
+    let urls1  = p2.split("/");
+    let urls2  = p1.split("/");
+    let index = urls1.findIndex((a) => a.includes(":"));
+    urls1[index] = urls2[index];
+    return urls1.join("/") === urls2.join("/")
+  }
+  return p1 === p2;
+}
+
 export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '') => {
   let result: Array<RouteMenu> = [];
   if (path === '' || path === '/') {
@@ -37,18 +57,18 @@ export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '
   }
   result.push(routes[0]);
   routes.forEach((route) => {
-    if (route.path === path) {
+    if (checkPath(route.path, path)) {
       result.push(route);
     } else {
       if (route.subMenu.length > 0) {
         route.subMenu.forEach((route1) => {
-          if (route1.path === path) {
+          if (checkPath(route1.path, path)) {
             result.push(route);
             result.push(route1);
           } else {
             if (route1.subMenu.length > 0) {
               route1.subMenu.forEach((route2) => {
-                if (route2.path === path) {
+                if (checkPath(route2.path, path)) {
                   result.push(route);
                   result.push(route1);
                   result.push(route2);

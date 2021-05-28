@@ -6,6 +6,7 @@ import { HEADER_TYPE } from 'config/HeaderConfig';
 const Category = React.lazy(() => import ("screens/category/category.screen"));
 const Product = React.lazy(() => import ("screens/product"));
 const Color = React.lazy(() => import ("screens/product/color.screen"));
+const UpdateMaterial = React.lazy(() => import ("screens/materials/update-material"));
 const ListMaterial = React.lazy(() => import ("screens/materials/list-materials"));
 const AddMaterial = React.lazy(() => import ("screens/materials/add-material"));
 const Size = React.lazy(() => import ("screens/product/size.screen"));
@@ -27,7 +28,7 @@ const product: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/products/categories",
+    path: "/categories",
     exact: true,
     title: "Danh mục",
     icon: 'icon-dot',
@@ -37,7 +38,7 @@ const product: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: "/products/categories/create",
+        path: "/categories/create",
         exact: true,
         title: "Thêm danh mục",
         icon: 'icon-dot',
@@ -52,11 +53,11 @@ const product: Array<RouteMenu> = [
     ],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {
-      pathCreate: '/products/categories/create'
+      pathCreate: '/categories/create'
     },
   },
   {
-    path: "/products/materials",
+    path: "/materials",
     exact: true,
     title: "Chất liệu",
     icon: 'icon-dot',
@@ -66,7 +67,7 @@ const product: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: "/products/materials/create",
+        path: "/materials/create",
         exact: true,
         title: "Thêm chất liệu",
         icon: 'icon-dot',
@@ -77,15 +78,28 @@ const product: Array<RouteMenu> = [
         subMenu: [],
         type: 0,
         object: {}
+      },
+      {
+        path: "/materials/:id",
+        exact: true,
+        title: "Sửa chất liệu",
+        icon: 'icon-dot',
+        component: UpdateMaterial,
+        key: "submenu23",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: {}
       }
     ],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {
-      pathCreate: '/products/materials/create'
+      pathCreate: '/materials/create'
     },
   },
   {
-    path: "/products/sizes",
+    path: "/sizes",
     exact: true,
     title: "Kích cỡ",
     icon: 'icon-dot',
@@ -98,7 +112,7 @@ const product: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/products/colors",
+    path: "/colors",
     exact: true,
     title: "Màu sắc",
     icon: 'icon-dot',
@@ -111,7 +125,7 @@ const product: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/products/suppliers",
+    path: "/suppliers",
     exact: true,
     title: "Nhà cung cấp",
     icon: 'icon-dot',
