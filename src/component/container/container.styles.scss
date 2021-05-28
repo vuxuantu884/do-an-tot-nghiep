@@ -447,12 +447,12 @@ $desktop-width: 1400px;
 
 .sale-online-product {
   .ant-card-extra {
-    .ant-space-item {
-      height: 100%;
-      @include mobile {
-        height: auto;
-      }
-    }
+    //.ant-space-item {
+    //  height: 100%;
+    //  @include mobile {
+    //    height: auto;
+    //  }
+    //}
     .price-policy {
       margin: 10px 0;
     }
@@ -621,4 +621,12 @@ table {
     color: #37394D;
   }
 
+}
+
+.ant-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  .ant-checkbox {
+    top: 0;
+  }
 }

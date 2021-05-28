@@ -168,7 +168,7 @@ const CreateBill = () => {
     title: 'Chiết khấu',
     // align: 'center',
     width: 115,
-    className: 'yody-table-discount text-center',
+    className: 'yody-table-discount text-right',
     render: (index: number) => {
       return (
         <div className="site-input-group-wrapper">
@@ -465,6 +465,33 @@ const CreateBill = () => {
                 className="sale-product-box-table w-100"
                 tableLayout="auto"
                 pagination={false}
+                summary={pageData => {
+                  let totalBorrow = 0;
+                  let totalRepayment = 0;
+
+                  pageData.forEach(({borrow, repayment}) => {
+                    totalBorrow += borrow;
+                    totalRepayment += repayment;
+                  });
+
+                  console.log(pageData);
+
+                  return (
+                    <Table.Summary.Row>
+                      <Table.Summary.Cell index={1} colSpan={2}>Tổng</Table.Summary.Cell>
+                      <Table.Summary.Cell index={1} className="text-right">
+                        <Typography.Text>{formatCurrency(987000)}</Typography.Text>
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell index={1} className="text-right">
+                        <Typography.Text type="danger">{formatCurrency(296100)}</Typography.Text>
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell index={1} className="text-right">
+                        <Typography.Link>{formatCurrency(690900)}</Typography.Link>
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell index={1}/>
+                    </Table.Summary.Row>
+                  );
+                }}
               />
             </Row>
 
@@ -575,7 +602,7 @@ const CreateBill = () => {
                         </tr>
 
                         <tr>
-                          <td rowSpan="2">
+                          <td style={{ borderBottom:0 }}>
                             <img src={ghtkIcon} alt=""/>
                           </td>
                           <td>
@@ -585,6 +612,7 @@ const CreateBill = () => {
                         </tr>
 
                         <tr>
+                          <td style={{ borderTop:0 }}/>
                           <td>
                             <Radio value={3}>Đường bay</Radio>
                           </td>
