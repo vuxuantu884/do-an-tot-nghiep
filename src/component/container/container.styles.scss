@@ -369,6 +369,14 @@ $desktop-width: 1400px;
       height: auto !important;
     }
   }
+  .selector {
+    .ant-select-selector {
+      border-radius: 5px !important;
+      border-color: #CFDCE9 !important;
+      padding: 4px 11px !important;
+      height: auto !important;
+    }
+  }
 }
 
 .form-group-with-search {
