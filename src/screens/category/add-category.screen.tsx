@@ -1,8 +1,6 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row, Select, TreeSelect } from "antd";
-import { getCategoryRequestAction } from "domain/actions/category.action";
-import { createMaterialAction } from "domain/actions/material.action";
+import { createCategoryAction, getCategoryRequestAction } from "domain/actions/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { CreateMaterialRequest } from "model/request/create-material.request";
 import { CategoryResponse } from "model/response/category.response";
 import React, { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,8 +32,8 @@ const AddCategory: React.FC = () => {
   const onSuccess = useCallback(() => {
     history.push('/categories');
   }, [history])
-  const onFinish = useCallback((values: CreateMaterialRequest) => {
-    dispatch(createMaterialAction(values, onSuccess));
+  const onFinish = useCallback((values: CreateCatergoryRequest) => {
+    dispatch(createCategoryAction(values, onSuccess));
   }, [dispatch, onSuccess]);
   const onSave = useCallback(() => {
     formRef.current?.submit();
@@ -116,7 +114,7 @@ const AddCategory: React.FC = () => {
                   className="selector">
                   <TreeNode value={-1} title="Danh mục cha" />
                   {
-                    categories.map((item, index) => TreeCategory(item))
+                    categories.map((item, index) => <React.Fragment key={index}>{TreeCategory(item)}</React.Fragment>)
                   }
                 </TreeSelect>
               </Form.Item>
@@ -139,7 +137,7 @@ const TreeCategory = (item: CategoryResponse) => {
         item.children.length > 0 && (
           <React.Fragment>
             {
-              item.children.map((item) => TreeCategory(item))
+              item.children.map((item, index) => <React.Fragment key={index}>{TreeCategory(item)}</React.Fragment>)
             }
           </React.Fragment>
         )
