@@ -241,3 +241,17 @@ a {
   line-height: 1;
   content: "*";
 }
+
+
+.ant-drawer-footer {
+  border: none;
+  .filter-footer {
+    padding: 24px 10px;
+    .row-filter {
+      margin-top: 12px;
+      .btn-filter {
+        height: 38px;
+      }
+    }
+  }
+}
