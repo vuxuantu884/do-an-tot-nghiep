@@ -10,8 +10,11 @@ import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import search from 'assets/img/search.svg';
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import SupplierFilter from "component/filter/supplier.filter";
+import SupplierAction from 'domain/actions/supplier.action';
+import { RootReducerType } from "model/reducers/RootReducerType";
+
 
 const action: Array<MenuAction> = [
   {
@@ -27,8 +30,21 @@ const ListSupplierScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
+  const supplierStatus = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.supplier_status)
+  const goods = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.goods)
+  const scorecard = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.scorecard)
   const [visible, setVisible] = useState(false);
-  let [params, setPrams] = useState<SearchSupplierQuerry>(getQueryParams(query));
+  let dataQuery: SearchSupplierQuerry = getQueryParams(query);
+  if(!dataQuery.goods) {
+    dataQuery.goods = '';
+  }
+  if(!dataQuery.status) {
+    dataQuery.status = '';
+  }
+  if(!dataQuery.scorecard) {
+    dataQuery.scorecard = '';
+  }
+  let [params, setPrams] = useState<SearchSupplierQuerry>(dataQuery);
   const [data, setData] = useState<PageResponse<SupplierResposne>>({
     metadata: {
       limit: 0,
@@ -79,7 +95,10 @@ const ListSupplierScreen: React.FC = () => {
     },
     {
       title: 'Trạng thái',
-      dataIndex: 'status',
+      dataIndex: 'status_name',
+      render: (value: string, row: SupplierResposne) => (
+        <div className={row.status === 'active' ? 'status-active' : 'status-not-active'}>{value}</div>
+      )
     },
     {
       title: () => <ButtonSetting />,
@@ -115,15 +134,25 @@ const ListSupplierScreen: React.FC = () => {
         break;
     }
   }, [onDelete]);
+  const onFilter = useCallback((values) => {
+    setVisible(false);
+    let newPrams = { ...params, ...values, page: 0 };
+    setPrams(newPrams);
+    let queryParam = generateQuery(newPrams);
+    history.push(`/suppliers?${queryParam}`);
+  }, [history, params]);
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
+  const onCancelFilter = useCallback(() => {
+    setVisible(false);
+  }, []);
   useLayoutEffect(() => {
-    
-  }, [])
+    dispatch(SupplierAction.searchSupplier(params, setData));
+  }, [dispatch, params])
   return (
     <div>
-      <SupplierFilter visible={visible} />
+      <SupplierFilter onFilter={onFilter} goods={goods} supplierStatus={supplierStatus} scorecard={scorecard} params={params} onCancel={onCancelFilter} visible={visible} />
       <Card className="contain">
         <Card
           className="view-control"
@@ -137,8 +166,8 @@ const ListSupplierScreen: React.FC = () => {
           >
             <ActionButton onMenuClick={onMenuClick} menu={action} />
             <div className="right-form">
-              <Form.Item className="form-group form-group-with-search" name="name">
-                <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Tên/Mã danh mục" />
+              <Form.Item className="form-group form-group-with-search" name="info">
+                <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Tên/Mã nhà cung cấp" />
               </Form.Item>
               <Form.Item className="form-group form-group-with-search" name="goods">
                 <Select
@@ -149,6 +178,13 @@ const ListSupplierScreen: React.FC = () => {
                   <Select.Option value="">
                     Ngành hàng
                   </Select.Option>
+                  {
+                    goods?.map((item) => (
+                      <Select.Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Select.Option>
+                    ))
+                  }
                 </Select>
               </Form.Item>
               <Form.Item>
@@ -166,6 +202,7 @@ const ListSupplierScreen: React.FC = () => {
             type: "checkbox",
             columnWidth: 80,
           }}
+          tableLayout="fixed"
           className="yody-table"
           pagination={false}
           dataSource={data.items}

@@ -9,12 +9,17 @@ const searchSupplier = (query: SearchSupplierQuerry, setData: (response: PageRes
 }
 
 const createSupplier = (query: SearchSupplierQuerry, setData: (response: PageResponse<SupplierResposne>) => void) => {
-  return BaseAction(SupplierType.SEARCH_SUPPLIER_REQUEST, {query, setData});
+  return BaseAction(SupplierType.CREATE_SUPPLIER_REQUEST, {query, setData});
+}
+
+const editSupplier = (query: SearchSupplierQuerry, setData: (response: PageResponse<SupplierResposne>) => void) => {
+  return BaseAction(SupplierType.EDIT_SUPPLIER_REQUEST, {query, setData});
 }
 
 const SupplierAction = {
   searchSupplier, 
   createSupplier,
+  editSupplier,
 }
 
 export default SupplierAction;
