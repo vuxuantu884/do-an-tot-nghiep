@@ -2,8 +2,8 @@ import { VariantModel } from './../../model/other/ProductModel';
 import BaseAction from "base/BaseAction";
 import { SearchType } from "domain/types/search.type";
 
-const OnSearchChange = (text: string) => {
-  return BaseAction(SearchType.KEY_SEARCH_CHANGE, {key: text});
+const OnSearchChange = (text: string, setData: (data: Array<VariantModel>) => void) => {
+  return BaseAction(SearchType.KEY_SEARCH_CHANGE, {key: text, setData: setData} );
 }
 
 const OnSearchGift = (text: string, setData: (arrResult: Array<VariantModel>) => void) => {

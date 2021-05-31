@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   AutoComplete,
   Button,
@@ -16,7 +17,13 @@ import {
   Typography,
 } from "antd";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
-import React, { useCallback, useLayoutEffect, useState, useMemo } from "react";
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useState,
+  useMemo,
+  createRef,
+} from "react";
 import productIcon from "../../assets/img/cube.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
@@ -24,14 +31,23 @@ import deleteRedIcon from "../../assets/img/deleteRed.svg";
 import DiscountGroup from "./discountGroup";
 import { StoreModel } from "model/other/StoreModel";
 import { useDispatch, useSelector } from "react-redux";
-import { getListStoreRequest, validateStoreAction } from "domain/actions/store.action";
+import {
+  getListStoreRequest,
+  validateStoreAction,
+} from "domain/actions/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-
+import { OnSearchChange } from "domain/actions/search.action";
 import {
   formatCurrency,
   replaceFormat,
   haveAccess,
+  findPrice,
+  findAvatar,
 } from "../../utils/AppUtils";
+import { RefSelectProps } from "antd/lib/select";
+import { VariantModel } from "model/other/ProductModel";
+import { AppConfig } from "config/AppConfig";
+import imgdefault from "assets/icon/img-default.svg";
 
 type ProductCardProps = {
   // visible: boolean;
@@ -39,17 +55,48 @@ type ProductCardProps = {
   // onOk: () => void;
 };
 
+const renderSearch = (item: VariantModel) => {
+  let avatar = findAvatar(item.variant_images);
+  return (
+    <div className="row-search w-100">
+      <div className="rs-left w-100">
+        <img
+          src={avatar === "" ? imgdefault : avatar}
+          alt="anh"
+          placeholder={imgdefault}
+        />
+        <div className="rs-info w-100">
+          <span style={{ color: "#37394D" }} className="text">
+            {item.name}
+          </span>
+          <span style={{ color: "#95A1AC" }} className="text p-4">
+            {item.sku}
+          </span>
+        </div>
+      </div>
+      <div className="rs-right">
+        <span style={{ color: "#37394D" }} className="text t-right">
+          {findPrice(item.variant_prices, AppConfig.currency)}
+        </span>
+        <span style={{ color: "#95A1AC" }} className="text t-right p-4">
+          Có thể bán{" "}
+          <span
+            style={{
+              color:
+                item.inventory > 0
+                  ? "rgba(0, 128, 255, 1)"
+                  : "rgba(226, 67, 67, 1)",
+            }}
+          >
+            {item.inventory}
+          </span>
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
-  const dispatch = useDispatch();
-  const [store, setStore] = useState(false);
-  const [isVerify, setVerify] = useState(false);
-
-  const appSettingReducer = useSelector((state: RootReducerType) => state.appSettingReducer);
-
-  const onStoreSelect = useCallback((value: number) => {
-    dispatch(validateStoreAction(value, setVerify));
-  }, [dispatch]);
-
   const ProductColumn = {
     title: "Sản phẩm",
     className: "yody-pos-name",
@@ -228,7 +275,61 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     ActionColumn,
   ];
 
+  const dispatch = useDispatch();
+  var timeTextChange: NodeJS.Timeout;
+  const [stores, setStore] = useState(false);
+  const [isVerify, setVerify] = useState(false);
+
+
+  useLayoutEffect(() => {
+    dispatch(getListStoreRequest(setListStores));
+  }, [dispatch]);
+
+  const onStoreSelect = useCallback(
+    (value: number) => {
+      dispatch(validateStoreAction(value, setVerify));
+    },
+    [dispatch]
+  );
+
   const [listStores, setListStores] = useState<Array<StoreModel>>([]);
+  const [keysearch, setKeysearch] = useState("");
+  const [resultSearch, setResultSearch] = useState<Array<VariantModel>>([]);
+  const autoCompleteRef = createRef<RefSelectProps>();
+
+  const onSearchSelect = useCallback(
+    (v, o) => {
+      let index: number = -1;
+      index = resultSearch.findIndex(
+        (r: VariantModel) => r.id && r.id.toString() === v
+      );
+      if (index !== -1) {
+        //dispatch(addOrderRequest(resultSearch[index], splitLine));
+        autoCompleteRef.current?.blur();
+        setKeysearch("");
+      }
+    },
+    [autoCompleteRef, dispatch, resultSearch]
+  );
+
+  const onChangeSearch = useCallback((v) => {
+    setKeysearch(v);
+    timeTextChange && clearTimeout(timeTextChange);
+    timeTextChange = setTimeout(() => {
+      dispatch(OnSearchChange(v, setResultSearch));
+    }, 500)
+  }, [dispatch]);
+
+  const convertResultSearch = useMemo(() => {
+    let options: any[] = [];
+    resultSearch.forEach((item: VariantModel, index: number) => {
+      options.push({
+        label: renderSearch(item),
+        value: item.id ? item.id.toString() : "",
+      });
+    });
+    return options;
+  }, [resultSearch]);
 
   useLayoutEffect(() => {
     dispatch(getListStoreRequest(setListStores));
@@ -321,9 +422,23 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               Sản phẩm
             </label>
             <div>
-              <AutoComplete>
+              <AutoComplete
+                notFoundContent={
+                  keysearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+                }
+                value={keysearch}
+                ref={autoCompleteRef}
+                onSelect={onSearchSelect}
+                dropdownClassName="search-layout dropdown-search-header"
+                dropdownMatchSelectWidth={456}
+                className="w-100"
+                onSearch={onChangeSearch}
+                options={convertResultSearch}
+              >
                 <Input
-                  placeholder="Tìm sản phẩm/ SKU/ mã vạch (F3)"
+                  size="middle"
+                  className="yody-search"
+                  placeholder="Tìm sản phẩm theo tên/ SKU/ Mã vạch (F3)"
                   prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                 />
               </AutoComplete>

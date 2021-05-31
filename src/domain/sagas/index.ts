@@ -6,8 +6,8 @@ import { categorySaga } from './category.saga';
 import { materialSaga } from './material.saga';
 import OrderOnlineSaga from './orderOnline.saga';
 import storeSaga  from './store.saga'
-
 import { productSaga } from './product.saga';
+import searchSagas from './search.sagas';
 function* rootSaga(){
     yield all([
       appSaga(),
@@ -18,6 +18,7 @@ function* rootSaga(){
       materialSaga(),
       storeSaga(),
       OrderOnlineSaga(),
+      searchSagas(),
     ]);
 }
 
