@@ -8,6 +8,7 @@ import { materialSaga } from './material.saga';
 import { sizeSaga } from './size.saga';
 
 import { productSaga } from './product.saga';
+import { supplierSagas } from './core/supplier.saga';
 function* rootSaga(){
     yield all([
       appSaga(),
@@ -18,6 +19,7 @@ function* rootSaga(){
       materialSaga(),
       contentSaga(),
       sizeSaga(),
+      supplierSagas(),
     ]);
 }
 

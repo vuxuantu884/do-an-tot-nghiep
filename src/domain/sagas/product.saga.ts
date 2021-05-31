@@ -9,10 +9,6 @@ import { searchVariantsApi } from 'service/product/product.service';
 import { showError } from 'utils/ToastUtils';
 import { PageResponse } from 'model/response/base-metadata.response';
 
-
-
-
-
 function* searchVariantSaga(action: YodyAction) {
   const {
     query,

@@ -242,7 +242,9 @@ a {
   content: "*";
 }
 
-
+.ant-drawer-header {
+  border: none;
+}
 .ant-drawer-footer {
   border: none;
   .filter-footer {
@@ -254,4 +256,8 @@ a {
       }
     }
   }
+}
+
+.status-active {
+  color: rgba(82, 210, 118, 1);
 }
