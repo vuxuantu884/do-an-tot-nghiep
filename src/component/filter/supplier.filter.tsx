@@ -1,58 +1,105 @@
-import { Col, DatePicker, Form, Input, Row } from "antd";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { useSelector } from "react-redux";
+import { Col, DatePicker, Form, FormInstance, Input, Row, Select } from "antd";
+import { SearchSupplierQuerry } from "model/query/supplier.query";
+import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
+import { createRef, useCallback, useLayoutEffect } from "react";
 import BaseFilter from "./base.filter"
 
 type SupplierFilterProps = {
   visible: boolean,
+  params: SearchSupplierQuerry
+  onFilter?: (values: SearchSupplierQuerry) => void,
+  onCancel?: () => void,
+  onClearFilter?: () => void
+  supplierStatus?: Array<BaseBootstrapResponse>,
+  goods?: Array<BaseBootstrapResponse>,
+  scorecard?: Array<BaseBootstrapResponse>,
 }
 
 const { Item } = Form;
+const { Option } = Select;
 
 const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProps) => {
-  const { visible } = props;
-  const supplierStatus = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.supplier_status)
+  const { visible, onCancel, onClearFilter, onFilter, params, goods, supplierStatus, scorecard} = props;
+  const formRef = createRef<FormInstance>();
+  const onFinish = useCallback((values: SearchSupplierQuerry) => {
+    onFilter && onFilter(values);
+  }, [onFilter]);
+  const onFilterClick = useCallback(() => {
+    formRef.current?.submit();
+  }, [formRef]);
+  useLayoutEffect(() => {
+    if(visible) {
+      formRef.current?.resetFields();
+    }
+  }, [formRef, visible]);
   return (
-    <BaseFilter visible={visible}>
-      <Form layout="vertical">
-        <Item className="form-group form-group-with-search" label="Ngành hàng">
-          <Input />
+    <BaseFilter onClearFilter={onClearFilter} onFilter={onFilterClick} onCancel={onCancel} visible={visible}>
+      <Form onFinish={onFinish} ref={formRef} initialValues={params} layout="vertical">
+        <Item name="goods" className="form-group form-group-with-search" label="Ngành hàng">
+          <Select className="selector">
+            <Option value="">
+              Ngành hàng
+            </Option>
+            {goods?.map((item, index) => (
+              <Option key={item.value} value={item.value}>
+                {item.name}
+              </Option>
+            ))}
+          </Select>
         </Item>
-        <Item className="form-group form-group-with-search" label="Tên / SDT người liên hệ">
-          <Input />
+        <Item name="contact" className="form-group form-group-with-search" label="Tên / SDT người liên hệ">
+          <Input className="r-5 ip-search" placeholder="Tên/SDT người liên hệ" />
         </Item>
-        <Item className="form-group form-group-with-search" label="Tên / Mã người phục trách">
-          <Input />
+        <Item name="pic" className="form-group form-group-with-search" label="Tên / Mã người phục trách">
+          <Input className="r-5 ip-search" placeholder="Tên/Mã người phụ trách" />
         </Item>
         <Row gutter={24}>
           <Col span={12}>
-            <Item className="form-group form-group-with-search" label="Trạng thái">
-              <Input />
+            <Item name="status" className="form-group form-group-with-search" label="Trạng thái">
+              <Select className="selector">
+                <Option value="">
+                  Chọn trạng thái
+                </Option>
+                {supplierStatus?.map((item, index) => (
+                  <Option key={item.value} value={item.value}>
+                    {item.name}
+                  </Option>
+                ))}
+              </Select>
             </Item>
           </Col>
           <Col span={12}>
-            <Item className="form-group form-group-with-search" label="Phân cấp NCC">
-              <Input />
+            <Item name="scorecard" className="form-group form-group-with-search" label="Phân cấp NCC">
+              <Select className="selector">
+                <Option value="">
+                  Chọn phân cấp
+                </Option>
+                {scorecard?.map((item, index) => (
+                  <Option key={item.value} value={item.value}>
+                    {item.name}
+                  </Option>
+                ))}
+              </Select>
             </Item>
           </Col>
         </Row>
         <Item className="form-group form-group-with-search" label="Địa chỉ">
-          <Input placeholder="Địa chỉ"/>
+          <Input className="r-5 ip-search" placeholder="Địa chỉ" />
         </Item>
         <Row gutter={24}>
           <Col span={12}>
-            <Item className="form-group form-group-with-search" label="Ngày tạo từ">
-              <DatePicker placeholder="Ngày tạo từ" />
+            <Item name="from_created_date" className="form-group form-group-with-search" label="Ngày tạo từ">
+              <DatePicker className="r-5 w-100 ip-search" placeholder="Ngày tạo từ" />
             </Item>
           </Col>
           <Col span={12}>
-            <Item className="form-group form-group-with-search" label="Đến">
-              <DatePicker  placeholder="Ngày tạo đến" />
+            <Item name="to_created_date" className="form-group form-group-with-search" label="Đến">
+              <DatePicker className="r-5 w-100 ip-search" placeholder="Ngày tạo đến" />
             </Item>
           </Col>
         </Row>
-        <Item className="form-group form-group-with-search" label="Ghi chú">
-          <Input placeholder="Ghi chú" />
+        <Item name="note" className="form-group form-group-with-search" label="Ghi chú">
+          <Input className="r-5 ip-search" placeholder="Ghi chú" />
         </Item>
       </Form>
     </BaseFilter>

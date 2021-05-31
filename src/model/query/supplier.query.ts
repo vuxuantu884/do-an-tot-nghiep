@@ -16,4 +16,5 @@ export interface SearchSupplierQuerry extends BaseQuery {
   sort_type?: string,
   status?: string,
   type?: string,
+  goods?: string,
 }
