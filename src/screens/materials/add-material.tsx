@@ -38,7 +38,7 @@ const AddMaterial: React.FC = () => {
           layout="vertical"
         >
           <Row gutter={24}>
-            <Col span={8}>
+            <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 className="form-group form-group-with-search"
                 rules={[
@@ -50,7 +50,7 @@ const AddMaterial: React.FC = () => {
                 <Input className="r-5" placeholder="Tên danh mục" size="large" />
               </Form.Item>
             </Col>
-            <Col offset={1} span={8}>
+            <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 rules={[{ required: true, message: 'Vui lòng nhập thành phần chất liệu' }]}
                 className="form-group form-group-with-search"
@@ -62,7 +62,7 @@ const AddMaterial: React.FC = () => {
             </Col>
           </Row>
           <Row gutter={24}>
-            <Col span={8}>
+            <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 rules={[
                   { required: true, message: 'Vui lòng nhập mã chất liệu' },
@@ -75,7 +75,7 @@ const AddMaterial: React.FC = () => {
                 <Input className="r-5" placeholder="Mã chất liệu" size="large" />
               </Form.Item>
             </Col>
-            <Col offset={1} span={8}>
+            <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 className="form-group form-group-with-search"
                 name="description"

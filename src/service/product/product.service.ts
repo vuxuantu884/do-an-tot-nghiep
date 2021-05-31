@@ -3,7 +3,7 @@ import { VariantResponse } from './../../model/response/products/variant.respons
 import BaseAxios from "base/BaseAxios"
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig"
-import { generateQuery, isUndefinedOrNull } from "utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
 import { PageResponse } from 'model/response/base-metadata.response';
 
 
