@@ -231,7 +231,35 @@ $desktop-width: 1400px;
   border-radius: 5px;
   color: #FFFFFF;
   border: none;
+  &:hover {
+    background-color: #2A2A86;
+    color: #FFFFFF;  }
+  &:focus {
+    background-color: #2A2A86;
+    color: #FFFFFF;  
+  }
 }
+
+.yody-filter-button {
+  background-color: rgba(42, 42, 134, 0.1)  ;
+  border-radius: 5px;
+  color: #2A2A86;
+  border: none;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  &:hover {
+    background-color: rgba(42, 42, 134, 0.1);
+    color: #2A2A86;
+  }
+  &:focus {
+    background-color: rgba(42, 42, 134, 0.1);
+    color: #2A2A86;
+  }
+}
+
 
 .contain {
   .ant-card-body {
