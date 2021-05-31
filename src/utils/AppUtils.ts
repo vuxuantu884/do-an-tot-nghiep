@@ -1,3 +1,5 @@
+import { AppConfig } from './../config/AppConfig';
+import { VariantPrice, VariantImage } from './../model/other/ProductModel';
 import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/category-view";
 import { CategoryResponse } from "model/response/category.response";
@@ -38,6 +40,26 @@ export const haveAccess = (storeId: number, accountStores: Array<AccountStore>):
     return isHave = true;
   }
   return isHave;
+}
+
+export const findPrice = (variantPrices: Array<VariantPrice>, currency_code: string): string => {
+  let price: string = '0';
+  variantPrices.forEach((v) => {
+    if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {
+      price = v.price.toString();
+    }
+  })
+  return price.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+}
+
+export const findAvatar = (variantImages: Array<VariantImage>): string => {
+  let avatar: string = '';
+  variantImages.forEach((v) => {
+    if (v.variant_avatar) {
+      avatar = v.original;
+    }
+  })
+  return avatar;
 }
 
 export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '') => {

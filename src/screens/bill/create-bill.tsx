@@ -1,13 +1,34 @@
-import {Button, Card, Input, Row, Col, Tooltip, Typography, InputNumber, Menu, Dropdown } from "antd";
+import {
+  Button,
+  Card,
+  Input,
+  Row,
+  Col,
+  Tooltip,
+  Typography,
+  InputNumber,
+  Menu,
+  Dropdown,
+  Select,
+} from "antd";
 import documentIcon from "../../assets/img/document.svg";
-import arrowDownIcon from 'assets/img/drow-down.svg';
-import warningCircleIcon from 'assets/img/warning-circle.svg';
+import arrowDownIcon from "assets/img/drow-down.svg";
+import warningCircleIcon from "assets/img/warning-circle.svg";
 import ProductCard from "../../component/OrderOnline/productCard";
 import CustomerCard from "../../component/OrderOnline/customerCard";
 import PaymentCard from "../../component/OrderOnline/paymentCard";
 import ShipmentCard from "../../component/OrderOnline/shipmentCard";
-import {useState, useCallback} from 'react';
+import { useState, useCallback, useLayoutEffect, useMemo } from "react";
 import DiscountGroup from "../../component/OrderOnline/discountGroup";
+import { useSelector, useDispatch } from "react-redux";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { StoreModel } from "model/other/StoreModel";
+import { getListStoreRequest } from "domain/actions/store.action";
+import {
+  formatCurrency,
+  replaceFormat,
+  haveAccess,
+} from "../../utils/AppUtils";
 
 const CreateBill = () => {
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -37,35 +58,41 @@ const CreateBill = () => {
     setVisibleBilling(!isVisibleBilling);
   };
 
-  const [selectedShipMethod, setSelectedShipMethod ] = useState(1);
+  const [selectedShipMethod, setSelectedShipMethod] = useState(1);
   const changeShipMethod = (value: number) => {
     setSelectedShipMethod(value);
   };
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod ] = useState(1);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(1);
   const changePaymentMethod = (value: number) => {
     setSelectedPaymentMethod(value);
   };
 
-  const OrderItemModel = [
-    {}
-  ];
+  const OrderItemModel = [{}];
 
   const ProductColumn = {
-    title: 'Sản phẩm',
-    className: 'yody-pos-name',
+    title: "Sản phẩm",
+    className: "yody-pos-name",
     // width: 210,
     render: (index: number) => {
       return (
-        <div className="w-100" style={{ overflow: 'hidden' }}>
+        <div className="w-100" style={{ overflow: "hidden" }}>
           <div className="d-flex align-items-center">
-            <Button onClick={() => console.log(1)} className="yody-pos-delete-item">
-              <img  alt="" />
+            <Button
+              onClick={() => console.log(1)}
+              className="yody-pos-delete-item"
+            >
+              <img alt="" />
             </Button>
-            <div style={{ width: 'calc(100% - 32px)' }}>
-              <div className="yody-pos-sku"><Typography.Link>APN3340 - XXA - XL</Typography.Link></div>
+            <div style={{ width: "calc(100% - 32px)" }}>
+              <div className="yody-pos-sku">
+                <Typography.Link>APN3340 - XXA - XL</Typography.Link>
+              </div>
               <div className="yody-pos-varian">
-                <Tooltip title="Polo mắt chim nữ - xanh xám - XL" className="yody-pos-varian-name">
+                <Tooltip
+                  title="Polo mắt chim nữ - xanh xám - XL"
+                  className="yody-pos-varian-name"
+                >
                   <span>Polo mắt chim nữ - xanh xám - XL</span>
                 </Tooltip>
                 {/*<Button hidden={!(!a.show_note && a.note === '')} type="text" className="text-primary text-add-note" onClick={() => {*/}
@@ -99,18 +126,18 @@ const CreateBill = () => {
           {/*    placeholder="Ghi chú" />*/}
           {/*</div>*/}
         </div>
-      )
-    }
+      );
+    },
   };
 
   const AmountColumnt = {
     title: () => (
       <div className="text-center">
         <div>Số lượng</div>
-        <span style={{ color: '#0080FF' }}>(3)</span>
+        <span style={{ color: "#0080FF" }}>(3)</span>
       </div>
     ),
-    className: 'yody-pos-quantity text-center',
+    className: "yody-pos-quantity text-center",
     // width: 80,
     render: (index: number) => {
       return (
@@ -121,15 +148,16 @@ const CreateBill = () => {
             minLength={1}
             maxLength={4}
             onFocus={(e) => e.target.select()}
-            style={{ width: 60, textAlign: "right" }} />
+            style={{ width: 60, textAlign: "right" }}
+          />
         </div>
-      )
-    }
+      );
+    },
   };
 
   const PriceColumnt = {
-    title: 'Đơn giá',
-    className: 'yody-pos-price text-right',
+    title: "Đơn giá",
+    className: "yody-pos-price text-right",
     // width: 100,
     render: (index: number) => {
       return (
@@ -145,68 +173,84 @@ const CreateBill = () => {
             style={{ maxWidth: 100, textAlign: "right" }}
           />
         </div>
-      )
-    }
+      );
+    },
   };
 
   const DiscountColumnt = {
-    title: 'Chiết khấu',
+    title: "Chiết khấu",
     // align: 'center',
     width: 115,
-    className: 'yody-table-discount text-right',
+    className: "yody-table-discount text-right",
     render: (index: number) => {
       return (
         <div className="site-input-group-wrapper">
-          <DiscountGroup index={index}
-                            discountRate={0}
-                            discountValue={0}
-                            totalAmount={0} />
+          <DiscountGroup
+            index={index}
+            discountRate={0}
+            discountValue={0}
+            totalAmount={0}
+          />
         </div>
-      )
-    }
+      );
+    },
   };
 
   const TotalPriceColumn = {
-    title: 'Tổng tiền',
-    className: 'yody-table-total-money text-right',
+    title: "Tổng tiền",
+    className: "yody-table-total-money text-right",
     // width: 100,
     render: () => {
-      return (
-        <div>
-          1000000
-        </div>
-      )
-    }
+      return <div>1000000</div>;
+    },
   };
 
   const ActionColumn = {
-    title: 'Thao tác',
+    title: "Thao tác",
     width: 85,
-    className: 'yody-table-action text-center',
+    className: "yody-table-action text-center",
     render: (index: number) => {
       const menu = (
         <Menu className="yody-line-item-action-menu">
           <Menu.Item key="0">
-            <Button type="text" className="p-0 m-0 w-100" >Thêm quà tặng</Button>
+            <Button type="text" className="p-0 m-0 w-100">
+              Thêm quà tặng
+            </Button>
           </Menu.Item>
           <Menu.Item key="1">
-            <Button type="text" className="p-0 m-0 w-100">Thêm ghi chú</Button>
+            <Button type="text" className="p-0 m-0 w-100">
+              Thêm ghi chú
+            </Button>
           </Menu.Item>
         </Menu>
       );
       return (
         <div className="site-input-group-wrapper">
-          <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
-            <Button type="text" className="ant-dropdown-link circle-button yody-pos-action" onClick={e => console.log(1)}>
+          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+            <Button
+              type="text"
+              className="ant-dropdown-link circle-button yody-pos-action"
+              onClick={(e) => console.log(1)}
+            >
               <img src={arrowDownIcon} alt="" />
             </Button>
           </Dropdown>
         </div>
-      )
-    }
+      );
+    },
   };
-  const columns = [ProductColumn, AmountColumnt, PriceColumnt, DiscountColumnt, TotalPriceColumn, ActionColumn];
 
+  const columns = [
+    ProductColumn,
+    AmountColumnt,
+    PriceColumnt,
+    DiscountColumnt,
+    TotalPriceColumn,
+    ActionColumn,
+  ];
+
+  const dispatch = useDispatch(); 
+  
   return (
     <div>
       <Row gutter={24}>
@@ -229,53 +273,100 @@ const CreateBill = () => {
         </Col>
 
         <Col xs={24} lg={7}>
-          <Card className="card-block card-block-normal"
-                title={<div className="d-flex"><img src={documentIcon} alt="" /> Thông tin đơn hàng</div>}>
+          <Card
+            className="card-block card-block-normal"
+            title={
+              <div className="d-flex">
+                <img src={documentIcon} alt="" /> Thông tin đơn hàng
+              </div>
+            }
+          >
             <div className="form-group form-group-with-search">
-              <label htmlFor="" className="required-label">Nhân viên bán hàng</label>
-              <Input placeholder="Tìm tên/ mã nhân viên"
+              <label htmlFor="" className="required-label">
+                Nhân viên bán hàng
+              </label>
+              <Input
+                placeholder="Tìm tên/ mã nhân viên"
                 suffix={<img src={arrowDownIcon} alt="down" />}
               />
+
             </div>
             <div className="form-group form-group-with-search">
               <div>
-                <label htmlFor="" className="">Tham chiếu</label>
-                <Tooltip title="Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng" className="tooltip-icon">
-                  <span><img src={warningCircleIcon} alt="" /></span>
+                <label htmlFor="" className="">
+                  Tham chiếu
+                </label>
+                <Tooltip
+                  title="Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng"
+                  className="tooltip-icon"
+                >
+                  <span>
+                    <img src={warningCircleIcon} alt="" />
+                  </span>
                 </Tooltip>
               </div>
-              <Input placeholder="Điền tham chiếu" suffix={<img src={arrowDownIcon} alt="down" />}
+              <Input
+                placeholder="Điền tham chiếu"
+                suffix={<img src={arrowDownIcon} alt="down" />}
               />
             </div>
             <div className="form-group form-group-with-search mb-0">
               <div>
-                <label htmlFor="" className="">Đường dẫn</label>
-                <Tooltip title="Thêm đường dẫn đơn hàng gốc trên kênh bán hàng" className="tooltip-icon">
-                  <span><img src={warningCircleIcon} alt="" /></span>
+                <label htmlFor="" className="">
+                  Đường dẫn
+                </label>
+                <Tooltip
+                  title="Thêm đường dẫn đơn hàng gốc trên kênh bán hàng"
+                  className="tooltip-icon"
+                >
+                  <span>
+                    <img src={warningCircleIcon} alt="" />
+                  </span>
                 </Tooltip>
               </div>
-              <Input placeholder="Điền đường dẫn"
+              <Input
+                placeholder="Điền đường dẫn"
                 suffix={<img src={arrowDownIcon} alt="down" />}
               />
             </div>
           </Card>
 
-          <Card className="card-block card-block-normal"
-                title={<div className="d-flex"><img src={documentIcon} alt="" /> Thông tin bổ sung</div>}>
+          <Card
+            className="card-block card-block-normal"
+            title={
+              <div className="d-flex">
+                <img src={documentIcon} alt="" /> Thông tin bổ sung
+              </div>
+            }
+          >
             <div className="form-group form-group-with-search">
               <div>
-                <label htmlFor="" className="">Ghi chú</label>
-                <Tooltip title="Thêm thông tin ghi chú chăm sóc khách hàng" className="tooltip-icon">
-                  <span><img src={warningCircleIcon} alt="" /></span>
+                <label htmlFor="" className="">
+                  Ghi chú
+                </label>
+                <Tooltip
+                  title="Thêm thông tin ghi chú chăm sóc khách hàng"
+                  className="tooltip-icon"
+                >
+                  <span>
+                    <img src={warningCircleIcon} alt="" />
+                  </span>
                 </Tooltip>
               </div>
               <Input.TextArea placeholder="Điền ghi chú" />
             </div>
             <div className="form-group form-group-with-search mb-0">
               <div>
-                <label htmlFor="" className="">Tag</label>
-                <Tooltip title="Thêm từ khóa để tiện lọc đơn hàng" className="tooltip-icon">
-                  <span><img src={warningCircleIcon} alt="" /></span>
+                <label htmlFor="" className="">
+                  Tag
+                </label>
+                <Tooltip
+                  title="Thêm từ khóa để tiện lọc đơn hàng"
+                  className="tooltip-icon"
+                >
+                  <span>
+                    <img src={warningCircleIcon} alt="" />
+                  </span>
                 </Tooltip>
               </div>
               <Input placeholder="Thêm tag" />
@@ -285,12 +376,15 @@ const CreateBill = () => {
       </Row>
 
       <Row className="footer-row-btn" justify="end">
-        <Button type="default" className="btn-style btn-cancel">Hủy</Button>
-        <Button type="default" className="btn-style btn-save">Lưu</Button>
+        <Button type="default" className="btn-style btn-cancel">
+          Hủy
+        </Button>
+        <Button type="default" className="btn-style btn-save">
+          Lưu
+        </Button>
       </Row>
-
     </div>
-  )
-}
+  );
+};
 
 export default CreateBill;
