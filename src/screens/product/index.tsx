@@ -162,7 +162,7 @@ const Product: React.FC = () => {
                     <Button  className="yody-search-button" onClick={showDrawer}>Bộ lọc nâng cao</Button>
                   </Form.Item>
                   <Drawer
-          title="Create a new account"
+          title="Thêm bộ lọc"
           width={400}
           onClose={onClose}
           visible={visible}
@@ -182,21 +182,23 @@ const Product: React.FC = () => {
             </div>
           }
         >         
-            <Row gutter={16}>
+            <Row gutter={24}>
               <Col span={12}>
                 <Form.Item
                   name="from_inventory"
                   label="Tồn kho từ"
+                  className="form-group form-group-with-search"
                 >
-                  <InputNumber  />
+                  <InputNumber className="r-5" size="large" />
                 </Form.Item>
               </Col>
               <Col span={12}>
               <Form.Item
                   name="to_inventory"
                   label="đến"
+                  className="form-group form-group-with-search"
                 >
-                  <InputNumber />
+                  <InputNumber className="r-5" size="large" />
                 </Form.Item>
               </Col>
             </Row>

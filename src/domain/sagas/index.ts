@@ -6,6 +6,7 @@ import { categorySaga } from './category.saga';
 import { contentSaga } from './content.saga';
 import { materialSaga } from './material.saga';
 import { sizeSaga } from './size.saga';
+import { colorSaga } from './color.saga';
 
 import { productSaga } from './product.saga';
 function* rootSaga(){
@@ -18,6 +19,7 @@ function* rootSaga(){
       materialSaga(),
       contentSaga(),
       sizeSaga(),
+      colorSaga()
     ]);
 }
 
