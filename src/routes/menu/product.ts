@@ -136,7 +136,7 @@ const product: Array<RouteMenu> = [
     subMenu: [],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {
-      path: '/suppliers/create'
+      pathCreate: '/suppliers/create'
     },
   }
 ]

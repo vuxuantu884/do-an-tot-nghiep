@@ -40,7 +40,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
             <Option value="">
               Ngành hàng
             </Option>
-            {goods?.map((item, index) => (
+            {goods?.map((item) => (
               <Option key={item.value} value={item.value}>
                 {item.name}
               </Option>
@@ -60,7 +60,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
                 <Option value="">
                   Chọn trạng thái
                 </Option>
-                {supplierStatus?.map((item, index) => (
+                {supplierStatus?.map((item) => (
                   <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>
@@ -74,7 +74,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
                 <Option value="">
                   Chọn phân cấp
                 </Option>
-                {scorecard?.map((item, index) => (
+                {scorecard?.map((item) => (
                   <Option key={item.value} value={item.value}>
                     {item.name}
                   </Option>

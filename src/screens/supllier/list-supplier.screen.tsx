@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import SupplierFilter from "component/filter/supplier.filter";
 import SupplierAction from 'domain/actions/supplier.action';
 import { RootReducerType } from "model/reducers/RootReducerType";
+import ViewFilter from "component/table/ViewFilter";
 
 
 const action: Array<MenuAction> = [
@@ -195,7 +196,6 @@ const ListSupplierScreen: React.FC = () => {
               </Form.Item>
             </div>
           </Form>
-
         </Card>
         <Table
           rowSelection={{
