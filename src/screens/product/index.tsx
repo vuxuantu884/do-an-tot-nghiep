@@ -119,32 +119,27 @@ const Product: React.FC = () => {
   return (
     <div>
       <Card className="contain">
-        {
-         
-            <React.Fragment>
               <Card
                 className="view-control"
-                style={{ display: 'flex', justifyContent: 'flex-end' }}
                 bordered={false}
               >
                 <Form
-                  size="middle"
+                 className="form-search"
                   onFinish={onFinish}
                   initialValues={params}
                   layout="inline"
                 >
-                  <Form.Item name="info">
+                <div className="right-form">
+                    <Form.Item name="info" className="form-group form-group-with-search">
                     <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Tên/Mã sản phẩm" />
                   </Form.Item>
-                  <Form.Item name="barcode">
-                    <Input  style={{ width: 250 }} placeholder="Barcode" />
+                  <Form.Item name="barcode" className="form-group form-group-with-search">
+                    <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Barcode" />
                   </Form.Item>
-                  <Form.Item name="brand">
-                    <Select defaultValue="" 
-                      style={{
-                        width: 250,
-                      }}
-                    >
+                  <Form.Item name="brand" className="form-group form-group-with-search">
+                    <Select defaultValue="" className="select-with-search"
+                      style={{width: 250}}
+                      >
                       <Select.Option value="">
                         Thương hiệu
                       </Select.Option>
@@ -159,116 +154,199 @@ const Product: React.FC = () => {
                   </Form.Item>
                   <Form.Item>
                     <Button type="primary" htmlType="submit" className="yody-search-button">Lọc</Button>
-                    <Button  className="yody-search-button" onClick={showDrawer}>Bộ lọc nâng cao</Button>
+                    </Form.Item>
+                    <Form.Item>
+                    <Button  className="yody-filter-button" onClick={showDrawer}>Bộ lọc nâng cao</Button>
                   </Form.Item>
+                    </div>
+               
                   <Drawer
-          title="Thêm bộ lọc"
-          width={400}
-          onClose={onClose}
-          visible={visible}
-          bodyStyle={{ paddingBottom: 80 }}
-          footer={
-            <div
-              style={{
-                textAlign: 'right',
-              }}
-            >
-              <Button onClick={onClose} style={{ marginRight: 8 }}>
-                Cancel
-              </Button>
-              <Button onClick={onClose} type="primary">
-                Submit
-              </Button>
-            </div>
-          }
-        >         
-            <Row gutter={24}>
-              <Col span={12}>
-                <Form.Item
-                  name="from_inventory"
-                  label="Tồn kho từ"
-                  className="form-group form-group-with-search"
-                >
-                  <InputNumber className="r-5" size="large" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-              <Form.Item
-                  name="to_inventory"
-                  label="đến"
-                  className="form-group form-group-with-search"
-                >
-                  <InputNumber className="r-5" size="large" />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item name="made_in"   label="Xuất xứ">
-                    <Select defaultValue=""  showSearch
-                    >
-                      <Select.Option value="">
-                        Xuất sứ
-                      </Select.Option>
-                      {
-                        made_ins.map((item, index) => (
-                          <Select.Option key={index} value={item.name}>
-                            {item.name}
-                          </Select.Option>
-                        ))
-                      }
-                    </Select>
-                  </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item name="from_create_date"   label="Thời gian tạo từ">
-                <DatePicker />
-                  </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item name="to_create_date"   label="đến">
-                <DatePicker />
-                  </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item name="size"   label="Size">
-                    <Select defaultValue=""  showSearch
-                    >
-                      <Select.Option value="">
-                        Size
-                      </Select.Option>
-                      {
-                        sizes.map((item, index) => (
-                          <Select.Option key={index} value={item.id}>
-                            {item.code}
-                          </Select.Option>
-                        ))
-                      }
-                    </Select>
-                  </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item name="status"   label="Trạng thái">
-                    <Select defaultValue=""  showSearch >
-                      <Select.Option value="">
-                        Trạng thái
-                      </Select.Option>
-                      {
-                        status.map((item, index) => (
-                          <Select.Option key={index} value={item.value}>
-                            {item.name}
-                          </Select.Option>
-                        ))
-                      }
-                    </Select>
-                  </Form.Item>
-              </Col>
-            </Row>
-        </Drawer>
+                    title="Thêm bộ lọc"
+                    
+                    width={400}
+                    onClose={onClose}
+                    visible={visible}
+                    bodyStyle={{ paddingBottom: 80 }}
+                    footer={
+                      <div
+                        style={{
+                          textAlign: 'right',
+                        }}
+                      >
+                        <Button onClick={onClose} style={{ marginRight: 8 }}>
+                          Cancel
+                        </Button>
+                        <Button onClick={onClose} type="primary">
+                          Submit
+                        </Button>
+                      </div>
+                    }
+                  >         
+                   <Form layout="vertical">
+                      <Row gutter={24}>
+                        <Col span={12}>
+                          <Form.Item
+                            name="from_inventory"
+                            label="Tồn kho từ" 
+                            className="form-group form-group-with-search"                           
+                          >
+                            <InputNumber  style={{width: "100%"}}/>
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                        <Form.Item
+                            name="to_inventory"
+                            label="đến"
+                            className="form-group form-group-with-search"                           
+                          >
+                            <InputNumber  style={{width: "100%"}}/>
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row gutter={16}>
+                        <Col span={24}>
+                          <Form.Item name="made_in"  className="form-group form-group-with-search"   label="Xuất xứ">
+                              <Select defaultValue=""  showSearch  className="select-with-search"
+                              >
+                                <Select.Option value="">
+                                  Xuất sứ
+                                </Select.Option>
+                                {
+                                  made_ins.map((item, index) => (
+                                    <Select.Option key={item.code} value={item.code}>
+                                      {item.name}
+                                    </Select.Option>
+                                  ))
+                                }
+                              </Select>
+                            </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row gutter={16}>
+                        <Col span={24}>
+                          <Form.Item name="merchandiser"  className="form-group form-group-with-search"   label="Nhà thiết kế">
+                              <Select defaultValue=""  showSearch  className="select-with-search"
+                              >
+                                <Select.Option value="">
+                                  Chọn người thiết kế
+                                </Select.Option>
+                                {
+                                  made_ins.map((item, index) => (
+                                    <Select.Option key={item.code} value={item.code}>
+                                      {item.name}
+                                    </Select.Option>
+                                  ))
+                                }
+                              </Select>
+                            </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row gutter={16}>
+                        <Col span={12}>
+                          <Form.Item name="from_create_date"   className="form-group form-group-with-search"   label="Thời gian tạo từ">
+                          <DatePicker />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                          <Form.Item name="to_create_date"    className="form-group form-group-with-search"  label="đến">
+                          <DatePicker />
+                            </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row gutter={16}>
+                        <Col span={12}>
+                          <Form.Item name="size"    className="form-group form-group-with-search"  label="Size">
+                              <Select defaultValue=""  showSearch className="select-with-search"
+                              >
+                                <Select.Option value="">
+                                  Size
+                                </Select.Option>
+                                {
+                                  sizes.map((item, index) => (
+                                    <Select.Option key={index} value={item.id}>
+                                      {item.code}
+                                    </Select.Option>
+                                  ))
+                                }
+                              </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                          <Form.Item name="status"   label="Trạng thái" className="form-group form-group-with-search"> 
+                              <Select defaultValue=""  showSearch className="select-with-search">
+                                <Select.Option value="">
+                                  Trạng thái
+                                </Select.Option>
+                                {
+                                  status.map((item, index) => (
+                                    <Select.Option key={index} value={item.value}>
+                                      {item.name}
+                                    </Select.Option>
+                                  ))
+                                }
+                              </Select>
+                            </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row gutter={16}>
+                        <Col span={24}>
+                          <Form.Item name="main_color"  className="form-group form-group-with-search"   label="Màu chủ đạo">
+                              <Select defaultValue=""  showSearch  className="select-with-search"
+                              >
+                                <Select.Option value="">
+                                  Chọn màu chủ đạo
+                                </Select.Option>
+                                {
+                                  made_ins.map((item, index) => (
+                                    <Select.Option key={item.code} value={item.code}>
+                                      {item.name}
+                                    </Select.Option>
+                                  ))
+                                }
+                              </Select>
+                            </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row gutter={16}>
+                        <Col span={24}>
+                          <Form.Item name="color"  className="form-group form-group-with-search"   label="Màu sắc">
+                              <Select defaultValue=""  showSearch  className="select-with-search"
+                              >
+                                <Select.Option value="">
+                                  Chọn màu sắc
+                                </Select.Option>
+                                {
+                                  made_ins.map((item, index) => (
+                                    <Select.Option key={item.code} value={item.code}>
+                                      {item.name}
+                                    </Select.Option>
+                                  ))
+                                }
+                              </Select>
+                            </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row gutter={16}>
+                        <Col span={24}>
+                          <Form.Item name="supplier"  className="form-group form-group-with-search"   label="Nhà cung cấp">
+                              <Select defaultValue=""  showSearch  className="select-with-search"
+                              >
+                                <Select.Option value="">
+                                  Chọn nhà cung cấp
+                                </Select.Option>
+                                {
+                                  made_ins.map((item, index) => (
+                                    <Select.Option key={item.code} value={item.code}>
+                                      {item.name}
+                                    </Select.Option>
+                                  ))
+                                }
+                              </Select>
+                            </Form.Item>
+                        </Col>
+                      </Row>
+                      </Form>
+                  </Drawer>
                 </Form>
               </Card>
               <Table
@@ -286,9 +364,7 @@ const Product: React.FC = () => {
                 onPageSizeChange={onPageSizeChange}
               />
              
-            </React.Fragment>
-          
-        }
+            
       </Card>
     </div>
   )
