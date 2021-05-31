@@ -4,6 +4,9 @@ import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/category-view";
 import { CategoryResponse } from "model/response/category.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
+import { OrderItemModel } from 'model/other/Order/OrderItemModel';
+import { OrderDiscountModel } from 'model/other/Order/OrderDiscountModel';
+import { OrderItemDiscountModel } from 'model/other/Order/OrderItemDiscountModel';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -60,6 +63,124 @@ export const findAvatar = (variantImages: Array<VariantImage>): string => {
     }
   })
   return avatar;
+}
+
+export const getTotalQuantity = (items: Array<OrderItemModel>) => {
+  let total = 0;
+  items.forEach((a) => total = total + a.quantity);
+  return total;
+}
+
+export const getTotalAmountAfferDiscount = (items: Array<OrderItemModel>) => {
+  let total = 0;
+  items.forEach((a) => total = total + a.line_amount_after_line_discount);
+  return total;
+}
+
+export const getTotalAmount = (items: Array<OrderItemModel>) => {
+  let total = 0;
+  items.forEach((a) => {
+    if (a.product_type === 'normal') {
+      total = total + a.amount;
+    }
+  });
+  return total;
+}
+
+export const findTaxInVariant = (variantPrices: Array<VariantPrice>, currency_code: string): number => {
+  let tax: number = 0;
+  variantPrices.forEach((v) => {
+    if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {
+      tax = v.tax_percent;
+    }
+  })
+  return tax;
+}
+
+export const getTotalAmountFreeForm = (items: Array<OrderItemModel>) => {
+  let total = 0;
+  items.forEach((a) => {
+    if (a.product_type === 'service') {
+      total = total + a.amount;
+    }
+  });
+  return total;
+}
+
+export const getTotalDiscount = (items: Array<OrderItemModel>) => {
+  let total = 0;
+  items.forEach((a) => total = total + a.discount_amount);
+  return total;
+}
+
+export const findPriceInVariant = (variantPrices: Array<VariantPrice>, currency_code: string): number => {
+  let price: number = 0;
+  variantPrices.forEach((v) => {
+    if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {
+      price = v.price;
+    }
+  })
+  return price;
+}
+
+export const getDiscountRate = (items: Array<OrderItemDiscountModel>) => {
+  let value = 0;
+  if (items.length > 0) {
+    if (items[0].rate !== null) {
+      value = items[0].rate;
+    }
+  }
+  return value;
+}
+
+export const getDiscountValue = (items: Array<OrderItemDiscountModel>) => {
+  let value = 0;
+  if (items.length > 0) {
+    if (items[0].value !== null) {
+      value = items[0].value;
+    }
+  }
+  return value;
+}
+
+export const getAmountDiscount = (items: Array<OrderItemDiscountModel>) => {
+  let value = 0;
+  if (items.length > 0) {
+    if (items[0].amount !== null) {
+      value = items[0].amount;
+    }
+  }
+  return value;
+}
+
+export const getAmountItemDiscount = (items: Array<OrderItemDiscountModel>) => {
+  let value = 0;
+  items.forEach((i) => value = value + (i.amount ? i.amount : 0));
+  return value;
+}
+
+export const findDiscountIndex = (items: Array<OrderDiscountModel>) => {
+  let index = items.findIndex((value) => value.promotion_id == null);
+  return index;
+}
+
+export const findDiscountPromotion = (items: Array<OrderDiscountModel>) => {
+  let index = items.findIndex((value) => value.promotion_id != null);
+  return index;
+}
+
+export const caculatorTotalDiscount = (items: Array<OrderDiscountModel>) => {
+  let total = 0;
+  items.forEach((value) => total = total + value.amount);
+  return total;
+}
+
+export const findOrderDiscount = (items: Array<OrderDiscountModel>) => {
+  let index = findDiscountIndex(items);
+  if (index === -1) {
+    return 0;
+  }
+  return items[index].amount;
 }
 
 export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '') => {

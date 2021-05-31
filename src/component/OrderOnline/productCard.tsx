@@ -17,13 +17,7 @@ import {
   Typography,
 } from "antd";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
-import React, {
-  useCallback,
-  useLayoutEffect,
-  useState,
-  useMemo,
-  createRef,
-} from "react";
+import React, {useCallback, useLayoutEffect, useState, useMemo, createRef,} from "react";
 import productIcon from "../../assets/img/cube.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
@@ -31,23 +25,17 @@ import deleteRedIcon from "../../assets/img/deleteRed.svg";
 import DiscountGroup from "./discountGroup";
 import { StoreModel } from "model/other/StoreModel";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getListStoreRequest,
-  validateStoreAction,
-} from "domain/actions/store.action";
+import {  getListStoreRequest,  validateStoreAction,} from "domain/actions/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OnSearchChange } from "domain/actions/search.action";
-import {
-  formatCurrency,
-  replaceFormat,
-  haveAccess,
-  findPrice,
-  findAvatar,
-} from "../../utils/AppUtils";
+import { formatCurrency, haveAccess, findPrice, findAvatar,} from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { VariantModel } from "model/other/ProductModel";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
+import "./container.scss";
+import { addOrderRequest } from "domain/actions/order.action";
+import { splitLineChange } from "domain/actions/appsetting.action";
 
 type ProductCardProps = {
   // visible: boolean;
@@ -280,7 +268,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [stores, setStore] = useState(false);
   const [isVerify, setVerify] = useState(false);
 
-
   useLayoutEffect(() => {
     dispatch(getListStoreRequest(setListStores));
   }, [dispatch]);
@@ -295,7 +282,15 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [listStores, setListStores] = useState<Array<StoreModel>>([]);
   const [keysearch, setKeysearch] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<VariantModel>>([]);
+  const [splitLine, setsplitLine] = useState(false);
   const autoCompleteRef = createRef<RefSelectProps>();
+
+  const onSpiltLineChange = useCallback(
+    (e) => {
+      dispatch(splitLineChange(e.target.checked));
+    },
+    [dispatch]
+  );
 
   const onSearchSelect = useCallback(
     (v, o) => {
@@ -304,21 +299,24 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         (r: VariantModel) => r.id && r.id.toString() === v
       );
       if (index !== -1) {
-        //dispatch(addOrderRequest(resultSearch[index], splitLine));
+        dispatch(addOrderRequest(resultSearch[index], splitLine));
         autoCompleteRef.current?.blur();
         setKeysearch("");
       }
     },
-    [autoCompleteRef, dispatch, resultSearch]
+    [autoCompleteRef, dispatch, resultSearch, splitLine]
   );
 
-  const onChangeSearch = useCallback((v) => {
-    setKeysearch(v);
-    timeTextChange && clearTimeout(timeTextChange);
-    timeTextChange = setTimeout(() => {
-      dispatch(OnSearchChange(v, setResultSearch));
-    }, 500)
-  }, [dispatch]);
+  const onChangeSearch = useCallback(
+    (v) => {
+      setKeysearch(v);
+      timeTextChange && clearTimeout(timeTextChange);
+      timeTextChange = setTimeout(() => {
+        dispatch(OnSearchChange(v, setResultSearch));
+      }, 500);
+    },
+    [dispatch]
+  );
 
   const convertResultSearch = useMemo(() => {
     let options: any[] = [];
@@ -365,9 +363,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           <Space>
             <div>
               <Checkbox
-                className="checkbox-style"
-                style={{ fontSize: 14 }}
-                onChange={() => console.log(1)}
+                onChange={onSpiltLineChange}
+                checked={splitLine}
+                className="yody-checkbox"
               >
                 Tách dòng
               </Checkbox>
