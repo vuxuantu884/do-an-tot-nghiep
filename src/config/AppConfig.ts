@@ -5,4 +5,5 @@ export const AppConfig = {
   currency: 'VNĐ',
   price_type: 'retail_price',
   channel_id: 1,
+  DEFAULT_PAYMENT: 1,
 };

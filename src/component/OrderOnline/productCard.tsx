@@ -43,17 +43,20 @@ import {
   haveAccess,
   findPrice,
   findAvatar,
+  findPriceInVariant, 
+  findTaxInVariant
 } from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { VariantModel } from "model/other/ProductModel";
+import { OrderItemModel } from "model/other/Order/OrderItemModel";
+import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
+import {Type} from "../../config/TypeConfig";
 
 type ProductCardProps = {
-  // visible: boolean;
-  // onCancel: (e: React.MouseEvent<HTMLElement>) => void;
-  // onOk: () => void;
 };
+
 
 const renderSearch = (item: VariantModel) => {
   let avatar = findAvatar(item.variant_images);
@@ -100,8 +103,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const ProductColumn = {
     title: "Sản phẩm",
     className: "yody-pos-name",
-    // width: 210,
-    render: (index: number) => {
+    render: (l: OrderItemModel, item: any, index: number) => {
       return (
         <div className="w-100" style={{ overflow: "hidden" }}>
           <div className="d-flex align-items-center">
@@ -113,45 +115,18 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             </Button>
             <div style={{ width: "calc(100% - 32px)" }}>
               <div className="yody-pos-sku">
-                <Typography.Link>APN3340 - XXA - XL</Typography.Link>
+                <Typography.Link>{l.sku}</Typography.Link>
               </div>
               <div className="yody-pos-varian">
                 <Tooltip
-                  title="Polo mắt chim nữ - xanh xám - XL"
+                  title={l.variant}
                   className="yody-pos-varian-name"
                 >
-                  <span>Polo mắt chim nữ - xanh xám - XL</span>
+                  <span>{l.variant}</span>
                 </Tooltip>
-                {/*<Button hidden={!(!a.show_note && a.note === '')} type="text" className="text-primary text-add-note" onClick={() => {*/}
-                {/*  window.requestAnimationFrame(() => setFocus(index));*/}
-                {/*  dispatch(showNoteAction(index))}}>Thêm ghi chú</Button>*/}
               </div>
             </div>
           </div>
-
-          {/*{*/}
-          {/*  a.gifts.map((a, index1) => (*/}
-          {/*    <div key={index1} className="yody-pos-addition yody-pos-gift">*/}
-          {/*      <div><img src={giftIcon} alt=""/> {a.variant} <span>({a.quantity})</span></div>*/}
-          {/*    </div>*/}
-          {/*  ))*/}
-          {/*}*/}
-
-          {/*<div className="yody-pos-note" hidden={!a.show_note && a.note === ''}>*/}
-          {/*  <Input*/}
-          {/*    addonBefore={<EditOutlined />}*/}
-          {/*    maxLength={255}*/}
-          {/*    allowClear={true}*/}
-          {/*    onBlur={() => {*/}
-          {/*      if(a.note === '') {*/}
-          {/*        dispatch(hideNoteAction(index))*/}
-          {/*      }*/}
-          {/*    }}*/}
-          {/*    className="note"*/}
-          {/*    value={a.note}*/}
-          {/*    onChange={(e) => dispatch(onOrderItemNoteChange(index, e.target.value))}*/}
-          {/*    placeholder="Ghi chú" />*/}
-          {/*</div>*/}
         </div>
       );
     },
@@ -279,7 +254,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   var timeTextChange: NodeJS.Timeout;
   const [stores, setStore] = useState(false);
   const [isVerify, setVerify] = useState(false);
-
+  const [items, setItems] = useState<Array<OrderItemModel>>([]);
+  const [splitLine, setSplitLine] = useState<boolean>(false);
 
   useLayoutEffect(() => {
     dispatch(getListStoreRequest(setListStores));
@@ -297,19 +273,72 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [resultSearch, setResultSearch] = useState<Array<VariantModel>>([]);
   const autoCompleteRef = createRef<RefSelectProps>();
 
+  const createItem = (variant: VariantModel) => {
+    let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
+    let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
+    let avatar = findAvatar(variant.variant_images);
+    let orderLine: OrderItemModel = {
+      id: new Date().getTime(),
+      sku: variant.sku,
+      variant_id: variant.id,
+      product_id: variant.product.id,
+      variant: variant.name,
+      variant_barcode: variant.barcode,
+      product_type: variant.product.product_type,
+      quantity: 1,
+      price: price,
+      amount: price,
+      note: '',
+      type: Type.NORMAL,
+      variant_image: avatar,
+      unit: variant.product.unit,
+      warranty: variant.product.preservation,
+      discount_items: [],
+      discount_amount: 0,
+      discount_rate: 0,
+      is_composite: variant.composite,
+      discount_value: 0,
+      line_amount_after_line_discount: price,
+      product: variant.product.name,
+      tax_include: true,
+      tax_rate: taxRate,
+      show_note: false,
+      gifts: [],
+    }
+    return orderLine;
+  }
+  
+  const createNewDiscountItem = () => {
+    const newDiscountItem: OrderItemDiscountModel = {
+      amount: 0,
+      rate: 0,
+      reason: '',
+      value: 0,
+    }
+    return newDiscountItem;
+  }
+
   const onSearchSelect = useCallback(
     (v, o) => {
-      let index: number = -1;
-      index = resultSearch.findIndex(
-        (r: VariantModel) => r.id && r.id.toString() === v
-      );
-      if (index !== -1) {
-        //dispatch(addOrderRequest(resultSearch[index], splitLine));
-        autoCompleteRef.current?.blur();
-        setKeysearch("");
-      }
+      console.log(o);
+      let _items = [...items];
+        let indexSearch = resultSearch.findIndex(s => s.id == v)
+        let index = _items.findIndex(i => i.variant_id == v)
+        let r:VariantModel=resultSearch[indexSearch]
+        if(r.id == v){
+          if(splitLine || index == -1){
+            const item:OrderItemModel = createItem(r);
+            _items.push(item);
+            setSplitLine(false)
+          }
+          else{
+            _items[index].quantity += 1
+          }
+        }
+      setItems(_items)
     },
-    [autoCompleteRef, dispatch, resultSearch]
+    [resultSearch, items, splitLine]
+    // autoCompleteRef, dispatch, resultSearch
   );
 
   const onChangeSearch = useCallback((v) => {
@@ -367,7 +396,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Checkbox
                 className="checkbox-style"
                 style={{ fontSize: 14 }}
-                onChange={() => console.log(1)}
+                onChange={()=>setSplitLine(!splitLine)}
               >
                 Tách dòng
               </Checkbox>
@@ -468,43 +497,41 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               </Button>
             ),
           }}
-          rowKey={(record) => record.uid}
+          rowKey={(record) => record.id}
           columns={columns}
-          // dataSource={OrderItemModel}
+          dataSource={items}
           className="sale-product-box-table w-100"
-          tableLayout="auto"
-          pagination={false}
-          summary={(pageData) => {
-            let totalBorrow = 0;
-            let totalRepayment = 0;
+          tableLayout="fixed"
+          // pagination={false}
+          // summary={(pageData) => {
+            // let totalBorrow = 0;
+            // let totalRepayment = 0;
 
-            pageData.forEach(({ borrow, repayment }) => {
-              totalBorrow += borrow;
-              totalRepayment += repayment;
-            });
+            // // pageData.forEach(({ borrow, repayment }) => {
+            // //   totalBorrow += borrow;
+            // //   totalRepayment += repayment;
+            // // });
 
-            console.log(pageData);
-
-            return (
-              <Table.Summary.Row>
-                <Table.Summary.Cell index={1} colSpan={2}>
-                  Tổng
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={1} className="text-right">
-                  <Typography.Text>{formatCurrency(987000)}</Typography.Text>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={1} className="text-right">
-                  <Typography.Text type="danger">
-                    {formatCurrency(296100)}
-                  </Typography.Text>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={1} className="text-right">
-                  <Typography.Link>{formatCurrency(690900)}</Typography.Link>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={1} />
-              </Table.Summary.Row>
-            );
-          }}
+            // return (
+            //   <Table.Summary.Row>
+            //     <Table.Summary.Cell index={1} colSpan={2}>
+            //       Tổng
+            //     </Table.Summary.Cell>
+            //     <Table.Summary.Cell index={1} className="text-right">
+            //       <Typography.Text>{formatCurrency(987000)}</Typography.Text>
+            //     </Table.Summary.Cell>
+            //     <Table.Summary.Cell index={1} className="text-right">
+            //       <Typography.Text type="danger">
+            //         {formatCurrency(296100)}
+            //       </Typography.Text>
+            //     </Table.Summary.Cell>
+            //     <Table.Summary.Cell index={1} className="text-right">
+            //       <Typography.Link>{formatCurrency(690900)}</Typography.Link>
+            //     </Table.Summary.Cell>
+            //     <Table.Summary.Cell index={1} />
+            //   </Table.Summary.Row>
+            // );
+          // }}
         />
       </Row>
 

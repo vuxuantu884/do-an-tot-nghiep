@@ -29,6 +29,7 @@ import {
   replaceFormat,
   haveAccess,
 } from "../../utils/AppUtils";
+import { VariantModel } from "model/other/ProductModel";
 
 const CreateBill = () => {
   const [isVisibleAddress, setVisibleAddress] = useState(false);
