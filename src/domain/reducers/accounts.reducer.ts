@@ -1,6 +1,6 @@
+import { StoreType } from 'domain/types/product.type';
 import { AccountModel } from 'model/other/Account/AccountModel';
 import { YodyAction } from 'base/BaseAction';
-import StoreType from 'domain/types/acccount.type';
 
 const initialState: Array<AccountModel> = [];
 

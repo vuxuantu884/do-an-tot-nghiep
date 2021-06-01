@@ -92,7 +92,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (props: EditCustomer
                 placeholder="Chọn nguồn"
                 enterButton={<Button type="text"><img src={plusBlueIcon} alt="" /></Button>}
                 suffix={<img src={arrowDownIcon} alt="down" />}
-                onSearch={() => console.log(1)}
               />
             </div>
           </div>
