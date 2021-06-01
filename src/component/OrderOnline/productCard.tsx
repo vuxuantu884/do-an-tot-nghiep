@@ -16,6 +16,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import '../../assets/css/order.scss';
 import arrowDownIcon from "../../assets/img/drow-down.svg";
 import React, {useCallback, useLayoutEffect, useState, useMemo, createRef,} from "react";
 import productIcon from "../../assets/img/cube.svg";
@@ -498,7 +499,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           columns={columns}
           dataSource={items}
           className="sale-product-box-table w-100"
-          tableLayout="fixed"
+          tableLayout="auto"
           // pagination={false}
           // summary={(pageData) => {
             // let totalBorrow = 0;
