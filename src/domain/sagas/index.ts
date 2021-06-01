@@ -3,11 +3,14 @@ import { appSaga } from './app.saga';
 import { authSaga } from './auth.saga';
 import { bootstrapSaga } from './bootstrap.saga';
 import { categorySaga } from './category.saga';
+import { contentSaga } from './content.saga';
 import { materialSaga } from './material.saga';
 import OrderOnlineSaga from './orderOnline.saga';
 import storeSaga  from './store.saga'
 import { productSaga } from './product.saga';
 import searchSagas from './search.sagas';
+import { sizeSaga } from './size.saga';
+import { supplierSagas } from './core/supplier.saga';
 function* rootSaga(){
     yield all([
       appSaga(),
@@ -19,6 +22,9 @@ function* rootSaga(){
       storeSaga(),
       OrderOnlineSaga(),
       searchSagas(),
+      contentSaga(),
+      sizeSaga(),
+      supplierSagas(),
     ]);
 }
 
