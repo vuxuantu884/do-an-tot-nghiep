@@ -253,7 +253,35 @@ $desktop-width: 1400px;
   border-radius: 5px;
   color: #FFFFFF;
   border: none;
+  &:hover {
+    background-color: #2A2A86;
+    color: #FFFFFF;  }
+  &:focus {
+    background-color: #2A2A86;
+    color: #FFFFFF;  
+  }
 }
+
+.yody-filter-button {
+  background-color: rgba(42, 42, 134, 0.1)  ;
+  border-radius: 5px;
+  color: #2A2A86;
+  border: none;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  &:hover {
+    background-color: rgba(42, 42, 134, 0.1);
+    color: #2A2A86;
+  }
+  &:focus {
+    background-color: rgba(42, 42, 134, 0.1);
+    color: #2A2A86;
+  }
+}
+
 
 .contain {
   .ant-card-body {
@@ -421,6 +449,17 @@ $desktop-width: 1400px;
       padding: 2px 11px !important;
       height: auto !important;
     }
+  }
+  .selector {
+    .ant-select-selector {
+      border-radius: 5px !important;
+      border-color: #CFDCE9 !important;
+      padding: 4px 11px !important;
+      height: auto !important;
+    }
+  }
+  .ip-search {
+    padding: 7px 11px;
   }
 }
 
@@ -699,4 +738,44 @@ table {
   .ant-checkbox {
     top: 0;
   }
+.row-filter {
+  display: flex;
+  flex-direction: row;
+  margin: 0 20px;
+  .key-filter {
+    background: #F4F4F7;
+    border-radius: 3px;
+    display: flex;
+    padding: 6px 8px;
+    align-items: center;
+    margin-left: 5px;
+    span {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 12px;
+      line-height: 15px;
+      color: #404040;
+    }
+    .btn-del {
+      width: 14px;
+      height: 14px;
+      background: none;
+      border: none;
+      border-radius: 50%;
+      margin-left: 8px;
+      display: flex;
+    }
+    .ant-btn-icon-only>*{
+      font-size: 12px;
+    }
+  }
+  .del-all {
+    margin-left: 8px;
+    background: rgba(255, 166, 0, 0.1);
+    color: rgba(255, 166, 0, 1);
+    border-radius: 3px;
+    border: none;
+  }
+}
 }

@@ -26,6 +26,6 @@ function* getDataSource(action: YodyAction) {
 
 function* OrderOnlineSaga(){
     yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
-  }
+}
 
 export default OrderOnlineSaga;

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   Button,
   Card,
@@ -13,7 +14,13 @@ import {
   Form,
   Select,
 } from "antd";
-import React, { useCallback, useLayoutEffect, useState } from "react";
+import React, {
+  createRef,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useDispatch } from "react-redux";
 import peopleIcon2 from "assets/img/people.svg";
 import bithdayIcon from "assets/img/bithday.svg";
@@ -29,6 +36,11 @@ import AddAddressModal from "./addAddressModal";
 import EditCustomerModal from "./editCustomerModal";
 import { SourceModel } from "model/other/SourceModel";
 import { getListSourceRequest } from "domain/actions/orderOnline.action";
+import { RefSelectProps } from "antd/lib/select";
+import { CustomerModel } from "model/other/Customer/CustomerModel";
+import { OnSearchChange } from "domain/actions/customer.action";
+import { findAvatar } from "utils/AppUtils";
+import imgdefault from "assets/icon/img-default.svg";
 
 type CustomerCardProps = {
   // visible: boolean;
@@ -39,9 +51,14 @@ type CustomerCardProps = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
-  const [isVisibleAddress, setVisibleAddress] = useState(false);
+  var timeTextChange: NodeJS.Timeout;
   const dispatch = useDispatch();
+  const [isVisibleAddress, setVisibleAddress] = useState(false);
+  const [keysearch, setKeysearch] = useState("");
+  const autoCompleteRef = createRef<RefSelectProps>();
+  const [resultSearch, setResultSearch] = useState<Array<CustomerModel>>([]);
 
+  const [customer, setCustomer] = useState<CustomerModel>();
   const showAddressModal = () => {
     setVisibleAddress(true);
   };
@@ -70,9 +87,67 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const [listSource, setListSource] = useState<Array<SourceModel>>([]);
 
+  const onSearchSelect = useCallback(
+     (v, o) => {
+      let index: number = -1;
+      index = resultSearch.findIndex(
+        (r: CustomerModel) => r.id && r.id.toString() === v
+      );
+      if (index !== -1) {
+        console.log("resultSearch",resultSearch);
+        setCustomer(resultSearch[index]);
+        autoCompleteRef.current?.blur();
+        setKeysearch("");
+      }
+    },
+    [autoCompleteRef, dispatch, resultSearch, customer]
+  );
+
+  const onChangeSearch = useCallback(
+    (v) => {
+      setKeysearch(v);
+      timeTextChange && clearTimeout(timeTextChange);
+      timeTextChange = setTimeout(() => {
+        dispatch(OnSearchChange(v, setResultSearch));
+      }, 500);
+    },
+    [dispatch]
+  );
+
+  const renderSearch = (item: CustomerModel) => {
+    return (
+      <div className="row-search w-100">
+        <div className="rs-left w-100">
+          <img src={imgdefault} alt="anh" placeholder={imgdefault} />
+          <div className="rs-info w-100">
+            <span style={{ color: "#37394D" }} className="text">
+              {item.full_name}
+            </span>
+            <span style={{ color: "#95A1AC" }} className="text p-4">
+              {item.phone}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const convertResultSearch = useMemo(() => {
+    let options: any[] = [];
+    resultSearch.forEach((item: CustomerModel, index: number) => {
+      options.push({
+        label: renderSearch(item),
+        value: item.id ? item.id.toString() : "",
+      });
+    });
+    return options;
+  }, [dispatch, resultSearch]);
+
   useLayoutEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
+
+  console.log("customer", customer);
 
   return (
     <Card
@@ -87,7 +162,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           {/* <label htmlFor="" className="required-label">
             Nguồn
           </label> */}
-          <Form.Item name="source" label="Nguồn" style={{margin: "10px 0px"}}  rules={[{required: true}]}>
+          <Form.Item
+            name="source"
+            label="Nguồn"
+            style={{ margin: "10px 0px" }}
+            rules={[{ required: true }]}
+          >
             <Select
               className="select-with-search"
               showSearch
@@ -115,7 +195,19 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           Tên khách hàng
         </label>
         <div>
-          <AutoComplete>
+          <AutoComplete
+            notFoundContent={
+              keysearch.length >= 3 ? "Không tìm thấy khách hàng" : undefined
+            }
+            value={keysearch}
+            ref={autoCompleteRef}
+            onSelect={onSearchSelect}
+            dropdownClassName="search-layout dropdown-search-header"
+            dropdownMatchSelectWidth={456}
+            className="w-100"
+            onSearch={onChangeSearch}
+            options={convertResultSearch}
+          >
             <Input.Search
               placeholder="Tìm hoặc thêm khách hàng"
               enterButton={
@@ -124,7 +216,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </Button>
               }
               prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-              onSearch={() => console.log(1)}
             />
           </AutoComplete>
         </div>
@@ -159,8 +250,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 />{" "}
               </svg>
             </span>
-            <span>Đỗ Nguyệt Anh</span>
-            <span className="cdn-level">VIP D</span>
+            <span>{customer?.full_name}</span>
+            <span className="cdn-level">{customer?.level_id}</span>
           </Space>
         </Row>
 
@@ -168,7 +259,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           <span className="customer-detail-icon">
             <img src={callIcon} alt="" />
           </span>
-          <span className="customer-detail-text">0986868686</span>
+          <span className="customer-detail-text">{customer?.phone}</span>
         </Space>
 
         <Space className="customer-detail-point">

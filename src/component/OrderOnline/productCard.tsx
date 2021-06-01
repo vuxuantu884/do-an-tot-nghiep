@@ -17,13 +17,7 @@ import {
   Typography,
 } from "antd";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
-import React, {
-  useCallback,
-  useLayoutEffect,
-  useState,
-  useMemo,
-  createRef,
-} from "react";
+import React, {useCallback, useLayoutEffect, useState, useMemo, createRef,} from "react";
 import productIcon from "../../assets/img/cube.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
@@ -31,10 +25,7 @@ import deleteRedIcon from "../../assets/img/deleteRed.svg";
 import DiscountGroup from "./discountGroup";
 import { StoreModel } from "model/other/StoreModel";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getListStoreRequest,
-  validateStoreAction,
-} from "domain/actions/store.action";
+import {  getListStoreRequest,  validateStoreAction,} from "domain/actions/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OnSearchChange } from "domain/actions/search.action";
 import {
@@ -53,6 +44,9 @@ import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import {Type} from "../../config/TypeConfig";
+import "./container.scss";
+import { addOrderRequest } from "domain/actions/order.action";
+import { splitLineChange } from "domain/actions/appsetting.action";
 
 type ProductCardProps = {
 };
@@ -341,13 +335,16 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     // autoCompleteRef, dispatch, resultSearch
   );
 
-  const onChangeSearch = useCallback((v) => {
-    setKeysearch(v);
-    timeTextChange && clearTimeout(timeTextChange);
-    timeTextChange = setTimeout(() => {
-      dispatch(OnSearchChange(v, setResultSearch));
-    }, 500)
-  }, [dispatch]);
+  const onChangeSearch = useCallback(
+    (v) => {
+      setKeysearch(v);
+      timeTextChange && clearTimeout(timeTextChange);
+      timeTextChange = setTimeout(() => {
+        dispatch(OnSearchChange(v, setResultSearch));
+      }, 500);
+    },
+    [dispatch]
+  );
 
   const convertResultSearch = useMemo(() => {
     let options: any[] = [];

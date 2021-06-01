@@ -1,3 +1,4 @@
+import { UpdateMaterialRequest } from 'model/request/create-material.request';
 import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
@@ -23,4 +24,12 @@ export const deleteManyMaterialApi = (ids: Array<number>): Promise<BaseResponse<
 
 export const createMaterialApi = (request: CreateMaterialRequest): Promise<BaseResponse<MaterialResponse>> => {
   return BaseAxios.post(`${ApiConfig.PRODUCT}/materials`, request);
+}
+
+export const detailMaterialApi = (materialId: number): Promise<BaseResponse<MaterialResponse>> => {
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/materials/${materialId}`);
+}
+
+export const updateMaterialApi = (materialId: number,request: UpdateMaterialRequest): Promise<BaseResponse<MaterialResponse>> => {
+  return BaseAxios.put(`${ApiConfig.PRODUCT}/materials/${materialId}`, request);
 }

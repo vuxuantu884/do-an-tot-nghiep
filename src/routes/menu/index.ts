@@ -91,7 +91,7 @@ const menu: Array<RouteMenu> = [
   {
     path: "/promotion",
     exact: true,
-    title: "Khuyễn mại",
+    title: "Khuyến mại",
     icon: 'icon-promotion',
     component: Inventory,
     key: "7",

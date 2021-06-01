@@ -40,9 +40,8 @@ const ListMaterial: React.FC = () => {
   const columns = [
     {
       title: 'Mã chất liệu',
-      dataIndex: 'code',
-      render: (text: string) => {
-        return <Link to="#">{text}</Link>
+      render: (value: MaterialResponse) => {
+        return <Link to={`materials/${value.id.toString()}`}>{value.code}</Link>
       }
     },
     {
@@ -91,20 +90,20 @@ const ListMaterial: React.FC = () => {
     let newPrams = { ...params, ...values, page: 0 };
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
-    history.push(`/products/materials?${queryParam}`);
+    history.push(`/materials?${queryParam}`);
   }, [history, params]);
   const onPageSizeChange = useCallback((size: number) => {
     params.limit = size;
     params.page = 0;
     let queryParam = generateQuery(params);
     setPrams({ ...params });
-    history.replace(`/products/materials?${queryParam}`);
+    history.replace(`/materials?${queryParam}`);
   }, [history, params]);
   const onPageChange = useCallback((page) => {
     params.page = page - 1;
     let queryParam = generateQuery(params);
     setPrams({ ...params });
-    history.replace(`/products/materials?${queryParam}`);
+    history.replace(`/materials?${queryParam}`);
   }, [history, params]);
   const onMenuClick = useCallback((index: number) => {
     switch (index) {

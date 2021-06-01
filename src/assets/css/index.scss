@@ -245,3 +245,37 @@ body {
 .r-5 {
   border-radius: 5px;
 }
+
+.ant-form-item-label>label.ant-form-item-required:not(.ant-form-item-required-mark-optional):before {
+  content: "";
+}
+
+.ant-form-item-label>label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after {
+  display: inline-block;
+  margin-right: 4px;
+  color: #ff4d4f;
+  font-size: 14px;
+  font-family: SimSun,sans-serif;
+  line-height: 1;
+  content: "*";
+}
+
+.ant-drawer-header {
+  border: none;
+}
+.ant-drawer-footer {
+  border: none;
+  .filter-footer {
+    padding: 24px 10px;
+    .row-filter {
+      margin-top: 12px;
+      .btn-filter {
+        height: 38px;
+      }
+    }
+  }
+}
+
+.status-active {
+  color: rgba(82, 210, 118, 1);
+}

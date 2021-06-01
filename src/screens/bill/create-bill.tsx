@@ -250,8 +250,8 @@ const CreateBill = () => {
     ActionColumn,
   ];
 
-  const dispatch = useDispatch(); 
-  
+  const dispatch = useDispatch();
+
   return (
     <div>
       <Row gutter={24}>
@@ -290,7 +290,6 @@ const CreateBill = () => {
                 placeholder="Tìm tên/ mã nhân viên"
                 suffix={<img src={arrowDownIcon} alt="down" />}
               />
-
             </div>
             <div className="form-group form-group-with-search">
               <div>
