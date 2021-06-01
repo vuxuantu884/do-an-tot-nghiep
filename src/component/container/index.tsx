@@ -1,5 +1,5 @@
 import {Layout} from 'antd';
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect, useLayoutEffect } from 'react';
 import { Redirect, useHistory } from 'react-router';
 import LoadingScreen from 'screens/loading.screen';
 import HeaderContainer from './header.container';
@@ -29,7 +29,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
   const {isLogin, isLoad: isLoadUser} = userReducer;
   const {isLoad} = bootstrapReducer;
-  useLayoutEffect(() => {
+  useEffect(() => {
     if(!isLoad && isLogin) {
       dispatch(getBootstrapAction());
     }
@@ -37,7 +37,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   if(isLoadUser && !isLogin) {
     return <Redirect to={`/login?returnUrl=${location.pathname}`} />
   }
-  if( isLoad) {
+  if(!isLoad) {
     return <SplashScreen />
   }
   return (

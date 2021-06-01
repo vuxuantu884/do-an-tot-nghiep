@@ -11,7 +11,7 @@ const bootstrapReducer = (state = intitalState, action: AnyAction): BootstrapRed
   const {payload, type} = action; 
   switch (type) {
     case BootstrapType.GET_BOOTSTRAP_SUCESSS:
-      return {...state, data: payload.data};
+      return {...state, data: payload.data, isLoad: true};
     default:
       return state;
   }
