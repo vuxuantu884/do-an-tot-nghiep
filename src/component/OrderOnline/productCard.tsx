@@ -190,9 +190,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     },
   };
 
-  const changeItems = (_items: Array<OrderItemModel>) => {
-    setItems(_items);
-  };
+  const changeItems = useCallback((_items: Array<OrderItemModel>) => {
+    setItems(_items)
+  },[]
+  )
 
   const DiscountColumnt = {
     title: "Chiết khấu",
@@ -208,7 +209,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             discountValue={l.discount_items[0].value}
             totalAmount={0}
             items={items}
-            setItems={changeItems}
+            setItems={setItems}
           />
         </div>
       );
