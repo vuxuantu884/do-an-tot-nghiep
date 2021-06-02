@@ -12,7 +12,7 @@ type DiscountGroupProps = {
   discountValue: number;
   totalAmount: number;
   items: Array<OrderItemModel>;
-  setItems: (_items: Array<OrderItemModel>) => void;
+  setItems: React.Dispatch<SetStateAction<Array<OrderItemModel>>>;
 }
 
 const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) => {
@@ -25,9 +25,8 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
     setSelected(value);
   }
 
-  const onChangeValue = (e:any) => {
+  const onChangeValue = useCallback((e:any) => {
     let value = e.target.value
-    console.log(value)
     let _items = [... props.items]
     let _item = _items[props.index].discount_items[0]
     let _price = _items[props.index].price
@@ -39,7 +38,8 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
       _item.rate = value
     }
     props.setItems(_items)
-  }
+  },[props.items]
+  )
 
   return (
     <div>
