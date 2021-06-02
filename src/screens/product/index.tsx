@@ -114,8 +114,6 @@ const Product: React.FC = () => {
       dispatch(getAllSize(setSizesData));
   }, [dispatch, params])
 
-  
-
   return (
     <div>
       <Card className="contain">
@@ -243,7 +241,7 @@ const Product: React.FC = () => {
                       </Row>
                       <Row gutter={16}>
                         <Col span={12}>
-                          <Form.Item name="from_create_date"   className="form-group form-group-with-search"   label="Thời gian tạo từ">
+                          <Form.Item name="from_create_date" className="form-group form-group-with-search"   label="Thời gian tạo từ">
                           <DatePicker />
                             </Form.Item>
                         </Col>

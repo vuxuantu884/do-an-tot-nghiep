@@ -13,6 +13,7 @@ function* searchSupplierSaga(action: YodyAction) {
   const {query, setData} = action.payload;
   try {
     yield put(showLoading());
+    debugger;
     let response: BaseResponse<PageResponse<SupplierResposne>> = yield call(getSupplierAPI, query);
     yield put(hideLoading());
     switch(response.code) {

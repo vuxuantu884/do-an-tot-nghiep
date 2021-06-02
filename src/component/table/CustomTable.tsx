@@ -21,7 +21,8 @@ type CustomTableProps = {
 
 const CustomTable: React.FC<CustomTableProps> = (props: CustomTableProps) => {
   const {pagination, onPageChange, onPageSizeChange, rowKey, onSelect, dataSource, columns, className, style} = props;
-  console.log('render');
+  
+  console.log(dataSource);
   return (
     <Fragment>
       <Table
