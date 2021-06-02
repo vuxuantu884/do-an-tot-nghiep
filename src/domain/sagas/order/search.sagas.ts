@@ -11,7 +11,7 @@ import { HttpStatus } from 'config/HttpStatus';
 import { clearResult, UpdateResultSearch } from '../../actions/search.action';
 import { addOrderRequest } from 'domain/actions/order/order.action';
 import { RootReducerType } from 'model/reducers/RootReducerType';
-import { getCustomers } from 'service/product/customer.service';
+import { getCustomers } from 'service/cusomer/customer.service';
 
 const PAGE = 0;
 const LIMIT = 10;
