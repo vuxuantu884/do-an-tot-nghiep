@@ -65,8 +65,8 @@ const onOrderItemNoteChange = (indexItem: number, value: string) => {
   return BaseAction(OrderType.NOTE_CHANGE, { indexItem: indexItem, value: value })
 }
 
-const addDiscountOrder = (indexItem: number, coupon: '', type: string, value: number, onOk: () => void) => {
-  return BaseAction(OrderType.VALIDATE_DISCOUNT_CHANGE, { indexItem: indexItem, coupon: coupon, type: type, value: value, onOk: onOk })
+const addDiscountOrder = (coupon: '', type: string, value: number, onOk: () => void) => {
+  return BaseAction(OrderType.VALIDATE_DISCOUNT_CHANGE, { coupon: coupon, type: type, value: value, onOk: onOk })
 }
 
 const addDiscountSuccess = (coupon: '', type: string, value: number) => {

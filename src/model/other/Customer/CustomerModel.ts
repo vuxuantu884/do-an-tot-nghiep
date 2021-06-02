@@ -18,7 +18,6 @@ export interface CustomerModel extends BaseModel {
   birthday: number,
   gender: string,
   responsible_staff_id: number,
-  point: number,
   affiliate_code: string,
   loyalty: number,
   billing_address: Array<BillingAddress>;

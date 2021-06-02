@@ -30,6 +30,7 @@ import {
   haveAccess,
 } from "../../utils/AppUtils";
 import { VariantModel } from "model/other/ProductModel";
+import "../../assets/css/order.scss";
 
 const CreateBill = () => {
   const [isVisibleAddress, setVisibleAddress] = useState(false);
