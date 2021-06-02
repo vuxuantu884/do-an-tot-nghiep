@@ -16,9 +16,15 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import '../../assets/css/order.scss';
+import "../../assets/css/order.scss";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
-import React, {useCallback, useLayoutEffect, useState, useMemo, createRef,} from "react";
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useState,
+  useMemo,
+  createRef,
+} from "react";
 import productIcon from "../../assets/img/cube.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
@@ -26,7 +32,10 @@ import deleteRedIcon from "../../assets/img/deleteRed.svg";
 import DiscountGroup from "./discountGroup";
 import { StoreModel } from "model/other/StoreModel";
 import { useDispatch, useSelector } from "react-redux";
-import {  getListStoreRequest,  validateStoreAction,} from "domain/actions/store.action";
+import {
+  getListStoreRequest,
+  validateStoreAction,
+} from "domain/actions/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OnSearchChange } from "domain/actions/search.action";
 import {
@@ -35,8 +44,8 @@ import {
   haveAccess,
   findPrice,
   findAvatar,
-  findPriceInVariant, 
-  findTaxInVariant
+  findPriceInVariant,
+  findTaxInVariant,
 } from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { VariantModel } from "model/other/ProductModel";
@@ -44,14 +53,13 @@ import { OrderItemModel } from "model/other/Order/OrderItemModel";
 import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
-import {Type} from "../../config/TypeConfig";
+import { Type } from "../../config/TypeConfig";
 import "./container.scss";
 import { addOrderRequest } from "domain/actions/order.action";
 import { splitLineChange } from "domain/actions/appsetting.action";
+import deleteIcon from "assets/icon/delete.svg";
 
-type ProductCardProps = {
-};
-
+type ProductCardProps = {};
 
 const renderSearch = (item: VariantModel) => {
   let avatar = findAvatar(item.variant_images);
@@ -103,20 +111,17 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         <div className="w-100" style={{ overflow: "hidden" }}>
           <div className="d-flex align-items-center">
             <Button
-              onClick={() => console.log(1)}
-              className="yody-pos-delete-item"
+              type="text"
+              className="p-0 yody-pos-delete-free-form"
             >
-              <img src={deleteRedIcon} alt="" />
+              <img src={deleteIcon} alt="" />
             </Button>
-            <div style={{ width: "calc(100% - 32px)" }}>
+            <div style={{ width: "calc(100% - 32px)", marginLeft: '15px' }}>
               <div className="yody-pos-sku">
                 <Typography.Link>{l.sku}</Typography.Link>
               </div>
               <div className="yody-pos-varian">
-                <Tooltip
-                  title={l.variant}
-                  className="yody-pos-varian-name"
-                >
+                <Tooltip title={l.variant} className="yody-pos-varian-name">
                   <span>{l.variant}</span>
                 </Tooltip>
               </div>
@@ -298,7 +303,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       quantity: 1,
       price: price,
       amount: price,
-      note: '',
+      note: "",
       type: Type.NORMAL,
       variant_image: avatar,
       unit: variant.product.unit,
@@ -314,19 +319,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       tax_rate: taxRate,
       show_note: false,
       gifts: [],
-    }
+    };
     return orderLine;
-  }
-  
+  };
+
   const createNewDiscountItem = () => {
     const newDiscountItem: OrderItemDiscountModel = {
       amount: 0,
       rate: 0,
-      reason: '',
+      reason: "",
       value: 0,
-    }
+    };
     return newDiscountItem;
-  }
+  };
 
   const onSearchSelect = useCallback(
     (v, o) => {
@@ -351,7 +356,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             _items[lastIndex].quantity += 1
           }
         }
-      setItems(_items)
+      setItems(_items);
     },
     [resultSearch, items, splitLine]
     // autoCompleteRef, dispatch, resultSearch
@@ -415,7 +420,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Checkbox
                 className="checkbox-style"
                 style={{ fontSize: 14 }}
-                onChange={()=>setSplitLine(!splitLine)}
+                onChange={() => setSplitLine(!splitLine)}
               >
                 Tách dòng
               </Checkbox>
