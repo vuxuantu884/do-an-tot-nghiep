@@ -142,11 +142,10 @@ export const generateQuery = (obj: any) => {
   let a: string = Object.keys(obj).map((key, index) => {
     let url = '';
     if (obj[key]) {
-      url = key + '=' + obj[key] + '&'
+      url = key + '=' + encodeURIComponent(obj[key]) + '&'
     }
     return url
   }).join('')
-  console.log(a.charAt(a.length - 1))
   if (a.charAt(a.length - 1) === '&') {
     a = a.substring(0, a.length - 1);
   }
