@@ -4,7 +4,7 @@ import ButtonSetting from "component/table/ButtonSetting";
 import { SearchSupplierQuerry } from "model/query/supplier.query";
 import { PageResponse } from "model/response/base-metadata.response";
 import { SupplierResposne, GoodsObj } from "model/response/supplier/supplier.response";
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -123,7 +123,7 @@ const ListSupplierScreen: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {
 
   }, []);
-  useLayoutEffect(() => {
+  useEffect(() => {
     dispatch(SupplierAction.searchSupplier(params, setData));
   }, [dispatch, params])
   return (
