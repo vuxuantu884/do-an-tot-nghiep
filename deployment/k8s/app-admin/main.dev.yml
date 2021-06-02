@@ -43,7 +43,7 @@ spec:
 #            timeoutSeconds: 1
           ports:
             - name: http
-              containerPort: 3000
+              containerPort: 80
           envFrom:
             - configMapRef:
                 name: $SERVICE_NAME
@@ -63,7 +63,8 @@ spec:
   ports:
     - name: http
       port: 80
-      targetPort: 3000
+      targetPort: 80
+
   selector:
     name: $SERVICE_NAME
   type: ClusterIP

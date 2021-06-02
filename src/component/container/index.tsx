@@ -7,7 +7,7 @@ import './container.styles.scss';
 import SlidebarContainer from './slide-bar.container';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootReducerType } from 'model/reducers/RootReducerType';
-import { getBootstrapAction } from 'domain/actions/bootstrap.action';
+import { getBootstrapAction } from 'domain/actions/content/bootstrap.action';
 
 type ContainerProps = {
   title: string,

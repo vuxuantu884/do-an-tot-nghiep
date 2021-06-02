@@ -9,7 +9,7 @@ import { findCurrentRoute } from 'utils/AppUtils';
 import { DownOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootReducerType } from 'model/reducers/RootReducerType';
-import {logoutAction} from 'domain/actions/auth.action';
+import {logoutAction} from 'domain/actions/account/auth.action';
 
 
 type SlidebarContainerProps = {
