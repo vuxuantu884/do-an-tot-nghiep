@@ -22,7 +22,7 @@ const bill: Array<RouteMenu> = [
   {
     path: "/bill",
     exact: true,
-    title: "Danh sách đon hàng",
+    title: "Danh sách đơn hàng",
     icon: 'icon-dot',
     component: CreateBill,
     key: "submenu52",

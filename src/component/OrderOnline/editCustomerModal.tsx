@@ -1,7 +1,7 @@
 import {Button, Col, Input, Modal, Radio, Row, Select, Space} from "antd";
-import arrowDownIcon from "../../../assets/img/drow-down.svg";
+import arrowDownIcon from "../../assets/img/drow-down.svg";
 import React, {useCallback} from "react";
-import plusBlueIcon from "../../../assets/img/plus-blue.svg";
+import plusBlueIcon from "../../assets/img/plus-blue.svg";
 
 type EditCustomerModalProps = {
   visible: boolean;
@@ -92,7 +92,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (props: EditCustomer
                 placeholder="Chọn nguồn"
                 enterButton={<Button type="text"><img src={plusBlueIcon} alt="" /></Button>}
                 suffix={<img src={arrowDownIcon} alt="down" />}
-                onSearch={() => console.log(1)}
               />
             </div>
           </div>
