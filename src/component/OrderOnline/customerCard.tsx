@@ -59,6 +59,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [resultSearch, setResultSearch] = useState<Array<CustomerModel>>([]);
 
   const [customer, setCustomer] = useState<CustomerModel>();
+  
   const showAddressModal = () => {
     setVisibleAddress(true);
   };

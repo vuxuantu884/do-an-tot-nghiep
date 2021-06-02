@@ -325,8 +325,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       let indexSearch = resultSearch.findIndex((s) => s.id == v);
       let index = _items.findIndex((i) => i.variant_id == v);
       let r: VariantModel = resultSearch[indexSearch];
-      if (r.id == v) {
-        if (splitLine || index == -1) {
+      if (r.id === v) {
+        if (splitLine || index === -1) {
           const item: OrderItemModel = createItem(r);
           _items.push(item);
           setSplitLine(false);
