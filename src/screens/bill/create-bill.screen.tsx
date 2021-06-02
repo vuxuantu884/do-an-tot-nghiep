@@ -23,13 +23,14 @@ import DiscountGroup from "../../component/OrderOnline/discountGroup";
 import { useSelector, useDispatch } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreModel } from "model/other/StoreModel";
-import { getListStoreRequest } from "domain/actions/store.action";
+import { getListStoreRequest } from "domain/actions/core/store.action";
 import {
   formatCurrency,
   replaceFormat,
   haveAccess,
 } from "../../utils/AppUtils";
 import { VariantModel } from "model/other/ProductModel";
+import "../../assets/css/order.scss";
 
 const CreateBill = () => {
   const [isVisibleAddress, setVisibleAddress] = useState(false);

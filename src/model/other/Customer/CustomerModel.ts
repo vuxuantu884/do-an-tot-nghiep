@@ -18,7 +18,6 @@ export interface CustomerModel extends BaseModel {
   birthday: number,
   gender: string,
   responsible_staff_id: number,
-  point: number,
   affiliate_code: string,
   loyalty: number,
   billing_address: Array<BillingAddress>;
@@ -39,7 +38,7 @@ export interface BillingAddress extends BaseModel {
 }
 
 export interface ShippingAddress extends BaseModel {
-  is_default: boolean,
+  default: boolean,
   name: string,
   email: string,
   phone: string,
@@ -47,5 +46,5 @@ export interface ShippingAddress extends BaseModel {
   city: string,
   district: string,
   zipCode: string,
-  fullAddress: string
+  full_address: string
 }

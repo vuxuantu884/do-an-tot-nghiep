@@ -1,17 +1,17 @@
 import { CustomerModel } from 'model/other/Customer/CustomerModel';
-import { VariantModel } from './../../model/other/ProductModel';
-import { ListDataModel } from './../../model/other/ListDataModel';
-import { showError } from '../../utils/ToastUtils';
+import { VariantModel } from '../../../model/other/ProductModel';
+import { ListDataModel } from '../../../model/other/ListDataModel';
+import { showError } from '../../../utils/ToastUtils';
 import BaseResponse from 'base/BaseResponse';
 import { YodyAction } from 'base/BaseAction';
 import { SearchType } from 'domain/types/search.type';
 import { call, takeLatest, put, select } from 'redux-saga/effects';
 import { getVariantByBarcode, getVariants } from 'service/product/variant.service';
 import { HttpStatus } from 'config/HttpStatus';
-import { clearResult, UpdateResultSearch } from '../actions/search.action';
-import { addOrderRequest } from 'domain/actions/order.action';
+import { clearResult, UpdateResultSearch } from '../../actions/search.action';
+import { addOrderRequest } from 'domain/actions/order/order.action';
 import { RootReducerType } from 'model/reducers/RootReducerType';
-import { getCustomers } from 'service/product/customer.service';
+import { getCustomers } from 'service/cusomer/customer.service';
 
 const PAGE = 0;
 const LIMIT = 10;

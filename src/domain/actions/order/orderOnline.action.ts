@@ -1,4 +1,4 @@
-import { OrderType } from './../types/order.type';
+import { OrderType } from '../../types/order.type';
 import BaseAction from 'base/BaseAction';
 import { SourceModel } from 'model/other/SourceModel';
 
