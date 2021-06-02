@@ -7,7 +7,7 @@ import ButtonSetting from "component/table/ButtonSetting";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { generateQuery } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
-import { deleteManyMaterialAction, deleteOneMaterialAction, getMaterialAction } from "domain/actions/material.action";
+import { deleteManyMaterialAction, deleteOneMaterialAction, getMaterialAction } from "domain/actions/product/material.action";
 import { BaseMetadata } from "model/response/base-metadata.response";
 import CustomPagination from "component/table/CustomPagination";
 import { MaterialQuery } from "model/query/material.query";

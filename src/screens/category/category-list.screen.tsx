@@ -2,7 +2,7 @@ import { Button, Card, Form, Input, Select, Table } from "antd"
 import { Link, useHistory } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCategoryRequestAction } from "domain/actions/category.action";
+import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import search from 'assets/img/search.svg';

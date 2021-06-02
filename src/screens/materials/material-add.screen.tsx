@@ -1,5 +1,5 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row } from "antd";
-import { createMaterialAction } from "domain/actions/material.action";
+import { createMaterialAction } from "domain/actions/product/material.action";
 import { CreateMaterialRequest } from "model/request/create-material.request";
 import { createRef, useCallback } from "react";
 import { useDispatch } from "react-redux";
