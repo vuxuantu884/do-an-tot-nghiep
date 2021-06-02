@@ -1,4 +1,4 @@
-import { deleteOneMaterialApi, deleteManyMaterialApi, getMaterialApi, createMaterialApi, detailMaterialApi, updateMaterialApi } from './../../service/product/material.service';
+import { deleteOneMaterialApi, deleteManyMaterialApi, getMaterialApi, createMaterialApi, detailMaterialApi, updateMaterialApi } from '../../../service/product/material.service';
 import { call, put, takeLatest } from '@redux-saga/core/effects';
 import { YodyAction } from 'base/BaseAction';
 import BaseResponse from 'base/BaseResponse';

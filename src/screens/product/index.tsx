@@ -2,9 +2,9 @@ import {InputNumber,Drawer, Button, Card, Form,Col, Row, Input, Select, Table,Da
 import { Link, useHistory } from "react-router-dom";
 import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { searchVariantsRequestAction } from "domain/actions/products.action";
-import { getCountry } from "domain/actions/content.action";
-import { getAllSize } from "domain/actions/size.action";
+import { searchVariantsRequestAction } from "domain/actions/product/products.action";
+import { getCountry } from "domain/actions/content/content.action";
+import { getAllSize } from "domain/actions/product/size.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import search from 'assets/img/search.svg';
 import { generateQuery } from "utils/AppUtils";

@@ -1,5 +1,5 @@
-import { SizeType } from './../types/product.type';
-import { SizeResponse } from './../../model/response/products/size.response';
+import { SizeType } from '../../types/product.type';
+import { SizeResponse } from '../../../model/response/products/size.response';
 import { call,  takeLatest } from '@redux-saga/core/effects';
 import { YodyAction } from 'base/BaseAction';
 import BaseResponse from 'base/BaseResponse';

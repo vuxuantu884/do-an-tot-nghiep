@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 import { Redirect } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootReducerType } from 'model/reducers/RootReducerType';
-import { loginRequestAction } from 'domain/actions/auth.action';
+import { loginRequestAction } from 'domain/actions/account/auth.action';
 import { useQuery } from 'utils/useQuery';
 
 

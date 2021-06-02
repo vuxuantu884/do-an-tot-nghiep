@@ -1,5 +1,5 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row, Select, TreeSelect } from "antd";
-import { createCategoryAction, getCategoryRequestAction } from "domain/actions/category.action";
+import { createCategoryAction, getCategoryRequestAction } from "domain/actions/product/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { CategoryResponse } from "model/response/category.response";
 import React, { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
