@@ -2,7 +2,7 @@ import { delay, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
-import { logoutSuccessAction, loginSuccessAction } from "domain/actions/auth.action";
+import { logoutSuccessAction, loginSuccessAction } from "domain/actions/account/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { AuthType } from 'domain/types/account.type';
 import { LoginRequest } from "model/request/login.request";

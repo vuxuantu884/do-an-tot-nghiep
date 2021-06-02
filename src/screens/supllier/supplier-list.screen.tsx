@@ -10,7 +10,7 @@ import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch, useSelector } from "react-redux";
 import SupplierFilter from "component/filter/supplier.filter";
-import SupplierAction from 'domain/actions/supplier.action';
+import SupplierAction from 'domain/actions/core/supplier.action';
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable from "component/table/CustomTable";
 import { CategoryView } from "model/other/category-view";

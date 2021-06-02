@@ -1,5 +1,5 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row } from "antd";
-import { detailMaterialAction, updateMaterialAction } from "domain/actions/material.action";
+import { detailMaterialAction, updateMaterialAction } from "domain/actions/product/material.action";
 import { UpdateMaterialRequest } from "model/request/create-material.request";
 import { MaterialResponse } from "model/response/product/material.response";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";

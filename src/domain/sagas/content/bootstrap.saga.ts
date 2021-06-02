@@ -1,4 +1,4 @@
-import { getBootstrapSuccessAction } from 'domain/actions/bootstrap.action';
+import { getBootstrapSuccessAction } from 'domain/actions/content/bootstrap.action';
 import { takeLatest, call, put} from "@redux-saga/core/effects";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
