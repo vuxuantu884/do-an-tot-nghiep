@@ -1,6 +1,6 @@
 import { Button, Card, Form, Input, Select, Table } from "antd"
 import { Link, useHistory } from "react-router-dom";
-import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCategoryRequestAction } from "domain/actions/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -34,6 +34,7 @@ const Category = () => {
   }
   const [params, setPrams] = useState<CategoryQuery>(getParams);
   const [data, setData] = useState<Array<CategoryView>>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
   const goods = useMemo(() => {
     if (bootstrapReducer.data && bootstrapReducer.data.goods) {
@@ -90,7 +91,7 @@ const Category = () => {
   const onFinish = useCallback((values: CategoryQuery) => {
     let query = generateQuery(values);
     setPrams({ ...values});
-    return history.replace(`/products/categories?${query}`);
+    return history.replace(`/categories?${query}`);
   }, [history]);
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
@@ -98,13 +99,13 @@ const Category = () => {
         break;
     }
   }, []);
-
+  
   const onGetSuccess = useCallback((results: Array<CategoryResponse>) => {
     let newData: Array<CategoryView> = convertCategory(results);
     setData(newData);
+    setLoading(false);
   }, []);
-
-  useLayoutEffect(() => {
+  useEffect(() => {
     dispatch(getCategoryRequestAction(params, onGetSuccess))
   }, [dispatch, onGetSuccess, params]);
   return (
@@ -148,13 +149,13 @@ const Category = () => {
               </Form.Item>
             </div>
           </Form>
-
         </Card>
         <Table
           rowSelection={{
             type: "checkbox",
             columnWidth: 80,
           }}
+          loading={loading}
           className="yody-table"
           pagination={false}
           dataSource={data}
