@@ -3,7 +3,6 @@ FROM node:14.16.1-alpine as build-step
 RUN mkdir /app
 WORKDIR /app
 COPY package.json /app
-COPY server.js /app
 RUN npm install
 COPY . /app
 RUN npm run build:testing
