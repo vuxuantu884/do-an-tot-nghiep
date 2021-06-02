@@ -1,7 +1,7 @@
 export interface OrderItemDiscountModel {
-  rate: number|null;
-  value: number|null;
-  amount: number|null;
+  rate: number;
+  value: number;
+  amount: number;
   promotion_id?: number;
   reason: string;
 }
