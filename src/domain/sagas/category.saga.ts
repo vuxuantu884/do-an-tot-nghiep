@@ -11,9 +11,9 @@ import { showError } from 'utils/ToastUtils';
 function* getCategorySaga(action: YodyAction) {
   const {query, setData} = action.payload;
   try {
-    yield put(showLoading());
+    // yield put(showLoading());
     let response: BaseResponse<Array<CategoryResponse>> = yield call(getCategoryApi, query);
-    yield put(hideLoading());
+    // yield put(hideLoading());
     switch(response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -23,7 +23,7 @@ function* getCategorySaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    // yield put(hideLoading());
     showError('Có lỗi vui lòng thử lại sau');
   }
 }
