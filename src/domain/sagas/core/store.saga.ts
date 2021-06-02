@@ -1,7 +1,7 @@
 import BaseResponse from 'base/BaseResponse';
-import { YodyAction } from '../../base/BaseAction';
+import { YodyAction } from '../../../base/BaseAction';
 import { HttpStatus } from "config/HttpStatus";
-import { getListStoreError, saveAccounts } from 'domain/actions/store.action';
+import { getListStoreError, saveAccounts } from 'domain/actions/core/store.action';
 import {StoreType} from "domain/types/product.type";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { getListStore, getStoreDetail } from "service/product/store.service";

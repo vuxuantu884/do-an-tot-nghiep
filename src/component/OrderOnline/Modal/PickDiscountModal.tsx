@@ -1,5 +1,5 @@
 import { Modal, Form, Select, Button, FormInstance, Input, InputNumber } from 'antd';
-import { addDiscountOrder } from 'domain/actions/order.action';
+import { addDiscountOrder } from 'domain/actions/order/order.action';
 import React, { createRef, useCallback} from 'react';
 import { useDispatch } from 'react-redux';
 // import { useDispatch } from 'react-redux';

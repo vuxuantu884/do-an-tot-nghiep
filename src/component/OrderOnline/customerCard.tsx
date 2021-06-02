@@ -35,10 +35,10 @@ import { SearchOutlined } from "@ant-design/icons";
 import AddAddressModal from "./Modal/addAddressModal";
 import EditCustomerModal from "./Modal/editCustomerModal";
 import { SourceModel } from "model/other/SourceModel";
-import { getListSourceRequest } from "domain/actions/orderOnline.action";
+import { getListSourceRequest } from "domain/actions/order/orderOnline.action";
 import { RefSelectProps } from "antd/lib/select";
 import { CustomerModel } from "model/other/Customer/CustomerModel";
-import { OnSearchChange } from "domain/actions/customer.action";
+import { OnSearchChange } from "domain/actions/customer/customer.action";
 import { findAvatar } from "utils/AppUtils";
 import imgdefault from "assets/icon/img-default.svg";
 

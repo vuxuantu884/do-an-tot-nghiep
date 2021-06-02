@@ -1,8 +1,8 @@
 import {all} from 'redux-saga/effects';
 import { appSaga } from './app.saga';
-import OrderOnlineSaga from './orderOnline.saga';
-import storeSaga  from './store.saga'
-import searchSagas from './search.sagas';
+import OrderOnlineSaga from './order/orderOnline.saga';
+import storeSaga  from './core/store.saga'
+import searchSagas from './order/search.sagas';
 import { authSaga } from './account/auth.saga';
 import { bootstrapSaga } from './content/bootstrap.saga';
 import { categorySaga } from './product/category.saga';

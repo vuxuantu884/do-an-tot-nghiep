@@ -1,7 +1,7 @@
-import { OrderItemModel } from './../../model/other/Order/OrderItemModel';
-import { VariantModel } from './../../model/other/ProductModel';
-import { OrderPaymentModel } from './../../model/other/Order/OrderPaymentModel';
-import { OrderType } from './../types/order.type';
+import { OrderItemModel } from '../../../model/other/Order/OrderItemModel';
+import { VariantModel } from '../../../model/other/ProductModel';
+import { OrderPaymentModel } from '../../../model/other/Order/OrderPaymentModel';
+import { OrderType } from '../../types/order.type';
 import BaseAction from 'base/BaseAction';
 
 const createTab = (storeId: number, companyId: number,currency: string,account: string, account_code: string, source_id: number, source: string ) => {
