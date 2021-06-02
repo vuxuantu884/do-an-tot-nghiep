@@ -132,21 +132,29 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     },
   };
 
+  const onChangeQuantity = (e:any, i:number) =>{
+    let _items = [... items]
+    let value = e.target.value
+    console.log(value)
+    _items[i].quantity = value
+    setItems(_items)
+  }
+
   const AmountColumnt = {
     title: () => (
       <div className="text-center">
         <div>Số lượng</div>
-        <span style={{ color: "#0080FF" }}>(3)</span>
+        <span style={{ color: "#0080FF" }}></span>
       </div>
     ),
     className: "yody-pos-quantity text-center",
     // width: 80,
-    render: (index: number) => {
+    render: (l: OrderItemModel, item:any, index: number) => {
       return (
         <div className="yody-pos-qtt">
           <Input
-            onChange={(e) => console.log(1)}
-            value={3}
+            onChange={e => onChangeQuantity(e,index)}
+            value={l.quantity}
             minLength={1}
             maxLength={4}
             onFocus={(e) => e.target.select()}
@@ -161,7 +169,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     title: "Đơn giá",
     className: "yody-pos-price text-right",
     // width: 100,
-    render: (index: number) => {
+    render: (l:OrderItemModel, item: any, index: number) => {
       return (
         <div className="yody-pos-price">
           <InputNumber
@@ -169,7 +177,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             min={0}
             // formatter={value => formatCurrency(value ? value : '0')}
             // parser={value => replaceFormat(value ? value : '0')}
-            value={100000}
+            value={l.price}
             onChange={(e) => console.log(1)}
             onFocus={(e) => e.target.select()}
             style={{ maxWidth: 100, textAlign: "right" }}
@@ -179,19 +187,25 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     },
   };
 
+  const changeItems = (_items: Array<OrderItemModel>) => {
+    setItems(_items)
+  }
+
   const DiscountColumnt = {
     title: "Chiết khấu",
     // align: 'center',
     width: 115,
     className: "yody-table-discount text-right",
-    render: (index: number) => {
+    render: (l:OrderItemModel, item: any, index: number) => {
       return (
         <div className="site-input-group-wrapper">
           <DiscountGroup
             index={index}
-            discountRate={0}
-            discountValue={0}
+            discountRate={l.discount_items[0].rate}
+            discountValue={l.discount_items[0].value}
             totalAmount={0}
+            items={items}
+            setItems={changeItems}
           />
         </div>
       );
@@ -202,8 +216,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     title: "Tổng tiền",
     className: "yody-table-total-money text-right",
     // width: 100,
-    render: () => {
-      return <div>1000000</div>;
+    render: (l:OrderItemModel, item: any, index: number) => {
+      return <div>{0}</div>;
     },
   };
 
@@ -277,6 +291,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
+    const discountItem:OrderItemDiscountModel  = createNewDiscountItem()
     let orderLine: OrderItemModel = {
       id: new Date().getTime(),
       sku: variant.sku,
@@ -293,7 +308,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       variant_image: avatar,
       unit: variant.product.unit,
       warranty: variant.product.preservation,
-      discount_items: [],
+      discount_items: [discountItem],
       discount_amount: 0,
       discount_rate: 0,
       is_composite: variant.composite,
@@ -322,18 +337,25 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     (v, o) => {
       console.log(o);
       let _items = [...items];
-      let indexSearch = resultSearch.findIndex((s) => s.id == v);
-      let index = _items.findIndex((i) => i.variant_id == v);
-      let r: VariantModel = resultSearch[indexSearch];
-      if (r.id === v) {
-        if (splitLine || index === -1) {
-          const item: OrderItemModel = createItem(r);
-          _items.push(item);
-          setSplitLine(false);
-        } else {
-          _items[index].quantity += 1;
+        let indexSearch = resultSearch.findIndex(s => s.id == v)
+        let index = _items.findIndex(i => i.variant_id == v)
+        let r:VariantModel=resultSearch[indexSearch]
+        if(r.id == v){
+          if(splitLine || index == -1){
+            const item:OrderItemModel = createItem(r);
+            _items.push(item);
+            setSplitLine(false)
+          }
+          else{
+            let lastIndex = index;
+            _items.forEach( (value, _index) => {
+              if(_index > lastIndex){
+                lastIndex = _index;
+              }
+            })
+            _items[lastIndex].quantity += 1
+          }
         }
-      }
       setItems(_items);
     },
     [resultSearch, items, splitLine]
@@ -506,33 +528,31 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           tableLayout="auto"
           // pagination={false}
           // summary={(pageData) => {
-          // let totalBorrow = 0;
-          // let totalRepayment = 0;
-
-          // // pageData.forEach(({ borrow, repayment }) => {
-          // //   totalBorrow += borrow;
-          // //   totalRepayment += repayment;
-          // // });
-
-          // return (
-          //   <Table.Summary.Row>
-          //     <Table.Summary.Cell index={1} colSpan={2}>
-          //       Tổng
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} className="text-right">
-          //       <Typography.Text>{formatCurrency(987000)}</Typography.Text>
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} className="text-right">
-          //       <Typography.Text type="danger">
-          //         {formatCurrency(296100)}
-          //       </Typography.Text>
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} className="text-right">
-          //       <Typography.Link>{formatCurrency(690900)}</Typography.Link>
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} />
-          //   </Table.Summary.Row>
-          // );
+            // let totalBorrow = 0;
+            // let totalRepayment = 0;
+            // // pageData.forEach(({ borrow, repayment }) => {
+            // //   totalBorrow += borrow;
+            // //   totalRepayment += repayment;
+            // // });
+            // return (
+            //   <Table.Summary.Row>
+            //     <Table.Summary.Cell index={1} colSpan={2}>
+            //       Tổng
+            //     </Table.Summary.Cell>
+            //     <Table.Summary.Cell index={1} className="text-right">
+            //       <Typography.Text>{formatCurrency(987000)}</Typography.Text>
+            //     </Table.Summary.Cell>
+            //     <Table.Summary.Cell index={1} className="text-right">
+            //       <Typography.Text type="danger">
+            //         {formatCurrency(296100)}
+            //       </Typography.Text>
+            //     </Table.Summary.Cell>
+            //     <Table.Summary.Cell index={1} className="text-right">
+            //       <Typography.Link>{formatCurrency(690900)}</Typography.Link>
+            //     </Table.Summary.Cell>
+            //     <Table.Summary.Cell index={1} />
+            //   </Table.Summary.Row>
+            // );
           // }}
         />
       </Row>
