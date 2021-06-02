@@ -6,7 +6,7 @@ include:
 cache:
   key: $CI_PROJECT_NAMESPACE:$CI_PROJECT_NAME
   paths:
-    - .m2/repository
+    - .npm/
 
 variables:
   #SERVICE_PATH: /path # if you want to specify service path
@@ -26,11 +26,10 @@ docker build:
   only:
     refs:
       - develop
-      - feature/sprint-4-pos
   variables:
     DOCKER_FILE: Dockerfile
-    SERVICE_NAME: yody-pos
-    DOCKER_IMAGE_NAME: yody-pos
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
   script:
     - bash deployment/dockerbuild.sh
 
@@ -41,15 +40,16 @@ deploy to dev:
   when: manual
   only:
     - develop
-    - feature/sprint-4-pos
+    - feature/sprint-4-app-admin
+    - feature/ci-cd
   variables:
-    HOST: dev.pos.yody.vn
+    HOST: dev.app-admin.yody.io
     NAMESPACE: dev
     ENVIRONMENT: dev
-    SERVICE_NAME: yody-pos
-    DOCKER_IMAGE_NAME: yody-pos
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
   script:
-    - bash deployment/deploy.sh pos
+    - bash deployment/deploy.sh app-admin
 
 tag:
   stage: tag
@@ -57,7 +57,6 @@ tag:
   only:
     - tags
   variables:
-    DOCKER_IMAGE_NAME: yody-pos
+    DOCKER_IMAGE_NAME: yody-app-admin
   script:
     - bash deployment/dockertag.sh $DOCKER_IMAGE_NAME $IMAGE_TAG $CI_COMMIT_TAG
-    - bash deployment/dockertag.sh $DOCKER_IMAGE_NAME-migration $IMAGE_TAG $CI_COMMIT_TAG
