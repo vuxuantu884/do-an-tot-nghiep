@@ -538,13 +538,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
   }, [items, itemGifts, indexItem]);
 
-  const onSelectStoreApply = useCallback(
-    (value: number) => {
-      props.selectStore(value);
-    },
-    [props]
-  );
-
   const onSelectPriceType = useCallback(
     (value: string) => {
       props.selectPriceType(value);
