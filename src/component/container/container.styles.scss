@@ -231,14 +231,6 @@ $desktop-width: 1400px;
   }
 }
 
-
-.main-content {
-  padding: 5px 30px;
-  @include mobile {
-    padding: 5px 10px;
-  }
-}
-
 .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
   background-color: #F3F3F7;
 }
@@ -777,7 +769,6 @@ table {
 }
 
 .ant-checkbox-wrapper {
-  display: flex;
   align-items: center;
   .ant-checkbox {
     top: 0;

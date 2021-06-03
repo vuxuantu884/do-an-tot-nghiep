@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import {
   AutoComplete,
   Button,
@@ -28,19 +27,15 @@ import React, {
 import productIcon from "../../assets/img/cube.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
-import deleteRedIcon from "../../assets/img/deleteRed.svg";
 import DiscountGroup from "./discountGroup";
 import { StoreModel } from "model/other/StoreModel";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getListStoreRequest,
-  validateStoreAction,
 } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OnSearchChange } from "domain/actions/search.action";
 import {
-  formatCurrency,
-  replaceFormat,
   haveAccess,
   findPrice,
   findAvatar,
@@ -57,13 +52,10 @@ import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "../../config/TypeConfig";
 import "../../assets/css/container.scss";
-import { addOrderRequest } from "domain/actions/order/order.action";
-import { splitLineChange } from "domain/actions/appsetting.action";
 import deleteIcon from "assets/icon/delete.svg";
 import PickDiscountModal from "./Modal/PickDiscountModal";
 import { OrderModel } from "model/other/Order/OrderModel";
 import { showSuccess } from "utils/ToastUtils";
-import "../../assets/css/order.scss";
 
 type ProductCardProps = {
   select: (item: number) => void;

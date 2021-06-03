@@ -5,35 +5,20 @@ import {
   Row,
   Col,
   Tooltip,
-  Typography,
-  InputNumber,
-  Menu,
-  Dropdown,
   Select,
 } from "antd";
 import documentIcon from "../../assets/img/document.svg";
-import arrowDownIcon from "assets/img/drow-down.svg";
 import warningCircleIcon from "assets/img/warning-circle.svg";
 import ProductCard from "../../component/OrderOnline/productCard";
 import CustomerCard from "../../component/OrderOnline/customerCard";
 import PaymentCard from "../../component/OrderOnline/paymentCard";
 import ShipmentCard from "../../component/OrderOnline/shipmentCard";
-import { useState, useCallback, useLayoutEffect, useMemo } from "react";
-import DiscountGroup from "../../component/OrderOnline/discountGroup";
-import { useSelector, useDispatch } from "react-redux";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import { useState, useCallback } from "react";
+import { useDispatch } from "react-redux";
 import { StoreModel } from "model/other/StoreModel";
 import {
-  getListStoreRequest,
   validateStoreAction,
 } from "domain/actions/core/store.action";
-import {
-  formatCurrency,
-  replaceFormat,
-  haveAccess,
-} from "../../utils/AppUtils";
-import { VariantModel } from "model/other/ProductModel";
-import "../../assets/css/order.scss";
 
 const CreateBill = () => {
   const [isVisibleAddress, setVisibleAddress] = useState(false);
