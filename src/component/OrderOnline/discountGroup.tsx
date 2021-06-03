@@ -33,9 +33,11 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
     if(selected === 'money'){
       _item.value = v
       _item.rate = Math.round(v/_price*100*100)/100
+      _item.amount = v
     }else{
       _item.value = v*_price/100
       _item.rate = v
+      _item.amount = v*_price/100
     }
     props.setItems(_items)
   },[props.items,props.index,props.setItems,selected]

@@ -51,6 +51,7 @@ import {
 import { RefSelectProps } from "antd/lib/select";
 import { VariantModel } from "model/other/ProductModel";
 import { OrderItemModel } from "model/other/Order/OrderItemModel";
+import { OrderRequest } from "model/request/OrderRequest";
 import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
@@ -60,7 +61,9 @@ import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "../../component/modal/AddGiftModal";
 
 type ProductCardProps = {
-  select: (item: number) => void;
+  selectStore: (item: number) => void;
+  changeInfo: (items: Array<OrderItemModel>, amount:number, discount_rate: number, discount_value: number) => void
+  selectPriceType: (priceType: string) => void;
 };
 
 const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
@@ -119,12 +122,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     let _amount = 0;
     _items.map((i) => {
       let amountItem = (i.price - i.discount_items[0].value) * i.quantity;
-      i.amount = amountItem;
+      i.line_amount_after_line_discount = amountItem;
+      i.amount = i.price * i.quantity
       _amount += amountItem;
     });
     setItems(_items);
     setAmount(_amount);
-    calculateChangeMoney(_amount, discountValue);
+    calculateChangeMoney(_items,_amount,discountRate, discountValue);
   }, [items]);
 
   // render
@@ -282,7 +286,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             index={index}
             discountRate={l.discount_items[0].rate}
             discountValue={l.discount_items[0].value}
-            totalAmount={0}
+            totalAmount={l.discount_items[0].amount}
             items={items}
             setItems={onDiscountItem}
           />
@@ -296,7 +300,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     className: "yody-table-total-money text-right",
     // width: 100,
     render: (l: OrderItemModel, item: any, index: number) => {
-      return <div>{l.amount}</div>;
+      return <div>{l.line_amount_after_line_discount}</div>;
     },
   };
 
@@ -417,7 +421,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         if (splitLine || index == -1) {
           const item: OrderItemModel = createItem(r);
           _items.push(item);
-          calculateChangeMoney(amount + item.price, discountValue);
+          calculateChangeMoney(_items,amount + item.price,discountRate, discountValue);
           setAmount(amount + item.price);
           setSplitLine(false);
         } else {
@@ -428,7 +432,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             }
           });
           _items[lastIndex].quantity += 1;
-          _items[lastIndex].amount +=
+          _items[lastIndex].line_amount_after_line_discount +=
             items[lastIndex].price - _items[lastIndex].discount_items[0].amount;
           setAmount(
             amount +
@@ -436,9 +440,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               _items[lastIndex].discount_items[0].amount
           );
           calculateChangeMoney(
+            _items,
             amount +
               _items[lastIndex].price -
               _items[lastIndex].discount_items[0].amount,
+              discountValue,
             discountValue
           );
         }
@@ -494,12 +500,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setDiscountValue(value);
     setDiscountRate(rate);
     setCounpon(counpon);
-    calculateChangeMoney(amount, value);
+    calculateChangeMoney(items, amount, rate, value);
     showSuccess("Thêm chiết khấu thành công");
   };
 
-  const calculateChangeMoney = (_amount: number, _discountValue: number) => {
+  const calculateChangeMoney = (_items:Array<OrderItemModel>, _amount: number,_discountRate:number, _discountValue: number) => {
     setChangeMoney(_amount - _discountValue);
+    props.changeInfo(_items,_amount,_discountRate,_discountValue)
   };
 
   const dataCanAccess = useMemo(() => {
@@ -533,7 +540,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const onSelectStoreApply = useCallback(
     (value: number) => {
-      props.select(value);
+      props.selectStore(value);
+    },
+    [props]
+  );
+
+  const onSelectPriceType = useCallback(
+    (value: string) => {
+      props.selectPriceType(value);
     },
     [props]
   );
@@ -563,9 +577,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <label htmlFor="" style={{ marginRight: 10 }}>
                 Chính sách giá
               </label>
-              <Select defaultValue="1" style={{ minWidth: 130 }}>
-                <Select.Option value="1">Giá bán lẻ</Select.Option>
-                <Select.Option value="2">Giá bán buôn</Select.Option>
+              <Select defaultValue="retail_price" style={{ minWidth: 130 }} onChange={onSelectPriceType}>
+                <Select.Option value="retail_price">Giá bán lẻ</Select.Option>
+                <Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
               </Select>
             </div>
             <div className="view-inventory-box">
@@ -666,7 +680,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           dataSource={items}
           className="sale-product-box-table w-100"
           tableLayout="fixed"
-          // pagination={false}
+          pagination={false}
           // summary={(pageData) => {
           // let totalBorrow = 0;
           // let totalRepayment = 0;
@@ -757,7 +771,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                   onClick={() => {
                     setDiscountRate(0);
                     setDiscountValue(0);
-                    calculateChangeMoney(amount, 0);
+                    calculateChangeMoney(items,amount,0, 0);
                   }}
                 >
                   x
