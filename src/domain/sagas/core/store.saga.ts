@@ -31,16 +31,13 @@ function* getDataStore(action: YodyAction) {
 }
 
 function* validateStoreSaga(action: YodyAction) {
+  let {payload} = action;
   try {
     yield put(showLoading())
     let response: BaseResponse<StoreModel> = yield call(getStoreDetail, action.payload.id);
     switch(response.code) {
       case HttpStatus.SUCCESS:
-        let company: CompanyModel = yield call(getCompanyId, response.data.group_id);
-        yield put(companyChange(company));
-        yield put(saveAccounts(response.data.accounts));
-        action.payload.verify(true);
-        yield put(hideLoading())
+        payload.setData(response.data);
         break;
       default:
         break;

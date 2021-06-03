@@ -15,8 +15,8 @@ const getListStoreError = () => {
     return BaseAction(StoreType.GET_LIST_STORE_ERROR, null);
 }
 
-const validateStoreAction = (id: number, verify: (isVerify: boolean) => void) => {
-    return BaseAction(StoreType.VALIDATE_STORE, { id, verify });
+const validateStoreAction = (id: number, setData: (data: StoreModel) => void) => {
+    return BaseAction(StoreType.VALIDATE_STORE, { id: id,  setData: setData});
 }
 
 

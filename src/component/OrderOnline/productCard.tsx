@@ -1,24 +1,51 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import {AutoComplete, Button, Card, Checkbox, Col, Dropdown, Input, InputNumber, Menu, Row, Select, Space, Table, Tooltip, Typography} from "antd";
+import {
+  AutoComplete,
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  Dropdown,
+  Input,
+  InputNumber,
+  Menu,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tooltip,
+  Typography,
+} from "antd";
 import { showSuccess } from "utils/ToastUtils";
-import { EditOutlined } from '@ant-design/icons';
+import { EditOutlined } from "@ant-design/icons";
 import PickDiscountModal from "./Modal/PickDiscountModal";
-import "../../assets/css/order.scss";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
-import giftIcon from 'assets/icon/gift.svg';
-import React, {useCallback, useLayoutEffect, useState, useMemo, createRef} from "react";
+import giftIcon from "assets/icon/gift.svg";
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useState,
+  useMemo,
+  createRef,
+} from "react";
 import productIcon from "../../assets/img/cube.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
-import deleteRedIcon from "../../assets/img/deleteRed.svg";
 import DiscountGroup from "./discountGroup";
 import { StoreModel } from "model/other/StoreModel";
 import { useDispatch, useSelector } from "react-redux";
-import { getListStoreRequest, validateStoreAction,
+import {
+  getListStoreRequest,
+  validateStoreAction,
 } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OnSearchChange } from "domain/actions/search.action";
-import { haveAccess, findPrice, findAvatar, findPriceInVariant, findTaxInVariant,} from "../../utils/AppUtils";
+import {
+  haveAccess,
+  findPrice,
+  findAvatar,
+  findPriceInVariant,
+  findTaxInVariant,
+} from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { VariantModel } from "model/other/ProductModel";
 import { OrderItemModel } from "model/other/Order/OrderItemModel";
@@ -31,113 +58,116 @@ import "../../assets/css/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "../../component/modal/AddGiftModal";
 
-type ProductCardProps = {};
-
-
+type ProductCardProps = {
+  select: (item: number) => void;
+};
 
 const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const dispatch = useDispatch();
-var timeTextChange: NodeJS.Timeout;
-const [stores, setStore] = useState(false);
-const [isVerify, setVerify] = useState(false);
-const [items, setItems] = useState<Array<OrderItemModel>>([]);
-const [splitLine, setSplitLine] = useState<boolean>(false);
-const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
-const [listStores, setListStores] = useState<Array<StoreModel>>([]);
-const [keysearch, setKeysearch] = useState("");
-const [resultSearch, setResultSearch] = useState<Array<VariantModel>>([]);
-const [isVisibleGift, setVisibleGift] = useState(false);
-const [indexItem, setIndexItem] = useState<number>(-1);
-const [amount, setAmount] = useState<number>(0)
-const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
-const [discountType, setDiscountType] = useState<string>("money");
-const [discountValue, setDiscountValue] = useState<number>(0);
-const [discountRate, setDiscountRate] = useState<number>(0);
-const [changeMoney, setChangeMoney] = useState<number>(0);
-const [counpon, setCounpon] = useState<string>("");
+  var timeTextChange: NodeJS.Timeout;
+  const [stores, setStore] = useState(false);
+  const [isVerify, setVerify] = useState(false);
+  const [items, setItems] = useState<Array<OrderItemModel>>([]);
+  const [splitLine, setSplitLine] = useState<boolean>(false);
+  const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
+  const [listStores, setListStores] = useState<Array<StoreModel>>([]);
+  const [keysearch, setKeysearch] = useState("");
+  const [resultSearch, setResultSearch] = useState<Array<VariantModel>>([]);
+  const [isVisibleGift, setVisibleGift] = useState(false);
+  const [indexItem, setIndexItem] = useState<number>(-1);
+  const [amount, setAmount] = useState<number>(0);
+  const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
+  const [discountType, setDiscountType] = useState<string>("money");
+  const [discountValue, setDiscountValue] = useState<number>(0);
+  const [discountRate, setDiscountRate] = useState<number>(0);
+  const [changeMoney, setChangeMoney] = useState<number>(0);
 
-//Function
-const showAddGiftModal = useCallback((index: number) => {
-  setIndexItem(index)
-  setItemGift([...items[index].gifts]);
-  setVisibleGift(true);
-}, [items]);
+  const [counpon, setCounpon] = useState<string>("");
+  //Function
+  const showAddGiftModal = useCallback(
+    (index: number) => {
+      setIndexItem(index);
+      setItemGift([...items[index].gifts]);
+      setVisibleGift(true);
+    },
+    [items]
+  );
 
-const onChangeNote = (e: any, index: number) => {
-let value = e.target.value
-let _items = [...items]
-_items[index].note = value
-setItems(_items)
-}
+  const onChangeNote = (e: any, index: number) => {
+    let value = e.target.value;
+    let _items = [...items];
+    _items[index].note = value;
+    setItems(_items);
+  };
 
-const onChangeQuantity = (value: number, index: number) => {
-let _items = [...items]
-console.log(value)
-_items[index].quantity = value
-setItems(_items)
-total()
-}
+  const onChangeQuantity = (value: number, index: number) => {
+    let _items = [...items];
+    console.log(value);
+    _items[index].quantity = value;
+    setItems(_items);
+    total();
+  };
 
-const onDiscountItem = (_items: Array<OrderItemModel>) => {
-setItems(_items)
-total()
-}
+  const onDiscountItem = (_items: Array<OrderItemModel>) => {
+    setItems(_items);
+    total();
+  };
 
-const total = useCallback(() => {
-let _items = [...items]
-let _amount = 0
-_items.map(i => {
-  let amountItem = (i.price - i.discount_items[0].value) * i.quantity
-  i.amount = amountItem
-  _amount += amountItem
-})
-setItems(_items)
-setAmount(_amount)
-calculateChangeMoney(_amount, discountValue)
-}, [items])
+  const total = useCallback(() => {
+    let _items = [...items];
+    let _amount = 0;
+    _items.map((i) => {
+      let amountItem = (i.price - i.discount_items[0].value) * i.quantity;
+      i.amount = amountItem;
+      _amount += amountItem;
+    });
+    setItems(_items);
+    setAmount(_amount);
+    calculateChangeMoney(_amount, discountValue);
+  }, [items]);
 
-// render
+  // render
 
-const renderSearch = (item: VariantModel) => {
-let avatar = findAvatar(item.variant_images);
-return (
-  <div className="row-search w-100">
-    <div className="rs-left w-100">
-      <img
-        src={avatar === "" ? imgdefault : avatar}
-        alt="anh"
-        placeholder={imgdefault}
-      />
-      <div className="rs-info w-100">
-        <span style={{ color: "#37394D" }} className="text">
-          {item.name}
-        </span>
-        <span style={{ color: "#95A1AC" }} className="text p-4">
-          {item.sku}
-        </span>
+  const renderSearch = (item: VariantModel) => {
+    let avatar = findAvatar(item.variant_images);
+    return (
+      <div className="row-search w-100">
+        <div className="rs-left w-100">
+          <img
+            src={avatar === "" ? imgdefault : avatar}
+            alt="anh"
+            placeholder={imgdefault}
+          />
+          <div className="rs-info w-100">
+            <span style={{ color: "#37394D" }} className="text">
+              {item.name}
+            </span>
+            <span style={{ color: "#95A1AC" }} className="text p-4">
+              {item.sku}
+            </span>
+          </div>
+        </div>
+        <div className="rs-right">
+          <span style={{ color: "#37394D" }} className="text t-right">
+            {findPrice(item.variant_prices, AppConfig.currency)}
+          </span>
+          <span style={{ color: "#95A1AC" }} className="text t-right p-4">
+            Có thể bán{" "}
+            <span
+              style={{
+                color:
+                  item.inventory > 0
+                    ? "rgba(0, 128, 255, 1)"
+                    : "rgba(226, 67, 67, 1)",
+              }}
+            >
+              {item.inventory}
+            </span>
+          </span>
+        </div>
       </div>
-    </div>
-    <div className="rs-right">
-      <span style={{ color: "#37394D" }} className="text t-right">
-        {findPrice(item.variant_prices, AppConfig.currency)}
-      </span>
-      <span style={{ color: "#95A1AC" }} className="text t-right p-4">
-        Có thể bán{" "}
-        <span
-          style={{
-            color:
-              item.inventory > 0
-                ? "rgba(0, 128, 255, 1)"
-                : "rgba(226, 67, 67, 1)",
-          }}
-        >
-          {item.inventory}
-        </span>
-      </span>
-    </div>
-  </div>
-);
-};
+    );
+  };
   const ProductColumn = {
     title: "Sản phẩm",
     className: "yody-pos-name",
@@ -145,13 +175,10 @@ return (
       return (
         <div className="w-100" style={{ overflow: "hidden" }}>
           <div className="d-flex align-items-center">
-            <Button
-              type="text"
-              className="p-0 yody-pos-delete-free-form"
-            >
+            <Button type="text" className="p-0 yody-pos-delete-free-form">
               <img src={deleteIcon} alt="" />
             </Button>
-            <div style={{ width: "calc(100% - 32px)", marginLeft: '15px' }}>
+            <div style={{ width: "calc(100% - 32px)", marginLeft: "15px" }}>
               <div className="yody-pos-sku">
                 <Typography.Link>{l.sku}</Typography.Link>
               </div>
@@ -162,33 +189,34 @@ return (
               </div>
             </div>
           </div>
-          {
-            l.gifts.map((a, index1) => (
-              <div key={index1} className="yody-pos-addition yody-pos-gift">
-                <div><img src={giftIcon} alt="" /> {a.variant} <span>({a.quantity})</span></div>
+          {l.gifts.map((a, index1) => (
+            <div key={index1} className="yody-pos-addition yody-pos-gift">
+              <div>
+                <img src={giftIcon} alt="" /> {a.variant}{" "}
+                <span>({a.quantity})</span>
               </div>
-            ))
-          }
+            </div>
+          ))}
 
-          <div className="yody-pos-note" hidden={!l.show_note && l.note === ''}>
+          <div className="yody-pos-note" hidden={!l.show_note && l.note === ""}>
             <Input
               addonBefore={<EditOutlined />}
               maxLength={255}
               allowClear={true}
               onBlur={() => {
-                if (l.note === '') {
-                  let _items = [...items]
-                  _items[index].show_note = false
-                  setItems(_items)
+                if (l.note === "") {
+                  let _items = [...items];
+                  _items[index].show_note = false;
+                  setItems(_items);
                 }
               }}
               className="note"
               value={l.note}
               onChange={(e) => onChangeNote(e, index)}
-              placeholder="Ghi chú" />
+              placeholder="Ghi chú"
+            />
           </div>
         </div>
-
       );
     },
   };
@@ -206,7 +234,7 @@ return (
       return (
         <div className="yody-pos-qtt">
           <InputNumber
-            onChange={value => onChangeQuantity(value, index)}
+            onChange={(value) => onChangeQuantity(value, index)}
             value={l.quantity}
             min={1}
             max={9999}
@@ -278,16 +306,24 @@ return (
       const menu = (
         <Menu className="yody-line-item-action-menu">
           <Menu.Item key="0">
-            <Button type="text" onClick={() => showAddGiftModal(index)} className="p-0 m-0 w-100">
+            <Button
+              type="text"
+              onClick={() => showAddGiftModal(index)}
+              className="p-0 m-0 w-100"
+            >
               Thêm quà tặng
             </Button>
           </Menu.Item>
           <Menu.Item key="1">
-            <Button type="text" onClick={() => {
-              let _items = [...items]
-              _items[index].show_note = true
-              setItems(_items)
-            }} className="p-0 m-0 w-100">
+            <Button
+              type="text"
+              onClick={() => {
+                let _items = [...items];
+                _items[index].show_note = true;
+                setItems(_items);
+              }}
+              className="p-0 m-0 w-100"
+            >
               Thêm ghi chú
             </Button>
           </Menu.Item>
@@ -316,18 +352,9 @@ return (
     ActionColumn,
   ];
 
-  
-
   useLayoutEffect(() => {
     dispatch(getListStoreRequest(setListStores));
   }, [dispatch]);
-
-  const onStoreSelect = useCallback(
-    (value: number) => {
-      dispatch(validateStoreAction(value, setVerify));
-    },
-    [dispatch]
-  );
 
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -335,7 +362,7 @@ return (
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
-    const discountItem: OrderItemDiscountModel = createNewDiscountItem()
+    const discountItem: OrderItemDiscountModel = createNewDiscountItem();
     let orderLine: OrderItemModel = {
       id: new Date().getTime(),
       sku: variant.sku,
@@ -381,35 +408,42 @@ return (
     (v, o) => {
       console.log(o);
       let _items = [...items];
-      let indexSearch = resultSearch.findIndex(s => s.id == v)
-      let index = _items.findIndex(i => i.variant_id == v)
-      let r: VariantModel = resultSearch[indexSearch]
+      let indexSearch = resultSearch.findIndex((s) => s.id == v);
+      let index = _items.findIndex((i) => i.variant_id == v);
+      let r: VariantModel = resultSearch[indexSearch];
       if (r.id == v) {
         if (splitLine || index == -1) {
           const item: OrderItemModel = createItem(r);
           _items.push(item);
-          calculateChangeMoney(amount + item.price, discountValue)
-          setAmount(amount + item.price)
-          setSplitLine(false)
-          
-        }
-        else {
+          calculateChangeMoney(amount + item.price, discountValue);
+          setAmount(amount + item.price);
+          setSplitLine(false);
+        } else {
           let lastIndex = index;
           _items.forEach((value, _index) => {
             if (_index > lastIndex) {
               lastIndex = _index;
             }
-          })
-          _items[lastIndex].quantity += 1
-          _items[lastIndex].amount += items[lastIndex].price - _items[lastIndex].discount_items[0].amount
-          setAmount(amount + _items[lastIndex].price - _items[lastIndex].discount_items[0].amount)
-          calculateChangeMoney(amount + _items[lastIndex].price - _items[lastIndex].discount_items[0].amount, discountValue)
+          });
+          _items[lastIndex].quantity += 1;
+          _items[lastIndex].amount +=
+            items[lastIndex].price - _items[lastIndex].discount_items[0].amount;
+          setAmount(
+            amount +
+              _items[lastIndex].price -
+              _items[lastIndex].discount_items[0].amount
+          );
+          calculateChangeMoney(
+            amount +
+              _items[lastIndex].price -
+              _items[lastIndex].discount_items[0].amount,
+            discountValue
+          );
         }
       }
       setItems(_items);
-      
     },
-    [resultSearch, items, splitLine, ]
+    [resultSearch, items, splitLine]
     // autoCompleteRef, dispatch, resultSearch
   );
 
@@ -423,8 +457,6 @@ return (
     },
     [dispatch]
   );
-
-
 
   const convertResultSearch = useMemo(() => {
     let options: any[] = [];
@@ -449,19 +481,24 @@ return (
     setVisiblePickDiscount(false);
   }, []);
 
-  const onOkDiscountConfirm = (type:string,value:number,rate:number, counpon:string) => {
+  const onOkDiscountConfirm = (
+    type: string,
+    value: number,
+    rate: number,
+    counpon: string
+  ) => {
     setVisiblePickDiscount(false);
-    setDiscountType(type)
-    setDiscountValue(value)
-    setDiscountRate(rate)
-    setCounpon(counpon)
-    calculateChangeMoney(amount, value)
+    setDiscountType(type);
+    setDiscountValue(value);
+    setDiscountRate(rate);
+    setCounpon(counpon);
+    calculateChangeMoney(amount, value);
     showSuccess("Thêm chiết khấu thành công");
   };
 
-  const calculateChangeMoney = (_amount:number,_discountValue:number)=>{
-    setChangeMoney(_amount-_discountValue)
-  }
+  const calculateChangeMoney = (_amount: number, _discountValue: number) => {
+    setChangeMoney(_amount - _discountValue);
+  };
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreModel> = [];
@@ -475,19 +512,29 @@ return (
     }
     return newData;
   }, [listStores, userReducer.account]);
-  const onUpdateData = useCallback((items: Array<OrderItemModel>) => {
-    let data = [...items];
-    setItemGift(data);
-  }, [items,]);
+  const onUpdateData = useCallback(
+    (items: Array<OrderItemModel>) => {
+      let data = [...items];
+      setItemGift(data);
+    },
+    [items]
+  );
   const onCancleConfirm = useCallback(() => {
     setVisibleGift(false);
   }, []);
   const onOkConfirm = useCallback(() => {
     setVisibleGift(false);
-    let _items = [...items]
-    _items[indexItem].gifts = itemGifts
-    setItems(_items)
+    let _items = [...items];
+    _items[indexItem].gifts = itemGifts;
+    setItems(_items);
   }, [items, itemGifts, indexItem]);
+
+  const onSelectStoreApply = useCallback(
+    (value: number) => {
+      props.select(value);
+    },
+    [props]
+  );
 
   return (
     <Card
@@ -543,9 +590,8 @@ return (
               showSearch
               style={{ width: "100%" }}
               placeholder=""
-              defaultValue=""
+              onChange={onSelectStoreApply}
             >
-              <Select.Option value="">Chọn cửa hàng</Select.Option>
               {dataCanAccess.map((item, index) => (
                 <Select.Option key={index} value={item.id}>
                   {item.name}
@@ -586,7 +632,13 @@ return (
       </Row>
 
       <Row className="sale-product-box">
-        <AddGiftModal items={itemGifts} onUpdateData={onUpdateData} onCancel={onCancleConfirm} onOk={onOkConfirm} visible={isVisibleGift} />
+        <AddGiftModal
+          items={itemGifts}
+          onUpdateData={onUpdateData}
+          onCancel={onCancleConfirm}
+          onOk={onOkConfirm}
+          visible={isVisibleGift}
+        />
         <Table
           locale={{
             emptyText: (
@@ -612,34 +664,34 @@ return (
           dataSource={items}
           className="sale-product-box-table w-100"
           tableLayout="fixed"
-        // pagination={false}
-        // summary={(pageData) => {
-        // let totalBorrow = 0;
-        // let totalRepayment = 0;
-        // // pageData.forEach(({ borrow, repayment }) => {
-        // //   totalBorrow += borrow;
-        // //   totalRepayment += repayment;
-        // // });
-        // return (
-        //   <Table.Summary.Row>
-        //     <Table.Summary.Cell index={1} colSpan={2}>
-        //       Tổng
-        //     </Table.Summary.Cell>
-        //     <Table.Summary.Cell index={1} className="text-right">
-        //       <Typography.Text>{formatCurrency(987000)}</Typography.Text>
-        //     </Table.Summary.Cell>
-        //     <Table.Summary.Cell index={1} className="text-right">
-        //       <Typography.Text type="danger">
-        //         {formatCurrency(296100)}
-        //       </Typography.Text>
-        //     </Table.Summary.Cell>
-        //     <Table.Summary.Cell index={1} className="text-right">
-        //       <Typography.Link>{formatCurrency(690900)}</Typography.Link>
-        //     </Table.Summary.Cell>
-        //     <Table.Summary.Cell index={1} />
-        //   </Table.Summary.Row>
-        // );
-        // }}
+          // pagination={false}
+          // summary={(pageData) => {
+          // let totalBorrow = 0;
+          // let totalRepayment = 0;
+          // // pageData.forEach(({ borrow, repayment }) => {
+          // //   totalBorrow += borrow;
+          // //   totalRepayment += repayment;
+          // // });
+          // return (
+          //   <Table.Summary.Row>
+          //     <Table.Summary.Cell index={1} colSpan={2}>
+          //       Tổng
+          //     </Table.Summary.Cell>
+          //     <Table.Summary.Cell index={1} className="text-right">
+          //       <Typography.Text>{formatCurrency(987000)}</Typography.Text>
+          //     </Table.Summary.Cell>
+          //     <Table.Summary.Cell index={1} className="text-right">
+          //       <Typography.Text type="danger">
+          //         {formatCurrency(296100)}
+          //       </Typography.Text>
+          //     </Table.Summary.Cell>
+          //     <Table.Summary.Cell index={1} className="text-right">
+          //       <Typography.Link>{formatCurrency(690900)}</Typography.Link>
+          //     </Table.Summary.Cell>
+          //     <Table.Summary.Cell index={1} />
+          //   </Table.Summary.Row>
+          // );
+          // }}
         />
       </Row>
 
@@ -689,17 +741,23 @@ return (
 
           <Row className="payment-row" justify="space-between" align="middle">
             <Space align="center">
-              <Typography.Link className="font-weight-500" onClick={ShowDiscountModal}>
+              <Typography.Link
+                className="font-weight-500"
+                onClick={ShowDiscountModal}
+              >
                 Chiết khấu
               </Typography.Link>
               <div className="badge-style badge-danger">
                 {discountRate}%{" "}
-                <Button type="text" className="p-0" 
-                onClick={()=> {
-                  setDiscountRate(0)
-                  setDiscountValue(0)
-                  calculateChangeMoney(amount,0)
-                }}>
+                <Button
+                  type="text"
+                  className="p-0"
+                  onClick={() => {
+                    setDiscountRate(0);
+                    setDiscountValue(0);
+                    calculateChangeMoney(amount, 0);
+                  }}
+                >
                   x
                 </Button>
               </div>
@@ -709,7 +767,10 @@ return (
 
           <Row className="payment-row" justify="space-between" align="middle">
             <Space align="center">
-              <Typography.Link className="font-weight-500" onClick={ShowDiscountModal}>
+              <Typography.Link
+                className="font-weight-500"
+                onClick={ShowDiscountModal}
+              >
                 Mã giảm giá
               </Typography.Link>
               <div className="badge-style badge-primary">

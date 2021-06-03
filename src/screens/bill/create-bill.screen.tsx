@@ -5,32 +5,20 @@ import {
   Row,
   Col,
   Tooltip,
-  Typography,
-  InputNumber,
-  Menu,
-  Dropdown,
   Select,
 } from "antd";
 import documentIcon from "../../assets/img/document.svg";
-import arrowDownIcon from "assets/img/drow-down.svg";
 import warningCircleIcon from "assets/img/warning-circle.svg";
 import ProductCard from "../../component/OrderOnline/productCard";
 import CustomerCard from "../../component/OrderOnline/customerCard";
 import PaymentCard from "../../component/OrderOnline/paymentCard";
 import ShipmentCard from "../../component/OrderOnline/shipmentCard";
-import { useState, useCallback, useLayoutEffect, useMemo } from "react";
-import DiscountGroup from "../../component/OrderOnline/discountGroup";
-import { useSelector, useDispatch } from "react-redux";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import { useState, useCallback } from "react";
+import { useDispatch } from "react-redux";
 import { StoreModel } from "model/other/StoreModel";
-import { getListStoreRequest } from "domain/actions/core/store.action";
 import {
-  formatCurrency,
-  replaceFormat,
-  haveAccess,
-} from "../../utils/AppUtils";
-import { VariantModel } from "model/other/ProductModel";
-import "../../assets/css/order.scss";
+  validateStoreAction,
+} from "domain/actions/core/store.action";
 
 const CreateBill = () => {
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -73,6 +61,18 @@ const CreateBill = () => {
   const OrderItemModel = [{}];
 
   const dispatch = useDispatch();
+  const [isVerify, setVerify] = useState(false);
+
+  const [store, setStore] = useState<StoreModel | null>(null);
+
+  const onStoreSelect = useCallback(
+    (item: number) => {
+      dispatch(validateStoreAction(item, setStore));
+    },
+    [dispatch]
+  );
+
+  console.log("store", store);
 
   return (
     <div>
@@ -83,7 +83,7 @@ const CreateBill = () => {
           {/*--- end customer ---*/}
 
           {/*--- product ---*/}
-          <ProductCard />
+          <ProductCard select={onStoreSelect} />
           {/*--- end product ---*/}
 
           {/*--- shipment ---*/}
@@ -108,10 +108,24 @@ const CreateBill = () => {
               <label htmlFor="" className="required-label">
                 Nhân viên bán hàng
               </label>
-              <Input
-                placeholder="Tìm tên/ mã nhân viên"
-                suffix={<img src={arrowDownIcon} alt="down" />}
-              />
+              <Select
+                className="select-with-search"
+                showSearch
+                style={{ width: "200px" }}
+                placeholder=""
+                defaultValue=""
+              >
+                <Select.Option value="">Chọn tên/mã nhân viên</Select.Option>
+                {store?.accounts.map((item, index) => (
+                  <Select.Option
+                    style={{ width: "100%" }}
+                    key={index}
+                    value={item.id}
+                  >
+                    {item.full_name}
+                  </Select.Option>
+                ))}
+              </Select>
             </div>
             <div className="form-group form-group-with-search">
               <div>
@@ -127,10 +141,7 @@ const CreateBill = () => {
                   </span>
                 </Tooltip>
               </div>
-              <Input
-                placeholder="Điền tham chiếu"
-                suffix={<img src={arrowDownIcon} alt="down" />}
-              />
+              <Input placeholder="Điền tham chiếu" />
             </div>
             <div className="form-group form-group-with-search mb-0">
               <div>
@@ -146,10 +157,7 @@ const CreateBill = () => {
                   </span>
                 </Tooltip>
               </div>
-              <Input
-                placeholder="Điền đường dẫn"
-                suffix={<img src={arrowDownIcon} alt="down" />}
-              />
+              <Input placeholder="Điền đường dẫn" />
             </div>
           </Card>
 

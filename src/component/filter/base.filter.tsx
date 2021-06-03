@@ -1,6 +1,6 @@
 import { Button, Drawer, Row } from "antd";
 
-type SupplierFilterProps = {
+type BaseFilterProps = {
   visible: boolean,
   children: React.ReactNode
   onCancel?: () => void,
@@ -8,7 +8,7 @@ type SupplierFilterProps = {
   onClearFilter?: () => void,
 }
 
-const BaseFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProps) => {
+const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
   const {visible, children, onFilter, onClearFilter, onCancel} = props;
   return (
     <Drawer 
