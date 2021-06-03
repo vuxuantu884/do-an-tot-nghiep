@@ -1,15 +1,17 @@
-import { Button, Card, Col, Collapse, Form, Input, Radio, Row, Select, Switch } from "antd";
+import { Button, Card, Col, Collapse, Form, FormInstance, Input, Radio, Row, Select, Switch } from "antd";
 import AccountAction from "domain/actions/account/account.action";
 import { getCountry, getDistrictAction } from "domain/actions/content/content.action";
+import SupplierAction from "domain/actions/core/supplier.action";
 import { CityView } from "model/other/district-view";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { CreateSupplierRequest } from "model/request/create-supplier.request";
+import { SupplierCreateRequest } from "model/request/create-supplier.request";
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
 import { PageResponse } from "model/response/base-metadata.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { DistrictResponse } from "model/response/content/district.response";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
 import { convertDistrict } from "utils/AppUtils";
 
 const { Item } = Form;
@@ -17,7 +19,7 @@ const { Panel } = Collapse;
 const { Option, OptGroup } = Select;
 
 const DefaultCountry = 233;
-const initRequest: CreateSupplierRequest = {
+const initRequest: SupplierCreateRequest = {
   address: '',
   bank_brand: '',
   bank_name: '',
@@ -30,7 +32,7 @@ const initRequest: CreateSupplierRequest = {
   debt_time: null,
   debt_time_unit: null,
   district_id: null,
-  website: '',
+  website: null,
   email: '',
   fax: '',
   goods: [],
@@ -46,6 +48,8 @@ const initRequest: CreateSupplierRequest = {
 };
 const CreateSupplierScreen: React.FC = () => {
   const dispatch = useDispatch();
+  const formRef = createRef<FormInstance>()
+  const history = useHistory();
   const supplier_type = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.supplier_type);
   const goods = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.goods);
   const scorecards = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.scorecard);
@@ -56,7 +60,6 @@ const CreateSupplierScreen: React.FC = () => {
   const [accounts, setAccounts] = useState<Array<AccountDetailResponse>>([]);
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
-  const [city_id, setCityId] = useState<number|undefined>(undefined);
   const [status, setStatus] = useState<string>(initRequest.status);
   //EndState
   //Callback
@@ -69,16 +72,32 @@ const CreateSupplierScreen: React.FC = () => {
   }, []);
   const onChangeStatus = useCallback((checked: boolean) => {
     setStatus(checked ? 'active' : 'inactive')
-  }, []);
+    formRef.current?.setFieldsValue({
+      status: checked ? 'active' : 'inactive'
+    })
+    
+  }, [formRef]);
   const onSelectDistrict = useCallback((value: number) => {
+    let cityId = -1;
     cityViews.forEach((item) => {
       item.districts.forEach((item1) => {
         if(item1.id === value) {
-          setCityId(item.city_id)
+          cityId = item.city_id
         }
       })
-    }, [])
-  }, [cityViews])
+    })
+    if(cityId !== -1) {
+      formRef.current?.setFieldsValue({
+        city_id: cityId
+      })
+    }
+  }, [cityViews, formRef])
+  const onCreateSuccess = useCallback(() => {
+    history.push('/suppliers');
+  }, [history])
+  const onFinish = useCallback((values: SupplierCreateRequest) => {
+    dispatch(SupplierAction.supplierCreateAction(values, onCreateSuccess))
+  }, [dispatch, onCreateSuccess])
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -98,7 +117,7 @@ const CreateSupplierScreen: React.FC = () => {
     dispatch(getDistrictAction(DefaultCountry, setDataDistrict))
   }, [dispatch, setDataAccounts, setDataDistrict]);
   return (
-    <Form layout="vertical" initialValues={initRequest}>
+    <Form ref={formRef} layout="vertical" onFinish={onFinish} initialValues={initRequest}>
       <Card
         className="card-block card-block-normal"
         title="Thông tin cơ bản"
@@ -107,7 +126,7 @@ const CreateSupplierScreen: React.FC = () => {
             Trạng thái
             <Switch className="ip-switch" defaultChecked onChange={onChangeStatus} />
             <span style={{color: status === 'active' ? '#27AE60': 'red'}} className="t-status">{statusValue}</span>
-            <Item  name="status" hidden>
+            <Item noStyle name="status" hidden>
               <Input value={status} /> 
             </Item>
           </div>
@@ -133,20 +152,17 @@ const CreateSupplierScreen: React.FC = () => {
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"
-              rules={[
-                { required: true, message: 'Vui lòng nhập tên chất liệu' },
-              ]}
               label="Mã nhà cung cấp"
-              name="name"
+              name="code"
             >
-              <Input className="r-5" placeholder="Mã nhà cung cấp" size="large" />
+              <Input disabled className="r-5" placeholder="Mã nhà cung cấp" size="large" />
             </Item>
           </Col>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
               rules={[{ required: true, message: 'Vui lòng nhập tên nhà cung cấp' }]}
               className="form-group form-group-with-search"
-              name="component"
+              name="name"
               label="Tên nhà cung cấp"
             >
               <Input className="r-5" placeholder="Nhập tên nhà cung cấp" size="large" />
@@ -221,7 +237,7 @@ const CreateSupplierScreen: React.FC = () => {
             >
               <Select 
                 showSearch 
-                onChange={onSelectDistrict} 
+                onSelect={onSelectDistrict} 
                 className="selector"
                 placeholder="Chọn khu vực"
               >
@@ -243,7 +259,7 @@ const CreateSupplierScreen: React.FC = () => {
               className="form-group form-group-with-search"
               name="city_id"
             >
-              <Input value={city_id} />
+              <Input />
             </Item>
           </Col>
           <Col span={24} lg={8} md={12} sm={24}>

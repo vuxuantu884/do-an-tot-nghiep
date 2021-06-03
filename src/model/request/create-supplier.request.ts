@@ -1,4 +1,4 @@
-export interface CreateSupplierRequest {
+export interface SupplierCreateRequest {
   address: string|null,
   bank_brand: string|null,
   bank_name: string|null,
@@ -26,6 +26,7 @@ export interface CreateSupplierRequest {
   website: string|null
 }
 
-export interface UpdateSupplierRequest extends CreateSupplierRequest {
-  verison: number,
+export interface SupplierUpdateRequest extends SupplierCreateRequest {
+  version: number,
+  code: string,
 }

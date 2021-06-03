@@ -7,14 +7,13 @@ import { Link } from "react-router-dom";
 
 type CustomPaginationProps = {
   metadata: BaseMetadata;
-  onPageSizeChange?: (size: number) => void
-  onPageChange?: (page: number) => void
+  onChange?: (size: number, page: number) => void
 };
 
 const CustomPagination: React.FC<CustomPaginationProps> = (
   props: CustomPaginationProps
 ) => {
-  const { metadata, onPageSizeChange, onPageChange } = props;
+  const { metadata, onChange } = props;
   const numPage = useMemo(() => Math.floor(metadata.total / metadata.limit), [metadata.limit, metadata.total])
   const result = useMemo(() => {
     if (metadata.total <= 1) {
@@ -49,7 +48,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = (
                       <Menu>
                         {
                           PageConfig.map((item, index) => (
-                            <Menu.Item disabled={metadata.limit === item} key={index} onClick={() => onPageSizeChange && onPageSizeChange(item)}>{item.toString()}</Menu.Item>
+                            <Menu.Item disabled={metadata.limit === item} key={index} onClick={() => onChange && onChange(item, metadata.page)}>{item.toString()}</Menu.Item>
                           ))
                         }
                       </Menu>
@@ -66,7 +65,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = (
                     current={metadata.page + 1}
                     total={metadata.total}
                     className="yody-page"
-                    onChange={(page, pageSize) => onPageChange && onPageChange(page)}
+                    onChange={(page, pageSize) => onChange && onChange(metadata.limit, page + 1)}
                   />
                 </div>
               </React.Fragment>

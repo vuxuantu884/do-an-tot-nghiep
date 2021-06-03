@@ -281,7 +281,7 @@ const Product: React.FC = () => {
               />
               <CustomPagination
                 metadata={metadata} 
-                onPageSizeChange={onPageSizeChange}
+                onChange={onPageSizeChange}
               />
              
             </React.Fragment>
