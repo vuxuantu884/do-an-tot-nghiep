@@ -6,6 +6,7 @@ import {
   Col,
   Tooltip,
   Select,
+  Form,
 } from "antd";
 import documentIcon from "../../assets/img/document.svg";
 import warningCircleIcon from "assets/img/warning-circle.svg";
@@ -13,12 +14,15 @@ import ProductCard from "../../component/OrderOnline/productCard";
 import CustomerCard from "../../component/OrderOnline/customerCard";
 import PaymentCard from "../../component/OrderOnline/paymentCard";
 import ShipmentCard from "../../component/OrderOnline/shipmentCard";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { StoreModel } from "model/other/StoreModel";
 import {
   validateStoreAction,
 } from "domain/actions/core/store.action";
+import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
+import { PageResponse } from "model/response/base-metadata.response";
+import AccountAction from "domain/actions/account/account.action";
 
 const CreateBill = () => {
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -72,10 +76,20 @@ const CreateBill = () => {
     [dispatch]
   );
 
+  const [accounts, setAccounts] = useState<Array<AccountDetailResponse>>([]);
+  const setDataAccounts = useCallback((data: PageResponse<AccountDetailResponse>) => {
+    setAccounts(data.items);
+  }, []);
+
+  useEffect(() => {
+    dispatch(AccountAction.SearchAccount({}, setDataAccounts));
+  }, [dispatch, setDataAccounts]);
+
   console.log("store", store);
 
   return (
     <div>
+      <Form></Form>
       <Row gutter={24}>
         <Col xs={24} lg={17}>
           {/*--- customer ---*/}
@@ -111,12 +125,9 @@ const CreateBill = () => {
               <Select
                 className="select-with-search"
                 showSearch
-                style={{ width: "200px" }}
-                placeholder=""
-                defaultValue=""
+                placeholder="Chọn nhân viên"
               >
-                <Select.Option value="">Chọn tên/mã nhân viên</Select.Option>
-                {store?.accounts.map((item, index) => (
+                {accounts.map((item, index) => (
                   <Select.Option
                     style={{ width: "100%" }}
                     key={index}

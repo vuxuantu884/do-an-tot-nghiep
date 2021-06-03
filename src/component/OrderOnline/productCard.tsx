@@ -18,7 +18,6 @@ import {
 import { showSuccess } from "utils/ToastUtils";
 import { EditOutlined } from "@ant-design/icons";
 import PickDiscountModal from "./Modal/PickDiscountModal";
-import "../../assets/css/order.scss";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
 import giftIcon from "assets/icon/gift.svg";
 import React, {
@@ -46,6 +45,8 @@ import {
   findAvatar,
   findPriceInVariant,
   findTaxInVariant,
+  formatCurrency,
+  replaceFormat,
 } from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { VariantModel } from "model/other/ProductModel";
@@ -170,6 +171,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   };
   const ProductColumn = {
     title: "Sản phẩm",
+    width: 245,
     className: "yody-pos-name",
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
@@ -229,7 +231,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       </div>
     ),
     className: "yody-pos-quantity text-center",
-    // width: 80,
+    width: 85,
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
         <div className="yody-pos-qtt">
@@ -249,16 +251,16 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const PriceColumnt = {
     title: "Đơn giá",
     className: "yody-pos-price text-right",
-    // width: 100,
+    //width: 100,
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
         <div className="yody-pos-price">
           <InputNumber
             className="hide-number-handle"
             min={0}
-            // formatter={value => formatCurrency(value ? value : '0')}
-            // parser={value => replaceFormat(value ? value : '0')}
             value={l.price}
+            formatter={value => formatCurrency(value ? value : '0')}
+            parser={value => replaceFormat(value ? value : '0')}
             onChange={(e) => console.log(1)}
             onFocus={(e) => e.target.select()}
             style={{ maxWidth: 100, textAlign: "right" }}
@@ -270,8 +272,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const DiscountColumnt = {
     title: "Chiết khấu",
-    // align: 'center',
-    width: 115,
+    align: 'center',
+    //width: 165,
     className: "yody-table-discount text-right",
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
@@ -589,8 +591,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               className="select-with-search"
               showSearch
               style={{ width: "100%" }}
-              placeholder=""
-              onChange={onSelectStoreApply}
+              placeholder="Chọn cửa hàng"
+              //onChange={onSelectStoreApply}
             >
               {dataCanAccess.map((item, index) => (
                 <Select.Option key={index} value={item.id}>
