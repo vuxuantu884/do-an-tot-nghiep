@@ -56,7 +56,7 @@ import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "../../config/TypeConfig";
-import "./container.scss";
+import "../../assets/css/container.scss";
 // import { addOrderRequest } from "domain/actions/order.action";
 // import { splitLineChange } from "domain/actions/appsetting.action";
 import deleteIcon from "assets/icon/delete.svg";
