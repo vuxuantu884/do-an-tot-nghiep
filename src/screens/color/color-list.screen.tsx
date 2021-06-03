@@ -1,18 +1,19 @@
-import { Button, Card, Form, Input } from "antd";
-import React, { useCallback, useLayoutEffect, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import search from 'assets/img/search.svg';
-import { MaterialResponse } from 'model/response/product/material.response';
-import ButtonSetting from "component/table/ButtonSetting";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { generateQuery } from "utils/AppUtils";
-import { useDispatch } from "react-redux";
-import { deleteManyMaterialAction, deleteOneMaterialAction, getMaterialAction } from "domain/actions/product/material.action";
-import { BaseMetadata } from "model/response/base-metadata.response";
-import { MaterialQuery } from "model/query/material.query";
-import ActionButton, { MenuAction } from "component/table/ActionButton";
-import {showWarning} from 'utils/ToastUtils';
 import CustomTable from "component/table/CustomTable";
+import {Button, Card, Form, Input} from 'antd'
+import ActionButton, { MenuAction } from "component/table/ActionButton";
+import search from 'assets/img/search.svg';
+import React, { useCallback, useLayoutEffect, useState } from "react";
+import { deleteManyMaterialAction, deleteOneMaterialAction, getMaterialAction } from "domain/actions/product/material.action";
+import { generateQuery } from "utils/AppUtils";
+import { useHistory } from "react-router";
+import { useDispatch } from "react-redux";
+import { useQuery } from "utils/useQuery";
+import { Link } from "react-router-dom";
+import { MaterialResponse } from "model/response/product/material.response";
+import { showWarning } from "utils/ToastUtils";
+import ButtonSetting from "component/table/ButtonSetting";
+
+
 
 const action: Array<MenuAction> = [
   {
@@ -25,18 +26,20 @@ const action: Array<MenuAction> = [
   },
 ]
 
-const selected: Array<MaterialResponse> = [];
-const ListMaterial: React.FC = () => {
-  const [data, setData] = useState<Array<MaterialResponse>>([]);
+
+const selected = [];
+
+const ColorListScreen = () => {
+  const [data, setData] = useStatee<Array<MaterialResponse>>([]);
   const history = useHistory();
   const dispatch = useDispatch();
   const query = useQuery();
-  let [params, setPrams] = useState<MaterialQuery>(getQueryParams(query));
-  const [metadata, setMetadata] = useState<BaseMetadata>({
-    limit: params.limit ? params.limit : 30,
-    page: params.page ? params.page : 0,
-    total: 0,
-  });
+  // let [params, setPrams] = useState<MaterialQuery>(getQueryParams(query));
+  // const [metadata, setMetadata] = useState<BaseMetadata>({
+  //   limit: params.limit ? params.limit : 30,
+  //   page: params.page ? params.page : 0,
+  //   total: 0,
+  // });
   const columns = [
     {
       title: 'Mã chất liệu',
@@ -87,18 +90,11 @@ const ListMaterial: React.FC = () => {
     selected.push(record);
   }, []);
   const onFinish = useCallback((values) => {
-    let newPrams = { ...params, ...values, page: 0 };
-    setPrams(newPrams);
-    let queryParam = generateQuery(newPrams);
-    history.push(`/materials?${queryParam}`);
-  }, [history, params]);
+
+  }, []);
   const onPageChange = useCallback((size, page) => {
-    params.page = page - 1;
-    params.limit = size
-    let queryParam = generateQuery(params);
-    setPrams({ ...params });
-    history.replace(`/materials?${queryParam}`);
-  }, [history, params]);
+
+  }, []);
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
       case 0:
@@ -107,14 +103,13 @@ const ListMaterial: React.FC = () => {
     }
   }, [onDelete]);
   useLayoutEffect(() => {
-    dispatch(getMaterialAction(params, setData, setMetadata));
-  }, [dispatch, params])
+  }, [dispatch])
   return (
     <div>
       <Card className="contain">
         <Card
           className="view-control"
-          style={{ display: 'flex' }}
+          style={{ display: "flex" }}
           bordered={false}
         >
           <Form
@@ -126,17 +121,44 @@ const ListMaterial: React.FC = () => {
           >
             <ActionButton onMenuClick={onMenuClick} menu={action} />
             <div className="right-form">
-              <Form.Item className="form-group form-group-with-search" name="info">
-                <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Tên/Mã/ID nhân viên" />
+              <Form.Item
+                className="form-group form-group-with-search"
+                name="info"
+              >
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  style={{ width: 250 }}
+                  placeholder="Tên/Mã/ID nhân viên"
+                />
               </Form.Item>
-              <Form.Item className="form-group form-group-with-search" name="component">
-                <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Thành phần" />
+              <Form.Item
+                className="form-group form-group-with-search"
+                name="component"
+              >
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  style={{ width: 250 }}
+                  placeholder="Thành phần"
+                />
               </Form.Item>
-              <Form.Item className="form-group form-group-with-search" name="description">
-                <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Ghi chú" />
+              <Form.Item
+                className="form-group form-group-with-search"
+                name="description"
+              >
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  style={{ width: 250 }}
+                  placeholder="Ghi chú"
+                />
               </Form.Item>
               <Form.Item>
-                <Button type="primary" htmlType="submit" className="yody-search-button">Lọc</Button>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="yody-search-button"
+                >
+                  Lọc
+                </Button>
               </Form.Item>
             </div>
           </Form>
@@ -152,7 +174,7 @@ const ListMaterial: React.FC = () => {
         />
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default ListMaterial;
+export default ColorListScreen;

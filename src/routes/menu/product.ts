@@ -4,7 +4,7 @@ import { HEADER_TYPE } from 'config/HeaderConfig';
 
 const Category = React.lazy(() => import ("screens/category/category-list.screen"));
 const Product = React.lazy(() => import ("screens/product"));
-const Color = React.lazy(() => import ("screens/product/color.screen"));
+const ColorList = React.lazy(() => import ("screens/color/color-list.screen"));
 const UpdateMaterial = React.lazy(() => import ("screens/materials/ material-update.screen"));
 const ListMaterial = React.lazy(() => import ("screens/materials/materials-list.screen"));
 const AddMaterial = React.lazy(() => import ("screens/materials/material-add.screen"));
@@ -116,7 +116,7 @@ const product: Array<RouteMenu> = [
     exact: true,
     title: "Màu sắc",
     icon: 'icon-dot',
-    component: Color,
+    component: ColorList,
     key: "submenu25",
     isShow: true,
     header: null,
