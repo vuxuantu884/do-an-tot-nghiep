@@ -65,7 +65,9 @@ import { OrderModel } from "model/other/Order/OrderModel";
 import { showSuccess } from "utils/ToastUtils";
 import "../../assets/css/order.scss";
 
-type ProductCardProps = {};
+type ProductCardProps = {
+  select: (item: number) => void;
+};
 
 const renderSearch = (item: VariantModel) => {
   let avatar = findAvatar(item.variant_images);
@@ -191,9 +193,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   };
 
   const changeItems = useCallback((_items: Array<OrderItemModel>) => {
-    setItems(_items)
-  },[]
-  )
+    setItems(_items);
+  }, []);
 
   const DiscountColumnt = {
     title: "Chiết khấu",
@@ -270,8 +271,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const dispatch = useDispatch();
   var timeTextChange: NodeJS.Timeout;
-  const [stores, setStore] = useState(false);
-  const [isVerify, setVerify] = useState(false);
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [orderItem, setOrderItem] = useState<OrderModel>();
@@ -280,19 +279,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     dispatch(getListStoreRequest(setListStores));
   }, [dispatch]);
 
-  const onStoreSelect = useCallback(
-    (value: number) => {
-      dispatch(validateStoreAction(value, setVerify));
-    },
-    [dispatch]
-  );
-
   const [listStores, setListStores] = useState<Array<StoreModel>>([]);
   const [keysearch, setKeysearch] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<VariantModel>>([]);
   const autoCompleteRef = createRef<RefSelectProps>();
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
-
 
   const createItem = (variant: VariantModel) => {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
@@ -460,6 +451,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     showSuccess("Thêm chiết khấu thành công");
   }, []);
 
+  const onSelectStoreApply = useCallback((value: number) =>{
+    props.select(value);
+  }, [props])
+
   return (
     <Card
       className="card-block sale-online-product"
@@ -513,9 +508,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               showSearch
               style={{ width: "100%" }}
               placeholder=""
-              defaultValue=""
+              onChange = {onSelectStoreApply}
             >
-              <Select.Option value="">Chọn cửa hàng</Select.Option>
               {dataCanAccess.map((item, index) => (
                 <Select.Option key={index} value={item.id}>
                   {item.name}
@@ -672,7 +666,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
           <Row className="payment-row" justify="space-between" align="middle">
             <Space align="center">
-              <Typography.Link className="font-weight-500" onClick={ShowDiscountModal}>
+              <Typography.Link
+                className="font-weight-500"
+                onClick={ShowDiscountModal}
+              >
                 Mã giảm giá
               </Typography.Link>
               <div className="badge-style badge-primary">
