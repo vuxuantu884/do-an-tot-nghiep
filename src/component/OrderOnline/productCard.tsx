@@ -22,6 +22,7 @@ import { haveAccess, findPrice, findAvatar, findPriceInVariant, findTaxInVariant
 import { RefSelectProps } from "antd/lib/select";
 import { VariantModel } from "model/other/ProductModel";
 import { OrderItemModel } from "model/other/Order/OrderItemModel";
+import { OrderRequest } from "model/request/OrderRequest";
 import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
@@ -53,8 +54,8 @@ const [discountType, setDiscountType] = useState<string>("money");
 const [discountValue, setDiscountValue] = useState<number>(0);
 const [discountRate, setDiscountRate] = useState<number>(0);
 const [changeMoney, setChangeMoney] = useState<number>(0);
-
 const [counpon, setCounpon] = useState<string>("");
+
 //Function
 const showAddGiftModal = useCallback((index: number) => {
   setIndexItem(index)
