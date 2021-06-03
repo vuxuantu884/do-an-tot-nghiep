@@ -1,4 +1,4 @@
-import { SearchVariantQuery } from 'model/query/search.variant.query';
+import { VariantSearchQuery } from 'model/query/variant.search.query';
 import { VariantResponse } from './../../model/response/products/variant.response';
 import BaseAxios from "base/BaseAxios"
 import BaseResponse from "base/BaseResponse";
@@ -8,7 +8,7 @@ import { PageResponse } from 'model/response/base-metadata.response';
 
 
 
-export const searchVariantsApi = (query: SearchVariantQuery): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
+export const searchVariantsApi = (query: VariantSearchQuery): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
     const queryString = generateQuery(query);
     return BaseAxios.get(`${ApiConfig.PRODUCT}/variants?${queryString}`);
   }

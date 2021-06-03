@@ -1,4 +1,4 @@
-import { VariantSearchQuery } from '../../../model/query/Variant.search.query';
+import { VariantSearchQuery } from '../../../model/query/variant.search.query';
 import { VariantResponse } from '../../../model/response/products/variant.response';
 import BaseAction from "base/BaseAction"
 import { ProductType } from 'domain/types/product.type';

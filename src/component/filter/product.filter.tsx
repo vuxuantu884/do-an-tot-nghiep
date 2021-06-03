@@ -15,11 +15,11 @@ import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapRes
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import { VariantSearchQuery } from "./../../model/query/Variant.search.query";
+import { VariantSearchQuery } from "../../model/query/variant.search.query";
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
 import { SizeResponse } from "model/response/products/size.response";
 import { ColorResponse } from "model/response/products/color.response";
-import { SupplierResposne } from "model/response/supplier/supplier.response";
+import { SupplierResponse } from "model/response/supplier/supplier.response";
 import { CountryResponse } from "model/response/content/country.response";
 
 type ProductFilterProps = {
@@ -31,7 +31,7 @@ type ProductFilterProps = {
   listCountries?: Array<CountryResponse>;
   listMainColors?: Array<ColorResponse>;
   listColors?: Array<ColorResponse>;
-  listSupplier?: Array<SupplierResposne>;
+  listSupplier?: Array<SupplierResponse>;
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: VariantSearchQuery) => void;
