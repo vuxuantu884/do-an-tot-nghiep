@@ -11,6 +11,7 @@ import { materialSaga } from './product/material.saga';
 import { sizeSaga } from './product/size.saga';
 import { productSaga } from './product/product.saga';
 import { supplierSagas } from './core/supplier.saga';
+import { accountSaga } from './account/account.saga';
 function* rootSaga(){
     yield all([
       appSaga(),
@@ -25,6 +26,7 @@ function* rootSaga(){
       contentSaga(),
       sizeSaga(),
       supplierSagas(),
+      accountSaga(),
     ]);
 }
 
