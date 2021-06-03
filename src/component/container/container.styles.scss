@@ -405,8 +405,50 @@ $desktop-width: 1400px;
       height: auto !important;
     }
   }
+  .ip-group {
+    .ip-text-group {
+      border-top-left-radius: 5px !important;
+      border-bottom-left-radius: 5px !important;
+      border-color: #CFDCE9 !important;
+
+    }
+    .selector-group {
+      .ant-select-selector {
+        border-top-right-radius: 5px !important;
+        border-bottom-right-radius: 5px !important;
+        background-color: #F4F4F7;
+        border-color: #CFDCE9 !important;
+        padding: 4px 11px !important;
+        height: auto !important;
+      }
+    }
+  }
   .ip-search {
     padding: 7px 11px;
+  }
+  .ip-upload {
+    padding: 5px 11px;
+    border-color: #CFDCE9 !important;
+  }
+  .ant-form-item-explain {
+    .t-help {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 12px;
+      margin-top: 6px;
+      color: #768592; 
+    }
+  }
+  .ip-radio {
+    .ant-radio-wrapper {
+      font-family: Inter;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 13px;
+      line-height: 16px;
+      color: #393939;
+    }
   }
 }
 
@@ -708,13 +750,22 @@ $desktop-width: 1400px;
 }
 
 .v-extra {
-  .ant-form-item {
-    margin: 0 16px;
-    .ant-form-item-control-input-content {
-      display: inline;
-    }
+  font-family: Inter;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 13px;
+  line-height: 16px;
+  color: rgba(149, 161, 172, 0.9);
+  .ip-switch {
+    margin-left: 16px;
+    background-color: red;
   }
   .t-status {
-
+    margin-left: 14px;
+    font-size: 14px;
+    line-height: 17px;
   }
+  .ant-switch-checked {
+    background-color: #27AE60;
+}
 }
