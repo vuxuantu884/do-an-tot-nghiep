@@ -2,7 +2,9 @@ import { AppConfig } from './../config/AppConfig';
 import { VariantPrice, VariantImage } from './../model/other/ProductModel';
 import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/category-view";
+import { CityView } from "model/other/district-view";
 import { CategoryResponse } from "model/response/category.response";
+import { DistrictResponse } from "model/response/content/district.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
 import { OrderDiscountModel } from 'model/other/Order/OrderDiscountModel';
 import { OrderItemModel } from 'model/other/Order/OrderItemModel';
@@ -156,7 +158,11 @@ export const generateQuery = (obj: any) => {
   let a: string = Object.keys(obj).map((key, index) => {
     let url = '';
     if (obj[key]) {
-      url = key + '=' + encodeURIComponent(obj[key]) + '&'
+      let value = obj[key];
+      if(obj[key] instanceof Array) {
+        value = obj[key].join(',')
+      }
+      url = key + '=' + encodeURIComponent(value) + '&'
     }
     return url
   }).join('')
@@ -166,6 +172,28 @@ export const generateQuery = (obj: any) => {
   return a;
 }
 
+export const convertDistrict = (data: Array<DistrictResponse>) => {
+  let array: Array<CityView> = [];
+  data.forEach((item) => {
+    let index = array.findIndex((item1) => item1.city_id === item.city_id);
+    if(index !== -1) {
+      array[index].districts.push({id: item.id, name: item.name, code: item.code});
+    } else {
+      array.push({
+        city_id: item.city_id,
+        city_name: item.city_name,
+        districts: [
+          {
+            id: item.id,
+            name: item.name,
+            code: item.code
+          }
+        ]
+      })
+    }
+  })
+  return array;
+}
 
 const hasNextPage = (metadata: OrderMetadata) => {
   return (metadata.page + 1) * metadata.limit < metadata.total;

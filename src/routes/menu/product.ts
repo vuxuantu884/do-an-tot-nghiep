@@ -11,7 +11,7 @@ const AddMaterial = React.lazy(() => import ("screens/materials/material-add.scr
 const Size = React.lazy(() => import ("screens/product/size.screen"));
 const ListSupplier = React.lazy(() => import ("screens/supllier/supplier-list.screen"));
 const AddCategory = React.lazy(() => import ("screens/category/category-add.screen"))
-const CreateSupplierScreen = React.lazy(() => import ("screens/supllier/supplie-add.screen"));
+const CreateSupplierScreen = React.lazy(() => import ("screens/supllier/supplier-add.screen"));
 
 const product: Array<RouteMenu> = [
   {

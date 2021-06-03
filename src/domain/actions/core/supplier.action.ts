@@ -1,25 +1,26 @@
 import BaseAction from "base/BaseAction";
 import { SupplierType } from "domain/types/core.type";
-import { SearchSupplierQuerry } from "model/query/supplier.query";
+import { SupplierQuery } from "model/query/supplier.query";
+import { SupplierCreateRequest, SupplierUpdateRequest } from "model/request/create-supplier.request";
 import { PageResponse } from "model/response/base-metadata.response";
-import { SupplierResposne } from "model/response/supplier/supplier.response";
+import { SupplierResponse } from "model/response/supplier/supplier.response";
 
-const searchSupplier = (query: SearchSupplierQuerry, setData: (response: PageResponse<SupplierResposne>) => void) => {
+const supplierSearchAction = (query: SupplierQuery, setData: (response: PageResponse<SupplierResponse>) => void) => {
   return BaseAction(SupplierType.SEARCH_SUPPLIER_REQUEST, {query, setData});
 }
 
-const createSupplier = (query: SearchSupplierQuerry, setData: (response: PageResponse<SupplierResposne>) => void) => {
-  return BaseAction(SupplierType.CREATE_SUPPLIER_REQUEST, {query, setData});
+const supplierCreateAction = (request: SupplierCreateRequest, setData: () => void) => {
+  return BaseAction(SupplierType.CREATE_SUPPLIER_REQUEST, {request, setData});
 }
 
-const editSupplier = (query: SearchSupplierQuerry, setData: (response: PageResponse<SupplierResposne>) => void) => {
-  return BaseAction(SupplierType.EDIT_SUPPLIER_REQUEST, {query, setData});
+const supplierUpdateAction = (request: SupplierUpdateRequest, setData: (response: SupplierResponse) => void) => {
+  return BaseAction(SupplierType.EDIT_SUPPLIER_REQUEST, {request, setData});
 }
 
 const SupplierAction = {
-  searchSupplier, 
-  createSupplier,
-  editSupplier,
+  supplierSearchAction, 
+  supplierCreateAction,
+  supplierUpdateAction,
 }
 
 export default SupplierAction;

@@ -1,4 +1,3 @@
-import { NumberLiteralType } from "typescript";
 import { BaseQuery } from "./base.query";
 
 export interface AccountSearchQuery extends BaseQuery {
@@ -9,7 +8,6 @@ export interface AccountSearchQuery extends BaseQuery {
     info?:string,
     mobile?:string,
     position_ids?:number,
-    role_id?:number,
+    role_id?: Array<number>,    
     store_ids?:number,
-    
 }
