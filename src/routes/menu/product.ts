@@ -2,16 +2,16 @@ import React from 'react';
 import { RouteMenu } from "model/other";
 import { HEADER_TYPE } from 'config/HeaderConfig';
 
-
-const Category = React.lazy(() => import ("screens/category/category.screen"));
+const Category = React.lazy(() => import ("screens/category/category-list.screen"));
 const Product = React.lazy(() => import ("screens/product"));
 const Color = React.lazy(() => import ("screens/product/color.screen"));
-const UpdateMaterial = React.lazy(() => import ("screens/materials/update-material"));
-const ListMaterial = React.lazy(() => import ("screens/materials/list-materials"));
-const AddMaterial = React.lazy(() => import ("screens/materials/add-material"));
+const UpdateMaterial = React.lazy(() => import ("screens/materials/ material-update.screen"));
+const ListMaterial = React.lazy(() => import ("screens/materials/materials-list.screen"));
+const AddMaterial = React.lazy(() => import ("screens/materials/material-add.screen"));
 const Size = React.lazy(() => import ("screens/product/size.screen"));
-const ListSupplier = React.lazy(() => import ("screens/supllier/list-supplier.screen"));
-const AddCategory = React.lazy(() => import ("screens/category/add-category.screen"))
+const ListSupplier = React.lazy(() => import ("screens/supllier/supplier-list.screen"));
+const AddCategory = React.lazy(() => import ("screens/category/category-add.screen"))
+const CreateSupplierScreen = React.lazy(() => import ("screens/supllier/supplie-add.screen"));
 
 const product: Array<RouteMenu> = [
   {
@@ -133,7 +133,21 @@ const product: Array<RouteMenu> = [
     key: "submenu26",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: [
+      {
+        path: "/suppliers/create",
+        exact: true,
+        title: "Thêm mới nhà cung cấp",
+        icon: 'icon-dot',
+        component: CreateSupplierScreen,
+        key: "submenu261",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      }
+    ],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {
       pathCreate: '/suppliers/create'

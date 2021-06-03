@@ -644,6 +644,8 @@ $desktop-width: 1400px;
     align-items: center;
     padding: 6px 11px;
     //text-align: right;
+    border-radius: unset;
+    height: 32px;
   }
 }
 
@@ -778,4 +780,54 @@ table {
     border: none;
   }
 }
+
+.title-rule {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 33px 0;
+  .title {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 15px;
+    color: #61778A;
+  }
+  .rule {
+    height: 1px;
+    margin-left: 12px;
+    width: calc(100% - 119px);
+    background-color: #CFDCE9;;
+  }
 }
+.view-other {
+  margin-top: 18px;
+  border: none;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px 1px #eee;
+  background-color: white;
+  .ant-collapse-header {
+    min-height: 48px;
+    margin-bottom: -1px;
+    padding: 0 24px;
+    color: rgba(0,0,0,.85);
+    font-weight: 500;
+    font-size: 16px;
+    background: transparent;
+    border-bottom: 1px solid #f0f0f0;
+    border-radius: 2px 2px 0 0;
+  }
+}
+
+.v-extra {
+  .ant-form-item {
+    margin: 0 16px;
+    .ant-form-item-control-input-content {
+      display: inline;
+    }
+  }
+  .t-status {
+
+  }
+}}

@@ -50,6 +50,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
         </Select>
         <InputNumber
           formatter={value => formatCurrency(value ? value : '0')}
+          style={{height: '32px'}}
           value={selected === "percent" ? props.discountRate : props.discountValue }
           onChange={onChangeValue}
           parser={value => replaceFormat(value ? value : "0")}

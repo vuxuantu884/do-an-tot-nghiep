@@ -156,7 +156,7 @@ export const generateQuery = (obj: any) => {
   let a: string = Object.keys(obj).map((key, index) => {
     let url = '';
     if (obj[key]) {
-      url = key + '=' + obj[key] + '&'
+      url = key + '=' + encodeURIComponent(obj[key]) + '&'
     }
     return url
   }).join('')

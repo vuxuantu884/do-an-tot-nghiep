@@ -37,7 +37,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getListStoreRequest,
   validateStoreAction,
-} from "domain/actions/store.action";
+} from "domain/actions/StoreAction";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OnSearchChange } from "domain/actions/search.action";
 import {
@@ -57,8 +57,8 @@ import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "../../config/TypeConfig";
 import "./container.scss";
-import { addOrderRequest } from "domain/actions/order.action";
-import { splitLineChange } from "domain/actions/appsetting.action";
+// import { addOrderRequest } from "domain/actions/order.action";
+// import { splitLineChange } from "domain/actions/appsetting.action";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "../../component/modal/AddGiftModal";
 
@@ -173,6 +173,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [isVisibleGift,setVisibleGift] = useState(false);
   const [indexItem,setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0)
+  
 
   
 
@@ -347,7 +348,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   }, [items]);
   
   useLayoutEffect(() => {
-    dispatch(getListStoreRequest(setListStores));
+    dispatch(getListStoreRequest());
   }, [dispatch]);
 
   const onStoreSelect = useCallback(
@@ -429,7 +430,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           }
         }
       setItems(_items);
-      total()
+      
       
     },
     [resultSearch, items, splitLine]
@@ -457,10 +458,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     });
     return options;
   }, [resultSearch]);
-
-  useLayoutEffect(() => {
-    dispatch(getListStoreRequest(setListStores));
-  }, [dispatch]);
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
