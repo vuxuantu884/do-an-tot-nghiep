@@ -4,7 +4,6 @@ import arrowDown from 'assets/icon/arrow-down.svg';
 import React, { createRef, useCallback, useMemo, useState } from "react";
 import { RefSelectProps } from 'antd/lib/select';
 import { useDispatch } from 'react-redux';
-import { OnSearchGift } from 'domain/actions/search.action';
 import { VariantModel } from 'model/other/ProductModel';
 import { findAvatar, findPrice, findPriceInVariant, findTaxInVariant, formatCurrency } from 'utils/AppUtils';
 import { AppConfig } from 'config/AppConfig';
@@ -12,6 +11,8 @@ import imgdefault from 'assets/icon/img-default.svg';
 import { OrderItemModel } from 'model/other/Order/OrderItemModel';
 import { Type } from 'config/TypeConfig';
 import { Link } from 'react-router-dom';
+import { OnSearchChange } from "domain/actions/search.action";
+import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel";
 
 type AddGiftModalProps = {
   visible: boolean;
@@ -117,13 +118,16 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
     },
   ];
 
-  const onChangeSearch = useCallback((v) => {
-    setKeysearch(v);
-    timeTextChange && clearTimeout(timeTextChange);
-    timeTextChange = setTimeout(() => {
-      dispatch(OnSearchGift(v, setResultSearch))
-    }, 500)
-  }, [dispatch]);
+  const onChangeSearch = useCallback(
+    (v) => {
+      setKeysearch(v);
+      timeTextChange && clearTimeout(timeTextChange);
+      timeTextChange = setTimeout(() => {
+        dispatch(OnSearchChange(v, setResultSearch));
+      }, 500);
+    },
+    [dispatch]
+  );
 
   const convertResultSearch = useMemo(() => {
     let options: any[] = [];
@@ -136,47 +140,81 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
     return options;
   }, [resultSearch]);
 
-  const onSearchSelect = useCallback((v, o) => {
-    let index: number = -1;
-    index = resultSearch.findIndex((r: VariantModel) => r.id && r.id.toString() === v);
+  const onSearchSelect = useCallback(
+    (v, o) => {
+      console.log(o);
+      let _items = [...props.items];
+        let indexSearch = resultSearch.findIndex(s => s.id == v)
+        let index = _items.findIndex(i => i.variant_id == v)
+        let r:VariantModel=resultSearch[indexSearch]
+        if(r.id == v){
+          if(index == -1){
+            const item:OrderItemModel = createItem(r);
+            _items.push(item);
+          }
+          else{
+            let lastIndex = index;
+            _items.forEach( (value, _index) => {
+              if(_index > lastIndex){
+                lastIndex = _index;
+              }
+            })
+            _items[lastIndex].quantity += 1
+          }
+        }
+        props.onUpdateData(_items);
+      },
+    [resultSearch, props]
+    // autoCompleteRef, dispatch, resultSearch
+  );
 
-    if (index !== -1) {
-      let currentSelect = resultSearch[index];
-      let price = findPriceInVariant(currentSelect.variant_prices, AppConfig.currency);
-      let taxRate = findTaxInVariant(currentSelect.variant_prices, AppConfig.currency);
-      let avatar = findAvatar(currentSelect.variant_images);
-      props.items.push({
-        id: new Date().getTime(),
-        sku: currentSelect.sku,
-        variant_id: currentSelect.id,
-        product_id: currentSelect.product.id,
-        variant: currentSelect.name,
-        variant_barcode: currentSelect.barcode,
-        product_type: currentSelect.product.product_type,
-        quantity: 1,
-        price: price,
-        amount: price,
-        note: '',
-        type: Type.GIFT,
-        variant_image: avatar,
-        unit: currentSelect.product.unit,
-        warranty: currentSelect.product.preservation,
-        discount_items: [],
-        discount_amount: 0,
-        discount_rate: 0,
-        is_composite: currentSelect.composite,
-        discount_value: 0,
-        line_amount_after_line_discount: price,
-        product: currentSelect.product.name,
-        tax_include: true,
-        tax_rate: taxRate,
-        show_note: false,
-        gifts: []
-      })
-      props.onUpdateData(props.items);
-      setKeysearch('');
-    }
-  }, [props, resultSearch]);
+  const createItem = (variant: VariantModel) => {
+    let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
+    let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
+    let avatar = findAvatar(variant.variant_images);
+    const discountItem:OrderItemDiscountModel  = createNewDiscountItem()
+    let orderLine: OrderItemModel = {
+      id: new Date().getTime(),
+      sku: variant.sku,
+      variant_id: variant.id,
+      product_id: variant.product.id,
+      variant: variant.name,
+      variant_barcode: variant.barcode,
+      product_type: variant.product.product_type,
+      quantity: 1,
+      price: price,
+      amount: price,
+      note: "",
+      type: Type.NORMAL,
+      variant_image: avatar,
+      unit: variant.product.unit,
+      warranty: variant.product.preservation,
+      discount_items: [discountItem],
+      discount_amount: 0,
+      discount_rate: 0,
+      is_composite: variant.composite,
+      discount_value: 0,
+      line_amount_after_line_discount: price,
+      product: variant.product.name,
+      tax_include: true,
+      tax_rate: taxRate,
+      show_note: false,
+      gifts: [],
+    };
+    return orderLine;
+  };
+
+  const createNewDiscountItem = () => {
+    const newDiscountItem: OrderItemDiscountModel = {
+      amount: 0,
+      rate: 0,
+      reason: "",
+      value: 0,
+    };
+    return newDiscountItem;
+  };
+
+  
   const onOkPress = useCallback(() => {
     onOk();
   }, [onOk]);
