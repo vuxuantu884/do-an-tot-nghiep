@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector,shallowEqual } from "react-redux";
 import SupplierFilter from "component/filter/supplier.filter";
 import SupplierAction from 'domain/actions/core/supplier.action';
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -36,7 +36,7 @@ const ListSupplierScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
-  const supplierStatus = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.supplier_status)
+  const supplierStatus = useSelector((state: RootReducerType) => {return state.bootstrapReducer.data?.supplier_status},shallowEqual)
   const goods = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.goods)
   const scorecard = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.scorecard)
   let dataQuery: SearchSupplierQuerry =  {...initQuery, ...getQueryParams(query)};

@@ -12,8 +12,7 @@ import { PageResponse } from 'model/response/base-metadata.response';
 function* searchVariantSaga(action: YodyAction) {
   const {
     query,
-    setData,
-    setMetadata
+    setData
   } = action.payload;
   try {
     yield put(showLoading());
@@ -21,8 +20,7 @@ function* searchVariantSaga(action: YodyAction) {
     yield put(hideLoading());
     switch(response.code) {
       case HttpStatus.SUCCESS:
-        setMetadata(response.data.metadata);
-        setData(response.data.items);
+        setData(response.data);
         break;
       default:
         response.errors.forEach((e) => showError(e));

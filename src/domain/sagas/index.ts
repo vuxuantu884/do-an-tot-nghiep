@@ -1,15 +1,14 @@
 import {all} from 'redux-saga/effects';
 import { appSaga } from './app.saga';
-import { authSaga } from './auth.saga';
-import { bootstrapSaga } from './bootstrap.saga';
-import { categorySaga } from './category.saga';
-import { contentSaga } from './content.saga';
-import { materialSaga } from './material.saga';
-import { sizeSaga } from './size.saga';
-import { colorSaga } from './color.saga';
-
-import { productSaga } from './product.saga';
+import { colorSaga } from './product/color.saga';
 import { supplierSagas } from './core/supplier.saga';
+import { authSaga } from './account/auth.saga';
+import { bootstrapSaga } from './content/bootstrap.saga';
+import { contentSaga } from './content/content.saga';
+import { categorySaga } from './product/category.saga';
+import { materialSaga } from './product/material.saga';
+import { productSaga } from './product/product.saga';
+import { sizeSaga } from './product/size.saga';
 function* rootSaga(){
     yield all([
       appSaga(),

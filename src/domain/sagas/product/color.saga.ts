@@ -1,18 +1,17 @@
-import { searchColorApi } from './../../service/product/color.service';
+import { searchColorApi } from '../../../service/product/color.service';
 import { call,  takeLatest } from '@redux-saga/core/effects';
 import { YodyAction } from 'base/BaseAction';
 import BaseResponse from 'base/BaseResponse';
 import { HttpStatus } from 'config/HttpStatus';
 import { showError } from 'utils/ToastUtils';
 import { PageResponse } from 'model/response/base-metadata.response';
-import { ColorResponse } from '../../model/response/products/color.response';
-import { ColorType } from '../types/product.type';
+import { ColorResponse } from '../../../model/response/products/color.response';
+import { ColorType } from '../../types/product.type';
 
 function* getColorSaga(action: YodyAction) {
   const {query,setData} = action.payload;
   try {
     let response: BaseResponse<PageResponse<ColorResponse>> = yield call(searchColorApi,query);
-    debugger;
     switch(response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -25,24 +24,6 @@ function* getColorSaga(action: YodyAction) {
     showError('Có lỗi vui lòng thử lại sau');
   }
 }
-
-function* getAllColorSaga(action: YodyAction) {
-    const {query,setData} = action.payload;
-    try {
-      let response: BaseResponse<PageResponse<ColorResponse>> = yield call(searchColorApi,query);
-      debugger;
-      switch(response.code) {
-        case HttpStatus.SUCCESS:
-          setData(response.data.items);
-          break;
-        default:
-          response.errors.forEach((e) => showError(e));
-          break;
-      }
-    } catch (error) {
-      showError('Có lỗi vui lòng thử lại sau');
-    }
-  }
 
 export function* colorSaga() {
   yield takeLatest(ColorType.SEARCH_COLOR_REQUEST, getColorSaga);

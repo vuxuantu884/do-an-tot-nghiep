@@ -5,7 +5,7 @@ import product from './product';
 import bill from './bill';
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
-const Product = React.lazy(() => import ("screens/product"));
+const Product = React.lazy(() => import ("screens/product/product.search.screen"));
 const Inventory = React.lazy(() => import ("screens/inverory"));
 const Bill = React.lazy(() => import ("screens/bill"));
 
