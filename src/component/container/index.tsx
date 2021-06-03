@@ -46,18 +46,13 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
         backgroundColor: 'white',
         minHeight: '100vh',
       }}>
+        <LoadingScreen />
         <SlidebarContainer path={location.pathname} />
         <Layout style={{
           backgroundColor: '#F4F4F7',
         }}>
           <HeaderContainer type={type} object={object} path={location.pathname} title={title} />
-          <Content style={{
-            paddingLeft: 30,
-            paddingRight: 30,
-            paddingTop: 5,
-            paddingBottom: 5
-          }}>
-            <LoadingScreen />
+          <Content className="main-content">
             {children}
           </Content>
         </Layout>

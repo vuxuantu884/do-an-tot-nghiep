@@ -1,0 +1,7 @@
+const BootStrapType = {
+  SPLIT_LINE_CHANGE: 'SPLIT_LINE_CHANGE',
+  STORE_CHANGE: 'STORE_CHANGE',
+  COMPANY_UPDATE: 'COMPANY_UPDATE',
+};
+
+export default BootStrapType;

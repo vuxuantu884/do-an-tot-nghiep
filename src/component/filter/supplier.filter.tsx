@@ -1,14 +1,14 @@
 import { Button, Card, Col, DatePicker, Form, FormInstance, Input, Row, Select } from "antd";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
-import { SearchSupplierQuerry } from "model/query/supplier.query";
+import { SupplierQuery } from "model/query/supplier.query";
 import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter"
 import search from 'assets/img/search.svg';
 
 type SupplierFilterProps = {
-  params: SearchSupplierQuerry
-  onFilter?: (values: SearchSupplierQuerry) => void,
+  params: SupplierQuery
+  onFilter?: (values: SupplierQuery) => void,
   onClearFilter?: () => void
   supplierStatus?: Array<BaseBootstrapResponse>,
   goods?: Array<BaseBootstrapResponse>,
@@ -25,7 +25,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
   const [visible, setVisible] = useState(false);
 
   const formRef = createRef<FormInstance>();
-  const onFinish = useCallback((values: SearchSupplierQuerry) => {
+  const onFinish = useCallback((values: SupplierQuery) => {
     onFilter && onFilter(values);
   }, [onFilter]);
   const onFilterClick = useCallback(() => {

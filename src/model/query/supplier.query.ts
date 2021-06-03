@@ -1,6 +1,6 @@
 import { BaseQuery } from "./base.query";
 
-export interface SearchSupplierQuerry extends BaseQuery {
+export interface SupplierQuery extends BaseQuery {
   country_id?: number,
   city_id?: number,
   district_id?: number,

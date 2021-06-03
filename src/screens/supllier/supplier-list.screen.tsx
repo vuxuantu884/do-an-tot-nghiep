@@ -1,9 +1,9 @@
 import { Card } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
-import { SearchSupplierQuerry } from "model/query/supplier.query";
+import { SupplierQuery } from "model/query/supplier.query";
 import { PageResponse } from "model/response/base-metadata.response";
-import { SupplierResposne, GoodsObj } from "model/response/supplier/supplier.response";
+import { SupplierResponse, GoodsObj } from "model/response/supplier/supplier.response";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
@@ -26,7 +26,7 @@ const actions: Array<MenuAction> = [
   },
 ]
 
-const initQuery: SearchSupplierQuerry = {
+const initQuery: SupplierQuery = {
    goods: '',
    status: '',
    scorecard: '',
@@ -39,9 +39,9 @@ const ListSupplierScreen: React.FC = () => {
   const supplierStatus = useSelector((state: RootReducerType) => {return state.bootstrapReducer.data?.supplier_status},shallowEqual)
   const goods = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.goods)
   const scorecard = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.scorecard)
-  let dataQuery: SearchSupplierQuerry =  {...initQuery, ...getQueryParams(query)};
-  let [params, setPrams] = useState<SearchSupplierQuerry>(dataQuery);
-  const [data, setData] = useState<PageResponse<SupplierResposne>>({
+  let dataQuery: SupplierQuery =  {...initQuery, ...getQueryParams(query)};
+  let [params, setPrams] = useState<SupplierQuery>(dataQuery);
+  const [data, setData] = useState<PageResponse<SupplierResponse>>({
     metadata: {
       limit: 0,
       page: 0,
@@ -52,8 +52,9 @@ const ListSupplierScreen: React.FC = () => {
   const columns = [
     {
       title: 'Mã NCC',
-      render: (value: SupplierResposne) => {
-        return <Link to={`suppliers/${value.id}`}>{value.code}</Link>
+      dataIndex: 'code',
+      render: (value: string, item: SupplierResponse) => {
+        return <Link to={`suppliers/${item.id}`}>{value}</Link>
       }
     },
     {
@@ -92,8 +93,8 @@ const ListSupplierScreen: React.FC = () => {
     {
       title: 'Trạng thái',
       dataIndex: 'status_name',
-      render: (value: string, row: SupplierResposne) => (
-        <div className={row.status === 'active' ? 'status-active' : 'status-not-active'}>{value}</div>
+      render: (value: string, item: SupplierResponse) => (
+        <div className={item.status === 'active' ? 'status-active' : 'status-not-active'}>{value}</div>
       )
     },
     {
@@ -101,15 +102,9 @@ const ListSupplierScreen: React.FC = () => {
       width: 70
     },
   ];
-  const onPageSizeChange = useCallback((size: number) => {
-    params.limit = size;
-    params.page = 0;
-    let queryParam = generateQuery(params);
-    setPrams({ ...params });
-    history.replace(`/suppliers?${queryParam}`);
-  }, [history, params]);
-  const onPageChange = useCallback((page) => {
+  const onPageChange = useCallback((page, size) => {
     params.page = page - 1;
+    params.limit = size
     let queryParam = generateQuery(params);
     setPrams({ ...params });
     history.replace(`/suppliers?${queryParam}`);
@@ -124,7 +119,7 @@ const ListSupplierScreen: React.FC = () => {
 
   }, []);
   useEffect(() => {
-    dispatch(SupplierAction.searchSupplier(params, setData));
+    dispatch(SupplierAction.supplierSearchAction(params, setData));
   }, [dispatch, params])
   return (
     <div>
@@ -139,8 +134,7 @@ const ListSupplierScreen: React.FC = () => {
           params={params}
         />
         <CustomTable
-          onPageChange={onPageChange}
-          onPageSizeChange={onPageSizeChange}
+          onChange={onPageChange}
           className="yody-table"
           pagination={data.metadata}
           dataSource={data.items}

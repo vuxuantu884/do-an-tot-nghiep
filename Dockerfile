@@ -1,12 +1,16 @@
-FROM node:14.16.1-alpine as build-step
+FROM node:11 as builder
 
-RUN mkdir /app
 WORKDIR /app
 COPY package.json /app
-COPY server.js /app
 RUN npm install
 COPY . /app
 RUN npm run build:testing
 
-FROM nginx:1.20-alpine
-COPY --from=build-step /app/build /usr/share/nginx/html
+FROM nginx:1.15-alpine
+RUN  rm -rf /usr/share/nginx/html/*
+COPY --from=builder /app/build /usr/share/nginx/html
+RUN chown -R nginx:nginx /usr/share/nginx/html
+
+COPY nginx-conf/default.conf /etc/nginx/conf.d/
+
+EXPOSE 80

@@ -2,7 +2,7 @@ import { HEADER_TYPE } from "config/HeaderConfig";
 import { RouteMenu } from "model/other";
 import React from "react";
 
-const CreateBill = React.lazy(() => import ("screens/bill/create-bill"))
+const CreateBill = React.lazy(() => import ("screens/bill/create-bill.screen"))
 
 
 const bill: Array<RouteMenu> = [
@@ -22,7 +22,7 @@ const bill: Array<RouteMenu> = [
   {
     path: "/bill",
     exact: true,
-    title: "Danh sách đon hàng",
+    title: "Danh sách đơn hàng",
     icon: 'icon-dot',
     component: CreateBill,
     key: "submenu52",

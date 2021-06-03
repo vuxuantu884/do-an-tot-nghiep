@@ -1,10 +1,7 @@
-import {Button, Card, Form, Input, Select, Table, Row, Col} from "antd";
-import {Link} from "react-router-dom";
+import {Button, Card, Input, Row, Col} from "antd";
 import React from "react";
-import search from "../../assets/img/search.svg";
 import peopleIcon from 'assets/img/people.svg';
 import productIcon from 'assets/img/cube.svg';
-import plusIcon from 'assets/img/plus.svg';
 import arrowDownIcon from 'assets/img/drow-down.svg';
 import { PlusOutlined } from '@ant-design/icons';
 

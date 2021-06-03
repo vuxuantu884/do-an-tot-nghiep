@@ -8,8 +8,7 @@ import CustomPagination from "./CustomPagination";
 
 type CustomTableProps = {
   pagination: false|BaseMetadata
-  onPageChange?: (page: number) => void 
-  onPageSizeChange?: (size: number) => void
+  onChange?: (size: number, page: number) => void
   dataSource?:  Array<any>
   columns?: ColumnsType<any>
   rowKey: string|GetRowKey<any>
@@ -20,9 +19,7 @@ type CustomTableProps = {
 }
 
 const CustomTable: React.FC<CustomTableProps> = (props: CustomTableProps) => {
-  const {pagination, onPageChange, onPageSizeChange, rowKey, onSelect, dataSource, columns, className, style} = props;
-  
-  console.log(dataSource);
+  const {pagination, onChange, rowKey, onSelect, dataSource, columns, className, style} = props;
   return (
     <Fragment>
       <Table
@@ -43,8 +40,7 @@ const CustomTable: React.FC<CustomTableProps> = (props: CustomTableProps) => {
         pagination !== false && (
           <CustomPagination
             metadata={pagination}
-            onPageChange={onPageChange}
-            onPageSizeChange={onPageSizeChange}
+            onChange={onChange}
           />  
         )
       }

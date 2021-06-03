@@ -46,7 +46,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
         </Col>
         <Col xs={24} lg={12}>
           <div className="form-group form-group-with-search">
-            <label htmlFor="" className="">Khu vực</label>
+            <label htmlFor="" className="">Phường xã</label>
             <Select className="select-with-search" showSearch
                     style={{ width: '100%' }}
                     placeholder=""

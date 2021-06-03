@@ -1,7 +1,6 @@
+import { AccountStore } from './../../other/Account/AccountStore';
 import { BaseObject } from "../base.response";
 import { AccountJobResponse } from "./account-job.response";
-import { AccountStoreResponse } from "./account-store.response";
-
 export interface AccountDetailResponse extends BaseObject {
   user_name: string,
   user_id: string,
@@ -20,5 +19,5 @@ export interface AccountDetailResponse extends BaseObject {
   status: string,
   status_name: string,
   account_jobs: Array<AccountJobResponse>,
-  account_stores: Array<AccountStoreResponse>,
+  account_stores: Array<AccountStore>,
 }
