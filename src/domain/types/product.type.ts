@@ -33,4 +33,5 @@ export const SizeType = {
 
 export const ColorType = {
   SEARCH_COLOR_REQUEST: 'SEARCH_COLOR_REQUEST',
+  GET_COLOR_REQUEST: 'GET_COLOR_REQUEST',
 }
