@@ -1,17 +1,14 @@
 import BaseResponse from 'base/BaseResponse';
 import { YodyAction } from '../../../base/BaseAction';
 import { HttpStatus } from "config/HttpStatus";
-import { getListStoreError, saveAccounts } from 'domain/actions/core/store.action';
+import { getListStoreError } from 'domain/actions/core/store.action';
 import {StoreType} from "domain/types/product.type";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { getListStore, getStoreDetail } from "service/product/store.service";
 import { StoreModel } from 'model/other/StoreModel';
-import { hideLoading, showLoading } from 'domain/actions/loading.action';
+import { showLoading } from 'domain/actions/loading.action';
 import { getCompanyByGroupId } from 'service/content/company.service';
 import { CompanyModel } from 'model/other/CompanyModel';
-import { companyChange } from 'domain/actions/appsetting.action';
-
-
 
 function* getDataStore(action: YodyAction) {
   let {setData} = action.payload;
@@ -44,20 +41,6 @@ function* validateStoreSaga(action: YodyAction) {
     }
   } catch (error) {
     
-  }
-}
-
-function* getCompanyId(groupId: number) {
-  try {
-    let response: BaseResponse<CompanyModel> = yield call(getCompanyByGroupId, groupId);
-    switch(response.code) {
-      case HttpStatus.SUCCESS:
-        return response.data;
-      default:
-        return null;
-    }
-  } catch(error) {
-    return null;
   }
 }
 

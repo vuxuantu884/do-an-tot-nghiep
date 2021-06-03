@@ -17,7 +17,6 @@ import { BaseMetadata } from "model/response/base-metadata.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { SizeResponse } from "model/response/products/size.response";
 
-const { Option } = Select;
 const Product: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();

@@ -64,7 +64,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   if (!getParams.request) {
     getParams.request = "";
   }
-  const [params, setPrams] = useState<SearchCustomerQuery>(getParams);
   const [customer, setCustomer] = useState<CustomerModel | null>(null);
 
   const showAddressModal = () => {

@@ -1,7 +1,5 @@
 import { Modal, Form, Select, Button, FormInstance, Input, InputNumber } from 'antd';
-import { addDiscountOrder } from 'domain/actions/order/order.action';
-import React, { createRef, useCallback, useState} from 'react';
-import { useDispatch } from 'react-redux';
+import React, { createRef, useState} from 'react';
 // import { useDispatch } from 'react-redux';
 import { formatCurrency, replaceFormat } from 'utils/AppUtils';
 
@@ -37,7 +35,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (props: PickDiscount
   
 
   const onchangeDiscount = (value:number) =>{
-    if(_type == "money"){
+    if(_type === "money"){
       setValue(value)
       setRate(value/props.amount*100)
       

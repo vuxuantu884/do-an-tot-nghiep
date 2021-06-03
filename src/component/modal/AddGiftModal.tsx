@@ -144,11 +144,11 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
     (v, o) => {
       console.log(o);
       let _items = [...props.items];
-        let indexSearch = resultSearch.findIndex(s => s.id == v)
-        let index = _items.findIndex(i => i.variant_id == v)
+        let indexSearch = resultSearch.findIndex(s => s.id === v)
+        let index = _items.findIndex(i => i.variant_id === v)
         let r:VariantModel=resultSearch[indexSearch]
-        if(r.id == v){
-          if(index == -1){
+        if(r.id === v){
+          if(index === -1){
             const item:OrderItemModel = createItem(r);
             _items.push(item);
           }

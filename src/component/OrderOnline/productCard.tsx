@@ -35,7 +35,6 @@ import { StoreModel } from "model/other/StoreModel";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getListStoreRequest,
-  validateStoreAction,
 } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OnSearchChange } from "domain/actions/search.action";
@@ -51,7 +50,6 @@ import {
 import { RefSelectProps } from "antd/lib/select";
 import { VariantModel } from "model/other/ProductModel";
 import { OrderItemModel } from "model/other/Order/OrderItemModel";
-import { OrderRequest } from "model/request/OrderRequest";
 import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
@@ -411,11 +409,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     (v, o) => {
       console.log(o);
       let _items = [...items];
-      let indexSearch = resultSearch.findIndex((s) => s.id == v);
-      let index = _items.findIndex((i) => i.variant_id == v);
+      let indexSearch = resultSearch.findIndex((s) => s.id === v);
+      let index = _items.findIndex((i) => i.variant_id === v);
       let r: VariantModel = resultSearch[indexSearch];
-      if (r.id == v) {
-        if (splitLine || index == -1) {
+      if (r.id === v) {
+        if (splitLine || index === -1) {
           const item: OrderItemModel = createItem(r);
           _items.push(item);
           calculateChangeMoney(_items,amount + item.price,discountRate, discountValue);

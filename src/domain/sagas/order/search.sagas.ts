@@ -8,7 +8,7 @@ import { SearchType } from 'domain/types/search.type';
 import { call, takeLatest, put, select } from 'redux-saga/effects';
 import { getVariantByBarcode, getVariants } from 'service/product/variant.service';
 import { HttpStatus } from 'config/HttpStatus';
-import { clearResult, UpdateResultSearch } from '../../actions/search.action';
+import { clearResult } from '../../actions/search.action';
 import { addOrderRequest } from 'domain/actions/order/order.action';
 import { RootReducerType } from 'model/reducers/RootReducerType';
 import { getCustomers } from 'service/cusomer/customer.service';
