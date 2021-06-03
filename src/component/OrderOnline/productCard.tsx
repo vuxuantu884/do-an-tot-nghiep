@@ -37,7 +37,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getListStoreRequest,
   validateStoreAction,
-} from "domain/actions/StoreAction";
+} from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OnSearchChange } from "domain/actions/search.action";
 import {
@@ -348,7 +348,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   }, [items]);
   
   useLayoutEffect(() => {
-    dispatch(getListStoreRequest());
+    dispatch(getListStoreRequest(setListStores));
   }, [dispatch]);
 
   const onStoreSelect = useCallback(
