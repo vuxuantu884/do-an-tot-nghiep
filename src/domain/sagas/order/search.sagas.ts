@@ -23,6 +23,7 @@ function* onKeySearchChange(action: YodyAction) {
     if(payload.key.length >= 3) {
       const response: BaseResponse<ListDataModel<VariantModel>> = yield call(getVariants,PAGE, LIMIT, payload.key);
       if(response.code === HttpStatus.SUCCESS) {
+        console.log(response.data.items)
         payload.setData(response.data.items);
       }
     } else {

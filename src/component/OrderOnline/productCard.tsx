@@ -15,8 +15,12 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-
+import { showSuccess } from "utils/ToastUtils";
+import { EditOutlined } from "@ant-design/icons";
+import PickDiscountModal from "./Modal/PickDiscountModal";
+import "../../assets/css/order.scss";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
+import giftIcon from "assets/icon/gift.svg";
 import React, {
   useCallback,
   useLayoutEffect,
@@ -32,6 +36,7 @@ import { StoreModel } from "model/other/StoreModel";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getListStoreRequest,
+  validateStoreAction,
 } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OnSearchChange } from "domain/actions/search.action";
@@ -41,8 +46,6 @@ import {
   findAvatar,
   findPriceInVariant,
   findTaxInVariant,
-  findDiscountIndex,
-  findDiscountPromotion,
 } from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { VariantModel } from "model/other/ProductModel";
@@ -53,56 +56,118 @@ import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "../../config/TypeConfig";
 import "../../assets/css/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
-import PickDiscountModal from "./Modal/PickDiscountModal";
-import { OrderModel } from "model/other/Order/OrderModel";
-import { showSuccess } from "utils/ToastUtils";
+import AddGiftModal from "../../component/modal/AddGiftModal";
 
 type ProductCardProps = {
   select: (item: number) => void;
 };
 
-const renderSearch = (item: VariantModel) => {
-  let avatar = findAvatar(item.variant_images);
-  return (
-    <div className="row-search w-100">
-      <div className="rs-left w-100">
-        <img
-          src={avatar === "" ? imgdefault : avatar}
-          alt="anh"
-          placeholder={imgdefault}
-        />
-        <div className="rs-info w-100">
-          <span style={{ color: "#37394D" }} className="text">
-            {item.name}
+const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
+  const dispatch = useDispatch();
+  var timeTextChange: NodeJS.Timeout;
+  const [stores, setStore] = useState(false);
+  const [isVerify, setVerify] = useState(false);
+  const [items, setItems] = useState<Array<OrderItemModel>>([]);
+  const [splitLine, setSplitLine] = useState<boolean>(false);
+  const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
+  const [listStores, setListStores] = useState<Array<StoreModel>>([]);
+  const [keysearch, setKeysearch] = useState("");
+  const [resultSearch, setResultSearch] = useState<Array<VariantModel>>([]);
+  const [isVisibleGift, setVisibleGift] = useState(false);
+  const [indexItem, setIndexItem] = useState<number>(-1);
+  const [amount, setAmount] = useState<number>(0);
+  const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
+  const [discountType, setDiscountType] = useState<string>("money");
+  const [discountValue, setDiscountValue] = useState<number>(0);
+  const [discountRate, setDiscountRate] = useState<number>(0);
+  const [changeMoney, setChangeMoney] = useState<number>(0);
+
+  const [counpon, setCounpon] = useState<string>("");
+  //Function
+  const showAddGiftModal = useCallback(
+    (index: number) => {
+      setIndexItem(index);
+      setItemGift([...items[index].gifts]);
+      setVisibleGift(true);
+    },
+    [items]
+  );
+
+  const onChangeNote = (e: any, index: number) => {
+    let value = e.target.value;
+    let _items = [...items];
+    _items[index].note = value;
+    setItems(_items);
+  };
+
+  const onChangeQuantity = (value: number, index: number) => {
+    let _items = [...items];
+    console.log(value);
+    _items[index].quantity = value;
+    setItems(_items);
+    total();
+  };
+
+  const onDiscountItem = (_items: Array<OrderItemModel>) => {
+    setItems(_items);
+    total();
+  };
+
+  const total = useCallback(() => {
+    let _items = [...items];
+    let _amount = 0;
+    _items.map((i) => {
+      let amountItem = (i.price - i.discount_items[0].value) * i.quantity;
+      i.amount = amountItem;
+      _amount += amountItem;
+    });
+    setItems(_items);
+    setAmount(_amount);
+    calculateChangeMoney(_amount, discountValue);
+  }, [items]);
+
+  // render
+
+  const renderSearch = (item: VariantModel) => {
+    let avatar = findAvatar(item.variant_images);
+    return (
+      <div className="row-search w-100">
+        <div className="rs-left w-100">
+          <img
+            src={avatar === "" ? imgdefault : avatar}
+            alt="anh"
+            placeholder={imgdefault}
+          />
+          <div className="rs-info w-100">
+            <span style={{ color: "#37394D" }} className="text">
+              {item.name}
+            </span>
+            <span style={{ color: "#95A1AC" }} className="text p-4">
+              {item.sku}
+            </span>
+          </div>
+        </div>
+        <div className="rs-right">
+          <span style={{ color: "#37394D" }} className="text t-right">
+            {findPrice(item.variant_prices, AppConfig.currency)}
           </span>
-          <span style={{ color: "#95A1AC" }} className="text p-4">
-            {item.sku}
+          <span style={{ color: "#95A1AC" }} className="text t-right p-4">
+            Có thể bán{" "}
+            <span
+              style={{
+                color:
+                  item.inventory > 0
+                    ? "rgba(0, 128, 255, 1)"
+                    : "rgba(226, 67, 67, 1)",
+              }}
+            >
+              {item.inventory}
+            </span>
           </span>
         </div>
       </div>
-      <div className="rs-right">
-        <span style={{ color: "#37394D" }} className="text t-right">
-          {findPrice(item.variant_prices, AppConfig.currency)}
-        </span>
-        <span style={{ color: "#95A1AC" }} className="text t-right p-4">
-          Có thể bán{" "}
-          <span
-            style={{
-              color:
-                item.inventory > 0
-                  ? "rgba(0, 128, 255, 1)"
-                  : "rgba(226, 67, 67, 1)",
-            }}
-          >
-            {item.inventory}
-          </span>
-        </span>
-      </div>
-    </div>
-  );
-};
-
-const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
+    );
+  };
   const ProductColumn = {
     title: "Sản phẩm",
     className: "yody-pos-name",
@@ -124,17 +189,36 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               </div>
             </div>
           </div>
+          {l.gifts.map((a, index1) => (
+            <div key={index1} className="yody-pos-addition yody-pos-gift">
+              <div>
+                <img src={giftIcon} alt="" /> {a.variant}{" "}
+                <span>({a.quantity})</span>
+              </div>
+            </div>
+          ))}
+
+          <div className="yody-pos-note" hidden={!l.show_note && l.note === ""}>
+            <Input
+              addonBefore={<EditOutlined />}
+              maxLength={255}
+              allowClear={true}
+              onBlur={() => {
+                if (l.note === "") {
+                  let _items = [...items];
+                  _items[index].show_note = false;
+                  setItems(_items);
+                }
+              }}
+              className="note"
+              value={l.note}
+              onChange={(e) => onChangeNote(e, index)}
+              placeholder="Ghi chú"
+            />
+          </div>
         </div>
       );
     },
-  };
-
-  const onChangeQuantity = (e: any, i: number) => {
-    let _items = [...items];
-    let value = e.target.value;
-    console.log(value);
-    _items[i].quantity = value;
-    setItems(_items);
   };
 
   const AmountColumnt = {
@@ -149,11 +233,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
         <div className="yody-pos-qtt">
-          <Input
-            onChange={(e) => onChangeQuantity(e, index)}
+          <InputNumber
+            onChange={(value) => onChangeQuantity(value, index)}
             value={l.quantity}
-            minLength={1}
-            maxLength={4}
+            min={1}
+            max={9999}
             onFocus={(e) => e.target.select()}
             style={{ width: 60, textAlign: "right" }}
           />
@@ -184,10 +268,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     },
   };
 
-  const changeItems = useCallback((_items: Array<OrderItemModel>) => {
-    setItems(_items);
-  }, []);
-
   const DiscountColumnt = {
     title: "Chiết khấu",
     // align: 'center',
@@ -202,7 +282,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             discountValue={l.discount_items[0].value}
             totalAmount={0}
             items={items}
-            setItems={setItems}
+            setItems={onDiscountItem}
           />
         </div>
       );
@@ -214,7 +294,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     className: "yody-table-total-money text-right",
     // width: 100,
     render: (l: OrderItemModel, item: any, index: number) => {
-      return <div>{0}</div>;
+      return <div>{l.amount}</div>;
     },
   };
 
@@ -222,16 +302,28 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     title: "Thao tác",
     width: 85,
     className: "yody-table-action text-center",
-    render: (index: number) => {
+    render: (l: OrderItemModel, item: any, index: number) => {
       const menu = (
         <Menu className="yody-line-item-action-menu">
           <Menu.Item key="0">
-            <Button type="text" className="p-0 m-0 w-100">
+            <Button
+              type="text"
+              onClick={() => showAddGiftModal(index)}
+              className="p-0 m-0 w-100"
+            >
               Thêm quà tặng
             </Button>
           </Menu.Item>
           <Menu.Item key="1">
-            <Button type="text" className="p-0 m-0 w-100">
+            <Button
+              type="text"
+              onClick={() => {
+                let _items = [...items];
+                _items[index].show_note = true;
+                setItems(_items);
+              }}
+              className="p-0 m-0 w-100"
+            >
               Thêm ghi chú
             </Button>
           </Menu.Item>
@@ -243,7 +335,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <Button
               type="text"
               className="ant-dropdown-link circle-button yody-pos-action"
-              onClick={(e) => console.log(1)}
             >
               <img src={arrowDownIcon} alt="" />
             </Button>
@@ -261,21 +352,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     ActionColumn,
   ];
 
-  const dispatch = useDispatch();
-  var timeTextChange: NodeJS.Timeout;
-  const [items, setItems] = useState<Array<OrderItemModel>>([]);
-  const [splitLine, setSplitLine] = useState<boolean>(false);
-  const [orderItem, setOrderItem] = useState<OrderModel>();
-
   useLayoutEffect(() => {
     dispatch(getListStoreRequest(setListStores));
   }, [dispatch]);
 
-  const [listStores, setListStores] = useState<Array<StoreModel>>([]);
-  const [keysearch, setKeysearch] = useState("");
-  const [resultSearch, setResultSearch] = useState<Array<VariantModel>>([]);
   const autoCompleteRef = createRef<RefSelectProps>();
-  const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
 
   const createItem = (variant: VariantModel) => {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
@@ -327,13 +408,15 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     (v, o) => {
       console.log(o);
       let _items = [...items];
-      let indexSearch = resultSearch.findIndex((s) => s.id === v);
-      let index = _items.findIndex((i) => i.variant_id === v);
+      let indexSearch = resultSearch.findIndex((s) => s.id == v);
+      let index = _items.findIndex((i) => i.variant_id == v);
       let r: VariantModel = resultSearch[indexSearch];
-      if (r.id === v) {
-        if (splitLine || index === -1) {
+      if (r.id == v) {
+        if (splitLine || index == -1) {
           const item: OrderItemModel = createItem(r);
           _items.push(item);
+          calculateChangeMoney(amount + item.price, discountValue);
+          setAmount(amount + item.price);
           setSplitLine(false);
         } else {
           let lastIndex = index;
@@ -343,6 +426,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             }
           });
           _items[lastIndex].quantity += 1;
+          _items[lastIndex].amount +=
+            items[lastIndex].price - _items[lastIndex].discount_items[0].amount;
+          setAmount(
+            amount +
+              _items[lastIndex].price -
+              _items[lastIndex].discount_items[0].amount
+          );
+          calculateChangeMoney(
+            amount +
+              _items[lastIndex].price -
+              _items[lastIndex].discount_items[0].amount,
+            discountValue
+          );
         }
       }
       setItems(_items);
@@ -373,13 +469,36 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     return options;
   }, [resultSearch]);
 
-  useLayoutEffect(() => {
-    dispatch(getListStoreRequest(setListStores));
-  }, [dispatch]);
-
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
+
+  const ShowDiscountModal = useCallback(() => {
+    setVisiblePickDiscount(true);
+  }, [setVisiblePickDiscount]);
+
+  const onCancleDiscountConfirm = useCallback(() => {
+    setVisiblePickDiscount(false);
+  }, []);
+
+  const onOkDiscountConfirm = (
+    type: string,
+    value: number,
+    rate: number,
+    counpon: string
+  ) => {
+    setVisiblePickDiscount(false);
+    setDiscountType(type);
+    setDiscountValue(value);
+    setDiscountRate(rate);
+    setCounpon(counpon);
+    calculateChangeMoney(amount, value);
+    showSuccess("Thêm chiết khấu thành công");
+  };
+
+  const calculateChangeMoney = (_amount: number, _discountValue: number) => {
+    setChangeMoney(_amount - _discountValue);
+  };
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreModel> = [];
@@ -393,59 +512,29 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     }
     return newData;
   }, [listStores, userReducer.account]);
-
-  const discount = useMemo(() => {
-    let discount = {
-      type: "money",
-      value: 0,
-    };
-    if (orderItem) {
-      let index = findDiscountIndex(orderItem.discounts);
-      if (index !== -1) {
-        if (orderItem.discounts[index].rate !== null) {
-          return {
-            type: "percent",
-            value: orderItem.discounts[index].rate,
-          };
-        }
-        if (orderItem.discounts[index].value !== null) {
-          return {
-            type: "money",
-            value: orderItem.discounts[index].value,
-          };
-        }
-      }
-    }
-    return discount;
-  }, [orderItem]);
-
-  const counpon = useMemo(() => {
-    let coupon = "";
-    if (orderItem) {
-      let index = findDiscountPromotion(orderItem.discounts);
-      if (index !== -1) {
-        return orderItem.discounts[index].reason;
-      }
-    }
-    return coupon;
-  }, [orderItem]);
-
-  const ShowDiscountModal = useCallback(() => {
-    setVisiblePickDiscount(true);
-  }, [setVisiblePickDiscount]);
-
-  const onCancleDiscountConfirm = useCallback(() => {
-    setVisiblePickDiscount(false);
+  const onUpdateData = useCallback(
+    (items: Array<OrderItemModel>) => {
+      let data = [...items];
+      setItemGift(data);
+    },
+    [items]
+  );
+  const onCancleConfirm = useCallback(() => {
+    setVisibleGift(false);
   }, []);
+  const onOkConfirm = useCallback(() => {
+    setVisibleGift(false);
+    let _items = [...items];
+    _items[indexItem].gifts = itemGifts;
+    setItems(_items);
+  }, [items, itemGifts, indexItem]);
 
-  const onOkDiscountConfirm = useCallback(() => {
-    setVisiblePickDiscount(false);
-    showSuccess("Thêm chiết khấu thành công");
-  }, []);
-
-  const onSelectStoreApply = useCallback((value: number) =>{
-    props.select(value);
-  }, [props])
+  const onSelectStoreApply = useCallback(
+    (value: number) => {
+      props.select(value);
+    },
+    [props]
+  );
 
   return (
     <Card
@@ -460,6 +549,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           <Space>
             <div>
               <Checkbox
+                checked={splitLine}
                 className="checkbox-style"
                 style={{ fontSize: 14 }}
                 onChange={() => setSplitLine(!splitLine)}
@@ -500,7 +590,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               showSearch
               style={{ width: "100%" }}
               placeholder=""
-              onChange = {onSelectStoreApply}
+              onChange={onSelectStoreApply}
             >
               {dataCanAccess.map((item, index) => (
                 <Select.Option key={index} value={item.id}>
@@ -542,6 +632,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       </Row>
 
       <Row className="sale-product-box">
+        <AddGiftModal
+          items={itemGifts}
+          onUpdateData={onUpdateData}
+          onCancel={onCancleConfirm}
+          onOk={onOkConfirm}
+          visible={isVisibleGift}
+        />
         <Table
           locale={{
             emptyText: (
@@ -566,7 +663,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           columns={columns}
           dataSource={items}
           className="sale-product-box-table w-100"
-          tableLayout="auto"
+          tableLayout="fixed"
           // pagination={false}
           // summary={(pageData) => {
           // let totalBorrow = 0;
@@ -597,14 +694,18 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           // }}
         />
       </Row>
+
       <PickDiscountModal
-        type={discount.type}
-        value={discount.value || 0}
+        amount={amount}
+        type={discountType}
+        value={discountValue}
+        rate={discountRate}
         counpon={counpon}
         onCancel={onCancleDiscountConfirm}
         onOk={onOkDiscountConfirm}
         visible={isVisiblePickDiscount}
       />
+
       <Row className="sale-product-box-payment" gutter={24}>
         <Col xs={24} lg={12}>
           <div className="payment-row">
@@ -635,7 +736,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         <Col xs={24} lg={12}>
           <Row className="payment-row" justify="space-between">
             <div className="font-weight-500">Tổng tiền</div>
-            <div className="font-weight-500 payment-row-money">690.900</div>
+            <div className="font-weight-500 payment-row-money">{amount}</div>
           </Row>
 
           <Row className="payment-row" justify="space-between" align="middle">
@@ -647,13 +748,21 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 Chiết khấu
               </Typography.Link>
               <div className="badge-style badge-danger">
-                10%{" "}
-                <Button type="text" className="p-0">
+                {discountRate}%{" "}
+                <Button
+                  type="text"
+                  className="p-0"
+                  onClick={() => {
+                    setDiscountRate(0);
+                    setDiscountValue(0);
+                    calculateChangeMoney(amount, 0);
+                  }}
+                >
                   x
                 </Button>
               </div>
             </Space>
-            <div className="font-weight-500 ">69.090</div>
+            <div className="font-weight-500 ">{discountValue}</div>
           </Row>
 
           <Row className="payment-row" justify="space-between" align="middle">
@@ -665,13 +774,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 Mã giảm giá
               </Typography.Link>
               <div className="badge-style badge-primary">
-                SN50{" "}
+                {counpon}{" "}
                 <Button type="text" className="p-0">
                   x
                 </Button>
               </div>
             </Space>
-            <div className="font-weight-500 ">41.810</div>
+            <div className="font-weight-500 ">0</div>
           </Row>
 
           <Row className="payment-row" justify="space-between">
@@ -683,7 +792,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <div className="font-weight-500">Khách cần trả</div>
             <div className="font-weight-500 payment-row-money">
               <Typography.Text type="success" className="font-weight-500">
-                600.000
+                {changeMoney}
               </Typography.Text>
             </div>
           </Row>

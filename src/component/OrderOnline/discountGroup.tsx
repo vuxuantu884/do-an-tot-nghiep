@@ -12,7 +12,7 @@ type DiscountGroupProps = {
   discountValue: number;
   totalAmount: number;
   items: Array<OrderItemModel>;
-  setItems: React.Dispatch<SetStateAction<Array<OrderItemModel>>>;
+  setItems: (_items:Array<OrderItemModel>) => void;
 }
 
 const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) => {
@@ -25,20 +25,20 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
     setSelected(value);
   }
 
-  const onChangeValue = useCallback((e:any) => {
-    let value = e.target.value
+  const onChangeValue = useCallback((v) => {
+    console.log(v)
     let _items = [... props.items]
     let _item = _items[props.index].discount_items[0]
     let _price = _items[props.index].price
     if(selected === 'money'){
-      _item.value = value
-      _item.rate = value/_price
+      _item.value = v
+      _item.rate = Math.round(v/_price*100*100)/100
     }else{
-      _item.value = value * _price / 100
-      _item.rate = value
+      _item.value = v*_price/100
+      _item.rate = v
     }
     props.setItems(_items)
-  },[props.items]
+  },[props.items,props.index,props.setItems,selected]
   )
 
   return (
@@ -52,7 +52,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
           formatter={value => formatCurrency(value ? value : '0')}
           style={{height: '32px'}}
           value={selected === "percent" ? props.discountRate : props.discountValue }
-          onChange={(e) => onChangeValue}
+          onChange={onChangeValue}
           parser={value => replaceFormat(value ? value : "0")}
           className="yody-table-discount-input hide-number-handle"
           onFocus={(e) => {
@@ -63,7 +63,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
       {
         showResult && (
           <div className="d-flex justify-content-end yody-table-discount-converted">
-            <Text type="danger">{selected === "money" ? props.discountRate + '%' : formatCurrency(props.totalAmount)}</Text>
+            <Text type="danger">{selected === "money" ? props.discountRate + '%' : formatCurrency(props.discountValue)}</Text>
           </div>
         )
       }
