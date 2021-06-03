@@ -1,10 +1,10 @@
+import { DistrictResponse } from './../model/response/content/district.response';
+import { CityView } from './../model/other/district-view';
 import { AppConfig } from './../config/AppConfig';
 import { VariantPrice, VariantImage } from './../model/other/ProductModel';
 import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/category-view";
-import { CityView } from "model/other/district-view";
 import { CategoryResponse } from "model/response/category.response";
-import { DistrictResponse } from "model/response/content/district.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
 import { OrderDiscountModel } from 'model/other/Order/OrderDiscountModel';
 import { OrderItemModel } from 'model/other/Order/OrderItemModel';

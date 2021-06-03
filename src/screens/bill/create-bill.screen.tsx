@@ -5,26 +5,28 @@ import ProductCard from "../../component/OrderOnline/productCard";
 import CustomerCard from "../../component/OrderOnline/customerCard";
 import PaymentCard from "../../component/OrderOnline/paymentCard";
 import ShipmentCard from "../../component/OrderOnline/shipmentCard";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { StoreModel } from "model/other/StoreModel";
-import { validateStoreAction } from "domain/actions/core/store.action";
 import { OrderItemModel } from "model/other/Order/OrderItemModel";
 import { OrderRequest } from "model/request/OrderRequest";
 import { OrderLineItemRequest } from "model/request/OrderLineItemRequest";
 import { OrderItemDiscountRequest } from "model/request/OrderItemDiscountRequest";
-
 import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel";
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
+import { CustomerModel } from "model/other/Customer/CustomerModel";
+import { useHistory } from "react-router";
 
 const CreateBill = () => {
+  const history = useHistory();
+
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
+  const [objCustomer, setObjCustomer] = useState<CustomerModel | null>(null);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [priceType, setPriceType] = useState<string>("retail_price");
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [amount, setAmount] = useState<number>(0);
-
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
@@ -33,6 +35,52 @@ const CreateBill = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(1);
   const [store, setStore] = useState<StoreModel | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountDetailResponse>>([]);
+
+  const initRequest: OrderRequest = {
+    company_id: null,
+    store_id: null,
+    store: "",
+    status: "",
+    price_type: "",
+    tax_treatment: "",
+    source_id: null,
+    note: "",
+    tags: "",
+    customer_note: "",
+    sale_note: "",
+    account_code: "",
+    account: "",
+    source: "",
+    assignee_code: "",
+    assignee: "",
+    channel_id: null,
+    channel: "",
+    customer_id: null,
+    billing_address_id: null,
+    shipping_address_id: null,
+    fulfillment_status: "",
+    packed_status: "",
+    received_Status: "",
+    payment_status: "",
+    return_status: "",
+    total_line_amount_after_line_discount: null,
+    total: null,
+    order_discount_rate: null,
+    order_discount_value: null,
+    discount_reason: "",
+    total_discount: null,
+    total_tax: "",
+    finalized_account_code: "",
+    cancel_account_code: "",
+    finish_account_code: "",
+    finalized_on: "",
+    cancelled_on: "",
+    finished_on: "",
+    currency: "",
+    items: [],
+    discounts: [],
+    payments: [],
+  };
 
   //Address modal
   const showAddressModal = () => {
@@ -94,6 +142,10 @@ const CreateBill = () => {
     []
   );
 
+  const onChangeInfoCustomer = useCallback((objCustomer: CustomerModel) => {
+    setObjCustomer(objCustomer);
+  }, []);
+
   const createOrderRequest = () => {
     let orderLineItemsRequest: Array<OrderLineItemRequest> = [];
     items.forEach((item, index) => {
@@ -106,9 +158,8 @@ const CreateBill = () => {
         );
       });
     });
-    // const request:OrderRequest = {
 
-    // }
+    initRequest.items = orderLineItemsRequest;
   };
 
   const createOrderLineItemRequest = (
@@ -143,6 +194,7 @@ const CreateBill = () => {
       discount_amount: model.discount_items[0].amount,
       position: position,
     };
+
     return request;
   };
 
@@ -157,13 +209,24 @@ const CreateBill = () => {
     return request;
   };
 
+  const onCreateSuccess = useCallback(() => {
+    history.push("/orders");
+  }, [history]);
+
+  const onFinish = useCallback(
+    (values: OrderRequest) => {
+      //call api
+    },
+    [dispatch, onCreateSuccess]
+  );
+
   return (
     <div>
-      <Form>
+      <Form onFinish={onFinish}>
         <Row gutter={24}>
           <Col xs={24} lg={17}>
             {/*--- customer ---*/}
-            <CustomerCard />
+            <CustomerCard changeInfoCustomer={onChangeInfoCustomer} />
             {/*--- end customer ---*/}
 
             {/*--- product ---*/}

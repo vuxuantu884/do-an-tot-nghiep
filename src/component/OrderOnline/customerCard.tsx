@@ -28,7 +28,6 @@ import editBlueIcon from "assets/img/editBlue.svg";
 import deleteRedIcon from "assets/img/deleteRed.svg";
 import pointIcon from "assets/img/point.svg";
 import plusBlueIcon from "assets/img/plus-blue.svg";
-import arrowDownIcon from "assets/img/drow-down.svg";
 import callIcon from "assets/img/call.svg";
 import locationIcon from "assets/img/location.svg";
 import { SearchOutlined } from "@ant-design/icons";
@@ -42,16 +41,13 @@ import {
   ShippingAddress,
 } from "model/other/Customer/CustomerModel";
 import { OnSearchChange } from "domain/actions/customer/customer.action";
-import { findAvatar } from "utils/AppUtils";
 import imgdefault from "assets/icon/img-default.svg";
 import { SearchCustomerQuery } from "model/query/customer.query";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import moment from "moment";
 
 type CustomerCardProps = {
-  // visible: boolean;
-  // onCancel: (e: React.MouseEvent<HTMLElement>) => void;
-  // onOk: () => void;
+  changeInfoCustomer: (items: CustomerModel) => void
 };
 
 const CustomerCard: React.FC<CustomerCardProps> = (
@@ -111,6 +107,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         resultSearch[index].shipping_address.forEach((item, index2) => {
           if (item.default === true) {
             setShippingAddress(item);
+            props.changeInfoCustomer(resultSearch[index]);
           }
         });
         autoCompleteRef.current?.blur();
@@ -168,16 +165,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
-
-  const shipingAddress = () => {
-    if (customer !== null) {
-      customer.shipping_address.forEach((item, index) => {
-        if (item.default === true) {
-          setShippingAddress(item);
-        }
-      });
-    }
-  };
 
   useLayoutEffect(() => {
     dispatch(getListSourceRequest(setListSource));

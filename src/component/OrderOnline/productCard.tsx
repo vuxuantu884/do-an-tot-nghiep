@@ -69,8 +69,6 @@ type ProductCardProps = {
 const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const dispatch = useDispatch();
   var timeTextChange: NodeJS.Timeout;
-  const [stores, setStore] = useState(false);
-  const [isVerify, setVerify] = useState(false);
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
@@ -85,7 +83,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [changeMoney, setChangeMoney] = useState<number>(0);
-
   const [counpon, setCounpon] = useState<string>("");
   //Function
   const showAddGiftModal = useCallback(
@@ -277,7 +274,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const DiscountColumnt = {
     title: "Chiết khấu",
     align: 'center',
-    //width: 165,
+    width: 165,
     className: "yody-table-discount text-right",
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
