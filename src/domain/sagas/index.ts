@@ -12,8 +12,7 @@ import { categorySaga } from './product/category.saga';
 import { materialSaga } from './product/material.saga';
 import { productSaga } from './product/product.saga';
 import { sizeSaga } from './product/size.saga';
-import { productSaga } from './product/product.saga';
-import { supplierSagas } from './core/supplier.saga';
+
 import { accountSaga } from './account/account.saga';
 function* rootSaga(){
     yield all([

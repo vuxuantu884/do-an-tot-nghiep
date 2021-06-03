@@ -1,7 +1,7 @@
 import { Card, Image } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
-import { VariantSearchQuery } from "model/query/Variant.search.query";
+import { VariantSearchQuery } from "model/query/variant.search.query";
 import { PageResponse } from "model/response/base-metadata.response";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -16,7 +16,7 @@ import { CategoryView } from "model/other/category-view";
 import { VariantResponse } from "model/response/products/variant.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { ColorResponse } from "model/response/products/color.response";
-import { SupplierResposne } from "model/response/supplier/supplier.response";
+import { SupplierResponse } from "model/response/supplier/supplier.response";
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
 import {getCountry} from "domain/actions/content/content.action"
 import {getMaterialAction} from "domain/actions/product/color.action"
@@ -66,7 +66,7 @@ const ListSupplierScreen: React.FC = () => {
   const [listMainColor,setMainColor]= useState<Array<ColorResponse>>();
   const [listColor,setColor]= useState<Array<ColorResponse>>();
   const [listSize,setSize]= useState<Array<SizeResponse>>();
-  const [listSupplier,setSupplier]= useState<Array<SupplierResposne>>();
+  const [listSupplier,setSupplier]= useState<Array<SupplierResponse>>();
   const [listMerchandiser,setMarchandiser]= useState<Array<AccountDetailResponse>>();
   let dataQuery: VariantSearchQuery = {
     ...initQuery,
@@ -149,25 +149,14 @@ const ListSupplierScreen: React.FC = () => {
       width: 70,
     }
   ];
-  const onPageSizeChange = useCallback(
-    (size: number) => {
-      params.limit = size;
-      params.page = 0;
-      let queryParam = generateQuery(params);
-      setPrams({ ...params });
-      history.replace(`/products?${queryParam}`);
-    },
-    [history, params]
-  );
-  const onPageChange = useCallback(
-    (page) => {
-      params.page = page - 1;
-      let queryParam = generateQuery(params);
-      setPrams({ ...params });
-      history.replace(`/products?${queryParam}`);
-    },
-    [history, params]
-  );
+  
+  const onPageChange = useCallback((page, size) => {
+    params.page = page - 1;
+    params.limit = size
+    let queryParam = generateQuery(params);
+    setPrams({ ...params });
+    history.replace(`/products?${queryParam}`);
+  }, [history, params]);
   const onFilter = useCallback(
     (values) => {
       let newPrams = { ...params, ...values, page: 0 };
@@ -179,7 +168,7 @@ const ListSupplierScreen: React.FC = () => {
   );
   const onMenuClick = useCallback((index: number) => {}, []);
   useEffect(() => {
-    if(isFirstLoad){
+    if(isFirstLoad.current){
       dispatch(getCountry( setCountry)); 
       dispatch(getMaterialAction(initMainColorQuery,setMainColor)); 
       dispatch(getMaterialAction(initColorQuery,setColor)); 
@@ -205,8 +194,7 @@ const ListSupplierScreen: React.FC = () => {
           listCountries={listCountry}
         />
         <CustomTable
-          onPageChange={onPageChange}
-          onPageSizeChange={onPageSizeChange}
+          onChange={onPageChange}
           className="yody-table"
           pagination={data.metadata}
           dataSource={data.items}
