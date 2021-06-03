@@ -1,17 +1,17 @@
 import { Input, InputNumber, Select, Typography } from "antd";
 import React, {useCallback, useState} from "react";
-// import {orderDiscountTextChange} from "../../../domain/actions/orderOnline.action";
+import {orderDiscountTextChange} from "../../domain/actions/order/order.action";
 import {useDispatch} from "react-redux";
-import {formatCurrency, replaceFormat} from "../../../utils/AppUtils";
+import {formatCurrency, replaceFormat} from "../../utils/AppUtils";
 
-type DiscountGroupProps = {
+type InputGroupCustomProps = {
   index: number;
   discountRate: number;
   discountValue: number;
   totalAmount: number;
 }
 
-const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) => {
+const InputGroupCustom: React.FC<InputGroupCustomProps> = (props: InputGroupCustomProps) => {
   const { Text } = Typography;
   const dispatch = useDispatch();
   const [selected, setSelected ] = useState('money');
@@ -22,7 +22,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
   }
 
   const onChangeValue = useCallback((e) => {
-    // dispatch(orderDiscountTextChange(props.index, e, selected))
+    dispatch(orderDiscountTextChange(props.index, e, selected))
     if(!showResult) {
       setShowResult(true);
     }
@@ -57,4 +57,4 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
   )
 }
 
-export default DiscountGroup;
+export default InputGroupCustom;

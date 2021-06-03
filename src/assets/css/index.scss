@@ -29,10 +29,9 @@ $desktop-width: 1400px;
   font-family: Inter;
 }
 
-a {
-  &:hover &:focus {
-    color: $primary-color-blue;
-  }
+
+body {
+  color: #37394D;
 }
 
 .d-flex {
@@ -71,8 +70,16 @@ a {
   width: 100%;
 }
 
+.text-left {
+  text-align: left !important;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
 .text-right {
-  text-align: right;
+  text-align: right !important;
 }
 
 .ant-input-number.hide-handler-wrap {
@@ -143,11 +150,22 @@ a {
 
 .ant-layout-sider {
   background-color: #fff;
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+  z-index: 10;
   @include mobile {
-    display: none;
+    //display: none;
+    position: fixed;
+    box-shadow: 0 0 2px 1px #eee;
   }
 }
 
+.ant-layout-sider.ant-layout-sider-collapsed {
+  @include mobile {
+    transform: translateX(-100%);
+  }
+}
 .ant-btn-primary {
   color: #fff;
   background: $primary-color-blue;
