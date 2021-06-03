@@ -3,7 +3,7 @@ import { RouteMenu } from "model/other";
 import { HEADER_TYPE } from 'config/HeaderConfig';
 
 const Category = React.lazy(() => import ("screens/category/category-list.screen"));
-const Product = React.lazy(() => import ("screens/product"));
+const Product = React.lazy(() => import ("screens/product/product.search.screen"));
 const Color = React.lazy(() => import ("screens/product/color.screen"));
 const UpdateMaterial = React.lazy(() => import ("screens/materials/ material-update.screen"));
 const ListMaterial = React.lazy(() => import ("screens/materials/materials-list.screen"));

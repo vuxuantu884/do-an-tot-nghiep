@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\domain",
+    "\\src\\domain\\sagas"
+  ],
+  "SelectedNode": "\\src\\domain\\sagas\\app.saga.ts",
+  "PreviewInSolutionExplorer": false
+}
