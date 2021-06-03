@@ -23,7 +23,10 @@ import DiscountGroup from "../../component/OrderOnline/discountGroup";
 import { useSelector, useDispatch } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreModel } from "model/other/StoreModel";
-import { getListStoreRequest } from "domain/actions/core/store.action";
+import {
+  getListStoreRequest,
+  validateStoreAction,
+} from "domain/actions/core/store.action";
 import {
   formatCurrency,
   replaceFormat,
@@ -73,6 +76,18 @@ const CreateBill = () => {
   const OrderItemModel = [{}];
 
   const dispatch = useDispatch();
+  const [isVerify, setVerify] = useState(false);
+
+  const [store, setStore] = useState<StoreModel | null>(null);
+
+  const onStoreSelect = useCallback(
+    (item: number) => {
+      dispatch(validateStoreAction(item, setStore));
+    },
+    [dispatch]
+  );
+
+  console.log("store", store);
 
   return (
     <div>
@@ -83,7 +98,7 @@ const CreateBill = () => {
           {/*--- end customer ---*/}
 
           {/*--- product ---*/}
-          <ProductCard />
+          <ProductCard select={onStoreSelect} />
           {/*--- end product ---*/}
 
           {/*--- shipment ---*/}
@@ -108,10 +123,24 @@ const CreateBill = () => {
               <label htmlFor="" className="required-label">
                 Nhân viên bán hàng
               </label>
-              <Input
-                placeholder="Tìm tên/ mã nhân viên"
-                suffix={<img src={arrowDownIcon} alt="down" />}
-              />
+              <Select
+                className="select-with-search"
+                showSearch
+                style={{ width: "200px" }}
+                placeholder=""
+                defaultValue=""
+              >
+                <Select.Option value="">Chọn tên/mã nhân viên</Select.Option>
+                {store?.accounts.map((item, index) => (
+                  <Select.Option
+                    style={{ width: "100%" }}
+                    key={index}
+                    value={item.id}
+                  >
+                    {item.full_name}
+                  </Select.Option>
+                ))}
+              </Select>
             </div>
             <div className="form-group form-group-with-search">
               <div>
@@ -127,10 +156,7 @@ const CreateBill = () => {
                   </span>
                 </Tooltip>
               </div>
-              <Input
-                placeholder="Điền tham chiếu"
-                suffix={<img src={arrowDownIcon} alt="down" />}
-              />
+              <Input placeholder="Điền tham chiếu" />
             </div>
             <div className="form-group form-group-with-search mb-0">
               <div>
@@ -146,10 +172,7 @@ const CreateBill = () => {
                   </span>
                 </Tooltip>
               </div>
-              <Input
-                placeholder="Điền đường dẫn"
-                suffix={<img src={arrowDownIcon} alt="down" />}
-              />
+              <Input placeholder="Điền đường dẫn" />
             </div>
           </Card>
 
