@@ -17,7 +17,7 @@ import {
 } from "antd";
 import { showSuccess } from "utils/ToastUtils";
 import { EditOutlined } from "@ant-design/icons";
-import PickDiscountModal from "./Modal/PickDiscountModal";
+import PickDiscountModal from "./modal/PickDiscountModal";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
 import giftIcon from "assets/icon/gift.svg";
 import React, {
@@ -56,7 +56,7 @@ import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "../../config/TypeConfig";
 import "../../assets/css/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
-import AddGiftModal from "../../component/modal/AddGiftModal";
+import AddGiftModal from "../modal/AddGiftModal";
 
 type ProductCardProps = {
   selectStore: (item: number) => void;

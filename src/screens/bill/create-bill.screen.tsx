@@ -1,10 +1,10 @@
 import { Button, Card, Input, Row, Col, Tooltip, Select, Form } from "antd";
 import documentIcon from "../../assets/img/document.svg";
 import warningCircleIcon from "assets/img/warning-circle.svg";
-import ProductCard from "../../component/OrderOnline/productCard";
-import CustomerCard from "../../component/OrderOnline/customerCard";
-import PaymentCard from "../../component/OrderOnline/paymentCard";
-import ShipmentCard from "../../component/OrderOnline/shipmentCard";
+import ProductCard from "../../component/order-online/productCard";
+import CustomerCard from "../../component/order-online/customerCard";
+import PaymentCard from "../../component/order-online/paymentCard";
+import ShipmentCard from "../../component/order-online/shipmentCard";
 import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { StoreModel } from "model/other/Core/store-model";

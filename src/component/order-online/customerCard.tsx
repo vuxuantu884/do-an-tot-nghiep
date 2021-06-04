@@ -32,12 +32,13 @@ import plusBlueIcon from "assets/img/plus-blue.svg";
 import callIcon from "assets/img/call.svg";
 import locationIcon from "assets/img/location.svg";
 import { SearchOutlined } from "@ant-design/icons";
-import AddAddressModal from "./Modal/addAddressModal";
-import EditCustomerModal from "./Modal/editCustomerModal";
+import AddAddressModal from "./modal/addAddressModal";
+import EditCustomerModal from "./modal/editCustomerModal";
 import { SourceModel } from "model/other/Order/source-model";
 import { getListSourceRequest } from "domain/actions/order/orderOnline.action";
 import { RefSelectProps } from "antd/lib/select";
 import {
+  BillingAddress,
   CustomerModel,
   ShippingAddress,
 } from "model/other/Customer/customer-model";
@@ -66,6 +67,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [listSource, setListSource] = useState<Array<SourceModel>>([]);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
+  const [billingAddress, setBillingAddress] =
+    useState<BillingAddress | null>(null);
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
 
   //#region Modal
@@ -156,18 +159,33 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       );
       if (index !== -1) {
         setCustomer(resultSearch[index]);
+        props.changeInfoCustomer(resultSearch[index]);
         resultSearch[index].shipping_address.forEach((item, index2) => {
           if (item.default === true) {
             setShippingAddress(item);
-            props.changeInfoCustomer(resultSearch[index]);
           }
         });
+
+        resultSearch[index].billing_address.forEach((item, index2) => {
+          if (item.default === true) {
+            setBillingAddress(item);
+          }
+        });
+
         autoCompleteRef.current?.blur();
         setKeysearch("");
       }
     },
     [autoCompleteRef, dispatch, resultSearch, customer]
   );
+
+  const changeNoteOrder = (value: string) => {};
+
+  const changeEmailBillingAddress = (value: string) => {};
+
+  const onSelectShippingAddress = (value: any) => {
+    setShippingAddress(value);
+  };
 
   useLayoutEffect(() => {
     dispatch(getListSourceRequest(setListSource));
@@ -363,7 +381,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     content={
                       <div className="change-shipping-address-content">
                         {customer.shipping_address.map((item, index) => (
-                          <div className="shipping-address-row">
+                          <div
+                            className="shipping-address-row"
+                            onClick={(e) => onSelectShippingAddress(item)}
+                          >
                             <div className="shipping-address-name">
                               Địa chỉ 1{" "}
                               <Button
@@ -402,7 +423,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       Ghi chú của khách hàng
                     </label>
                   </div>
-                  <Input.TextArea placeholder="Điền ghi chú" rows={4} />
+                  <Input.TextArea
+                    onChange={(e) => changeNoteOrder(e.target.value)}
+                    placeholder="Điền ghi chú"
+                    rows={4}
+                  />
                 </div>
               </Col>
             </Row>
@@ -427,14 +452,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   <div>Địa chỉ gửi hoá đơn</div>
                   <Row className="row-info customer-row-info">
                     <img src={peopleIcon2} alt="" style={{ width: 19 }} />{" "}
-                    <span style={{ marginLeft: 9 }}>Na</span>
+                    <span style={{ marginLeft: 9 }}>
+                      {billingAddress?.name}
+                    </span>
                   </Row>
                   <Row className="row-info customer-row-info">
-                    <img src={callIcon} alt="" /> <span>0986868686</span>
+                    <img src={callIcon} alt="" />{" "}
+                    <span>{billingAddress?.phone}</span>
                   </Row>
                   <Row className="row-info customer-row-info">
                     <img src={locationIcon} alt="" />{" "}
-                    <span>YODY hub, Dưới chân cầu An Định, Tp. Hải Dương</span>
+                    <span>{billingAddress?.full_address}</span>
                   </Row>
                   <Row>
                     <Button type="link" className="p-0 m-0">
@@ -449,7 +477,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         Email hoá đơn đến
                       </label>
                     </div>
-                    <Input placeholder="Nhập email hoá đơn đến" />
+                    <Input
+                      onChange={(e) =>
+                        changeEmailBillingAddress(e.target.value)
+                      }
+                      placeholder="Nhập email hoá đơn đến"
+                    />
                   </div>
                 </Col>
               </Row>
