@@ -3,7 +3,7 @@ import BaseResponse from 'base/BaseResponse';
 import { put, call, takeLatest } from 'redux-saga/effects';
 import { HttpStatus } from 'config/HttpStatus';
 import { getSources } from '../../../service/order/source.service';
-import { SourceModel } from 'model/other/SourceModel';
+import { SourceModel } from 'model/other/Order/source-model';
 import { YodyAction } from '../../../base/BaseAction';
 import { getListSourceError } from 'domain/actions/order/orderOnline.action';
 

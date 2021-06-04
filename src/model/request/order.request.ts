@@ -1,6 +1,6 @@
-import { OrderDiscountRequest } from "./OrderDiscountRequest";
-import { OrderLineItemRequest } from "./OrderLineItemRequest";
-import { OrderPaymentRequest } from "./OrderPaymentRequest";
+import { OrderDiscountRequest } from "./order-discount.request";
+import { OrderLineItemRequest } from "./order-line-item.request";
+import { OrderPaymentRequest } from "./order-payment.request";
 
 export interface OrderRequest {
   company_id: number | null,

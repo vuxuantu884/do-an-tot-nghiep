@@ -1,4 +1,4 @@
-import { BaseMetadata } from "./BaseModel";
+import { BaseMetadata } from "./base-model";
 
 export interface ListDataModel<T> {
   metadata: BaseMetadata

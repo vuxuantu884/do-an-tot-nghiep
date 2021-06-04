@@ -1,4 +1,4 @@
-import { BaseModel } from "./BaseModel";
+import { BaseModel } from "../base-model";
 
 export interface SourceModel extends BaseModel {
     name: string;

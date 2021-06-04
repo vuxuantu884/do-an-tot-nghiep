@@ -4,15 +4,15 @@ import arrowDown from 'assets/icon/arrow-down.svg';
 import React, { createRef, useCallback, useMemo, useState } from "react";
 import { RefSelectProps } from 'antd/lib/select';
 import { useDispatch } from 'react-redux';
-import { VariantModel } from 'model/other/ProductModel';
+import { VariantModel } from 'model/other/Product/product-model';
 import { findAvatar, findPrice, findPriceInVariant, findTaxInVariant, formatCurrency } from 'utils/AppUtils';
 import { AppConfig } from 'config/AppConfig';
 import imgdefault from 'assets/icon/img-default.svg';
-import { OrderItemModel } from 'model/other/Order/OrderItemModel';
+import { OrderItemModel } from 'model/other/Order/order-item-model';
 import { Type } from 'config/TypeConfig';
 import { Link } from 'react-router-dom';
 import { OnSearchChange } from "domain/actions/search.action";
-import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel";
+import { OrderItemDiscountModel } from "model/other/Order/order-item-discount-model";
 
 type AddGiftModalProps = {
   visible: boolean;

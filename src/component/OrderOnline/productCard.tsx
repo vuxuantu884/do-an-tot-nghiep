@@ -31,7 +31,7 @@ import productIcon from "../../assets/img/cube.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import DiscountGroup from "./discountGroup";
-import { StoreModel } from "model/other/StoreModel";
+import { StoreModel } from "model/other/Core/store-model";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getListStoreRequest,
@@ -48,9 +48,9 @@ import {
   replaceFormat,
 } from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
-import { VariantModel } from "model/other/ProductModel";
-import { OrderItemModel } from "model/other/Order/OrderItemModel";
-import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel";
+import { VariantModel } from "model/other/Product/product-model";
+import { OrderItemModel } from "model/other/Order/order-item-model";
+import { OrderItemDiscountModel } from "model/other/Order/order-item-discount-model";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "../../config/TypeConfig";

@@ -1,7 +1,7 @@
-import { BaseModel } from "../BaseModel";
-import { OrderDiscountModel } from "./OrderDiscountModel";
-import { OrderItemModel } from "./OrderItemModel";
-import { OrderPaymentModel } from "./OrderPaymentModel";
+import { BaseModel } from "../base-model";
+import { OrderDiscountModel } from "./order-discount-model";
+import { OrderItemModel } from "./order-item-model";
+import { OrderPaymentModel } from "./order-payment-model";
 
 export interface OrderModel extends BaseModel {
   seq?: number;

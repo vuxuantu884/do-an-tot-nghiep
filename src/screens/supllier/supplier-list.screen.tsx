@@ -13,7 +13,7 @@ import SupplierFilter from "component/filter/supplier.filter";
 import SupplierAction from 'domain/actions/core/supplier.action';
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable from "component/table/CustomTable";
-import { CategoryView } from "model/other/category-view";
+import { CategoryView } from "model/other/Product/category-view";
 
 const actions: Array<MenuAction> = [
   {

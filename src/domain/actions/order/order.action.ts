@@ -1,6 +1,6 @@
-import { OrderItemModel } from '../../../model/other/Order/OrderItemModel';
-import { VariantModel } from '../../../model/other/ProductModel';
-import { OrderPaymentModel } from '../../../model/other/Order/OrderPaymentModel';
+import { OrderItemModel } from '../../../model/other/Order/order-item-model';
+import { VariantModel } from '../../../model/other/Product/product-model';
+import { OrderPaymentModel } from '../../../model/other/Order/order-payment-model';
 import { OrderType } from '../../types/order.type';
 import BaseAction from 'base/BaseAction';
 

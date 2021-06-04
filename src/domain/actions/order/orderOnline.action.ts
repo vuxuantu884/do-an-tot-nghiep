@@ -1,6 +1,6 @@
 import { OrderType } from '../../types/order.type';
 import BaseAction from 'base/BaseAction';
-import { SourceModel } from 'model/other/SourceModel';
+import { SourceModel } from 'model/other/Order/source-model';
 
 const getListSourceRequest = (setData: (data: Array<SourceModel>) => void) => {
   return BaseAction(OrderType.GET_LIST_SOURCE_REQUEST, {setData});

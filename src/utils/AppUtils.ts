@@ -1,21 +1,21 @@
 import { DistrictResponse } from './../model/response/content/district.response';
-import { CityView } from './../model/other/district-view';
+import { CityView } from '../model/other/district-view';
 import { AppConfig } from './../config/AppConfig';
-import { VariantPrice, VariantImage } from './../model/other/ProductModel';
+import { VariantPrice, VariantImage } from '../model/other/Product/product-model';
 import { RouteMenu } from "model/other";
-import { CategoryView } from "model/other/category-view";
+import { CategoryView } from "model/other/Product/category-view";
 import { CategoryResponse } from "model/response/category.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
-import { OrderDiscountModel } from 'model/other/Order/OrderDiscountModel';
-import { OrderItemModel } from 'model/other/Order/OrderItemModel';
-import { OrderModel } from 'model/other/Order/OrderModel';
-import { OrderPaymentModel } from 'model/other/Order/OrderPaymentModel';
-import { OrderDiscountRequest } from 'model/request/OrderDiscountRequest';
-import { OrderItemDiscountRequest } from 'model/request/OrderItemDiscountRequest';
-import { OrderLineItemRequest } from 'model/request/OrderLineItemRequest';
-import { OrderPaymentRequest } from 'model/request/OrderPaymentRequest';
-import { OrderRequest } from 'model/request/OrderRequest';
-import { OrderItemDiscountModel } from './../model/other/Order/OrderItemDiscountModel';
+import { OrderDiscountModel } from 'model/other/Order/order-discount-model';
+import { OrderItemModel } from 'model/other/Order/order-item-model';
+import { OrderModel } from 'model/other/Order/order-model';
+import { OrderPaymentModel } from 'model/other/Order/order-payment-model';
+import { OrderDiscountRequest } from 'model/request/order-discount.request';
+import { OrderItemDiscountRequest } from 'model/request/order-item-discount.request';
+import { OrderLineItemRequest } from 'model/request/order-line-item.request';
+import { OrderPaymentRequest } from 'model/request/order-payment.request';
+import { OrderRequest } from 'model/request/order.request';
+import { OrderItemDiscountModel } from '../model/other/Order/order-item-discount-model';
 import { OrderMetadata } from 'model/reducers/OrderListReducerType';
 
 

@@ -5,10 +5,8 @@ import { getListStoreError } from 'domain/actions/core/store.action';
 import {StoreType} from "domain/types/product.type";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { getListStore, getStoreDetail } from "service/product/store.service";
-import { StoreModel } from 'model/other/StoreModel';
+import { StoreModel } from 'model/other/Core/store-model';
 import { showLoading } from 'domain/actions/loading.action';
-import { getCompanyByGroupId } from 'service/content/company.service';
-import { CompanyModel } from 'model/other/CompanyModel';
 
 function* getDataStore(action: YodyAction) {
   let {setData} = action.payload;
