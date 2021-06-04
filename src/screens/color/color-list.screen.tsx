@@ -6,14 +6,13 @@ import ButtonSetting from "component/table/ButtonSetting";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { generateQuery } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
-import { deleteManyMaterialAction, deleteOneMaterialAction } from "domain/actions/product/material.action";
 import { PageResponse } from "model/response/base-metadata.response";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import {showWarning} from 'utils/ToastUtils';
 import CustomTable from "component/table/CustomTable";
 import { ColorResponse } from "model/response/products/color.response";
 import { ColorSearchQuery } from "model/query/color.search.query";
-import { getColorAction } from "domain/actions/product/color.action";
+import ColorAction from "domain/actions/product/color.action";
 import imgDefault from 'assets/icon/img-default.svg'
 
 const action: Array<MenuAction> = [
@@ -91,7 +90,7 @@ const ColorListScreen: React.FC = () => {
   ];
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
-    dispatch(getColorAction(params, setData));
+    dispatch(ColorAction.getColorAction(params, setData));
   }, [dispatch, params])
   const onDelete = useCallback(() => {
     if(selected.length === 0) {
@@ -100,15 +99,20 @@ const ColorListScreen: React.FC = () => {
     }
     if(selected.length === 1) {
       let id = selected[0].id;
-      dispatch(deleteOneMaterialAction(id, onDeleteSuccess))
+      dispatch(ColorAction.colorDeleteAction(id, onDeleteSuccess))
       return;
     }
     let ids: Array<number> = [];
     selected.forEach((a) => ids.push(a.id));
-    dispatch(deleteManyMaterialAction(ids, onDeleteSuccess))
+    dispatch(ColorAction.colorDeleteManyAction(ids, onDeleteSuccess))
   }, [dispatch, onDeleteSuccess]);
-  const onSelect = useCallback((record) => {
-    selected.push(record);
+  const onSelect = useCallback((record: ColorResponse) => {
+    let index = selected.findIndex((item) => item.id === record.id);
+    if(index === -1) {
+      selected.push(record);
+      return;
+    }
+    selected.splice(index, 1);
   }, []);
   const onFinish = useCallback((values) => {
     let newPrams = { ...params, ...values, page: 0 };
@@ -131,8 +135,8 @@ const ColorListScreen: React.FC = () => {
     }
   }, [onDelete]);
   useEffect(() => {
-    dispatch(getColorAction(params, setData));
-    dispatch(getColorAction({is_main_color: 1}, setSelector));
+    dispatch(ColorAction.getColorAction(params, setData));
+    dispatch(ColorAction.getColorAction({is_main_color: 1}, setSelector));
     return () => {}
   }, [dispatch, params])
   return (
