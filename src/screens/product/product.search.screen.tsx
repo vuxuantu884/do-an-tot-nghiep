@@ -19,7 +19,7 @@ import { ColorResponse } from "model/response/products/color.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
 import {getCountry} from "domain/actions/content/content.action"
-import {getMaterialAction} from "domain/actions/product/color.action"
+import {listColorAction } from "domain/actions/product/color.action"
 import {ColorSearchQuery} from "model/query/color.search.query"
 import { SizeResponse } from "model/response/products/size.response";
 
@@ -181,8 +181,8 @@ const ListSupplierScreen: React.FC = () => {
   useEffect(() => {
     if(isFirstLoad.current){
       dispatch(getCountry( setCountry)); 
-      dispatch(getMaterialAction(initMainColorQuery,setMainColor)); 
-      dispatch(getMaterialAction(initColorQuery,setColor)); 
+      dispatch(listColorAction(initMainColorQuery,setMainColor)); 
+      dispatch(listColorAction(initColorQuery,setColor)); 
     }
     isFirstLoad.current=false;
     dispatch(searchVariantsRequestAction(params, setData));
