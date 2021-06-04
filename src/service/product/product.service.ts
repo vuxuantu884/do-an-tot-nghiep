@@ -1,5 +1,5 @@
 import { VariantSearchQuery } from 'model/query/variant.search.query';
-import { VariantResponse } from './../../model/response/products/variant.response';
+import { VariantResponse } from 'model/response/products/variant.response';
 import BaseAxios from "base/BaseAxios"
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig"

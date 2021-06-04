@@ -15,12 +15,12 @@ import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapRes
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import { VariantSearchQuery } from "../../model/query/variant.search.query";
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
 import { SizeResponse } from "model/response/products/size.response";
 import { ColorResponse } from "model/response/products/color.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
 import { CountryResponse } from "model/response/content/country.response";
+import { VariantSearchQuery } from "model/query/variant.search.query";
 
 type ProductFilterProps = {
   params: VariantSearchQuery;
