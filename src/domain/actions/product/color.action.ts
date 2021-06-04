@@ -13,6 +13,10 @@ export const getMaterialAction = ( query: ColorSearchQuery,  setData: (data: Arr
 const getColorAction = ( query: ColorSearchQuery,  setData: (data: PageResponse<ColorResponse>) => void) => {
   return BaseAction(ColorType.GET_COLOR_REQUEST, {query,  setData });
 }
+export const listColorAction = ( query: ColorSearchQuery,  setData: (data: Array<ColorResponse>) => void) => {
+  return BaseAction(ColorType.LIST_COLOR_REQUEST, {query,  setData });
+}
+
 
 const colorDeleteAction = ( id: number,  onDeleteSuccess: () => void) => {
   return BaseAction(ColorType.DELETE_COLOR_REQUEST, {id,  onDeleteSuccess });
