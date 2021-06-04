@@ -44,12 +44,12 @@ const initQuery: VariantSearchQuery = {
 const initMainColorQuery: ColorSearchQuery = {
   page:0,
   is_main_color:1,
-  limit:1000
+  limit:200
 }
 const initColorQuery: ColorSearchQuery = {
   page:0,
   is_main_color: 0,
-  limit:1000
+  limit:200
 }
 const ListSupplierScreen: React.FC = () => {
   const query = useQuery();
@@ -82,16 +82,27 @@ const ListSupplierScreen: React.FC = () => {
     items: [],
   });
   const columns = [
-    // {
-    //   title: "Ảnh",
-    //   render: (value: VariantResponse) => {
-    //     value.variant_images.map((item, index) => {
-    //       if (item.variant_avatar) {
-    //         return  <Image src="" width={100} />;
-    //       }
-    //     });
-    //   }
-    // },
+    {
+      title: "Ảnh",
+      render: (value: VariantResponse) => {
+        let variant_images=value.variant_images;
+        let imgUrl='https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg';
+        variant_images.forEach(el => {
+          if(el.variant_avatar){
+            imgUrl="https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg";
+          }
+         
+        });
+        return <Image src={imgUrl} width={100} />;
+        // return img;
+      //   value.variant_images.map((item, index) => {
+      //     if (item.variant_avatar) {
+      //       return  <Image src="" width={100} />;
+      //     }
+      //   });
+      // }
+      }
+    },
     {
       title: "Mã sản phẩm",
       render: (value: VariantResponse) => {
@@ -140,7 +151,7 @@ const ListSupplierScreen: React.FC = () => {
             row.status === "active" ? "status-active" : "status-not-active"
           }
         >
-          {value}
+          {value==="active"?"Đang hoạt động":"Ngừng hoạt động"}
         </div>
       ),
     },
