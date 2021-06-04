@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+//#region Import
 import {
   Button,
   Card,
@@ -42,80 +43,63 @@ import {
 } from "model/other/Customer/CustomerModel";
 import { OnSearchChange } from "domain/actions/customer/customer.action";
 import imgdefault from "assets/icon/img-default.svg";
-import { SearchCustomerQuery } from "model/query/customer.query";
-import { getQueryParams, useQuery } from "utils/useQuery";
 import moment from "moment";
+//#endregion
 
 type CustomerCardProps = {
-  changeInfoCustomer: (items: CustomerModel) => void
+  changeInfoCustomer: (items: CustomerModel) => void;
 };
 
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
+  //State
   var timeTextChange: NodeJS.Timeout;
   const dispatch = useDispatch();
-  const query = useQuery();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [keysearch, setKeysearch] = useState("");
   const autoCompleteRef = createRef<RefSelectProps>();
   const [resultSearch, setResultSearch] = useState<Array<CustomerModel>>([]);
-  let getParams: SearchCustomerQuery = getQueryParams(query);
-  if (!getParams.request) {
-    getParams.request = "";
-  }
   const [customer, setCustomer] = useState<CustomerModel | null>(null);
+  const [isVisibleBilling, setVisibleBilling] = useState(true);
+  const [isVisibleCustomer, setVisibleCustomer] = useState(false);
+  const [listSource, setListSource] = useState<Array<SourceModel>>([]);
+  const [shippingAddress, setShippingAddress] =
+    useState<ShippingAddress | null>(null);
+  let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
 
+  //#region Modal
   const showAddressModal = () => {
     setVisibleAddress(true);
   };
+
   const onCancleConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
+
   const onOkConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
 
-  const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const showCustomerModal = () => {
     setVisibleCustomer(true);
   };
+
   const onCancleConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
+
   const onOkConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
 
-  const [isVisibleBilling, setVisibleBilling] = useState(true);
   const showBillingAddress = () => {
     setVisibleBilling(!isVisibleBilling);
   };
+  //#endregion
 
-  const [listSource, setListSource] = useState<Array<SourceModel>>([]);
-
-  const onSearchSelect = useCallback(
-    (v, o) => {
-      let index: number = -1;
-      index = resultSearch.findIndex(
-        (r: CustomerModel) => r.id && r.id.toString() === v
-      );
-      if (index !== -1) {
-        console.log("resultSearch", resultSearch);
-        setCustomer(resultSearch[index]);
-        resultSearch[index].shipping_address.forEach((item, index2) => {
-          if (item.default === true) {
-            setShippingAddress(item);
-            props.changeInfoCustomer(resultSearch[index]);
-          }
-        });
-        autoCompleteRef.current?.blur();
-        setKeysearch("");
-      }
-    },
-    [autoCompleteRef, dispatch, resultSearch, customer]
-  );
-
+  //#region Search and Render result
+  //Search and render customer by name, phone, code
   const onChangeSearch = useCallback(
     (v) => {
       setKeysearch(v);
@@ -127,10 +111,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     [dispatch]
   );
 
-  const deleteCustomer = () => {
-    setCustomer(null);
-  };
-
+  //Render result search
   const renderSearch = (item: CustomerModel) => {
     return (
       <div className="row-search w-100">
@@ -160,10 +141,33 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     return options;
   }, [dispatch, resultSearch]);
 
-  let startDate = moment(customer?.birthday).format("DD/MM/YYYY");
+  //Delete customer
+  const deleteCustomer = () => {
+    setCustomer(null);
+  };
 
-  const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
+  //#endregion
+
+  const onSearchCustomerSelect = useCallback(
+    (v, o) => {
+      let index: number = -1;
+      index = resultSearch.findIndex(
+        (r: CustomerModel) => r.id && r.id.toString() === v
+      );
+      if (index !== -1) {
+        setCustomer(resultSearch[index]);
+        resultSearch[index].shipping_address.forEach((item, index2) => {
+          if (item.default === true) {
+            setShippingAddress(item);
+            props.changeInfoCustomer(resultSearch[index]);
+          }
+        });
+        autoCompleteRef.current?.blur();
+        setKeysearch("");
+      }
+    },
+    [autoCompleteRef, dispatch, resultSearch, customer]
+  );
 
   useLayoutEffect(() => {
     dispatch(getListSourceRequest(setListSource));
@@ -179,9 +183,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       }
       extra={
         <div className="d-flex align-items-center form-group-with-search">
-          {/* <label htmlFor="" className="required-label">
-            Nguồn
-          </label> */}
           <Form.Item
             name="source"
             label="Nguồn"
@@ -221,7 +222,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             }
             value={keysearch}
             ref={autoCompleteRef}
-            onSelect={onSearchSelect}
+            onSelect={onSearchCustomerSelect}
             dropdownClassName="search-layout dropdown-search-header"
             dropdownMatchSelectWidth={456}
             className="w-100"
@@ -309,7 +310,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               <span className="customer-detail-icon">
                 <img src={bithdayIcon} alt="" />
               </span>
-              <span className="customer-detail-text">{startDate}</span>
+              <span className="customer-detail-text">{customerBirthday}</span>
             </Space>
 
             <Space className="customer-detail-action">
