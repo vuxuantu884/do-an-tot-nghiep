@@ -5,7 +5,7 @@ export interface GoodsObj {
   name: string
 }
 
-export interface SupplierResposne extends BaseObject {
+export interface SupplierResponse extends BaseObject {
   name: string,
   type: string,
   type_name: string,

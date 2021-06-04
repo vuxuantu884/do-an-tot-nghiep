@@ -1,6 +1,6 @@
 import { BaseQuery } from "./base.query";
 
-export interface SearchVariantQuery extends BaseQuery {
+export interface VariantSearchQuery extends BaseQuery {
   info?: string, 
   barcode?: string, 
   brand?: number, 

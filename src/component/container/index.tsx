@@ -46,6 +46,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
         backgroundColor: 'white',
         minHeight: '100vh',
       }}>
+        <LoadingScreen />
         <SlidebarContainer path={location.pathname} />
         <Layout style={{
           backgroundColor: '#F4F4F7',

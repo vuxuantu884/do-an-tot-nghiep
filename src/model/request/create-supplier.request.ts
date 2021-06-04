@@ -1,4 +1,4 @@
-export interface CreateSupplierRequest {
+export interface SupplierCreateRequest {
   address: string|null,
   bank_brand: string|null,
   bank_name: string|null,
@@ -10,11 +10,11 @@ export interface CreateSupplierRequest {
   country_id: number|null,
   debt_time: number|null,
   debt_time_unit: string|null,
-  district_id: number,
+  district_id: number|null,
   email: string|null,
   fax: string|null,
   goods: Array<string>,
-  moq: number,
+  moq: number|null,
   name: string,
   note: string|null,
   person_in_charge: string|null,
@@ -26,6 +26,7 @@ export interface CreateSupplierRequest {
   website: string|null
 }
 
-export interface UpdateSupplierRequest extends CreateSupplierRequest {
-  verison: number,
+export interface SupplierUpdateRequest extends SupplierCreateRequest {
+  version: number,
+  code: string,
 }

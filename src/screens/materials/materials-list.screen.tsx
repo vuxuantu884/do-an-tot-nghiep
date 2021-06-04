@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, Table } from "antd";
+import { Button, Card, Form, Input } from "antd";
 import React, { useCallback, useLayoutEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from 'assets/img/search.svg';
@@ -9,10 +9,10 @@ import { generateQuery } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
 import { deleteManyMaterialAction, deleteOneMaterialAction, getMaterialAction } from "domain/actions/product/material.action";
 import { BaseMetadata } from "model/response/base-metadata.response";
-import CustomPagination from "component/table/CustomPagination";
 import { MaterialQuery } from "model/query/material.query";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import {showWarning} from 'utils/ToastUtils';
+import CustomTable from "component/table/CustomTable";
 
 const action: Array<MenuAction> = [
   {
@@ -92,15 +92,9 @@ const ListMaterial: React.FC = () => {
     let queryParam = generateQuery(newPrams);
     history.push(`/materials?${queryParam}`);
   }, [history, params]);
-  const onPageSizeChange = useCallback((size: number) => {
-    params.limit = size;
-    params.page = 0;
-    let queryParam = generateQuery(params);
-    setPrams({ ...params });
-    history.replace(`/materials?${queryParam}`);
-  }, [history, params]);
-  const onPageChange = useCallback((page) => {
+  const onPageChange = useCallback((size, page) => {
     params.page = page - 1;
+    params.limit = size
     let queryParam = generateQuery(params);
     setPrams({ ...params });
     history.replace(`/materials?${queryParam}`);
@@ -147,22 +141,14 @@ const ListMaterial: React.FC = () => {
             </div>
           </Form>
         </Card>
-        <Table
-          rowSelection={{
-            type: "checkbox",
-            columnWidth: 80,
-            onSelect: onSelect,
-          }}
+        <CustomTable
+          onSelect={onSelect}
+          onChange={onPageChange}
           className="yody-table"
-          pagination={false}
+          pagination={metadata}
           dataSource={data}
           columns={columns}
-          rowKey={(item) => item.id}
-        />
-        <CustomPagination
-          metadata={metadata}
-          onPageChange={onPageChange}
-          onPageSizeChange={onPageSizeChange}
+          rowKey={(item: MaterialResponse) => item.id}
         />
       </Card>
     </div>

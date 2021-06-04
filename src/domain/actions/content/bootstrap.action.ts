@@ -9,3 +9,5 @@ export const getBootstrapAction = () => {
 export const getBootstrapSuccessAction = (data: BootstrapResponse) => {
   return BaseAction(BootstrapType.GET_BOOTSTRAP_SUCESSS, {data: data});
 }
+
+
