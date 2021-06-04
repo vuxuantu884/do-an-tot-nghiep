@@ -1,6 +1,6 @@
-import { CustomerModel } from 'model/other/Customer/CustomerModel';
-import { VariantModel } from '../../../model/other/ProductModel';
-import { ListDataModel } from '../../../model/other/ListDataModel';
+import { CustomerModel } from 'model/other/Customer/customer-model';
+import { VariantModel } from '../../../model/other/Product/product-model';
+import { ListDataModel } from '../../../model/other/list-data-model';
 import { showError } from '../../../utils/ToastUtils';
 import BaseResponse from 'base/BaseResponse';
 import { YodyAction } from 'base/BaseAction';

@@ -34,13 +34,13 @@ import locationIcon from "assets/img/location.svg";
 import { SearchOutlined } from "@ant-design/icons";
 import AddAddressModal from "./Modal/addAddressModal";
 import EditCustomerModal from "./Modal/editCustomerModal";
-import { SourceModel } from "model/other/SourceModel";
+import { SourceModel } from "model/other/Order/source-model";
 import { getListSourceRequest } from "domain/actions/order/orderOnline.action";
 import { RefSelectProps } from "antd/lib/select";
 import {
   CustomerModel,
   ShippingAddress,
-} from "model/other/Customer/CustomerModel";
+} from "model/other/Customer/customer-model";
 import { OnSearchChange } from "domain/actions/customer/customer.action";
 import imgdefault from "assets/icon/img-default.svg";
 import moment from "moment";
@@ -418,7 +418,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   Gửi hoá đơn
                 </Checkbox>
               </Row>
-              <Row gutter={24} hidden={true}>
+              <Row gutter={24} hidden={isVisibleBilling}>
                 <Col
                   xs={24}
                   lg={12}

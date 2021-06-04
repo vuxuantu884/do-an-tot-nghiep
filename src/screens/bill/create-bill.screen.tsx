@@ -7,14 +7,14 @@ import PaymentCard from "../../component/OrderOnline/paymentCard";
 import ShipmentCard from "../../component/OrderOnline/shipmentCard";
 import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
-import { StoreModel } from "model/other/StoreModel";
-import { OrderItemModel } from "model/other/Order/OrderItemModel";
-import { OrderRequest } from "model/request/OrderRequest";
-import { OrderLineItemRequest } from "model/request/OrderLineItemRequest";
-import { OrderItemDiscountRequest } from "model/request/OrderItemDiscountRequest";
-import { OrderItemDiscountModel } from "model/other/Order/OrderItemDiscountModel";
+import { StoreModel } from "model/other/Core/store-model";
+import { OrderItemModel } from "model/other/Order/order-item-model";
+import { OrderRequest } from "model/request/order.request";
+import { OrderLineItemRequest } from "model/request/order-line-item.request";
+import { OrderItemDiscountRequest } from "model/request/order-item-discount.request";
+import { OrderItemDiscountModel } from "model/other/Order/order-item-discount-model";
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
-import { CustomerModel } from "model/other/Customer/CustomerModel";
+import { CustomerModel } from "model/other/Customer/customer-model";
 import { useHistory } from "react-router";
 
 const CreateBill = () => {
