@@ -48,5 +48,5 @@ export interface ShippingAddress extends BaseModel {
   district: string,
   zipCode: string,
   full_address: string,
-  note: string | null,
+  note?: string,
 }

@@ -49,6 +49,9 @@ import moment from "moment";
 
 type CustomerCardProps = {
   changeInfoCustomer: (items: CustomerModel) => void;
+  selectSource: (source: number) => void;
+  changeShippingAddress: (items: ShippingAddress) => void;
+  changeBillingAddress: (items: BillingAddress) => void;
 };
 
 const CustomerCard: React.FC<CustomerCardProps> = (
@@ -179,17 +182,38 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     [autoCompleteRef, dispatch, resultSearch, customer]
   );
 
-  const changeNoteOrder = (value: string) => {};
+  const changeNoteOrder = (value: string) => {
+    let item = shippingAddress;
+    if (item !== null) {
+      item.note = value;
+      setShippingAddress(item);
+    }
+  };
 
-  const changeEmailBillingAddress = (value: string) => {};
+  const changeEmailBillingAddress = (value: string) => {
+    let item = billingAddress;
+    if (item !== null) {
+      item.email = value;
+      setBillingAddress(item);
+    }
+  };
 
   const onSelectShippingAddress = (value: any) => {
     setShippingAddress(value);
   };
 
+  const onChangeSource = useCallback(
+    (value: number) => {
+      props.selectSource(value);
+    },
+    [props]
+  );
+
   useLayoutEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
+
+  
 
   return (
     <Card
@@ -205,14 +229,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             name="source"
             label="Nguồn"
             style={{ margin: "10px 0px" }}
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Vui lòng chọn nguồn đơn hàng' }]}
           >
             <Select
               className="select-with-search"
               showSearch
               style={{ width: "200px" }}
-              placeholder=""
-              defaultValue=""
+              placeholder="Chọn nguồn đơn hàng"
+              onChange={onChangeSource}
             >
               <Select.Option value="">Chọn nguồn đơn hàng</Select.Option>
               {listSource.map((item, index) => (

@@ -1,3 +1,4 @@
+//#region Import
 import { Button, Card, Input, Row, Col, Tooltip, Select, Form } from "antd";
 import documentIcon from "../../assets/img/document.svg";
 import warningCircleIcon from "assets/img/warning-circle.svg";
@@ -5,7 +6,7 @@ import ProductCard from "../../component/order-online/productCard";
 import CustomerCard from "../../component/order-online/customerCard";
 import PaymentCard from "../../component/order-online/paymentCard";
 import ShipmentCard from "../../component/order-online/shipmentCard";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useLayoutEffect } from "react";
 import { useDispatch } from "react-redux";
 import { StoreModel } from "model/other/Core/store-model";
 import { OrderItemModel } from "model/other/Order/order-item-model";
@@ -14,14 +15,27 @@ import { OrderLineItemRequest } from "model/request/order-line-item.request";
 import { OrderItemDiscountRequest } from "model/request/order-item-discount.request";
 import { OrderItemDiscountModel } from "model/other/Order/order-item-discount-model";
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
-import { CustomerModel } from "model/other/Customer/customer-model";
+import {
+  BillingAddress,
+  CustomerModel,
+  ShippingAddress,
+} from "model/other/Customer/customer-model";
 import { useHistory } from "react-router";
+import AccountAction from "domain/actions/account/account.action";
+import { PageResponse } from "model/response/base-metadata.response";
+import Item from "antd/lib/list/Item";
+//#endregion
 
 const CreateBill = () => {
+  const dispatch = useDispatch();
   const history = useHistory();
-
+  const [source, setSource] = useState<number>(0);
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
   const [objCustomer, setObjCustomer] = useState<CustomerModel | null>(null);
+  const [objShippingAddress, setObjShippingAddress] =
+    useState<ShippingAddress | null>(null);
+  const [objBillingAddress, setObjBillingAddress] =
+    useState<BillingAddress | null>(null);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [priceType, setPriceType] = useState<string>("retail_price");
   const [discountRate, setDiscountRate] = useState<number>(0);
@@ -115,16 +129,16 @@ const CreateBill = () => {
     setSelectedPaymentMethod(value);
   };
 
-  const OrderItemModel = [{}];
-
-  const dispatch = useDispatch();
-
   const onStoreSelect = (storeId: number) => {
     setStoreId(storeId);
   };
 
   const onPriceTypeSelect = (priceType: string) => {
     setPriceType(priceType);
+  };
+
+  const onSourceSelect = (source: number) => {
+    setSource(source);
   };
 
   const onChangeInfo = useCallback(
@@ -146,6 +160,20 @@ const CreateBill = () => {
     setObjCustomer(objCustomer);
   }, []);
 
+  const onChangeShippingAddress = useCallback(
+    (objShippingAddress: ShippingAddress) => {
+      setObjShippingAddress(objShippingAddress);
+    },
+    [dispatch]
+  );
+
+  const onChangeBillingAddress = useCallback(
+    (objBillingAddress: BillingAddress) => {
+      setObjBillingAddress(objBillingAddress);
+    },
+    [dispatch]
+  );
+
   const createOrderRequest = () => {
     let orderLineItemsRequest: Array<OrderLineItemRequest> = [];
     items.forEach((item, index) => {
@@ -160,6 +188,10 @@ const CreateBill = () => {
     });
 
     initRequest.items = orderLineItemsRequest;
+    initRequest.shipping_address_id = objShippingAddress?.id;
+    initRequest.billing_address_id = objBillingAddress?.id;
+    initRequest.store_id = storeId;
+    initRequest.source_id = source;
   };
 
   const createOrderLineItemRequest = (
@@ -220,13 +252,29 @@ const CreateBill = () => {
     [dispatch, onCreateSuccess]
   );
 
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountDetailResponse>) => {
+      setAccounts(data.items);
+    },
+    []
+  );
+
+  useLayoutEffect(() => {
+    dispatch(AccountAction.SearchAccount({}, setDataAccounts));
+  }, [dispatch, setDataAccounts]);
+
   return (
     <div>
       <Form onFinish={onFinish}>
         <Row gutter={24}>
           <Col xs={24} lg={17}>
             {/*--- customer ---*/}
-            <CustomerCard changeInfoCustomer={onChangeInfoCustomer} />
+            <CustomerCard
+              changeInfoCustomer={onChangeInfoCustomer}
+              selectSource={onSourceSelect}
+              changeShippingAddress={onChangeShippingAddress}
+              changeBillingAddress={onChangeBillingAddress}
+            />
             {/*--- end customer ---*/}
 
             {/*--- product ---*/}
@@ -259,35 +307,17 @@ const CreateBill = () => {
                 <label htmlFor="" className="required-label">
                   Nhân viên bán hàng
                 </label>
-                <Select
-                  className="select-with-search"
-                  showSearch
-                  style={{ width: "200px" }}
-                  placeholder=""
-                  defaultValue=""
-                >
-                  <Select.Option value="">Chọn tên/mã nhân viên</Select.Option>
-                  {accounts.map((item, index) => (
-                    <Select.Option
-                      style={{ width: "100%" }}
-                      key={index}
-                      value={item.id}
-                    >
-                      {item.full_name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </div>
-              <div className="form-group form-group-with-search">
-                <div>
-                  <label htmlFor="" className="">
-                    Tham chiếu
-                  </label>
+
+                <Form.Item name="assignee_code">
                   <Select
                     className="select-with-search"
                     showSearch
-                    placeholder="Chọn nhân viên"
+                    placeholder=""
+                    defaultValue=""
                   >
+                    <Select.Option value="">
+                      Chọn nhân viên bán hàng
+                    </Select.Option>
                     {accounts.map((item, index) => (
                       <Select.Option
                         style={{ width: "100%" }}
@@ -298,8 +328,10 @@ const CreateBill = () => {
                       </Select.Option>
                     ))}
                   </Select>
-                </div>
-                <div className="form-group form-group-with-search">
+                </Form.Item>
+              </div>
+              <div className="form-group form-group-with-search">
+                <div className="form-group form-group-with-search mb-0">
                   <div>
                     <label htmlFor="" className="">
                       Tham chiếu
@@ -313,8 +345,13 @@ const CreateBill = () => {
                       </span>
                     </Tooltip>
                   </div>
-                  <Input placeholder="Điền tham chiếu" />
+                  <Form.Item name="">
+                    <Input placeholder="Điền tham chiếu" />
+                  </Form.Item>
                 </div>
+              </div>
+
+              <div className="form-group form-group-with-search">
                 <div className="form-group form-group-with-search mb-0">
                   <div>
                     <label htmlFor="" className="">
