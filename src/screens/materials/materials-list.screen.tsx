@@ -141,22 +141,6 @@ const ListMaterial: React.FC = () => {
             </div>
           </Form>
         </Card>
-        {/* <Table
-          rowSelection={{
-            type: "checkbox",
-            columnWidth: 80,
-            onSelect: onSelect,
-          }}
-          className="yody-table"
-          pagination={false}
-          dataSource={data}
-          columns={columns}
-          rowKey={(item) => item.id}
-        />
-        <CustomPagination
-          metadata={metadata}
-          onChange={onPageChange}
-        /> */}
         <CustomTable
           onSelect={onSelect}
           onChange={onPageChange}

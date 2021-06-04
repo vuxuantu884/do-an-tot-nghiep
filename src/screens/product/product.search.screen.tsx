@@ -43,12 +43,12 @@ const initQuery: VariantSearchQuery = {
 
 const initMainColorQuery: ColorSearchQuery = {
   page:0,
-  is_main_color:true,
+  is_main_color:1,
   limit:1000
 }
 const initColorQuery: ColorSearchQuery = {
   page:0,
-  is_main_color:false,
+  is_main_color: 0,
   limit:1000
 }
 const ListSupplierScreen: React.FC = () => {

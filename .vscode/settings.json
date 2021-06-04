@@ -2,5 +2,8 @@
     "editor.defaultFormatter": "lonefy.vscode-JS-CSS-HTML-formatter",
     "[typescriptreact]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
     }
 }
