@@ -5,7 +5,7 @@ import { CategoryResponse } from "model/response/category.response";
 import React, { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import { CreateCatergoryRequest } from 'model/request/create-category';
+import { CreateCatergoryRequest } from 'model/request/create-category.request';
 
 let initialRequest: CreateCatergoryRequest = {
   code: '',
