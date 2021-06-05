@@ -183,10 +183,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   );
 
   const changeNoteOrder = (value: string) => {
-    let item = shippingAddress;
+    let item = customer;
     if (item !== null) {
       item.note = value;
-      setShippingAddress(item);
+      setCustomer(item);
     }
   };
 

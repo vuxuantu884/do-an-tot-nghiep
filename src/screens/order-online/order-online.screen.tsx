@@ -2,10 +2,10 @@
 import { Button, Card, Input, Row, Col, Tooltip, Select, Form } from "antd";
 import documentIcon from "../../assets/img/document.svg";
 import warningCircleIcon from "assets/img/warning-circle.svg";
-import ProductCard from "../../component/order-online/productCard";
-import CustomerCard from "../../component/order-online/customerCard";
-import PaymentCard from "../../component/order-online/paymentCard";
-import ShipmentCard from "../../component/order-online/shipmentCard";
+import ProductCard from "./product-card";
+import CustomerCard from "./customer-card";
+import PaymentCard from "./payment-card";
+import ShipmentCard from "./shipment-card";
 import { useState, useCallback, useLayoutEffect } from "react";
 import { useDispatch } from "react-redux";
 import { StoreModel } from "model/other/Core/store-model";
@@ -21,9 +21,11 @@ import {
 import { useHistory } from "react-router";
 import AccountAction from "domain/actions/account/account.action";
 import { PageResponse } from "model/response/base-metadata.response";
-import Item from "antd/lib/list/Item";
-import { converOrderModelToRequest } from "utils/AppUtils";
-import { OrderItemDiscountModel, OrderItemModel, OrderModel } from "model/other/Order/order-model";
+import {
+  OrderItemDiscountModel,
+  OrderItemModel,
+} from "model/other/Order/order-model";
+import { orderCreateAction } from "domain/actions/order/order.action";
 //#endregion
 
 const CreateBill = () => {
@@ -49,7 +51,11 @@ const CreateBill = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(1);
   const [store, setStore] = useState<StoreModel | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountDetailResponse>>([]);
-  const [order, setOrder] = useState<OrderModel | null>(null);
+  const [assignCode, setAssignCode] = useState<string>("");
+  const [reference, setReference] = useState<string>("");
+  const [url, setUrl] = useState<string>("");
+  const [orderNote, setOrderNote] = useState<string>("");
+  const [tag, setTag] = useState<string>("");
 
   //Address modal
   const showAddressModal = () => {
@@ -96,24 +102,24 @@ const CreateBill = () => {
     setSource(source);
   };
 
-  const onChangeInfo = useCallback(
+  const onChangeInfo = 
     (
       _items: Array<OrderItemModel>,
       amount: number,
       discount_rate: number,
       discount_value: number
     ) => {
-      setItems(items);
+      setItems(_items);
       setDiscountRate(discount_rate);
       setDiscountValue(discount_value);
       setAmount(amount);
-    },
-    []
-  );
+    }
 
-  const onChangeInfoCustomer = useCallback((objCustomer: CustomerModel) => {
-    setObjCustomer(objCustomer);
-  }, []);
+
+  const onChangeInfoCustomer = (_objCustomer: CustomerModel|null) => {
+    console.log(_objCustomer)
+    setObjCustomer(_objCustomer);
+  };
 
   const onChangeShippingAddress = useCallback(
     (objShippingAddress: ShippingAddress) => {
@@ -129,7 +135,101 @@ const CreateBill = () => {
     [dispatch]
   );
 
-  const createOrderRequest = () => {
+  const onChangeAssignCode = (value: string) => {
+    setAssignCode(value);
+  };
+
+  const onChangeReference = (value: string) => {
+    setReference(value);
+  };
+
+  const onChangeUrl = (value: string) => {
+    setUrl(value);
+  };
+
+  const onChangeNoteOrder = (value: string) => {
+    setOrderNote(value);
+  };
+
+  const onChangeTag = (value: string) => {
+    setTag(value);
+  };
+
+  const onCreateSuccess = useCallback(() => {
+    history.push('/dasboard');
+  }, [history])
+
+
+  const finishOrder = () => {
+    let orderLineItemsRequest = createOrderLineItemsRequest();
+    let orderRequest: OrderRequest = {
+      company_id: null,
+      store_id: null,
+      store: "",
+      status: "",
+      price_type: "",
+      tax_treatment: "",
+      source_id: null,
+      note: "",
+      tags: "",
+      customer_note: "",
+      sale_note: "",
+      account_code: "",
+      account: "",
+      source: "",
+      assignee_code: "",
+      assignee: "",
+      channel_id: null,
+      channel: "",
+      customer_id: null,
+      fulfillment_status: "",
+      packed_status: "",
+      received_Status: "",
+      payment_status: "",
+      return_status: "",
+      reference: "",
+      url: "",
+      total_line_amount_after_line_discount: null,
+      total: null,
+      order_discount_rate: null,
+      order_discount_value: null,
+      discount_reason: "",
+      total_discount: null,
+      total_tax: "",
+      finalized_account_code: "",
+      cancel_account_code: "",
+      finish_account_code: "",
+      finalized_on: "",
+      cancelled_on: "",
+      finished_on: "",
+      currency: "",
+      items: orderLineItemsRequest,
+      discounts: [],
+      payments: [],
+      shipping_address: null,
+      billing_address: null,
+    };
+
+    //orderRequest.items = orderLineItemsRequest;
+    orderRequest.shipping_address = objShippingAddress;
+    orderRequest.billing_address = objBillingAddress;
+    orderRequest.store_id = storeId;
+    orderRequest.account_code = assignCode;
+    orderRequest.note = orderNote;
+    orderRequest.url = url;
+    orderRequest.reference = reference;
+    orderRequest.tags = tag;
+
+    if (objCustomer != null) {
+      orderRequest.customer_note = objCustomer.note;
+      orderRequest.note = objCustomer.note;
+    }
+
+    dispatch(orderCreateAction(orderRequest, onCreateSuccess))
+  };
+
+ 
+  const createOrderLineItemsRequest = () => {
     let orderLineItemsRequest: Array<OrderLineItemRequest> = [];
     items.forEach((item, index) => {
       orderLineItemsRequest.push(
@@ -142,11 +242,7 @@ const CreateBill = () => {
       });
     });
 
-
-    if (order !== null) {
-      let requestOrderVar = converOrderModelToRequest(order);
-      
-    }
+    return orderLineItemsRequest;
   };
 
   const createOrderLineItemRequest = (
@@ -196,17 +292,6 @@ const CreateBill = () => {
     return request;
   };
 
-  const onCreateSuccess = useCallback(() => {
-    history.push("/orders");
-  }, [history]);
-
-  const onFinish = useCallback(
-    (values: OrderRequest) => {
-      //call api
-    },
-    [dispatch, onCreateSuccess]
-  );
-
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountDetailResponse>) => {
       setAccounts(data.items);
@@ -220,7 +305,7 @@ const CreateBill = () => {
 
   return (
     <div>
-      <Form onFinish={onFinish}>
+      <Form>
         <Row gutter={24}>
           <Col xs={24} lg={17}>
             {/*--- customer ---*/}
@@ -267,8 +352,8 @@ const CreateBill = () => {
                   <Select
                     className="select-with-search"
                     showSearch
-                    placeholder=""
-                    defaultValue=""
+                    placeholder="Chọn nhân viên bán hàng"
+                    onChange={onChangeAssignCode}
                   >
                     <Select.Option value="">
                       Chọn nhân viên bán hàng
@@ -277,7 +362,7 @@ const CreateBill = () => {
                       <Select.Option
                         style={{ width: "100%" }}
                         key={index}
-                        value={item.id}
+                        value={item.code}
                       >
                         {item.full_name}
                       </Select.Option>
@@ -300,9 +385,10 @@ const CreateBill = () => {
                       </span>
                     </Tooltip>
                   </div>
-                  <Form.Item name="">
-                    <Input placeholder="Điền tham chiếu" />
-                  </Form.Item>
+                  <Input
+                    onChange={(e) => onChangeReference(e.target.value)}
+                    placeholder="Điền tham chiếu"
+                  />
                 </div>
               </div>
 
@@ -321,7 +407,10 @@ const CreateBill = () => {
                       </span>
                     </Tooltip>
                   </div>
-                  <Input placeholder="Điền đường dẫn" />
+                  <Input
+                    onChange={(e) => onChangeUrl(e.target.value)}
+                    placeholder="Điền đường dẫn"
+                  />
                 </div>
               </div>
             </Card>
@@ -348,7 +437,10 @@ const CreateBill = () => {
                     </span>
                   </Tooltip>
                 </div>
-                <Input.TextArea placeholder="Điền ghi chú" />
+                <Input.TextArea
+                  onChange={(e) => onChangeNoteOrder(e.target.value)}
+                  placeholder="Điền ghi chú"
+                />
               </div>
               <div className="form-group form-group-with-search mb-0">
                 <div>
@@ -364,17 +456,23 @@ const CreateBill = () => {
                     </span>
                   </Tooltip>
                 </div>
-                <Input placeholder="Thêm tag" />
+                <Input
+                  onChange={(e) => onChangeTag(e.target.value)}
+                  placeholder="Thêm tag"
+                />
               </div>
             </Card>
           </Col>
         </Row>
 
         <Row className="footer-row-btn" justify="end">
-          <Button type="default" className="btn-style btn-cancel">
+          <Button
+            type="default"
+            className="btn-style btn-cancel"
+          >
             Hủy
           </Button>
-          <Button type="default" className="btn-style btn-save">
+          <Button type="default"  onClick={finishOrder} className="btn-style btn-save">
             Lưu
           </Button>
         </Row>

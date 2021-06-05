@@ -1,8 +1,10 @@
-import { OrderDiscountRequest } from "./order-discount.request";
-import { OrderLineItemRequest } from "./order-line-item.request";
-import { OrderPaymentRequest } from "./order-payment.request";
+import { OrderPaymentRequest } from 'model/request/order-payment.request';
+import { ShippingAddress } from "model/other/Customer/customer-model";
+import { OrderDiscountRequest } from "model/request/order-discount.request";
+import { OrderLineItemRequest } from "model/request/order-line-item.request";
+import { BillingAddress } from "model/request/order.request";
 
-export interface OrderRequest {
+export interface OrderRespose {
   company_id: number | null,
   store_id: number | null,
   store: string | null,
@@ -51,7 +53,7 @@ export interface OrderRequest {
 }
 
 
-export interface BillingAddress {
+export interface BillingAddressResponse {
   default: boolean,
   name: string,
   email: string,
@@ -68,7 +70,7 @@ export interface BillingAddress {
   full_address: string
 }
 
-export interface ShippingAddress {
+export interface ShippingAddressResponse {
   default: boolean,
   name: string,
   email: string,

@@ -30,7 +30,7 @@ import React, {
 import productIcon from "../../assets/img/cube.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
-import DiscountGroup from "./discountGroup";
+import DiscountGroup from "./discount-group";
 import { StoreModel } from "model/other/Core/store-model";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -54,7 +54,7 @@ import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "../../config/TypeConfig";
 import "../../assets/css/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
-import AddGiftModal from "../modal/AddGiftModal";
+import AddGiftModal from "./modal/AddGiftModal";
 import { OrderItemDiscountModel, OrderItemModel } from "model/other/Order/order-model";
 
 type ProductCardProps = {
@@ -406,12 +406,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const onSearchSelect = useCallback(
     (v, o) => {
-      console.log(o);
+      console.log(v,o);
+      console.log(resultSearch)
       let _items = [...items];
-      let indexSearch = resultSearch.findIndex((s) => s.id === v);
-      let index = _items.findIndex((i) => i.variant_id === v);
+      let indexSearch = resultSearch.findIndex((s) => s.id == v);
+      console.log(indexSearch)
+      let index = _items.findIndex((i) => i.variant_id == v);
       let r: VariantModel = resultSearch[indexSearch];
-      if (r.id === v) {
+      if (r.id == v) {
         if (splitLine || index === -1) {
           const item: OrderItemModel = createItem(r);
           _items.push(item);

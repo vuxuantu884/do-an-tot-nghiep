@@ -30,12 +30,16 @@ export interface BillingAddress extends BaseModel {
   name: string,
   email: string,
   phone: string,
+  country_id: number,
   country: string,
+  city_id: number,
   city: string,
+  district_id: number,
   district: string,
-  zipCode: string,
-  full_address: string,
-  note: string,
+  ward_id: number,
+  ward: string,
+  zip_code: string,
+  full_address: string
 }
 
 export interface ShippingAddress extends BaseModel {
@@ -43,10 +47,14 @@ export interface ShippingAddress extends BaseModel {
   name: string,
   email: string,
   phone: string,
+  country_id: number,
   country: string,
+  city_id: number,
   city: string,
+  district_id: number,
   district: string,
-  zipCode: string,
-  full_address: string,
-  note?: string,
+  ward_id: number,
+  ward: string,
+  zip_code: string,
+  full_address: string
 }
