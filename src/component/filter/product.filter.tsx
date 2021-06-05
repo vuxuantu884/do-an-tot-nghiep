@@ -118,7 +118,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
             />
           </Form.Item>
           <Form.Item className="form-group form-group-with-search" name="brand">
-            <Select
+            <Select defaultValue=''
               className="select-with-search"
               style={{
                 width: 250,
@@ -187,7 +187,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 className="form-group form-group-with-search"
                 label="Xuất sứ"
               >
-                <Select className="selector">
+                <Select className="selector" defaultValue=''>
                   <Option value="">Xuất sứ</Option>
                   {listCountries?.map((item) => (
                     <Option key={item.code} value={item.code}>
@@ -205,7 +205,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 className="form-group form-group-with-search"
                 label="Nhà thiết kế"
               >
-                <Select className="selector">
+                <Select className="selector" defaultValue=''>
                   <Option value="">Nhà thiết kế</Option>
                   {listMerchandisers?.map((item) => (
                     <Option key={item.code} value={item.code}>
@@ -236,9 +236,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Form.Item>
             </Col>
           </Row>
-          <Item className="form-group form-group-with-search" label="Địa chỉ">
-            <Input className="r-5 ip-search" placeholder="Địa chỉ" />
-          </Item>
+         
           <Row gutter={24}>
             <Col span={12}>
               <Form.Item
@@ -272,7 +270,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 className="form-group form-group-with-search"
                 label="Size"
               >
-                <Select className="selector">
+                <Select className="selector" defaultValue=''>
                   <Option value="">Size</Option>
                   {listSize?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -288,7 +286,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 className="form-group form-group-with-search"
                 label="Trạng thái"
               >
-                <Select className="selector">
+                <Select className="selector" defaultValue=''>
                   <Option value="">Trạng thái</Option>
                   {listStatus?.map((item) => (
                     <Option key={item.value} value={item.value}>
@@ -306,7 +304,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 className="form-group form-group-with-search"
                 label="Màu chủ đạo"
               >
-                <Select className="selector">
+                <Select className="selector" defaultValue=''>
                   <Option value="">Size</Option>
                   {listMainColors?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -324,7 +322,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 className="form-group form-group-with-search"
                 label="Màu sắc"
               >
-                <Select className="selector">
+                <Select className="selector" defaultValue=''>
                   <Option value="">Màu sắc</Option>
                   {listColors?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -342,7 +340,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 className="form-group form-group-with-search"
                 label="Nhà cung cấp"
               >
-                <Select className="selector">
+                <Select className="selector" defaultValue=''>
                   <Option value="">Nhà cung cấp</Option>
                   {listSupplier?.map((item) => (
                     <Option key={item.id} value={item.id}>
