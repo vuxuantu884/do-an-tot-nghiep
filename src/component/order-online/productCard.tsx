@@ -49,14 +49,13 @@ import {
 } from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { VariantModel } from "model/other/Product/product-model";
-import { OrderItemModel } from "model/other/Order/order-item-model";
-import { OrderItemDiscountModel } from "model/other/Order/order-item-discount-model";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "../../config/TypeConfig";
 import "../../assets/css/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "../modal/AddGiftModal";
+import { OrderItemDiscountModel, OrderItemModel } from "model/other/Order/order-model";
 
 type ProductCardProps = {
   selectStore: (item: number) => void;

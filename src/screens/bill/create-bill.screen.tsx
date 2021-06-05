@@ -9,11 +9,9 @@ import ShipmentCard from "../../component/order-online/shipmentCard";
 import { useState, useCallback, useLayoutEffect } from "react";
 import { useDispatch } from "react-redux";
 import { StoreModel } from "model/other/Core/store-model";
-import { OrderItemModel } from "model/other/Order/order-item-model";
 import { OrderRequest } from "model/request/order.request";
 import { OrderLineItemRequest } from "model/request/order-line-item.request";
 import { OrderItemDiscountRequest } from "model/request/order-item-discount.request";
-import { OrderItemDiscountModel } from "model/other/Order/order-item-discount-model";
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
 import {
   BillingAddress,
@@ -24,6 +22,8 @@ import { useHistory } from "react-router";
 import AccountAction from "domain/actions/account/account.action";
 import { PageResponse } from "model/response/base-metadata.response";
 import Item from "antd/lib/list/Item";
+import { converOrderModelToRequest } from "utils/AppUtils";
+import { OrderItemDiscountModel, OrderItemModel, OrderModel } from "model/other/Order/order-model";
 //#endregion
 
 const CreateBill = () => {
@@ -49,52 +49,7 @@ const CreateBill = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(1);
   const [store, setStore] = useState<StoreModel | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountDetailResponse>>([]);
-
-  const initRequest: OrderRequest = {
-    company_id: null,
-    store_id: null,
-    store: "",
-    status: "",
-    price_type: "",
-    tax_treatment: "",
-    source_id: null,
-    note: "",
-    tags: "",
-    customer_note: "",
-    sale_note: "",
-    account_code: "",
-    account: "",
-    source: "",
-    assignee_code: "",
-    assignee: "",
-    channel_id: null,
-    channel: "",
-    customer_id: null,
-    billing_address_id: null,
-    shipping_address_id: null,
-    fulfillment_status: "",
-    packed_status: "",
-    received_Status: "",
-    payment_status: "",
-    return_status: "",
-    total_line_amount_after_line_discount: null,
-    total: null,
-    order_discount_rate: null,
-    order_discount_value: null,
-    discount_reason: "",
-    total_discount: null,
-    total_tax: "",
-    finalized_account_code: "",
-    cancel_account_code: "",
-    finish_account_code: "",
-    finalized_on: "",
-    cancelled_on: "",
-    finished_on: "",
-    currency: "",
-    items: [],
-    discounts: [],
-    payments: [],
-  };
+  const [order, setOrder] = useState<OrderModel | null>(null);
 
   //Address modal
   const showAddressModal = () => {
@@ -187,11 +142,11 @@ const CreateBill = () => {
       });
     });
 
-    initRequest.items = orderLineItemsRequest;
-    initRequest.shipping_address_id = objShippingAddress?.id;
-    initRequest.billing_address_id = objBillingAddress?.id;
-    initRequest.store_id = storeId;
-    initRequest.source_id = source;
+
+    if (order !== null) {
+      let requestOrderVar = converOrderModelToRequest(order);
+      
+    }
   };
 
   const createOrderLineItemRequest = (

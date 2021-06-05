@@ -34,7 +34,6 @@ import locationIcon from "assets/img/location.svg";
 import { SearchOutlined } from "@ant-design/icons";
 import AddAddressModal from "./modal/addAddressModal";
 import EditCustomerModal from "./modal/editCustomerModal";
-import { SourceModel } from "model/other/Order/source-model";
 import { getListSourceRequest } from "domain/actions/order/orderOnline.action";
 import { RefSelectProps } from "antd/lib/select";
 import {
@@ -45,6 +44,7 @@ import {
 import { OnSearchChange } from "domain/actions/customer/customer.action";
 import imgdefault from "assets/icon/img-default.svg";
 import moment from "moment";
+import { SourceResponse } from "model/response/order/source.response";
 //#endregion
 
 type CustomerCardProps = {
@@ -67,7 +67,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [customer, setCustomer] = useState<CustomerModel | null>(null);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
-  const [listSource, setListSource] = useState<Array<SourceModel>>([]);
+  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
   const [billingAddress, setBillingAddress] =

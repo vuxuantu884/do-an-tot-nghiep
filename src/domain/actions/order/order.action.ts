@@ -1,8 +1,7 @@
-import { OrderItemModel } from '../../../model/other/Order/order-item-model';
 import { VariantModel } from '../../../model/other/Product/product-model';
-import { OrderPaymentModel } from '../../../model/other/Order/order-payment-model';
 import { OrderType } from '../../types/order.type';
 import BaseAction from 'base/BaseAction';
+import { OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
 
 const createTab = (storeId: number, companyId: number,currency: string,account: string, account_code: string, source_id: number, source: string ) => {
   return BaseAction(OrderType.CREATE_TAB_REQUEST,

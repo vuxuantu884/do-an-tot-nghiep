@@ -8,11 +8,10 @@ import { VariantModel } from 'model/other/Product/product-model';
 import { findAvatar, findPrice, findPriceInVariant, findTaxInVariant, formatCurrency } from 'utils/AppUtils';
 import { AppConfig } from 'config/AppConfig';
 import imgdefault from 'assets/icon/img-default.svg';
-import { OrderItemModel } from 'model/other/Order/order-item-model';
 import { Type } from 'config/TypeConfig';
 import { Link } from 'react-router-dom';
 import { OnSearchChange } from "domain/actions/search.action";
-import { OrderItemDiscountModel } from "model/other/Order/order-item-discount-model";
+import { OrderItemDiscountModel, OrderItemModel } from 'model/other/Order/order-model';
 
 type AddGiftModalProps = {
   visible: boolean;
