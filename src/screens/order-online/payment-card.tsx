@@ -29,7 +29,7 @@ type PaymentCardProps = {
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod ] = useState(1);
+  const [selectedPaymentMethod, setSelectedPaymentMethod ] = useState(3);
   const changePaymentMethod = (value: number) => {
     setSelectedPaymentMethod(value);
   };

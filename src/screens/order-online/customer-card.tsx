@@ -166,12 +166,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         resultSearch[index].shipping_address.forEach((item, index2) => {
           if (item.default === true) {
             setShippingAddress(item);
+            props.changeShippingAddress(item);
           }
         });
 
         resultSearch[index].billing_address.forEach((item, index2) => {
           if (item.default === true) {
             setBillingAddress(item);
+            props.changeBillingAddress(item);
           }
         });
 
@@ -198,8 +200,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     }
   };
 
-  const onSelectShippingAddress = (value: any) => {
+  const onSelectShippingAddress = (value: ShippingAddress) => {
     setShippingAddress(value);
+    props.changeShippingAddress(value);
   };
 
   const onChangeSource = useCallback(

@@ -102,38 +102,33 @@ const CreateBill = () => {
     setSource(source);
   };
 
-  const onChangeInfo = 
-    (
-      _items: Array<OrderItemModel>,
-      amount: number,
-      discount_rate: number,
-      discount_value: number
-    ) => {
-      setItems(_items);
-      setDiscountRate(discount_rate);
-      setDiscountValue(discount_value);
-      setAmount(amount);
-    }
+  const onChangeInfo = (
+    _items: Array<OrderItemModel>,
+    amount: number,
+    discount_rate: number,
+    discount_value: number
+  ) => {
+    setItems(_items);
+    setDiscountRate(discount_rate);
+    setDiscountValue(discount_value);
+    setAmount(amount);
+  };
 
-
-  const onChangeInfoCustomer = (_objCustomer: CustomerModel|null) => {
-    console.log(_objCustomer)
+  const onChangeInfoCustomer = (_objCustomer: CustomerModel | null) => {
     setObjCustomer(_objCustomer);
   };
 
-  const onChangeShippingAddress = useCallback(
-    (objShippingAddress: ShippingAddress) => {
-      setObjShippingAddress(objShippingAddress);
-    },
-    [dispatch]
-  );
+  const onChangeShippingAddress = (
+    _objShippingAddress: ShippingAddress | null
+  ) => {
+    setObjShippingAddress(_objShippingAddress);
+  };
 
-  const onChangeBillingAddress = useCallback(
-    (objBillingAddress: BillingAddress) => {
-      setObjBillingAddress(objBillingAddress);
-    },
-    [dispatch]
-  );
+  const onChangeBillingAddress = (
+    _objBillingAddress: BillingAddress | null
+  ) => {
+    setObjBillingAddress(_objBillingAddress);
+  };
 
   const onChangeAssignCode = (value: string) => {
     setAssignCode(value);
@@ -156,39 +151,34 @@ const CreateBill = () => {
   };
 
   const onCreateSuccess = useCallback(() => {
-    history.push('/dasboard');
-  }, [history])
-
+    history.push("/dasboard");
+  }, [history]);
 
   const finishOrder = () => {
     let orderLineItemsRequest = createOrderLineItemsRequest();
     let orderRequest: OrderRequest = {
       company_id: null,
-      store_id: null,
-      store: "",
+      store_id: storeId,
       status: "",
       price_type: "",
       tax_treatment: "",
-      source_id: null,
-      note: "",
-      tags: "",
+      source_id: source,
+      note: orderNote,
+      tags: tag,
       customer_note: "",
       sale_note: "",
       account_code: "",
       account: "",
-      source: "",
-      assignee_code: "",
-      assignee: "",
+      assignee_code: assignCode,
       channel_id: null,
-      channel: "",
       customer_id: null,
       fulfillment_status: "",
       packed_status: "",
       received_Status: "",
       payment_status: "",
       return_status: "",
-      reference: "",
-      url: "",
+      reference: reference,
+      url: url,
       total_line_amount_after_line_discount: null,
       total: null,
       order_discount_rate: null,
@@ -206,29 +196,18 @@ const CreateBill = () => {
       items: orderLineItemsRequest,
       discounts: [],
       payments: [],
-      shipping_address: null,
-      billing_address: null,
+      shipping_address: objShippingAddress,
+      billing_address: objBillingAddress,
     };
-
-    //orderRequest.items = orderLineItemsRequest;
-    orderRequest.shipping_address = objShippingAddress;
-    orderRequest.billing_address = objBillingAddress;
-    orderRequest.store_id = storeId;
-    orderRequest.account_code = assignCode;
-    orderRequest.note = orderNote;
-    orderRequest.url = url;
-    orderRequest.reference = reference;
-    orderRequest.tags = tag;
 
     if (objCustomer != null) {
       orderRequest.customer_note = objCustomer.note;
-      orderRequest.note = objCustomer.note;
+      orderRequest.customer_id = objCustomer.id;
     }
 
-    dispatch(orderCreateAction(orderRequest, onCreateSuccess))
+    dispatch(orderCreateAction(orderRequest, onCreateSuccess));
   };
 
- 
   const createOrderLineItemsRequest = () => {
     let orderLineItemsRequest: Array<OrderLineItemRequest> = [];
     items.forEach((item, index) => {
@@ -326,7 +305,7 @@ const CreateBill = () => {
             {/*--- end product ---*/}
 
             {/*--- shipment ---*/}
-            <ShipmentCard />
+            <ShipmentCard  />
             {/*--- end shipment ---*/}
 
             {/*--- payment ---*/}
@@ -466,13 +445,14 @@ const CreateBill = () => {
         </Row>
 
         <Row className="footer-row-btn" justify="end">
-          <Button
-            type="default"
-            className="btn-style btn-cancel"
-          >
+          <Button type="default" className="btn-style btn-cancel">
             Hủy
           </Button>
-          <Button type="default"  onClick={finishOrder} className="btn-style btn-save">
+          <Button
+            type="default"
+            onClick={finishOrder}
+            className="btn-style btn-save"
+          >
             Lưu
           </Button>
         </Row>

@@ -595,7 +595,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               showSearch
               style={{ width: "100%" }}
               placeholder="Chọn cửa hàng"
-              //onChange={onSelectStoreApply}
+              onChange={props.selectStore}
             >
               {dataCanAccess.map((item, index) => (
                 <Select.Option key={index} value={item.id}>
