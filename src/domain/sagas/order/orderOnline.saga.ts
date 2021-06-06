@@ -31,19 +31,20 @@ function* getDataSource(action: YodyAction) {
 
 function* orderCreateSaga(action: YodyAction) {
     const {request, setData} = action.payload;
+    console.log("test", request);
     try {
       console.log("test", request);
-      // yield put(showLoading());
-      // let response: BaseResponse<OrderRespose> = yield call(orderPostApi, request);
-      // yield put(hideLoading());
-      // switch(response.code) {
-      //   case HttpStatus.SUCCESS:
-      //     setData(response.data);
-      //     break;
-      //   default:
-      //     response.errors.forEach((e) => showError(e));
-      //     break;
-      // }
+      yield put(showLoading());
+      let response: BaseResponse<OrderRespose> = yield call(orderPostApi, request);
+      yield put(hideLoading());
+      switch(response.code) {
+        case HttpStatus.SUCCESS:
+          setData(response.data);
+          break;
+        default:
+          response.errors.forEach((e) => showError(e));
+          break;
+      }
     } catch (error) {
       yield put(hideLoading());
       showError('Có lỗi vui lòng thử lại sau');

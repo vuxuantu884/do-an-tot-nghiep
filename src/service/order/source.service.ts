@@ -11,5 +11,5 @@ export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
 }
 
 export const orderPostApi = (request: OrderRequest): Promise<BaseResponse<OrderRespose>> => {
-  return BaseAxios.post(`${ApiConfig.CORE}/suppliers`, request)
+  return BaseAxios.post(`${ApiConfig.ORDER}/orders`, request)
 }
