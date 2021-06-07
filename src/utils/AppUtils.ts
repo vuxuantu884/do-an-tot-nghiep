@@ -6,12 +6,7 @@ import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/Product/category-view";
 import { CategoryResponse } from "model/response/category.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
-import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderModel, OrderPaymentModel } from 'model/other/Order/order-model';
-import { OrderDiscountRequest } from 'model/request/order-discount.request';
-import { OrderItemDiscountRequest } from 'model/request/order-item-discount.request';
-import { OrderLineItemRequest } from 'model/request/order-line-item.request';
-import { OrderPaymentRequest } from 'model/request/order-payment.request';
-import { OrderRequest } from 'model/request/order.request';
+import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
 import { OrderMetadata } from 'model/reducers/OrderListReducerType';
 
 
@@ -46,12 +41,15 @@ export const findCurrentRoute = (routes: Array<RouteMenu> = [], path: string = '
 
 
 
-export const checkPath = (p1: string, p2: string) => {
+ const checkPath = (p1: string, p2: string, pathIgnore?: Array<string>) => {
   if (p1.includes(":") || p2.includes(":")) {
     if (p1.includes(":")) {
       let urls1 = p1.split("/");
       let urls2 = p2.split("/");
       let index = urls1.findIndex((a) => a.includes(":"));
+      if(pathIgnore &&  pathIgnore.includes(urls2[index])) {
+        return false;
+      }
       urls1[index] = urls2[index];
       return urls1.join("/") === urls2.join("/")
     }
@@ -60,6 +58,9 @@ export const checkPath = (p1: string, p2: string) => {
     let urls1 = p2.split("/");
     let urls2 = p1.split("/");
     let index = urls1.findIndex((a) => a.includes(":"));
+    if(pathIgnore &&  pathIgnore.includes(urls2[index])) {
+      return false;
+    }
     urls1[index] = urls2[index];
     return urls1.join("/") === urls2.join("/")
   }
@@ -78,13 +79,13 @@ export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '
     } else {
       if (route.subMenu.length > 0) {
         route.subMenu.forEach((route1) => {
-          if (checkPath(route1.path, path)) {
+          if (checkPath(route1.path, path, route1.pathIgnore)) {
             result.push(route);
             result.push(route1);
           } else {
             if (route1.subMenu.length > 0) {
               route1.subMenu.forEach((route2) => {
-                if (checkPath(route2.path, path)) {
+                if (checkPath(route2.path, path, route2.pathIgnore)) {
                   result.push(route);
                   result.push(route1);
                   result.push(route2);
@@ -376,8 +377,6 @@ const isPaymentCashOnly = (items: Array<OrderPaymentModel>) => {
   console.log(items);
   return items.length === 1 && items[0].payment_method_id === AppConfig.DEFAULT_PAYMENT;
 }
-
-
 export {
   hasNextPage, hasPreviousPage, findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
   replaceFormat, replaceFormatString, getTotalQuantity, getTotalAmount, getTotalDiscount, getTotalAmountAfferDiscount, getDiscountRate, getDiscountValue,

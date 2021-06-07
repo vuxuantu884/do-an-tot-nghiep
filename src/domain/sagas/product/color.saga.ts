@@ -1,4 +1,4 @@
-import { colorDeleteManyApi, colorDeleteOneApi, colorSearchApi } from 'service/product/color.service';
+import { colorCreateApi, colorDeleteManyApi, colorDeleteOneApi, colorDetailApi, colorSearchApi } from 'service/product/color.service';
 import { call, takeLatest, takeEvery } from '@redux-saga/core/effects';
 import { YodyAction } from 'base/BaseAction';
 import BaseResponse from 'base/BaseResponse';
@@ -96,10 +96,46 @@ function* deleteManyColorSaga(action: YodyAction) {
   }
 }
 
+export function* colorCreateSaga(action: YodyAction) {
+  const {request, onCreateSuccess} = action.payload;
+  try {
+    let response: BaseResponse<string> = yield call(colorCreateApi, request);
+    switch(response.code) {
+      case HttpStatus.SUCCESS:
+        onCreateSuccess();
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError('Có lỗi vui lòng thử lại sau');
+  }
+}
+
+export function* colorDetailRequest(action: YodyAction) {
+  const {id, setData} = action.payload;
+  try {
+    let response: BaseResponse<ColorResponse> = yield call(colorDetailApi, id);
+    switch(response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError('Có lỗi vui lòng thử lại sau');
+  }
+}
+
 export function* colorSaga() {
   yield takeLatest(ColorType.SEARCH_COLOR_REQUEST, searchColorSaga);
   yield takeEvery(ColorType.GET_COLOR_REQUEST, getColorSaga);
   yield takeLatest(ColorType.DELETE_COLOR_REQUEST, deleteColorSaga);
   yield takeLatest(ColorType.DELETE_MANY_COLOR_REQUEST, deleteManyColorSaga);
+  yield takeLatest(ColorType.CREATE_COLOR_REQUEST, colorCreateSaga);
+  yield takeLatest(ColorType.DETAIL_COLOR_REQUEST, colorDetailRequest);
   yield takeLatest(ColorType.LIST_COLOR_REQUEST, getListColorSaga);
 }

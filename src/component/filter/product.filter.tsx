@@ -276,7 +276,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                   <Option value="">Size</Option>
                   {listSize?.map((item) => (
                     <Option key={item.id} value={item.id}>
-                      {item.name}
+                      {item.code}
                     </Option>
                   ))}
                 </Select>
