@@ -41,7 +41,7 @@ type ShipmentCardProps = {
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (props: ShipmentCardProps) => {
 
-  const [selectedShipMethod, setSelectedShipMethod ] = useState(1);
+  const [selectedShipMethod, setSelectedShipMethod ] = useState(4);
   const changeShipMethod = (value: number) => {
     setSelectedShipMethod(value);
   };

@@ -1,5 +1,5 @@
-import { BaseMetadata } from "model/other/BaseModel";
-import { OrderModel } from 'model/other/Order/OrderModel';
+import { BaseMetadata } from "model/other/base-model";
+import { OrderModel } from 'model/other/Order/order-model';
 
 export interface OrderMetadata extends BaseMetadata {
   selected: number;

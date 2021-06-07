@@ -1,4 +1,4 @@
-import { CompanyModel } from 'model/other/CompanyModel';
+import { CompanyModel } from 'model/other/Core/company-model';
 
 export interface StoreSetting {
   id: number;

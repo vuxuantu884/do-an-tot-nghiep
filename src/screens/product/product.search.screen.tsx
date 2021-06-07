@@ -12,14 +12,14 @@ import ProductFilter from "component/filter/product.filter";
 import {searchVariantsRequestAction} from "domain/actions/product/products.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable from "component/table/CustomTable";
-import { CategoryView } from "model/other/category-view";
+import { CategoryView } from "model/other/Product/category-view";
 import { VariantResponse } from "model/response/products/variant.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { ColorResponse } from "model/response/products/color.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
 import {getCountry} from "domain/actions/content/content.action"
-import {getMaterialAction} from "domain/actions/product/color.action"
+import {listColorAction } from "domain/actions/product/color.action"
 import {ColorSearchQuery} from "model/query/color.search.query"
 import { SizeResponse } from "model/response/products/size.response";
 
@@ -44,12 +44,12 @@ const initQuery: VariantSearchQuery = {
 const initMainColorQuery: ColorSearchQuery = {
   page:0,
   is_main_color:1,
-  limit:1000
+  limit:200
 }
 const initColorQuery: ColorSearchQuery = {
   page:0,
   is_main_color: 0,
-  limit:1000
+  limit:200
 }
 const ListSupplierScreen: React.FC = () => {
   const query = useQuery();
@@ -82,16 +82,27 @@ const ListSupplierScreen: React.FC = () => {
     items: [],
   });
   const columns = [
-    // {
-    //   title: "Ảnh",
-    //   render: (value: VariantResponse) => {
-    //     value.variant_images.map((item, index) => {
-    //       if (item.variant_avatar) {
-    //         return  <Image src="" width={100} />;
-    //       }
-    //     });
-    //   }
-    // },
+    {
+      title: "Ảnh",
+      render: (value: VariantResponse) => {
+        let variant_images=value.variant_images;
+        let imgUrl='https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg';
+        variant_images.forEach(el => {
+          if(el.variant_avatar){
+            imgUrl="https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg";
+          }
+         
+        });
+        return <Image src={imgUrl} width={100} />;
+        // return img;
+      //   value.variant_images.map((item, index) => {
+      //     if (item.variant_avatar) {
+      //       return  <Image src="" width={100} />;
+      //     }
+      //   });
+      // }
+      }
+    },
     {
       title: "Mã sản phẩm",
       render: (value: VariantResponse) => {
@@ -140,7 +151,7 @@ const ListSupplierScreen: React.FC = () => {
             row.status === "active" ? "status-active" : "status-not-active"
           }
         >
-          {value}
+          {value==="active"?"Đang hoạt động":"Ngừng hoạt động"}
         </div>
       ),
     },
@@ -170,8 +181,8 @@ const ListSupplierScreen: React.FC = () => {
   useEffect(() => {
     if(isFirstLoad.current){
       dispatch(getCountry( setCountry)); 
-      dispatch(getMaterialAction(initMainColorQuery,setMainColor)); 
-      dispatch(getMaterialAction(initColorQuery,setColor)); 
+      dispatch(listColorAction(initMainColorQuery,setMainColor)); 
+      dispatch(listColorAction(initColorQuery,setColor)); 
     }
     isFirstLoad.current=false;
     dispatch(searchVariantsRequestAction(params, setData));

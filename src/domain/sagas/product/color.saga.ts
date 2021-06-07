@@ -11,6 +11,7 @@ import { ColorType } from 'domain/types/product.type';
 function* searchColorSaga(action: YodyAction) {
   const {query,setData} = action.payload;
   try {
+    debugger;
     let response: BaseResponse<PageResponse<ColorResponse>> = yield call(colorSearchApi, query);
     switch(response.code) {
       case HttpStatus.SUCCESS:
@@ -25,9 +26,28 @@ function* searchColorSaga(action: YodyAction) {
   }
 }
 
+function* getListColorSaga(action: YodyAction) {
+  const {query,setData} = action.payload;
+  try {
+    debugger;
+    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(colorSearchApi, query);
+    switch(response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data.items);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError('Có lỗi vui lòng thử lại sau');
+  }
+}
+
 function* getColorSaga(action: YodyAction) {
   const {query, setData} = action.payload;
   try {
+   
     let response: BaseResponse<PageResponse<ColorResponse>> = yield call(colorSearchApi,query);
     switch(response.code) {
       case HttpStatus.SUCCESS:
@@ -117,4 +137,5 @@ export function* colorSaga() {
   yield takeLatest(ColorType.DELETE_MANY_COLOR_REQUEST, deleteManyColorSaga);
   yield takeLatest(ColorType.CREATE_COLOR_REQUEST, colorCreateSaga);
   yield takeLatest(ColorType.DETAIL_COLOR_REQUEST, colorDetailRequest);
+  yield takeLatest(ColorType.LIST_COLOR_REQUEST, getListColorSaga);
 }

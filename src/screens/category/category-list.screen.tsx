@@ -6,7 +6,7 @@ import { getCategoryRequestAction } from "domain/actions/product/category.action
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import search from 'assets/img/search.svg';
-import { CategoryParent, CategoryView } from "model/other/category-view";
+import { CategoryParent, CategoryView } from "model/other/Product/category-view";
 import ButtonSetting from "component/table/ButtonSetting";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { CategoryResponse } from "model/response/category.response";
