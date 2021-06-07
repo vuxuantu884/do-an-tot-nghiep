@@ -2,7 +2,7 @@ import { Button, Card, Col, Form, FormInstance, Input, Row } from "antd";
 import { detailMaterialAction, updateMaterialAction } from "domain/actions/product/material.action";
 import { UpdateMaterialRequest } from "model/request/create-material.request";
 import { MaterialResponse } from "model/response/product/material.response";
-import { createRef, useCallback, useLayoutEffect, useState } from "react";
+import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 
@@ -29,7 +29,7 @@ const UpdateMaterial: React.FC = () => {
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
-  useLayoutEffect(() => {
+  useEffect(() => {
     let idNumber = parseInt(id);
     if(!Number.isNaN(idNumber)) {
       dispatch(detailMaterialAction(idNumber, setData));

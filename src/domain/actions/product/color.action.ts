@@ -3,6 +3,7 @@ import { ColorSearchQuery } from 'model/query/color.search.query';
 import BaseAction from "base/BaseAction";
 import { ColorResponse } from 'model/response/products/color.response';
 import { PageResponse } from 'model/response/base-metadata.response';
+import { ColorCreateRequest } from 'model/request/color-create.request';
 
 export const getMaterialAction = ( query: ColorSearchQuery,  setData: (data: Array<ColorResponse>) => void
 ) => {
@@ -10,18 +11,22 @@ export const getMaterialAction = ( query: ColorSearchQuery,  setData: (data: Arr
   return BaseAction(ColorType.SEARCH_COLOR_REQUEST, {query,  setData });
 }
 
-const getColorAction = ( query: ColorSearchQuery,  setData: (data: PageResponse<ColorResponse>) => void) => {
+export const getColorAction = ( query: ColorSearchQuery,  setData: (data: PageResponse<ColorResponse>) => void) => {
   return BaseAction(ColorType.GET_COLOR_REQUEST, {query,  setData });
 }
 
-const colorDeleteAction = ( id: number,  onDeleteSuccess: () => void) => {
+export const colorDeleteAction = ( id: number,  onDeleteSuccess: () => void) => {
   return BaseAction(ColorType.DELETE_COLOR_REQUEST, {id,  onDeleteSuccess });
 }
 
-const colorDeleteManyAction = ( ids: Array<number>,  onDeleteSuccess: () => void) => {
+export const colorDeleteManyAction = ( ids: Array<number>,  onDeleteSuccess: () => void) => {
   return BaseAction(ColorType.DELETE_MANY_COLOR_REQUEST, {ids,  onDeleteSuccess });
 }
 
-const ColorAction = {getColorAction, colorDeleteAction, colorDeleteManyAction}
+export const colorCreateAction = ( request: ColorCreateRequest,  onCreateSuccess: () => void) => {
+  return BaseAction(ColorType.CREATE_COLOR_REQUEST, {request,  onCreateSuccess });
+}
 
-export default ColorAction;
+export const colorDetailAction = (id: number, setData: (data: ColorResponse) => void) => {
+  return BaseAction(ColorType.DETAIL_COLOR_REQUEST, {id,  setData});
+}
