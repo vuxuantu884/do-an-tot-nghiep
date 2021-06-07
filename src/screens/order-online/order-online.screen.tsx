@@ -153,7 +153,7 @@ const CreateBill = () => {
 
   const onCreateSuccess = useCallback(() => {
     showSuccess("Thêm đơn hàng thành công");
-    history.push("/admin/list-orders");
+    history.push("/list-orders");
   }, [history]);
 
   const finishOrder = () => {
