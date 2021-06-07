@@ -15,7 +15,6 @@ import { ColorSearchQuery } from "model/query/color.search.query";
 import imgDefault from 'assets/icon/img-default.svg'
 import { colorDeleteAction, colorDeleteManyAction, getColorAction } from "domain/actions/product/color.action";
 import {isUndefinedOrNull} from 'utils/AppUtils'
-import { formatDate } from "utils/DateUtils";
 
 const action: Array<MenuAction> = [
   {

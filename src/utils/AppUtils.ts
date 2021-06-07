@@ -6,12 +6,7 @@ import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/Product/category-view";
 import { CategoryResponse } from "model/response/category.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
-import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderModel, OrderPaymentModel } from 'model/other/Order/order-model';
-import { OrderDiscountRequest } from 'model/request/order-discount.request';
-import { OrderItemDiscountRequest } from 'model/request/order-item-discount.request';
-import { OrderLineItemRequest } from 'model/request/order-line-item.request';
-import { OrderPaymentRequest } from 'model/request/order-payment.request';
-import { OrderRequest } from 'model/request/order.request';
+import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
 import { OrderMetadata } from 'model/reducers/OrderListReducerType';
 
 

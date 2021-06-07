@@ -1,6 +1,5 @@
 import { loadUserFromStorageAction } from 'domain/actions/app.action';
 import { RootReducerType } from 'model/reducers/RootReducerType';
-import moment from 'moment';
 import React, { Suspense, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
