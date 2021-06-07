@@ -1,4 +1,4 @@
-import { StoreModel } from 'model/other/StoreModel';
+import { StoreModel } from 'model/other/Core/store-model';
 import BaseAction from 'base/BaseAction';
 import { StoreType } from 'domain/types/product.type';
 import { AccountModel } from 'model/other/Account/AccountModel';

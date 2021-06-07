@@ -1,21 +1,17 @@
+import { DistrictResponse } from './../model/response/content/district.response';
+import { CityView } from '../model/other/district-view';
 import { AppConfig } from './../config/AppConfig';
-import { VariantPrice, VariantImage } from './../model/other/ProductModel';
+import { VariantPrice, VariantImage } from '../model/other/Product/product-model';
 import { RouteMenu } from "model/other";
-import { CategoryView } from "model/other/category-view";
-import { CityView } from "model/other/district-view";
+import { CategoryView } from "model/other/Product/category-view";
 import { CategoryResponse } from "model/response/category.response";
-import { DistrictResponse } from "model/response/content/district.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
-import { OrderDiscountModel } from 'model/other/Order/OrderDiscountModel';
-import { OrderItemModel } from 'model/other/Order/OrderItemModel';
-import { OrderModel } from 'model/other/Order/OrderModel';
-import { OrderPaymentModel } from 'model/other/Order/OrderPaymentModel';
-import { OrderDiscountRequest } from 'model/request/OrderDiscountRequest';
-import { OrderItemDiscountRequest } from 'model/request/OrderItemDiscountRequest';
-import { OrderLineItemRequest } from 'model/request/OrderLineItemRequest';
-import { OrderPaymentRequest } from 'model/request/OrderPaymentRequest';
-import { OrderRequest } from 'model/request/OrderRequest';
-import { OrderItemDiscountModel } from './../model/other/Order/OrderItemDiscountModel';
+import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderModel, OrderPaymentModel } from 'model/other/Order/order-model';
+import { OrderDiscountRequest } from 'model/request/order-discount.request';
+import { OrderItemDiscountRequest } from 'model/request/order-item-discount.request';
+import { OrderLineItemRequest } from 'model/request/order-line-item.request';
+import { OrderPaymentRequest } from 'model/request/order-payment.request';
+import { OrderRequest } from 'model/request/order.request';
 import { OrderMetadata } from 'model/reducers/OrderListReducerType';
 
 
@@ -370,122 +366,6 @@ const findOrderDiscount = (items: Array<OrderDiscountModel>) => {
   return items[index].amount;
 }
 
-const converOrderModelToRequest = (order: OrderModel) => {
-  let orderItem: Array<OrderLineItemRequest> = [];
-  let orderPaymentRequest: Array<OrderPaymentRequest> = [];
-  let orderDiscount: Array<OrderDiscountRequest> = [];
-  order.items.forEach(item => {
-    let orderItemDiscount: Array<OrderItemDiscountRequest>= [];
-    item.discount_items.forEach((discount_items) => orderItemDiscount.push(discount_items));
-    orderItem.push({
-      sku: item.sku,
-      variant_id: item.variant_id,
-      variant: item.variant,
-      product_id: item.product_id,
-      product: item.product,
-      variant_barcode: item.variant_barcode,
-      product_type: item.product_type,
-      quantity: item.quantity,
-      price: item.price,
-      amount: item.amount,
-      note: item.note,
-      type: item.type,
-      variant_image: item.variant_image,
-      unit: item.unit,
-      warranty: item.warranty,
-      tax_rate: item.tax_rate,
-      tax_include: item.tax_include,
-      is_composite: item.is_composite,
-      line_amount_after_line_discount: item.line_amount_after_line_discount,
-      discount_items: orderItemDiscount,
-      discount_rate: item.discount_rate,
-      discount_value: item.discount_value,
-      discount_amount: item.discount_value,
-    });
-    if(item.gifts.length > 0) {
-      item.gifts.forEach((gift) => {
-        orderItem.push({
-          sku: gift.sku,
-          variant_id: gift.variant_id,
-          variant: gift.variant,
-          product_id: gift.product_id,
-          product: gift.product,
-          variant_barcode: gift.variant_barcode,
-          product_type: gift.product_type,
-          quantity: gift.quantity,
-          price: gift.price,
-          amount: gift.amount,
-          note: gift.note,
-          type: gift.type,
-          variant_image: gift.variant_image,
-          unit: gift.unit,
-          warranty: gift.warranty,
-          tax_rate: gift.tax_rate,
-          tax_include: gift.tax_include,
-          is_composite: gift.is_composite,
-          line_amount_after_line_discount: gift.line_amount_after_line_discount,
-          discount_items: [], 
-          discount_rate: gift.discount_rate,
-          discount_value: gift.discount_value,
-          discount_amount: gift.discount_value,
-        });
-      })
-    }
-  })
-  order.discounts.forEach(discount => {
-    orderDiscount.push(discount);
-  })
-  order.payments.forEach(payment => orderPaymentRequest.push(payment));
-
-  let orderRequest: OrderRequest = {
-    company_id: order.company_id,
-    store_id: order.store_id,
-    store: order.store,
-    status: order.status,
-    price_type: order.price_type,
-    tax_treatment: order.tax_treatment,
-    source_id: order.source_id,
-    note: order.note,
-    tags: order.tags,
-    customer_note: order.customer_note,
-    sale_note: order.sale_note,
-    account_code: order.account_code,
-    account: order.account,
-    source: order.source,
-    assignee_code: order.assignee_code,
-    assignee: order.assignee,
-    channel_id: order.channel_id,
-    channel: order.channel,
-    customer_id: order.customer_id,
-    billing_address_id: order.billing_address_id,
-    shipping_address_id: order.shipping_address_id,
-    fulfillment_status: '',
-    packed_status: '',
-    received_Status: '',
-    payment_status: '',
-    return_status: '',
-    total_line_amount_after_line_discount: order.total_line_amount_after_line_discount,
-    total: order.total,
-    order_discount_rate: order.order_discount_rate,
-    order_discount_value: order.order_discount_value,
-    discount_reason: "",
-    total_discount: order.total_discount,
-    total_tax: '',
-    finalized_account_code: '',
-    cancel_account_code: '',
-    finish_account_code: '',
-    finalized_on: '',
-    cancelled_on: '',
-    finished_on: '',
-    currency: order.currency,
-    items: orderItem,
-    discounts: orderDiscount,
-    payments: orderPaymentRequest,
-  }
-  return orderRequest;
-}
-
-
 const caculateMoney = (items: Array<OrderPaymentModel>, totalMoney: number) => {
   let total = 0;
   items.forEach((i) => total = total + i.amount);
@@ -502,5 +382,5 @@ export {
   hasNextPage, hasPreviousPage, findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
   replaceFormat, replaceFormatString, getTotalQuantity, getTotalAmount, getTotalDiscount, getTotalAmountAfferDiscount, getDiscountRate, getDiscountValue,
   getAmountDiscount, getAmountItemDiscount, findDiscountIndex, findDiscountPromotion, caculatorTotalDiscount, findOrderDiscount, getTotalAmountFreeForm,
-  formatSuffixPoint, converOrderModelToRequest,caculateMoney, isPaymentCashOnly
+  formatSuffixPoint,caculateMoney, isPaymentCashOnly
 };

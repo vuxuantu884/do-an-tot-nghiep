@@ -1,4 +1,4 @@
-import { BaseModel } from "./BaseModel";
+import { BaseModel } from '../base-model';
 
 export interface CompanyModel extends BaseModel {
   name: string;
