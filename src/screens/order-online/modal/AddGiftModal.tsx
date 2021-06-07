@@ -30,7 +30,7 @@ const renderSearch = (item: VariantModel) => {
   return (
     <div className="row-search w-100">
       <div className="rs-left w-100">
-        <img src={avatar === '' ? imgdefault : avatar} alt="anh" placeholder={imgdefault} />
+        <img src={avatar == '' ? imgdefault : avatar} alt="anh" placeholder={imgdefault} />
         <div className="rs-info w-100">
           <span style={{ color: '#37394D' }} className="text">
             {item.name}
@@ -86,8 +86,8 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
           <Input
             onChange={(e) => {
               const re = /^[0-9\b]+$/;
-              if (e.target.value === '' || re.test(e.target.value)) {
-                if (e.target.value === '') {
+              if (e.target.value == '' || re.test(e.target.value)) {
+                if (e.target.value == '') {
                   update(index, 0);
                 } else {
                   update(index, parseInt(e.target.value));
@@ -143,11 +143,11 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
     (v, o) => {
       console.log(o);
       let _items = [...props.items];
-        let indexSearch = resultSearch.findIndex(s => s.id === v)
-        let index = _items.findIndex(i => i.variant_id === v)
+        let indexSearch = resultSearch.findIndex(s => s.id == v)
+        let index = _items.findIndex(i => i.variant_id == v)
         let r:VariantModel=resultSearch[indexSearch]
-        if(r.id === v){
-          if(index === -1){
+        if(r.id == v){
+          if(index == -1){
             const item:OrderItemModel = createItem(r);
             _items.push(item);
           }
