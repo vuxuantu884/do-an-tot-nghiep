@@ -213,8 +213,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   );
 
   useLayoutEffect(() => {
+    let accountStoreFilter = listSource.filter((source: SourceResponse) => source.code === 'POS');
     dispatch(getListSourceRequest(setListSource));
-  }, [dispatch]);
+  }, [dispatch, listSource]);
 
   
 
@@ -240,12 +241,22 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               style={{ width: "200px" }}
               placeholder="Chọn nguồn đơn hàng"
               onChange={onChangeSource}
+              filterOption={(input, option) => {
+                if (option) {
+                  return (
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  );
+                }
+                return false;
+              }}
             >
               <Select.Option value="">Chọn nguồn đơn hàng</Select.Option>
               {listSource.map((item, index) => (
                 <Select.Option
                   style={{ width: "100%" }}
-                  key={index}
+                  key={index.toString()}
                   value={item.id}
                 >
                   {item.name}
@@ -317,15 +328,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     />{" "}
                   </svg>
                 </span>
-                <span>
+                <span style={{fontWeight: 500, fontSize: '14px'}}>
                   {customer?.full_name === undefined
                     ? "Nguyễn Văn A"
                     : customer?.full_name}
                 </span>
                 <span className="cdn-level">
-                  {customer?.level_id === undefined
+                  {customer?.customer_level_name === undefined
                     ? "Level 1"
-                    : customer?.level_id}
+                    : customer?.customer_level_name}
                 </span>
               </Space>
             </Row>
@@ -345,7 +356,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               </span>
               <span className="customer-detail-text">
                 Tổng điểm{" "}
-                <Typography.Text type="success" strong>
+                <Typography.Text type="success" style={{color: '#0080FF'}} strong>
                   {customer?.loyalty === undefined ? "0" : customer?.loyalty}
                 </Typography.Text>
               </span>

@@ -3,11 +3,11 @@ import { RouteMenu } from "model/other";
 import React from "react";
 
 const CreateBill = React.lazy(() => import ("screens/order-online/order-online.screen"))
-
+const ListOrder = React.lazy(() => import ("screens/order-online/index.screen"))
 
 const bill: Array<RouteMenu> = [
   {
-    path: "/bill/create",
+    path: "/order-online/create",
     exact: true,
     title: "Tạo đơn Online",
     icon: 'icon-dot',
@@ -20,11 +20,11 @@ const bill: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/bill",
+    path: "/list-orders",
     exact: true,
     title: "Danh sách đơn hàng",
     icon: 'icon-dot',
-    component: CreateBill,
+    component: ListOrder,
     key: "submenu52",
     isShow: true,
     header: null,

@@ -26,6 +26,7 @@ import {
   OrderItemModel,
 } from "model/other/Order/order-model";
 import { orderCreateAction } from "domain/actions/order/order.action";
+import { showSuccess } from "utils/ToastUtils";
 //#endregion
 
 const CreateBill = () => {
@@ -151,7 +152,7 @@ const CreateBill = () => {
   };
 
   const onCreateSuccess = useCallback(() => {
-    history.push("/dasboard");
+    history.push("/");
   }, [history]);
 
   const finishOrder = () => {
@@ -279,6 +280,7 @@ const CreateBill = () => {
   );
 
   useLayoutEffect(() => {
+    showSuccess("Thêm đơn hàng thành công");
     dispatch(AccountAction.SearchAccount({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
 
@@ -305,7 +307,7 @@ const CreateBill = () => {
             {/*--- end product ---*/}
 
             {/*--- shipment ---*/}
-            <ShipmentCard  />
+            <ShipmentCard />
             {/*--- end shipment ---*/}
 
             {/*--- payment ---*/}
@@ -333,6 +335,16 @@ const CreateBill = () => {
                     showSearch
                     placeholder="Chọn nhân viên bán hàng"
                     onChange={onChangeAssignCode}
+                    filterOption={(input, option) => {
+                      if (option) {
+                        return (
+                          option
+                            .toLowerCase()
+                            .indexOf(input.toLowerCase()) >= 0
+                        );
+                      }
+                      return false;
+                    }}
                   >
                     <Select.Option value="">
                       Chọn nhân viên bán hàng
@@ -340,7 +352,7 @@ const CreateBill = () => {
                     {accounts.map((item, index) => (
                       <Select.Option
                         style={{ width: "100%" }}
-                        key={index}
+                        key={index.toString()}
                         value={item.code}
                       >
                         {item.full_name}

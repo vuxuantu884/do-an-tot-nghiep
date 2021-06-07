@@ -26,13 +26,9 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (props: PickDiscount
     onOk(_type,_value,_rate, _counpon)
   };
 
-
-
   const handleChangeSelect = (type:string) =>{
     setType(type)
   }
-
-  
 
   const onchangeDiscount = (value:number) =>{
     if(_type === "money"){
@@ -42,14 +38,12 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (props: PickDiscount
     }else{
       setRate(value)
       setValue(value*props.amount/100)
-
     }
   }
 
   const onchangeCounpon = (e:any) =>{
     setCounpon(e.target.value)
   }
-
 
   return (
     <Modal title="" onCancel={onCancel} centered visible={visible} className="modal-hide-header modal-pick-discount"
