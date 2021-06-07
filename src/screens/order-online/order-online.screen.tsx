@@ -152,7 +152,8 @@ const CreateBill = () => {
   };
 
   const onCreateSuccess = useCallback(() => {
-    history.push("/");
+    showSuccess("Thêm đơn hàng thành công");
+    history.push("/admin/list-orders");
   }, [history]);
 
   const finishOrder = () => {
@@ -280,7 +281,7 @@ const CreateBill = () => {
   );
 
   useLayoutEffect(() => {
-    showSuccess("Thêm đơn hàng thành công");
+    
     dispatch(AccountAction.SearchAccount({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
 
@@ -329,7 +330,15 @@ const CreateBill = () => {
                   Nhân viên bán hàng
                 </label>
 
-                <Form.Item name="assignee_code">
+                <Form.Item
+                  name="assignee_code"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn nhân viên bán hàng",
+                    },
+                  ]}
+                >
                   <Select
                     className="select-with-search"
                     showSearch
@@ -338,9 +347,7 @@ const CreateBill = () => {
                     filterOption={(input, option) => {
                       if (option) {
                         return (
-                          option
-                            .toLowerCase()
-                            .indexOf(input.toLowerCase()) >= 0
+                          option.toLowerCase().indexOf(input.toLowerCase()) >= 0
                         );
                       }
                       return false;
