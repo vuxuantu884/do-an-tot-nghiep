@@ -12,21 +12,20 @@ import { showError } from 'utils/ToastUtils';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
 import { OrderRespose } from 'model/response/order/order-online.response';
 
-function* getDataSource(action: YodyAction) {
+function* getDataSource1(action: YodyAction) {
+
     let { setData } = action.payload;
     try {
+      debugger
         let response: BaseResponse<Array<SourceResponse>> = yield call(getSources);
         switch (response.code) {
             case HttpStatus.SUCCESS:
-                setData(response.data)
+                setData(response.data);
                 break;
             default:
-                yield put(getListSourceError());
                 break;
         }
-    } catch (error) {
-        yield put(getListSourceError())
-    }
+    } catch (error) {}
 }
 
 function* orderCreateSaga(action: YodyAction) {
@@ -52,7 +51,7 @@ function* orderCreateSaga(action: YodyAction) {
   }
 
 function* OrderOnlineSaga(){
-    yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
+     yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource1);
     yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga)
 }
 

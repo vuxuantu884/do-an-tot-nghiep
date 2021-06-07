@@ -1,7 +1,7 @@
 import { CustomerModel } from 'model/other/Customer/customer-model';
-import { VariantModel } from '../../../model/other/Product/product-model';
-import { ListDataModel } from '../../../model/other/list-data-model';
-import { showError } from '../../../utils/ToastUtils';
+import { VariantModel } from 'model/other/Product/product-model';
+import { ListDataModel } from 'model/other/list-data-model';
+import { showError } from 'utils/ToastUtils';
 import BaseResponse from 'base/BaseResponse';
 import { YodyAction } from 'base/BaseAction';
 import { SearchType } from 'domain/types/search.type';
@@ -12,6 +12,7 @@ import { clearResult } from '../../actions/search.action';
 import { addOrderRequest } from 'domain/actions/order/order.action';
 import { RootReducerType } from 'model/reducers/RootReducerType';
 import { getCustomers } from 'service/cusomer/customer.service';
+
 
 const PAGE = 0;
 const LIMIT = 10;
