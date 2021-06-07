@@ -212,10 +212,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     [props]
   );
 
+  const listSources = useMemo(() => {
+    return listSource.filter((item) => item.code !== "pos");
+  }, [listSource])
+
   useLayoutEffect(() => {
-    let accountStoreFilter = listSource.filter((source: SourceResponse) => source.code === 'POS');
     dispatch(getListSourceRequest(setListSource));
-  }, [dispatch, listSource]);
+  }, [dispatch]);
 
   
 
@@ -253,7 +256,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               }}
             >
               <Select.Option value="">Chọn nguồn đơn hàng</Select.Option>
-              {listSource.map((item, index) => (
+              {listSources.map((item, index) => (
                 <Select.Option
                   style={{ width: "100%" }}
                   key={index.toString()}
