@@ -625,9 +625,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               style={{ width: "100%" }}
               placeholder="Chọn cửa hàng"
               onChange={props.selectStore}
+              filterOption={(input, option) => {
+                if (option) {
+                  return (
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  );
+                }
+                return false;
+              }}
             >
               {dataCanAccess.map((item, index) => (
-                <Select.Option key={index} value={item.id}>
+                <Select.Option key={index.toString()}  value={item.id}>
                   {item.name}
                 </Select.Option>
               ))}
@@ -782,7 +792,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 Chiết khấu
               </Typography.Link>
               <div className="badge-style badge-danger">
-                {discountRate}%{" "}
+                {discountRate !== null ? discountRate : 0 }%{" "}
                 <Button
                   type="text"
                   className="p-0"

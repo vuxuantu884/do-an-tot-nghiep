@@ -33,15 +33,15 @@ import ghtkIcon from "../../assets/img/ghtk.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 
 type ShipmentCardProps = {
-  shipmentType: number;
+  setSelectedShipmentType: (paymentType: number) => void;
 }
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (props: ShipmentCardProps) => {
 
   const [selectedShipMethod, setSelectedShipMethod ] = useState(4);
   const changeShipMethod = (value: number) => {
+    props.setSelectedShipmentType(value);
     setSelectedShipMethod(value);
-    props.shipmentType = value;
   };
 
   return (

@@ -30,6 +30,7 @@ import { showSuccess } from "utils/ToastUtils";
 //#endregion
 
 const CreateBill = () => {
+  //#region state
   const dispatch = useDispatch();
   const history = useHistory();
   const [source, setSource] = useState<number>(0);
@@ -57,8 +58,11 @@ const CreateBill = () => {
   const [url, setUrl] = useState<string>("");
   const [orderNote, setOrderNote] = useState<string>("");
   const [tag, setTag] = useState<string>("");
-  const [shipmentType, setShipmentType] = useState<number>(-1);
+  const [shipmentType, setShipmentType] = useState<number>();
+  const [paymentType, setPaymentType] = useState<number>();
+  //#endregion
 
+  //#region modal
   //Address modal
   const showAddressModal = () => {
     setVisibleAddress(true);
@@ -92,12 +96,22 @@ const CreateBill = () => {
     setSelectedPaymentMethod(value);
   };
 
+  //#endregion
+
   const onStoreSelect = (storeId: number) => {
     setStoreId(storeId);
   };
 
   const onPriceTypeSelect = (priceType: string) => {
     setPriceType(priceType);
+  };
+
+  const onShipmentSelect = (shipmentType: number) => {
+    setShipmentType(shipmentType);
+  };
+
+  const onPaymentSelect = (paymentType: number) => {
+    setPaymentType(paymentType);
   };
 
   const onSourceSelect = (source: number) => {
@@ -148,8 +162,13 @@ const CreateBill = () => {
     setOrderNote(value);
   };
 
-  const onChangeTag = (value: string) => {
-    setTag(value);
+  const onChangeTag = (value: []) => {
+    let strTag= "";
+    value.forEach(element => {
+      strTag = strTag + element + ',';
+    });
+
+    setTag(strTag);
   };
 
   const onCreateSuccess = useCallback(() => {
@@ -226,7 +245,6 @@ const CreateBill = () => {
 
     return orderLineItemsRequest;
   };
-  
 
   const createOrderLineItemRequest = (
     model: OrderItemModel,
@@ -282,10 +300,7 @@ const CreateBill = () => {
     []
   );
 
-  console.log("ship", shipmentType);
-
   useLayoutEffect(() => {
-    
     dispatch(AccountAction.SearchAccount({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
 
@@ -312,11 +327,11 @@ const CreateBill = () => {
             {/*--- end product ---*/}
 
             {/*--- shipment ---*/}
-            <ShipmentCard shipmentType={shipmentType}/>
+            <ShipmentCard setSelectedShipmentType={onShipmentSelect} />
             {/*--- end shipment ---*/}
 
             {/*--- payment ---*/}
-            <PaymentCard />
+            <PaymentCard setSelectedPaymentMethod={onPaymentSelect}/>
             {/*--- end payment ---*/}
           </Col>
 
@@ -351,7 +366,9 @@ const CreateBill = () => {
                     filterOption={(input, option) => {
                       if (option) {
                         return (
-                          option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                          option.children
+                            .toLowerCase()
+                            .indexOf(input.toLowerCase()) >= 0
                         );
                       }
                       return false;
@@ -458,10 +475,14 @@ const CreateBill = () => {
                     </span>
                   </Tooltip>
                 </div>
-                <Input
-                  onChange={(e) => onChangeTag(e.target.value)}
-                  placeholder="Thêm tag"
-                />
+
+                <Select
+                  mode="tags"
+                  style={{ width: "100%" }}
+                  onChange={onChangeTag}
+                  tokenSeparators={[","]}
+                >
+                </Select>
               </div>
             </Card>
           </Col>

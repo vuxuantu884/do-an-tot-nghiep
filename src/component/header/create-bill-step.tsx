@@ -1,10 +1,9 @@
 import { Steps } from "antd";
 
-
 const { Step } = Steps;
 const CreateBillStep: React.FC = () => {
   return (
-    <Steps progressDot>
+    <Steps size="small" labelPlacement="vertical" current={1}>
       <Step title="Đặt hàng" />
       <Step title="Xác nhận" />
       <Step title="Đóng gói" />

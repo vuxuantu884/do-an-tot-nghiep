@@ -1,4 +1,3 @@
-
 export interface VariantImagesResponse  {
     id:number,
     variant_id:number,
