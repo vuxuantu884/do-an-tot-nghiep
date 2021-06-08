@@ -131,7 +131,7 @@ const product: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: UrlConfig.SIZES,
+    path: UrlConfig.COLORS,
     exact: true,
     title: "Màu sắc",
     icon: 'icon-dot',
