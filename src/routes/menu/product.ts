@@ -12,6 +12,7 @@ const AddMaterial = React.lazy(() => import ("screens/materials/material-add.scr
 const SizeListScreen = React.lazy(() => import ("screens/size/size-list.screen"));
 const ListSupplier = React.lazy(() => import ("screens/supllier/supplier-list.screen"));
 const AddCategory = React.lazy(() => import ("screens/category/category-add.screen"))
+const UpdateCategory = React.lazy(() => import ("screens/category/category-update.screen"))
 const CreateSupplierScreen = React.lazy(() => import ("screens/supllier/supplier-add.screen"));
 const ColorCreateScreen = React.lazy(() => import ("screens/color/color-create.screen"));
 
@@ -49,6 +50,20 @@ const product: Array<RouteMenu> = [
         isShow: false,
         header: null,
         subMenu: [],
+        type: 0,
+        object: null,
+      },
+      {
+        path: "/categories/:id",
+        exact: true,
+        title: "Sửa danh mục",
+        icon: 'icon-dot',
+        component: UpdateCategory,
+        key: "submenu221",
+        isShow: false,
+        header: null,
+        subMenu: [],
+        pathIgnore: ['create'],
         type: 0,
         object: null,
       }

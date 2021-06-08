@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, Select, Table } from "antd"
+import { Button, Card, Form, Input, Select} from "antd"
 import { Link, useHistory } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,6 +12,7 @@ import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { CategoryResponse } from "model/response/category.response";
 import { convertCategory, generateQuery } from "utils/AppUtils";
 import { CategoryQuery } from "model/query/category.query";
+import CustomTable from "component/table/CustomTable";
 
 const action: Array<MenuAction> = [
   {
@@ -24,6 +25,8 @@ const action: Array<MenuAction> = [
   },
 ]
 
+const link = 'categories'
+
 const Category = () => {
   const history = useHistory();
   const dispatch = useDispatch();
@@ -34,7 +37,6 @@ const Category = () => {
   }
   const [params, setPrams] = useState<CategoryQuery>(getParams);
   const [data, setData] = useState<Array<CategoryView>>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
   const goods = useMemo(() => {
     if (bootstrapReducer.data && bootstrapReducer.data.goods) {
@@ -46,13 +48,14 @@ const Category = () => {
     {
       title: 'Mã danh mục',
       dataIndex: 'code',
-      render: (text: string) => {
-        return <Link to="">{text}</Link>
+      render: (text: string, item: CategoryView) => {
+        return <Link to={`${link}/${item.id}`}>{text}</Link>
       }
     },
     {
       title: 'Danh mục',
-      render: (item: CategoryView) => (
+      dataIndex: 'name',
+      render: (value: string, item: CategoryView) => (
         <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row' }}>
           {
             item.level > 0 && (
@@ -66,7 +69,7 @@ const Category = () => {
               />
             )
           }
-          <span>{item.name}</span>
+          <span>{value}</span>
         </div>
       )
     },
@@ -103,7 +106,6 @@ const Category = () => {
   const onGetSuccess = useCallback((results: Array<CategoryResponse>) => {
     let newData: Array<CategoryView> = convertCategory(results);
     setData(newData);
-    setLoading(false);
   }, []);
   useEffect(() => {
     dispatch(getCategoryRequestAction(params, onGetSuccess))
@@ -150,17 +152,12 @@ const Category = () => {
             </div>
           </Form>
         </Card>
-        <Table
-          rowSelection={{
-            type: "checkbox",
-            columnWidth: 80,
-          }}
-          loading={loading}
+        <CustomTable
           className="yody-table"
           pagination={false}
           dataSource={data}
           columns={columns}
-          rowKey={(item) => item.id}
+          rowKey={(item: CategoryResponse) => item.id}
         />
       </Card>
     </div>
