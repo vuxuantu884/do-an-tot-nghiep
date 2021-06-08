@@ -1,7 +1,11 @@
 import moment from 'moment';
 
 
-export const formatDate = (date: Date | string | number) => {
+export const convertToLocalDate = (date: Date | string | number) => {
   let dateChange = moment.utc(date).format('DD/MM/YYYY HH:mm:ss');
   return dateChange;
+}
+
+export const convertDateToUTC = (date: Date | string | number) => {
+  return new Date(date).toUTCString();
 }
