@@ -52,7 +52,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
         <InputNumber
           formatter={value => formatCurrency(value ? value : '0')}
           style={{height: '32px', width: '100%'}}
-          value={selected === "percent" ? props.discountRate : props.discountValue }
+          value={selected === "percent" ? props.discountRate : formatCurrency(props.discountValue) }
           onChange={onChangeValue}
           parser={value => replaceFormat(value ? value : "0")}
           className="yody-table-discount-input hide-number-handle"
