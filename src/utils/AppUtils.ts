@@ -1,3 +1,4 @@
+import { convertDateToUTC } from './DateUtils';
 import { DistrictResponse } from './../model/response/content/district.response';
 import { CityView } from '../model/other/district-view';
 import { AppConfig } from './../config/AppConfig';
@@ -155,10 +156,14 @@ export const generateQuery = (obj: any) => {
   if(obj!==undefined){
     let a: string = Object.keys(obj).map((key, index) => {
       let url = '';
-      if (obj[key]) {
+      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
         let value = obj[key];
         if(obj[key] instanceof Array) {
           value = obj[key].join(',')
+        }
+        if(obj[key] instanceof Date) {
+          value = convertDateToUTC(obj[key])
+          console.log(value);
         }
         url = key + '=' + encodeURIComponent(value) + '&'
       }
@@ -378,7 +383,6 @@ const caculateMoney = (items: Array<OrderPaymentModel>, totalMoney: number) => {
 }
 
 const isPaymentCashOnly = (items: Array<OrderPaymentModel>) => {
-  console.log(items);
   return items.length === 1 && items[0].payment_method_id === AppConfig.DEFAULT_PAYMENT;
 }
 export {
