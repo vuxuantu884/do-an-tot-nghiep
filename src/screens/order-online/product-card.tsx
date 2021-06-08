@@ -100,8 +100,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const onChangeQuantity = (value: number, index: number) => {
     let _items = [...items];
-    console.log(value);
-    _items[index].quantity = value;
+    
+    _items[index].quantity = Number(value==null?"0":value.toString().replace(".",""));
     setItems(_items);
     total();
   };
@@ -124,6 +124,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setAmount(_amount);
     calculateChangeMoney(_items,_amount,discountRate, discountValue);
   }, [items]);
+
+
 
   // render
 
@@ -175,7 +177,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       return (
         <div className="w-100" style={{ overflow: "hidden" }}>
           <div className="d-flex align-items-center">
-            <Button type="text" className="p-0 yody-pos-delete-free-form">
+            <Button type="text" className="p-0 yody-pos-delete-free-form" onClick = {() => onDeleteItem(index)}>
               <img src={deleteIcon} alt="" />
             </Button>
             <div style={{ width: "calc(100% - 32px)", marginLeft: "15px" }}>
@@ -404,11 +406,23 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     return newDiscountItem;
   };
 
+  const onDeleteItem = (index:number) => {
+    let _items = [... items]
+    let _amount = amount -  (_items[index].line_amount_after_line_discount)
+    setAmount(_amount)
+    _items.splice(index, 1);
+    setItems(_items);
+    calculateChangeMoney(
+      _items,
+      _amount,
+      discountRate,
+      discountValue
+    );
+  }
+
   const onSearchSelect = useCallback(
     (v, o) => {
-      console.log(v,o);
-      console.log(resultSearch)
-      let _items = [...items];
+      let _items = [...items].reverse();
       let indexSearch = resultSearch.findIndex((s) => s.id == v);
       console.log(indexSearch)
       let index = _items.findIndex((i) => i.variant_id == v);
@@ -440,12 +454,12 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             amount +
               _items[lastIndex].price -
               _items[lastIndex].discount_items[0].amount,
-              discountValue,
+              discountRate,
             discountValue
           );
         }
       }
-      setItems(_items);
+      setItems(_items.reverse());
     },
     [resultSearch, items, splitLine]
     // autoCompleteRef, dispatch, resultSearch
