@@ -1,5 +1,5 @@
-import { CustomerModel } from 'model/other/Customer/CustomerModel';
-import { ListDataModel } from '../../model/other/ListDataModel';
+import { CustomerModel } from 'model/other/Customer/customer-model';
+import { ListDataModel } from '../../model/other/list-data-model';
 import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";

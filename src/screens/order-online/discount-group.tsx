@@ -1,7 +1,6 @@
 import { Input, InputNumber, Select, Typography } from "antd";
-import { OrderItemModel } from "model/other/Order/OrderItemModel";
+import { OrderItemModel } from "model/other/Order/order-model";
 import React, {useCallback, useState} from "react";
-import { SetStateAction } from 'react';
 // import {orderDiscountTextChange} from "../../../domain/actions/orderOnline.action";
 import {useDispatch} from "react-redux";
 import {formatCurrency, replaceFormat} from "../../utils/AppUtils";
@@ -12,7 +11,7 @@ type DiscountGroupProps = {
   discountValue: number;
   totalAmount: number;
   items: Array<OrderItemModel>;
-  setItems: React.Dispatch<SetStateAction<Array<OrderItemModel>>>;
+  setItems: (_items:Array<OrderItemModel>) => void;
 }
 
 const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) => {
@@ -25,20 +24,22 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
     setSelected(value);
   }
 
-  const onChangeValue = useCallback((e:any) => {
-    let value = e.target.value
+  const onChangeValue = useCallback((v) => {
+    console.log(v)
     let _items = [... props.items]
     let _item = _items[props.index].discount_items[0]
     let _price = _items[props.index].price
     if(selected === 'money'){
-      _item.value = value
-      _item.rate = value/_price
+      _item.value = v
+      _item.rate = Math.round(v/_price*100*100)/100
+      _item.amount = v
     }else{
-      _item.value = value * _price / 100
-      _item.rate = value
+      _item.value = v*_price/100
+      _item.rate = v
+      _item.amount = v*_price/100
     }
     props.setItems(_items)
-  },[props.items]
+  },[props.items,props.index,props.setItems,selected]
   )
 
   return (
@@ -50,9 +51,9 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
         </Select>
         <InputNumber
           formatter={value => formatCurrency(value ? value : '0')}
-          style={{height: '32px'}}
+          style={{height: '32px', width: '100%'}}
           value={selected === "percent" ? props.discountRate : props.discountValue }
-          onChange={(e) => onChangeValue}
+          onChange={onChangeValue}
           parser={value => replaceFormat(value ? value : "0")}
           className="yody-table-discount-input hide-number-handle"
           onFocus={(e) => {
@@ -63,7 +64,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
       {
         showResult && (
           <div className="d-flex justify-content-end yody-table-discount-converted">
-            <Text type="danger">{selected === "money" ? props.discountRate + '%' : formatCurrency(props.totalAmount)}</Text>
+            <Text type="danger">{selected === "money" ? props.discountRate + '%' : formatCurrency(props.discountValue)}</Text>
           </div>
         )
       }

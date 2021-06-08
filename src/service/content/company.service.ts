@@ -1,7 +1,7 @@
 import BaseAxios from 'base/BaseAxios';
 import BaseResponse from 'base/BaseResponse';
 import {ApiConfig} from 'config/ApiConfig';
-import { CompanyModel } from 'model/other/CompanyModel';
+import { CompanyModel } from 'model/other/Core/company-model';
 
 const getCompanyByGroupId = (groupId: number): Promise<BaseResponse<CompanyModel>> => {
   let url = `${ApiConfig.CONTENT}/companies/groups/${groupId}` 

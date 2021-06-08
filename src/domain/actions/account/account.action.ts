@@ -10,4 +10,10 @@ const AccountAction = {
   }
 }
 
+export const AccountGetList = (query: AccountSearchQuery, setData: (data: Array<AccountDetailResponse>) => void) => {
+    return BaseAction(AccountType.GET_LIST_ACCOUNT_REQUEST, {query, setData});
+  }
+
+
+
 export default AccountAction;

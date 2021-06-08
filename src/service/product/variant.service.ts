@@ -1,5 +1,5 @@
-import { VariantModel } from './../../model/other/ProductModel';
-import { ListDataModel } from './../../model/other/ListDataModel';
+import { VariantModel } from '../../model/other/Product/product-model';
+import { ListDataModel } from '../../model/other/list-data-model';
 import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";

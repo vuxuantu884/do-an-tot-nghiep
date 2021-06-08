@@ -17,3 +17,8 @@ export const searchVariantsApi = (query: VariantSearchQuery): Promise<BaseRespon
 export const getVariantApi = (id: string) => {
   return BaseAxios.put(`${ApiConfig.PRODUCT}/variants/${id}`);
 }
+
+export const productUploadApi = (id: string) => {
+  return BaseAxios.put(`${ApiConfig.PRODUCT}/products/upload`);
+}
+

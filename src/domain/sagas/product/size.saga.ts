@@ -12,7 +12,6 @@ function* getAllSizeSaga(action: YodyAction) {
   const {setData} = action.payload;
   try {
     let response: BaseResponse<PageResponse<SizeResponse>> = yield call(getAllSizeApi);
-    debugger;
     switch(response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);

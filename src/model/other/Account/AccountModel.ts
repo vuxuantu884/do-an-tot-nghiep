@@ -1,4 +1,4 @@
-import { BaseModel } from "../BaseModel";
+import { BaseModel } from "../base-model";
 import { AccountJob } from "./AccountJob";
 import { AccountStore } from "./AccountStore";
 

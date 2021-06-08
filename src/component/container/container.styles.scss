@@ -687,6 +687,15 @@ $desktop-width: 1400px;
 //  text-align: left;
 //}
 
+.ant-input-number-input{
+  text-align: right;
+  display: none;
+}
+
+.ant-input-number-handler-wrap {
+  display: none;
+}
+
 table {
   .ant-table-thead {
     >tr>th {
@@ -874,4 +883,119 @@ table {
   .ant-switch-checked {
     background-color: #27AE60;
   }
+}
+
+.upload-v {
+  width: 150px;
+  height: 150px;
+  .upload-view {
+    background: rgba(79, 104, 125, 0.1);
+    border: 2px dashed #CFDCE9;
+    width: 150px;
+    height: 150px;
+    border-radius: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    img {
+      width: 30px;
+      height: 30px;
+      position: absolute;
+    }
+    .img-upload {
+      display: none;
+    }
+    .img-default {
+      display: inline;
+    }
+    &:hover {
+      .img-upload {
+        display: inline;
+      }
+      .img-default {
+        display: none;
+      }
+    }
+  }
+}
+
+.upload-bottom {
+  width:  150px;
+  margin-top: 12px;
+  text-align: center;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 18px;
+  color: rgba(79, 104, 125, 0.9);
+}
+.yody-table-discount {
+  .ant-select {
+    &:hover {
+      .ant-select-selector {
+        border-color: #d9d9d9;
+      }
+    }
+    .ant-select-selector {
+      background: #F4F4F7;
+      padding: 0 4px;
+        width: 40px;
+      @include tablet {
+        padding: 0 3px;
+      }
+      .ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
+        padding-right: 15px;
+      }
+    }
+    .ant-select-arrow {
+      right: 5px;
+    }
+  }
+
+  .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
+    border-color: #d9d9d9;
+    box-shadow: unset;
+  }
+
+  input {
+    border-left: 0;
+    padding: 4px 8px;
+  }
+  .site-input-group-wrapper {
+    >div {
+      position: relative;
+    }
+    .ant-input-group {
+      display: flex;
+        .yody-pos-discount-type {
+            width: 40px;
+        }
+    }
+    .yody-table-discount-converted {
+      font-size: 12px;
+      position: absolute;
+      right: 1px;
+      top: calc(100% + 2px);
+    }
+  }
+}
+
+.yody-pos-qtt {
+  text-align: center;
+  .ant-input-number {
+    input {
+      text-align: right;
+    }
+    //&:hover {
+    //  input.ant-input-number-input {
+    //    padding: 0 20px 0 0;
+    //  }
+    //}
+  }
+}
+
+.ant-table-row-level-0{
+  margin-bottom: 10px;
 }

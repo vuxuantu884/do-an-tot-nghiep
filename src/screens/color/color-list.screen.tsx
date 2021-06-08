@@ -12,8 +12,9 @@ import {showWarning} from 'utils/ToastUtils';
 import CustomTable from "component/table/CustomTable";
 import { ColorResponse } from "model/response/products/color.response";
 import { ColorSearchQuery } from "model/query/color.search.query";
-import ColorAction from "domain/actions/product/color.action";
 import imgDefault from 'assets/icon/img-default.svg'
+import { colorDeleteAction, colorDeleteManyAction, getColorAction } from "domain/actions/product/color.action";
+import {isUndefinedOrNull} from 'utils/AppUtils'
 
 const action: Array<MenuAction> = [
   {
@@ -73,7 +74,9 @@ const ColorListScreen: React.FC = () => {
     {
       title: 'Ảnh màu',
       dataIndex: 'image',
-      render: (value: string) => value !== null && value !== '' ? <Image width={40} src={value} placeholder={<img src={imgDefault} alt='' />} /> : ''
+      render: (value: string) => {
+        return  !isUndefinedOrNull(value) && value !== '' ? <Image width={40} src={value} placeholder={<img alt="" src={imgDefault} />}  /> : ''
+      }
     },
     {
       title: 'Người tạo',
@@ -90,7 +93,7 @@ const ColorListScreen: React.FC = () => {
   ];
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
-    dispatch(ColorAction.getColorAction(params, setData));
+    dispatch(getColorAction(params, setData));
   }, [dispatch, params])
   const onDelete = useCallback(() => {
     if(selected.length === 0) {
@@ -99,12 +102,12 @@ const ColorListScreen: React.FC = () => {
     }
     if(selected.length === 1) {
       let id = selected[0].id;
-      dispatch(ColorAction.colorDeleteAction(id, onDeleteSuccess))
+      dispatch(colorDeleteAction(id, onDeleteSuccess))
       return;
     }
     let ids: Array<number> = [];
     selected.forEach((a) => ids.push(a.id));
-    dispatch(ColorAction.colorDeleteManyAction(ids, onDeleteSuccess))
+    dispatch(colorDeleteManyAction(ids, onDeleteSuccess))
   }, [dispatch, onDeleteSuccess]);
   const onSelect = useCallback((record: ColorResponse) => {
     let index = selected.findIndex((item) => item.id === record.id);
@@ -135,8 +138,8 @@ const ColorListScreen: React.FC = () => {
     }
   }, [onDelete]);
   useEffect(() => {
-    dispatch(ColorAction.getColorAction(params, setData));
-    dispatch(ColorAction.getColorAction({is_main_color: 1}, setSelector));
+    dispatch(getColorAction(params, setData));
+    dispatch(getColorAction({is_main_color: 1}, setSelector));
     return () => {}
   }, [dispatch, params])
   return (

@@ -1,7 +1,11 @@
 
-import { BaseObject } from './../base.response';
+import { BaseObject } from '../base.response';
 
+export interface SizeCategory {
+  category_id: number,
+  category_name: string,
+}
 
 export interface SizeResponse extends BaseObject {
-  name:string
+  categories: Array<SizeCategory>
 }

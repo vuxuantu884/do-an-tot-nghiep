@@ -1,18 +1,32 @@
-import { Button, Card, Col, Form, FormInstance, Input, Row } from "antd";
+import { Button, Card, Col, Form, FormInstance, Input, Row, Select, Upload } from "antd";
 import { ColorCreateRequest } from "model/request/color-create.request";
-import { createRef, useCallback } from "react";
+import { PageResponse } from "model/response/base-metadata.response";
+import { ColorResponse } from "model/response/products/color.response";
+import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
+import uploadIcon from 'assets/img/upload.svg'
+import imgDefIcon from 'assets/img/img-def.svg'
+import { colorCreateAction, getColorAction } from "domain/actions/product/color.action";
 
 let initialRequest: ColorCreateRequest = {
   code: '',
-  parent_id: -1,
+  parent_id: null,
   name: '',
   hex_code: null,
   image: null
 }
-
+const {Option} = Select;
 const ColorCreateScreen: React.FC = () => {
+  const [selector, setSelector] = useState<PageResponse<ColorResponse>>({
+    metadata: {
+      limit: 0,
+      page: 0,
+      total: 0,
+    },
+    items: [],
+  });
+  const [imageUrl, setImageUrl] = useState('');
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -20,13 +34,21 @@ const ColorCreateScreen: React.FC = () => {
     history.push('/materials');
   }, [history])
   const onFinish = useCallback((values: ColorCreateRequest) => {
-  }, [dispatch, onSuccess]);
+    if(imageUrl !== '') {
+      values.image = imageUrl;
+    }
+    dispatch(colorCreateAction(values, onSuccess))
+  }, [dispatch, imageUrl, onSuccess]);
   const onSave = useCallback(() => {
     formRef.current?.submit();
   }, [formRef]);
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
+  useEffect(() => {
+    dispatch(getColorAction({is_main_color: 1}, setSelector));
+    return () => {}
+  }, [dispatch])
   return (
     <div>
       <Card className="card-block card-block-normal" title="Thông tin cơ bản">
@@ -37,30 +59,45 @@ const ColorCreateScreen: React.FC = () => {
           layout="vertical"
         >
           <Row gutter={24}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập tên chất liệu' },
-                ]}
-                label="Tên chất liệu"
-                name="name"
-              >
-                <Input className="r-5" placeholder="Tên danh mục" size="large" />
-              </Form.Item>
+            <Col style={{display: 'flex', justifyContent: 'center', flexDirection: 'column'}} span={24} sm={24} md={24} lg={4}>
+              <Upload customRequest={(options ) => {
+                console.log(options);
+              }} listType="picture" action="" maxCount={1} showUploadList={false} className="upload-v">
+                <div className="upload-view" >
+                  <img className="img-upload" src={uploadIcon} alt='' />
+                  <img className="img-default" src={imgDefIcon} alt='' />
+                </div>
+              </Upload>
+              <div className="upload-bottom">Ảnh màu</div>
             </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[{ required: true, message: 'Vui lòng nhập thành phần chất liệu' }]}
-                className="form-group form-group-with-search"
-                name="component"
-                label="Thành phần"
-              >
-                <Input className="r-5" placeholder="Thành phần" size="large" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={24}>
+            <Col span={24} lg={20} sm={24} md={24}>
+            <Row gutter={24}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item
+                  className="form-group form-group-with-search"
+                  rules={[
+                    { required: true, message: 'Vui lòng nhập tên màu' },
+                  ]}
+                  label="Tên màu"
+                  name="name"
+                >
+                  <Input className="r-5" placeholder="Nhập tên màu" size="large" />
+                </Form.Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item
+                  rules={[{ required: true, message: 'Vui lòng chọn màu chủ đạo' }]}
+                  className="form-group form-group-with-search"
+                  name="parent_id"
+                  label="Màu chủ đạo"
+                >
+                  <Select placeholder="Chọn màu chủ đạo" className="selector">
+                    {selector.items.map((item) => <Option key={item.id} value={item.id}>{item.name}</Option>)}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={24}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 rules={[
@@ -69,20 +106,22 @@ const ColorCreateScreen: React.FC = () => {
                 className="form-group form-group-with-search"
                 name="code"
                 labelAlign="right"
-                label="Mã chất liệu"
+                label="Mã màu"
               >
-                <Input className="r-5" placeholder="Mã chất liệu" size="large" />
+                <Input className="r-5" placeholder="Nhập mã màu" size="large" />
               </Form.Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 className="form-group form-group-with-search"
-                name="description"
-                label="Ghi chú"
+                name="hex_code"
+                label="Mã hex"
               >
-                <Input className="r-5" placeholder="Mã chất liệu" size="large" />
+                <Input className="r-5" placeholder="Nhập mã hex" size="large" />
               </Form.Item>
             </Col>
+          </Row>
+          </Col>
           </Row>
         </Form>
       </Card>
