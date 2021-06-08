@@ -297,7 +297,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     className: "yody-table-total-money text-right",
     // width: 100,
     render: (l: OrderItemModel, item: any, index: number) => {
-      return <div>{l.line_amount_after_line_discount}</div>;
+      return <div>{formatCurrency(l.line_amount_after_line_discount)}</div>;
     },
   };
 
@@ -639,7 +639,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 <Input
                   size="middle"
                   className="yody-search"
-                  placeholder="Tìm sản phẩm theo tên/ SKU/ Mã vạch (F3)"
+                  placeholder="Tìm sản phẩm theo tên/ SKU (F3)"
                   prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                 />
               </AutoComplete>
@@ -753,7 +753,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         <Col xs={24} lg={12}>
           <Row className="payment-row" justify="space-between">
             <div className="font-weight-500">Tổng tiền</div>
-            <div className="font-weight-500 payment-row-money">{amount}</div>
+            <div className="font-weight-500 payment-row-money">{formatCurrency(amount)}</div>
           </Row>
 
           <Row className="payment-row" justify="space-between" align="middle">
@@ -779,7 +779,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 </Button>
               </div>
             </Space>
-            <div className="font-weight-500 ">{discountValue}</div>
+            <div className="font-weight-500 ">{formatCurrency(discountValue)}</div>
           </Row>
 
           <Row className="payment-row" justify="space-between" align="middle">
@@ -802,14 +802,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
           <Row className="payment-row" justify="space-between">
             <div className="font-weight-500">Phí ship báo khách</div>
-            <div className="font-weight-500 payment-row-money">20.000</div>
+            <div className="font-weight-500 payment-row-money">20,000</div>
           </Row>
 
           <Row className="payment-row" justify="space-between">
             <div className="font-weight-500">Khách cần trả</div>
             <div className="font-weight-500 payment-row-money">
               {/* <Typography.Text type="success" className="font-weight-500"> */}
-                {changeMoney}
+                {formatCurrency(changeMoney)}
               {/* </Typography.Text> */}
             </div>
           </Row>

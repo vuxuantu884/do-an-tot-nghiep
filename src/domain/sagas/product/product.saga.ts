@@ -1,4 +1,3 @@
-import { ListDataModel } from './../../../model/other/list-data-model';
 import { VariantResponse } from 'model/response/products/variant.response';
 import { call, put, takeLatest } from '@redux-saga/core/effects';
 import { YodyAction } from 'base/BaseAction';

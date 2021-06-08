@@ -1,6 +1,8 @@
 import React from 'react';
 import { RouteMenu } from "model/other";
 import { HEADER_TYPE } from 'config/HeaderConfig';
+import ColorUpdateScreen from 'screens/color/color-update.screen';
+import UrlConfig from 'config/UrlConfig';
 
 const Category = React.lazy(() => import ("screens/category/category-list.screen"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
@@ -8,15 +10,16 @@ const ColorListScreen = React.lazy(() => import ("screens/color/color-list.scree
 const UpdateMaterial = React.lazy(() => import ("screens/materials/ material-update.screen"));
 const ListMaterial = React.lazy(() => import ("screens/materials/materials-list.screen"));
 const AddMaterial = React.lazy(() => import ("screens/materials/material-add.screen"));
-const Size = React.lazy(() => import ("screens/product/size.screen"));
+const SizeListScreen = React.lazy(() => import ("screens/size/size-list.screen"));
 const ListSupplier = React.lazy(() => import ("screens/supllier/supplier-list.screen"));
 const AddCategory = React.lazy(() => import ("screens/category/category-add.screen"))
+const UpdateCategory = React.lazy(() => import ("screens/category/category-update.screen"))
 const CreateSupplierScreen = React.lazy(() => import ("screens/supllier/supplier-add.screen"));
 const ColorCreateScreen = React.lazy(() => import ("screens/color/color-create.screen"));
 
 const product: Array<RouteMenu> = [
   {
-    path: "/products",
+    path: UrlConfig.PRODUCT,
     exact: true,
     title: "Danh sách sản phẩm",
     icon: 'icon-dot',
@@ -29,7 +32,7 @@ const product: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/categories",
+    path: UrlConfig.CATEGORIES,
     exact: true,
     title: "Danh mục",
     icon: 'icon-dot',
@@ -39,7 +42,7 @@ const product: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: "/categories/create",
+        path: `${UrlConfig.CATEGORIES}/create`,
         exact: true,
         title: "Thêm danh mục",
         icon: 'icon-dot',
@@ -50,15 +53,29 @@ const product: Array<RouteMenu> = [
         subMenu: [],
         type: 0,
         object: null,
+      },
+      {
+        path: `${UrlConfig.CATEGORIES}/:id`,
+        exact: true,
+        title: "Sửa danh mục",
+        icon: 'icon-dot',
+        component: UpdateCategory,
+        key: "submenu221",
+        isShow: false,
+        header: null,
+        subMenu: [],
+        pathIgnore: ['create'],
+        type: 0,
+        object: null,
       }
     ],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {
-      pathCreate: '/categories/create'
+      pathCreate: `${UrlConfig.CATEGORIES}/create`
     },
   },
   {
-    path: "/materials",
+    path: UrlConfig.MATERIALS,
     exact: true,
     title: "Chất liệu",
     icon: 'icon-dot',
@@ -68,7 +85,7 @@ const product: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: "/materials/create",
+        path: `${UrlConfig.MATERIALS}/create`,
         exact: true,
         title: "Thêm chất liệu",
         icon: 'icon-dot',
@@ -81,7 +98,7 @@ const product: Array<RouteMenu> = [
         object: {}
       },
       {
-        path: "/materials/:id",
+        path: `${UrlConfig.MATERIALS}/:id`,
         exact: true,
         title: "Sửa chất liệu",
         icon: 'icon-dot',
@@ -91,20 +108,21 @@ const product: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         type: 0,
-        object: {}
+        object: {},
+        pathIgnore: ['create']
       }
     ],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {
-      pathCreate: '/materials/create'
+      pathCreate: `${UrlConfig.MATERIALS}/create`,
     },
   },
   {
-    path: "/sizes",
+    path: UrlConfig.SIZES,
     exact: true,
     title: "Kích cỡ",
     icon: 'icon-dot',
-    component: Size,
+    component: SizeListScreen,
     key: "submenu24",
     isShow: true,
     header: null,
@@ -113,7 +131,7 @@ const product: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/colors",
+    path: UrlConfig.COLORS,
     exact: true,
     title: "Màu sắc",
     icon: 'icon-dot',
@@ -123,7 +141,7 @@ const product: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: "/colors/create",
+        path: `${UrlConfig.COLORS}/create`,
         exact: true,
         title: "Thêm màu sắc",
         icon: 'icon-dot',
@@ -135,14 +153,28 @@ const product: Array<RouteMenu> = [
         type: 0,
         object: {}
       },
+      {
+        path: `${UrlConfig.COLORS}/:id`,
+        exact: true,
+        title: "Sừa màu sắc",
+        icon: 'icon-dot',
+        component: ColorUpdateScreen,
+        key: "submenu23",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: {},
+        pathIgnore: ['create']
+      },
     ],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {
-      pathCreate: '/colors/create'
+      pathCreate: `${UrlConfig.COLORS}/create`,
     },
   },
   {
-    path: "/suppliers",
+    path: UrlConfig.SUPPLIERS,
     exact: true,
     title: "Nhà cung cấp",
     icon: 'icon-dot',
@@ -152,7 +184,7 @@ const product: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: "/suppliers/create",
+        path: `${UrlConfig.SUPPLIERS}/create`,
         exact: true,
         title: "Thêm mới nhà cung cấp",
         icon: 'icon-dot',
@@ -167,7 +199,7 @@ const product: Array<RouteMenu> = [
     ],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {
-      pathCreate: '/suppliers/create'
+      pathCreate: `${UrlConfig.SUPPLIERS}/create`,
     },
   }
 ]

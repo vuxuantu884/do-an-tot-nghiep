@@ -17,10 +17,12 @@ function* getCountrySaga(action: YodyAction) {
         setData(response.data);
         break;
       default:
+        console.log('getCountrySaga:'+response.errors);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    console.log('getCountrySaga:'+error);
     showError('Có lỗi vui lòng thử lại sau');
   }
 }

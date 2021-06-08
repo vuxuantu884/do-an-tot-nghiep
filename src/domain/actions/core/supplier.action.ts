@@ -9,6 +9,10 @@ const supplierSearchAction = (query: SupplierQuery, setData: (response: PageResp
   return BaseAction(SupplierType.SEARCH_SUPPLIER_REQUEST, {query, setData});
 }
 
+export const supplierGetAllAction = (setData: (response: Array<SupplierResponse>) => void) => {
+  return BaseAction(SupplierType.GET_ALL_SUPPLIER_REQUEST, {setData});
+}
+
 const supplierCreateAction = (request: SupplierCreateRequest, setData: () => void) => {
   return BaseAction(SupplierType.CREATE_SUPPLIER_REQUEST, {request, setData});
 }
