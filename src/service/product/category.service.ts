@@ -19,7 +19,10 @@ export const categoryDetailApi = (id: number): Promise<BaseResponse<CategoryResp
   return BaseAxios.get(`${ApiConfig.PRODUCT}/categories/${id}`);
 }
 
-
 export const createCategoryApi = (request: CreateCatergoryRequest) => {
   return BaseAxios.post(`${ApiConfig.PRODUCT}/categories`, request);
+}
+
+export const categoryDeleteApi = (id: number): Promise<BaseResponse<string>> => {
+  return BaseAxios.delete(`${ApiConfig.PRODUCT}/categories/${id}`);
 }

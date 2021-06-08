@@ -27,9 +27,9 @@ const action: Array<MenuAction> = [
   },
 ]
 
-const selected: Array<ColorResponse> = [];
 const {Option} = Select;
 const ColorListScreen: React.FC = () => {
+  const [selected, setSelected] = useState<Array<ColorResponse>>([])
   const [data, setData] = useState<PageResponse<ColorResponse>>({
     metadata: {
       limit: 0,
@@ -94,7 +94,7 @@ const ColorListScreen: React.FC = () => {
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
     dispatch(getColorAction(params, setData));
-  }, [dispatch, params])
+  }, [dispatch, params, selected])
   const onDelete = useCallback(() => {
     if(selected.length === 0) {
       showWarning('Vui lòng chọn phần từ cần xóa');
@@ -108,14 +108,9 @@ const ColorListScreen: React.FC = () => {
     let ids: Array<number> = [];
     selected.forEach((a) => ids.push(a.id));
     dispatch(colorDeleteManyAction(ids, onDeleteSuccess))
-  }, [dispatch, onDeleteSuccess]);
-  const onSelect = useCallback((record: ColorResponse) => {
-    let index = selected.findIndex((item) => item.id === record.id);
-    if(index === -1) {
-      selected.push(record);
-      return;
-    }
-    selected.splice(index, 1);
+  }, [dispatch, onDeleteSuccess, selected]);
+  const onSelect = useCallback((selectedRow: Array<ColorResponse>) => {
+    setSelected(selectedRow);
   }, []);
   const onFinish = useCallback((values) => {
     let newPrams = { ...params, ...values, page: 0 };
@@ -178,7 +173,7 @@ const ColorListScreen: React.FC = () => {
           </Form>
         </Card>
         <CustomTable
-          onSelect={onSelect}
+          onSelectedChange={onSelect}
           onChange={onPageChange}
           className="yody-table"
           pagination={data.metadata}

@@ -100,7 +100,6 @@ const SizeListScreen: React.FC = () => {
           </Form>
         </Card>
         <CustomTable
-          onSelect={onSelect}
           onChange={onPageChange}
           className="yody-table"
           pagination={data.metadata}
