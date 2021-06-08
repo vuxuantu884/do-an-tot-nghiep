@@ -35,4 +35,5 @@ function* searchVariantSaga(action: YodyAction) {
 
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
+  yield takeLatest(ProductType.UPLOAD_PRODUCT_REQUEST, productUploadSaga);
 }

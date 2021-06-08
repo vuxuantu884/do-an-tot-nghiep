@@ -22,6 +22,11 @@ import {getCountry} from "domain/actions/content/content.action"
 import {listColorAction } from "domain/actions/product/color.action"
 import {ColorSearchQuery} from "model/query/color.search.query"
 import { SizeResponse } from "model/response/products/size.response";
+import{getAllSize} from "domain/actions/product/size.action";
+import{supplierGetAllAction} from "domain/actions/core/supplier.action";
+
+import{AccountGetList} from "domain/actions/account/account.action";
+import { AccountSearchQuery } from "model/query/account.search.query";
 
 
 const actions: Array<MenuAction> = [
@@ -39,7 +44,13 @@ const initQuery: VariantSearchQuery = {
   info: "",
   barcode: "",
   status: "",
+
 };
+
+const initAccountQuery: AccountSearchQuery = {
+  department_ids:[4]
+};
+
 
 const initMainColorQuery: ColorSearchQuery = {
   page:0,
@@ -183,6 +194,9 @@ const ListSupplierScreen: React.FC = () => {
       dispatch(getCountry( setCountry)); 
       dispatch(listColorAction(initMainColorQuery,setMainColor)); 
       dispatch(listColorAction(initColorQuery,setColor)); 
+      dispatch(getAllSize(setSize));
+      dispatch(supplierGetAllAction(setSupplier));
+      dispatch(AccountGetList(initAccountQuery,setMarchandiser))
     }
     isFirstLoad.current=false;
     dispatch(searchVariantsRequestAction(params, setData));

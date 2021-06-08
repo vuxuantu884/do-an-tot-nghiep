@@ -4,20 +4,19 @@ import { PageResponse } from "model/response/base-metadata.response";
 import { ColorResponse } from "model/response/products/color.response";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
+import { useHistory, useParams } from "react-router";
 import uploadIcon from 'assets/img/upload.svg'
 import imgDefIcon from 'assets/img/img-def.svg'
-import { colorCreateAction, getColorAction } from "domain/actions/product/color.action";
+import { colorCreateAction, colorDetailAction, getColorAction } from "domain/actions/product/color.action";
 
-let initialRequest: ColorCreateRequest = {
-  code: '',
-  parent_id: null,
-  name: '',
-  hex_code: null,
-  image: null
-}
 const {Option} = Select;
-const ColorCreateScreen: React.FC = () => {
+type  ColorParams = {
+  id: string;
+}
+
+const ColorUpdateScreen: React.FC = () => {
+  const {id} = useParams<ColorParams>();
+  const [color, setColor] = useState<ColorResponse|null>(null)
   const [selector, setSelector] = useState<PageResponse<ColorResponse>>({
     metadata: {
       limit: 0,
@@ -47,15 +46,26 @@ const ColorCreateScreen: React.FC = () => {
   }, [history]);
   useEffect(() => {
     dispatch(getColorAction({is_main_color: 1}, setSelector));
+    let idNumber = parseInt(id);
+    if(!Number.isNaN(idNumber)) {
+      dispatch(colorDetailAction(idNumber, setColor));
+    }
     return () => {}
-  }, [dispatch])
+  }, [dispatch, id])
+  if(color == null) {
+    return (
+      <Card className="card-block card-block-normal">
+        Không tìm thấy màu sắc
+      </Card>
+    )
+  }
   return (
     <div>
       <Card className="card-block card-block-normal" title="Thông tin cơ bản">
         <Form
           ref={formRef}
+          initialValues={color}
           onFinish={onFinish}
-          initialValues={initialRequest}
           layout="vertical"
         >
           <Row gutter={24}>
@@ -133,4 +143,4 @@ const ColorCreateScreen: React.FC = () => {
   )
 }
 
-export default ColorCreateScreen;
+export default ColorUpdateScreen;

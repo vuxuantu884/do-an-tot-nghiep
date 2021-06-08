@@ -25,9 +25,9 @@ const action: Array<MenuAction> = [
   },
 ]
 
-const selected: Array<MaterialResponse> = [];
 const ListMaterial: React.FC = () => {
   const [data, setData] = useState<Array<MaterialResponse>>([]);
+  const [selected, setSelected] = useState<Array<MaterialResponse>>([]);
   const history = useHistory();
   const dispatch = useDispatch();
   const query = useQuery();
@@ -68,7 +68,7 @@ const ListMaterial: React.FC = () => {
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
     dispatch(getMaterialAction(params, setData, setMetadata));
-  }, [dispatch, params])
+  }, [dispatch, params, selected])
   const onDelete = useCallback(() => {
     if(selected.length === 0) {
       showWarning('Vui lòng chọn phần từ cần xóa');
@@ -82,9 +82,9 @@ const ListMaterial: React.FC = () => {
     let ids: Array<number> = [];
     selected.forEach((a) => ids.push(a.id));
     dispatch(deleteManyMaterialAction(ids, onDeleteSuccess))
-  }, [dispatch, onDeleteSuccess]);
-  const onSelect = useCallback((record) => {
-    selected.push(record);
+  }, [dispatch, onDeleteSuccess, selected]);
+  const onSelect = useCallback((selectedRow: Array<MaterialResponse>) => {
+    setSelected(selectedRow)
   }, []);
   const onFinish = useCallback((values) => {
     let newPrams = { ...params, ...values, page: 0 };
@@ -142,7 +142,7 @@ const ListMaterial: React.FC = () => {
           </Form>
         </Card>
         <CustomTable
-          onSelect={onSelect}
+          onSelectedChange={onSelect}
           onChange={onPageChange}
           className="yody-table"
           pagination={metadata}

@@ -239,6 +239,19 @@ body {
   color: $primary-color-blue;
   &:hover {
     color: $primary-color-blue;
+    border: 1px solid $primary-color-blue;
+    color: $primary-color-blue;
+  }
+  &:focus {
+    color: $primary-color-blue;
+    border: 1px solid $primary-color-blue;
+    color: $primary-color-blue;
+  }
+  &:disabled {
+    color: $primary-color-blue;
+    border: 1px solid $primary-color-blue;
+    color: $primary-color-blue;
+    opacity: 0.5;
   }
 }
 

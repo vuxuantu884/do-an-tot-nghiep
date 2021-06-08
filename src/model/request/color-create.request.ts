@@ -3,5 +3,5 @@ export interface  ColorCreateRequest {
   hex_code: string|null,
   image: string|null
   name: string,
-  parent_id:number
+  parent_id:number|null
 }

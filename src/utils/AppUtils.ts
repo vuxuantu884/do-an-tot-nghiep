@@ -1,3 +1,4 @@
+import { convertDateToUTC } from './DateUtils';
 import { DistrictResponse } from './../model/response/content/district.response';
 import { CityView } from '../model/other/district-view';
 import { AppConfig } from './../config/AppConfig';
@@ -38,12 +39,15 @@ export const findCurrentRoute = (routes: Array<RouteMenu> = [], path: string = '
 
 
 
-export const checkPath = (p1: string, p2: string) => {
+ const checkPath = (p1: string, p2: string, pathIgnore?: Array<string>) => {
   if (p1.includes(":") || p2.includes(":")) {
     if (p1.includes(":")) {
       let urls1 = p1.split("/");
       let urls2 = p2.split("/");
       let index = urls1.findIndex((a) => a.includes(":"));
+      if(pathIgnore &&  pathIgnore.includes(urls2[index])) {
+        return false;
+      }
       urls1[index] = urls2[index];
       return urls1.join("/") === urls2.join("/")
     }
@@ -52,6 +56,9 @@ export const checkPath = (p1: string, p2: string) => {
     let urls1 = p2.split("/");
     let urls2 = p1.split("/");
     let index = urls1.findIndex((a) => a.includes(":"));
+    if(pathIgnore &&  pathIgnore.includes(urls2[index])) {
+      return false;
+    }
     urls1[index] = urls2[index];
     return urls1.join("/") === urls2.join("/")
   }
@@ -70,13 +77,13 @@ export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '
     } else {
       if (route.subMenu.length > 0) {
         route.subMenu.forEach((route1) => {
-          if (checkPath(route1.path, path)) {
+          if (checkPath(route1.path, path, route1.pathIgnore)) {
             result.push(route);
             result.push(route1);
           } else {
             if (route1.subMenu.length > 0) {
               route1.subMenu.forEach((route2) => {
-                if (checkPath(route2.path, path)) {
+                if (checkPath(route2.path, path, route2.pathIgnore)) {
                   result.push(route);
                   result.push(route1);
                   result.push(route2);
@@ -143,21 +150,29 @@ export const getArrCategory = (i: CategoryResponse, level: number, parent: Categ
 }
 
 export const generateQuery = (obj: any) => {
-  let a: string = Object.keys(obj).map((key, index) => {
-    let url = '';
-    if (obj[key] !== false) {
-      let value = obj[key];
-      if(obj[key] instanceof Array) {
-        value = obj[key].join(',')
+  if(obj!==undefined){
+    let a: string = Object.keys(obj).map((key, index) => {
+      let url = '';
+      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
+        let value = obj[key];
+        if(obj[key] instanceof Array) {
+          value = obj[key].join(',')
+        }
+        if(obj[key] instanceof Date) {
+          value = convertDateToUTC(obj[key])
+          console.log(value);
+        }
+        url = key + '=' + encodeURIComponent(value) + '&'
       }
-      url = key + '=' + encodeURIComponent(value) + '&'
+      return url
+    }).join('')
+    if (a.charAt(a.length - 1) === '&') {
+      a = a.substring(0, a.length - 1);
     }
-    return url
-  }).join('')
-  if (a.charAt(a.length - 1) === '&') {
-    a = a.substring(0, a.length - 1);
+    return a;
   }
-  return a;
+  return "";
+  
 }
 
 export const convertDistrict = (data: Array<DistrictResponse>) => {
@@ -354,11 +369,8 @@ const caculateMoney = (items: Array<OrderPaymentModel>, totalMoney: number) => {
 }
 
 const isPaymentCashOnly = (items: Array<OrderPaymentModel>) => {
-  console.log(items);
   return items.length === 1 && items[0].payment_method_id === AppConfig.DEFAULT_PAYMENT;
 }
-
-
 export {
   findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
   replaceFormat, replaceFormatString, getTotalQuantity, getTotalAmount, getTotalDiscount, getTotalAmountAfferDiscount, getDiscountRate, getDiscountValue,
