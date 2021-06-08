@@ -1,5 +1,5 @@
 import { OrderPaymentRequest } from 'model/request/order-payment.request';
-import { ShippingAddress } from "model/other/Customer/customer-model";
+import { ShippingAddress } from "model/response/customer/customer.response";
 import { OrderDiscountRequest } from "model/request/order-discount.request";
 import { OrderLineItemRequest } from "model/request/order-line-item.request";
 import { BillingAddress } from "model/request/order.request";

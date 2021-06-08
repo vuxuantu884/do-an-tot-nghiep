@@ -6,15 +6,7 @@ import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/Product/category-view";
 import { CategoryResponse } from "model/response/category.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
-import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderModel, OrderPaymentModel } from 'model/other/Order/order-model';
-import { OrderDiscountRequest } from 'model/request/order-discount.request';
-import { OrderItemDiscountRequest } from 'model/request/order-item-discount.request';
-import { OrderLineItemRequest } from 'model/request/order-line-item.request';
-import { OrderPaymentRequest } from 'model/request/order-payment.request';
-import { OrderRequest } from 'model/request/order.request';
-import { OrderMetadata } from 'model/reducers/OrderListReducerType';
-
-
+import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -153,7 +145,8 @@ export const getArrCategory = (i: CategoryResponse, level: number, parent: Categ
 export const generateQuery = (obj: any) => {
   let a: string = Object.keys(obj).map((key, index) => {
     let url = '';
-    if (obj[key]) {
+    debugger;
+    if (obj[key] !== false) {
       let value = obj[key];
       if(obj[key] instanceof Array) {
         value = obj[key].join(',')
@@ -191,17 +184,6 @@ export const convertDistrict = (data: Array<DistrictResponse>) => {
   return array;
 }
 
-const hasNextPage = (metadata: OrderMetadata) => {
-  return (metadata.page + 1) * metadata.limit < metadata.total;
-}
-
-const hasPreviousPage = (page: number) => {
-  return page !== 0
-}
-
-// const hasOrder = (data) => {
-
-// }
 
 const findPriceInVariant = (variantPrices: Array<VariantPrice>, currency_code: string): number => {
   let price: number = 0;
@@ -379,7 +361,7 @@ const isPaymentCashOnly = (items: Array<OrderPaymentModel>) => {
 
 
 export {
-  hasNextPage, hasPreviousPage, findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
+  findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
   replaceFormat, replaceFormatString, getTotalQuantity, getTotalAmount, getTotalDiscount, getTotalAmountAfferDiscount, getDiscountRate, getDiscountValue,
   getAmountDiscount, getAmountItemDiscount, findDiscountIndex, findDiscountPromotion, caculatorTotalDiscount, findOrderDiscount, getTotalAmountFreeForm,
   formatSuffixPoint,caculateMoney, isPaymentCashOnly

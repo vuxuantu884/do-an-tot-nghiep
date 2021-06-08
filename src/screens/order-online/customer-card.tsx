@@ -34,37 +34,41 @@ import locationIcon from "assets/img/location.svg";
 import { SearchOutlined } from "@ant-design/icons";
 import AddAddressModal from "./modal/addAddressModal";
 import EditCustomerModal from "./modal/editCustomerModal";
-import { getListSourceRequest } from "domain/actions/order/orderOnline.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
 import { RefSelectProps } from "antd/lib/select";
 import {
   BillingAddress,
-  CustomerModel,
+  CustomerResponse,
   ShippingAddress,
-} from "model/other/Customer/customer-model";
-import { OnSearchChange } from "domain/actions/customer/customer.action";
+} from "model/response/customer/customer.response";
+import { OnCustomerSearchChange } from "domain/actions/customer/customer.action";
 import imgdefault from "assets/icon/img-default.svg";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
+import { CustomerSearchQuery } from "model/query/customer.query";
 //#endregion
 
 type CustomerCardProps = {
-  changeInfoCustomer: (items: CustomerModel) => void;
+  changeInfoCustomer: (items: CustomerResponse) => void;
   selectSource: (source: number) => void;
   changeShippingAddress: (items: ShippingAddress) => void;
   changeBillingAddress: (items: BillingAddress) => void;
 };
 
+const initQuery: CustomerSearchQuery = {
+  request:'', limit:10, page: 0
+}
+
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
   //State
-  var timeTextChange: NodeJS.Timeout;
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [keysearch, setKeysearch] = useState("");
   const autoCompleteRef = createRef<RefSelectProps>();
-  const [resultSearch, setResultSearch] = useState<Array<CustomerModel>>([]);
-  const [customer, setCustomer] = useState<CustomerModel | null>(null);
+  const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
+  const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -73,7 +77,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [billingAddress, setBillingAddress] =
     useState<BillingAddress | null>(null);
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
-
+  
   //#region Modal
   const showAddressModal = () => {
     setVisibleAddress(true);
@@ -107,18 +111,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //#region Search and Render result
   //Search and render customer by name, phone, code
   const onChangeSearch = useCallback(
-    (v) => {
-      setKeysearch(v);
-      timeTextChange && clearTimeout(timeTextChange);
-      timeTextChange = setTimeout(() => {
-        dispatch(OnSearchChange(v, setResultSearch));
-      }, 500);
+    (value) => {
+      setKeysearch(value);
+      initQuery.request = value;
+      dispatch(OnCustomerSearchChange(initQuery, setResultSearch));
     },
     [dispatch]
   );
 
   //Render result search
-  const renderSearch = (item: CustomerModel) => {
+  const renderSearch = (item: CustomerResponse) => {
     return (
       <div className="row-search w-100">
         <div className="rs-left w-100">
@@ -138,7 +140,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const convertResultSearch = useMemo(() => {
     let options: any[] = [];
-    resultSearch.forEach((item: CustomerModel, index: number) => {
+    resultSearch.forEach((item: CustomerResponse, index: number) => {
       options.push({
         label: renderSearch(item),
         value: item.id ? item.id.toString() : "",
@@ -158,7 +160,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     (v, o) => {
       let index: number = -1;
       index = resultSearch.findIndex(
-        (r: CustomerModel) => r.id && r.id.toString() === v
+        (r: CustomerResponse) => r.id && r.id.toString() === v
       );
       if (index !== -1) {
         setCustomer(resultSearch[index]);

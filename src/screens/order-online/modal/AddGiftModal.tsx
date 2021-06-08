@@ -10,7 +10,7 @@ import { AppConfig } from 'config/AppConfig';
 import imgdefault from 'assets/icon/img-default.svg';
 import { Type } from 'config/TypeConfig';
 import { Link } from 'react-router-dom';
-import { OnSearchChange } from "domain/actions/search.action";
+import { ProductSearch } from "domain/actions/search.action";
 import { OrderItemDiscountModel, OrderItemModel } from 'model/other/Order/order-model';
 
 type AddGiftModalProps = {
@@ -118,11 +118,11 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
   ];
 
   const onChangeSearch = useCallback(
-    (v) => {
-      setKeysearch(v);
+    (value) => {
+      setKeysearch(value);
       timeTextChange && clearTimeout(timeTextChange);
       timeTextChange = setTimeout(() => {
-        dispatch(OnSearchChange(v, setResultSearch));
+        dispatch(ProductSearch(value, setResultSearch));
       }, 500);
     },
     [dispatch]

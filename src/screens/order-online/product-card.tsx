@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   AutoComplete,
   Button,
@@ -37,7 +38,7 @@ import {
   getListStoreRequest,
 } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { OnSearchChange } from "domain/actions/search.action";
+import { ProductSearch } from "domain/actions/search.action";
 import {
   haveAccess,
   findPrice,
@@ -65,7 +66,6 @@ type ProductCardProps = {
 
 const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const dispatch = useDispatch();
-  var timeTextChange: NodeJS.Timeout;
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
@@ -451,13 +451,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     // autoCompleteRef, dispatch, resultSearch
   );
 
-  const onChangeSearch = useCallback(
-    (v) => {
-      setKeysearch(v);
-      timeTextChange && clearTimeout(timeTextChange);
-      timeTextChange = setTimeout(() => {
-        dispatch(OnSearchChange(v, setResultSearch));
-      }, 500);
+  const onChangeProductSearch = useCallback(
+    (value) => {
+      setKeysearch(value);
+      dispatch(ProductSearch(value, setResultSearch));
     },
     [dispatch]
   );
@@ -621,7 +618,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 dropdownClassName="search-layout dropdown-search-header"
                 dropdownMatchSelectWidth={456}
                 className="w-100"
-                onSearch={onChangeSearch}
+                onSearch={onChangeProductSearch}
                 options={convertResultSearch}
               >
                 <Input

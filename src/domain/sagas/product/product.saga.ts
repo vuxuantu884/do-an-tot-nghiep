@@ -1,3 +1,4 @@
+import { ListDataModel } from './../../../model/other/list-data-model';
 import { VariantResponse } from 'model/response/products/variant.response';
 import { call, put, takeLatest } from '@redux-saga/core/effects';
 import { YodyAction } from 'base/BaseAction';
@@ -31,9 +32,6 @@ function* searchVariantSaga(action: YodyAction) {
     showError('Có lỗi vui lòng thử lại sau');
   }
 }
-
-
-
 
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);

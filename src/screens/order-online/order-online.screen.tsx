@@ -15,9 +15,9 @@ import { OrderItemDiscountRequest } from "model/request/order-item-discount.requ
 import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
 import {
   BillingAddress,
-  CustomerModel,
+  CustomerResponse,
   ShippingAddress,
-} from "model/other/Customer/customer-model";
+} from "model/response/customer/customer.response";
 import { useHistory } from "react-router";
 import AccountAction from "domain/actions/account/account.action";
 import { PageResponse } from "model/response/base-metadata.response";
@@ -34,7 +34,7 @@ const CreateBill = () => {
   const history = useHistory();
   const [source, setSource] = useState<number>(0);
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
-  const [objCustomer, setObjCustomer] = useState<CustomerModel | null>(null);
+  const [objCustomer, setObjCustomer] = useState<CustomerResponse | null>(null);
   const [objShippingAddress, setObjShippingAddress] =
     useState<ShippingAddress | null>(null);
   const [objBillingAddress, setObjBillingAddress] =
@@ -115,7 +115,7 @@ const CreateBill = () => {
     setAmount(amount);
   };
 
-  const onChangeInfoCustomer = (_objCustomer: CustomerModel | null) => {
+  const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setObjCustomer(_objCustomer);
   };
 
@@ -348,7 +348,7 @@ const CreateBill = () => {
                     filterOption={(input, option) => {
                       if (option) {
                         return (
-                          option.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                          option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                         );
                       }
                       return false;

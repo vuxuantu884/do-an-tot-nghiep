@@ -1,6 +1,6 @@
-import { BaseModel } from '../base-model';
+import { BaseModel } from '../../other/base-model';
 
-export interface CustomerModel extends BaseModel {
+export interface CustomerResponse extends BaseModel {
   first_name: string,
   last_name: string,
   full_name: string,

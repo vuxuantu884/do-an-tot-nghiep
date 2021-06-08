@@ -1,32 +1,14 @@
 import { OrderRequest } from 'model/request/order.request';
 import { orderPostApi } from './../../../service/order/source.service';
-import { SourceResponse } from 'model/response/order/source.response';
 import { OrderType } from '../../types/order.type';
 import BaseResponse from 'base/BaseResponse';
 import { put, call, takeLatest } from 'redux-saga/effects';
 import { HttpStatus } from 'config/HttpStatus';
-import { getSources } from '../../../service/order/source.service';
 import { YodyAction } from '../../../base/BaseAction';
-import { getListSourceError } from 'domain/actions/order/orderOnline.action';
 import { showError } from 'utils/ToastUtils';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
 import { OrderRespose } from 'model/response/order/order-online.response';
 
-function* getDataSource1(action: YodyAction) {
-
-    let { setData } = action.payload;
-    try {
-      debugger
-        let response: BaseResponse<Array<SourceResponse>> = yield call(getSources);
-        switch (response.code) {
-            case HttpStatus.SUCCESS:
-                setData(response.data);
-                break;
-            default:
-                break;
-        }
-    } catch (error) {}
-}
 
 function* orderCreateSaga(action: YodyAction) {
     const {request, setData} = action.payload;
@@ -51,7 +33,6 @@ function* orderCreateSaga(action: YodyAction) {
   }
 
 function* OrderOnlineSaga(){
-     yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource1);
     yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga)
 }
 
