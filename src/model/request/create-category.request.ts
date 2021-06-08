@@ -4,3 +4,7 @@ export interface CreateCatergoryRequest {
   goods: string,
   parent_id: number|null,
 }
+
+export interface UpdateCatergoryRequest extends CreateCatergoryRequest {
+ version: number
+}
