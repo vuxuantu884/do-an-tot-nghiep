@@ -1,4 +1,4 @@
-import { BaseModel } from './../BaseModel';
+import { BaseModel } from '../base-model';
 
 export interface CustomerModel extends BaseModel {
   first_name: string,
@@ -13,7 +13,8 @@ export interface CustomerModel extends BaseModel {
   company: string,
   tax_code : string,
   note: string,
-  level_id: number,
+  customer_level_id: number,
+  customer_level_name: string,
   wedding_date: number,
   birthday: number,
   gender: string,
@@ -26,15 +27,20 @@ export interface CustomerModel extends BaseModel {
 
 
 export interface BillingAddress extends BaseModel {
-  is_default: boolean,
+  default: boolean,
   name: string,
   email: string,
   phone: string,
+  country_id: number,
   country: string,
+  city_id: number,
   city: string,
+  district_id: number,
   district: string,
-  zipCode: string,
-  fullAddress: string
+  ward_id: number,
+  ward: string,
+  zip_code: string,
+  full_address: string
 }
 
 export interface ShippingAddress extends BaseModel {
@@ -42,9 +48,14 @@ export interface ShippingAddress extends BaseModel {
   name: string,
   email: string,
   phone: string,
+  country_id: number,
   country: string,
+  city_id: number,
   city: string,
+  district_id: number,
   district: string,
-  zipCode: string,
+  ward_id: number,
+  ward: string,
+  zip_code: string,
   full_address: string
 }

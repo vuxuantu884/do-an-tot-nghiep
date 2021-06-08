@@ -7,7 +7,7 @@ import bill from './bill';
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
 const Inventory = React.lazy(() => import ("screens/inverory"));
-const Bill = React.lazy(() => import ("screens/bill"));
+const OrderOnline = React.lazy(() => import ("screens/order-online/order-online.screen"));
 
 const menu: Array<RouteMenu> = [
   {
@@ -67,7 +67,7 @@ const menu: Array<RouteMenu> = [
     exact: true,
     title: "Đơn hàng",
     icon: 'icon-order',
-    component: Bill,
+    component: OrderOnline,
     key: "5",
     isShow: true,
     header: null,

@@ -14,3 +14,14 @@ export const searchVariantsRequestAction = (
     setData
   });
 }
+
+
+export const productUploadAction = (
+  query: VariantSearchQuery,
+  setData: (data: PageResponse<VariantResponse>) => void
+) => {
+  return BaseAction(ProductType.SEARCH_PRODUCT_REQUEST, {
+    query,
+    setData
+  });
+}

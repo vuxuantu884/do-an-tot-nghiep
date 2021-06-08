@@ -1,4 +1,4 @@
-import { VariantModel } from './../../model/other/ProductModel';
+import { VariantModel } from '../../model/other/Product/product-model';
 import BaseAction from "base/BaseAction";
 import { SearchType } from "domain/types/search.type";
 

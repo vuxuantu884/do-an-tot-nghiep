@@ -12,7 +12,7 @@ import ProductFilter from "component/filter/product.filter";
 import {searchVariantsRequestAction} from "domain/actions/product/products.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable from "component/table/CustomTable";
-import { CategoryView } from "model/other/category-view";
+import { CategoryView } from "model/other/Product/category-view";
 import { VariantResponse } from "model/response/products/variant.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { ColorResponse } from "model/response/products/color.response";

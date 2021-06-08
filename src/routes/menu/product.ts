@@ -1,6 +1,7 @@
 import React from 'react';
 import { RouteMenu } from "model/other";
 import { HEADER_TYPE } from 'config/HeaderConfig';
+import ColorUpdateScreen from 'screens/color/color-update.screen';
 
 const Category = React.lazy(() => import ("screens/category/category-list.screen"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
@@ -8,7 +9,7 @@ const ColorListScreen = React.lazy(() => import ("screens/color/color-list.scree
 const UpdateMaterial = React.lazy(() => import ("screens/materials/ material-update.screen"));
 const ListMaterial = React.lazy(() => import ("screens/materials/materials-list.screen"));
 const AddMaterial = React.lazy(() => import ("screens/materials/material-add.screen"));
-const Size = React.lazy(() => import ("screens/product/size.screen"));
+const SizeListScreen = React.lazy(() => import ("screens/size/size-list.screen"));
 const ListSupplier = React.lazy(() => import ("screens/supllier/supplier-list.screen"));
 const AddCategory = React.lazy(() => import ("screens/category/category-add.screen"))
 const CreateSupplierScreen = React.lazy(() => import ("screens/supllier/supplier-add.screen"));
@@ -91,7 +92,8 @@ const product: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         type: 0,
-        object: {}
+        object: {},
+        pathIgnore: ['create']
       }
     ],
     type: HEADER_TYPE.BUTTON_CREATE,
@@ -104,7 +106,7 @@ const product: Array<RouteMenu> = [
     exact: true,
     title: "Kích cỡ",
     icon: 'icon-dot',
-    component: Size,
+    component: SizeListScreen,
     key: "submenu24",
     isShow: true,
     header: null,
@@ -134,6 +136,20 @@ const product: Array<RouteMenu> = [
         subMenu: [],
         type: 0,
         object: {}
+      },
+      {
+        path: "/colors/:id",
+        exact: true,
+        title: "Sừa màu sắc",
+        icon: 'icon-dot',
+        component: ColorUpdateScreen,
+        key: "submenu23",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: {},
+        pathIgnore: ['create']
       },
     ],
     type: HEADER_TYPE.BUTTON_CREATE,

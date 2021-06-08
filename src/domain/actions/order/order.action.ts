@@ -1,8 +1,8 @@
-import { OrderItemModel } from '../../../model/other/Order/OrderItemModel';
-import { VariantModel } from '../../../model/other/ProductModel';
-import { OrderPaymentModel } from '../../../model/other/Order/OrderPaymentModel';
+import { OrderRequest } from 'model/request/order.request';
+import { VariantModel } from '../../../model/other/Product/product-model';
 import { OrderType } from '../../types/order.type';
 import BaseAction from 'base/BaseAction';
+import { OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
 
 const createTab = (storeId: number, companyId: number,currency: string,account: string, account_code: string, source_id: number, source: string ) => {
   return BaseAction(OrderType.CREATE_TAB_REQUEST,
@@ -130,12 +130,16 @@ const onPaymentMoneyChange = (value: number) => {
   return BaseAction(OrderType.PAYMENT_MONEY_CHANGE, { value })
 }
 
+const orderCreateAction = (request: OrderRequest, setData: () => void) => {
+  return BaseAction(OrderType.CREATE_ORDER_REQUEST, {request, setData});
+}
+
 
 export {
   createTab, deleteTab, selectTab, nextPage, previousPage, addOrderRequest, orderQuantityTextChange,
   orderDeleteLineItem, orderPriceTextChange, orderDiscountTextChange, showNoteAction, hideNoteAction, onOrderItemNoteChange,
   addFreeFormItem, changeNameFreeFormItem, changeQuantityFreeFormItem, changePriceFreeFormItem, orderDeleteFreeFormItem,
   addDiscountOrder, addDiscountSuccess, orderGiftChange, savePayment, changePointInPayment, finishActionRequest, finishActionResponse,
-  onOrderNoteChange, changeSaleMan, changeCashier, onPaymentMoneyChange
+  onOrderNoteChange, changeSaleMan, changeCashier, onPaymentMoneyChange, orderCreateAction
 };
 
