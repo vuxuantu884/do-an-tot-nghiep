@@ -68,6 +68,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (props: PickDiscount
                   onFocus={(e) => e.target.select()}
                   value={_type==="money"?_value:_rate}
                   max={_type==="money"?props.amount:100}
+                  min={0}
                   formatter={value => formatCurrency(value ? value : '0')}
                   parser={value => replaceFormat(value ? value : 0)}
                   onChange = {onchangeDiscount}
