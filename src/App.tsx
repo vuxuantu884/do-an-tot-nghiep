@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import MainRoute from 'routes';
 import SplashScreen from 'screens/splash.screen';
-import { generateQuery } from 'utils/AppUtils';
 
 
 function App() {
@@ -16,7 +15,6 @@ function App() {
       dispatch(loadUserFromStorageAction());
     }
   }, [dispatch, isLoad])
-  console.log(generateQuery({a: new Date()}))
   return (
     <Suspense fallback={<SplashScreen />}>
       <BrowserRouter basename="/unicorn/admin">
