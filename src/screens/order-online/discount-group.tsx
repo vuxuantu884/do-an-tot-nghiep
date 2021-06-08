@@ -6,6 +6,7 @@ import {useDispatch} from "react-redux";
 import {formatCurrency, replaceFormat} from "../../utils/AppUtils";
 
 type DiscountGroupProps = {
+  price: number
   index: number;
   discountRate: number;
   discountValue: number;
@@ -53,6 +54,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
           formatter={value => formatCurrency(value ? value : '0')}
           style={{height: '32px', width: '100%'}}
           value={selected === "percent" ? props.discountRate : formatCurrency(props.discountValue) }
+          max = {selected === "percent" ? 100 : props.price}
           onChange={onChangeValue}
           parser={value => replaceFormat(value ? value : "0")}
           className="yody-table-discount-input hide-number-handle"

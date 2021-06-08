@@ -279,6 +279,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       return (
         <div className="site-input-group-wrapper">
           <DiscountGroup
+            price = {l.price}
             index={index}
             discountRate={l.discount_items[0].rate}
             discountValue={l.discount_items[0].value}
@@ -807,9 +808,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           <Row className="payment-row" justify="space-between">
             <div className="font-weight-500">Khách cần trả</div>
             <div className="font-weight-500 payment-row-money">
-              <Typography.Text type="success" className="font-weight-500">
+              {/* <Typography.Text type="success" className="font-weight-500"> */}
                 {changeMoney}
-              </Typography.Text>
+              {/* </Typography.Text> */}
             </div>
           </Row>
         </Col>
