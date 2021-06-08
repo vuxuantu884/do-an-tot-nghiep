@@ -155,21 +155,25 @@ export const getArrCategory = (i: CategoryResponse, level: number, parent: Categ
 }
 
 export const generateQuery = (obj: any) => {
-  let a: string = Object.keys(obj).map((key, index) => {
-    let url = '';
-    if (obj[key]) {
-      let value = obj[key];
-      if(obj[key] instanceof Array) {
-        value = obj[key].join(',')
+  if(obj!==undefined){
+    let a: string = Object.keys(obj).map((key, index) => {
+      let url = '';
+      if (obj[key]) {
+        let value = obj[key];
+        if(obj[key] instanceof Array) {
+          value = obj[key].join(',')
+        }
+        url = key + '=' + encodeURIComponent(value) + '&'
       }
-      url = key + '=' + encodeURIComponent(value) + '&'
+      return url
+    }).join('')
+    if (a.charAt(a.length - 1) === '&') {
+      a = a.substring(0, a.length - 1);
     }
-    return url
-  }).join('')
-  if (a.charAt(a.length - 1) === '&') {
-    a = a.substring(0, a.length - 1);
+    return a;
   }
-  return a;
+  return "";
+  
 }
 
 export const convertDistrict = (data: Array<DistrictResponse>) => {

@@ -23,6 +23,23 @@ function* searchAccountSaga(action: YodyAction) {
 }
 
 
+function* listAccountSaga(action: YodyAction) {
+  let {query, setData} = action.payload;
+  try {
+    
+    let response: BaseResponse<PageResponse<AccountDetailResponse>> = yield call(searctAccountApi, query);
+    switch(response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data.items);
+        break;
+      default:
+        break;
+    }
+  } catch (e) {
+  }
+}
+
 export function* accountSaga() {
   yield takeLatest(AccountType.SEARCH_ACCOUNT_REQUEST, searchAccountSaga);
+  yield takeLatest(AccountType.GET_LIST_ACCOUNT_REQUEST, listAccountSaga);
 }
