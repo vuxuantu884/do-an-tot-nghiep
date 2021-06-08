@@ -145,7 +145,6 @@ export const getArrCategory = (i: CategoryResponse, level: number, parent: Categ
 export const generateQuery = (obj: any) => {
   let a: string = Object.keys(obj).map((key, index) => {
     let url = '';
-    debugger;
     if (obj[key] !== false) {
       let value = obj[key];
       if(obj[key] instanceof Array) {

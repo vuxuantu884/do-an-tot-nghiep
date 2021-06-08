@@ -624,7 +624,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 <Input
                   size="middle"
                   className="yody-search"
-                  placeholder="Tìm sản phẩm theo tên/ SKU/ Mã vạch (F3)"
+                  placeholder="Tìm sản phẩm theo tên/ SKU (F3)"
                   prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                 />
               </AutoComplete>

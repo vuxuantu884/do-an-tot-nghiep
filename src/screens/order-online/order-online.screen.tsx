@@ -57,6 +57,7 @@ const CreateBill = () => {
   const [url, setUrl] = useState<string>("");
   const [orderNote, setOrderNote] = useState<string>("");
   const [tag, setTag] = useState<string>("");
+  const [shipmentType, setShipmentType] = useState<number>(-1);
 
   //Address modal
   const showAddressModal = () => {
@@ -203,7 +204,7 @@ const CreateBill = () => {
     };
 
     if (objCustomer != null) {
-      orderRequest.customer_note = objCustomer.note;
+      orderRequest.customer_note = objCustomer.notes;
       orderRequest.customer_id = objCustomer.id;
     }
 
@@ -281,6 +282,8 @@ const CreateBill = () => {
     []
   );
 
+  console.log("ship", shipmentType);
+
   useLayoutEffect(() => {
     
     dispatch(AccountAction.SearchAccount({}, setDataAccounts));
@@ -309,7 +312,7 @@ const CreateBill = () => {
             {/*--- end product ---*/}
 
             {/*--- shipment ---*/}
-            <ShipmentCard />
+            <ShipmentCard shipmentType={shipmentType}/>
             {/*--- end shipment ---*/}
 
             {/*--- payment ---*/}
