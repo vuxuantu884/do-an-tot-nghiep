@@ -8,9 +8,6 @@ import { CategoryView } from "model/other/Product/category-view";
 import { CategoryResponse } from "model/response/category.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
 import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
-import { OrderMetadata } from 'model/reducers/OrderListReducerType';
-
-
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -201,17 +198,6 @@ export const convertDistrict = (data: Array<DistrictResponse>) => {
   return array;
 }
 
-const hasNextPage = (metadata: OrderMetadata) => {
-  return (metadata.page + 1) * metadata.limit < metadata.total;
-}
-
-const hasPreviousPage = (page: number) => {
-  return page !== 0
-}
-
-// const hasOrder = (data) => {
-
-// }
 
 const findPriceInVariant = (variantPrices: Array<VariantPrice>, currency_code: string): number => {
   let price: number = 0;
@@ -386,7 +372,7 @@ const isPaymentCashOnly = (items: Array<OrderPaymentModel>) => {
   return items.length === 1 && items[0].payment_method_id === AppConfig.DEFAULT_PAYMENT;
 }
 export {
-  hasNextPage, hasPreviousPage, findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
+  findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
   replaceFormat, replaceFormatString, getTotalQuantity, getTotalAmount, getTotalDiscount, getTotalAmountAfferDiscount, getDiscountRate, getDiscountValue,
   getAmountDiscount, getAmountItemDiscount, findDiscountIndex, findDiscountPromotion, caculatorTotalDiscount, findOrderDiscount, getTotalAmountFreeForm,
   formatSuffixPoint,caculateMoney, isPaymentCashOnly

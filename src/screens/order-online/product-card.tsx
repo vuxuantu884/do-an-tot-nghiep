@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   AutoComplete,
   Button,
@@ -37,7 +38,7 @@ import {
   getListStoreRequest,
 } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { OnSearchChange } from "domain/actions/search.action";
+import { ProductSearch } from "domain/actions/search.action";
 import {
   haveAccess,
   findPrice,
@@ -65,7 +66,6 @@ type ProductCardProps = {
 
 const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const dispatch = useDispatch();
-  var timeTextChange: NodeJS.Timeout;
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
@@ -100,8 +100,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const onChangeQuantity = (value: number, index: number) => {
     let _items = [...items];
-    console.log(value);
-    _items[index].quantity = value;
+    
+    _items[index].quantity = Number(value==null?"0":value.toString().replace(".",""));
     setItems(_items);
     total();
   };
@@ -124,6 +124,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setAmount(_amount);
     calculateChangeMoney(_items,_amount,discountRate, discountValue);
   }, [items]);
+
+
 
   // render
 
@@ -175,7 +177,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       return (
         <div className="w-100" style={{ overflow: "hidden" }}>
           <div className="d-flex align-items-center">
-            <Button type="text" className="p-0 yody-pos-delete-free-form">
+            <Button type="text" className="p-0 yody-pos-delete-free-form" onClick = {() => onDeleteItem(index)}>
               <img src={deleteIcon} alt="" />
             </Button>
             <div style={{ width: "calc(100% - 32px)", marginLeft: "15px" }}>
@@ -294,7 +296,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     className: "yody-table-total-money text-right",
     // width: 100,
     render: (l: OrderItemModel, item: any, index: number) => {
-      return <div>{l.line_amount_after_line_discount}</div>;
+      return <div>{formatCurrency(l.line_amount_after_line_discount)}</div>;
     },
   };
 
@@ -404,11 +406,23 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     return newDiscountItem;
   };
 
+  const onDeleteItem = (index:number) => {
+    let _items = [... items]
+    let _amount = amount -  (_items[index].line_amount_after_line_discount)
+    setAmount(_amount)
+    _items.splice(index, 1);
+    setItems(_items);
+    calculateChangeMoney(
+      _items,
+      _amount,
+      discountRate,
+      discountValue
+    );
+  }
+
   const onSearchSelect = useCallback(
     (v, o) => {
-      console.log(v,o);
-      console.log(resultSearch)
-      let _items = [...items];
+      let _items = [...items].reverse();
       let indexSearch = resultSearch.findIndex((s) => s.id == v);
       console.log(indexSearch)
       let index = _items.findIndex((i) => i.variant_id == v);
@@ -440,24 +454,21 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             amount +
               _items[lastIndex].price -
               _items[lastIndex].discount_items[0].amount,
-              discountValue,
+              discountRate,
             discountValue
           );
         }
       }
-      setItems(_items);
+      setItems(_items.reverse());
     },
     [resultSearch, items, splitLine]
     // autoCompleteRef, dispatch, resultSearch
   );
 
-  const onChangeSearch = useCallback(
-    (v) => {
-      setKeysearch(v);
-      timeTextChange && clearTimeout(timeTextChange);
-      timeTextChange = setTimeout(() => {
-        dispatch(OnSearchChange(v, setResultSearch));
-      }, 500);
+  const onChangeProductSearch = useCallback(
+    (value) => {
+      setKeysearch(value);
+      dispatch(ProductSearch(value, setResultSearch));
     },
     [dispatch]
   );
@@ -621,13 +632,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 dropdownClassName="search-layout dropdown-search-header"
                 dropdownMatchSelectWidth={456}
                 className="w-100"
-                onSearch={onChangeSearch}
+                onSearch={onChangeProductSearch}
                 options={convertResultSearch}
               >
                 <Input
                   size="middle"
                   className="yody-search"
-                  placeholder="Tìm sản phẩm theo tên/ SKU/ Mã vạch (F3)"
+                  placeholder="Tìm sản phẩm theo tên/ SKU (F3)"
                   prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                 />
               </AutoComplete>
@@ -741,7 +752,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         <Col xs={24} lg={12}>
           <Row className="payment-row" justify="space-between">
             <div className="font-weight-500">Tổng tiền</div>
-            <div className="font-weight-500 payment-row-money">{amount}</div>
+            <div className="font-weight-500 payment-row-money">{formatCurrency(amount)}</div>
           </Row>
 
           <Row className="payment-row" justify="space-between" align="middle">
@@ -767,7 +778,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 </Button>
               </div>
             </Space>
-            <div className="font-weight-500 ">{discountValue}</div>
+            <div className="font-weight-500 ">{formatCurrency(discountValue)}</div>
           </Row>
 
           <Row className="payment-row" justify="space-between" align="middle">
@@ -790,14 +801,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
           <Row className="payment-row" justify="space-between">
             <div className="font-weight-500">Phí ship báo khách</div>
-            <div className="font-weight-500 payment-row-money">20.000</div>
+            <div className="font-weight-500 payment-row-money">20,000</div>
           </Row>
 
           <Row className="payment-row" justify="space-between">
             <div className="font-weight-500">Khách cần trả</div>
             <div className="font-weight-500 payment-row-money">
               <Typography.Text type="success" className="font-weight-500">
-                {changeMoney}
+                {formatCurrency(changeMoney)}
               </Typography.Text>
             </div>
           </Row>

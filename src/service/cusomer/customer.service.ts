@@ -1,12 +1,13 @@
-import { CustomerModel } from 'model/other/Customer/customer-model';
-import { ListDataModel } from '../../model/other/list-data-model';
+import { CustomerResponse } from 'model/response/customer/customer.response';
+import { PageResponse } from 'model/response/base-metadata.response';
+import { generateQuery } from 'utils/AppUtils';
+import { CustomerSearchQuery } from 'model/query/customer.query';
 import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 
-const getCustomers = (page: number, limit: number, search: string): Promise<BaseResponse<ListDataModel<CustomerModel>>> => {
-  let link = `${ApiConfig.CUSTOMER}/customers?request=${search}&page=${page}&limit=${limit}`;
+export const getCustomers = (query : CustomerSearchQuery): Promise<BaseResponse<PageResponse<CustomerResponse>>> => {
+  let params = generateQuery(query);
+  let link = `${ApiConfig.CUSTOMER}/customers?${params}`;
   return BaseAxios.get(link);
 };
-
-export {getCustomers};

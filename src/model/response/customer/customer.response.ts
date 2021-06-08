@@ -1,6 +1,6 @@
-import { BaseModel } from '../base-model';
+import { BaseModel } from '../../other/base-model';
 
-export interface CustomerModel extends BaseModel {
+export interface CustomerResponse extends BaseModel {
   first_name: string,
   last_name: string,
   full_name: string,
@@ -12,7 +12,7 @@ export interface CustomerModel extends BaseModel {
   company_id: number,
   company: string,
   tax_code : string,
-  note: string,
+  notes: string,
   customer_level_id: number,
   customer_level_name: string,
   wedding_date: number,
@@ -21,8 +21,8 @@ export interface CustomerModel extends BaseModel {
   responsible_staff_id: number,
   affiliate_code: string,
   loyalty: number,
-  billing_address: Array<BillingAddress>;
-  shipping_address: Array<ShippingAddress>;
+  billing_addresses: Array<BillingAddress>;
+  shipping_addresses: Array<ShippingAddress>;
 }
 
 
