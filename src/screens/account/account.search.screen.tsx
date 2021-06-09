@@ -78,9 +78,13 @@ const ListAccountScreen: React.FC = () => {
       dataIndex: "mobile",
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "phone",
+      title: "Phân quyền",
+      render: (value: AccountResponse) => {
+        let role='';
+        return <Link to="#">{value.code}</Link>;
+      }
     },
+   
     {
       title: "Trạng thái",
       dataIndex: "status",
