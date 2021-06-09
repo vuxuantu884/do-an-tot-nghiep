@@ -5,7 +5,7 @@ import { AppConfig } from './../config/AppConfig';
 import { VariantPrice, VariantImage } from '../model/other/Product/product-model';
 import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/Product/category-view";
-import { CategoryResponse } from "model/response/category.response";
+import { CategoryResponse } from "model/response/product/category.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
 import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
 import { VariantImagesResponse } from 'model/response/products/variant.images.response';

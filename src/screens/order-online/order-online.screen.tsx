@@ -58,8 +58,8 @@ const CreateBill = () => {
   const [url, setUrl] = useState<string>("");
   const [orderNote, setOrderNote] = useState<string>("");
   const [tag, setTag] = useState<string>("");
-  const [shipmentType, setShipmentType] = useState<number>();
-  const [paymentType, setPaymentType] = useState<number>();
+  const [shipmentType, setShipmentType] = useState<number>(4);
+  const [paymentType, setPaymentType] = useState<number>(3);
   //#endregion
 
   //#region modal
@@ -327,11 +327,11 @@ const CreateBill = () => {
             {/*--- end product ---*/}
 
             {/*--- shipment ---*/}
-            <ShipmentCard setSelectedShipmentType={onShipmentSelect} />
+            <ShipmentCard setSelectedShipmentType={onShipmentSelect} shipmentMethod={shipmentType}/>
             {/*--- end shipment ---*/}
 
             {/*--- payment ---*/}
-            <PaymentCard setSelectedPaymentMethod={onPaymentSelect}/>
+            <PaymentCard setSelectedPaymentMethod={onPaymentSelect} paymentMethod={paymentType}/>
             {/*--- end payment ---*/}
           </Col>
 
