@@ -71,6 +71,7 @@ type ProductCardProps = {
     discount_value: number
   ) => void;
   selectPriceType: (priceType: string) => void;
+  isVisibleStore: boolean;
 };
 
 const initQuery: VariantSearchQuery = {
@@ -668,7 +669,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               ))}
             </Select>
 
-            {props.storeId === null && (
+            {props.isVisibleStore === true && (
               <div>
                 <div className="ant-form-item-explain ant-form-item-explain-error" style={{padding: '5px'}}>
                   <div role="alert">Vui lòng chọn cửa hàng</div>

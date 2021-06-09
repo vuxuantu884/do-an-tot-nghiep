@@ -52,7 +52,7 @@ import { Email } from "utils/RegUtils";
 type CustomerCardProps = {
   changeInfoCustomer: (items: CustomerResponse) => void;
   selectSource: (source: number) => void;
-  sourceSelect: number | null;
+  sourceSelect: boolean;
   changeEmail: (email: string) => void;
   changeShippingAddress: (items: ShippingAddress) => void;
   changeBillingAddress: (items: BillingAddress) => void;
@@ -313,7 +313,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </Select.Option>
               ))}
             </Select>
-            {props.sourceSelect === -1 && (
+            {props.sourceSelect === true && (
               <div>
                 <div className="ant-form-item-explain ant-form-item-explain-error" style={{padding: '5px'}}>
                   <div role="alert">Vui lòng chọn nguồn đơn hàng</div>

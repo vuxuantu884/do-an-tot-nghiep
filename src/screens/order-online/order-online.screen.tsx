@@ -61,6 +61,8 @@ const CreateBill = () => {
   const [shipmentType, setShipmentType] = useState<number>(4);
   const [paymentType, setPaymentType] = useState<number>(3);
   const [isVisibleAssignCode, setVisibleAssignCode] = useState<boolean>(false);
+  const [isVisibleSource, setVisibleSource] = useState<boolean>(false);
+  const [isVisibleStore, setVisibleStore] = useState<boolean>(false);
   //#endregion
 
   //#region modal
@@ -101,6 +103,7 @@ const CreateBill = () => {
 
   const onStoreSelect = (storeId: number) => {
     setStoreId(storeId);
+    setVisibleStore(false);
   };
 
   const onPriceTypeSelect = (priceType: string) => {
@@ -117,6 +120,7 @@ const CreateBill = () => {
 
   const onSourceSelect = (source: number) => {
     setSource(source);
+    setVisibleSource(false);
   };
 
   const onEmailChange = (email: string) => {
@@ -153,6 +157,7 @@ const CreateBill = () => {
 
   const onChangeAssignCode = (value: string) => {
     setAssignCode(value);
+    setVisibleAssignCode(false);
   };
 
   const onChangeReference = (value: string) => {
@@ -241,12 +246,16 @@ const CreateBill = () => {
     if (emailValid === false) {
     }
 
-    if (source === null) {
+    if (assignCode === "") {
       setVisibleAssignCode(true);
     }
 
+    if (storeId === null) {
+      setVisibleStore(true);
+    }
+
     if (source === null) {
-      setSource(-1);
+      setVisibleSource(true);
     }
 
     //dispatch(orderCreateAction(orderRequest, onCreateSuccess));
@@ -335,7 +344,7 @@ const CreateBill = () => {
             <CustomerCard
               changeInfoCustomer={onChangeInfoCustomer}
               selectSource={onSourceSelect}
-              sourceSelect={source}
+              sourceSelect={isVisibleSource}
               changeEmail={onEmailChange}
               changeShippingAddress={onChangeShippingAddress}
               changeBillingAddress={onChangeBillingAddress}
@@ -348,6 +357,7 @@ const CreateBill = () => {
               selectStore={onStoreSelect}
               selectPriceType={onPriceTypeSelect}
               storeId = {storeId}
+              isVisibleStore = {isVisibleStore}
             />
             {/*--- end product ---*/}
 
@@ -405,9 +415,6 @@ const CreateBill = () => {
                       return false;
                     }}
                   >
-                    <Select.Option value="">
-                      Chọn nhân viên bán hàng
-                    </Select.Option>
                     {accounts.map((item, index) => (
                       <Select.Option
                         style={{ width: "100%" }}
