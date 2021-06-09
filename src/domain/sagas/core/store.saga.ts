@@ -4,7 +4,7 @@ import { HttpStatus } from "config/HttpStatus";
 import { getListStoreError } from 'domain/actions/core/store.action';
 import {StoreType} from "domain/types/product.type";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { getListStore, getStoreDetail } from "service/product/store.service";
+import { getListStore, getStoreDetail } from "service/core/store.service";
 import { StoreModel } from 'model/other/Core/store-model';
 import { showLoading } from 'domain/actions/loading.action';
 

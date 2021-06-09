@@ -8,7 +8,6 @@ import PaymentCard from "./payment-card";
 import ShipmentCard from "./shipment-card";
 import { useState, useCallback, useLayoutEffect } from "react";
 import { useDispatch } from "react-redux";
-import { StoreModel } from "model/other/Core/store-model";
 import { OrderRequest } from "model/request/order.request";
 import { OrderLineItemRequest } from "model/request/order-line-item.request";
 import { OrderItemDiscountRequest } from "model/request/order-item-discount.request";
@@ -27,13 +26,15 @@ import {
 } from "model/other/Order/order-model";
 import { orderCreateAction } from "domain/actions/order/order.action";
 import { showSuccess } from "utils/ToastUtils";
+import { Email } from "utils/RegUtils";
 //#endregion
 
 const CreateBill = () => {
   //#region state
   const dispatch = useDispatch();
   const history = useHistory();
-  const [source, setSource] = useState<number>(0);
+  const [source, setSource] = useState<number | null>(null);
+  const [email, setEmail] = useState<string>("");
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
   const [objCustomer, setObjCustomer] = useState<CustomerResponse | null>(null);
   const [objShippingAddress, setObjShippingAddress] =
@@ -51,7 +52,6 @@ const CreateBill = () => {
   const [isVerify, setVerify] = useState(false);
   const [selectedShipMethod, setSelectedShipMethod] = useState(1);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(1);
-  const [store, setStore] = useState<StoreModel | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountDetailResponse>>([]);
   const [assignCode, setAssignCode] = useState<string>("");
   const [reference, setReference] = useState<string>("");
@@ -60,6 +60,7 @@ const CreateBill = () => {
   const [tag, setTag] = useState<string>("");
   const [shipmentType, setShipmentType] = useState<number>(4);
   const [paymentType, setPaymentType] = useState<number>(3);
+  const [isVisibleAssignCode, setVisibleAssignCode] = useState<boolean>(false);
   //#endregion
 
   //#region modal
@@ -118,6 +119,10 @@ const CreateBill = () => {
     setSource(source);
   };
 
+  const onEmailChange = (email: string) => {
+    setEmail(email);
+  };
+
   const onChangeInfo = (
     _items: Array<OrderItemModel>,
     amount: number,
@@ -163,9 +168,9 @@ const CreateBill = () => {
   };
 
   const onChangeTag = (value: []) => {
-    let strTag= "";
-    value.forEach(element => {
-      strTag = strTag + element + ',';
+    let strTag = "";
+    value.forEach((element) => {
+      strTag = strTag + element + ",";
     });
 
     setTag(strTag);
@@ -175,6 +180,11 @@ const CreateBill = () => {
     showSuccess("Thêm đơn hàng thành công");
     history.push("/list-orders");
   }, [history]);
+
+  const validateEmail = (email: string) => {
+    const re = Email;
+    return re.test(email);
+  };
 
   const finishOrder = () => {
     let orderLineItemsRequest = createOrderLineItemsRequest();
@@ -227,7 +237,19 @@ const CreateBill = () => {
       orderRequest.customer_id = objCustomer.id;
     }
 
-    dispatch(orderCreateAction(orderRequest, onCreateSuccess));
+    const emailValid = validateEmail(email);
+    if (emailValid === false) {
+    }
+
+    if (source === null) {
+      setVisibleAssignCode(true);
+    }
+
+    if (source === null) {
+      setSource(-1);
+    }
+
+    //dispatch(orderCreateAction(orderRequest, onCreateSuccess));
   };
 
   const createOrderLineItemsRequest = () => {
@@ -313,6 +335,8 @@ const CreateBill = () => {
             <CustomerCard
               changeInfoCustomer={onChangeInfoCustomer}
               selectSource={onSourceSelect}
+              sourceSelect={source}
+              changeEmail={onEmailChange}
               changeShippingAddress={onChangeShippingAddress}
               changeBillingAddress={onChangeBillingAddress}
             />
@@ -323,15 +347,22 @@ const CreateBill = () => {
               changeInfo={onChangeInfo}
               selectStore={onStoreSelect}
               selectPriceType={onPriceTypeSelect}
+              storeId = {storeId}
             />
             {/*--- end product ---*/}
 
             {/*--- shipment ---*/}
-            <ShipmentCard setSelectedShipmentType={onShipmentSelect} shipmentMethod={shipmentType}/>
+            <ShipmentCard
+              setSelectedShipmentType={onShipmentSelect}
+              shipmentMethod={shipmentType}
+            />
             {/*--- end shipment ---*/}
 
             {/*--- payment ---*/}
-            <PaymentCard setSelectedPaymentMethod={onPaymentSelect} paymentMethod={paymentType}/>
+            <PaymentCard
+              setSelectedPaymentMethod={onPaymentSelect}
+              paymentMethod={paymentType}
+            />
             {/*--- end payment ---*/}
           </Col>
 
@@ -387,6 +418,14 @@ const CreateBill = () => {
                       </Select.Option>
                     ))}
                   </Select>
+
+                  {isVisibleAssignCode === true && (
+                    <div>
+                      <div className="ant-form-item-explain ant-form-item-explain-error" style={{padding: '5px'}}>
+                        <div role="alert">Vui lòng chọn nhân viên bán hàng</div>
+                      </div>
+                    </div>
+                  )}
                 </Form.Item>
               </div>
               <div className="form-group form-group-with-search">
@@ -458,7 +497,7 @@ const CreateBill = () => {
                 </div>
                 <Input.TextArea
                   onChange={(e) => onChangeNoteOrder(e.target.value)}
-                  placeholder="Điền ghi chú"
+                  placeholder="Nhập ghi chú"
                 />
               </div>
               <div className="form-group form-group-with-search mb-0">
@@ -478,11 +517,11 @@ const CreateBill = () => {
 
                 <Select
                   mode="tags"
+                  placeholder="Nhập tags"
                   style={{ width: "100%" }}
                   onChange={onChangeTag}
                   tokenSeparators={[","]}
-                >
-                </Select>
+                ></Select>
               </div>
             </Card>
           </Col>
@@ -496,6 +535,7 @@ const CreateBill = () => {
             type="default"
             onClick={finishOrder}
             className="btn-style btn-save"
+            //disabled={source===null && storeId=== null && assignCode === ""}
           >
             Lưu
           </Button>
