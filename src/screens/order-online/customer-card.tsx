@@ -80,9 +80,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     useState<BillingAddress | null>(null);
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
 
+  const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
+  const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
+
   //#region Modal
   const showAddressModal = () => {
     setVisibleAddress(true);
+    setVisibleShippingAddress(false);
+    setVisibleBillingAddress(false);
   };
 
   const onCancleConfirmAddress = useCallback(() => {
@@ -219,6 +224,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     props.changeShippingAddress(value);
   };
 
+  const onSelectBillingAddress = (value: ShippingAddress) => {
+    setBillingAddress(value);
+    props.changeBillingAddress(value);
+  };
+
   const onChangeSource = useCallback(
     (value: number) => {
       props.selectSource(value);
@@ -233,6 +243,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   useLayoutEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
+
+  const handleVisibleShippingAddressChange = (value: boolean) => {
+    setVisibleShippingAddress(value);
+  };
+
+  const handleVisibleBillingAddressChange = (value: boolean) => {
+    setVisibleBillingAddress(value);
+  };
 
   return (
     <Card
@@ -351,9 +369,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     : customer?.full_name}
                 </span>
                 <span className="cdn-level">
-                  {customer?.customer_level_name === undefined
+                  {customer?.customer_level === undefined
                     ? "Level 1"
-                    : customer?.customer_level_name}
+                    : customer?.customer_level}
                 </span>
               </Space>
             </Row>
@@ -470,6 +488,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           ))}
                         </div>
                       }
+                      trigger="click"
+                      visible={visibleShippingAddress}
+                      onVisibleChange={handleVisibleShippingAddressChange}
                       className="change-shipping-address"
                     >
                       <Button type="link" className="p-0 m-0">
@@ -529,10 +550,62 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       <span>{billingAddress?.full_address}</span>
                     </Row>
                     <Row>
+                    <Popover
+                      placement="bottomLeft"
+                      title={
+                        <Row
+                          justify="space-between"
+                          align="middle"
+                          className="change-shipping-address-title"
+                        >
+                          <div style={{ color: "#4F687D" }}>
+                            Thay đổi địa chỉ
+                          </div>
+                          <Button type="link" onClick={showAddressModal}>
+                            Thêm địa chỉ mới
+                          </Button>
+                        </Row>
+                      }
+                      content={
+                        <div className="change-shipping-address-content">
+                          {customer.billing_addresses.map((item, index) => (
+                            <div
+                              className="shipping-address-row"
+                              onClick={(e) => onSelectBillingAddress(item)}
+                            >
+                              <div className="shipping-address-name">
+                                Địa chỉ 1{" "}
+                                <Button
+                                  type="text"
+                                  onClick={showAddressModal}
+                                  className="p-0"
+                                >
+                                  <img src={editBlueIcon} alt="" />
+                                </Button>
+                              </div>
+                              <div className="shipping-customer-name">
+                                {item.name}
+                              </div>
+                              <div className="shipping-customer-mobile">
+                                {item.phone}
+                              </div>
+                              <div className="shipping-customer-address">
+                                {item.full_address}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      }
+                      trigger="click"
+                      visible={visibleBillingAddress}
+                      onVisibleChange={handleVisibleBillingAddressChange}
+                      className="change-shipping-address"
+                    >
                       <Button type="link" className="p-0 m-0">
-                        Thay đổi địa chỉ gửi hoá đơn
+                        Thay đổi địa chỉ gửi hóa đơn
                       </Button>
-                    </Row>
+                    </Popover>
+                  </Row>
                   </Col>
                   <Col xs={24} lg={12} className="font-weight-500">
                     <div className="form-group form-group-with-search">
@@ -541,7 +614,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           Email hoá đơn đến
                         </label>
                       </div>
-                      <Input type="email"
+                      <Input
+                        type="email"
                         onChange={(e) =>
                           changeEmailBillingAddress(e.target.value)
                         }
