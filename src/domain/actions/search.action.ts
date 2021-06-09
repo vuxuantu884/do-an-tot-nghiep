@@ -1,8 +1,8 @@
-import { VariantModel } from '../../model/other/Product/product-model';
+import { VariantModel } from 'model/other/Product/product-model';
 import BaseAction from "base/BaseAction";
 import { SearchType } from "domain/types/search.type";
 
-const OnSearchChange = (text: string, setData: (data: Array<VariantModel>) => void) => {
+const ProductSearch = (text: string, setData: (data: Array<VariantModel>) => void) => {
   return BaseAction(SearchType.KEY_SEARCH_CHANGE, {key: text, setData: setData} );
 }
 
@@ -22,5 +22,5 @@ const clearResult = () => {
   return BaseAction(SearchType.CLEAR_RESULT, null);
 }
 
-export {OnSearchChange, UpdateResultSearch, clearResult, SearchBarCode, OnSearchGift};
+export {ProductSearch, UpdateResultSearch, clearResult, SearchBarCode, OnSearchGift};
 

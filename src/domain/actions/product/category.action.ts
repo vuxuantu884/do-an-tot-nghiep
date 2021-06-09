@@ -19,3 +19,7 @@ export const categoryDetailAction = (id: number, setData: (data: CategoryRespons
 export const categoryUpdateAction = (id: number, request: UpdateCatergoryRequest,onUpdateSuccess: () => void) => {
   return BaseAction(CategoryType.UPDATE_CATEGORY_REQUEST, {id, request, onUpdateSuccess});
 }
+
+export const categoryDeleteAction = (id: number, onDeleteSuccess: () => void) => {
+  return BaseAction(CategoryType.DELETE_CATEGORY_REQUEST, {id, onDeleteSuccess});
+}

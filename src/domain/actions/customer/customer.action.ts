@@ -1,9 +1,8 @@
+import { CustomerSearchQuery } from 'model/query/customer.query';
 import BaseAction from 'base/BaseAction';
-import { SearchType } from 'domain/types/search.type';
-import { CustomerModel } from '../../../model/other/Customer/customer-model';
+import { CustomerType } from 'domain/types/customer.type';
+import { CustomerResponse } from 'model/response/customer/customer.response';
 
-const OnSearchChange = (text: string, setData: (data: Array<CustomerModel>) => void) => {
-    return BaseAction(SearchType.KEY_SEARCH_CUSTOMER_CHANGE, { key: text, setData: setData });
+export const OnCustomerSearchChange = (query: CustomerSearchQuery, setData: (data: Array<CustomerResponse>) => void) => {
+    return BaseAction(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE, { query, setData: setData });
 }
-
-export { OnSearchChange };

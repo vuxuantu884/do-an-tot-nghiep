@@ -32,17 +32,15 @@ import {formatCurrency} from "../../utils/AppUtils";
 import ghtkIcon from "../../assets/img/ghtk.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 
-
 type ShipmentCardProps = {
-  // visible: boolean;
-  // onCancel: (e: React.MouseEvent<HTMLElement>) => void;
-  // onOk: () => void;
+  setSelectedShipmentType: (paymentType: number) => void;
 }
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (props: ShipmentCardProps) => {
 
   const [selectedShipMethod, setSelectedShipMethod ] = useState(4);
   const changeShipMethod = (value: number) => {
+    props.setSelectedShipmentType(value);
     setSelectedShipMethod(value);
   };
 

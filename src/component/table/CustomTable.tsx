@@ -2,7 +2,7 @@ import { Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { BaseMetadata } from "model/response/base-metadata.response";
 import { GetRowKey } from "rc-table/lib/interface";
-import React, {Fragment} from "react";
+import React, {Fragment, useCallback} from "react";
 import CustomPagination from "./CustomPagination";
 
 
@@ -15,18 +15,26 @@ type CustomTableProps = {
   className?: string
   style?: React.CSSProperties
   emptyText?: React.ReactNode | (() => React.ReactNode)
-  onSelect?: (select: any) => void
+  onSelectedChange?: (selectedRows: any[]) => void
 }
 
 const CustomTable: React.FC<CustomTableProps> = (props: CustomTableProps) => {
-  const {pagination, onChange, rowKey, onSelect, dataSource, columns, className, style} = props;
+  const {pagination, onChange, rowKey, onSelectedChange, dataSource, columns, className, style} = props;
+  const onSelect = useCallback((item: any, selected: boolean, selectedRow: any[]) => {
+    onSelectedChange && onSelectedChange(selectedRow);
+  }, [onSelectedChange]);
+  const onSelectAll = useCallback((selected, selectedRow: any[], changeRow: any[]) => {
+    onSelectedChange && onSelectedChange(selectedRow);
+  }, [onSelectedChange]);
   return (
     <Fragment>
       <Table
         rowSelection={{
+          fixed: true,
           type: "checkbox",
           columnWidth: 80,
-          onSelect: onSelect
+          onSelect: onSelect,
+          onSelectAll: onSelectAll,
         }}
         dataSource={dataSource}
         rowKey={rowKey}

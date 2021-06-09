@@ -15,9 +15,9 @@ import { OrderItemDiscountRequest } from "model/request/order-item-discount.requ
 import { AccountResponse } from "model/response/accounts/account-detail.response";
 import {
   BillingAddress,
-  CustomerModel,
+  CustomerResponse,
   ShippingAddress,
-} from "model/other/Customer/customer-model";
+} from "model/response/customer/customer.response";
 import { useHistory } from "react-router";
 import {AccountSearchAction} from "domain/actions/account/account.action";
 import { PageResponse } from "model/response/base-metadata.response";
@@ -30,11 +30,12 @@ import { showSuccess } from "utils/ToastUtils";
 //#endregion
 
 const CreateBill = () => {
+  //#region state
   const dispatch = useDispatch();
   const history = useHistory();
   const [source, setSource] = useState<number>(0);
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
-  const [objCustomer, setObjCustomer] = useState<CustomerModel | null>(null);
+  const [objCustomer, setObjCustomer] = useState<CustomerResponse | null>(null);
   const [objShippingAddress, setObjShippingAddress] =
     useState<ShippingAddress | null>(null);
   const [objBillingAddress, setObjBillingAddress] =
@@ -57,7 +58,11 @@ const CreateBill = () => {
   const [url, setUrl] = useState<string>("");
   const [orderNote, setOrderNote] = useState<string>("");
   const [tag, setTag] = useState<string>("");
+  const [shipmentType, setShipmentType] = useState<number>();
+  const [paymentType, setPaymentType] = useState<number>();
+  //#endregion
 
+  //#region modal
   //Address modal
   const showAddressModal = () => {
     setVisibleAddress(true);
@@ -91,12 +96,22 @@ const CreateBill = () => {
     setSelectedPaymentMethod(value);
   };
 
+  //#endregion
+
   const onStoreSelect = (storeId: number) => {
     setStoreId(storeId);
   };
 
   const onPriceTypeSelect = (priceType: string) => {
     setPriceType(priceType);
+  };
+
+  const onShipmentSelect = (shipmentType: number) => {
+    setShipmentType(shipmentType);
+  };
+
+  const onPaymentSelect = (paymentType: number) => {
+    setPaymentType(paymentType);
   };
 
   const onSourceSelect = (source: number) => {
@@ -115,7 +130,7 @@ const CreateBill = () => {
     setAmount(amount);
   };
 
-  const onChangeInfoCustomer = (_objCustomer: CustomerModel | null) => {
+  const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setObjCustomer(_objCustomer);
   };
 
@@ -147,8 +162,13 @@ const CreateBill = () => {
     setOrderNote(value);
   };
 
-  const onChangeTag = (value: string) => {
-    setTag(value);
+  const onChangeTag = (value: []) => {
+    let strTag= "";
+    value.forEach(element => {
+      strTag = strTag + element + ',';
+    });
+
+    setTag(strTag);
   };
 
   const onCreateSuccess = useCallback(() => {
@@ -203,7 +223,7 @@ const CreateBill = () => {
     };
 
     if (objCustomer != null) {
-      orderRequest.customer_note = objCustomer.note;
+      orderRequest.customer_note = objCustomer.notes;
       orderRequest.customer_id = objCustomer.id;
     }
 
@@ -225,7 +245,6 @@ const CreateBill = () => {
 
     return orderLineItemsRequest;
   };
-  
 
   const createOrderLineItemRequest = (
     model: OrderItemModel,
@@ -309,11 +328,11 @@ const CreateBill = () => {
             {/*--- end product ---*/}
 
             {/*--- shipment ---*/}
-            <ShipmentCard />
+            <ShipmentCard setSelectedShipmentType={onShipmentSelect} />
             {/*--- end shipment ---*/}
 
             {/*--- payment ---*/}
-            <PaymentCard />
+            <PaymentCard setSelectedPaymentMethod={onPaymentSelect}/>
             {/*--- end payment ---*/}
           </Col>
 
@@ -348,7 +367,9 @@ const CreateBill = () => {
                     filterOption={(input, option) => {
                       if (option) {
                         return (
-                          option.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                          option.children
+                            .toLowerCase()
+                            .indexOf(input.toLowerCase()) >= 0
                         );
                       }
                       return false;
@@ -455,10 +476,14 @@ const CreateBill = () => {
                     </span>
                   </Tooltip>
                 </div>
-                <Input
-                  onChange={(e) => onChangeTag(e.target.value)}
-                  placeholder="Thêm tag"
-                />
+
+                <Select
+                  mode="tags"
+                  style={{ width: "100%" }}
+                  onChange={onChangeTag}
+                  tokenSeparators={[","]}
+                >
+                </Select>
               </div>
             </Card>
           </Col>

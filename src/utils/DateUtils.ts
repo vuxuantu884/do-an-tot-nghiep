@@ -7,5 +7,5 @@ export const convertToLocalDate = (date: Date | string | number) => {
 }
 
 export const convertDateToUTC = (date: Date | string | number) => {
-  return new Date(date).toUTCString();
+  return moment(date).toISOString()
 }

@@ -1,17 +1,28 @@
-import { Modal, Input, Table, Button, AutoComplete } from 'antd';
-import deleteIcon from 'assets/icon/delete.svg';
-import arrowDown from 'assets/icon/arrow-down.svg';
+import { Modal, Input, Table, Button, AutoComplete } from "antd";
+import deleteIcon from "assets/icon/delete.svg";
+import arrowDown from "assets/icon/arrow-down.svg";
 import React, { createRef, useCallback, useMemo, useState } from "react";
-import { RefSelectProps } from 'antd/lib/select';
-import { useDispatch } from 'react-redux';
-import { VariantModel } from 'model/other/Product/product-model';
-import { findAvatar, findPrice, findPriceInVariant, findTaxInVariant, formatCurrency } from 'utils/AppUtils';
-import { AppConfig } from 'config/AppConfig';
-import imgdefault from 'assets/icon/img-default.svg';
-import { Type } from 'config/TypeConfig';
-import { Link } from 'react-router-dom';
-import { OnSearchChange } from "domain/actions/search.action";
-import { OrderItemDiscountModel, OrderItemModel } from 'model/other/Order/order-model';
+import { RefSelectProps } from "antd/lib/select";
+import { useDispatch } from "react-redux";
+import {
+  findAvatar,
+  findPrice,
+  findPriceInVariant,
+  findTaxInVariant,
+  formatCurrency,
+} from "utils/AppUtils";
+import { AppConfig } from "config/AppConfig";
+import imgdefault from "assets/icon/img-default.svg";
+import { Type } from "config/TypeConfig";
+import { Link } from "react-router-dom";
+import {
+  OrderItemDiscountModel,
+  OrderItemModel,
+} from "model/other/Order/order-model";
+import { VariantResponse } from "model/response/products/variant.response";
+import { PageResponse } from "model/response/base-metadata.response";
+import { VariantSearchQuery } from "model/query/variant.search.query";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 
 type AddGiftModalProps = {
   visible: boolean;
@@ -19,75 +30,112 @@ type AddGiftModalProps = {
   onOk: () => void;
   items: Array<OrderItemModel>;
   onUpdateData: (items: Array<OrderItemModel>) => void;
-}
+};
+
+const initQuery: VariantSearchQuery  = {
+  limit: 10,
+  page: 0,
+};
 
 export interface AddGiftRef {
-  setGifts: (items: Array<OrderItemModel>) => void
+  setGifts: (items: Array<OrderItemModel>) => void;
 }
 
-const renderSearch = (item: VariantModel) => {
+const renderSearch = (item: VariantResponse) => {
   let avatar = findAvatar(item.variant_images);
   return (
     <div className="row-search w-100">
       <div className="rs-left w-100">
-        <img src={avatar == '' ? imgdefault : avatar} alt="anh" placeholder={imgdefault} />
+        <img
+          src={avatar == "" ? imgdefault : avatar}
+          alt="anh"
+          placeholder={imgdefault}
+        />
         <div className="rs-info w-100">
-          <span style={{ color: '#37394D' }} className="text">
+          <span style={{ color: "#37394D" }} className="text">
             {item.name}
           </span>
-          <span style={{ color: '#95A1AC' }} className="text p-4">
+          <span style={{ color: "#95A1AC" }} className="text p-4">
             {item.sku}
           </span>
         </div>
       </div>
       <div className="rs-right">
-        <span style={{ color: '#37394D' }} className="text t-right">
+        <span style={{ color: "#37394D" }} className="text t-right">
           {findPrice(item.variant_prices, AppConfig.currency)}
         </span>
-        <span style={{ color: '#95A1AC' }} className="text t-right p-4">
-          Có thể bán <span style={{ color: item.inventory > 0 ? 'rgba(0, 128, 255, 1)' : 'rgba(226, 67, 67, 1)' }}>{item.inventory}</span>
+        <span style={{ color: "#95A1AC" }} className="text t-right p-4">
+          Có thể bán{" "}
+          <span
+            style={{
+              color:
+                item.inventory > 0
+                  ? "rgba(0, 128, 255, 1)"
+                  : "rgba(226, 67, 67, 1)",
+            }}
+          >
+            {item.inventory}
+          </span>
         </span>
       </div>
     </div>
-  )
-}
+  );
+};
 
-var timeTextChange: NodeJS.Timeout;
-const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => {
-  const { visible, onCancel, onOk } = props
+const AddGiftModal: React.FC<AddGiftModalProps> = (
+  props: AddGiftModalProps
+) => {
+  const { visible, onCancel, onOk } = props;
 
   const dispatch = useDispatch();
-  const [keysearch, setKeysearch] = useState('');
-  const [resultSearch, setResultSearch] = useState<Array<VariantModel>>([]);
+  const [keysearch, setKeysearch] = useState("");
+  const [resultSearch, setResultSearch] = useState<
+    PageResponse<VariantResponse>
+  >({
+    metadata: {
+      limit: 0,
+      page: 0,
+      total: 0,
+    },
+    items: [],
+  });
   const autoCompleteRef = createRef<RefSelectProps>();
-  const deleteItem = useCallback((index) => {
-    props.items.splice(index, 1);
-    props.onUpdateData(props.items);
-  }, [props]);
-  const update = useCallback((index: number, value: number) => {
-    props.items[index].quantity = value;
-    props.onUpdateData(props.items);
-  }, [props]);
+  const deleteItem = useCallback(
+    (index) => {
+      props.items.splice(index, 1);
+      props.onUpdateData(props.items);
+    },
+    [props]
+  );
+  const update = useCallback(
+    (index: number, value: number) => {
+      props.items[index].quantity = value;
+      props.onUpdateData(props.items);
+    },
+    [props]
+  );
 
   const columns = [
     {
-      title: 'Sản phẩm',
+      title: "Sản phẩm",
       render: (a: OrderItemModel, item: any, index: number) => (
         <div>
-          <div className="yody-pos-sku"><Link to="">{a.sku}</Link></div>
+          <div className="yody-pos-sku">
+            <Link to="">{a.sku}</Link>
+          </div>
           <span>{a.variant}</span>
         </div>
-      )
+      ),
     },
     {
-      title: 'Số lượng',
+      title: "Số lượng",
       render: (a: OrderItemModel, b: any, index: number) => (
         <div>
           <Input
             onChange={(e) => {
               const re = /^[0-9\b]+$/;
-              if (e.target.value == '' || re.test(e.target.value)) {
-                if (e.target.value == '') {
+              if (e.target.value == "" || re.test(e.target.value)) {
+                if (e.target.value == "") {
                   update(index, 0);
                 } else {
                   update(index, parseInt(e.target.value));
@@ -98,80 +146,84 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
             minLength={1}
             maxLength={4}
             onFocus={(e) => e.target.select()}
-            style={{ width: 60, textAlign: "right" }} />
+            style={{ width: 60, textAlign: "right" }}
+          />
         </div>
-      )
+      ),
     },
     {
-      title: 'Đơn giá',
-      render: (a: OrderItemModel) => formatCurrency(a.price)
+      title: "Đơn giá",
+      render: (a: OrderItemModel) => formatCurrency(a.price),
     },
     {
-      title: 'Thao tác',
+      title: "Thao tác",
       render: (a: any, b: any, index: number) => {
         return (
-          <Button type="text" onClick={() => deleteItem(index)}
-                  className="yody-pos-delete-item"><img src={deleteIcon} alt="" /></Button>
-        )
-      }
+          <Button
+            type="text"
+            onClick={() => deleteItem(index)}
+            className="yody-pos-delete-item"
+          >
+            <img src={deleteIcon} alt="" />
+          </Button>
+        );
+      },
     },
   ];
 
-  const onChangeSearch = useCallback(
-    (v) => {
-      setKeysearch(v);
-      timeTextChange && clearTimeout(timeTextChange);
-      timeTextChange = setTimeout(() => {
-        dispatch(OnSearchChange(v, setResultSearch));
-      }, 500);
+  const onChangeProductSearch = useCallback(
+    (value) => {
+      setKeysearch(value);
+      initQuery.info = value;
+      dispatch(searchVariantsOrderRequestAction(initQuery, setResultSearch));
     },
     [dispatch]
   );
 
   const convertResultSearch = useMemo(() => {
     let options: any[] = [];
-    resultSearch.forEach((item: VariantModel, index: number) => {
+    resultSearch.items.forEach((item: VariantResponse, index: number) => {
       options.push({
         label: renderSearch(item),
-        value: item.id ? item.id.toString() : '',
-      })
-    })
+        value: item.id ? item.id.toString() : "",
+      });
+    });
     return options;
   }, [resultSearch]);
 
-  const onSearchSelect = useCallback(
+  const onVariantSelect = useCallback(
     (v, o) => {
       console.log(o);
       let _items = [...props.items];
-        let indexSearch = resultSearch.findIndex(s => s.id == v)
-        let index = _items.findIndex(i => i.variant_id == v)
-        let r:VariantModel=resultSearch[indexSearch]
-        if(r.id == v){
-          if(index == -1){
-            const item:OrderItemModel = createItem(r);
-            _items.push(item);
-          }
-          else{
-            let lastIndex = index;
-            _items.forEach( (value, _index) => {
-              if(_index > lastIndex){
-                lastIndex = _index;
-              }
-            })
-            _items[lastIndex].quantity += 1
-          }
+      let indexSearch = resultSearch.items.findIndex((s) => s.id == v);
+      let index = _items.findIndex((i) => i.variant_id == v);
+      let r: VariantResponse = resultSearch.items[indexSearch];
+      if (r.id == v) {
+        if (index == -1) {
+          const item: OrderItemModel = createItem(r);
+          _items.push(item);
+        } else {
+          let lastIndex = index;
+          _items.forEach((value, _index) => {
+            if (_index > lastIndex) {
+              lastIndex = _index;
+            }
+          });
+          _items[lastIndex].quantity += 1;
         }
-        props.onUpdateData(_items);
-      },
+      }
+      props.onUpdateData(_items);
+      setKeysearch("");
+    },
     [resultSearch, props]
     // autoCompleteRef, dispatch, resultSearch
   );
 
-  const createItem = (variant: VariantModel) => {
+  const createItem = (variant: VariantResponse) => {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
-    const discountItem:OrderItemDiscountModel  = createNewDiscountItem()
+    const discountItem: OrderItemDiscountModel = createNewDiscountItem();
     let orderLine: OrderItemModel = {
       id: new Date().getTime(),
       sku: variant.sku,
@@ -213,14 +265,35 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
     return newDiscountItem;
   };
 
-  
   const onOkPress = useCallback(() => {
     onOk();
   }, [onOk]);
   return (
-    <Modal title="" onCancel={onCancel} onOk={onOkPress} visible={visible} centered cancelText="Hủy" okText="Lưu" className="yody-pos-gift-modal modal-hide-header">
-      <div style={{ fontSize: 13, color: '#4F687D', marginBottom: 6 }}>Quà tặng</div>
-      <AutoComplete notFoundContent={keysearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined} value={keysearch} ref={autoCompleteRef} onSelect={onSearchSelect} dropdownClassName="search-layout" className="w-100" onSearch={onChangeSearch} options={convertResultSearch}>
+    <Modal
+      title=""
+      onCancel={onCancel}
+      onOk={onOkPress}
+      visible={visible}
+      centered
+      cancelText="Hủy"
+      okText="Lưu"
+      className="yody-pos-gift-modal modal-hide-header"
+    >
+      <div style={{ fontSize: 13, color: "#4F687D", marginBottom: 6 }}>
+        Quà tặng
+      </div>
+      <AutoComplete
+        notFoundContent={
+          keysearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+        }
+        value={keysearch}
+        ref={autoCompleteRef}
+        onSelect={onVariantSelect}
+        dropdownClassName="search-layout"
+        className="w-100"
+        onSearch={onChangeProductSearch}
+        options={convertResultSearch}
+      >
         <Input
           className="yody-pos-gift-modal-input"
           placeholder="Chọn quà tặng"
@@ -228,8 +301,8 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
         />
       </AutoComplete>
       <Table
-         locale={{
-          emptyText: 'Quà tặng trống'
+        locale={{
+          emptyText: "Quà tặng trống",
         }}
         pagination={false}
         dataSource={props.items}
@@ -237,7 +310,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => 
         rowKey={(record) => record.id}
       />
     </Modal>
-  )
-}
+  );
+};
 
 export default AddGiftModal;

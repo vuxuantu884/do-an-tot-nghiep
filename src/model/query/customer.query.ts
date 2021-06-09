@@ -1,5 +1,5 @@
 import { BaseQuery } from "./base.query";
 
-export interface SearchCustomerQuery extends BaseQuery {
-    request?: string,
+export interface CustomerSearchQuery extends BaseQuery {
+    request?: string
 }

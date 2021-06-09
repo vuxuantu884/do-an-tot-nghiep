@@ -1,3 +1,4 @@
+import { convertDateToUTC } from './DateUtils';
 import { DistrictResponse } from './../model/response/content/district.response';
 import { CityView } from '../model/other/district-view';
 import { AppConfig } from './../config/AppConfig';
@@ -7,9 +8,7 @@ import { CategoryView } from "model/other/Product/category-view";
 import { CategoryResponse } from "model/response/category.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
 import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
-import { OrderMetadata } from 'model/reducers/OrderListReducerType';
-
-
+import { VariantImagesResponse } from 'model/response/products/variant.images.response';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -155,10 +154,14 @@ export const generateQuery = (obj: any) => {
   if(obj!==undefined){
     let a: string = Object.keys(obj).map((key, index) => {
       let url = '';
-      if (obj[key]) {
+      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
         let value = obj[key];
         if(obj[key] instanceof Array) {
           value = obj[key].join(',')
+        }
+        if(obj[key] instanceof Date) {
+          value = convertDateToUTC(obj[key])
+          console.log(value);
         }
         url = key + '=' + encodeURIComponent(value) + '&'
       }
@@ -196,17 +199,6 @@ export const convertDistrict = (data: Array<DistrictResponse>) => {
   return array;
 }
 
-const hasNextPage = (metadata: OrderMetadata) => {
-  return (metadata.page + 1) * metadata.limit < metadata.total;
-}
-
-const hasPreviousPage = (page: number) => {
-  return page !== 0
-}
-
-// const hasOrder = (data) => {
-
-// }
 
 const findPriceInVariant = (variantPrices: Array<VariantPrice>, currency_code: string): number => {
   let price: number = 0;
@@ -254,11 +246,11 @@ const replaceFormatString = (currency: number | string): string => {
   return format.replace(/,/gi, '');
 }
 
-const findAvatar = (variantImages: Array<VariantImage>): string => {
+const findAvatar = (variantImages: Array<VariantImagesResponse>): string => {
   let avatar: string = '';
   variantImages.forEach((v) => {
     if (v.variant_avatar) {
-      avatar = v.original;
+      avatar = v.url;
     }
   })
   return avatar;
@@ -378,11 +370,10 @@ const caculateMoney = (items: Array<OrderPaymentModel>, totalMoney: number) => {
 }
 
 const isPaymentCashOnly = (items: Array<OrderPaymentModel>) => {
-  console.log(items);
   return items.length === 1 && items[0].payment_method_id === AppConfig.DEFAULT_PAYMENT;
 }
 export {
-  hasNextPage, hasPreviousPage, findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
+  findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
   replaceFormat, replaceFormatString, getTotalQuantity, getTotalAmount, getTotalDiscount, getTotalAmountAfferDiscount, getDiscountRate, getDiscountValue,
   getAmountDiscount, getAmountItemDiscount, findDiscountIndex, findDiscountPromotion, caculatorTotalDiscount, findOrderDiscount, getTotalAmountFreeForm,
   formatSuffixPoint,caculateMoney, isPaymentCashOnly
