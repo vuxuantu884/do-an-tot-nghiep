@@ -1,7 +1,7 @@
 import React from 'react';
 import { RouteMenu } from "model/other";
 
-const ManageUserScreen = React.lazy(() => import ("screens/setting/manage-user.screen"));
+const ManageUserScreen = React.lazy(() => import ("screens/account/account.search.screen"));
 const ManageStoreScreen = React.lazy(() => import ("screens/setting/manage-store.screen"));
 const ManageRoleScreen = React.lazy(() => import ("screens/setting/manage-role.screen"));
 

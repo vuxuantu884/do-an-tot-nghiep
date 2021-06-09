@@ -2,17 +2,17 @@ import { BaseQuery } from "./base.query";
 
 export interface VariantSearchQuery extends BaseQuery {
   info?: string, 
-  barcode?: string, 
-  brand?: number, 
-  made_in?:number,
+  barcode: string, 
+  brand: string, 
+  made_in:string,
   from_inventory?:number,
   to_inventory?:number,
   merchandiser?:string,
   from_create_date?:Date,
   to_create_date?:Date,
-  size?:number,
+  size?:string,
   status?:string,
-  main_color?:number,
-  color?:number,
-  supplier?:number
+  main_color?:string,
+  color?:string,
+  supplier?:string
 }

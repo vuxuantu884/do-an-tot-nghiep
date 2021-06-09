@@ -1,11 +1,11 @@
 import { Button, Card, Col, Collapse, Form, FormInstance, Input, Radio, Row, Select, Switch } from "antd";
-import AccountAction from "domain/actions/account/account.action";
+import {AccountSearchAction} from "domain/actions/account/account.action";
 import { getCountry, getDistrictAction } from "domain/actions/content/content.action";
 import SupplierAction from "domain/actions/core/supplier.action";
 import { CityView } from "model/other/district-view";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { SupplierCreateRequest } from "model/request/create-supplier.request";
-import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
+import { AccountResponse } from "model/response/accounts/account-detail.response";
 import { PageResponse } from "model/response/base-metadata.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { DistrictResponse } from "model/response/content/district.response";
@@ -57,13 +57,13 @@ const CreateSupplierScreen: React.FC = () => {
   const moq_unit = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.moq_unit);
   const supplier_status = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.supplier_status);
   //State
-  const [accounts, setAccounts] = useState<Array<AccountDetailResponse>>([]);
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
   const [status, setStatus] = useState<string>(initRequest.status);
   //EndState
   //Callback
-  const setDataAccounts = useCallback((data: PageResponse<AccountDetailResponse>) => {
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
     setAccounts(data.items);
   }, []);
   const setDataDistrict = useCallback((data: Array<DistrictResponse>) => {
@@ -112,7 +112,7 @@ const CreateSupplierScreen: React.FC = () => {
   }, [status, supplier_status]);
   //end memo
   useEffect(() => {
-    dispatch(AccountAction.SearchAccount({ department_ids: [4] }, setDataAccounts));
+    dispatch(AccountSearchAction({ department_ids: [4] }, setDataAccounts));
     dispatch(getCountry(setCountries))
     dispatch(getDistrictAction(DefaultCountry, setDataDistrict))
   }, [dispatch, setDataAccounts, setDataDistrict]);

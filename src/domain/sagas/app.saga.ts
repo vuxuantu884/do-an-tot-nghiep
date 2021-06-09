@@ -5,7 +5,7 @@ import { getToken } from "utils/LocalStorageUtils";
 import { loadUserFromStorageSuccessAction, loadUserFromStorageFailAction} from 'domain/actions/app.action';
 import { getAcccountDetail } from 'service/accounts/account.service';
 import BaseResponse from 'base/BaseResponse';
-import { AccountDetailResponse } from 'model/response/accounts/account-detail.response';
+import { AccountResponse } from 'model/response/accounts/account-detail.response';
 import { HttpStatus } from 'config/HttpStatus';
 
 function* loadUserFromStorageSaga() {
@@ -13,7 +13,7 @@ function* loadUserFromStorageSaga() {
   //TODO: Handle token here
   if(!isUndefinedOrNull(token)) {
     try {
-      let response: BaseResponse<AccountDetailResponse> = yield call(getAcccountDetail); 
+      let response: BaseResponse<AccountResponse> = yield call(getAcccountDetail); 
       if(response.code === HttpStatus.SUCCESS) {
         yield put(loadUserFromStorageSuccessAction(response.data));
       } else {
