@@ -1,24 +1,24 @@
-import { VariantResponse } from 'model/response/products/variant.response';
-import { call, put, takeLatest } from '@redux-saga/core/effects';
-import { YodyAction } from 'base/BaseAction';
-import BaseResponse from 'base/BaseResponse';
-import { HttpStatus } from 'config/HttpStatus';
-import { hideLoading, showLoading } from 'domain/actions/loading.action';
-import { ProductType } from 'domain/types/product.type';
-import { searchVariantsApi } from 'service/product/product.service';
-import { showError } from 'utils/ToastUtils';
-import { PageResponse } from 'model/response/base-metadata.response';
+import { VariantResponse } from "model/response/products/variant.response";
+import { call, put, takeLatest } from "@redux-saga/core/effects";
+import { YodyAction } from "base/BaseAction";
+import BaseResponse from "base/BaseResponse";
+import { HttpStatus } from "config/HttpStatus";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { ProductType } from "domain/types/product.type";
+import { searchVariantsApi } from "service/product/product.service";
+import { showError } from "utils/ToastUtils";
+import { PageResponse } from "model/response/base-metadata.response";
 
 function* searchVariantSaga(action: YodyAction) {
-  const {
-    query,
-    setData
-  } = action.payload;
+  const { query, setData } = action.payload;
   try {
     yield put(showLoading());
-    let response: BaseResponse<PageResponse<VariantResponse>> = yield call(searchVariantsApi, query);
+    let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
+      searchVariantsApi,
+      query
+    );
     yield put(hideLoading());
-    switch(response.code) {
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
@@ -28,10 +28,36 @@ function* searchVariantSaga(action: YodyAction) {
     }
   } catch (error) {
     yield put(hideLoading());
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* searchVariantOrderSaga(action: YodyAction) {
+  const { query, setData } = action.payload;
+  try {
+    if (query.info.length >= 3) {
+      let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
+        searchVariantsApi,
+        query
+      );
+      switch (response.code) {
+        case HttpStatus.SUCCESS:
+          setData(response.data);
+          break;
+        default:
+          response.errors.forEach((e) => showError(e));
+          break;
+      }
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
+  yield takeLatest(
+    ProductType.SEARCH_PRODUCT_FOR_ORDER_REQUEST,
+    searchVariantOrderSaga
+  );
 }

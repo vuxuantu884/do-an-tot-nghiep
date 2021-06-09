@@ -32,12 +32,11 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (props: PickDiscount
 
   const onchangeDiscount = (value:number) =>{
     if(_type === "money"){
-      setValue(value)
-      setRate(value/props.amount*100)
-      
+      setValue(Math.round(value*100)/100)
+      setRate(Math.round(value/props.amount*100*100)/100)
     }else{
-      setRate(value)
-      setValue(value*props.amount/100)
+      setRate(Math.round(value*100)/100)
+      setValue(Math.round(value*props.amount/100*100)/100)
     }
   }
 
@@ -67,6 +66,8 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (props: PickDiscount
                   className="hide-number-handle"
                   onFocus={(e) => e.target.select()}
                   value={_type==="money"?_value:_rate}
+                  min={0}
+                  max={_type==="money"?props.amount:100}
                   formatter={value => formatCurrency(value ? value : '0')}
                   parser={value => replaceFormat(value ? value : 0)}
                   onChange = {onchangeDiscount}

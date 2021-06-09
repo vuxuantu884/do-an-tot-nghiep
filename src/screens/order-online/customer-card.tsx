@@ -541,7 +541,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           Email hoá đơn đến
                         </label>
                       </div>
-                      <Input
+                      <Input type="email"
                         onChange={(e) =>
                           changeEmailBillingAddress(e.target.value)
                         }

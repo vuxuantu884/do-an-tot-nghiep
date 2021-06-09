@@ -38,7 +38,6 @@ import {
   getListStoreRequest,
 } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { ProductSearch } from "domain/actions/search.action";
 import {
   haveAccess,
   findPrice,
@@ -47,9 +46,9 @@ import {
   findTaxInVariant,
   formatCurrency,
   replaceFormat,
+  getTotalQuantity,
 } from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
-import { VariantModel } from "model/other/Product/product-model";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "../../config/TypeConfig";
@@ -57,11 +56,20 @@ import "../../assets/css/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "./modal/AddGiftModal";
 import { OrderItemDiscountModel, OrderItemModel } from "model/other/Order/order-model";
+import { VariantSearchQuery } from "model/query/variant.search.query";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { PageResponse } from "model/response/base-metadata.response";
+import { VariantResponse } from "model/response/products/variant.response";
 
 type ProductCardProps = {
   selectStore: (item: number) => void;
   changeInfo: (items: Array<OrderItemModel>, amount:number, discount_rate: number, discount_value: number) => void
   selectPriceType: (priceType: string) => void;
+};
+
+const initQuery: VariantSearchQuery  = {
+  limit: 10,
+  page: 0,
 };
 
 const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
@@ -71,7 +79,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
   const [listStores, setListStores] = useState<Array<StoreModel>>([]);
   const [keysearch, setKeysearch] = useState("");
-  const [resultSearch, setResultSearch] = useState<Array<VariantModel>>([]);
+  const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse>>({
+    metadata: {
+      limit: 0,
+      page: 0,
+      total: 0,
+    },
+    items: [],
+  });
   const [isVisibleGift, setVisibleGift] = useState(false);
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0);
@@ -129,7 +144,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   // render
 
-  const renderSearch = (item: VariantModel) => {
+  const renderSearch = (item: VariantResponse) => {
     let avatar = findAvatar(item.variant_images);
     return (
       <div className="row-search w-100">
@@ -279,6 +294,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       return (
         <div className="site-input-group-wrapper">
           <DiscountGroup
+            price = {l.price}
             index={index}
             discountRate={l.discount_items[0].rate}
             discountValue={l.discount_items[0].value}
@@ -360,7 +376,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const autoCompleteRef = createRef<RefSelectProps>();
 
-  const createItem = (variant: VariantModel) => {
+  const createItem = (variant: VariantResponse) => {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
@@ -420,13 +436,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     );
   }
 
-  const onSearchSelect = useCallback(
+  const onSearchVariantSelect = useCallback(
     (v, o) => {
       let _items = [...items].reverse();
-      let indexSearch = resultSearch.findIndex((s) => s.id == v);
+      let indexSearch = resultSearch.items.findIndex((s) => s.id == v);
       console.log(indexSearch)
       let index = _items.findIndex((i) => i.variant_id == v);
-      let r: VariantModel = resultSearch[indexSearch];
+      let r: VariantResponse = resultSearch.items[indexSearch];
       if (r.id == v) {
         if (splitLine || index === -1) {
           const item: OrderItemModel = createItem(r);
@@ -460,6 +476,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         }
       }
       setItems(_items.reverse());
+      setKeysearch("");
     },
     [resultSearch, items, splitLine]
     // autoCompleteRef, dispatch, resultSearch
@@ -468,14 +485,15 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const onChangeProductSearch = useCallback(
     (value) => {
       setKeysearch(value);
-      dispatch(ProductSearch(value, setResultSearch));
+      initQuery.info = value;
+      dispatch(searchVariantsOrderRequestAction(initQuery, setResultSearch));
     },
     [dispatch]
   );
 
   const convertResultSearch = useMemo(() => {
     let options: any[] = [];
-    resultSearch.forEach((item: VariantModel, index: number) => {
+    resultSearch.items.forEach((item: VariantResponse, index: number) => {
       options.push({
         label: renderSearch(item),
         value: item.id ? item.id.toString() : "",
@@ -607,9 +625,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               style={{ width: "100%" }}
               placeholder="Chọn cửa hàng"
               onChange={props.selectStore}
+              filterOption={(input, option) => {
+                if (option) {
+                  return (
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  );
+                }
+                return false;
+              }}
             >
               {dataCanAccess.map((item, index) => (
-                <Select.Option key={index} value={item.id}>
+                <Select.Option key={index.toString()}  value={item.id}>
                   {item.name}
                 </Select.Option>
               ))}
@@ -628,7 +656,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 }
                 value={keysearch}
                 ref={autoCompleteRef}
-                onSelect={onSearchSelect}
+                onSelect={onSearchVariantSelect}
                 dropdownClassName="search-layout dropdown-search-header"
                 dropdownMatchSelectWidth={456}
                 className="w-100"
@@ -764,7 +792,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 Chiết khấu
               </Typography.Link>
               <div className="badge-style badge-danger">
-                {discountRate}%{" "}
+                {discountRate !== null ? discountRate : 0 }%{" "}
                 <Button
                   type="text"
                   className="p-0"
@@ -807,9 +835,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           <Row className="payment-row" justify="space-between">
             <div className="font-weight-500">Khách cần trả</div>
             <div className="font-weight-500 payment-row-money">
-              <Typography.Text type="success" className="font-weight-500">
+              {/* <Typography.Text type="success" className="font-weight-500"> */}
                 {formatCurrency(changeMoney)}
-              </Typography.Text>
+              {/* </Typography.Text> */}
             </div>
           </Row>
         </Col>

@@ -8,6 +8,7 @@ import { CategoryView } from "model/other/Product/category-view";
 import { CategoryResponse } from "model/response/category.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
 import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
+import { VariantImagesResponse } from 'model/response/products/variant.images.response';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -245,11 +246,11 @@ const replaceFormatString = (currency: number | string): string => {
   return format.replace(/,/gi, '');
 }
 
-const findAvatar = (variantImages: Array<VariantImage>): string => {
+const findAvatar = (variantImages: Array<VariantImagesResponse>): string => {
   let avatar: string = '';
   variantImages.forEach((v) => {
     if (v.variant_avatar) {
-      avatar = v.original;
+      avatar = v.url;
     }
   })
   return avatar;

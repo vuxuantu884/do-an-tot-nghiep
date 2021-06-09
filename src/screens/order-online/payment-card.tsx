@@ -21,9 +21,7 @@ import walletIcon from "../../assets/img/wallet.svg";
 
 
 type PaymentCardProps = {
-  // visible: boolean;
-  // onCancel: (e: React.MouseEvent<HTMLElement>) => void;
-  // onOk: () => void;
+  setSelectedPaymentMethod: (paymentType: number) => void;
 }
 
 
@@ -31,6 +29,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
 
   const [selectedPaymentMethod, setSelectedPaymentMethod ] = useState(3);
   const changePaymentMethod = (value: number) => {
+    props.setSelectedPaymentMethod(value);
     setSelectedPaymentMethod(value);
   };
 

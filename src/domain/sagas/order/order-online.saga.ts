@@ -1,5 +1,4 @@
-import { OrderRequest } from 'model/request/order.request';
-import { orderPostApi } from './../../../service/order/source.service';
+import { orderPostApi } from '../../../service/order/source.service';
 import { OrderType } from '../../types/order.type';
 import BaseResponse from 'base/BaseResponse';
 import { put, call, takeLatest } from 'redux-saga/effects';
