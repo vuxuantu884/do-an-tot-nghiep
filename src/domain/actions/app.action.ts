@@ -1,12 +1,12 @@
 import BaseAction from "base/BaseAction"
 import { AppType } from "domain/types/app.type"
-import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
+import { AccountResponse } from "model/response/accounts/account-detail.response";
 
 export const loadUserFromStorageAction = () => {
   return BaseAction(AppType.LOAD_USER_FROM_STORAGE, null);
 }
 
-export const loadUserFromStorageSuccessAction = (account: AccountDetailResponse) => {
+export const loadUserFromStorageSuccessAction = (account: AccountResponse) => {
   return BaseAction(AppType.LOAD_USER_FROM_STORAGE_SUCCESS, {account});
 }
 

@@ -3,14 +3,14 @@ import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import { AccountType } from "domain/types/account.type";
-import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
+import { AccountResponse } from "model/response/accounts/account-detail.response";
 import { PageResponse } from "model/response/base-metadata.response";
 import { searctAccountApi } from "service/accounts/account.service";
 
 function* searchAccountSaga(action: YodyAction) {
   let {query, setData} = action.payload;
   try {
-    let response: BaseResponse<PageResponse<AccountDetailResponse>> = yield call(searctAccountApi, query);
+    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(searctAccountApi, query);
     switch(response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -27,7 +27,7 @@ function* listAccountSaga(action: YodyAction) {
   let {query, setData} = action.payload;
   try {
     
-    let response: BaseResponse<PageResponse<AccountDetailResponse>> = yield call(searctAccountApi, query);
+    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(searctAccountApi, query);
     switch(response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);

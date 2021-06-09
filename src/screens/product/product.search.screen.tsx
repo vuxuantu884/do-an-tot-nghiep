@@ -17,7 +17,7 @@ import { VariantResponse } from "model/response/products/variant.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { ColorResponse } from "model/response/products/color.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
-import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
+import { AccountResponse } from "model/response/accounts/account-detail.response";
 import {getCountry} from "domain/actions/content/content.action"
 import {listColorAction } from "domain/actions/product/color.action"
 import {ColorSearchQuery} from "model/query/color.search.query"
@@ -44,6 +44,12 @@ const initQuery: VariantSearchQuery = {
   info: "",
   barcode: "",
   status: "",
+  brand:"",
+  made_in:"",
+  size:"",
+  main_color:"",
+  color:"",
+  supplier:"",
 
 };
 
@@ -62,7 +68,7 @@ const initColorQuery: ColorSearchQuery = {
   is_main_color: 0,
   limit:200
 }
-const ListSupplierScreen: React.FC = () => {
+const ListProductScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -78,7 +84,7 @@ const ListSupplierScreen: React.FC = () => {
   const [listColor,setColor]= useState<Array<ColorResponse>>();
   const [listSize,setSize]= useState<Array<SizeResponse>>();
   const [listSupplier,setSupplier]= useState<Array<SupplierResponse>>();
-  const [listMerchandiser,setMarchandiser]= useState<Array<AccountDetailResponse>>();
+  const [listMerchandiser,setMarchandiser]= useState<Array<AccountResponse>>();
   let dataQuery: VariantSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -123,6 +129,7 @@ const ListSupplierScreen: React.FC = () => {
     {
       title: "Tên sản phẩm",
       dataIndex: "name",
+      sorter:true
     },
     {
       title: "Màu sắc",
@@ -231,4 +238,4 @@ const ListSupplierScreen: React.FC = () => {
   );
 };
 
-export default ListSupplierScreen;
+export default ListProductScreen;
