@@ -11,6 +11,8 @@ const UpdateMaterial = React.lazy(() => import ("screens/materials/ material-upd
 const ListMaterial = React.lazy(() => import ("screens/materials/materials-list.screen"));
 const AddMaterial = React.lazy(() => import ("screens/materials/material-add.screen"));
 const SizeListScreen = React.lazy(() => import ("screens/size/size-list.screen"));
+const SizeCreateScreen = React.lazy(() => import ("screens/size/size-create.screen"));
+const SizeUpdateScreen = React.lazy(() => import ("screens/size/size-update.screen"));
 const ListSupplier = React.lazy(() => import ("screens/supllier/supplier-list.screen"));
 const AddCategory = React.lazy(() => import ("screens/category/category-add.screen"))
 const UpdateCategory = React.lazy(() => import ("screens/category/category-update.screen"))
@@ -126,9 +128,39 @@ const product: Array<RouteMenu> = [
     key: "submenu24",
     isShow: true,
     header: null,
-    subMenu: [],
-    type: 0,
-    object: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.SIZES}/create`,
+        exact: true,
+        title: "Thêm kích cỡ",
+        icon: 'icon-dot',
+        component: SizeCreateScreen,
+        key: "submenu23",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: {}
+      },
+      {
+        path: `${UrlConfig.SIZES}/:id`,
+        exact: true,
+        title: "Sừa kích cỡ",
+        icon: 'icon-dot',
+        component: SizeUpdateScreen,
+        key: "submenu23",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: {},
+        pathIgnore: ['create']
+      },
+    ],
+    type: HEADER_TYPE.BUTTON_CREATE,
+    object: {
+      pathCreate: `${UrlConfig.SIZES}/create`,
+    },
   },
   {
     path: UrlConfig.COLORS,
@@ -195,6 +227,20 @@ const product: Array<RouteMenu> = [
         subMenu: [],
         type: 0,
         object: null,
+      },
+      {
+        path: `${UrlConfig.SUPPLIERS}/:id`,
+        exact: true,
+        title: "Thêm mới nhà cung cấp",
+        icon: 'icon-dot',
+        component: CreateSupplierScreen,
+        key: "submenu261",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore: ['create']
       }
     ],
     type: HEADER_TYPE.BUTTON_CREATE,

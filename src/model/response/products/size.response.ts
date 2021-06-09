@@ -9,3 +9,7 @@ export interface SizeCategory {
 export interface SizeResponse extends BaseObject {
   categories: Array<SizeCategory>
 }
+
+export interface SizeDetail extends BaseObject {
+  category_ids: Array<number>
+}

@@ -4,9 +4,16 @@ import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { PageResponse } from "model/response/base-metadata.response";
 import { SizeCreateRequest, SizeUpdateRequest } from "model/request/size.request";
+import { SizeQuery } from "model/query/size.query";
+import { generateQuery } from "utils/AppUtils";
 
 export const getAllSizeApi = (): Promise<BaseResponse<PageResponse<SizeResponse>>> => {
   return BaseAxios.get(`${ApiConfig.PRODUCT}/sizes`);
+};
+
+export const getAllSize = (query: SizeQuery): Promise<BaseResponse<PageResponse<SizeResponse>>> => {
+  let params = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/sizes?${params}`);
 };
 
 export const sizeCreateApi = (request: SizeCreateRequest): Promise<BaseResponse<SizeResponse>> => {
@@ -14,7 +21,7 @@ export const sizeCreateApi = (request: SizeCreateRequest): Promise<BaseResponse<
 }
 
 export const sizeDetailApi = (id: number): Promise<BaseResponse<SizeResponse>> => {
-  return BaseAxios.post(`${ApiConfig.PRODUCT}/sizes/${id}`)
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/sizes/${id}`)
 }
 
 export const sizeUpdateApi = (id: number, request: SizeUpdateRequest): Promise<BaseResponse<SizeResponse>> => {
