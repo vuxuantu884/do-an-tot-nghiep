@@ -2,7 +2,7 @@ import { StoreResponse } from './../../../model/response/core/store.response';
 import BaseResponse from 'base/BaseResponse';
 import { YodyAction } from '../../../base/BaseAction';
 import { HttpStatus } from "config/HttpStatus";
-import {StoreType} from "domain/types/product.type";
+import {StoreType} from "domain/types/core.type";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { getListStore, getStoreDetail } from "service/core/store.service";
 import { showLoading } from 'domain/actions/loading.action';

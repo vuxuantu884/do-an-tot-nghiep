@@ -1,6 +1,6 @@
 import { StoreResponse } from 'model/response/core/store.response';
 import BaseAction from 'base/BaseAction';
-import { StoreType } from 'domain/types/product.type';
+import { StoreType } from 'domain/types/core.type';
 
 export const getListStoreRequest = (setData: (data: Array<StoreResponse>) => void) => {
     return BaseAction(StoreType.GET_LIST_STORE_REQUEST, {setData});

@@ -588,8 +588,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     [props]
   );
 
-  console.log('dhsavdhav');
-
   return (
     <Card
       className="card-block sale-online-product"
