@@ -1,13 +1,16 @@
 import React from 'react';
 import { RouteMenu } from "model/other";
+import UrlConfig from 'config/UrlConfig';
+import { HEADER_TYPE } from 'config/HeaderConfig';
 
 const ManageUserScreen = React.lazy(() => import ("screens/account/account.search.screen"));
 const ManageStoreScreen = React.lazy(() => import ("screens/setting/manage-store.screen"));
 const ManageRoleScreen = React.lazy(() => import ("screens/setting/manage-role.screen"));
+const AccountCreateScreen = React.lazy(() => import ("screens/account/account-create.screen"));
 
 const setting: Array<RouteMenu> = [
   {
-    path: "/setting/accounts",
+    path: "/accounts",
     exact: true,
     title: "Quản lý người dùng",
     icon: 'icon-dot',
@@ -15,12 +18,42 @@ const setting: Array<RouteMenu> = [
     key: "submenu91",
     isShow: true,
     header: null,
-    subMenu: [],
-    type: 0,
-    object: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.ACCOUNTS}/create`,
+        exact: true,
+        title: "Thêm mới người dùng",
+        icon: 'icon-dot',
+        component: AccountCreateScreen,
+        key: "submenu261",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+      {
+        path: `${UrlConfig.ACCOUNTS}/:id`,
+        exact: true,
+        title: "Chỉnh sửa người dùng",
+        icon: 'icon-dot',
+        component: AccountCreateScreen,
+        key: "submenu261",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore: ['create']
+      }
+    ],
+    type: HEADER_TYPE.BUTTON_CREATE,
+    object: {
+      pathCreate: `${UrlConfig.ACCOUNTS}/create`,
+    },
   },
   {
-    path: "/setting/stores",
+    path: "/stores",
     exact: true,
     title: "Quản lý cửa hàng",
     icon: 'icon-dot',
@@ -33,7 +66,7 @@ const setting: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/setting/printers",
+    path: "/printers",
     exact: true,
     title: "Quản lý mẫu in",
     icon: 'icon-dot',
@@ -46,7 +79,7 @@ const setting: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/setting/roles",
+    path: "/roles",
     exact: true,
     title: "Phân quyền vai trò",
     icon: 'icon-dot',

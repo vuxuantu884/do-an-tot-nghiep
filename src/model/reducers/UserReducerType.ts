@@ -1,4 +1,4 @@
-import { AccountResponse } from "model/response/accounts/account-detail.response";
+import { AccountResponse } from "model/account/account.response";
 
 export interface UserReducerType {
   isLogin: boolean;

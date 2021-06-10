@@ -14,13 +14,18 @@ import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import { DepartmentResponse } from "model/response/accounts/department.response";
+import { DepartmentResponse } from "model/account/department.response";
+import { PositionResponse } from "model/account/position.response";
 import { AccountSearchQuery } from "model/query/account.search.query";
+import { StoreResponse } from "model/response/core/store.response";
+import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
 
 type AccountFilterProps = {
   params: AccountSearchQuery;
   listDepartment?: Array<DepartmentResponse>;
-  listPosition?: Array<DepartmentResponse>;
+  listPosition?: Array<PositionResponse>;
+  listStatus?:Array<BaseBootstrapResponse>;
+  listStore?:Array<StoreResponse>;
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: AccountSearchQuery) => void;
@@ -37,6 +42,8 @@ const AccountFilter: React.FC<AccountFilterProps> = (
     params,
     listDepartment,
     listPosition,
+    listStatus,
+    listStore,
     actions,
     onMenuClick,
     onClearFilter,
@@ -87,27 +94,42 @@ const AccountFilter: React.FC<AccountFilterProps> = (
             <Input
               prefix={<img src={search} alt="" />}
               style={{ width: 250 }}
-              placeholder="Tên/Mã sản phẩm"
+              placeholder="Tên/Mã nhân viên"
             />
           </Form.Item>
           <Form.Item
             className="form-group form-group-with-search"
-            name="barcode"
+            name="store_ids"
           >
-            <Input
-              prefix={<img src={search} alt="" />}
-              style={{ width: 250 }}
-              placeholder="Barcode"
-            />
-          </Form.Item>
-          <Form.Item className="form-group form-group-with-search" name="brand">
-            <Select 
+            <Select
+              showArrow
+              allowClear
               className="select-with-search"
+              placeholder="Cửa hàng"
               style={{
                 width: 250,
               }}
             >
-              <Select.Option value="">Thương hiệu</Select.Option>
+              {listStore?.map((item) => (
+                <Select.Option key={item.id} value={item.id}>
+                  {item.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            className="form-group form-group-with-search"
+            name="department_ids"
+          >
+            <Select
+            allowClear
+              showArrow
+              className="select-with-search"
+              placeholder="Bộ phận"
+              style={{
+                width: 250,
+              }}
+            >
               {listDepartment?.map((item) => (
                 <Select.Option key={item.id} value={item.id}>
                   {item.name}
@@ -147,19 +169,80 @@ const AccountFilter: React.FC<AccountFilterProps> = (
             <Col span={12}>
               <Form.Item
                 className="form-group form-group-with-search"
-                name="from_inventory"
-                label="Tồn kho từ"
+                name="from_date"
+                label="Thời gian tạo từ"
               >
-                <InputNumber style={{ width: "100%" }} placeholder="Từ" />
+                <DatePicker
+                  className="r-5 w-100 ip-search"
+                  placeholder="20/01/2021"
+                  format="DD/MM/YYYY"
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 className="form-group form-group-with-search"
-                name="to_inventory"
+                name="to_date"
                 label="đến"
               >
-                <InputNumber style={{ width: "100%" }} placeholder="Đến" />
+                <DatePicker
+                  className="r-5 w-100 ip-search"
+                  placeholder="25/01/2021"
+                  format="DD/MM/YYYY"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={24}>
+              <Form.Item
+                className="form-group form-group-with-search"
+                name="position_ids"
+                label="Vị trí"
+              >
+                <Select
+                  showArrow
+                  className="select-with-search"
+                  placeholder="Vị trí"
+                >
+                  {listPosition?.map((item) => (
+                    <Select.Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={24}>
+              <Form.Item
+                className="form-group form-group-with-search"
+                name="mobile"
+                label="Số điện thoại"
+              >
+                <Input placeholder="Số điện thoại" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={24}>
+              <Form.Item
+                className="form-group form-group-with-search"
+                name="status"
+                label="Trạng thái"
+              >
+                <Select
+                  showArrow
+                  className="select-with-search"
+                  placeholder="Trạng thái"
+                >
+                  {listStatus?.map((item) => (
+                    <Select.Option key={item.value} value={item.value}>
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
           </Row>

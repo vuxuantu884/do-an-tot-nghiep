@@ -2,7 +2,7 @@ import { Button, Card, Col, Form, FormInstance, Input, Row } from "antd";
 import UrlConfig from "config/UrlConfig";
 import { detailMaterialAction, updateMaterialAction } from "domain/actions/product/material.action";
 import { UpdateMaterialRequest } from "model/request/create-material.request";
-import { MaterialResponse } from "model/response/product/material.response";
+import { MaterialResponse } from "model/response/products/material.response";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";

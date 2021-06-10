@@ -3,7 +3,7 @@ import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig"
 import { CategoryQuery } from "model/query/category.query";
 import { CreateCatergoryRequest, UpdateCatergoryRequest } from "model/request/create-category.request";
-import { CategoryResponse } from "model/response/category.response";
+import { CategoryResponse } from "model/response/products/category.response";
 import { generateQuery } from "utils/AppUtils";
 
 export const getCategoryApi = (query: CategoryQuery): Promise<BaseResponse<Array<CategoryResponse>>> => {

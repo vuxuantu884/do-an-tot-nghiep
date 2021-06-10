@@ -1,15 +1,16 @@
 import { SizeDetail, SizeResponse } from './../model/response/products/size.response';
-import { convertDateToUTC } from './DateUtils';
+import { convertDateToUtc } from './DateUtils';
+import { AccountStoreResponse } from 'model/account/account-store.response';
 import { DistrictResponse } from 'model/response/content/district.response';
 import { CityView } from 'model/other/district-view';
 import { AppConfig } from 'config/AppConfig';
 import { VariantPrice } from 'model/other/Product/product-model';
 import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/Product/category-view";
-import { CategoryResponse } from "model/response/category.response";
-import { AccountStore } from 'model/other/Account/AccountStore';
 import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel } from 'model/other/Order/order-model';
+import { CategoryResponse } from "model/response/products/category.response";
 import { VariantImagesResponse } from 'model/response/products/variant.images.response';
+import moment from 'moment';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -180,7 +181,10 @@ export const generateQuery = (obj: any) => {
           value = obj[key].join(',')
         }
         if(obj[key] instanceof Date) {
-          value = convertDateToUTC(obj[key])
+          value = convertDateToUtc(obj[key])
+        }
+        if(moment.isMoment(obj[key] )) {
+          value = obj[key].utc().format();
           console.log(value);
         }
         url = key + '=' + encodeURIComponent(value) + '&'
@@ -270,9 +274,9 @@ const findAvatar = (variantImages: Array<VariantImagesResponse>): string => {
   return avatar;
 }
 
-const haveAccess = (storeId: number, accountStores: Array<AccountStore>): boolean => {
+const haveAccess = (storeId: number, accountStores: Array<AccountStoreResponse>): boolean => {
   let isHave = false;
-  let accountStoreFilter = accountStores.filter((store: AccountStore) => store.store_id === storeId);
+  let accountStoreFilter = accountStores.filter((store: AccountStoreResponse) => store.store_id === storeId);
   if (accountStoreFilter.length > 0) {
     return isHave = true;
   }

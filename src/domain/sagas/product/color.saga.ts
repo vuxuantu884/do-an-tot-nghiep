@@ -11,7 +11,6 @@ import { ColorType } from 'domain/types/product.type';
 function* searchColorSaga(action: YodyAction) {
   const {query,setData} = action.payload;
   try {
-    debugger;
     let response: BaseResponse<PageResponse<ColorResponse>> = yield call(colorSearchApi, query);
     switch(response.code) {
       case HttpStatus.SUCCESS:

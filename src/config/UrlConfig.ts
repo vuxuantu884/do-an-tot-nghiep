@@ -5,7 +5,8 @@ const UrlConfig = {
   MATERIALS: "/materials",
   SIZES: "/sizes",
   COLORS: "/colors",
-  SUPPLIERS: "/suppliers"
+  SUPPLIERS: "/suppliers",
+  ACCOUNTS: "/accounts"
 }
 
 export default UrlConfig;

@@ -16,7 +16,7 @@ const SizeUpdateScreen = React.lazy(() => import ("screens/size/size-update.scre
 const ListSupplier = React.lazy(() => import ("screens/supllier/supplier-list.screen"));
 const AddCategory = React.lazy(() => import ("screens/category/category-add.screen"))
 const UpdateCategory = React.lazy(() => import ("screens/category/category-update.screen"))
-const CreateSupplierScreen = React.lazy(() => import ("screens/supllier/supplier-add.screen"));
+const SupplierCreateScreen = React.lazy(() => import ("screens/supllier/supplier-add.screen"));
 const ColorCreateScreen = React.lazy(() => import ("screens/color/color-create.screen"));
 
 const product: Array<RouteMenu> = [
@@ -220,7 +220,7 @@ const product: Array<RouteMenu> = [
         exact: true,
         title: "Thêm mới nhà cung cấp",
         icon: 'icon-dot',
-        component: CreateSupplierScreen,
+        component: SupplierCreateScreen,
         key: "submenu261",
         isShow: true,
         header: null,
@@ -233,7 +233,7 @@ const product: Array<RouteMenu> = [
         exact: true,
         title: "Thêm mới nhà cung cấp",
         icon: 'icon-dot',
-        component: CreateSupplierScreen,
+        component: SupplierCreateScreen,
         key: "submenu261",
         isShow: true,
         header: null,

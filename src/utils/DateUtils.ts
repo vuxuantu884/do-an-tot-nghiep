@@ -1,11 +1,18 @@
 import moment from 'moment';
 
-
-export const convertToLocalDate = (date: Date | string | number) => {
-  let dateChange = moment.utc(date).format('DD/MM/YYYY HH:mm:ss');
-  return dateChange;
+export const DATE_FORMAT = {
+  DDMMYYY:"DD/MM/YYYY"
 }
 
-export const convertDateToUTC = (date: Date | string | number) => {
-  return moment(date).toISOString()
+export const convertUtcToLocalDate = (date?: Date | string | number,format?:string) => {
+  if(date!==undefined){
+    let localDate = moment.utc(date).toDate();
+    let dateFormat=moment(localDate).format(format?format:"DD/MM/YYYY HH:mm:ss");
+    return dateFormat;
+  }
+  return '';  
+}
+
+export const convertDateToUtc = (date: Date | string | number) => {
+  return moment(date).utc().format()
 }

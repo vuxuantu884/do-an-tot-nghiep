@@ -6,7 +6,7 @@ import { logoutSuccessAction, loginSuccessAction } from "domain/actions/account/
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { AuthType } from 'domain/types/account.type';
 import { LoginRequest } from "model/request/login.request";
-import { LoginResponse } from "model/response/accounts/login.response";
+import { LoginResponse } from "model/account/login.response";
 import { call } from "redux-saga/effects";
 import { loginApi, logoutApi } from "service/accounts/account.service";
 import { removeToken, setToken } from "utils/LocalStorageUtils";
