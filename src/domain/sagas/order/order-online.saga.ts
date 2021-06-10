@@ -1,5 +1,4 @@
-import { OrderRequest } from 'model/request/order.request';
-import { orderPostApi } from './../../../service/order/source.service';
+import { orderPostApi } from '../../../service/order/source.service';
 import { OrderType } from '../../types/order.type';
 import BaseResponse from 'base/BaseResponse';
 import { put, call, takeLatest } from 'redux-saga/effects';
@@ -12,9 +11,7 @@ import { OrderRespose } from 'model/response/order/order-online.response';
 
 function* orderCreateSaga(action: YodyAction) {
     const {request, setData} = action.payload;
-    console.log("test", request);
     try {
-      console.log("test", request);
       yield put(showLoading());
       let response: BaseResponse<OrderRespose> = yield call(orderPostApi, request);
       yield put(hideLoading());

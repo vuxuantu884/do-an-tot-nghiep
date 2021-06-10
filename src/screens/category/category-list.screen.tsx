@@ -12,7 +12,7 @@ import {
 } from "model/other/Product/category-view";
 import ButtonSetting from "component/table/ButtonSetting";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
-import { CategoryResponse } from "model/response/category.response";
+import { CategoryResponse } from "model/response/product/category.response";
 import { convertCategory, generateQuery } from "utils/AppUtils";
 import { CategoryQuery } from "model/query/category.query";
 import CustomTable from "component/table/CustomTable";

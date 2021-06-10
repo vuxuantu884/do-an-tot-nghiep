@@ -1,13 +1,14 @@
+import { AccountStoreResponse } from './../model/response/accounts/account-store.response';
 import { convertDateToUTC } from './DateUtils';
 import { DistrictResponse } from './../model/response/content/district.response';
 import { CityView } from '../model/other/district-view';
 import { AppConfig } from './../config/AppConfig';
-import { VariantPrice, VariantImage } from '../model/other/Product/product-model';
+import { VariantPrice } from '../model/other/Product/product-model';
 import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/Product/category-view";
-import { CategoryResponse } from "model/response/category.response";
-import { AccountStore } from 'model/other/Account/AccountStore';
+import { CategoryResponse } from "model/response/product/category.response";
 import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
+import { VariantImagesResponse } from 'model/response/products/variant.images.response';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -245,19 +246,19 @@ const replaceFormatString = (currency: number | string): string => {
   return format.replace(/,/gi, '');
 }
 
-const findAvatar = (variantImages: Array<VariantImage>): string => {
+const findAvatar = (variantImages: Array<VariantImagesResponse>): string => {
   let avatar: string = '';
   variantImages.forEach((v) => {
     if (v.variant_avatar) {
-      avatar = v.original;
+      avatar = v.url;
     }
   })
   return avatar;
 }
 
-const haveAccess = (storeId: number, accountStores: Array<AccountStore>): boolean => {
+const haveAccess = (storeId: number, accountStores: Array<AccountStoreResponse>): boolean => {
   let isHave = false;
-  let accountStoreFilter = accountStores.filter((store: AccountStore) => store.store_id === storeId);
+  let accountStoreFilter = accountStores.filter((store: AccountStoreResponse) => store.store_id === storeId);
   if (accountStoreFilter.length > 0) {
     return isHave = true;
   }

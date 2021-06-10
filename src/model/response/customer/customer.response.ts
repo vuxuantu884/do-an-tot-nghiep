@@ -1,8 +1,6 @@
 import { BaseModel } from '../../other/base-model';
 
 export interface CustomerResponse extends BaseModel {
-  first_name: string,
-  last_name: string,
   full_name: string,
   phone: string,
   email: string,
@@ -14,7 +12,7 @@ export interface CustomerResponse extends BaseModel {
   tax_code : string,
   notes: string,
   customer_level_id: number,
-  customer_level_name: string,
+  customer_level: string,
   wedding_date: number,
   birthday: number,
   gender: string,

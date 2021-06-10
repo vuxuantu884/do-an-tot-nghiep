@@ -1,7 +1,6 @@
 import { Input, InputNumber, Select, Typography } from "antd";
 import { OrderItemModel } from "model/other/Order/order-model";
 import React, {useCallback, useState} from "react";
-// import {orderDiscountTextChange} from "../../../domain/actions/orderOnline.action";
 import {useDispatch} from "react-redux";
 import {formatCurrency, replaceFormat} from "../../utils/AppUtils";
 

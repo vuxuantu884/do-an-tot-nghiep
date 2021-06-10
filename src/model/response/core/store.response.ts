@@ -1,4 +1,4 @@
-import { BaseObject } from './base.response';
+import { BaseObject } from '../base.response';
 
 export interface StoreResponse extends BaseObject {
     id: number,

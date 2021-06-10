@@ -12,26 +12,21 @@ import {
 } from "antd";
 
 // @ts-ignore
-import React, {useState} from "react";
-
-// @ts-ignore
 import arrowDownIcon from 'assets/img/drow-down.svg';
 
 import walletIcon from "../../assets/img/wallet.svg";
 
 
 type PaymentCardProps = {
-  // visible: boolean;
-  // onCancel: (e: React.MouseEvent<HTMLElement>) => void;
-  // onOk: () => void;
+  setSelectedPaymentMethod: (paymentType: number) => void;
+  paymentMethod: number
 }
 
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod ] = useState(3);
   const changePaymentMethod = (value: number) => {
-    setSelectedPaymentMethod(value);
+    props.setSelectedPaymentMethod(value);
   };
 
   return (
@@ -40,7 +35,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
       <div className="payment-method-radio-list">
         <label htmlFor="" className="required-label"><i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i></label>
         <div style={{ marginTop: 15 }}>
-          <Radio.Group name="radiogroup" value={selectedPaymentMethod} onChange={(e) => changePaymentMethod(e.target.value)}>
+          <Radio.Group name="radiogroup" value={props.paymentMethod} onChange={(e) => changePaymentMethod(e.target.value)}>
             <Radio value={1}>COD</Radio>
             <Radio value={2}>Thanh toán trước</Radio>
             <Radio value={3}>Thanh toán sau</Radio>
@@ -51,7 +46,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
       <Divider/>
 
       <div className="payment-method-content">
-        <Row gutter={24} className="payment-cod-box" hidden={selectedPaymentMethod !== 1}>
+        <Row gutter={24} className="payment-cod-box" hidden={props.paymentMethod !== 1}>
           <Col xs={24} lg={12}>
             <div className="form-group form-group-with-search">
               <label htmlFor="" className="">Tiền thu hộ</label>
@@ -62,7 +57,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
           </Col>
         </Row>
 
-        <Row gutter={24} hidden={selectedPaymentMethod !== 2}>
+        <Row gutter={24} hidden={props.paymentMethod !== 2}>
           <Col xs={24} lg={12}>
             <div className="form-group form-group-with-search">
               <label htmlFor="" className="">Hình thức thanh toán</label>
@@ -106,7 +101,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
           </Col>
         </Row>
 
-        <Row className="payment-later-box" hidden={selectedPaymentMethod !== 3}>
+        <Row className="payment-later-box" hidden={props.paymentMethod !== 3}>
           <div className="form-group m-0">
             <label htmlFor=""><i>Bạn có thể xử lý thanh toán sau khi tạo đơn hàng.</i></label>
           </div>

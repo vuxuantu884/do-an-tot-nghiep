@@ -4,7 +4,7 @@ import BaseResponse from 'base/BaseResponse';
 import { HttpStatus } from 'config/HttpStatus';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
 import { CategoryType } from 'domain/types/product.type';
-import { CategoryResponse } from 'model/response/category.response';
+import { CategoryResponse } from 'model/response/product/category.response';
 import { createCategoryApi, getCategoryApi, categoryDetailApi, updateCategoryApi, categoryDeleteApi} from 'service/product/category.service';
 import { showError } from 'utils/ToastUtils';
 
