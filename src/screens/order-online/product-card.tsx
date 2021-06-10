@@ -16,7 +16,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { EditOutlined } from "@ant-design/icons";
 import PickDiscountModal from "./modal/PickDiscountModal";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
@@ -62,7 +62,7 @@ import { VariantResponse } from "model/response/products/variant.response";
 import { StoreResponse } from "model/response/core/store.response";
 
 type ProductCardProps = {
-  storeId:number|null;
+  storeId: number | null;
   selectStore: (item: number) => void;
   changeInfo: (
     items: Array<OrderItemModel>,
@@ -534,13 +534,17 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     rate: number,
     counpon: string
   ) => {
-    setVisiblePickDiscount(false);
-    setDiscountType(type);
-    setDiscountValue(value);
-    setDiscountRate(rate);
-    setCounpon(counpon);
-    calculateChangeMoney(items, amount, rate, value);
-    showSuccess("Thêm chiết khấu thành công");
+    if (amount === 0) {
+      showError("Bạn cần chọn sản phẩm trước khi thêm chiết khấu");
+    } else {
+      setVisiblePickDiscount(false);
+      setDiscountType(type);
+      setDiscountValue(value);
+      setDiscountRate(rate);
+      setCounpon(counpon);
+      calculateChangeMoney(items, amount, rate, value);
+      showSuccess("Thêm chiết khấu thành công");
+    }
   };
 
   const calculateChangeMoney = (
@@ -670,7 +674,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
             {props.isVisibleStore === true && (
               <div>
-                <div className="ant-form-item-explain ant-form-item-explain-error" style={{padding: '5px'}}>
+                <div
+                  className="ant-form-item-explain ant-form-item-explain-error"
+                  style={{ padding: "5px" }}
+                >
                   <div role="alert">Vui lòng chọn cửa hàng</div>
                 </div>
               </div>
