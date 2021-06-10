@@ -8,7 +8,7 @@ export interface AccountResponse extends BaseObject {
   gender: string,
   gender_name: string,
   mobile: string,
-  birthday: number,
+  birthday: Date,
   country_id: number,
   country_name: string,
   city_id: number,

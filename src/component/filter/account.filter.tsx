@@ -102,6 +102,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (
           >
             <Select
               showArrow
+              allowClear
               className="select-with-search"
               placeholder="Cửa hàng"
               style={{
@@ -120,6 +121,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (
             name="department_ids"
           >
             <Select
+            allowClear
               showArrow
               className="select-with-search"
               placeholder="Bộ phận"

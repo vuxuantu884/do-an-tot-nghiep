@@ -3,9 +3,9 @@ export interface BaseObject {
   code: string;
   created_name?: string;
   created_by?: string;
-  created_date?: number;
+  created_date?: Date;
   updated_by?: string;
   updated_name?: string;
-  updated_date?: number;
+  updated_date?: Date;
   version?: number;
 }

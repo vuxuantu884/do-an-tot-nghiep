@@ -35,7 +35,7 @@ import DiscountGroup from "./discount-group";
 import { StoreModel } from "model/other/Core/store-model";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getListStoreRequest,
+  getListStoreAction,
 } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -371,7 +371,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   ];
 
   useLayoutEffect(() => {
-    dispatch(getListStoreRequest(setListStores));
+    dispatch(getListStoreAction(setListStores));
   }, [dispatch]);
 
   const autoCompleteRef = createRef<RefSelectProps>();

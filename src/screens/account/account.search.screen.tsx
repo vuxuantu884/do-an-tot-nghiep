@@ -18,6 +18,8 @@ import AccountFilter from "component/filter/account.filter";
 import {AccountSearchAction,DepartmentGetListAction,PositionGetListAction} from "domain/actions/account/account.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreResponse } from "model/response/store.response";
+import {getListStoreAction} from "domain/actions/core/store.action";
+import { convertUtcToLocalDate } from "utils/DateUtils";
 const actions: Array<MenuAction> = [
   {
     id: 1,
@@ -90,6 +92,13 @@ const ListAccountScreen: React.FC = () => {
         return <Link to="#">{value.code}</Link>;
       }
     },
+    {
+      title: "Ngày tạo",
+      render: (value: AccountResponse) => {
+        
+        return convertUtcToLocalDate(value.created_date)
+      }
+    },
    
     {
       title: "Trạng thái",
@@ -130,11 +139,14 @@ const ListAccountScreen: React.FC = () => {
   useEffect(() => {
     if(isFirstLoad.current){
       dispatch(DepartmentGetListAction(setDepartment));
-      dispatch(PositionGetListAction(setPosition));
+      dispatch(PositionGetListAction(setPosition));      
+      dispatch(getListStoreAction(setStore));      
+      
     }
     isFirstLoad.current=false;
     dispatch(AccountSearchAction(params, setData));
   }, [dispatch, params]);
+  console.log(data.items)
   return (
     <div>
       <Card className="contain">
