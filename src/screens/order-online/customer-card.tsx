@@ -41,7 +41,7 @@ import {
   CustomerResponse,
   ShippingAddress,
 } from "model/response/customer/customer.response";
-import { OnCustomerSearchChange } from "domain/actions/customer/customer.action";
+import { CustomerSearch } from "domain/actions/customer/customer.action";
 import imgdefault from "assets/icon/img-default.svg";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
@@ -50,14 +50,15 @@ import { Email } from "utils/RegUtils";
 //#endregion
 
 type CustomerCardProps = {
-  changeInfoCustomer: (items: CustomerResponse) => void;
-  selectSource: (source: number) => void;
   sourceSelect: boolean;
+  InfoCustomerSet: (items: CustomerResponse) => void;
+  selectSource: (source: number) => void;
   changeEmail: (email: string) => void;
-  changeShippingAddress: (items: ShippingAddress) => void;
-  changeBillingAddress: (items: BillingAddress) => void;
+  ShippingAddressChange: (items: ShippingAddress) => void;
+  BillingAddressChange: (items: BillingAddress) => void;
 };
 
+//Add query for search Customer
 const initQuery: CustomerSearchQuery = {
   request: "",
   limit: 10,
@@ -70,62 +71,61 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [keysearch, setKeysearch] = useState("");
-  const autoCompleteRef = createRef<RefSelectProps>();
-  const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
-  const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
+  const [keysearch, setKeySearch] = useState("");
+  const [inputEmail, setInputEmail] = useState<string>("");
+  const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
+  const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
-  const [billingAddress, setBillingAddress] =
-    useState<BillingAddress | null>(null);
-  let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
-
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
+  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
   const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
   const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
-  const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
-  const [inputEmail, setInputEmail] = useState<string>("");
+
+  let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
+  const autoCompleteRef = createRef<RefSelectProps>();
+
   //#region Modal
-  const showAddressModal = () => {
+  const ShowAddressModal = () => {
     setVisibleAddress(true);
     setVisibleShippingAddress(false);
     setVisibleBillingAddress(false);
   };
 
-  const onCancleConfirmAddress = useCallback(() => {
+  const CancleConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
 
-  const onOkConfirmAddress = useCallback(() => {
+  const OkConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
 
-  const showCustomerModal = () => {
+  const ShowCustomerModal = () => {
     setVisibleCustomer(true);
   };
 
-  const onCancleConfirmCustomer = useCallback(() => {
+  const CancleConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
 
-  const onOkConfirmCustomer = useCallback(() => {
+  const OkConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
 
-  const showBillingAddress = () => {
+  const ShowBillingAddress = () => {
     setVisibleBilling(!isVisibleBilling);
   };
   //#endregion
 
   //#region Search and Render result
   //Search and render customer by name, phone, code
-  const onChangeSearch = useCallback(
+  const CustomerChangeSearch = useCallback(
     (value) => {
-      setKeysearch(value);
+      setKeySearch(value);
       initQuery.request = value;
-      dispatch(OnCustomerSearchChange(initQuery, setResultSearch));
+      dispatch(CustomerSearch(initQuery, setResultSearch));
     },
     [dispatch]
   );
@@ -175,7 +175,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       );
       if (index !== -1) {
         setCustomer(resultSearch[index]);
-        props.changeInfoCustomer(resultSearch[index]);
+        props.InfoCustomerSet(resultSearch[index]);
         if (
           resultSearch[index].shipping_addresses !== undefined &&
           resultSearch[index].shipping_addresses !== null
@@ -183,7 +183,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           resultSearch[index].shipping_addresses.forEach((item, index2) => {
             if (item.default === true) {
               setShippingAddress(item);
-              props.changeShippingAddress(item);
+              props.ShippingAddressChange(item);
             }
           });
         }
@@ -195,13 +195,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           resultSearch[index].billing_addresses.forEach((item, index2) => {
             if (item.default === true) {
               setBillingAddress(item);
-              props.changeBillingAddress(item);
+              props.BillingAddressChange(item);
             }
           });
         }
 
         autoCompleteRef.current?.blur();
-        setKeysearch("");
+        setKeySearch("");
       }
     },
     [autoCompleteRef, dispatch, resultSearch, customer]
@@ -232,12 +232,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const onSelectShippingAddress = (value: ShippingAddress) => {
     setShippingAddress(value);
-    props.changeShippingAddress(value);
+    props.ShippingAddressChange(value);
   };
 
   const onSelectBillingAddress = (value: ShippingAddress) => {
     setBillingAddress(value);
-    props.changeBillingAddress(value);
+    props.BillingAddressChange(value);
   };
 
   const onChangeSource = useCallback(
@@ -339,7 +339,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             dropdownClassName="search-layout dropdown-search-header"
             dropdownMatchSelectWidth={456}
             className="w-100"
-            onSearch={onChangeSearch}
+            onSearch={CustomerChangeSearch}
             options={convertResultSearch}
           >
             <Input.Search
@@ -431,7 +431,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             </Space>
 
             <Space className="customer-detail-action">
-              <Button type="text" className="p-0" onClick={showCustomerModal}>
+              <Button type="text" className="p-0" onClick={ShowCustomerModal}>
                 <img src={editBlueIcon} alt="" />
               </Button>
               <Button type="text" className="p-0" onClick={deleteCustomer}>
@@ -475,7 +475,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           <div style={{ color: "#4F687D" }}>
                             Thay đổi địa chỉ
                           </div>
-                          <Button type="link" onClick={showAddressModal}>
+                          <Button type="link" onClick={ShowAddressModal}>
                             Thêm địa chỉ mới
                           </Button>
                         </Row>
@@ -491,7 +491,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                                 Địa chỉ 1{" "}
                                 <Button
                                   type="text"
-                                  onClick={showAddressModal}
+                                  onClick={ShowAddressModal}
                                   className="p-0"
                                 >
                                   <img src={editBlueIcon} alt="" />
@@ -543,7 +543,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               <Row style={{ marginBottom: 15 }}>
                 <Checkbox
                   className="checkbox-style"
-                  onChange={showBillingAddress}
+                  onChange={ShowBillingAddress}
                 >
                   Gửi hoá đơn
                 </Checkbox>
@@ -583,7 +583,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             <div style={{ color: "#4F687D" }}>
                               Thay đổi địa chỉ
                             </div>
-                            <Button type="link" onClick={showAddressModal}>
+                            <Button type="link" onClick={ShowAddressModal}>
                               Thêm địa chỉ mới
                             </Button>
                           </Row>
@@ -599,7 +599,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                                   Địa chỉ 1{" "}
                                   <Button
                                     type="text"
-                                    onClick={showAddressModal}
+                                    onClick={ShowAddressModal}
                                     className="p-0"
                                   >
                                     <img src={editBlueIcon} alt="" />
@@ -659,13 +659,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
       <AddAddressModal
         visible={isVisibleAddress}
-        onCancel={onCancleConfirmAddress}
-        onOk={onOkConfirmAddress}
+        onCancel={CancleConfirmAddress}
+        onOk={OkConfirmAddress}
       />
       <EditCustomerModal
         visible={isVisibleCustomer}
-        onCancel={onCancleConfirmCustomer}
-        onOk={onOkConfirmCustomer}
+        onCancel={CancleConfirmCustomer}
+        onOk={OkConfirmCustomer}
       />
     </Card>
   );

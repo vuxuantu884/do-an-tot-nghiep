@@ -344,12 +344,12 @@ const CreateBill = () => {
           <Col xs={24} lg={17}>
             {/*--- customer ---*/}
             <CustomerCard
-              changeInfoCustomer={onChangeInfoCustomer}
+              InfoCustomerSet={onChangeInfoCustomer}
               selectSource={onSourceSelect}
               sourceSelect={isVisibleSource}
               changeEmail={onEmailChange}
-              changeShippingAddress={onChangeShippingAddress}
-              changeBillingAddress={onChangeBillingAddress}
+              ShippingAddressChange={onChangeShippingAddress}
+              BillingAddressChange={onChangeBillingAddress}
             />
             {/*--- end customer ---*/}
 
