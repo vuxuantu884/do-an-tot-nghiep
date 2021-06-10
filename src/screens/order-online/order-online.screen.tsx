@@ -11,14 +11,14 @@ import { useDispatch } from "react-redux";
 import { OrderRequest } from "model/request/order.request";
 import { OrderLineItemRequest } from "model/request/order-line-item.request";
 import { OrderItemDiscountRequest } from "model/request/order-item-discount.request";
-import { AccountDetailResponse } from "model/response/accounts/account-detail.response";
+import { AccountResponse } from "model/response/accounts/account-detail.response";
 import {
   BillingAddress,
   CustomerResponse,
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import { useHistory } from "react-router";
-import AccountAction from "domain/actions/account/account.action";
+import {AccountSearchAction} from "domain/actions/account/account.action";
 import { PageResponse } from "model/response/base-metadata.response";
 import {
   OrderItemDiscountModel,
@@ -27,6 +27,7 @@ import {
 import { orderCreateAction } from "domain/actions/order/order.action";
 import { showSuccess } from "utils/ToastUtils";
 import { Email } from "utils/RegUtils";
+import { StoreResponse } from "model/response/core/store.response";
 //#endregion
 
 const CreateBill = () => {
@@ -52,7 +53,8 @@ const CreateBill = () => {
   const [isVerify, setVerify] = useState(false);
   const [selectedShipMethod, setSelectedShipMethod] = useState(1);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(1);
-  const [accounts, setAccounts] = useState<Array<AccountDetailResponse>>([]);
+  const [store, setStore] = useState<StoreResponse | null>(null);
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [assignCode, setAssignCode] = useState<string>("");
   const [reference, setReference] = useState<string>("");
   const [url, setUrl] = useState<string>("");
@@ -327,14 +329,15 @@ const CreateBill = () => {
   };
 
   const setDataAccounts = useCallback(
-    (data: PageResponse<AccountDetailResponse>) => {
+    (data: PageResponse<AccountResponse>) => {
       setAccounts(data.items);
     },
     []
   );
 
   useLayoutEffect(() => {
-    dispatch(AccountAction.SearchAccount({}, setDataAccounts));
+    
+    dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
 
   return (

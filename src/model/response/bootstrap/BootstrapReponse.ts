@@ -28,4 +28,5 @@ export interface BootstrapResponse {
   weight_unit: Array<BaseBootstrapResponse>,
   tax_treatment: Array<BaseBootstrapResponse>,
   discount_source: Array<BaseBootstrapResponse>
+  account_status: Array<BaseBootstrapResponse>
 }

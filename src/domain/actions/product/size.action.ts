@@ -17,8 +17,8 @@ export const sizeCreateAction = (request: SizeCreateRequest, onCreateSuccess: ()
   return BaseAction(SizeType.CREATE_SIZE_REQUEST, {request, onCreateSuccess});
 }
 
-export const sizeUpdateAction = (request: SizeUpdateRequest, onUpdateSuccess: () => void) => {
-  return BaseAction(SizeType.UPDATE_SIZE_REQUEST, {request, onUpdateSuccess});
+export const sizeUpdateAction = (id: number, request: SizeUpdateRequest, onUpdateSuccess: () => void) => {
+  return BaseAction(SizeType.UPDATE_SIZE_REQUEST, {id, request, onUpdateSuccess});
 }
 
 export const sizeDetailAction = (id: number, setData: (data: SizeResponse) => void) => {

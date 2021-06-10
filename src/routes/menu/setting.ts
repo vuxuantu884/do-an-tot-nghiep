@@ -1,13 +1,13 @@
 import React from 'react';
 import { RouteMenu } from "model/other";
 
-const ManageUserScreen = React.lazy(() => import ("screens/setting/manage-user.screen"));
+const ManageUserScreen = React.lazy(() => import ("screens/account/account.search.screen"));
 const ManageStoreScreen = React.lazy(() => import ("screens/setting/manage-store.screen"));
 const ManageRoleScreen = React.lazy(() => import ("screens/setting/manage-role.screen"));
 
 const setting: Array<RouteMenu> = [
   {
-    path: "/setting/accounts",
+    path: "/accounts",
     exact: true,
     title: "Quản lý người dùng",
     icon: 'icon-dot',
@@ -20,7 +20,7 @@ const setting: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/setting/stores",
+    path: "/stores",
     exact: true,
     title: "Quản lý cửa hàng",
     icon: 'icon-dot',
@@ -33,7 +33,7 @@ const setting: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/setting/printers",
+    path: "/printers",
     exact: true,
     title: "Quản lý mẫu in",
     icon: 'icon-dot',
@@ -46,7 +46,7 @@ const setting: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/setting/roles",
+    path: "/roles",
     exact: true,
     title: "Phân quyền vai trò",
     icon: 'icon-dot',

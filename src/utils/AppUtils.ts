@@ -1,14 +1,16 @@
-import { AccountStoreResponse } from './../model/response/accounts/account-store.response';
-import { convertDateToUTC } from './DateUtils';
-import { DistrictResponse } from './../model/response/content/district.response';
-import { CityView } from '../model/other/district-view';
-import { AppConfig } from './../config/AppConfig';
-import { VariantPrice } from '../model/other/Product/product-model';
+import { SizeDetail, SizeResponse } from './../model/response/products/size.response';
+import { convertDateToUtc } from './DateUtils';
+import { AccountStoreResponse } from 'model/response/accounts/account-store.response';
+import { DistrictResponse } from 'model/response/content/district.response';
+import { CityView } from 'model/other/district-view';
+import { AppConfig } from 'config/AppConfig';
+import { VariantPrice } from 'model/other/Product/product-model';
 import { RouteMenu } from "model/other";
 import { CategoryView } from "model/other/Product/category-view";
+import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel } from 'model/other/Order/order-model';
 import { CategoryResponse } from "model/response/product/category.response";
-import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
 import { VariantImagesResponse } from 'model/response/products/variant.images.response';
+import moment from 'moment';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -145,12 +147,32 @@ export const getArrCategory = (i: CategoryResponse, level: number, parent: Categ
   return arr;
 }
 
+export const convertSizeResponeToDetail = (size: SizeResponse) => {
+  let ids: Array<number> = []
+  size.categories.forEach((category) => ids.push(category.category_id))
+  let sizeConvert: SizeDetail = {
+    id: size.id,
+    created_by: size.created_by,
+    created_date: size.created_date,
+    created_name: size.created_name,
+    updated_by: size.updated_by,
+    updated_name: size.updated_name,
+    updated_date: size.updated_date,
+    version: size.version,
+    code: size.code,
+    category_ids: ids
+  }
+  return sizeConvert;
+}
+
+
  const formatCurrency = (currency: number | string): string => {
   let format = currency.toString();
   return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
 
 export const generateQuery = (obj: any) => {
+  debugger;
   if(obj!==undefined){
     let a: string = Object.keys(obj).map((key, index) => {
       let url = '';
@@ -160,7 +182,10 @@ export const generateQuery = (obj: any) => {
           value = obj[key].join(',')
         }
         if(obj[key] instanceof Date) {
-          value = convertDateToUTC(obj[key])
+          value = convertDateToUtc(obj[key])
+        }
+        if(moment.isMoment(obj[key] )) {
+          value = obj[key].utc().format();
           console.log(value);
         }
         url = key + '=' + encodeURIComponent(value) + '&'
@@ -230,12 +255,6 @@ const findPrice = (variantPrices: Array<VariantPrice>, currency_code: string): s
   return price.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
 
-
-const formatSuffixPoint = (point: number | string): string => {
-  let format = point.toString();
-  return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")} điểm`;
-}
-
 const replaceFormat = (currency: number | string): number => {
   let format = currency.toString();
   return parseInt(format.replace(/,/gi, ''));
@@ -281,16 +300,6 @@ const getTotalAmount = (items: Array<OrderItemModel>) => {
   let total = 0;
   items.forEach((a) => {
     if (a.product_type === 'normal') {
-      total = total + a.amount;
-    }
-  });
-  return total;
-}
-
-const getTotalAmountFreeForm = (items: Array<OrderItemModel>) => {
-  let total = 0;
-  items.forEach((a) => {
-    if (a.product_type === 'service') {
       total = total + a.amount;
     }
   });
@@ -344,37 +353,7 @@ const findDiscountIndex = (items: Array<OrderDiscountModel>) => {
   return index;
 }
 
-const findDiscountPromotion = (items: Array<OrderDiscountModel>) => {
-  let index = items.findIndex((value) => value.promotion_id != null);
-  return index;
-}
-
-const caculatorTotalDiscount = (items: Array<OrderDiscountModel>) => {
-  let total = 0;
-  items.forEach((value) => total = total + value.amount);
-  return total;
-}
-
-const findOrderDiscount = (items: Array<OrderDiscountModel>) => {
-  let index = findDiscountIndex(items);
-  if (index === -1) {
-    return 0;
-  }
-  return items[index].amount;
-}
-
-const caculateMoney = (items: Array<OrderPaymentModel>, totalMoney: number) => {
-  let total = 0;
-  items.forEach((i) => total = total + i.amount);
-  return totalMoney - total;
-}
-
-const isPaymentCashOnly = (items: Array<OrderPaymentModel>) => {
-  return items.length === 1 && items[0].payment_method_id === AppConfig.DEFAULT_PAYMENT;
-}
-export {
-  findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
+export {findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
   replaceFormat, replaceFormatString, getTotalQuantity, getTotalAmount, getTotalDiscount, getTotalAmountAfferDiscount, getDiscountRate, getDiscountValue,
-  getAmountDiscount, getAmountItemDiscount, findDiscountIndex, findDiscountPromotion, caculatorTotalDiscount, findOrderDiscount, getTotalAmountFreeForm,
-  formatSuffixPoint,caculateMoney, isPaymentCashOnly
+  getAmountDiscount, getAmountItemDiscount, findDiscountIndex, 
 };
