@@ -5,7 +5,7 @@ import SupplierAction from "domain/actions/core/supplier.action";
 import { CityView } from "model/other/district-view";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { SupplierCreateRequest } from "model/request/create-supplier.request";
-import { AccountResponse } from "model/response/accounts/account-detail.response";
+import { AccountResponse } from "model/account/account.response";
 import { PageResponse } from "model/response/base-metadata.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { DistrictResponse } from "model/response/content/district.response";

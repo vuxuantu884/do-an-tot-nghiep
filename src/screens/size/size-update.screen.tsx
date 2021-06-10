@@ -16,7 +16,7 @@ import {
 } from "domain/actions/product/size.action";
 import { CategoryView } from "model/other/Product/category-view";
 import { SizeUpdateRequest } from "model/request/size.request";
-import { CategoryResponse } from "model/response/product/category.response";
+import { CategoryResponse } from "model/response/products/category.response";
 import { SizeDetail, SizeResponse } from "model/response/products/size.response";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";

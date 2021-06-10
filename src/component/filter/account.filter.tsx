@@ -14,7 +14,8 @@ import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import { DepartmentResponse } from "model/response/accounts/department.response";
+import { DepartmentResponse } from "model/account/department.response";
+import { PositionResponse } from "model/account/position.response";
 import { AccountSearchQuery } from "model/query/account.search.query";
 import { StoreResponse } from "model/response/core/store.response";
 import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
@@ -22,7 +23,7 @@ import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapRes
 type AccountFilterProps = {
   params: AccountSearchQuery;
   listDepartment?: Array<DepartmentResponse>;
-  listPosition?: Array<DepartmentResponse>;
+  listPosition?: Array<PositionResponse>;
   listStatus?:Array<BaseBootstrapResponse>;
   listStore?:Array<StoreResponse>;
   actions: Array<MenuAction>;

@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { OrderRequest } from "model/request/order.request";
 import { OrderLineItemRequest } from "model/request/order-line-item.request";
 import { OrderItemDiscountRequest } from "model/request/order-item-discount.request";
-import { AccountResponse } from "model/response/accounts/account-detail.response";
+import { AccountResponse } from "model/account/account.response";
 import {
   BillingAddress,
   CustomerResponse,

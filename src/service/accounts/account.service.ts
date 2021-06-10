@@ -4,11 +4,11 @@ import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { AccountSearchQuery } from "model/query/account.search.query";
 import { LoginRequest } from "model/request/login.request";
-import { AccountResponse } from "model/response/accounts/account-detail.response";
-import { LoginResponse } from "model/response/accounts/login.response";
+import { AccountResponse } from "model/account/account.response";
+import { LoginResponse } from "model/account/login.response";
 import { PageResponse } from "model/response/base-metadata.response";
-import { DepartmentResponse } from 'model/response/accounts/department.response';
-import { PositionResponse } from 'model/response/accounts/position.response';
+import { DepartmentResponse } from 'model/account/department.response';
+import { PositionResponse } from 'model/account/position.response';
 
 export const getAcccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/detail`);

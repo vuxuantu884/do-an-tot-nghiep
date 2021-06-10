@@ -1,11 +1,11 @@
-import { PositionResponse } from './../../../model/response/accounts/position.response';
-import { DepartmentResponse } from 'model/response/accounts/department.response';
+import { PositionResponse } from 'model/account/position.response';
+import { DepartmentResponse } from 'model/account/department.response';
 import { call, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import { AccountType } from "domain/types/account.type";
-import { AccountResponse } from "model/response/accounts/account-detail.response";
+import { AccountResponse } from "model/account/account.response";
 import { PageResponse } from "model/response/base-metadata.response";
 import { searchAccountApi,getDepartmentAllApi,getPositionAllApi } from "service/accounts/account.service";
 
@@ -46,7 +46,6 @@ function* listAccountSaga(action: YodyAction) {
 function* listDepartmentSaga(action: YodyAction) {
   let {  setData } = action.payload;
   try {
-    debugger;
     let response: BaseResponse<PageResponse<DepartmentResponse>> = yield call(getDepartmentAllApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
