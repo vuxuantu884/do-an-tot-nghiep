@@ -461,6 +461,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         }
       }
       setItems(_items.reverse());
+      autoCompleteRef.current?.blur();
+      setKeysearch("");
     },
     [resultSearch, items, splitLine]
     // autoCompleteRef, dispatch, resultSearch
