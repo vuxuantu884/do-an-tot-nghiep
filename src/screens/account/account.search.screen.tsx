@@ -17,8 +17,8 @@ import { PositionResponse } from "model/response/accounts/position.response";
 import AccountFilter from "component/filter/account.filter";
 import {AccountSearchAction,DepartmentGetListAction,PositionGetListAction} from "domain/actions/account/account.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { StoreResponse } from "model/response/store.response";
-import {getListStoreAction} from "domain/actions/core/store.action";
+import { StoreResponse } from "model/response/core/store.response";
+import {StoreGetListAction} from "domain/actions/core/store.action";
 import { convertUtcToLocalDate } from "utils/DateUtils";
 const actions: Array<MenuAction> = [
   {
@@ -140,7 +140,7 @@ const ListAccountScreen: React.FC = () => {
     if(isFirstLoad.current){
       dispatch(DepartmentGetListAction(setDepartment));
       dispatch(PositionGetListAction(setPosition));      
-      dispatch(getListStoreAction(setStore));      
+      dispatch(StoreGetListAction(setStore));      
       
     }
     isFirstLoad.current=false;

@@ -16,7 +16,7 @@ import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { DepartmentResponse } from "model/response/accounts/department.response";
 import { AccountSearchQuery } from "model/query/account.search.query";
-import { StoreResponse } from "model/response/store.response";
+import { StoreResponse } from "model/response/core/store.response";
 import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
 
 type AccountFilterProps = {

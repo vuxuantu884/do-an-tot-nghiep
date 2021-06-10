@@ -27,6 +27,7 @@ import {
 import { orderCreateAction } from "domain/actions/order/order.action";
 import { showSuccess } from "utils/ToastUtils";
 import { Email } from "utils/RegUtils";
+import { StoreResponse } from "model/response/core/store.response";
 //#endregion
 
 const CreateBill = () => {
@@ -52,7 +53,7 @@ const CreateBill = () => {
   const [isVerify, setVerify] = useState(false);
   const [selectedShipMethod, setSelectedShipMethod] = useState(1);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(1);
-  const [store, setStore] = useState<StoreModel | null>(null);
+  const [store, setStore] = useState<StoreResponse | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [assignCode, setAssignCode] = useState<string>("");
   const [reference, setReference] = useState<string>("");
