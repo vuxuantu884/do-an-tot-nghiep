@@ -11,9 +11,7 @@ import { OrderRespose } from 'model/response/order/order-online.response';
 
 function* orderCreateSaga(action: YodyAction) {
     const {request, setData} = action.payload;
-    console.log("test", request);
     try {
-      console.log("test", request);
       yield put(showLoading());
       let response: BaseResponse<OrderRespose> = yield call(orderPostApi, request);
       yield put(hideLoading());

@@ -16,7 +16,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { EditOutlined } from "@ant-design/icons";
 import PickDiscountModal from "./modal/PickDiscountModal";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
@@ -32,11 +32,8 @@ import productIcon from "../../assets/img/cube.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import DiscountGroup from "./discount-group";
-import { StoreModel } from "model/other/Core/store-model";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getListStoreAction,
-} from "domain/actions/core/store.action";
+import { getListStoreRequest } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   haveAccess,
@@ -46,7 +43,6 @@ import {
   findTaxInVariant,
   formatCurrency,
   replaceFormat,
-  getTotalQuantity,
 } from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
@@ -55,19 +51,30 @@ import { Type } from "../../config/TypeConfig";
 import "../../assets/css/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "./modal/AddGiftModal";
-import { OrderItemDiscountModel, OrderItemModel } from "model/other/Order/order-model";
+import {
+  OrderItemDiscountModel,
+  OrderItemModel,
+} from "model/other/Order/order-model";
 import { VariantSearchQuery } from "model/query/variant.search.query";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/response/base-metadata.response";
 import { VariantResponse } from "model/response/products/variant.response";
+import { StoreResponse } from "model/response/core/store.response";
 
 type ProductCardProps = {
+  storeId: number | null;
   selectStore: (item: number) => void;
-  changeInfo: (items: Array<OrderItemModel>, amount:number, discount_rate: number, discount_value: number) => void
+  changeInfo: (
+    items: Array<OrderItemModel>,
+    amount: number,
+    discount_rate: number,
+    discount_value: number
+  ) => void;
   selectPriceType: (priceType: string) => void;
+  isVisibleStore: boolean;
 };
 
-const initQuery: VariantSearchQuery  = {
+const initQuery: VariantSearchQuery = {
   limit: 10,
   page: 0,
 };
@@ -77,9 +84,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
-  const [listStores, setListStores] = useState<Array<StoreModel>>([]);
+  const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
   const [keysearch, setKeysearch] = useState("");
-  const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse>>({
+  const [resultSearch, setResultSearch] = useState<
+    PageResponse<VariantResponse>
+  >({
     metadata: {
       limit: 0,
       page: 0,
@@ -115,8 +124,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const onChangeQuantity = (value: number, index: number) => {
     let _items = [...items];
-    
-    _items[index].quantity = Number(value==null?"0":value.toString().replace(".",""));
+
+    _items[index].quantity = Number(
+      value == null ? "0" : value.toString().replace(".", "")
+    );
     setItems(_items);
     total();
   };
@@ -132,15 +143,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     _items.map((i) => {
       let amountItem = (i.price - i.discount_items[0].value) * i.quantity;
       i.line_amount_after_line_discount = amountItem;
-      i.amount = i.price * i.quantity
+      i.amount = i.price * i.quantity;
       _amount += amountItem;
     });
     setItems(_items);
     setAmount(_amount);
-    calculateChangeMoney(_items,_amount,discountRate, discountValue);
+    calculateChangeMoney(_items, _amount, discountRate, discountValue);
   }, [items]);
-
-
 
   // render
 
@@ -192,7 +201,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       return (
         <div className="w-100" style={{ overflow: "hidden" }}>
           <div className="d-flex align-items-center">
-            <Button type="text" className="p-0 yody-pos-delete-free-form" onClick = {() => onDeleteItem(index)}>
+            <Button
+              type="text"
+              className="p-0 yody-pos-delete-free-form"
+              onClick={() => onDeleteItem(index)}
+            >
               <img src={deleteIcon} alt="" />
             </Button>
             <div style={{ width: "calc(100% - 32px)", marginLeft: "15px" }}>
@@ -274,8 +287,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             className="hide-number-handle"
             min={0}
             value={l.price}
-            formatter={value => formatCurrency(value ? value : '0')}
-            parser={value => replaceFormat(value ? value : '0')}
+            formatter={(value) => formatCurrency(value ? value : "0")}
+            parser={(value) => replaceFormat(value ? value : "0")}
             onChange={(e) => console.log(1)}
             onFocus={(e) => e.target.select()}
             style={{ maxWidth: 100, textAlign: "right" }}
@@ -287,14 +300,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const DiscountColumnt = {
     title: "Chiết khấu",
-    align: 'center',
+    align: "center",
     width: 165,
     className: "yody-table-discount text-right",
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
         <div className="site-input-group-wrapper">
           <DiscountGroup
-            price = {l.price}
+            price={l.price}
             index={index}
             discountRate={l.discount_items[0].rate}
             discountValue={l.discount_items[0].value}
@@ -422,32 +435,32 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     return newDiscountItem;
   };
 
-  const onDeleteItem = (index:number) => {
-    let _items = [... items]
-    let _amount = amount -  (_items[index].line_amount_after_line_discount)
-    setAmount(_amount)
+  const onDeleteItem = (index: number) => {
+    let _items = [...items];
+    let _amount = amount - _items[index].line_amount_after_line_discount;
+    setAmount(_amount);
     _items.splice(index, 1);
     setItems(_items);
-    calculateChangeMoney(
-      _items,
-      _amount,
-      discountRate,
-      discountValue
-    );
-  }
+    calculateChangeMoney(_items, _amount, discountRate, discountValue);
+  };
 
   const onSearchVariantSelect = useCallback(
     (v, o) => {
       let _items = [...items].reverse();
       let indexSearch = resultSearch.items.findIndex((s) => s.id == v);
-      console.log(indexSearch)
+      console.log(indexSearch);
       let index = _items.findIndex((i) => i.variant_id == v);
       let r: VariantResponse = resultSearch.items[indexSearch];
       if (r.id == v) {
         if (splitLine || index === -1) {
           const item: OrderItemModel = createItem(r);
           _items.push(item);
-          calculateChangeMoney(_items,amount + item.price,discountRate, discountValue);
+          calculateChangeMoney(
+            _items,
+            amount + item.price,
+            discountRate,
+            discountValue
+          );
           setAmount(amount + item.price);
           setSplitLine(false);
         } else {
@@ -470,12 +483,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             amount +
               _items[lastIndex].price -
               _items[lastIndex].discount_items[0].amount,
-              discountRate,
+            discountRate,
             discountValue
           );
         }
       }
       setItems(_items.reverse());
+      autoCompleteRef.current?.blur();
       setKeysearch("");
     },
     [resultSearch, items, splitLine]
@@ -520,22 +534,31 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     rate: number,
     counpon: string
   ) => {
-    setVisiblePickDiscount(false);
-    setDiscountType(type);
-    setDiscountValue(value);
-    setDiscountRate(rate);
-    setCounpon(counpon);
-    calculateChangeMoney(items, amount, rate, value);
-    showSuccess("Thêm chiết khấu thành công");
+    if (amount === 0) {
+      showError("Bạn cần chọn sản phẩm trước khi thêm chiết khấu");
+    } else {
+      setVisiblePickDiscount(false);
+      setDiscountType(type);
+      setDiscountValue(value);
+      setDiscountRate(rate);
+      setCounpon(counpon);
+      calculateChangeMoney(items, amount, rate, value);
+      showSuccess("Thêm chiết khấu thành công");
+    }
   };
 
-  const calculateChangeMoney = (_items:Array<OrderItemModel>, _amount: number,_discountRate:number, _discountValue: number) => {
+  const calculateChangeMoney = (
+    _items: Array<OrderItemModel>,
+    _amount: number,
+    _discountRate: number,
+    _discountValue: number
+  ) => {
     setChangeMoney(_amount - _discountValue);
-    props.changeInfo(_items,_amount,_discountRate,_discountValue)
+    props.changeInfo(_items, _amount, _discountRate, _discountValue);
   };
 
   const dataCanAccess = useMemo(() => {
-    let newData: Array<StoreModel> = [];
+    let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
       newData = listStores.filter((store) =>
         haveAccess(
@@ -595,9 +618,15 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <label htmlFor="" style={{ marginRight: 10 }}>
                 Chính sách giá
               </label>
-              <Select defaultValue="retail_price" style={{ minWidth: 130 }} onChange={onSelectPriceType}>
+              <Select
+                defaultValue="retail_price"
+                style={{ minWidth: 130 }}
+                onChange={onSelectPriceType}
+              >
                 <Select.Option value="retail_price">Giá bán lẻ</Select.Option>
-                <Select.Option value="whole_sale_price">Giá bán buôn</Select.Option>
+                <Select.Option value="whole_sale_price">
+                  Giá bán buôn
+                </Select.Option>
               </Select>
             </div>
             <div className="view-inventory-box">
@@ -616,7 +645,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       <Row gutter={24}>
         <Col xs={24} lg={8}>
           <div className="form-group form-group-with-search">
-            <label htmlFor="" className="">
+            <label htmlFor="" className="required-label">
               Cửa hàng
             </label>
             <Select
@@ -637,11 +666,22 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               }}
             >
               {dataCanAccess.map((item, index) => (
-                <Select.Option key={index.toString()}  value={item.id}>
+                <Select.Option key={index.toString()} value={item.id}>
                   {item.name}
                 </Select.Option>
               ))}
             </Select>
+
+            {props.isVisibleStore === true && (
+              <div>
+                <div
+                  className="ant-form-item-explain ant-form-item-explain-error"
+                  style={{ padding: "5px" }}
+                >
+                  <div role="alert">Vui lòng chọn cửa hàng</div>
+                </div>
+              </div>
+            )}
           </div>
         </Col>
         <Col xs={24} lg={16}>
@@ -780,7 +820,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         <Col xs={24} lg={12}>
           <Row className="payment-row" justify="space-between">
             <div className="font-weight-500">Tổng tiền</div>
-            <div className="font-weight-500 payment-row-money">{formatCurrency(amount)}</div>
+            <div className="font-weight-500 payment-row-money">
+              {formatCurrency(amount)}
+            </div>
           </Row>
 
           <Row className="payment-row" justify="space-between" align="middle">
@@ -792,21 +834,23 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 Chiết khấu
               </Typography.Link>
               <div className="badge-style badge-danger">
-                {discountRate !== null ? discountRate : 0 }%{" "}
+                {discountRate !== null ? discountRate : 0}%{" "}
                 <Button
                   type="text"
                   className="p-0"
                   onClick={() => {
                     setDiscountRate(0);
                     setDiscountValue(0);
-                    calculateChangeMoney(items,amount,0, 0);
+                    calculateChangeMoney(items, amount, 0, 0);
                   }}
                 >
                   x
                 </Button>
               </div>
             </Space>
-            <div className="font-weight-500 ">{formatCurrency(discountValue)}</div>
+            <div className="font-weight-500 ">
+              {formatCurrency(discountValue)}
+            </div>
           </Row>
 
           <Row className="payment-row" justify="space-between" align="middle">
@@ -836,7 +880,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <div className="font-weight-500">Khách cần trả</div>
             <div className="font-weight-500 payment-row-money">
               {/* <Typography.Text type="success" className="font-weight-500"> */}
-                {formatCurrency(changeMoney)}
+              {formatCurrency(changeMoney)}
               {/* </Typography.Text> */}
             </div>
           </Row>

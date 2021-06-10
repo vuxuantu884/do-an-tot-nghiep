@@ -1,7 +1,7 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row, Select, TreeSelect } from "antd";
 import { createCategoryAction, getCategoryRequestAction } from "domain/actions/product/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { CategoryResponse } from "model/response/category.response";
+import { CategoryResponse } from "model/response/product/category.response";
 import React, { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";

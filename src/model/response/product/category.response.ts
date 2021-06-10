@@ -1,4 +1,4 @@
-import { BaseObject } from './base.response';
+import { BaseObject } from '../base.response';
 
 export interface CategoryResponse extends BaseObject {
   name: string,
