@@ -1,4 +1,5 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row } from "antd";
+import UrlConfig from "config/UrlConfig";
 import { createMaterialAction } from "domain/actions/product/material.action";
 import { CreateMaterialRequest } from "model/request/create-material.request";
 import { createRef, useCallback } from "react";
@@ -17,7 +18,7 @@ const AddMaterial: React.FC = () => {
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const onSuccess = useCallback(() => {
-    history.push('/materials');
+    history.push(UrlConfig.MATERIALS);
   }, [history])
   const onFinish = useCallback((values: CreateMaterialRequest) => {
     dispatch(createMaterialAction(values, onSuccess));

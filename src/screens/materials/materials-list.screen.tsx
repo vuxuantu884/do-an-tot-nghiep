@@ -1,5 +1,5 @@
 import { Button, Card, Form, Input } from "antd";
-import React, { useCallback, useLayoutEffect, useState } from "react";
+import React, { useCallback, useEffect,  useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from 'assets/img/search.svg';
 import { MaterialResponse } from 'model/response/product/material.response';
@@ -13,14 +13,19 @@ import { MaterialQuery } from "model/query/material.query";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import {showWarning} from 'utils/ToastUtils';
 import CustomTable from "component/table/CustomTable";
+import UrlConfig from "config/UrlConfig";
 
-const action: Array<MenuAction> = [
+const actions: Array<MenuAction> = [
   {
     id: 1,
+    name: "Chỉnh sửa"
+  },
+  {
+    id: 2,
     name: "Xóa"
   },
   {
-    id: 1,
+    id: 3,
     name: "Export"
   },
 ]
@@ -41,7 +46,7 @@ const ListMaterial: React.FC = () => {
     {
       title: 'Mã chất liệu',
       render: (value: MaterialResponse) => {
-        return <Link to={`materials/${value.id.toString()}`}>{value.code}</Link>
+        return <Link to={`${UrlConfig.MATERIALS}/${value.id.toString()}`}>{value.code}</Link>
       }
     },
     {
@@ -67,8 +72,10 @@ const ListMaterial: React.FC = () => {
   ];
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
+    setSelected([...selected])
     dispatch(getMaterialAction(params, setData, setMetadata));
   }, [dispatch, params, selected])
+
   const onDelete = useCallback(() => {
     if(selected.length === 0) {
       showWarning('Vui lòng chọn phần từ cần xóa');
@@ -83,6 +90,19 @@ const ListMaterial: React.FC = () => {
     selected.forEach((a) => ids.push(a.id));
     dispatch(deleteManyMaterialAction(ids, onDeleteSuccess))
   }, [dispatch, onDeleteSuccess, selected]);
+
+  const onUpdate = useCallback(() => {
+    if(selected.length === 0) {
+      showWarning('Vui lòng chọn phần từ cần xóa');
+      return;
+    }
+    if(selected.length === 1) {
+      let id = selected[0].id;
+     history.push(`${UrlConfig.MATERIALS}/${id}`)
+      return;
+    }
+  }, [history, selected]);
+
   const onSelect = useCallback((selectedRow: Array<MaterialResponse>) => {
     setSelected(selectedRow)
   }, []);
@@ -90,25 +110,41 @@ const ListMaterial: React.FC = () => {
     let newPrams = { ...params, ...values, page: 0 };
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
-    history.push(`/materials?${queryParam}`);
+    history.push(`/${UrlConfig.MATERIALS}?${queryParam}`);
   }, [history, params]);
   const onPageChange = useCallback((size, page) => {
     params.page = page - 1;
     params.limit = size
     let queryParam = generateQuery(params);
     setPrams({ ...params });
-    history.replace(`/materials?${queryParam}`);
+    history.replace(`/${UrlConfig.MATERIALS}?${queryParam}`);
   }, [history, params]);
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
-      case 0:
+      case 1:
+        onUpdate();
+        break;
+      case 2:
         onDelete();
         break;
     }
-  }, [onDelete]);
-  useLayoutEffect(() => {
+  }, [onDelete, onUpdate]);
+  const menuFilter = useMemo(() => {
+    return actions.filter((item) => {
+      if (selected.length === 0) {
+        return item.id !== 1 && item.id !== 2
+      }
+      if (selected.length > 1) {
+        return item.id !== 1
+      }
+      
+      return true;
+    });
+  }, [selected]);
+  useEffect(() => {
     dispatch(getMaterialAction(params, setData, setMetadata));
   }, [dispatch, params])
+  console.log(menuFilter);
   return (
     <div>
       <Card className="contain">
@@ -124,7 +160,7 @@ const ListMaterial: React.FC = () => {
             initialValues={params}
             layout="inline"
           >
-            <ActionButton onMenuClick={onMenuClick} menu={action} />
+            <ActionButton onMenuClick={onMenuClick} menu={menuFilter} />
             <div className="right-form">
               <Form.Item className="form-group form-group-with-search" name="info">
                 <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Tên/Mã/ID nhân viên" />

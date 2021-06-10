@@ -1,4 +1,5 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row } from "antd";
+import UrlConfig from "config/UrlConfig";
 import { detailMaterialAction, updateMaterialAction } from "domain/actions/product/material.action";
 import { UpdateMaterialRequest } from "model/request/create-material.request";
 import { MaterialResponse } from "model/response/product/material.response";
@@ -17,7 +18,7 @@ const UpdateMaterial: React.FC = () => {
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const onSuccess = useCallback(() => {
-    history.push('/materials');
+    history.push(UrlConfig.MATERIALS);
   }, [history])
   const onFinish = useCallback((values: UpdateMaterialRequest) => {
     let idNumber = parseInt(id);
