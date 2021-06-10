@@ -32,7 +32,6 @@ import productIcon from "../../assets/img/cube.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import DiscountGroup from "./discount-group";
-import { StoreModel } from "model/other/Core/store-model";
 import { useDispatch, useSelector } from "react-redux";
 import { getListStoreRequest } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -60,6 +59,7 @@ import { VariantSearchQuery } from "model/query/variant.search.query";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/response/base-metadata.response";
 import { VariantResponse } from "model/response/products/variant.response";
+import { StoreResponse } from "model/response/core/store.response";
 
 type ProductCardProps = {
   storeId:number|null;
@@ -84,7 +84,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
-  const [listStores, setListStores] = useState<Array<StoreModel>>([]);
+  const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
   const [keysearch, setKeysearch] = useState("");
   const [resultSearch, setResultSearch] = useState<
     PageResponse<VariantResponse>
@@ -553,7 +553,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   };
 
   const dataCanAccess = useMemo(() => {
-    let newData: Array<StoreModel> = [];
+    let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
       newData = listStores.filter((store) =>
         haveAccess(

@@ -258,7 +258,9 @@ const CreateBill = () => {
       setVisibleSource(true);
     }
 
-    //dispatch(orderCreateAction(orderRequest, onCreateSuccess));
+    if (assignCode !== "" && storeId !== null && storeId !== null) {
+      dispatch(orderCreateAction(orderRequest, onCreateSuccess));
+    }
   };
 
   const createOrderLineItemsRequest = () => {
@@ -356,8 +358,8 @@ const CreateBill = () => {
               changeInfo={onChangeInfo}
               selectStore={onStoreSelect}
               selectPriceType={onPriceTypeSelect}
-              storeId = {storeId}
-              isVisibleStore = {isVisibleStore}
+              storeId={storeId}
+              isVisibleStore={isVisibleStore}
             />
             {/*--- end product ---*/}
 
@@ -428,7 +430,10 @@ const CreateBill = () => {
 
                   {isVisibleAssignCode === true && (
                     <div>
-                      <div className="ant-form-item-explain ant-form-item-explain-error" style={{padding: '5px'}}>
+                      <div
+                        className="ant-form-item-explain ant-form-item-explain-error"
+                        style={{ padding: "5px" }}
+                      >
                         <div role="alert">Vui lòng chọn nhân viên bán hàng</div>
                       </div>
                     </div>
