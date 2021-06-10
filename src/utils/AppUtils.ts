@@ -1,4 +1,4 @@
-import { convertDateToUTC } from './DateUtils';
+import { convertDateToUtc } from './DateUtils';
 import { DistrictResponse } from './../model/response/content/district.response';
 import { CityView } from '../model/other/district-view';
 import { AppConfig } from './../config/AppConfig';
@@ -9,6 +9,7 @@ import { CategoryResponse } from "model/response/category.response";
 import { AccountStore } from 'model/other/Account/AccountStore';
 import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel, OrderPaymentModel } from 'model/other/Order/order-model';
 import { VariantImagesResponse } from 'model/response/products/variant.images.response';
+import moment from 'moment';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -151,6 +152,7 @@ export const getArrCategory = (i: CategoryResponse, level: number, parent: Categ
 }
 
 export const generateQuery = (obj: any) => {
+  debugger;
   if(obj!==undefined){
     let a: string = Object.keys(obj).map((key, index) => {
       let url = '';
@@ -160,7 +162,10 @@ export const generateQuery = (obj: any) => {
           value = obj[key].join(',')
         }
         if(obj[key] instanceof Date) {
-          value = convertDateToUTC(obj[key])
+          value = convertDateToUtc(obj[key])
+        }
+        if(moment.isMoment(obj[key] )) {
+          value = obj[key].utc().format();
           console.log(value);
         }
         url = key + '=' + encodeURIComponent(value) + '&'

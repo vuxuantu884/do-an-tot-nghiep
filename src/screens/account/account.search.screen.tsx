@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import CustomTable from "component/table/CustomTable";
 import { CategoryView } from "model/other/Product/category-view";
 import { VariantResponse } from "model/response/products/variant.response";
@@ -15,7 +15,9 @@ import { AccountResponse } from "model/response/accounts/account-detail.response
 import { DepartmentResponse } from "model/response/accounts/department.response";
 import { PositionResponse } from "model/response/accounts/position.response";
 import AccountFilter from "component/filter/account.filter";
-import {AccountSearchAction} from "domain/actions/account/account.action";
+import {AccountSearchAction,DepartmentGetListAction,PositionGetListAction} from "domain/actions/account/account.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { StoreResponse } from "model/response/store.response";
 const actions: Array<MenuAction> = [
   {
     id: 1,
@@ -39,6 +41,10 @@ const ListAccountScreen: React.FC = () => {
   const isFirstLoad=useRef(true);  
   const [listDepartment,setDepartment]= useState<Array<DepartmentResponse>>();
   const [listPosition,setPosition]= useState<Array<PositionResponse>>();
+  const [listStore,setStore]= useState<Array<StoreResponse>>();
+  const listStatus = useSelector((state: RootReducerType) => {
+    return state.bootstrapReducer.data?.account_status;
+  });
   let dataQuery: AccountSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -123,7 +129,8 @@ const ListAccountScreen: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {}, []);
   useEffect(() => {
     if(isFirstLoad.current){
-      
+      dispatch(DepartmentGetListAction(setDepartment));
+      dispatch(PositionGetListAction(setPosition));
     }
     isFirstLoad.current=false;
     dispatch(AccountSearchAction(params, setData));
@@ -136,6 +143,10 @@ const ListAccountScreen: React.FC = () => {
           actions={actions}
           onFilter={onFilter}
           params={params}
+          listDepartment={listDepartment}
+          listPosition={listPosition}
+          listStatus={listStatus}
+          listStore={listStore}
         />
         <CustomTable
           onChange={onPageChange}
