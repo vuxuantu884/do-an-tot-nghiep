@@ -2,7 +2,7 @@ import BaseAction from "base/BaseAction"
 import { CategoryType } from "domain/types/product.type";
 import { CategoryQuery } from "model/query/category.query";
 import { CreateCatergoryRequest, UpdateCatergoryRequest } from "model/request/create-category.request";
-import { CategoryResponse } from "model/response/product/category.response";
+import { CategoryResponse } from "model/response/products/category.response";
 
 export const getCategoryRequestAction = (query: CategoryQuery, setData: (data: Array<CategoryResponse>) => void) => {
   return BaseAction(CategoryType.GET_CATEGORY_REQUEST, {query, setData});

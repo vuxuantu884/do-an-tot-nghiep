@@ -1,9 +1,9 @@
-import { PositionResponse } from 'model/response/accounts/position.response';
-import { DepartmentResponse } from 'model/response/accounts/department.response';
+import { PositionResponse } from 'model/account/position.response';
+import { DepartmentResponse } from 'model/account/department.response';
 import BaseAction from "base/BaseAction";
 import { AccountType } from "domain/types/account.type";
 import { AccountSearchQuery } from "model/query/account.search.query";
-import { AccountResponse } from "model/response/accounts/account-detail.response";
+import { AccountResponse } from "model/account/account.response";
 import { PageResponse } from "model/response/base-metadata.response";
 
 export const AccountSearchAction= (query: AccountSearchQuery, setData: (data: PageResponse<AccountResponse>) => void) => {

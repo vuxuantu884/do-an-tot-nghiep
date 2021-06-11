@@ -1,7 +1,7 @@
 import { VariantPricesResponse } from './variant.prices.response';
 import { VariantImagesResponse } from './variant.images.response';
 import { ProductResponse } from './product.response';
-import { BaseObject } from './../base.response';
+import { BaseObject } from 'model/response/base.response';
 
 
 export interface VariantResponse extends BaseObject {

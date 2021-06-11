@@ -12,7 +12,7 @@ import { convertCategory } from "utils/AppUtils";
 
 const {Option} = Select;
 
-const SizeCreateScreen: React.FC = () => {
+const SizeAccountScreen: React.FC = () => {
   const [categories, setCategories] = useState<Array<CategoryView>>([]);
   const history = useHistory();
   const dispatch = useDispatch();
@@ -83,4 +83,4 @@ const SizeCreateScreen: React.FC = () => {
   )
 }
 
-export default SizeCreateScreen;
+export default SizeAccountScreen;

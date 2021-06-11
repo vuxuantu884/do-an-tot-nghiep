@@ -17,7 +17,7 @@ import { VariantResponse } from "model/response/products/variant.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { ColorResponse } from "model/response/products/color.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
-import { AccountResponse } from "model/response/accounts/account-detail.response";
+import { AccountResponse } from "model/account/account.response";
 import {getCountry} from "domain/actions/content/content.action"
 import {listColorAction } from "domain/actions/product/color.action"
 import {ColorSearchQuery} from "model/query/color.search.query"

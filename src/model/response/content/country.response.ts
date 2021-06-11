@@ -1,4 +1,4 @@
-import { BaseObject } from "../base.response";
+import { BaseObject } from "model/response/base.response";
 
 export interface CountryResponse extends BaseObject {
   name: string

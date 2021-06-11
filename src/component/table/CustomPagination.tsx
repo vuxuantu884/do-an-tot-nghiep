@@ -65,7 +65,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = (
                     current={metadata.page + 1}
                     total={metadata.total}
                     className="yody-page"
-                    onChange={(page, pageSize) => onChange && onChange(metadata.limit, page + 1)}
+                    onChange={(page, pageSize) => onChange && onChange(metadata.limit, page - 1)}
                   />
                 </div>
               </React.Fragment>

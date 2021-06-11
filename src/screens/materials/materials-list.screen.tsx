@@ -2,7 +2,7 @@ import { Button, Card, Form, Input } from "antd";
 import React, { useCallback, useEffect,  useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from 'assets/img/search.svg';
-import { MaterialResponse } from 'model/response/product/material.response';
+import { MaterialResponse } from 'model/response/products/material.response';
 import ButtonSetting from "component/table/ButtonSetting";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { generateQuery } from "utils/AppUtils";

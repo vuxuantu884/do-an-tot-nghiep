@@ -14,7 +14,7 @@ import { useDispatch } from "react-redux";
 import { sizeDeleteManyAction, sizeDeleteOneAction, sizeSearchAction } from "domain/actions/product/size.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { CategoryView } from "model/other/Product/category-view";
-import { CategoryResponse } from "model/response/product/category.response";
+import { CategoryResponse } from "model/response/products/category.response";
 import UrlConfig from "config/UrlConfig";
 import { showWarning } from "utils/ToastUtils";
 
