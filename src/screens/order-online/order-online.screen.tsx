@@ -36,6 +36,7 @@ const CreateBill = () => {
   const history = useHistory();
   const [source, setSource] = useState<number | null>(null);
   const [email, setEmail] = useState<string>("");
+  const [CustomerNote, setCustomerNote] = useState<string>("");
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
   const [objCustomer, setObjCustomer] = useState<CustomerResponse | null>(null);
   const [objShippingAddress, setObjShippingAddress] =
@@ -125,6 +126,10 @@ const CreateBill = () => {
     setVisibleSource(false);
   };
 
+  const onCustomerNote= (item: string) => {
+    setCustomerNote(item);
+  };
+
   const onEmailChange = (email: string) => {
     setEmail(email);
   };
@@ -204,7 +209,7 @@ const CreateBill = () => {
       source_id: source,
       note: orderNote,
       tags: tag,
-      customer_note: "",
+      customer_note: CustomerNote,
       sale_note: "",
       account_code: "",
       account: "",
@@ -240,7 +245,6 @@ const CreateBill = () => {
     };
 
     if (objCustomer != null) {
-      orderRequest.customer_note = objCustomer.notes;
       orderRequest.customer_id = objCustomer.id;
     }
 
@@ -347,12 +351,13 @@ const CreateBill = () => {
           <Col xs={24} lg={17}>
             {/*--- customer ---*/}
             <CustomerCard
-              changeInfoCustomer={onChangeInfoCustomer}
-              selectSource={onSourceSelect}
+              InfoCustomerSet={onChangeInfoCustomer}
+              SelectSource={onSourceSelect}
+              SelectCustomerNote = {onCustomerNote}
               sourceSelect={isVisibleSource}
-              changeEmail={onEmailChange}
-              changeShippingAddress={onChangeShippingAddress}
-              changeBillingAddress={onChangeBillingAddress}
+              ChangeEmail={onEmailChange}
+              ShippingAddressChange={onChangeShippingAddress}
+              BillingAddressChange={onChangeBillingAddress}
             />
             {/*--- end customer ---*/}
 

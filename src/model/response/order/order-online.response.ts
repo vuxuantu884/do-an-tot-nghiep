@@ -4,7 +4,7 @@ import { OrderDiscountRequest } from "model/request/order-discount.request";
 import { OrderLineItemRequest } from "model/request/order-line-item.request";
 import { BillingAddress } from "model/request/order.request";
 
-export interface OrderRespose {
+export interface OrderResponse {
   company_id: number | null,
   store_id: number | null,
   store: string | null,

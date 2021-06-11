@@ -1,23 +1,23 @@
 import { BaseModel } from '../../other/base-model';
 
 export interface CustomerResponse extends BaseModel {
-  full_name: string,
-  phone: string,
-  email: string,
-  facebook_url: string,
+  full_name: string | null,
+  phone: string | null,
+  email: string | null,
+  facebook_url: string | null,
   group_id: number,
   type_id: number,
   company_id: number,
-  company: string,
-  tax_code : string,
-  notes: string,
+  company: string | null,
+  tax_code : string | null,
+  notes: string | null,
   customer_level_id: number,
-  customer_level: string,
+  customer_level: string | null,
   wedding_date: number,
   birthday: number,
-  gender: string,
+  gender: string | null,
   responsible_staff_id: number,
-  affiliate_code: string,
+  affiliate_code: string | null,
   loyalty: number,
   billing_addresses: Array<BillingAddress>;
   shipping_addresses: Array<ShippingAddress>;
