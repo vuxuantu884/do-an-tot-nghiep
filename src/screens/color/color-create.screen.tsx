@@ -1,6 +1,6 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row, Select, Upload } from "antd";
 import { ColorCreateRequest } from "model/request/color-create.request";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { ColorResponse } from "model/response/products/color.response";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";

@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { OrderRequest } from "model/request/order.request";
 import { OrderLineItemRequest } from "model/request/order-line-item.request";
 import { OrderItemDiscountRequest } from "model/request/order-item-discount.request";
-import { AccountResponse } from "model/account/account.response";
+import { AccountResponse } from "model/account/account.model";
 import {
   BillingAddress,
   CustomerResponse,
@@ -19,7 +19,7 @@ import {
 } from "model/response/customer/customer.response";
 import { useHistory } from "react-router";
 import {AccountSearchAction} from "domain/actions/account/account.action";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import {
   OrderItemDiscountModel,
   OrderItemModel,

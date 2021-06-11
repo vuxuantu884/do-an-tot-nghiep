@@ -7,7 +7,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { ProductType } from "domain/types/product.type";
 import { searchVariantsApi } from "service/product/product.service";
 import { showError } from "utils/ToastUtils";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 
 function* searchVariantSaga(action: YodyAction) {
   const { query, setData } = action.payload;

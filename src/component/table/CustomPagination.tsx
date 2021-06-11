@@ -1,7 +1,7 @@
 import { DownOutlined } from "@ant-design/icons";
 import { Dropdown, Menu, Pagination } from "antd";
 import { PageConfig } from "config/PageConfig";
-import { BaseMetadata } from "model/response/base-metadata.response";
+import { BaseMetadata } from "model/base/base-metadata.response";
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 

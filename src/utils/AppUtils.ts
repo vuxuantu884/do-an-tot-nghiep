@@ -1,6 +1,6 @@
 import { SizeDetail, SizeResponse } from './../model/response/products/size.response';
 import { convertDateToUtc } from './DateUtils';
-import { AccountStoreResponse } from 'model/account/account-store.response';
+import { AccountStoreResponse } from 'model/account/account.model';
 import { DistrictResponse } from 'model/response/content/district.response';
 import { CityView } from 'model/other/district-view';
 import { AppConfig } from 'config/AppConfig';

@@ -6,7 +6,7 @@ import ButtonSetting from "component/table/ButtonSetting";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { generateQuery } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import {showWarning} from 'utils/ToastUtils';
 import CustomTable from "component/table/CustomTable";

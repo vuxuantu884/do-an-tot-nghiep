@@ -1,4 +1,4 @@
-import { BaseQuery } from "model/query/base.query";
+import { BaseQuery } from "model/base/base.query";
 import { Moment } from "moment";
 
 export interface StoreQuery extends BaseQuery {

@@ -1,16 +1,15 @@
-import { PositionResponse } from 'model/account/position.response';
-import { DepartmentResponse } from 'model/account/department.response';
+import { PositionResponse } from 'model/account/position.model';
+import { DepartmentResponse } from 'model/account/department.model';
 import BaseAction from "base/BaseAction";
 import { AccountType } from "domain/types/account.type";
-import { AccountSearchQuery } from "model/query/account.search.query";
-import { AccountResponse } from "model/account/account.response";
-import { PageResponse } from "model/response/base-metadata.response";
+import { AccountSearchQuery,AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
 
 export const AccountSearchAction= (query: AccountSearchQuery, setData: (data: PageResponse<AccountResponse>) => void) => {
   return BaseAction(AccountType.SEARCH_ACCOUNT_REQUEST, {query, setData});
 }
 
-export const AccountGetList = (query: AccountSearchQuery, setData: (data: Array<AccountResponse>) => void) => {
+export const AccountGetListAction = (query: AccountSearchQuery, setData: (data: Array<AccountResponse>) => void) => {
     return BaseAction(AccountType.GET_LIST_ACCOUNT_REQUEST, {query, setData});
   }
 

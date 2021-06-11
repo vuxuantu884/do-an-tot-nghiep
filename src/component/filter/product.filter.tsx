@@ -15,7 +15,7 @@ import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapRes
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import { AccountResponse } from "model/account/account.response";
+import { AccountResponse } from "model/account/account.model";
 import { SizeResponse } from "model/response/products/size.response";
 import { ColorResponse } from "model/response/products/color.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";

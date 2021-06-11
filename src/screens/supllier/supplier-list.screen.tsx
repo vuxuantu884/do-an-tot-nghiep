@@ -2,7 +2,7 @@ import { Card } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import { SupplierQuery } from "model/query/supplier.query";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse, GoodsObj } from "model/response/supplier/supplier.response";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
