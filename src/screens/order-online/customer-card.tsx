@@ -52,8 +52,9 @@ import { Email } from "utils/RegUtils";
 type CustomerCardProps = {
   sourceSelect: boolean;
   InfoCustomerSet: (items: CustomerResponse) => void;
-  selectSource: (source: number) => void;
-  changeEmail: (email: string) => void;
+  SelectSource: (source: number) => void;
+  SelectCustomerNote: (source: string) => void;
+  ChangeEmail: (email: string) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
 };
@@ -210,11 +211,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   );
 
   const InputNoteOrderChange = (value: string) => {
-    let item = customer;
-    if (item !== null) {
-      item.notes = value;
-      setCustomer(item);
-    }
+    props.SelectCustomerNote(value);
   };
 
   const EmailBillingAddressChange = (value: string) => {
@@ -223,7 +220,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setInputEmail(value);
     setIsEmailValid(emailValid);
 
-    props.changeEmail(value);
+    props.ChangeEmail(value);
 
     let item = billingAddress;
     if (item !== null && emailValid === true) {
@@ -244,7 +241,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const ChangeSource = useCallback(
     (value: number) => {
-      props.selectSource(value);
+      props.SelectSource(value);
     },
     [props]
   );
