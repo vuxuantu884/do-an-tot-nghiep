@@ -6,14 +6,14 @@ import { HttpStatus } from 'config/HttpStatus';
 import { YodyAction } from '../../../base/BaseAction';
 import { showError } from 'utils/ToastUtils';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
-import { OrderRespose } from 'model/response/order/order-online.response';
+import { OrderResponse } from 'model/response/order/order-online.response';
 
 
 function* orderCreateSaga(action: YodyAction) {
     const {request, setData} = action.payload;
     try {
       yield put(showLoading());
-      let response: BaseResponse<OrderRespose> = yield call(orderPostApi, request);
+      let response: BaseResponse<OrderResponse> = yield call(orderPostApi, request);
       yield put(hideLoading());
       switch(response.code) {
         case HttpStatus.SUCCESS:
@@ -25,7 +25,7 @@ function* orderCreateSaga(action: YodyAction) {
       }
     } catch (error) {
       yield put(hideLoading());
-      showError('Có lỗi vui lòng thử lại sau');
+      showError(error);
     }
   }
 

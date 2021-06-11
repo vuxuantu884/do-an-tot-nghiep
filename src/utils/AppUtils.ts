@@ -172,7 +172,6 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
 }
 
 export const generateQuery = (obj: any) => {
-  debugger;
   if(obj!==undefined){
     let a: string = Object.keys(obj).map((key, index) => {
       let url = '';

@@ -131,7 +131,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   );
 
   //Render result search
-  const renderSearch = (item: CustomerResponse) => {
+  const CustomerRenderSearchResult = (item: CustomerResponse) => {
     return (
       <div className="row-search w-100">
         <div className="rs-left w-100">
@@ -149,11 +149,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     );
   };
 
-  const convertResultSearch = useMemo(() => {
+  const CustomerConvertResultSearch = useMemo(() => {
     let options: any[] = [];
     resultSearch.forEach((item: CustomerResponse, index: number) => {
       options.push({
-        label: renderSearch(item),
+        label: CustomerRenderSearchResult(item),
         value: item.id ? item.id.toString() : "",
       });
     });
@@ -161,21 +161,23 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   }, [dispatch, resultSearch]);
 
   //Delete customer
-  const deleteCustomer = () => {
+  const CustomerDeleteInfo = () => {
     setCustomer(null);
   };
 
   //#endregion
 
-  const onSearchCustomerSelect = useCallback(
-    (v, o) => {
+  const SearchCustomerSelect = useCallback(
+    (value, o) => {
       let index: number = -1;
       index = resultSearch.findIndex(
-        (r: CustomerResponse) => r.id && r.id.toString() === v
+        (customerResponse: CustomerResponse) => customerResponse.id && customerResponse.id.toString() === value
       );
       if (index !== -1) {
         setCustomer(resultSearch[index]);
         props.InfoCustomerSet(resultSearch[index]);
+
+        //set Shipping Address
         if (
           resultSearch[index].shipping_addresses !== undefined &&
           resultSearch[index].shipping_addresses !== null
@@ -188,6 +190,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           });
         }
 
+        //set Billing Address
         if (
           resultSearch[index].billing_addresses !== undefined &&
           resultSearch[index].billing_addresses !== null
@@ -199,7 +202,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             }
           });
         }
-
         autoCompleteRef.current?.blur();
         setKeySearch("");
       }
@@ -207,7 +209,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     [autoCompleteRef, dispatch, resultSearch, customer]
   );
 
-  const changeNoteOrder = (value: string) => {
+  const InputNoteOrderChange = (value: string) => {
     let item = customer;
     if (item !== null) {
       item.notes = value;
@@ -215,9 +217,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     }
   };
 
-  const changeEmailBillingAddress = (value: string) => {
+  const EmailBillingAddressChange = (value: string) => {
     const email = value;
-    const emailValid = validateEmail(email);
+    const emailValid = ValidateEmail(email);
     setInputEmail(value);
     setIsEmailValid(emailValid);
 
@@ -230,17 +232,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     }
   };
 
-  const onSelectShippingAddress = (value: ShippingAddress) => {
+  const SelectShippingAddress = (value: ShippingAddress) => {
     setShippingAddress(value);
     props.ShippingAddressChange(value);
   };
 
-  const onSelectBillingAddress = (value: ShippingAddress) => {
+  const SelectBillingAddress = (value: ShippingAddress) => {
     setBillingAddress(value);
     props.BillingAddressChange(value);
   };
 
-  const onChangeSource = useCallback(
+  const ChangeSource = useCallback(
     (value: number) => {
       props.selectSource(value);
     },
@@ -263,9 +265,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleBillingAddress(value);
   };
 
-  const validateEmail = (email: string) => {
-    const re = Email;
-    return re.test(email);
+  const ValidateEmail = (email: string) => {
+    const resquest = Email;
+    return resquest.test(email);
   };
 
   return (
@@ -291,7 +293,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               showSearch
               style={{ width: "200px" }}
               placeholder="Chọn nguồn đơn hàng"
-              onChange={onChangeSource}
+              onChange={ChangeSource}
               filterOption={(input, option) => {
                 if (option) {
                   return (
@@ -335,12 +337,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             }
             value={keysearch}
             ref={autoCompleteRef}
-            onSelect={onSearchCustomerSelect}
+            onSelect={SearchCustomerSelect}
             dropdownClassName="search-layout dropdown-search-header"
             dropdownMatchSelectWidth={456}
             className="w-100"
             onSearch={CustomerChangeSearch}
-            options={convertResultSearch}
+            options={CustomerConvertResultSearch}
           >
             <Input.Search
               placeholder="Tìm hoặc thêm khách hàng"
@@ -434,7 +436,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               <Button type="text" className="p-0" onClick={ShowCustomerModal}>
                 <img src={editBlueIcon} alt="" />
               </Button>
-              <Button type="text" className="p-0" onClick={deleteCustomer}>
+              <Button type="text" className="p-0" onClick={CustomerDeleteInfo}>
                 <img src={deleteRedIcon} alt="" />
               </Button>
             </Space>
@@ -485,7 +487,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           {customer.shipping_addresses.map((item, index) => (
                             <div
                               className="shipping-address-row"
-                              onClick={(e) => onSelectShippingAddress(item)}
+                              onClick={(e) => SelectShippingAddress(item)}
                             >
                               <div className="shipping-address-name">
                                 Địa chỉ 1{" "}
@@ -529,7 +531,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       </label>
                     </div>
                     <Input.TextArea
-                      onChange={(e) => changeNoteOrder(e.target.value)}
+                      onChange={(e) => InputNoteOrderChange(e.target.value)}
                       placeholder="Điền ghi chú"
                       rows={4}
                     />
@@ -593,7 +595,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             {customer.billing_addresses.map((item, index) => (
                               <div
                                 className="shipping-address-row"
-                                onClick={(e) => onSelectBillingAddress(item)}
+                                onClick={(e) => SelectBillingAddress(item)}
                               >
                                 <div className="shipping-address-name">
                                   Địa chỉ 1{" "}
@@ -639,7 +641,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       <Input
                         type="email"
                         onChange={(e) =>
-                          changeEmailBillingAddress(e.target.value)
+                          EmailBillingAddressChange(e.target.value)
                         }
                         placeholder="Nhập email hoá đơn đến"
                       />
