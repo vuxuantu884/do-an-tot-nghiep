@@ -2,7 +2,7 @@ import { ColorType } from 'domain/types/product.type';
 import { ColorSearchQuery } from 'model/query/color.search.query';
 import BaseAction from "base/BaseAction";
 import { ColorResponse } from 'model/response/products/color.response';
-import { PageResponse } from 'model/response/base-metadata.response';
+import { PageResponse } from 'model/base/base-metadata.response';
 import { ColorCreateRequest } from 'model/request/color-create.request';
 
 export const getMaterialAction = ( query: ColorSearchQuery,  setData: (data: Array<ColorResponse>) => void

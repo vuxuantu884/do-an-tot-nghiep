@@ -1,6 +1,6 @@
 import { Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
-import { BaseMetadata } from "model/response/base-metadata.response";
+import { BaseMetadata } from "model/base/base-metadata.response";
 import { GetRowKey } from "rc-table/lib/interface";
 import React, {Fragment, useCallback} from "react";
 import CustomPagination from "./CustomPagination";

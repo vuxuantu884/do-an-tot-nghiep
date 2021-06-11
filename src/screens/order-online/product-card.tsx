@@ -33,7 +33,7 @@ import storeBluecon from "../../assets/img/storeBlue.svg";
 import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import DiscountGroup from "./discount-group";
 import { useDispatch, useSelector } from "react-redux";
-import { storeGetListAction } from "domain/actions/core/store.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   haveAccess,
@@ -57,7 +57,7 @@ import {
 } from "model/other/Order/order-model";
 import { VariantSearchQuery } from "model/query/variant.search.query";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/response/products/variant.response";
 import { StoreResponse } from "model/response/core/store.response";
 
@@ -384,7 +384,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   ];
 
   useLayoutEffect(() => {
-    dispatch(storeGetListAction(setListStores));
+    dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
 
   const autoCompleteRef = createRef<RefSelectProps>();

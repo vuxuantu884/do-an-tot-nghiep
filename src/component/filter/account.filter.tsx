@@ -14,9 +14,9 @@ import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import { DepartmentResponse } from "model/account/department.response";
-import { PositionResponse } from "model/account/position.response";
-import { AccountSearchQuery } from "model/query/account.search.query";
+import { DepartmentResponse } from "model/account/department.model";
+import { PositionResponse } from "model/account/position.model";
+import { AccountSearchQuery } from "model/account/account.model";
 import { StoreResponse } from "model/response/core/store.response";
 import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
 

@@ -2,7 +2,7 @@ import { SizeResponse } from "./../../model/response/products/size.response";
 import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { SizeCreateRequest, SizeUpdateRequest } from "model/request/size.request";
 import { SizeQuery } from "model/query/size.query";
 import { generateQuery } from "utils/AppUtils";

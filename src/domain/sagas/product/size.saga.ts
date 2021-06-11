@@ -6,7 +6,7 @@ import BaseResponse from 'base/BaseResponse';
 import { HttpStatus } from 'config/HttpStatus';
 import { getAllSizeApi, sizeCreateApi, sizeDeleteManyApi, sizeDeleteOneApi, sizeDetailApi, sizeUpdateApi } from 'service/product/size.service';
 import { showError } from 'utils/ToastUtils';
-import { PageResponse } from 'model/response/base-metadata.response';
+import { PageResponse } from 'model/base/base-metadata.response';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
 
 function* getAllSizeSaga(action: YodyAction) {

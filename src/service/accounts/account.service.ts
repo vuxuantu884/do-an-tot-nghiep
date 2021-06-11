@@ -2,13 +2,11 @@ import { generateQuery } from 'utils/AppUtils';
 import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
-import { AccountSearchQuery } from "model/query/account.search.query";
+import { AccountSearchQuery,LoginResponse ,AccountResponse} from "model/account/account.model";
 import { LoginRequest } from "model/request/login.request";
-import { AccountResponse } from "model/account/account.response";
-import { LoginResponse } from "model/account/login.response";
-import { PageResponse } from "model/response/base-metadata.response";
-import { DepartmentResponse } from 'model/account/department.response';
-import { PositionResponse } from 'model/account/position.response';
+import { PageResponse } from "model/base/base-metadata.response";
+import { DepartmentResponse } from 'model/account/department.model';
+import { PositionResponse } from 'model/account/position.model';
 
 export const getAcccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/detail`);

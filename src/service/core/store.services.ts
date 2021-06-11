@@ -1,7 +1,7 @@
 import BaseAxios from "base/BaseAxios"
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig"
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { generateQuery } from "utils/AppUtils";
 import { StoreQuery } from "model/core/query/store.query";
 import { StoreRankResponse } from "model/core/response/store-rank.response";

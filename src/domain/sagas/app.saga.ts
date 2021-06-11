@@ -5,7 +5,7 @@ import { getToken } from "utils/LocalStorageUtils";
 import { loadUserFromStorageSuccessAction, loadUserFromStorageFailAction} from 'domain/actions/app.action';
 import { getAcccountDetail } from 'service/accounts/account.service';
 import BaseResponse from 'base/BaseResponse';
-import { AccountResponse } from 'model/account/account.response';
+import { AccountResponse } from 'model/account/account.model';
 import { HttpStatus } from 'config/HttpStatus';
 
 function* loadUserFromStorageSaga() {

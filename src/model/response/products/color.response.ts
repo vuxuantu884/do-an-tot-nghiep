@@ -1,5 +1,5 @@
 
-import { BaseObject } from 'model/response/base.response';
+import { BaseObject } from 'model/base/base.response';
 
 
 export interface ColorResponse extends BaseObject {

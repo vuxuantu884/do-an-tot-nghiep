@@ -6,7 +6,7 @@ import { SizeCategory, SizeResponse } from "model/response/products/size.respons
 import { Link, useHistory } from "react-router-dom";
 import ButtonSetting from "component/table/ButtonSetting";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { SizeQuery } from "model/query/size.query";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { convertCategory, generateQuery } from "utils/AppUtils";

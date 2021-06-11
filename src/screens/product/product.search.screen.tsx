@@ -2,7 +2,7 @@ import { Card, Image } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import { VariantSearchQuery } from "model/query/variant.search.query";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
@@ -17,16 +17,14 @@ import { VariantResponse } from "model/response/products/variant.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { ColorResponse } from "model/response/products/color.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
-import { AccountResponse } from "model/account/account.response";
+import { AccountResponse,AccountSearchQuery } from "model/account/account.model";
 import {getCountry} from "domain/actions/content/content.action"
 import {listColorAction } from "domain/actions/product/color.action"
 import {ColorSearchQuery} from "model/query/color.search.query"
 import { SizeResponse } from "model/response/products/size.response";
 import{getAllSize} from "domain/actions/product/size.action";
 import{supplierGetAllAction} from "domain/actions/core/supplier.action";
-
-import{AccountGetList} from "domain/actions/account/account.action";
-import { AccountSearchQuery } from "model/query/account.search.query";
+import{AccountGetListAction} from "domain/actions/account/account.action";
 
 
 const actions: Array<MenuAction> = [
@@ -203,7 +201,7 @@ const ListProductScreen: React.FC = () => {
       dispatch(listColorAction(initColorQuery,setColor)); 
       dispatch(getAllSize(setSize));
       dispatch(supplierGetAllAction(setSupplier));
-      dispatch(AccountGetList(initAccountQuery,setMarchandiser))
+      dispatch(AccountGetListAction(initAccountQuery,setMarchandiser))
     }
     isFirstLoad.current=false;
     dispatch(searchVariantsRequestAction(params, setData));
