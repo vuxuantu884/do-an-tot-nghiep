@@ -3,31 +3,29 @@ import { takeLatest, call } from "@redux-saga/core/effects";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import { ContentType } from "domain/types/content.type";
-import { getCountry, getDistrictApi } from "service/content/content.service";
+import { countryGetApi, getDistrictApi } from "service/content/content.service";
 import { showError } from "utils/ToastUtils";
 import { CountryResponse } from 'model/response/content/country.response';
 import { DistrictResponse } from 'model/response/content/district.response';
 
-function* getCountrySaga(action: YodyAction) {
+function* countryGetSaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<CountryResponse>> = yield call(getCountry);
+    let response: BaseResponse<Array<CountryResponse>> = yield call(countryGetApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
       default:
-        console.log('getCountrySaga:'+response.errors);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    console.log('getCountrySaga:'+error);
     showError('Có lỗi vui lòng thử lại sau');
   }
 }
 
-function* getDistrictSaga(action: YodyAction) {
+function* districtGetSaga(action: YodyAction) {
   const {countryId, setData } = action.payload;
   try {
     let response: BaseResponse<Array<DistrictResponse>> = yield call(getDistrictApi, countryId);
@@ -45,6 +43,6 @@ function* getDistrictSaga(action: YodyAction) {
 }
 
 export function* contentSaga() {
-  yield takeLatest(ContentType.GET_COUNTRY_REQUEST, getCountrySaga);
-  yield takeLatest(ContentType.GET_DISTRICT_REQUEST, getDistrictSaga);
+  yield takeLatest(ContentType.GET_COUNTRY_REQUEST, countryGetSaga);
+  yield takeLatest(ContentType.GET_DISTRICT_REQUEST, districtGetSaga);
 }

@@ -5,6 +5,14 @@ import { CreateMaterialRequest, UpdateMaterialRequest } from "model/request/crea
 import { BaseMetadata } from "model/base/base-metadata.response";
 import { MaterialResponse } from "model/response/products/material.response";
 
+export const materialSearchAll = (
+  setData: (data: Array<MaterialResponse>) => void,
+) => {
+  return BaseAction(MaterialType.SEARCH_ALL_MATERIAL_REQUEST, {
+    setData,
+  });
+}
+
 export const getMaterialAction = (
   query: MaterialQuery,
   setData: (data: Array<MaterialResponse>) => void,

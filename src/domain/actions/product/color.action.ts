@@ -5,10 +5,9 @@ import { ColorResponse } from 'model/response/products/color.response';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { ColorCreateRequest } from 'model/request/color-create.request';
 
-export const getMaterialAction = ( query: ColorSearchQuery,  setData: (data: Array<ColorResponse>) => void
+export const colorSearchAll = (setData: (data: Array<ColorResponse>) => void
 ) => {
-    
-  return BaseAction(ColorType.SEARCH_COLOR_REQUEST, {query,  setData });
+  return BaseAction(ColorType.SEARCH_COLOR_REQUEST, {setData});
 }
 
 export const getColorAction = ( query: ColorSearchQuery,  setData: (data: PageResponse<ColorResponse>) => void) => {

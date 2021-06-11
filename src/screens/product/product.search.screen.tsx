@@ -17,14 +17,14 @@ import { VariantResponse } from "model/response/products/variant.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { ColorResponse } from "model/response/products/color.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
-import { AccountResponse,AccountSearchQuery } from "model/account/account.model";
-import {getCountry} from "domain/actions/content/content.action"
+import {countryGetAction} from "domain/actions/content/content.action"
 import {listColorAction } from "domain/actions/product/color.action"
 import {ColorSearchQuery} from "model/query/color.search.query"
 import { SizeResponse } from "model/response/products/size.response";
-import{getAllSize} from "domain/actions/product/size.action";
+import{sizeGetAll} from "domain/actions/product/size.action";
 import{supplierGetAllAction} from "domain/actions/core/supplier.action";
 import{AccountGetListAction} from "domain/actions/account/account.action";
+import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 
 
 const actions: Array<MenuAction> = [
@@ -196,10 +196,10 @@ const ListProductScreen: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {}, []);
   useEffect(() => {
     if(isFirstLoad.current){
-      dispatch(getCountry( setCountry)); 
+      dispatch(countryGetAction(setCountry)); 
       dispatch(listColorAction(initMainColorQuery,setMainColor)); 
       dispatch(listColorAction(initColorQuery,setColor)); 
-      dispatch(getAllSize(setSize));
+      dispatch(sizeGetAll(setSize));
       dispatch(supplierGetAllAction(setSupplier));
       dispatch(AccountGetListAction(initAccountQuery,setMarchandiser))
     }
