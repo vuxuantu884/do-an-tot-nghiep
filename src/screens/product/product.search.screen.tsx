@@ -22,7 +22,7 @@ import {CountryGetAllAction} from "domain/actions/content/content.action"
 import {listColorAction } from "domain/actions/product/color.action"
 import {ColorSearchQuery} from "model/query/color.search.query"
 import { SizeResponse } from "model/response/products/size.response";
-import{getAllSize} from "domain/actions/product/size.action";
+import{sizeGetAll} from "domain/actions/product/size.action";
 import{supplierGetAllAction} from "domain/actions/core/supplier.action";
 import{AccountGetListAction} from "domain/actions/account/account.action";
 
@@ -199,7 +199,7 @@ const ListProductScreen: React.FC = () => {
       dispatch(CountryGetAllAction( setCountry)); 
       dispatch(listColorAction(initMainColorQuery,setMainColor)); 
       dispatch(listColorAction(initColorQuery,setColor)); 
-      dispatch(getAllSize(setSize));
+      dispatch(sizeGetAll(setSize));
       dispatch(supplierGetAllAction(setSupplier));
       dispatch(AccountGetListAction(initAccountQuery,setMarchandiser))
     }
