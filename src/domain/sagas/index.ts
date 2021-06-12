@@ -14,6 +14,7 @@ import { sizeSaga } from './product/size.saga';
 import { accountSaga } from './account/account.saga';
 import sourceSaga from './order/source.saga';
 import customerSagas from './customer/customer.saga';
+import { roleSaga } from './auth/role.saga';
 function* rootSaga(){
     yield all([
       appSaga(),
@@ -30,7 +31,8 @@ function* rootSaga(){
       supplierSagas(),
       accountSaga(),
       sourceSaga(),
-      customerSagas()
+      customerSagas(),
+      roleSaga()
     ]);
 }
 
