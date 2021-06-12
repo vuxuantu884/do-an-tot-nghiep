@@ -1,64 +1,76 @@
-import {Layout} from 'antd';
-import React, { useEffect } from 'react';
-import { Redirect, useHistory } from 'react-router';
-import LoadingScreen from 'screens/loading.screen';
-import HeaderContainer from './header.container';
-import './container.styles.scss';
-import SlidebarContainer from './slide-bar.container';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootReducerType } from 'model/reducers/RootReducerType';
-import { getBootstrapAction } from 'domain/actions/content/bootstrap.action';
+import { Layout } from "antd";
+import React, { useCallback, useEffect, useState } from "react";
+import { Redirect, useHistory } from "react-router";
+import LoadingScreen from "screens/loading.screen";
+import HeaderContainer from "./header.container";
+
+// import './container.styles.scss';
+import SlidebarContainer from "./slide-bar.container";
+import { useDispatch, useSelector } from "react-redux";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { getBootstrapAction } from "domain/actions/content/bootstrap.action";
+import classNames from "classnames";
 
 type ContainerProps = {
-  title: string,
-  header?: React.ReactNode
-  children: React.ReactNode
-  type: number,
-  object: any 
-}
+  title: string;
+  header?: React.ReactNode;
+  children: React.ReactNode;
+  type: number;
+  object: any;
+};
 
-const SplashScreen = React.lazy(() => import ('screens/splash.screen'));
+const SplashScreen = React.lazy(() => import("screens/splash.screen"));
 
-const {Content} = Layout;
+const { Content } = Layout;
 const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
-  const {title, children, type, object} = props;
+  const { title, children, type, object } = props;
   const dispatch = useDispatch();
   const history = useHistory();
   const { location } = history;
-  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
-  const {isLogin, isLoad: isLoadUser} = userReducer;
-  const {isLoad} = bootstrapReducer;
+  const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer
+  );
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+  const { isLogin, isLoad: isLoadUser } = userReducer;
+  const { isLoad } = bootstrapReducer;
+  const [collapsed, setCollapsed] = useState(false);
+  const onCollapsed = useCallback((b: boolean) => {
+    setCollapsed(b);
+  }, []);
   useEffect(() => {
-    if(!isLoad && isLogin) {
+    if (!isLoad && isLogin) {
       dispatch(getBootstrapAction());
     }
-  }, [dispatch, isLoad, isLogin])
-  if(isLoadUser && !isLogin) {
-    return <Redirect to={`/login?returnUrl=${location.pathname}`} />
+  }, [dispatch, isLoad, isLogin]);
+  if (isLoadUser && !isLogin) {
+    return <Redirect to={`/login?returnUrl=${location.pathname}`} />;
   }
-  if(!isLoad) {
-    return <SplashScreen />
+  if (!isLoad) {
+    return <SplashScreen />;
   }
   return (
-    <div>
-      <Layout style={{
-        backgroundColor: 'white',
-        minHeight: '100vh',
-      }}>
-        <LoadingScreen />
-        <SlidebarContainer path={location.pathname} />
-        <Layout style={{
-          backgroundColor: '#F4F4F7',
-        }}>
-          <HeaderContainer type={type} object={object} path={location.pathname} title={title} />
-          <Content className="main-content">
-            {children}
-          </Content>
-        </Layout>
+    <Layout>
+      <LoadingScreen />
+      <SlidebarContainer
+        collapsed={collapsed}
+        setCollapsed={onCollapsed}
+        path={location.pathname}
+      />
+      <Layout className={classNames("container", collapsed && "collapsed")}>
+        <Content>
+          <HeaderContainer
+            type={type}
+            object={object}
+            path={location.pathname}
+            title={title}
+          />
+          {children}
+        </Content>
       </Layout>
-    </div>
-  )
-}
+    </Layout>
+  );
+};
 
 export default Container;

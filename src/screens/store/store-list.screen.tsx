@@ -1,7 +1,6 @@
 import { Card } from "antd";
 import StoreFilter from "component/filter/store.filter";
 import { MenuAction } from "component/table/ActionButton";
-import ButtonSetting from "component/table/ButtonSetting";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import { StoreSearchAction } from "domain/actions/core/store.action";
@@ -88,15 +87,11 @@ const StoreListScreen: React.FC = () => {
           {value}
         </div>
       ),
-    },
-    {
-      title: () => <ButtonSetting />,
-      width: 70,
-    },
+    }
   ];
   const onPageChange = useCallback(
-    (size, page) => {
-      params.page = page;
+    (page, size) => {
+      params.page = page - 1;
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
@@ -126,10 +121,16 @@ const StoreListScreen: React.FC = () => {
           onFilter={onFilter}
           params={params}
         />
-        <CustomTable
+       <CustomTable
           onChange={onPageChange}
-          className="yody-table"
-          pagination={data.metadata}
+          pagination={{
+            pageSize: data.metadata.limit,
+            total: data.metadata.total,
+            current: data.metadata.page + 1,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
           dataSource={data.items}
           columns={columns}
           rowKey={(item: StoreResponse) => item.id}

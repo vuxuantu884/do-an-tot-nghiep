@@ -9,8 +9,9 @@ import {
   InputNumber,
   Row,
   Select,
+  Tooltip,
 } from "antd";
-import ActionButton, { MenuAction } from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
@@ -21,6 +22,8 @@ import { ColorResponse } from "model/response/products/color.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { VariantSearchQuery } from "model/query/variant.search.query";
+import CustomFilter from "component/table/custom.filter";
+import { StarOutlined } from "@ant-design/icons";
 
 type ProductFilterProps = {
   params: VariantSearchQuery;
@@ -91,37 +94,27 @@ const ProductFilter: React.FC<ProductFilterProps> = (
   }, [formRef, visible]);
 
   return (
-    <Card className="view-control" bordered={false}>
-      <Form
-        className="form-search"
-        onFinish={onFinish}
-        initialValues={params}
-        layout="inline"
-      >
-        <ActionButton onMenuClick={onActionClick} menu={actions} />
-        <div className="right-form">
-          <Form.Item className="form-group form-group-with-search" name="info">
+    <Card bordered={false}>
+      <CustomFilter onMenuClick={onActionClick} menu={actions}>
+        <Form onFinish={onFinish} initialValues={params} layout="inline">
+          <Item name="info">
             <Input
               prefix={<img src={search} alt="" />}
-              style={{ width: 250 }}
+              style={{ width: 200 }}
               placeholder="Tên/Mã sản phẩm"
             />
-          </Form.Item>
-          <Form.Item
-            className="form-group form-group-with-search"
-            name="barcode"
-          >
+          </Item>
+          <Item name="barcode">
             <Input
               prefix={<img src={search} alt="" />}
-              style={{ width: 250 }}
+              style={{ width: 200 }}
               placeholder="Barcode"
             />
-          </Form.Item>
-          <Form.Item className="form-group form-group-with-search" name="brand">
-            <Select 
-              className="select-with-search"
+          </Item>
+          <Item name="brand">
+            <Select
               style={{
-                width: 250,
+                width: 200,
               }}
             >
               <Select.Option value="">Thương hiệu</Select.Option>
@@ -131,23 +124,23 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 </Select.Option>
               ))}
             </Select>
-          </Form.Item>
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="yody-search-button"
-            >
+          </Item>
+          <Item>
+            <Button type="primary" htmlType="submit">
               Lọc
             </Button>
-          </Form.Item>
-          <Form.Item>
-            <Button onClick={openFilter} className="yody-filter-button">
-              Thêm bộ lọc
-            </Button>
-          </Form.Item>
-        </div>
-      </Form>
+          </Item>
+          <Item>
+            <Tooltip overlay="Lưu bộ lọc" placement="top">
+              <Button icon={<StarOutlined />} />
+            </Tooltip>
+          </Item>
+          <Item>
+            <Button onClick={openFilter}>Thêm bộ lọc</Button>
+          </Item>
+        </Form>
+      </CustomFilter>
+
       <BaseFilter
         onClearFilter={onClearFilter}
         onFilter={onFilterClick}
@@ -162,32 +155,29 @@ const ProductFilter: React.FC<ProductFilterProps> = (
         >
           <Row gutter={24}>
             <Col span={12}>
-              <Form.Item
-                className="form-group form-group-with-search"
+              <Item
                 name="from_inventory"
                 label="Tồn kho từ"
               >
                 <InputNumber style={{ width: "100%" }} placeholder="Từ" />
-              </Form.Item>
+              </Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                className="form-group form-group-with-search"
+              <Item
                 name="to_inventory"
                 label="đến"
               >
                 <InputNumber style={{ width: "100%" }} placeholder="Đến" />
-              </Form.Item>
+              </Item>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col span={24}>
-              <Form.Item 
+              <Item
                 name="made_in"
-                className="form-group form-group-with-search"
                 label="Xuất sứ"
               >
-                <Select className="selector" >
+                <Select>
                   <Option value="">Xuất sứ</Option>
                   {listCountries?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -195,65 +185,59 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                     </Option>
                   ))}
                 </Select>
-              </Form.Item>
+              </Item>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col span={24}>
-              <Form.Item
+              <Item
                 name="merchandiser"
-                className="form-group form-group-with-search"
                 label="Nhà thiết kế"
               >
-                <Select className="selector" >
+                <Select>
                   <Option value="">Nhà thiết kế</Option>
-                  
+
                   {listMerchandisers?.map((item) => (
                     <Option key={item.id} value={item.id}>
                       {item.full_name}
                     </Option>
                   ))}
                 </Select>
-              </Form.Item>
+              </Item>
             </Col>
           </Row>
-         
+
           <Row gutter={24}>
             <Col span={12}>
-              <Form.Item
+              <Item
                 name="from_created_date"
-                className="form-group form-group-with-search"
                 label="Ngày tạo từ"
               >
                 <DatePicker
-                  className="r-5 w-100 ip-search"
                   placeholder="Ngày tạo từ"
                   format="DD/MM/YYYY"
                 />
-              </Form.Item>
+              </Item>
             </Col>
             <Col span={12}>
-              <Form.Item
+              <Item
                 name="to_created_date"
-                className="form-group form-group-with-search"
                 label="Đến"
               >
                 <DatePicker
-                  className="r-5 w-100 ip-search"
                   placeholder="Ngày tạo đến"
                   format="DD/MM/YYYY"
                 />
-              </Form.Item>
+              </Item>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col span={12}>
-              <Form.Item
+              <Item
                 name="size"
-                className="form-group form-group-with-search"
                 label="Size"
               >
-                <Select className="selector" >
+                <Select>
                   <Option value="">Size</Option>
                   {listSize?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -261,15 +245,14 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                     </Option>
                   ))}
                 </Select>
-              </Form.Item>
+              </Item>
             </Col>
             <Col span={12}>
-              <Form.Item
+              <Item
                 name="status"
-                className="form-group form-group-with-search"
                 label="Trạng thái"
               >
-                <Select className="selector" >
+                <Select>
                   <Option value="">Trạng thái</Option>
                   {listStatus?.map((item) => (
                     <Option key={item.value} value={item.value}>
@@ -277,17 +260,16 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                     </Option>
                   ))}
                 </Select>
-              </Form.Item>
+              </Item>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col span={24}>
-              <Form.Item
+              <Item
                 name="main_color"
-                className="form-group form-group-with-search"
                 label="Màu chủ đạo"
               >
-                <Select className="selector" >
+                <Select>
                   <Option value="">Màu chủ đạo</Option>
                   {listMainColors?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -295,17 +277,16 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                     </Option>
                   ))}
                 </Select>
-              </Form.Item>
+              </Item>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col span={24}>
-              <Form.Item
+              <Item
                 name="color"
-                className="form-group form-group-with-search"
                 label="Màu sắc"
               >
-                <Select className="selector" >
+                <Select>
                   <Option value="">Màu sắc</Option>
                   {listColors?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -313,17 +294,16 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                     </Option>
                   ))}
                 </Select>
-              </Form.Item>
+              </Item>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col span={24}>
-              <Form.Item
+              <Item
                 name="supplier"
-                className="form-group form-group-with-search"
                 label="Nhà cung cấp"
               >
-                <Select className="selector" >
+                <Select>
                   <Option value="">Nhà cung cấp</Option>
                   {listSupplier?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -331,7 +311,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                     </Option>
                   ))}
                 </Select>
-              </Form.Item>
+              </Item>
             </Col>
           </Row>
         </Form>
