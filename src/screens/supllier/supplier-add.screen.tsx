@@ -1,6 +1,22 @@
-import { Button, Card, Col, Space, Form, FormInstance, Input, Radio, Row, Select, Switch, Divider } from "antd";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  FormInstance,
+  Input,
+  Radio,
+  Row,
+  Select,
+  Switch,
+  Space,
+  Divider
+} from "antd";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import {
+  CountryGetAllAction,
+  DistrictGetByCountryAction,
+} from "domain/actions/content/content.action";
 import SupplierAction from "domain/actions/core/supplier.action";
 import { CityView } from "model/other/district-view";
 import { RootReducerType } from "model/reducers/RootReducerType";
