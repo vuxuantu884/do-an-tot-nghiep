@@ -12,7 +12,7 @@ import {
 } from "antd";
 import CustomEditor from "component/custom-editor";
 import UrlConfig from "config/UrlConfig";
-import { countryGetAction } from "domain/actions/content/content.action";
+import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { supplierGetAllAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { colorSearchAll } from "domain/actions/product/color.action";
@@ -100,7 +100,7 @@ const ProductCreateScreen: React.FC = () => {
       dispatch(getCategoryRequestAction({}, setDataCategory));
       dispatch(supplierGetAllAction(setListSupplier));
       dispatch(materialSearchAll(setListMaterial));
-      dispatch(countryGetAction(setListCountry));
+      dispatch(CountryGetAllAction(setListCountry));
       dispatch(sizeGetAll(setListSize));
       dispatch(colorSearchAll(setListColor));
     }
