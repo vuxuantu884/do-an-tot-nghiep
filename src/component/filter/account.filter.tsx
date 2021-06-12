@@ -6,11 +6,10 @@ import {
   Form,
   FormInstance,
   Input,
-  InputNumber,
   Row,
   Select,
 } from "antd";
-import ActionButton, { MenuAction } from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
@@ -19,21 +18,19 @@ import { PositionResponse } from "model/account/position.model";
 import { AccountSearchQuery } from "model/account/account.model";
 import { StoreResponse } from "model/response/core/store.response";
 import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
+import CustomFilter from "component/table/custom.filter";
 
 type AccountFilterProps = {
   params: AccountSearchQuery;
   listDepartment?: Array<DepartmentResponse>;
   listPosition?: Array<PositionResponse>;
-  listStatus?:Array<BaseBootstrapResponse>;
-  listStore?:Array<StoreResponse>;
+  listStatus?: Array<BaseBootstrapResponse>;
+  listStore?: Array<StoreResponse>;
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: AccountSearchQuery) => void;
   onClearFilter?: () => void;
 };
-
-const { Item } = Form;
-const { Option } = Select;
 
 const AccountFilter: React.FC<AccountFilterProps> = (
   props: AccountFilterProps
@@ -81,33 +78,23 @@ const AccountFilter: React.FC<AccountFilterProps> = (
   }, [formRef, visible]);
 
   return (
-    <Card className="view-control" bordered={false}>
-      <Form
-        className="form-search"
-        onFinish={onFinish}
-        initialValues={params}
-        layout="inline"
-      >
-        <ActionButton onMenuClick={onActionClick} menu={actions} />
-        <div className="right-form">
-          <Form.Item className="form-group form-group-with-search" name="info">
+    <Card bordered={false}>
+      <CustomFilter onMenuClick={onActionClick} menu={actions}>
+        <Form onFinish={onFinish} initialValues={params} layout="inline">
+          <Form.Item name="info">
             <Input
               prefix={<img src={search} alt="" />}
-              style={{ width: 250 }}
+              style={{ width: 200 }}
               placeholder="Tên/Mã nhân viên"
             />
           </Form.Item>
-          <Form.Item
-            className="form-group form-group-with-search"
-            name="store_ids"
-          >
+          <Form.Item name="store_ids">
             <Select
               showArrow
               allowClear
-              className="select-with-search"
               placeholder="Cửa hàng"
               style={{
-                width: 250,
+                width: 200,
               }}
             >
               {listStore?.map((item) => (
@@ -117,17 +104,13 @@ const AccountFilter: React.FC<AccountFilterProps> = (
               ))}
             </Select>
           </Form.Item>
-          <Form.Item
-            className="form-group form-group-with-search"
-            name="department_ids"
-          >
+          <Form.Item name="department_ids">
             <Select
-            allowClear
+              allowClear
               showArrow
-              className="select-with-search"
               placeholder="Bộ phận"
               style={{
-                width: 250,
+                width: 200,
               }}
             >
               {listDepartment?.map((item) => (
@@ -138,21 +121,15 @@ const AccountFilter: React.FC<AccountFilterProps> = (
             </Select>
           </Form.Item>
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="yody-search-button"
-            >
+            <Button type="primary" htmlType="submit">
               Lọc
             </Button>
           </Form.Item>
           <Form.Item>
-            <Button onClick={openFilter} className="yody-filter-button">
-              Thêm bộ lọc
-            </Button>
+            <Button onClick={openFilter}>Thêm bộ lọc</Button>
           </Form.Item>
-        </div>
-      </Form>
+        </Form>
+      </CustomFilter>
       <BaseFilter
         onClearFilter={onClearFilter}
         onFilter={onFilterClick}
@@ -167,44 +144,20 @@ const AccountFilter: React.FC<AccountFilterProps> = (
         >
           <Row gutter={24}>
             <Col span={12}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="from_date"
-                label="Thời gian tạo từ"
-              >
-                <DatePicker
-                  className="r-5 w-100 ip-search"
-                  placeholder="20/01/2021"
-                  format="DD/MM/YYYY"
-                />
+              <Form.Item name="from_date" label="Thời gian tạo từ">
+                <DatePicker placeholder="20/01/2021" format="DD/MM/YYYY" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="to_date"
-                label="đến"
-              >
-                <DatePicker
-                  className="r-5 w-100 ip-search"
-                  placeholder="25/01/2021"
-                  format="DD/MM/YYYY"
-                />
+              <Form.Item name="to_date" label="đến">
+                <DatePicker placeholder="25/01/2021" format="DD/MM/YYYY" />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col span={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="position_ids"
-                label="Vị trí"
-              >
-                <Select
-                  showArrow
-                  className="select-with-search"
-                  placeholder="Vị trí"
-                >
+              <Form.Item name="position_ids" label="Vị trí">
+                <Select showArrow placeholder="Vị trí">
                   {listPosition?.map((item) => (
                     <Select.Option key={item.id} value={item.id}>
                       {item.name}
@@ -216,27 +169,15 @@ const AccountFilter: React.FC<AccountFilterProps> = (
           </Row>
           <Row gutter={24}>
             <Col span={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="mobile"
-                label="Số điện thoại"
-              >
+              <Form.Item name="mobile" label="Số điện thoại">
                 <Input placeholder="Số điện thoại" />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col span={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="status"
-                label="Trạng thái"
-              >
-                <Select
-                  showArrow
-                  className="select-with-search"
-                  placeholder="Trạng thái"
-                >
+              <Form.Item name="status" label="Trạng thái">
+                <Select showArrow placeholder="Trạng thái">
                   {listStatus?.map((item) => (
                     <Select.Option key={item.value} value={item.value}>
                       {item.name}

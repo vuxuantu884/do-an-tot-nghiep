@@ -1,5 +1,5 @@
 import { Button, Card, Col, Collapse, Form, FormInstance, Input, Row, Select } from "antd";
-import { getCountry, getDistrictAction } from "domain/actions/content/content.action";
+import { districtGetAction, countryGetAction } from "domain/actions/content/content.action";
 import { StoreCreateAction } from "domain/actions/core/store.action";
 import { StoreCreateRequest } from "model/core/request/store.request";
 import { CityView } from "model/other/district-view";
@@ -70,8 +70,8 @@ const StoreCreateScreen: React.FC = () => {
     dispatch(StoreCreateAction(values, onCreateSuccess))
   }, [dispatch, onCreateSuccess])
   useEffect(() => {
-    dispatch(getCountry(setCountries))
-    dispatch(getDistrictAction(DefaultCountry, setDataDistrict))
+    dispatch(countryGetAction(setCountries))
+    dispatch(districtGetAction(DefaultCountry, setDataDistrict))
   }, [dispatch, setDataDistrict])
   return (
     <Form ref={formRef} layout="vertical" onFinish={onFinish} initialValues={initRequest}>

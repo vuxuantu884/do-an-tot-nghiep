@@ -24,7 +24,7 @@ const Login = () => {
     return <Redirect to={url !== null ? url: '/'} />
   }
   return (
-    <div className={'container'}>
+    <div className={'container-login'}>
       <div className={'login'}>
         <img src={logo} alt="logo" />
         <Form

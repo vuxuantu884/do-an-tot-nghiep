@@ -1,6 +1,5 @@
 import { Card, Image } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import ButtonSetting from "component/table/ButtonSetting";
 import { VariantSearchQuery } from "model/query/variant.search.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -9,7 +8,7 @@ import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch, useSelector } from "react-redux";
 import ProductFilter from "component/filter/product.filter";
-import {searchVariantsRequestAction} from "domain/actions/product/products.action";
+import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable from "component/table/CustomTable";
 import { CategoryView } from "model/other/Product/category-view";
@@ -17,15 +16,17 @@ import { VariantResponse } from "model/response/products/variant.response";
 import { CountryResponse } from "model/response/content/country.response";
 import { ColorResponse } from "model/response/products/color.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
-import {countryGetAction} from "domain/actions/content/content.action"
-import {listColorAction } from "domain/actions/product/color.action"
-import {ColorSearchQuery} from "model/query/color.search.query"
+import { countryGetAction } from "domain/actions/content/content.action";
+import { listColorAction } from "domain/actions/product/color.action";
+import { ColorSearchQuery } from "model/query/color.search.query";
 import { SizeResponse } from "model/response/products/size.response";
-import{sizeGetAll} from "domain/actions/product/size.action";
-import{supplierGetAllAction} from "domain/actions/core/supplier.action";
-import{AccountGetListAction} from "domain/actions/account/account.action";
-import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
-
+import { sizeGetAll } from "domain/actions/product/size.action";
+import { supplierGetAllAction } from "domain/actions/core/supplier.action";
+import { AccountGetListAction } from "domain/actions/account/account.action";
+import {
+  AccountResponse,
+  AccountSearchQuery,
+} from "model/account/account.model";
 
 const actions: Array<MenuAction> = [
   {
@@ -42,30 +43,28 @@ const initQuery: VariantSearchQuery = {
   info: "",
   barcode: "",
   status: "",
-  brand:"",
-  made_in:"",
-  size:"",
-  main_color:"",
-  color:"",
-  supplier:"",
-
+  brand: "",
+  made_in: "",
+  size: "",
+  main_color: "",
+  color: "",
+  supplier: "",
 };
 
 const initAccountQuery: AccountSearchQuery = {
-  department_ids:[4]
+  department_ids: [4],
 };
 
-
 const initMainColorQuery: ColorSearchQuery = {
-  page:0,
-  is_main_color:1,
-  limit:200
-}
+  page: 0,
+  is_main_color: 1,
+  limit: 200,
+};
 const initColorQuery: ColorSearchQuery = {
-  page:0,
+  page: 0,
   is_main_color: 0,
-  limit:200
-}
+  limit: 200,
+};
 const ListProductScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
@@ -76,13 +75,14 @@ const ListProductScreen: React.FC = () => {
   const listStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.variant_status;
   });
-  const isFirstLoad=useRef(true);
-  const [listCountry,setCountry]= useState<Array<CountryResponse>>();
-  const [listMainColor,setMainColor]= useState<Array<ColorResponse>>();
-  const [listColor,setColor]= useState<Array<ColorResponse>>();
-  const [listSize,setSize]= useState<Array<SizeResponse>>();
-  const [listSupplier,setSupplier]= useState<Array<SupplierResponse>>();
-  const [listMerchandiser,setMarchandiser]= useState<Array<AccountResponse>>();
+  const isFirstLoad = useRef(true);
+  const [listCountry, setCountry] = useState<Array<CountryResponse>>();
+  const [listMainColor, setMainColor] = useState<Array<ColorResponse>>();
+  const [listColor, setColor] = useState<Array<ColorResponse>>();
+  const [listSize, setSize] = useState<Array<SizeResponse>>();
+  const [listSupplier, setSupplier] = useState<Array<SupplierResponse>>();
+  const [listMerchandiser, setMarchandiser] =
+    useState<Array<AccountResponse>>();
   let dataQuery: VariantSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -100,34 +100,35 @@ const ListProductScreen: React.FC = () => {
     {
       title: "Ảnh",
       render: (value: VariantResponse) => {
-        let variant_images=value.variant_images;
-        let imgUrl='https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg';
-        variant_images.forEach(el => {
-          if(el.variant_avatar){
-            imgUrl="https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg";
+        let variant_images = value.variant_images;
+        let imgUrl =
+          "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg";
+        variant_images.forEach((el) => {
+          if (el.variant_avatar) {
+            imgUrl =
+              "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg";
           }
-         
         });
-        return <Image src={imgUrl} width={100} />;
+        return <Image src={imgUrl} width={60} />;
         // return img;
-      //   value.variant_images.map((item, index) => {
-      //     if (item.variant_avatar) {
-      //       return  <Image src="" width={100} />;
-      //     }
-      //   });
-      // }
-      }
+        //   value.variant_images.map((item, index) => {
+        //     if (item.variant_avatar) {
+        //       return  <Image src="" width={100} />;
+        //     }
+        //   });
+        // }
+      },
     },
     {
       title: "Mã sản phẩm",
       render: (value: VariantResponse) => {
         return <Link to="#">{value.sku}</Link>;
-      }
+      },
     },
     {
       title: "Tên sản phẩm",
       dataIndex: "name",
-      sorter:true
+      sorter: true,
     },
     {
       title: "Màu sắc",
@@ -143,16 +144,13 @@ const ListProductScreen: React.FC = () => {
     },
     {
       title: "Nhà thiết kế",
-      render: (value: VariantResponse) => (
-       <div> {value.product.designer}</div>
-      )
+      render: (value: VariantResponse) => <div> {value.product.designer}</div>,
     },
     {
       title: "Merchandiser",
       render: (value: VariantResponse) => (
-<div> {value.product.merchandiser}</div>
-      )
-      
+        <div> {value.product.merchandiser}</div>
+      ),
     },
     {
       title: "Tồn có thể bán",
@@ -167,23 +165,22 @@ const ListProductScreen: React.FC = () => {
             row.status === "active" ? "status-active" : "status-not-active"
           }
         >
-          {value==="active"?"Đang hoạt động":"Ngừng hoạt động"}
+          {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
         </div>
       ),
     },
-    {
-      title: () => <ButtonSetting />,
-      width: 70,
-    }
   ];
-  
-  const onPageChange = useCallback((page, size) => {
-    params.page = page - 1;
-    params.limit = size
-    let queryParam = generateQuery(params);
-    setPrams({ ...params });
-    history.replace(`/products?${queryParam}`);
-  }, [history, params]);
+
+  const onPageChange = useCallback(
+    (page, size) => {
+      params.page = page - 1;
+      params.limit = size;
+      let queryParam = generateQuery(params);
+      setPrams({ ...params });
+      history.replace(`/products?${queryParam}`);
+    },
+    [history, params]
+  );
   const onFilter = useCallback(
     (values) => {
       let newPrams = { ...params, ...values, page: 0 };
@@ -195,15 +192,15 @@ const ListProductScreen: React.FC = () => {
   );
   const onMenuClick = useCallback((index: number) => {}, []);
   useEffect(() => {
-    if(isFirstLoad.current){
-      dispatch(countryGetAction(setCountry)); 
-      dispatch(listColorAction(initMainColorQuery,setMainColor)); 
-      dispatch(listColorAction(initColorQuery,setColor)); 
+    if (isFirstLoad.current) {
+      dispatch(countryGetAction(setCountry));
+      dispatch(listColorAction(initMainColorQuery, setMainColor));
+      dispatch(listColorAction(initColorQuery, setColor));
       dispatch(sizeGetAll(setSize));
       dispatch(supplierGetAllAction(setSupplier));
-      dispatch(AccountGetListAction(initAccountQuery,setMarchandiser))
+      dispatch(AccountGetListAction(initAccountQuery, setMarchandiser));
     }
-    isFirstLoad.current=false;
+    isFirstLoad.current = false;
     dispatch(searchVariantsRequestAction(params, setData));
   }, [dispatch, params]);
   return (
@@ -225,8 +222,14 @@ const ListProductScreen: React.FC = () => {
         />
         <CustomTable
           onChange={onPageChange}
-          className="yody-table"
-          pagination={data.metadata}
+          pagination={{
+            pageSize: data.metadata.limit,
+            total: data.metadata.total,
+            current: data.metadata.page + 1,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
           dataSource={data.items}
           columns={columns}
           rowKey={(item: CategoryView) => item.id}

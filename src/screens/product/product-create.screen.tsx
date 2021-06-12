@@ -21,10 +21,10 @@ import { sizeGetAll } from "domain/actions/product/size.action";
 import { CategoryView } from "model/other/Product/category-view";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { SizeCreateRequest } from "model/request/size.request";
-import { CategoryResponse } from "model/response/category.response";
 import { CountryResponse } from "model/response/content/country.response";
-import { MaterialResponse } from "model/response/product/material.response";
+import { CategoryResponse } from "model/response/products/category.response";
 import { ColorResponse } from "model/response/products/color.response";
+import { MaterialResponse } from "model/response/products/material.response";
 import { SizeResponse } from "model/response/products/size.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
 import {
