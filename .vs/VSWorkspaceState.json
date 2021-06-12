@@ -1,6 +1,10 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\src",
+    "\\src\\screens",
+    "\\src\\screens\\account"
   ],
+  "SelectedNode": "\\src\\screens\\account\\account.search.screen.tsx",
   "PreviewInSolutionExplorer": false
 }

@@ -4,7 +4,7 @@ import { SupplierQuery } from "model/query/supplier.query";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter"
 import search from 'assets/img/search.svg';
-import { StoreQuery } from "model/core/query/store.query";
+import { StoreQuery } from "model/core/store.model";
 
 type StoreFilterProps = {
   params: StoreQuery

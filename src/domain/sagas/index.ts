@@ -4,7 +4,7 @@ import { colorSaga } from './product/color.saga';
 import { supplierSagas } from './core/supplier.saga';
 import OrderOnlineSaga from './order/order-online.saga';
 import storeSaga  from './core/store.saga'
-import { authSaga } from './account/auth.saga';
+import { authSaga } from './auth/auth.saga';
 import { bootstrapSaga } from './content/bootstrap.saga';
 import { contentSaga } from './content/content.saga';
 import { categorySaga } from './product/category.saga';

@@ -1,4 +1,4 @@
-import { StoreResponse } from './../../model/response/core/store.response';
+import { StoreResponse } from './../../model/core/store.model';
 import BaseResponse from 'base/BaseResponse';
 import BaseAxios from "base/BaseAxios";
 import { ApiConfig } from "config/ApiConfig";

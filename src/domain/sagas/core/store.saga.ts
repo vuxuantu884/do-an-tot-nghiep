@@ -1,7 +1,7 @@
 import BaseResponse from 'base/BaseResponse';
 import { YodyAction } from 'base/BaseAction';
 import { showError } from 'utils/ToastUtils';
-import { StoreResponse } from 'model/response/core/store.response';
+import { StoreResponse } from 'model/core/store.model';
 import { getListStore } from 'service/core/store.service';
 import { call, put, takeLatest } from '@redux-saga/core/effects';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';

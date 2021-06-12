@@ -14,7 +14,7 @@ import { AccountSearchQuery,AccountResponse } from "model/account/account.model"
 import AccountFilter from "component/filter/account.filter";
 import { AccountSearchAction, DepartmentGetListAction, PositionGetListAction } from "domain/actions/account/account.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { StoreResponse } from "model/response/core/store.response";
+import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { convertUtcToLocalDate } from "utils/DateUtils";
 import { DepartmentResponse } from "model/account/department.model";

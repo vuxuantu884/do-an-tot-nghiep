@@ -3,10 +3,10 @@ import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig"
 import { PageResponse } from "model/base/base-metadata.response";
 import { generateQuery } from "utils/AppUtils";
-import { StoreQuery } from "model/core/query/store.query";
-import { StoreRankResponse } from "model/core/response/store-rank.response";
-import { StoreResponse } from "model/core/response/store.response";
-import {StoreCreateRequest, StoreUpdateRequest } from "model/core/request/store.request";
+import { StoreQuery } from "model/core/store.model";
+import { StoreRankResponse } from "model/core/store-rank.model";
+import { StoreResponse } from "model/core/store.model";
+import {StoreCreateRequest, StoreUpdateRequest } from "model/core/store.model";
 
 export const storeGetApi = (query?: StoreQuery): Promise<BaseResponse<PageResponse<StoreResponse>>> => {
   let params = generateQuery(query);

@@ -1,20 +1,23 @@
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
 
-export interface AccountRequest extends BaseObject {
+export interface AccountRequest {
+    code: string;
     user_name: string,
     user_id: string,
     full_name: string,
     gender: string,
     mobile: string,
-    birthday: string,
-    country_id: number,
-    city_id: number,
-    district_id: number,
+    birthday?: Date,
+    country_id?: number,
+    city_id?: number,
+    district_id?: number,
     address: string,
     status: string,
+    password:string,
     account_jobs: Array<AccountJobResponse>,
     account_stores: Array<AccountStoreResponse>,
+    roles:Array<AccountRoles>
   }
 
 export interface AccountResponse extends BaseObject {
@@ -66,6 +69,10 @@ export interface AccountJobResponse extends BaseObject {
     user_id: string,
     store_id: number,
     store_name: string,
+  }
+  export interface AccountRoles {
+    role_id: number,
+    role_name: string
   }
 
   export interface LoginResponse {

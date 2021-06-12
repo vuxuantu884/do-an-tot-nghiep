@@ -1,0 +1,11 @@
+export const AuthType = {
+    LOGIN_REQUEST: 'LOGIN_REQUEST',
+    LOGIN_RESPONSE: 'LOGIN_RESPONSE',
+    LOGOUT_REQUEST: 'LOGOUT_REQUEST',
+    LOGOUT_SUCCESS: 'LOGOUT_SUCCESS',
+  }
+  
+  export const RoleType = {
+    GET_LIST_ROLE_REQUEST:'GET_LIST_ROLE_REQUEST'
+  }
+  
