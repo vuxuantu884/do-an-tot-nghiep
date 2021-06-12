@@ -30,6 +30,8 @@ import { useHistory } from "react-router";
 import { convertDistrict } from "utils/AppUtils";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
+import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
+import { RoleGetListAction } from "domain/actions/auth/role.action";
 
 const { Item } = Form;
 const { Panel } = Collapse;
@@ -45,11 +47,17 @@ const initRequest: AccountRequest = {
   mobile: "",
   account_stores: [],
   account_jobs: [],
-  roles:[],
+  roles: [],
   address: "",
   status: "",
   password: "",
 };
+
+const initRoleQuery: RoleSearchQuery = {
+  page: 0,
+  size: 200,
+};
+
 const AccountCreateScreen: React.FC = () => {
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -66,6 +74,7 @@ const AccountCreateScreen: React.FC = () => {
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
   const [status, setStatus] = useState<string>(initRequest.status);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
+  const [listRole, setRole] = useState<Array<RoleResponse>>();
   //EndState
   //Callback
 
@@ -123,6 +132,7 @@ const AccountCreateScreen: React.FC = () => {
   }, [status, listAccountStatus]);
   //end memo
   useEffect(() => {
+    dispatch(RoleGetListAction(initRoleQuery, setRole));
     dispatch(StoreGetListAction(setStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
@@ -324,16 +334,14 @@ const AccountCreateScreen: React.FC = () => {
               className="form-group form-group-with-search"
               label="Ngày sinh"
               name="birthday"
-              rules={[
-                { required: true, message: "Vui lòng nhập ngày sinh" },
-              ]}
+              rules={[{ required: true, message: "Vui lòng nhập ngày sinh" }]}
               hasFeedback
             >
               <DatePicker
-                  className="r-5 w-100 ip-search"
-                  placeholder="20/01/2021"
-                  format="DD/MM/YYYY"
-                />
+                className="r-5 w-100 ip-search"
+                placeholder="20/01/2021"
+                format="DD/MM/YYYY"
+              />
             </Item>
           </Col>
           <Col span={24} lg={10} md={12} sm={24}>
@@ -356,7 +364,7 @@ const AccountCreateScreen: React.FC = () => {
                 mode="multiple"
                 optionFilterProp="children"
               >
-                {listStore?.map((item) => (
+                {listRole?.map((item) => (
                   <Option key={item.id} value={item.id}>
                     {item.name}
                   </Option>

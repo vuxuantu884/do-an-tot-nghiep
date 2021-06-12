@@ -7,7 +7,7 @@ export interface RoleResponse extends BaseObject {
 }
 
 export interface RoleSearchQuery {
-  name: string;
+  name?: string;
   page: number;
   size: number;
 }
