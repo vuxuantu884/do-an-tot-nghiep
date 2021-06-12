@@ -1,12 +1,11 @@
-import { StoreResponse as StoreResponse1 } from 'model/response/core/store.response';
+import { StoreResponse  } from 'model/core/store.model';
 import BaseAction from 'base/BaseAction';
 import { StoreType } from 'domain/types/core.type';
-import { StoreQuery } from 'model/core/query/store.query';
+import { StoreQuery } from 'model/core/store.model';
 import { PageResponse } from 'model/base/base-metadata.response';
-import { StoreCreateRequest, StoreUpdateRequest } from 'model/core/request/store.request';
-import { StoreResponse } from 'model/core/response/store.response';
+import { StoreCreateRequest, StoreUpdateRequest } from 'model/core/store.model';
 
-export const StoreGetListAction = (setData: (data: Array<StoreResponse1>) => void) => {
+export const StoreGetListAction = (setData: (data: Array<StoreResponse>) => void) => {
     return BaseAction(StoreType.GET_LIST_STORE_REQUEST, {setData});
 }
 

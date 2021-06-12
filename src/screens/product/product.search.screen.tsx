@@ -18,7 +18,7 @@ import { CountryResponse } from "model/response/content/country.response";
 import { ColorResponse } from "model/response/products/color.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
 import { AccountResponse,AccountSearchQuery } from "model/account/account.model";
-import {getCountry} from "domain/actions/content/content.action"
+import {CountryGetAllAction} from "domain/actions/content/content.action"
 import {listColorAction } from "domain/actions/product/color.action"
 import {ColorSearchQuery} from "model/query/color.search.query"
 import { SizeResponse } from "model/response/products/size.response";
@@ -196,7 +196,7 @@ const ListProductScreen: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {}, []);
   useEffect(() => {
     if(isFirstLoad.current){
-      dispatch(getCountry( setCountry)); 
+      dispatch(CountryGetAllAction( setCountry)); 
       dispatch(listColorAction(initMainColorQuery,setMainColor)); 
       dispatch(listColorAction(initColorQuery,setColor)); 
       dispatch(getAllSize(setSize));

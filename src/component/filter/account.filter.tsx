@@ -17,7 +17,7 @@ import search from "assets/img/search.svg";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
 import { AccountSearchQuery } from "model/account/account.model";
-import { StoreResponse } from "model/response/core/store.response";
+import { StoreResponse } from "model/core/store.model";
 import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
 
 type AccountFilterProps = {

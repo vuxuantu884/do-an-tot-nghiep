@@ -1,6 +1,6 @@
 import { Button, Card, Col, Collapse, Form, FormInstance, Input, Radio, Row, Select, Switch } from "antd";
 import {AccountSearchAction} from "domain/actions/account/account.action";
-import { getCountry, getDistrictAction } from "domain/actions/content/content.action";
+import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
 import SupplierAction from "domain/actions/core/supplier.action";
 import { CityView } from "model/other/district-view";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -113,8 +113,8 @@ const CreateSupplierScreen: React.FC = () => {
   //end memo
   useEffect(() => {
     dispatch(AccountSearchAction({ department_ids: [4] }, setDataAccounts));
-    dispatch(getCountry(setCountries))
-    dispatch(getDistrictAction(DefaultCountry, setDataDistrict))
+    dispatch(CountryGetAllAction(setCountries))
+    dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict))
   }, [dispatch, setDataAccounts, setDataDistrict]);
   return (
     <Form ref={formRef} layout="vertical" onFinish={onFinish} initialValues={initRequest}>

@@ -59,7 +59,7 @@ import { VariantSearchQuery } from "model/query/variant.search.query";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/response/products/variant.response";
-import { StoreResponse } from "model/response/core/store.response";
+import { StoreResponse } from "model/core/store.model";
 
 type ProductCardProps = {
   storeId: number | null;

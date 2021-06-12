@@ -27,7 +27,7 @@ import {
 import { orderCreateAction } from "domain/actions/order/order.action";
 import { showSuccess } from "utils/ToastUtils";
 import { Email } from "utils/RegUtils";
-import { StoreResponse } from "model/response/core/store.response";
+import { StoreResponse } from "model/core/store.model";
 //#endregion
 
 const CreateBill = () => {
