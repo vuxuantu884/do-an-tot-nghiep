@@ -1,18 +1,28 @@
-import { Button, Card, Col, DatePicker, Form, FormInstance, Input, Row } from "antd";
-import ActionButton, { MenuAction } from "component/table/ActionButton";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  FormInstance,
+  Input,
+  Row,
+} from "antd";
+import { MenuAction } from "component/table/ActionButton";
 import { SupplierQuery } from "model/query/supplier.query";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
-import BaseFilter from "./base.filter"
-import search from 'assets/img/search.svg';
+import BaseFilter from "./base.filter";
+import search from "assets/img/search.svg";
 import { StoreQuery } from "model/core/store.model";
+import CustomFilter from "component/table/custom.filter";
 
 type StoreFilterProps = {
-  params: StoreQuery
-  onFilter?: (values: StoreQuery) => void,
-  onClearFilter?: () => void
-  onMenuClick?: (index: number) => void,
-  actions:  Array<MenuAction>
-}
+  params: StoreQuery;
+  onFilter?: (values: StoreQuery) => void;
+  onClearFilter?: () => void;
+  onMenuClick?: (index: number) => void;
+  actions: Array<MenuAction>;
+};
 
 const { Item } = Form;
 
@@ -21,9 +31,12 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   const [visible, setVisible] = useState(false);
 
   const formRef = createRef<FormInstance>();
-  const onFinish = useCallback((values: SupplierQuery) => {
-    onFilter && onFilter(values);
-  }, [onFilter]);
+  const onFinish = useCallback(
+    (values: SupplierQuery) => {
+      onFilter && onFilter(values);
+    },
+    [onFilter]
+  );
   const onFilterClick = useCallback(() => {
     setVisible(false);
     formRef.current?.submit();
@@ -34,9 +47,12 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   const onCancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
-  const onActionClick = useCallback((index: number) => {
-    onMenuClick && onMenuClick(index);
-  }, [onMenuClick]);
+  const onActionClick = useCallback(
+    (index: number) => {
+      onMenuClick && onMenuClick(index);
+    },
+    [onMenuClick]
+  );
   useLayoutEffect(() => {
     if (visible) {
       formRef.current?.resetFields();
@@ -44,58 +60,76 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   }, [formRef, visible]);
 
   return (
-    <Card
-      className="view-control"
-      bordered={false}>
-      <Form
-        className="form-search"
-        onFinish={onFinish}
-        initialValues={params}
-        layout="inline"
+    <Card bordered={false}>
+      <CustomFilter onMenuClick={onActionClick} menu={actions}>
+        <Form
+          className="form-search"
+          onFinish={onFinish}
+          initialValues={params}
+          layout="inline"
+        >
+          <Form.Item name="info">
+            <Input
+              prefix={<img src={search} alt="" />}
+              style={{ width: 250 }}
+              placeholder="Tên/Mã nhà cung cấp"
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+            >
+              Lọc
+            </Button>
+          </Form.Item>
+          <Form.Item>
+            <Button onClick={openFilter}>
+              Thêm bộ lọc
+            </Button>
+          </Form.Item>
+        </Form>
+      </CustomFilter>
+      <BaseFilter
+        onClearFilter={onClearFilter}
+        onFilter={onFilterClick}
+        onCancel={onCancelFilter}
+        visible={visible}
       >
-        <ActionButton onMenuClick={onActionClick} menu={actions} />
-        <div className="right-form">
-          <Form.Item className="form-group form-group-with-search" name="info">
-            <Input prefix={<img src={search} alt="" />} style={{ width: 250 }} placeholder="Tên/Mã nhà cung cấp" />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" className="yody-search-button">Lọc</Button>
-          </Form.Item>
-          <Form.Item>
-            <Button onClick={openFilter} className="yody-filter-button">Thêm bộ lọc</Button>
-          </Form.Item>
-        </div>
-      </Form>
-      <BaseFilter onClearFilter={onClearFilter} onFilter={onFilterClick} onCancel={onCancelFilter} visible={visible}>
-        <Form onFinish={onFinish} ref={formRef} initialValues={params} layout="vertical">
-          <Item name="contact" className="form-group form-group-with-search" label="Tên / SDT người liên hệ">
-            <Input className="r-5 ip-search" placeholder="Tên/SDT người liên hệ" />
+        <Form
+          onFinish={onFinish}
+          ref={formRef}
+          initialValues={params}
+          layout="vertical"
+        >
+          <Item name="contact" label="Tên / SDT người liên hệ">
+            <Input placeholder="Tên/SDT người liên hệ" />
           </Item>
-          <Item name="pic" className="form-group form-group-with-search" label="Tên / Mã người phục trách">
-            <Input className="r-5 ip-search" placeholder="Tên/Mã người phụ trách" />
+          <Item name="pic" label="Tên / Mã người phục trách">
+            <Input placeholder="Tên/Mã người phụ trách" />
           </Item>
-          <Item className="form-group form-group-with-search" label="Địa chỉ">
-            <Input className="r-5 ip-search" placeholder="Địa chỉ" />
+          <Item label="Địa chỉ">
+            <Input placeholder="Địa chỉ" />
           </Item>
           <Row gutter={24}>
             <Col span={12}>
-              <Item name="from_created_date" className="form-group form-group-with-search" label="Ngày tạo từ">
-                <DatePicker className="r-5 w-100 ip-search" placeholder="Ngày tạo từ" />
+              <Item name="from_created_date" label="Ngày tạo từ">
+                <DatePicker placeholder="Ngày tạo từ" />
               </Item>
             </Col>
             <Col span={12}>
-              <Item name="to_created_date" className="form-group form-group-with-search" label="Đến">
-                <DatePicker className="r-5 w-100 ip-search" placeholder="Ngày tạo đến" />
+              <Item name="to_created_date" label="Đến">
+                <DatePicker placeholder="Ngày tạo đến" />
               </Item>
             </Col>
           </Row>
-          <Item name="note" className="form-group form-group-with-search" label="Ghi chú">
-            <Input className="r-5 ip-search" placeholder="Ghi chú" />
+          <Item name="note" label="Ghi chú">
+            <Input placeholder="Ghi chú" />
           </Item>
         </Form>
       </BaseFilter>
     </Card>
-  )
-}
+  );
+};
 
 export default StoreFilter;

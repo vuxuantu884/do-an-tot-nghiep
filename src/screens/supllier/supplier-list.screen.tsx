@@ -1,6 +1,5 @@
 import { Card } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import ButtonSetting from "component/table/ButtonSetting";
 import { SupplierQuery } from "model/query/supplier.query";
 import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse, GoodsObj } from "model/response/supplier/supplier.response";
@@ -96,10 +95,6 @@ const ListSupplierScreen: React.FC = () => {
         <div className={item.status === 'active' ? 'status-active' : 'status-not-active'}>{value}</div>
       )
     },
-    {
-      title: () => <ButtonSetting />,
-      width: 70
-    },
   ];
   const onPageChange = useCallback((page, size) => {
     params.page = page - 1;
@@ -132,10 +127,16 @@ const ListSupplierScreen: React.FC = () => {
           scorecard={scorecard} 
           params={params}
         />
-        <CustomTable
+         <CustomTable
           onChange={onPageChange}
-          className="yody-table"
-          pagination={data.metadata}
+          pagination={{
+            pageSize: data.metadata.limit,
+            total: data.metadata.total,
+            current: data.metadata.page + 1,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
           dataSource={data.items}
           columns={columns}
           rowKey={(item: SupplierResponse) => item.id}

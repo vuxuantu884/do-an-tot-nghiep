@@ -8,6 +8,7 @@ import {
   Row,
   Select,
   Upload,
+  Space
 } from "antd";
 import { ColorCreateRequest } from "model/request/color-create.request";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -55,9 +56,6 @@ const ColorUpdateScreen: React.FC = () => {
     },
     [dispatch, imageUrl, onSuccess]
   );
-  const onSave = useCallback(() => {
-    formRef.current?.submit();
-  }, [formRef]);
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
@@ -77,14 +75,14 @@ const ColorUpdateScreen: React.FC = () => {
     );
   }
   return (
-    <div>
+    <Form
+      ref={formRef}
+      initialValues={color}
+      onFinish={onFinish}
+      layout="vertical"
+    >
       <Card className="card-block card-block-normal" title="Thông tin cơ bản">
-        <Form
-          ref={formRef}
-          initialValues={color}
-          onFinish={onFinish}
-          layout="vertical"
-        >
+        <div className="padding-20">
           <Row gutter={24}>
             <Col
               style={{
@@ -185,21 +183,19 @@ const ColorUpdateScreen: React.FC = () => {
               </Row>
             </Col>
           </Row>
-        </Form>
+        </div>
       </Card>
-      <Row className="footer-row-btn" justify="end">
-        <Button
-          type="default"
-          onClick={onCancel}
-          className="btn-style btn-cancel"
-        >
-          Hủy
-        </Button>
-        <Button type="default" onClick={onSave} className="btn-style btn-save">
-          Lưu
-        </Button>
-      </Row>
-    </div>
+      <div className="margin-top-10" style={{ textAlign: "right" }}>
+        <Space size={12}>
+          <Button type="default" onClick={onCancel}>
+            Hủy
+          </Button>
+          <Button htmlType="submit" type="primary">
+            Lưu
+          </Button>
+        </Space>
+      </div>
+    </Form>
   );
 };
 
