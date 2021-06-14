@@ -18,15 +18,15 @@ import { getCategoryRequestAction } from "domain/actions/product/category.action
 import { colorSearchAll } from "domain/actions/product/color.action";
 import { materialSearchAll } from "domain/actions/product/material.action";
 import { sizeGetAll } from "domain/actions/product/size.action";
-import { CategoryView } from "model/other/Product/category-view";
+import { CategoryView } from "model/product/category.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { SizeCreateRequest } from "model/request/size.request";
-import { CountryResponse } from "model/response/content/country.response";
-import { CategoryResponse } from "model/response/products/category.response";
-import { ColorResponse } from "model/response/products/color.response";
-import { MaterialResponse } from "model/response/products/material.response";
-import { SizeResponse } from "model/response/products/size.response";
-import { SupplierResponse } from "model/response/supplier/supplier.response";
+import { SizeCreateRequest } from "model/product/size.model";
+import { CountryResponse } from "model/content/country.model";
+import { CategoryResponse } from "model/product/category.model";
+import { ColorResponse } from "model/product/color.model";
+import { MaterialResponse } from "model/product/material.model";
+import { SizeResponse } from "model/product/size.model";
+import { SupplierResponse } from "model/core/supplier.model";
 import {
   createRef,
   useCallback,

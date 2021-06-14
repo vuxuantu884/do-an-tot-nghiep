@@ -1,5 +1,4 @@
-import { VariantSearchQuery } from '../../../model/query/variant.search.query';
-import { VariantResponse } from '../../../model/response/products/variant.response';
+import { VariantResponse, VariantSearchQuery } from 'model/product/product.model';
 import BaseAction from "base/BaseAction"
 import { ProductType } from 'domain/types/product.type';
 import { PageResponse } from 'model/base/base-metadata.response';

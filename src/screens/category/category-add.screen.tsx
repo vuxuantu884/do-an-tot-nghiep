@@ -15,7 +15,6 @@ import {
   getCategoryRequestAction,
 } from "domain/actions/product/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { CategoryResponse } from "model/response/products/category.response";
 import React, {
   createRef,
   useCallback,
@@ -25,9 +24,9 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import { CreateCatergoryRequest } from "model/request/create-category.request";
+import { CategoryCreateRequest, CategoryResponse } from "model/product/category.model";
 
-let initialRequest: CreateCatergoryRequest = {
+let initialRequest: CategoryCreateRequest = {
   code: "",
   parent_id: -1,
   goods: "",
@@ -54,7 +53,7 @@ const AddCategory: React.FC = () => {
     history.push("/categories");
   }, [history]);
   const onFinish = useCallback(
-    (values: CreateCatergoryRequest) => {
+    (values: CategoryCreateRequest) => {
       dispatch(createCategoryAction(values, onSuccess));
     },
     [dispatch, onSuccess]

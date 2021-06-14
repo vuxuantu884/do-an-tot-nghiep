@@ -2,13 +2,13 @@ import { Button, Card, Col, Space, Form, FormInstance, Input, Radio, Row, Select
 import {AccountSearchAction} from "domain/actions/account/account.action";
 import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
 import SupplierAction from "domain/actions/core/supplier.action";
-import { CityView } from "model/other/district-view";
+import { CityView } from "model/content/district.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { SupplierCreateRequest } from "model/request/create-supplier.request";
+import { SupplierCreateRequest } from "model/core/supplier.model";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { CountryResponse } from "model/response/content/country.response";
-import { DistrictResponse } from "model/response/content/district.response";
+import { CountryResponse } from "model/content/country.model";
+import { DistrictResponse } from "model/content/district.model";
 import { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";

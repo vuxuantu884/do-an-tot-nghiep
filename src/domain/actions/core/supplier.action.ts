@@ -1,9 +1,9 @@
 import BaseAction from "base/BaseAction";
 import { SupplierType } from "domain/types/core.type";
-import { SupplierQuery } from "model/query/supplier.query";
-import { SupplierCreateRequest, SupplierUpdateRequest } from "model/request/create-supplier.request";
+import { SupplierQuery } from "model/core/supplier.model";
+import { SupplierCreateRequest, SupplierUpdateRequest } from "model/core/supplier.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { SupplierResponse } from "model/response/supplier/supplier.response";
+import { SupplierResponse } from "model/core/supplier.model";
 
 const supplierSearchAction = (query: SupplierQuery, setData: (response: PageResponse<SupplierResponse>) => void) => {
   return BaseAction(SupplierType.SEARCH_SUPPLIER_REQUEST, {query, setData});

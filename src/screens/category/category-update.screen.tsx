@@ -16,7 +16,6 @@ import {
   getCategoryRequestAction,
 } from "domain/actions/product/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { CategoryResponse } from "model/response/products/category.response";
 import React, {
   createRef,
   useCallback,
@@ -27,7 +26,7 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
-import { UpdateCatergoryRequest } from "model/request/create-category.request";
+import { CategoryUpdateRequest, CategoryResponse } from "model/product/category.model";
 
 const { TreeNode } = TreeSelect;
 
@@ -58,7 +57,7 @@ const CategoryUpdate: React.FC = () => {
     history.push("/categories");
   }, [history]);
   const onFinish = useCallback(
-    (values: UpdateCatergoryRequest) => {
+    (values: CategoryUpdateRequest) => {
       dispatch(categoryUpdateAction(idNumber, values, onSuccess));
     },
     [dispatch, idNumber, onSuccess]

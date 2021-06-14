@@ -10,8 +10,8 @@ import {
   Select,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import { SupplierQuery } from "model/query/supplier.query";
-import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
+import { SupplierQuery } from "model/core/supplier.model";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";

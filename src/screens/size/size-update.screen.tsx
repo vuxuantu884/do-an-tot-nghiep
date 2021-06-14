@@ -15,13 +15,12 @@ import {
   sizeDetailAction,
   sizeUpdateAction,
 } from "domain/actions/product/size.action";
-import { CategoryView } from "model/other/Product/category-view";
-import { SizeUpdateRequest } from "model/request/size.request";
-import { CategoryResponse } from "model/response/products/category.response";
+import { SizeUpdateRequest } from "model/product/size.model";
+import { CategoryResponse, CategoryView } from "model/product/category.model";
 import {
   SizeDetail,
   SizeResponse,
-} from "model/response/products/size.response";
+} from "model/product/size.model";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";

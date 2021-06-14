@@ -2,7 +2,7 @@ import { Button, Card, Form, Input, Tooltip } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from "assets/img/search.svg";
-import { MaterialResponse } from "model/response/products/material.response";
+import { MaterialResponse, MaterialQuery } from "model/product/material.model";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { generateQuery } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
@@ -12,7 +12,6 @@ import {
   getMaterialAction,
 } from "domain/actions/product/material.action";
 import { BaseMetadata } from "model/base/base-metadata.response";
-import { MaterialQuery } from "model/query/material.query";
 import { MenuAction } from "component/table/ActionButton";
 import { showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";

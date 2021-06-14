@@ -19,9 +19,8 @@ import {
   OrderItemDiscountModel,
   OrderItemModel,
 } from "model/other/Order/order-model";
-import { VariantResponse } from "model/response/products/variant.response";
+import { VariantResponse, VariantSearchQuery} from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { VariantSearchQuery } from "model/query/variant.search.query";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 
 type AddGiftModalProps = {

@@ -7,7 +7,7 @@ import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch, useSelector } from "react-redux";
 import CustomTable from "component/table/CustomTable";
-import { VariantResponse } from "model/response/products/variant.response";
+import { VariantResponse } from "model/product/product.model";
 import {
   AccountSearchQuery,
   AccountResponse,

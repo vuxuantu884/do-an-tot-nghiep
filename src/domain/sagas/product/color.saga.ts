@@ -5,7 +5,7 @@ import BaseResponse from 'base/BaseResponse';
 import { HttpStatus } from 'config/HttpStatus';
 import { showError } from 'utils/ToastUtils';
 import { PageResponse } from 'model/base/base-metadata.response';
-import { ColorResponse } from 'model/response/products/color.response';
+import { ColorResponse } from 'model/product/color.model';
 import { ColorType } from 'domain/types/product.type';
 
 function* searchColorSaga(action: YodyAction) {

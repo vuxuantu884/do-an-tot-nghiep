@@ -12,11 +12,10 @@ import search from "assets/img/search.svg";
 import {
   CategoryParent,
   CategoryView,
-} from "model/other/Product/category-view";
+} from "model/product/category.model";
 import { MenuAction } from "component/table/ActionButton";
-import { CategoryResponse } from "model/response/products/category.response";
+import { CategoryResponse, CategoryQuery } from "model/product/category.model";
 import { convertCategory, generateQuery } from "utils/AppUtils";
-import { CategoryQuery } from "model/query/category.query";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import CustomFilter from "component/table/custom.filter";

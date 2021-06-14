@@ -2,9 +2,9 @@ import { Button, Card, Col, Collapse, Form, FormInstance, Input, Row, Select } f
 import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
 import { StoreCreateAction } from "domain/actions/core/store.action";
 import { StoreCreateRequest } from "model/core/store.model";
-import { CityView } from "model/other/district-view";
-import { CountryResponse } from "model/response/content/country.response";
-import { DistrictResponse } from "model/response/content/district.response";
+import { CityView } from "model/content/district.model";
+import { CountryResponse } from "model/content/country.model";
+import { DistrictResponse } from "model/content/district.model";
 import moment from "moment";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";

@@ -5,11 +5,11 @@ import CustomTable from "component/table/CustomTable";
 import {
   SizeCategory,
   SizeResponse,
-} from "model/response/products/size.response";
+  SizeQuery,
+} from "model/product/size.model";
 import { Link, useHistory } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PageResponse } from "model/base/base-metadata.response";
-import { SizeQuery } from "model/query/size.query";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { convertCategory, generateQuery } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
@@ -19,8 +19,7 @@ import {
   sizeSearchAction,
 } from "domain/actions/product/size.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
-import { CategoryView } from "model/other/Product/category-view";
-import { CategoryResponse } from "model/response/products/category.response";
+import { CategoryResponse, CategoryView } from "model/product/category.model";
 import UrlConfig from "config/UrlConfig";
 import { showWarning } from "utils/ToastUtils";
 import CustomFilter from "component/table/custom.filter";

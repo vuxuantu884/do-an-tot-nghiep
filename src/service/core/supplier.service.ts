@@ -1,10 +1,8 @@
 import BaseAxios from "base/BaseAxios"
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig"
-import { SupplierQuery } from "model/query/supplier.query";
+import { SupplierQuery, SupplierUpdateRequest, SupplierCreateRequest, SupplierResponse } from "model/core/supplier.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { SupplierResponse } from "model/response/supplier/supplier.response";
-import { SupplierUpdateRequest, SupplierCreateRequest } from "model/request/create-supplier.request";
 import { generateQuery } from "utils/AppUtils";
 
 export const supplierGetApi = (query?: SupplierQuery): Promise<BaseResponse<PageResponse<SupplierResponse>>> => {

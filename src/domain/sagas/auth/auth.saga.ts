@@ -5,7 +5,7 @@ import { HttpStatus } from "config/HttpStatus";
 import { logoutSuccessAction, loginSuccessAction } from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { AuthType } from 'domain/types/auth.type';
-import { LoginRequest } from "model/request/login.request";
+import { AuthenRequest } from "model/auth/roles.model";
 import { LoginResponse } from "model/account/account.model";
 import { call } from "redux-saga/effects";
 import { loginApi, logoutApi } from "service/accounts/account.service";
@@ -15,7 +15,7 @@ import { showError } from "utils/ToastUtils";
 function* loginSaga(action: YodyAction) {
   let {username, password, setLoading} = action.payload;
   try {
-    let request: LoginRequest = {
+    let request: AuthenRequest = {
       user_name: username,
       password: password,
     };

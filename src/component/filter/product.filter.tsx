@@ -12,16 +12,16 @@ import {
   Tooltip,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
-import { SizeResponse } from "model/response/products/size.response";
-import { ColorResponse } from "model/response/products/color.response";
-import { SupplierResponse } from "model/response/supplier/supplier.response";
-import { CountryResponse } from "model/response/content/country.response";
-import { VariantSearchQuery } from "model/query/variant.search.query";
+import { SizeResponse } from "model/product/size.model";
+import { ColorResponse } from "model/product/color.model";
+import { SupplierResponse } from "model/core/supplier.model";
+import { CountryResponse } from "model/content/country.model";
+import { VariantSearchQuery } from "model/product/product.model";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined } from "@ant-design/icons";
 

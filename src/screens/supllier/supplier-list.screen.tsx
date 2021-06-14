@@ -1,8 +1,7 @@
 import { Card } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import { SupplierQuery } from "model/query/supplier.query";
 import { PageResponse } from "model/base/base-metadata.response";
-import { SupplierResponse, GoodsObj } from "model/response/supplier/supplier.response";
+import { SupplierResponse, GoodsObj, SupplierQuery } from "model/core/supplier.model";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";

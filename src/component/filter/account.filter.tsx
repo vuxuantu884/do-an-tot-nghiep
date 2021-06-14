@@ -17,7 +17,7 @@ import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
 import { AccountSearchQuery } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
-import { BaseBootstrapResponse } from "model/response/bootstrap/BaseBootstrapResponse";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import CustomFilter from "component/table/custom.filter";
 
 type AccountFilterProps = {

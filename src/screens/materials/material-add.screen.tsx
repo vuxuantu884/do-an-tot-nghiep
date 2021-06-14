@@ -1,12 +1,12 @@
 import { Button, Card, Col, Form, FormInstance, Input, Row, Space } from "antd";
 import UrlConfig from "config/UrlConfig";
 import { createMaterialAction } from "domain/actions/product/material.action";
-import { CreateMaterialRequest } from "model/request/create-material.request";
+import { MaterialCreateRequest } from "model/product/material.model";
 import { createRef, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 
-let initialRequest: CreateMaterialRequest = {
+let initialRequest: MaterialCreateRequest = {
   code: "",
   component: "",
   description: "",
@@ -21,7 +21,7 @@ const AddMaterial: React.FC = () => {
     history.push(UrlConfig.MATERIALS);
   }, [history]);
   const onFinish = useCallback(
-    (values: CreateMaterialRequest) => {
+    (values: MaterialCreateRequest) => {
       dispatch(createMaterialAction(values, onSuccess));
     },
     [dispatch, onSuccess]

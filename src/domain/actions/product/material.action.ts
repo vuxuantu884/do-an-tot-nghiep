@@ -1,9 +1,7 @@
 import BaseAction from "base/BaseAction"
 import { MaterialType } from "domain/types/product.type";
-import { MaterialQuery } from "model/query/material.query";
-import { CreateMaterialRequest, UpdateMaterialRequest } from "model/request/create-material.request";
+import { MaterialQuery, MaterialCreateRequest, MaterialUpdateRequest, MaterialResponse } from "model/product/material.model";
 import { BaseMetadata } from "model/base/base-metadata.response";
-import { MaterialResponse } from "model/response/products/material.response";
 
 export const materialSearchAll = (
   setData: (data: Array<MaterialResponse>) => void,
@@ -33,7 +31,7 @@ export const deleteManyMaterialAction = (ids: Array<number>, onDeleteSuccess: ()
   return BaseAction(MaterialType.DELETE_MANY_MATERIAL_REQUEST, {ids, onDeleteSuccess});
 }
 
-export const createMaterialAction = (request: CreateMaterialRequest, onCreateSuccess: () => void) => {
+export const createMaterialAction = (request: MaterialCreateRequest, onCreateSuccess: () => void) => {
   return BaseAction(MaterialType.CREATE_MATERIAL_REQUEST, {request, onCreateSuccess});
 }
 
@@ -41,6 +39,6 @@ export const detailMaterialAction = (id: number, setMaterial: (material: Materia
   return BaseAction(MaterialType.DETAIL_MATERIAL_REQUEST, {id, setMaterial});
 }
 
-export const updateMaterialAction = (id: number, request: UpdateMaterialRequest, onUpdateSuccess: () => void) => {
+export const updateMaterialAction = (id: number, request: MaterialUpdateRequest, onUpdateSuccess: () => void) => {
   return BaseAction(MaterialType.UPDATE_MATERIAL_REQUEST, {id, request, onUpdateSuccess});
 }

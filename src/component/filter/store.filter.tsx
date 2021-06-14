@@ -9,7 +9,7 @@ import {
   Row,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import { SupplierQuery } from "model/query/supplier.query";
+import { SupplierQuery } from "model/core/supplier.model";
 import { createRef, useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";

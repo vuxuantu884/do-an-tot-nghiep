@@ -6,7 +6,7 @@ import { HttpStatus } from 'config/HttpStatus';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
 import { MaterialType } from 'domain/types/product.type';
 import { PageResponse } from 'model/base/base-metadata.response';
-import { MaterialResponse } from 'model/response/products/material.response';
+import { MaterialResponse } from 'model/product/material.model';
 import { showError } from 'utils/ToastUtils';
 
 function* materialGetSaga(action: YodyAction) {

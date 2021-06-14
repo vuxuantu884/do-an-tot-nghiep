@@ -1,4 +1,4 @@
-import { VariantResponse } from "model/response/products/variant.response";
+import { VariantResponse } from "model/product/product.model";
 import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";

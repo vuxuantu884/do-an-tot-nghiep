@@ -12,9 +12,9 @@ import {
 import UrlConfig from "config/UrlConfig";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { sizeCreateAction } from "domain/actions/product/size.action";
-import { CategoryView } from "model/other/Product/category-view";
-import { SizeCreateRequest } from "model/request/size.request";
-import { CategoryResponse } from "model/response/products/category.response";
+import { CategoryView } from "model/product/category.model";
+import { SizeCreateRequest } from "model/product/size.model";
+import { CategoryResponse } from "model/product/category.model";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";

@@ -9,8 +9,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
 import { showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
-import { ColorResponse } from "model/response/products/color.response";
-import { ColorSearchQuery } from "model/query/color.search.query";
+import { ColorResponse, ColorSearchQuery } from "model/product/color.model";
 import imgDefault from "assets/icon/img-default.svg";
 import {
   colorDeleteAction,

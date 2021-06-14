@@ -10,9 +10,8 @@ import {
   Upload,
   Space
 } from "antd";
-import { ColorCreateRequest } from "model/request/color-create.request";
+import { ColorCreateRequest, ColorResponse } from "model/product/color.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { ColorResponse } from "model/response/products/color.response";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";

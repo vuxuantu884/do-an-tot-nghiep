@@ -5,8 +5,8 @@ import { HttpStatus } from "config/HttpStatus";
 import { ContentType } from "domain/types/content.type";
 import { countryGetApi, getDistrictApi } from "service/content/content.service";
 import { showError } from "utils/ToastUtils";
-import { CountryResponse } from 'model/response/content/country.response';
-import { DistrictResponse } from 'model/response/content/district.response';
+import { CountryResponse } from 'model/content/country.model';
+import { DistrictResponse } from 'model/content/district.model';
 
 function* countryGetSaga(action: YodyAction) {
   const { setData } = action.payload;

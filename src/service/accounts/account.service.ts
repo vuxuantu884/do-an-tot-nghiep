@@ -3,7 +3,7 @@ import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { AccountSearchQuery,LoginResponse ,AccountResponse} from "model/account/account.model";
-import { LoginRequest } from "model/request/login.request";
+import { AuthenRequest } from "model/auth/roles.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { DepartmentResponse } from 'model/account/department.model';
 import { PositionResponse } from 'model/account/position.model';
@@ -12,7 +12,7 @@ export const getAcccountDetail = (): Promise<BaseResponse<AccountResponse>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/detail`);
 }
 
-export const loginApi = (request: LoginRequest): Promise<BaseResponse<LoginResponse>> => {
+export const loginApi = (request: AuthenRequest): Promise<BaseResponse<LoginResponse>> => {
   return BaseAxios.post(`${ApiConfig.ACCOUNTS}/accounts/login`, request);
 }
 

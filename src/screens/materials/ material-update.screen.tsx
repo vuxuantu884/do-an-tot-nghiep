@@ -4,8 +4,7 @@ import {
   detailMaterialAction,
   updateMaterialAction,
 } from "domain/actions/product/material.action";
-import { UpdateMaterialRequest } from "model/request/create-material.request";
-import { MaterialResponse } from "model/response/products/material.response";
+import { MaterialResponse, MaterialUpdateRequest } from "model/product/material.model";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
@@ -24,7 +23,7 @@ const UpdateMaterial: React.FC = () => {
     history.push(UrlConfig.MATERIALS);
   }, [history]);
   const onFinish = useCallback(
-    (values: UpdateMaterialRequest) => {
+    (values: MaterialUpdateRequest) => {
       let idNumber = parseInt(id);
       dispatch(updateMaterialAction(idNumber, values, onSuccess));
     },
