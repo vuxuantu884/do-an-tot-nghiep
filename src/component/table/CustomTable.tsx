@@ -96,7 +96,6 @@ const CustomTable = (props: ICustomTableProps) => {
   const totalPage = pagination
     ? Math.ceil((pagination.total || 1) / (pagination.pageSize || 1))
     : 1;
-  console.log(totalPage);
   const configSettingColumns: ICustomTableColumType<any>[] = [
     {
       title: (

@@ -13,9 +13,9 @@ const CustomEditor: React.FC<CustomEditorProps> = (props: CustomEditorProps) => 
     <Editor
       editorState={props.value}
       onEditorStateChange={props.onChange}
-      toolbarClassName="toolbarClassName"
-      wrapperClassName="wrapperClassName"
-      editorClassName="editor"
+      toolbarClassName="editor-toolbars"
+      wrapperClassName="editor-wrapper"
+      editorClassName="editor-content"
     />
   )
 }

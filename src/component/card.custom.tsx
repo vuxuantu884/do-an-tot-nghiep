@@ -1,15 +1,23 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { CardProps, Card as ANTCard } from "antd";
 import { DownOutlined, RightOutlined } from "@ant-design/icons";
 import classNames from "classnames";
 
 interface IProps extends CardProps {
   collapse?: boolean;
+  defaultOpen?: boolean
 }
 
 const CustomCard = (props: IProps) => {
   const container = useRef<HTMLDivElement>(null);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(!props.defaultOpen);
+
+  const handleHeaderCardClick = useCallback(
+    () => {
+      setCollapsed(!collapsed);
+    },
+    [collapsed],
+  );
 
   useEffect(() => {
     const element = container.current?.querySelector<HTMLElement>(
@@ -19,11 +27,9 @@ const CustomCard = (props: IProps) => {
     return () => {
       element?.removeEventListener("click", handleHeaderCardClick);
     };
-  }, [collapsed]);
+  }, [collapsed, handleHeaderCardClick]);
 
-  const handleHeaderCardClick = (event: MouseEvent) => {
-    setCollapsed(!collapsed);
-  };
+
 
   const { collapse, className, extra, ...rest } = props;
   return (

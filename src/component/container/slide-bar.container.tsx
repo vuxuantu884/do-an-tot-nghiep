@@ -65,7 +65,7 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
       </button>
       <Scrollbars style={{ height: 'calc(100% - 85px)' }} autoHide>
         <Menu
-          defaultOpenKeys={defaultOpenKeys}
+          defaultOpenKeys={collapsed? [] : defaultOpenKeys}
           defaultSelectedKeys={defaultSelectedKeys}
           className="yody-menu"
           mode="inline"
@@ -77,7 +77,7 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
                   icon={
                     <i
                       className={route.icon}
-                      style={{ fontSize: 24, marginRight: 16 }}
+                      style={{ fontSize: 24, marginRight: 10}}
                     />
                   }
                   title={route.title}
@@ -89,7 +89,7 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
                         icon={
                           <i
                             className={item.icon}
-                            style={{ fontSize: 8, marginRight: 16 }}
+                            style={{ fontSize: 8, marginRight: 10 }}
                           />
                         }
                         key={item.key}
@@ -106,7 +106,7 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
                 icon={
                   <i
                     className={route.icon}
-                    style={{ fontSize: 24, marginRight: 16 }}
+                    style={{ fontSize: 24, marginRight: 10 }}
                   />
                 }
                 key={route.key}

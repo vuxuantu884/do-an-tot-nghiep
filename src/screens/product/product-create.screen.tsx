@@ -2,13 +2,16 @@ import {
   Button,
   Card,
   Col,
-  Collapse,
   Form,
   FormInstance,
   Input,
   Row,
   Select,
+  Divider,
   Switch,
+  Table,
+  Space,
+  Image,
 } from "antd";
 import CustomEditor from "component/custom-editor";
 import UrlConfig from "config/UrlConfig";
@@ -38,10 +41,16 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { convertCategory } from "utils/AppUtils";
+import {
+  DeleteOutlined,
+  InfoCircleOutlined,
+  PlusOutlined,
+  MinusOutlined,
+} from "@ant-design/icons";
+import CustomCard from "component/card.custom";
 
 const { Option } = Select;
 const { Item } = Form;
-const { Panel } = Collapse;
 const ProductCreateScreen: React.FC = () => {
   //Hook
   const dispatch = useDispatch();
@@ -94,7 +103,56 @@ const ProductCreateScreen: React.FC = () => {
     setListCategory(temp);
   }, []);
   //end callback data
-
+  const columns = [
+    {
+      title: "Mã chi tiết",
+      key: "code",
+      dataIndex: "code",
+    },
+    {
+      title: "Tên sản phẩm",
+      key: "name",
+      dataIndex: "name",
+    },
+    {
+      title: "Mã màu",
+      key: "color",
+      dataIndex: "color",
+    },
+    {
+      title: "Size",
+      key: "size",
+      dataIndex: "size",
+    },
+    {
+      title: "Số lượng",
+      key: "quantity",
+      dataIndex: "quantity",
+      width: 100,
+      render: (qty: string) => (
+        <Input style={{ textAlign: "center" }} value={qty} />
+      ),
+    },
+    {
+      title: "Ảnh",
+      dataIndex: "image",
+      render: (image: string) => (
+        <Image
+          width={40}
+          height={40}
+          src="error"
+          fallback="data:image/png;base64,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"
+        />
+      ),
+    },
+    {
+      title: "Thao tác",
+      key: "action",
+      dataIndex: "id",
+      width: 100,
+      render: (id: number) => <Button type="link" icon={<DeleteOutlined />} />,
+    },
+  ];
   useEffect(() => {
     if (!isLoadMaterData.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
@@ -112,309 +170,433 @@ const ProductCreateScreen: React.FC = () => {
     <div>
       <Form ref={formRef} onFinish={onFinish} layout="vertical">
         <Card
-          className="card-block card-block-normal"
           title="Thông tin cơ bản"
-          extra={
-            <div className="v-extra d-flex align-items-center">
-              Trạng thái
-              <Switch className="ip-switch" defaultChecked />
-              <span
-                style={{ color: status === "active" ? "#27AE60" : "red" }}
-                className="t-status"
-              >
-                {statusValue}
-              </span>
-              <Item noStyle name="status" hidden>
-                <Input value={status} />
-              </Item>
-            </div>
-          }
+          extra={[
+            <Space size={15}>
+              <label className="text-default">Trạng thái</label>
+              <Switch className="ant-switch-success" defaultChecked />
+              <label className="text-success">Đang hoạt động</label>
+            </Space>,
+          ]}
         >
-          <Row gutter={24}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn loại sản phẩm",
-                  },
-                ]}
-                className="form-group form-group-with-search"
-                name="product_type"
-                label="Loại sản phẩm"
-              >
-                <Select className="selector" placeholder="Chọn loại sản phẩm ">
-                  {productTypes?.map((item) => (
-                    <Option key={item.value} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn loại sản phẩm",
-                  },
-                ]}
-                className="form-group form-group-with-search"
-                name="goods"
-                label="Ngành hàng"
-              >
-                <Select className="selector" placeholder="Chọn ngành hàng ">
-                  {goods?.map((item) => (
-                    <Option key={item.value} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn danh mục",
-                  },
-                ]}
-                className="form-group form-group-with-search"
-                name="category_id"
-                label="Danh mục"
-              >
-                <Select placeholder="Chọn danh mục" className="selector">
-                  {listCategory.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="collections"
-                label="Bộ sưu tập"
-              >
-                <Select
-                  mode="multiple"
-                  placeholder="Chọn bộ sưu tập"
-                  className="selector"
-                >
-                  {collectionList?.map((item) => (
-                    <Option key={item.value} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập mã sản phẩm",
-                  },
-                ]}
-                className="form-group form-group-with-search"
-                name="code"
-                label="Mã sản phẩm"
-              >
-                <Input
-                  className="r-5"
-                  placeholder="Nhập mã sản phẩm"
-                  size="large"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập tên sản phẩm",
-                  },
-                ]}
-                className="form-group form-group-with-search"
-                name="name"
-                label="Tên sản phẩm"
-              >
-                <Input
-                  placeholder="Nhập tên sản phẩm"
-                  className="r-5"
-                  size="large"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row className="title-rule">
-            <div className="title">Thông tin khác</div>
-            <div className="rule" />
-          </Row>
-          <Row gutter={24}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="tags"
-                label="Từ khóa"
-              >
-                <Input
-                  className="r-5"
-                  placeholder="Nhập từ khóa"
-                  size="large"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="unit"
-                label="Đơn vị"
-              >
-                <Select placeholder="Chọn đơn vị" className="selector">
-                  {productUnitList?.map((item) => (
-                    <Option key={item.value} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="suppplier_id"
-                label="Nhà cung cấp"
-              >
-                <Select placeholder="Chọn nhà cung cấp" className="selector">
-                  {listSupplier?.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="brand"
-                label="Thương hiệu"
-              >
-                <Select placeholder="Chọn thương hiệu" className="selector">
-                  {brandList?.map((item) => (
-                    <Option key={item.value} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="suppplier_id"
-                label="Xuất xứ"
-              >
-                <Select placeholder="Chọn xuất xứ" className="selector">
-                  {listCountry?.map((item) => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="brand"
-                label="Chất liệu"
-              >
-                <Select placeholder="Chọn chất liệu" className="selector">
-                  {listMaterial?.map((item) => (
-                    <Option key={item.id} value={item.name}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row style={{ marginTop: 30 }} gutter={24}>
-            <Col span={24}>
-              <Item label="Mô tả sản phẩm" name="description">
-                <CustomEditor />
-              </Item>
-            </Col>
-          </Row>
-        </Card>
-        <Collapse
-          expandIconPosition="right"
-          className="view-other card-block card-block-normal"
-        >
-          <Panel header="Quản lý thuộc tính" key="1">
-            <Row gutter={24}>
-              <Col span={24} lg={8} md={12} sm={24}>
+          <div className="padding-20">
+            <Row gutter={50}>
+              <Col span={50} lg={8} md={12} sm={50}>
                 <Item
-                  className="form-group form-group-with-search"
-                  label="Màu sắc"
-                  name="color_id"
-                >
-                  <Select
-                    className="selector"
-                    placeholder="Chọn màu sắc"
-                  >
+                  rules={[
                     {
-                      
-                    }
+                      required: true,
+                      message: "Vui lòng chọn loại sản phẩm",
+                    },
+                  ]}
+                  name="product_type"
+                  label="Loại sản phẩm"
+                >
+                  <Select placeholder="Chọn loại sản phẩm ">
+                    {productTypes?.map((item) => (
+                      <Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
                   </Select>
                 </Item>
               </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
+              <Col span={50} lg={8} md={12} sm={50}>
                 <Item
-                  className="form-group form-group-with-search"
-                  name="size"
-                  label="Kích cỡ"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn loại sản phẩm",
+                    },
+                  ]}
+                  name="goods"
+                  label="Ngành hàng"
                 >
-                  <Select
-                    className="selector"
-                    placeholder="Chọn kích cỡ"
-                  ></Select>
+                  <Select placeholder="Chọn ngành hàng ">
+                    {goods?.map((item) => (
+                      <Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
                 </Item>
               </Col>
             </Row>
-          </Panel>
-        </Collapse>
-        <Row className="footer-row-btn" justify="end">
-          <Button
-            type="default"
-            onClick={onCancel}
-            className="btn-style btn-cancel"
-          >
-            Hủy
-          </Button>
-          <Button
-            type="default"
-            onClick={onSave}
-            className="btn-style btn-save"
-          >
-            Lưu
-          </Button>
+            <Row gutter={50}>
+              <Col span={50} lg={8} md={12} sm={50}>
+                <Item
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn danh mục",
+                    },
+                  ]}
+                  name="category_id"
+                  label="Danh mục"
+                >
+                  <Select placeholder="Chọn danh mục">
+                    {listCategory.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+              <Col span={50} lg={8} md={12} sm={50}>
+                <Item name="collections" label="Bộ sưu tập">
+                  <Select mode="multiple" placeholder="Chọn bộ sưu tập">
+                    {collectionList?.map((item) => (
+                      <Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={50} lg={8} md={12} sm={50}>
+                <Item
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập mã sản phẩm",
+                    },
+                  ]}
+                  name="code"
+                  label="Mã sản phẩm"
+                >
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập mã sản phẩm"
+                    size="large"
+                  />
+                </Item>
+              </Col>
+              <Col span={50} lg={8} md={12} sm={50}>
+                <Item
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập tên sản phẩm",
+                    },
+                  ]}
+                  name="name"
+                  label="Tên sản phẩm"
+                >
+                  <Input
+                    placeholder="Nhập tên sản phẩm"
+                    className="r-5"
+                    size="large"
+                  />
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={50} lg={8} md={12} sm={50}>
+                <Item
+                  label="Kích thước (dài, rộng, cao)"
+                  required
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Input.Group compact>
+                    <Item noStyle>
+                      <Input
+                        style={{ width: "calc((100% - 90px) / 3)" }}
+                        placeholder="Dài"
+                      />
+                    </Item>
+                    <Item noStyle>
+                      <Input
+                        style={{ width: "calc((100% - 90px) / 3)" }}
+                        placeholder="Rộng"
+                      />
+                    </Item>
+                    <Item noStyle>
+                      <Input
+                        placeholder="Cao"
+                        style={{ width: "calc((100% - 90px) / 3)" }}
+                      />
+                    </Item>
+                    <Item noStyle>
+                      <Select style={{ width: "90px" }} value="cm">
+                        <Option value="cm">cm</Option>
+                      </Select>
+                    </Item>
+                  </Input.Group>
+                </Item>
+              </Col>
+              <Col md={8}>
+                <Item
+                  label="Khối lượng"
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Input.Group compact>
+                    <Item noStyle>
+                      <Input
+                        placeholder="Khối lượng"
+                        style={{ width: "calc(100% - 90px)" }}
+                      />
+                    </Item>
+                    <Item noStyle>
+                      <Select style={{ width: "90px" }} value="gram">
+                        <Option value="gram">gram</Option>
+                      </Select>
+                    </Item>
+                  </Input.Group>
+                </Item>
+              </Col>
+            </Row>
+
+            <Divider orientation="left">Thông tin khác</Divider>
+            <Row gutter={50}>
+              <Col span={50} lg={8} md={12} sm={50}>
+                <Item name="tags" label="Từ khóa">
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập từ khóa"
+                    size="large"
+                  />
+                </Item>
+              </Col>
+              <Col span={50} lg={8} md={12} sm={50}>
+                <Item name="unit" label="Đơn vị">
+                  <Select placeholder="Chọn đơn vị">
+                    {productUnitList?.map((item) => (
+                      <Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={50} lg={8} md={12} sm={50}>
+                <Item name="suppplier_id" label="Nhà cung cấp">
+                  <Select placeholder="Chọn nhà cung cấp">
+                    {listSupplier?.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+              <Col span={50} lg={8} md={12} sm={50}>
+                <Item name="brand" label="Thương hiệu">
+                  <Select placeholder="Chọn thương hiệu">
+                    {brandList?.map((item) => (
+                      <Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={50} lg={8} md={12} sm={50}>
+                <Item name="suppplier_id" label="Xuất xứ">
+                  <Select placeholder="Chọn xuất xứ">
+                    {listCountry?.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+              <Col span={50} lg={8} md={12} sm={50}>
+                <Item name="brand" label="Chất liệu">
+                  <Select placeholder="Chọn chất liệu">
+                    {listMaterial?.map((item) => (
+                      <Option key={item.id} value={item.name}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+            </Row>
+            <Button type="link" className="padding-0" icon={<MinusOutlined />}>
+              Mô tả sản phẩm
+            </Button>
+            <Row gutter={50}>
+              <Col span={50}>
+                <Item name="description">
+                  <CustomEditor />
+                </Item>
+              </Col>
+            </Row>
+          </div>
+        </Card>
+        <CustomCard title="Thông tin giá" collapse className="margin-top-20">
+          <div className="padding-20">
+            <Row gutter={16}>
+              <Col md={4}>
+                <Item
+                  label="Giá bán"
+                  required
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Input placeholder="VD: 100,000" />
+                </Item>
+              </Col>
+              <Col md={4}>
+                <Item
+                  label="Giá buôn"
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Input placeholder="VD: 100,000" />
+                </Item>
+              </Col>
+              <Col md={4}>
+                <Item
+                  label="Giá nhập"
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Input placeholder="VD: 100,000" />
+                </Item>
+              </Col>
+              <Col md={4}>
+                <Item
+                  label="Đơn vị tiền tệ"
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Select value="VND">
+                    <Select.Option value="VND">VND</Select.Option>
+                  </Select>
+                </Item>
+              </Col>
+              <Col md={4}>
+                <Item
+                  label="Thuế"
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Input placeholder="VD: 10" suffix={<span>%</span>} />
+                </Item>
+              </Col>
+              <Col md={4} style={{ display: "flex", alignItems: "center" }}>
+                <Button icon={<DeleteOutlined />} />
+              </Col>
+            </Row>
+            <Button type="link" className="padding-0" icon={<PlusOutlined />}>
+              Thêm mới
+            </Button>
+          </div>
+        </CustomCard>
+        <Row gutter={24} className="margin-top-20">
+          <Col md={12}>
+            <CustomCard
+              defaultOpen={false}
+              title="Thông tin chi tiết sản phẩm"
+              collapse
+            >
+              <div className="padding-20">
+                <Item
+                  label="Chi tiết thông số"
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Input placeholder="Điền chi tiết thông số" />
+                </Item>
+                <Button
+                  type="link"
+                  className="padding-0"
+                  icon={<MinusOutlined />}
+                >
+                  Thông tin bảo quản
+                </Button>
+                <Row className="margin-top-20">
+                  <Col md={24}>
+                    <CustomEditor />
+                  </Col>
+                </Row>
+              </div>
+            </CustomCard>
+          </Col>
+          <Col md={12}>
+            <CustomCard defaultOpen={false} title="R&D" collapse>
+              <div className="padding-20">
+                <Item
+                  label="Merchandiser"
+                  required
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Select placeholder="Chọn Merchandiser"></Select>
+                </Item>
+                <Item
+                  label="Thiết kế"
+                  required
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Select placeholder="Chọn thiết kế"></Select>
+                </Item>
+              </div>
+            </CustomCard>
+          </Col>
         </Row>
+        <CustomCard
+          title="Quản lý thuộc tính"
+          collapse
+          className="margin-top-20"
+          defaultOpen={true}
+        >
+          <div className="padding-20">
+            <Row gutter={50}>
+              <Col span={50} lg={6} md={12} sm={50}>
+                <Item label="Màu sắc" name="color_id">
+                  <Select
+                    notFoundContent={"Không có dữ liệu"}
+                    showSearch
+                    placeholder="Chọn màu sắc"
+                  >
+                    {listColor?.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+              <Col span={50} lg={6} md={12} sm={50}>
+                <Item name="size" label="Kích cỡ">
+                  <Select
+                    notFoundContent={"Không có dữ liệu"}
+                    placeholder="Chọn kích cỡ"
+                    mode="multiple"
+                    showSearch
+                  >
+                    {listSize?.map((item) => (
+                      <Option key={item.id} value={item.id}>
+                        {item.code}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+            </Row>
+          </div>
+        </CustomCard>
+        <CustomCard
+          title="Danh sách mã"
+          defaultOpen
+          collapse
+          className="margin-top-20"
+        >
+          <div className="padding-20">
+            <Table columns={columns} pagination={false} />
+          </div>
+        </CustomCard>
+        <div className="margin-top-10" style={{ textAlign: "right" }}>
+          <Space size={12}>
+            <Button>Huỷ</Button>
+            <Button type="primary" htmlType="submit">
+              Lưu
+            </Button>
+          </Space>
+        </div>
       </Form>
     </div>
   );

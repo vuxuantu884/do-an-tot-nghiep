@@ -51,7 +51,7 @@ const SizeCreateScreen: React.FC = () => {
     <Form ref={formRef} onFinish={onFinish} layout="vertical">
       <Card title="Thông tin cơ bản">
         <div className="padding-20">
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 className="form-group form-group-with-search"

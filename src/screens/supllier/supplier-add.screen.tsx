@@ -179,7 +179,7 @@ const CreateSupplierScreen: React.FC = () => {
               </Radio.Group>
             </Item>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item label="Mã nhà cung cấp" name="code">
                 <Input
@@ -206,7 +206,7 @@ const CreateSupplierScreen: React.FC = () => {
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 rules={[
@@ -253,7 +253,7 @@ const CreateSupplierScreen: React.FC = () => {
             </Col>
           </Row>
           <Divider orientation="left">Thông tin khác</Divider>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item label="Quốc gia" name="country_id">
                 <Select
@@ -285,7 +285,7 @@ const CreateSupplierScreen: React.FC = () => {
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item label="Khu vực" name="district_id">
                 <Select
@@ -325,7 +325,7 @@ const CreateSupplierScreen: React.FC = () => {
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item label="Địa chỉ" name="address">
                 <Input
@@ -341,7 +341,7 @@ const CreateSupplierScreen: React.FC = () => {
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item label="Website" name="website">
                 <Input
@@ -369,7 +369,7 @@ const CreateSupplierScreen: React.FC = () => {
         className="margin-top-20"
       >
         <div className="padding-20">
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item label="Phân cấp nhà cung cấp" name="scorecard">
                 <Select
@@ -412,7 +412,7 @@ const CreateSupplierScreen: React.FC = () => {
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 label="Chứng chỉ"
@@ -456,7 +456,7 @@ const CreateSupplierScreen: React.FC = () => {
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={16} md={24} sm={24}>
               <Item label="Ghi chú" name="note">
                 <Input
@@ -475,7 +475,7 @@ const CreateSupplierScreen: React.FC = () => {
         className="margin-top-20"
       >
         <div className="padding-20">
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item label="Ngân hàng" name="bank_name">
                 <Input
@@ -495,7 +495,7 @@ const CreateSupplierScreen: React.FC = () => {
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item label="Số tài khoản" name="bank_number">
                 <Input

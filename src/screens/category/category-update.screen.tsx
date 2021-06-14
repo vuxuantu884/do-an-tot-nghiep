@@ -90,14 +90,14 @@ const CategoryUpdate: React.FC = () => {
     >
       <Card title="Thông tin cơ bản">
         <div className="padding-20">
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item name="version" hidden noStyle>
                 <Input />
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 rules={[
@@ -135,7 +135,7 @@ const CategoryUpdate: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 rules={[

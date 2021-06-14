@@ -124,7 +124,6 @@ const Category = () => {
   }, [dispatch, onGetSuccess, params]);
   const onMenuClick = useCallback(
     (index: number) => {
-      console.log(index);
       if (selected.length > 0) {
         let id = selected[0].id;
         switch (index) {

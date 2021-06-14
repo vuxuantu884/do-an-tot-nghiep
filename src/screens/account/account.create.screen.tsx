@@ -166,7 +166,7 @@ const AccountCreateScreen: React.FC = () => {
           </div>
         }
       >
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={10} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"
@@ -203,7 +203,7 @@ const AccountCreateScreen: React.FC = () => {
             </Item>
           </Col>
         </Row>
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={10} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"
@@ -236,7 +236,7 @@ const AccountCreateScreen: React.FC = () => {
             </Item>
           </Col>
         </Row>
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={10} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"
@@ -280,7 +280,7 @@ const AccountCreateScreen: React.FC = () => {
             </Form.Item>
           </Col>
         </Row>
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={10} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"
@@ -327,7 +327,7 @@ const AccountCreateScreen: React.FC = () => {
             </Form.Item>
           </Col>
         </Row>
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={10} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"

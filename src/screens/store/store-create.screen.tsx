@@ -84,7 +84,7 @@ const StoreCreateScreen: React.FC = () => {
           </div>
         }
       >
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
               rules={[{ required: true, message: 'Vui lòng nhập tên cửa hàng' }]}
@@ -106,7 +106,7 @@ const StoreCreateScreen: React.FC = () => {
             </Item>
           </Col>
         </Row>
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
               rules={[{required: true}]}
@@ -156,7 +156,7 @@ const StoreCreateScreen: React.FC = () => {
             </Item>
           </Col>
         </Row>
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"
@@ -188,7 +188,7 @@ const StoreCreateScreen: React.FC = () => {
           <div className="title">Thông tin khác</div>
           <div className="rule" />
         </Row>
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"
@@ -213,7 +213,7 @@ const StoreCreateScreen: React.FC = () => {
             </Item>
           </Col>
         </Row>
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"
@@ -258,7 +258,7 @@ const StoreCreateScreen: React.FC = () => {
             </Item>
           </Col>
         </Row>
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"
@@ -278,7 +278,7 @@ const StoreCreateScreen: React.FC = () => {
             </Item>
           </Col>
         </Row>
-        <Row gutter={24}>
+        <Row gutter={50}>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"
@@ -301,7 +301,7 @@ const StoreCreateScreen: React.FC = () => {
       </Card>
       <Collapse expandIconPosition="right" className="view-other card-block card-block-normal">
         <Panel header="Thông tin thanh toán" key="1">
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 className="form-group form-group-with-search"
@@ -321,7 +321,7 @@ const StoreCreateScreen: React.FC = () => {
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 className="form-group form-group-with-search"
