@@ -2,7 +2,7 @@ import { VariantSearchQuery } from '../../../model/query/variant.search.query';
 import { VariantResponse } from '../../../model/response/products/variant.response';
 import BaseAction from "base/BaseAction"
 import { ProductType } from 'domain/types/product.type';
-import { PageResponse } from 'model/response/base-metadata.response';
+import { PageResponse } from 'model/base/base-metadata.response';
 
 export const searchVariantsRequestAction = (
   query: VariantSearchQuery,

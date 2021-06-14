@@ -1,59 +1,212 @@
-import { Table } from "antd";
-import { ColumnsType } from "antd/lib/table";
-import { BaseMetadata } from "model/response/base-metadata.response";
-import { GetRowKey } from "rc-table/lib/interface";
-import React, {Fragment, useCallback} from "react";
-import CustomPagination from "./CustomPagination";
+import React, { useCallback } from "react";
+import {
+  Button,
+  Pagination,
+  Table as ANTTable,
+  TableProps,
+  Select,
+} from "antd";
+import { TableLocale, ColumnType } from "antd/lib/table/interface";
+import {
+  DoubleLeftOutlined,
+  DoubleRightOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
+import classNames from "classnames";
+import { PageConfig } from "config/PageConfig";
 
-
-type CustomTableProps = {
-  pagination: false|BaseMetadata
-  onChange?: (size: number, page: number) => void
-  dataSource?:  Array<any>
-  columns?: ColumnsType<any>
-  rowKey: string|GetRowKey<any>
-  className?: string
-  style?: React.CSSProperties
-  emptyText?: React.ReactNode | (() => React.ReactNode)
-  onSelectedChange?: (selectedRows: any[]) => void
+export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
+  pagination?: false | ICustomTablePaginationConfig;
+  onShowColumnSetting?: () => void;
+  onSelectedChange?: (selectedRows: any[]) => void;
 }
 
-const CustomTable: React.FC<CustomTableProps> = (props: CustomTableProps) => {
-  const {pagination, onChange, rowKey, onSelectedChange, dataSource, columns, className, style} = props;
+export interface ICustomTableColumType<T> extends ColumnType<T> {}
+
+export interface ICustomTablePaginationConfig {
+  total?: number;
+  disabled?: boolean;
+  current?: number;
+  pageSize?: number;
+  onChange?: (page: number, pageSize?: number) => void;
+  showSizeChanger?: boolean;
+  pageSizeOptions?: string[];
+  onShowSizeChange?: (current: number, size: number) => void;
+  style?: React.CSSProperties;
+  className?: string;
+}
+
+const defaultLocale: TableLocale = {
+  emptyText: "Không có bản ghi nào",
+  filterEmptyText: "Không tìm thấy bản ghi nào",
+  selectNone: "Bỏ chọn",
+  selectAll: "Chọn tất cả",
+};
+
+const defaultPagination: ICustomTablePaginationConfig = {
+  current: 1,
+  total: 1,
+  pageSize: 50,
+  showSizeChanger: true,
+  pageSizeOptions: PageConfig,
+};
+
+const showTotal = (pagination: ICustomTablePaginationConfig) => {
+  let { total = 1, current = 1, pageSize = 1 } = pagination;
+  let from = (current - 1) * pageSize + 1;
+  let to = current * pageSize;
+  if (to > total) to = total;
+  return `Hiển thị kết quả: ${from}-${to} / ${total} kết quả`;
+};
+
+const handleLastNextPage = (
+  pagination: ICustomTablePaginationConfig,
+  type: number
+) => {
+  const { current = 1, total = 1, pageSize = 1, onChange } = pagination;
+  const totalPage = Math.ceil(total / pageSize);
+  if (!onChange) return;
+
+  if (type) {
+    if (current === totalPage) return;
+    return onChange(totalPage, pageSize);
+  }
+
+  if (current === 1) return;
+  return onChange(1, pageSize);
+};
+
+const handleSizeChanger = (
+  pagination: ICustomTablePaginationConfig,
+  value: number
+) => {
+  const { current = 1, onShowSizeChange } = pagination;
+  return onShowSizeChange && onShowSizeChange(current, value);
+};
+
+const CustomTable = (props: ICustomTableProps) => {
+  const {
+    locale = defaultLocale,
+    pagination = defaultPagination,
+    columns,
+    onSelectedChange,
+    onShowColumnSetting,
+  } = props;
+
+  const totalPage = pagination
+    ? Math.ceil((pagination.total || 1) / (pagination.pageSize || 1))
+    : 1;
+  console.log(totalPage);
+  const configSettingColumns: ICustomTableColumType<any>[] = [
+    {
+      title: (
+        <Button
+          className="custom-table-setting-column"
+          icon={<SettingOutlined />}
+          onClick={onShowColumnSetting}
+        />
+      ),
+      key: "configColumn",
+      width: 50,
+    },
+  ];
   const onSelect = useCallback((item: any, selected: boolean, selectedRow: any[]) => {
     onSelectedChange && onSelectedChange(selectedRow);
   }, [onSelectedChange]);
   const onSelectAll = useCallback((selected, selectedRow: any[], changeRow: any[]) => {
     onSelectedChange && onSelectedChange(selectedRow);
   }, [onSelectedChange]);
+
   return (
-    <Fragment>
-      <Table
+    <div className="custom-table">
+      <ANTTable
         rowSelection={{
-          fixed: true,
           type: "checkbox",
-          columnWidth: 80,
           onSelect: onSelect,
           onSelectAll: onSelectAll,
         }}
-        dataSource={dataSource}
-        rowKey={rowKey}
-        columns={columns}
-        className={className}
-        style={style}
-        tableLayout="fixed"
+        {...props}
+        columns={columns?.concat(configSettingColumns)}
+        locale={locale}
         pagination={false}
       />
-      {
-        pagination !== false && (
-          <CustomPagination
-            metadata={pagination}
-            onChange={onChange}
-          />  
-        )
-      }
-    </Fragment>
-  )
-}
+      {pagination && (
+        <div className="custom-table-pagination">
+          <div className="custom-table-pagination-left">
+            <span className="custom-table-pagination-show-total">
+              {showTotal(pagination)}
+            </span>
+          </div>
+          {totalPage > 1 && (
+            <div className="custom-table-pagination-right">
+              {pagination.showSizeChanger && (
+                <div className="custom-table-pagination-size-change">
+                  <label htmlFor="custom-pagination-size-changer">
+                    Hiển thị số dòng:{" "}
+                  </label>
+                  <Select
+                    value={pagination.pageSize}
+                    id="custom-pagination-size-changer"
+                    onChange={(value: number) =>
+                      handleSizeChanger(pagination, value)
+                    }
+                  >
+                    {pagination &&
+                      PageConfig.map((size) => (
+                        <Select.Option value={size}>{size}</Select.Option>
+                      ))}
+                  </Select>
+                </div>
+              )}
+              <div className="custom-table-pagination-container">
+                <li
+                  title="First Page"
+                  className={classNames(
+                    "ant-pagination-prev",
+                    pagination.current &&
+                      pagination.current === 1 &&
+                      "ant-pagination-disabled"
+                  )}
+                >
+                  <button
+                    onClick={() => handleLastNextPage(pagination, 0)}
+                    className="ant-pagination-item-link"
+                    type="button"
+                  >
+                    <DoubleLeftOutlined />
+                  </button>
+                </li>
+                <Pagination
+                  total={pagination.total}
+                  current={pagination.current}
+                  pageSize={pagination.pageSize}
+                  onChange={pagination.onChange}
+                  showSizeChanger={false}
+                />
+                <li
+                  title="First Page"
+                  className={classNames(
+                    "ant-pagination-prev",
+                    pagination.current &&
+                      pagination.current === totalPage &&
+                      "ant-pagination-disabled"
+                  )}
+                >
+                  <button
+                    onClick={() => handleLastNextPage(pagination, 1)}
+                    className="ant-pagination-item-link"
+                    type="button"
+                  >
+                    <DoubleRightOutlined />
+                  </button>
+                </li>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default React.memo(CustomTable);

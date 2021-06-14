@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import { OrderRequest } from "model/request/order.request";
 import { OrderLineItemRequest } from "model/request/order-line-item.request";
 import { OrderItemDiscountRequest } from "model/request/order-item-discount.request";
-import { AccountResponse } from "model/account/account.response";
+import { AccountResponse } from "model/account/account.model";
 import {
   BillingAddress,
   CustomerResponse,
@@ -19,7 +19,7 @@ import {
 } from "model/response/customer/customer.response";
 import { useHistory } from "react-router";
 import {AccountSearchAction} from "domain/actions/account/account.action";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import {
   OrderItemDiscountModel,
   OrderItemModel,
@@ -27,7 +27,7 @@ import {
 import { orderCreateAction } from "domain/actions/order/order.action";
 import { showSuccess } from "utils/ToastUtils";
 import { Email } from "utils/RegUtils";
-import { StoreResponse } from "model/response/core/store.response";
+import { StoreResponse } from "model/core/store.model";
 //#endregion
 
 const CreateBill = () => {

@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 import { Redirect } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootReducerType } from 'model/reducers/RootReducerType';
-import { loginRequestAction } from 'domain/actions/account/auth.action';
+import { loginRequestAction } from 'domain/actions/auth/auth.action';
 import { useQuery } from 'utils/useQuery';
 
 
@@ -24,7 +24,7 @@ const Login = () => {
     return <Redirect to={url !== null ? url: '/'} />
   }
   return (
-    <div className={'container'}>
+    <div className={'container-login'}>
       <div className={'login'}>
         <img src={logo} alt="logo" />
         <Form

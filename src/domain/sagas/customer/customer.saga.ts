@@ -1,4 +1,4 @@
-import { PageResponse } from './../../../model/response/base-metadata.response';
+import { PageResponse } from '../../../model/base/base-metadata.response';
 import { CustomerResponse } from "model/response/customer/customer.response";
 import BaseResponse from "base/BaseResponse";
 import { YodyAction } from "base/BaseAction";

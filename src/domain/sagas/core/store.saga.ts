@@ -1,13 +1,13 @@
 import BaseResponse from 'base/BaseResponse';
 import { YodyAction } from 'base/BaseAction';
 import { showError } from 'utils/ToastUtils';
-import { StoreResponse } from 'model/response/core/store.response';
+import { StoreResponse } from 'model/core/store.model';
 import { getListStore } from 'service/core/store.service';
 import { call, put, takeLatest } from '@redux-saga/core/effects';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
 import { HttpStatus } from 'config/HttpStatus';
 import { StoreType } from 'domain/types/core.type';
-import { PageResponse } from 'model/response/base-metadata.response';
+import { PageResponse } from 'model/base/base-metadata.response';
 import { storeGetApi } from 'service/core/store.services';
 
 function* storeGetAllSaga(action: YodyAction) {

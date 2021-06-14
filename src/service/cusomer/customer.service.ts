@@ -1,5 +1,5 @@
 import { CustomerResponse } from 'model/response/customer/customer.response';
-import { PageResponse } from 'model/response/base-metadata.response';
+import { PageResponse } from 'model/base/base-metadata.response';
 import { generateQuery } from 'utils/AppUtils';
 import { CustomerSearchQuery } from 'model/query/customer.query';
 import BaseAxios from "base/BaseAxios";

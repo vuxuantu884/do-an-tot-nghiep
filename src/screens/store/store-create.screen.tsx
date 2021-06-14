@@ -1,7 +1,7 @@
 import { Button, Card, Col, Collapse, Form, FormInstance, Input, Row, Select } from "antd";
-import { getCountry, getDistrictAction } from "domain/actions/content/content.action";
-import { storeCreateAction } from "domain/actions/core/store.action";
-import { StoreCreateRequest } from "model/core/request/store.request";
+import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
+import { StoreCreateAction } from "domain/actions/core/store.action";
+import { StoreCreateRequest } from "model/core/store.model";
 import { CityView } from "model/other/district-view";
 import { CountryResponse } from "model/response/content/country.response";
 import { DistrictResponse } from "model/response/content/district.response";
@@ -67,11 +67,11 @@ const StoreCreateScreen: React.FC = () => {
     history.push('/suppliers');
   }, [history])
   const onFinish = useCallback((values: StoreCreateRequest) => {
-    dispatch(storeCreateAction(values, onCreateSuccess))
+    dispatch(StoreCreateAction(values, onCreateSuccess))
   }, [dispatch, onCreateSuccess])
   useEffect(() => {
-    dispatch(getCountry(setCountries))
-    dispatch(getDistrictAction(DefaultCountry, setDataDistrict))
+    dispatch(CountryGetAllAction(setCountries))
+    dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict))
   }, [dispatch, setDataDistrict])
   return (
     <Form ref={formRef} layout="vertical" onFinish={onFinish} initialValues={initRequest}>

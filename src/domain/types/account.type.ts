@@ -8,9 +8,3 @@ export const AccountType = {
 };
 
 
-export const AuthType = {
-  LOGIN_REQUEST: 'LOGIN_REQUEST',
-  LOGIN_RESPONSE: 'LOGIN_RESPONSE',
-  LOGOUT_REQUEST: 'LOGOUT_REQUEST',
-  LOGOUT_SUCCESS: 'LOGOUT_SUCCESS',
-}

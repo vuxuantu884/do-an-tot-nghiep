@@ -20,7 +20,7 @@ import {
   OrderItemModel,
 } from "model/other/Order/order-model";
 import { VariantResponse } from "model/response/products/variant.response";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { VariantSearchQuery } from "model/query/variant.search.query";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 

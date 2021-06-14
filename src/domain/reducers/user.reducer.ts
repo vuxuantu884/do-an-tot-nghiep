@@ -1,6 +1,6 @@
 import { YodyAction } from 'base/BaseAction';
 import { AppType } from 'domain/types/app.type';
-import { AuthType } from 'domain/types/account.type';
+import { AuthType } from 'domain/types/auth.type';
 
 const intitalState = {
   isLogin: false,

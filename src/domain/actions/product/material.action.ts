@@ -2,8 +2,16 @@ import BaseAction from "base/BaseAction"
 import { MaterialType } from "domain/types/product.type";
 import { MaterialQuery } from "model/query/material.query";
 import { CreateMaterialRequest, UpdateMaterialRequest } from "model/request/create-material.request";
-import { BaseMetadata } from "model/response/base-metadata.response";
+import { BaseMetadata } from "model/base/base-metadata.response";
 import { MaterialResponse } from "model/response/products/material.response";
+
+export const materialSearchAll = (
+  setData: (data: Array<MaterialResponse>) => void,
+) => {
+  return BaseAction(MaterialType.SEARCH_ALL_MATERIAL_REQUEST, {
+    setData,
+  });
+}
 
 export const getMaterialAction = (
   query: MaterialQuery,

@@ -7,6 +7,7 @@ const ApiConfig = {
   ACCOUNTS: `${v1}/yody-account-service`,
   ORDER: `${v1}/yody-order-service`,
   CUSTOMER: `${v1}/yody-customer-service`,
+  AUTH: `${v1}/yody-auth-service`,
 }
 
 export { ApiConfig };

@@ -1,7 +1,7 @@
 import { DownOutlined } from "@ant-design/icons";
 import { Dropdown, Menu, Pagination } from "antd";
 import { PageConfig } from "config/PageConfig";
-import { BaseMetadata } from "model/response/base-metadata.response";
+import { BaseMetadata } from "model/base/base-metadata.response";
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 
@@ -48,7 +48,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = (
                       <Menu>
                         {
                           PageConfig.map((item, index) => (
-                            <Menu.Item disabled={metadata.limit === item} key={index} onClick={() => onChange && onChange(item, metadata.page)}>{item.toString()}</Menu.Item>
+                            <Menu.Item disabled={metadata.limit.toString() === item} key={index} onClick={() => onChange && onChange(parseInt(item), metadata.page)}>{item.toString()}</Menu.Item>
                           ))
                         }
                       </Menu>

@@ -3,7 +3,7 @@ import { ColorSearchQuery } from 'model/query/color.search.query';
 import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { generateQuery } from "utils/AppUtils";
 import { ColorResponse } from "model/response/products/color.response";
 import { ColorCreateRequest } from 'model/request/color-create.request';

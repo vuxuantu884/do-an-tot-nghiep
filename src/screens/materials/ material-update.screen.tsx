@@ -1,73 +1,81 @@
-import { Button, Card, Col, Form, FormInstance, Input, Row } from "antd";
+import { Button, Card, Col, Form, FormInstance, Input, Row, Space } from "antd";
 import UrlConfig from "config/UrlConfig";
-import { detailMaterialAction, updateMaterialAction } from "domain/actions/product/material.action";
+import {
+  detailMaterialAction,
+  updateMaterialAction,
+} from "domain/actions/product/material.action";
 import { UpdateMaterialRequest } from "model/request/create-material.request";
 import { MaterialResponse } from "model/response/products/material.response";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 
-type  MaterialPamram = {
+type MaterialPamram = {
   id: string;
-}
+};
 
 const UpdateMaterial: React.FC = () => {
-  const {id} = useParams<MaterialPamram>();
-  const [oldData, setData] = useState<MaterialResponse|null>(null)
+  const { id } = useParams<MaterialPamram>();
+  const [oldData, setData] = useState<MaterialResponse | null>(null);
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const onSuccess = useCallback(() => {
     history.push(UrlConfig.MATERIALS);
-  }, [history])
-  const onFinish = useCallback((values: UpdateMaterialRequest) => {
-    let idNumber = parseInt(id);
-    dispatch(updateMaterialAction(idNumber, values, onSuccess));
-  }, [dispatch, id, onSuccess]);
-  const onSave = useCallback(() => {
-    formRef.current?.submit();
-  }, [formRef]);
+  }, [history]);
+  const onFinish = useCallback(
+    (values: UpdateMaterialRequest) => {
+      let idNumber = parseInt(id);
+      dispatch(updateMaterialAction(idNumber, values, onSuccess));
+    },
+    [dispatch, id, onSuccess]
+  );
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
   useEffect(() => {
     let idNumber = parseInt(id);
-    if(!Number.isNaN(idNumber)) {
+    if (!Number.isNaN(idNumber)) {
       dispatch(detailMaterialAction(idNumber, setData));
     }
   }, [dispatch, id]);
-  if(oldData == null) {
-    return (
-      <Card className="card-block card-block-normal">
-        Không tìm thấy chất liệu
-      </Card>
-    )
+  if (oldData == null) {
+    return <Card>Không tìm thấy chất liệu</Card>;
   }
   return (
-    <div>
-      <Card className="card-block card-block-normal" title="Thông tin cơ bản">
-        <Form
-          ref={formRef}
-          onFinish={onFinish}
-          initialValues={oldData}
-          layout="vertical"
-        >
+    <Form
+      ref={formRef}
+      onFinish={onFinish}
+      initialValues={oldData}
+      layout="vertical"
+    >
+      <Card title="Thông tin cơ bản">
+        <div className="padding-20">
           <Row gutter={24}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 className="form-group form-group-with-search"
                 rules={[
-                  { required: true, message: 'Vui lòng nhập tên chất liệu' },
+                  { required: true, message: "Vui lòng nhập tên chất liệu" },
                 ]}
                 label="Tên chất liệu"
                 name="name"
               >
-                <Input className="r-5" placeholder="Tên danh mục" size="large" />
+                <Input
+                  className="r-5"
+                  placeholder="Tên danh mục"
+                  size="large"
+                />
               </Form.Item>
             </Col>
-            <Col  span={24} lg={8} md={12} sm={24}>
+            <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
-                rules={[{ required: true, message: 'Vui lòng nhập thành phần chất liệu' }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập thành phần chất liệu",
+                  },
+                ]}
                 className="form-group form-group-with-search"
                 name="component"
                 label="Thành phần"
@@ -80,23 +88,31 @@ const UpdateMaterial: React.FC = () => {
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 rules={[
-                  { required: true, message: 'Vui lòng nhập mã chất liệu' },
+                  { required: true, message: "Vui lòng nhập mã chất liệu" },
                 ]}
                 className="form-group form-group-with-search"
                 name="code"
                 labelAlign="right"
                 label="Mã chất liệu"
               >
-                <Input className="r-5" placeholder="Mã chất liệu" size="large" />
+                <Input
+                  className="r-5"
+                  placeholder="Mã chất liệu"
+                  size="large"
+                />
               </Form.Item>
             </Col>
-            <Col  span={24} lg={8} md={12} sm={24}>
+            <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 className="form-group form-group-with-search"
                 name="description"
                 label="Ghi chú"
               >
-                <Input className="r-5" placeholder="Mã chất liệu" size="large" />
+                <Input
+                  className="r-5"
+                  placeholder="Mã chất liệu"
+                  size="large"
+                />
               </Form.Item>
               <Form.Item
                 hidden
@@ -104,18 +120,28 @@ const UpdateMaterial: React.FC = () => {
                 name="version"
                 label="Ghi chú"
               >
-                <Input className="r-5" placeholder="Mã chất liệu" size="large" />
+                <Input
+                  className="r-5"
+                  placeholder="Mã chất liệu"
+                  size="large"
+                />
               </Form.Item>
             </Col>
           </Row>
-        </Form>
+        </div>
       </Card>
-      <Row className="footer-row-btn" justify="end">
-        <Button type="default" onClick={onCancel} className="btn-style btn-cancel">Hủy</Button>
-        <Button type="default" onClick={onSave} className="btn-style btn-save">Lưu</Button>
-      </Row>
-    </div>
-  )
-}
+      <div className="margin-top-10" style={{ textAlign: "right" }}>
+        <Space size={12}>
+          <Button type="default" onClick={onCancel}>
+            Hủy
+          </Button>
+          <Button htmlType="submit" type="primary">
+            Lưu
+          </Button>
+        </Space>
+      </div>
+    </Form>
+  );
+};
 
 export default UpdateMaterial;

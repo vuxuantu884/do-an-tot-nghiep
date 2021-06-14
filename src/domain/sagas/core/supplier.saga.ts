@@ -3,7 +3,7 @@ import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { SupplierType } from "domain/types/core.type";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { supplierGetApi, supplierPostApi } from "service/core/supplier.service";

@@ -2,7 +2,7 @@ import BaseAxios from "base/BaseAxios"
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig"
 import { SupplierQuery } from "model/query/supplier.query";
-import { PageResponse } from "model/response/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse } from "model/response/supplier/supplier.response";
 import { SupplierUpdateRequest, SupplierCreateRequest } from "model/request/create-supplier.request";
 import { generateQuery } from "utils/AppUtils";

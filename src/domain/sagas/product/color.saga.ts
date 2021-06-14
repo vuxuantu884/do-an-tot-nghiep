@@ -4,7 +4,7 @@ import { YodyAction } from 'base/BaseAction';
 import BaseResponse from 'base/BaseResponse';
 import { HttpStatus } from 'config/HttpStatus';
 import { showError } from 'utils/ToastUtils';
-import { PageResponse } from 'model/response/base-metadata.response';
+import { PageResponse } from 'model/base/base-metadata.response';
 import { ColorResponse } from 'model/response/products/color.response';
 import { ColorType } from 'domain/types/product.type';
 

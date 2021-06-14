@@ -4,7 +4,7 @@ import { colorSaga } from './product/color.saga';
 import { supplierSagas } from './core/supplier.saga';
 import OrderOnlineSaga from './order/order-online.saga';
 import storeSaga  from './core/store.saga'
-import { authSaga } from './account/auth.saga';
+import { authSaga } from './auth/auth.saga';
 import { bootstrapSaga } from './content/bootstrap.saga';
 import { contentSaga } from './content/content.saga';
 import { categorySaga } from './product/category.saga';
@@ -14,6 +14,7 @@ import { sizeSaga } from './product/size.saga';
 import { accountSaga } from './account/account.saga';
 import sourceSaga from './order/source.saga';
 import customerSagas from './customer/customer.saga';
+import { roleSaga } from './auth/role.saga';
 function* rootSaga(){
     yield all([
       appSaga(),
@@ -30,7 +31,8 @@ function* rootSaga(){
       supplierSagas(),
       accountSaga(),
       sourceSaga(),
-      customerSagas()
+      customerSagas(),
+      roleSaga()
     ]);
 }
 
