@@ -102,3 +102,34 @@ export interface VariantSearchQuery extends BaseQuery {
   color?:string,
   supplier?:string
 }
+
+export interface VariantPriceRequest {
+  price: number,
+  currency_code: string,
+  price_type: string,
+  tax_percent: number,
+  version?: number,
+}
+
+export interface VariantRequest {
+  status: string,
+  name: string,
+  color_id: number,
+  size_id: number,
+  barcode: string|null,
+  taxable: boolean|null,
+  saleable: boolean|null
+  deleted: boolean,
+  sku: string,
+  width: number|null,
+  height: number|null,
+  length: number|null,
+  length_unit: string|null,
+  weight: number|null,
+  weight_unit: number|null,
+  variant_prices: Array<VariantPriceRequest>
+  product: null,
+  variant_images: null,
+  inventory: 0,
+  version?: null,
+}

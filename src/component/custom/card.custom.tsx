@@ -5,12 +5,14 @@ import classNames from "classnames";
 
 interface IProps extends CardProps {
   collapse?: boolean;
-  defaultOpen?: boolean
+  defaultopen?: boolean
 }
 
 const CustomCard = (props: IProps) => {
   const container = useRef<HTMLDivElement>(null);
-  const [collapsed, setCollapsed] = useState(!props.defaultOpen);
+  const { collapse, className, extra, defaultopen, ...rest } = props;
+
+  const [collapsed, setCollapsed] = useState(defaultopen !== undefined ? !defaultopen : true);
 
   const handleHeaderCardClick = useCallback(
     () => {
@@ -31,7 +33,6 @@ const CustomCard = (props: IProps) => {
 
 
 
-  const { collapse, className, extra, ...rest } = props;
   return (
     <div ref={container}>
       <ANTCard
@@ -41,10 +42,7 @@ const CustomCard = (props: IProps) => {
           collapsed && "collapsed"
         )}
         {...rest}
-        extra={[
-          extra,
-          collapse && (collapsed ? <RightOutlined /> : <DownOutlined />),
-        ]}
+        extra={collapse && (collapsed ? <RightOutlined /> : <DownOutlined />)}
       />
     </div>
   );

@@ -99,6 +99,17 @@
                   }
                 }
               }
+              &-popup {
+                & > .ant-menu {
+                  background-color: #F9F9FB;
+                }
+                .ant-menu-item {
+                  
+                  .ant-menu-title-content {
+                    
+                  }
+                }
+              }
             }
 
             &-item{

@@ -13,7 +13,7 @@ import { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { convertDistrict } from "utils/AppUtils";
-import CustomCard from "component/card.custom";
+import CustomCard from "component/custom/card.custom";
 
 const { Item } = Form;
 const { Option, OptGroup } = Select;

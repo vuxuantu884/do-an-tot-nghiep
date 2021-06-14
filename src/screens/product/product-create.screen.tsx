@@ -12,24 +12,24 @@ import {
   Table,
   Space,
   Image,
-} from "antd";
-import CustomEditor from "component/custom-editor";
-import UrlConfig from "config/UrlConfig";
-import { CountryGetAllAction } from "domain/actions/content/content.action";
-import { supplierGetAllAction } from "domain/actions/core/supplier.action";
-import { getCategoryRequestAction } from "domain/actions/product/category.action";
-import { colorSearchAll } from "domain/actions/product/color.action";
-import { materialSearchAll } from "domain/actions/product/material.action";
-import { sizeGetAll } from "domain/actions/product/size.action";
-import { CategoryView } from "model/product/category.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { SizeCreateRequest } from "model/product/size.model";
-import { CountryResponse } from "model/content/country.model";
-import { CategoryResponse } from "model/product/category.model";
-import { ColorResponse } from "model/product/color.model";
-import { MaterialResponse } from "model/product/material.model";
-import { SizeResponse } from "model/product/size.model";
-import { SupplierResponse } from "model/core/supplier.model";
+} from 'antd';
+import CustomEditor from 'component/custom-editor';
+import UrlConfig from 'config/UrlConfig';
+import {CountryGetAllAction} from 'domain/actions/content/content.action';
+import {supplierGetAllAction} from 'domain/actions/core/supplier.action';
+import {getCategoryRequestAction} from 'domain/actions/product/category.action';
+import {colorSearchAll} from 'domain/actions/product/color.action';
+import {materialSearchAll} from 'domain/actions/product/material.action';
+import {sizeGetAll} from 'domain/actions/product/size.action';
+import {CategoryView} from 'model/product/category.model';
+import {RootReducerType} from 'model/reducers/RootReducerType';
+import {SizeCreateRequest} from 'model/product/size.model';
+import {CountryResponse} from 'model/content/country.model';
+import {CategoryResponse} from 'model/product/category.model';
+import {ColorResponse} from 'model/product/color.model';
+import {MaterialResponse} from 'model/product/material.model';
+import {SizeResponse} from 'model/product/size.model';
+import {SupplierResponse} from 'model/core/supplier.model';
 import {
   createRef,
   useCallback,
@@ -37,20 +37,22 @@ import {
   useMemo,
   useRef,
   useState,
-} from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
-import { convertCategory } from "utils/AppUtils";
+} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {useHistory} from 'react-router-dom';
+import {convertCategory} from 'utils/AppUtils';
 import {
   DeleteOutlined,
   InfoCircleOutlined,
   PlusOutlined,
   MinusOutlined,
-} from "@ant-design/icons";
-import CustomCard from "component/card.custom";
+} from '@ant-design/icons';
+import CustomCard from 'component/custom/card.custom';
+import CustomSelect from 'component/custom/select.custom';
+import {VariantRequest} from 'model/product/product.model';
 
-const { Option } = Select;
-const { Item } = Form;
+const {Option} = Select;
+const {Item} = Form;
 const ProductCreateScreen: React.FC = () => {
   //Hook
   const dispatch = useDispatch();
@@ -80,19 +82,20 @@ const ProductCreateScreen: React.FC = () => {
   const [listColor, setListColor] = useState<Array<ColorResponse>>([]);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
   //End get master data
-
+  //State
+  const [colorSelected, setColorSelected] = useState<Array<ColorResponse>>([]);
+  const [sizeSelected, setSizeSelected] = useState<Array<SizeResponse>>([]);
+  const [variants, setVariants] = useState<Array<VariantRequest>>([]);
+  //End State
   const formRef = createRef<FormInstance>();
-  const [status, setStatus] = useState<string>("active");
+  const [status, setStatus] = useState<string>('active');
   const statusValue = useMemo(() => {
-    return "Đang hoạt dộng";
+    return 'Đang hoạt dộng';
   }, []);
   const onSuccess = useCallback(() => {
     history.push(UrlConfig.SIZES);
   }, [history]);
   const onFinish = useCallback((values: SizeCreateRequest) => {}, []);
-  const onSave = useCallback(() => {
-    formRef.current?.submit();
-  }, [formRef]);
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
@@ -105,37 +108,37 @@ const ProductCreateScreen: React.FC = () => {
   //end callback data
   const columns = [
     {
-      title: "Mã chi tiết",
-      key: "code",
-      dataIndex: "code",
+      title: 'Mã chi tiết',
+      key: 'sku',
+      dataIndex: 'sku',
     },
     {
-      title: "Tên sản phẩm",
-      key: "name",
-      dataIndex: "name",
+      title: 'Tên sản phẩm',
+      key: 'name',
+      dataIndex: 'name',
     },
     {
-      title: "Mã màu",
-      key: "color",
-      dataIndex: "color",
+      title: 'Mã màu',
+      key: 'color',
+      dataIndex: 'color',
     },
     {
-      title: "Size",
-      key: "size",
-      dataIndex: "size",
+      title: 'Size',
+      key: 'size',
+      dataIndex: 'size',
     },
     {
-      title: "Số lượng",
-      key: "quantity",
-      dataIndex: "quantity",
+      title: 'Số lượng',
+      key: 'quantity',
+      dataIndex: 'quantity',
       width: 100,
       render: (qty: string) => (
-        <Input style={{ textAlign: "center" }} value={qty} />
+        <Input style={{textAlign: 'center'}} value={qty} />
       ),
     },
     {
-      title: "Ảnh",
-      dataIndex: "image",
+      title: 'Ảnh',
+      dataIndex: 'image',
       render: (image: string) => (
         <Image
           width={40}
@@ -146,13 +149,72 @@ const ProductCreateScreen: React.FC = () => {
       ),
     },
     {
-      title: "Thao tác",
-      key: "action",
-      dataIndex: "id",
+      title: 'Thao tác',
+      key: 'action',
+      dataIndex: 'id',
       width: 100,
       render: (id: number) => <Button type="link" icon={<DeleteOutlined />} />,
     },
   ];
+  const listVariantsFilter = useCallback((colors: Array<ColorResponse>, sizes: Array<SizeResponse>) => {
+    let name = formRef.current?.getFieldValue('name');
+    let width = formRef.current?.getFieldValue('width');
+    let height = formRef.current?.getFieldValue('height');
+    let length = formRef.current?.getFieldValue('length');
+    let code = formRef.current?.getFieldValue('code');
+    let length_unit = formRef.current?.getFieldValue('length_unit');
+    let weight = formRef.current?.getFieldValue('weight');
+    let weight_unit = formRef.current?.getFieldValue('weight_unit');
+    if (name && code) {
+      colors.forEach((i1) => {
+        sizes.forEach((i2) => {
+          let sku = `${code}-${i1.code}-${i2.code}`;
+          let index = variants.findIndex((v) => v.sku === sku);
+          if (index === -1) {
+            variants.push({
+              status: 'avtive',
+              name: `${name} - ${i1.name} - ${i2.code}`,
+              color_id: i1.id,
+              size_id: i2.id,
+              barcode: null,
+              taxable: false,
+              saleable: true,
+              deleted: false,
+              sku: sku,
+              width: width,
+              height: height,
+              length: length,
+              length_unit: length_unit,
+              weight: weight,
+              weight_unit: weight_unit,
+              variant_prices: [],
+              product: null,
+              variant_images: null,
+              inventory: 0,
+            });
+          }
+        });
+      });
+    }
+    setVariants([...variants]);
+  }, [formRef, variants]);
+  const onSizeChange = useCallback(
+    (values: Array<number>) => {
+      let filter = listSize.filter((item) => values.includes(item.id));
+      setSizeSelected([...filter]);
+      listVariantsFilter(colorSelected, filter);
+    },
+    [colorSelected, listSize, listVariantsFilter]
+  );
+  const onColorChange = useCallback(
+    (values: Array<number>) => {
+      let filter = listColor.filter((item) => values.includes(item.id));
+      setColorSelected([...filter]);
+      listVariantsFilter(filter, sizeSelected);
+    },
+    [listColor, listVariantsFilter, sizeSelected]
+  );
+    console.log(colorSelected);
   useEffect(() => {
     if (!isLoadMaterData.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
@@ -165,14 +227,14 @@ const ProductCreateScreen: React.FC = () => {
     isLoadMaterData.current = true;
     return () => {};
   }, [dispatch, setDataCategory]);
-
+  console.log(variants);
   return (
     <div>
       <Form ref={formRef} onFinish={onFinish} layout="vertical">
         <Card
           title="Thông tin cơ bản"
           extra={[
-            <Space size={15}>
+            <Space key="a" size={15}>
               <label className="text-default">Trạng thái</label>
               <Switch className="ant-switch-success" defaultChecked />
               <label className="text-success">Đang hoạt động</label>
@@ -186,7 +248,7 @@ const ProductCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng chọn loại sản phẩm",
+                      message: 'Vui lòng chọn loại sản phẩm',
                     },
                   ]}
                   name="product_type"
@@ -206,7 +268,7 @@ const ProductCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng chọn loại sản phẩm",
+                      message: 'Vui lòng chọn loại sản phẩm',
                     },
                   ]}
                   name="goods"
@@ -228,19 +290,27 @@ const ProductCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng chọn danh mục",
+                      message: 'Vui lòng chọn danh mục',
                     },
                   ]}
                   name="category_id"
                   label="Danh mục"
                 >
-                  <Select placeholder="Chọn danh mục">
+                  <CustomSelect
+                    placeholder="Chọn danh mục"
+                    suffix={
+                      <Button
+                        style={{width: 36, height: 36}}
+                        icon={<PlusOutlined />}
+                      />
+                    }
+                  >
                     {listCategory.map((item) => (
-                      <Option key={item.id} value={item.id}>
+                      <CustomSelect.Option key={item.id} value={item.id}>
                         {item.name}
-                      </Option>
+                      </CustomSelect.Option>
                     ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
               </Col>
               <Col span={50} lg={8} md={12} sm={50}>
@@ -261,17 +331,13 @@ const ProductCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập mã sản phẩm",
+                      message: 'Vui lòng nhập mã sản phẩm',
                     },
                   ]}
                   name="code"
                   label="Mã sản phẩm"
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập mã sản phẩm"
-                    size="large"
-                  />
+                  <Input placeholder="Nhập mã sản phẩm" />
                 </Item>
               </Col>
               <Col span={50} lg={8} md={12} sm={50}>
@@ -279,7 +345,7 @@ const ProductCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập tên sản phẩm",
+                      message: 'Vui lòng nhập tên sản phẩm',
                     },
                   ]}
                   name="name"
@@ -287,8 +353,6 @@ const ProductCreateScreen: React.FC = () => {
                 >
                   <Input
                     placeholder="Nhập tên sản phẩm"
-                    className="r-5"
-                    size="large"
                   />
                 </Item>
               </Col>
@@ -298,29 +362,29 @@ const ProductCreateScreen: React.FC = () => {
                 <Item
                   label="Kích thước (dài, rộng, cao)"
                   required
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Input.Group compact>
                     <Item noStyle>
                       <Input
-                        style={{ width: "calc((100% - 90px) / 3)" }}
+                        style={{width: 'calc((100% - 90px) / 3)'}}
                         placeholder="Dài"
                       />
                     </Item>
                     <Item noStyle>
                       <Input
-                        style={{ width: "calc((100% - 90px) / 3)" }}
+                        style={{width: 'calc((100% - 90px) / 3)'}}
                         placeholder="Rộng"
                       />
                     </Item>
                     <Item noStyle>
                       <Input
                         placeholder="Cao"
-                        style={{ width: "calc((100% - 90px) / 3)" }}
+                        style={{width: 'calc((100% - 90px) / 3)'}}
                       />
                     </Item>
                     <Item noStyle>
-                      <Select style={{ width: "90px" }} value="cm">
+                      <Select style={{width: '90px'}} value="cm">
                         <Option value="cm">cm</Option>
                       </Select>
                     </Item>
@@ -330,17 +394,17 @@ const ProductCreateScreen: React.FC = () => {
               <Col md={8}>
                 <Item
                   label="Khối lượng"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Input.Group compact>
                     <Item noStyle>
                       <Input
                         placeholder="Khối lượng"
-                        style={{ width: "calc(100% - 90px)" }}
+                        style={{width: 'calc(100% - 90px)'}}
                       />
                     </Item>
                     <Item noStyle>
-                      <Select style={{ width: "90px" }} value="gram">
+                      <Select style={{width: '90px'}} value="gram">
                         <Option value="gram">gram</Option>
                       </Select>
                     </Item>
@@ -353,11 +417,7 @@ const ProductCreateScreen: React.FC = () => {
             <Row gutter={50}>
               <Col span={50} lg={8} md={12} sm={50}>
                 <Item name="tags" label="Từ khóa">
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập từ khóa"
-                    size="large"
-                  />
+                  <Input placeholder="Nhập từ khóa" />
                 </Item>
               </Col>
               <Col span={50} lg={8} md={12} sm={50}>
@@ -439,7 +499,7 @@ const ProductCreateScreen: React.FC = () => {
                 <Item
                   label="Giá bán"
                   required
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Input placeholder="VD: 100,000" />
                 </Item>
@@ -447,7 +507,7 @@ const ProductCreateScreen: React.FC = () => {
               <Col md={4}>
                 <Item
                   label="Giá buôn"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Input placeholder="VD: 100,000" />
                 </Item>
@@ -455,7 +515,7 @@ const ProductCreateScreen: React.FC = () => {
               <Col md={4}>
                 <Item
                   label="Giá nhập"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Input placeholder="VD: 100,000" />
                 </Item>
@@ -463,7 +523,7 @@ const ProductCreateScreen: React.FC = () => {
               <Col md={4}>
                 <Item
                   label="Đơn vị tiền tệ"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Select value="VND">
                     <Select.Option value="VND">VND</Select.Option>
@@ -473,12 +533,12 @@ const ProductCreateScreen: React.FC = () => {
               <Col md={4}>
                 <Item
                   label="Thuế"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Input placeholder="VD: 10" suffix={<span>%</span>} />
                 </Item>
               </Col>
-              <Col md={4} style={{ display: "flex", alignItems: "center" }}>
+              <Col md={4} style={{display: 'flex', alignItems: 'center'}}>
                 <Button icon={<DeleteOutlined />} />
               </Col>
             </Row>
@@ -490,14 +550,14 @@ const ProductCreateScreen: React.FC = () => {
         <Row gutter={24} className="margin-top-20">
           <Col md={12}>
             <CustomCard
-              defaultOpen={false}
+              defaultopen={false}
               title="Thông tin chi tiết sản phẩm"
               collapse
             >
               <div className="padding-20">
                 <Item
                   label="Chi tiết thông số"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Input placeholder="Điền chi tiết thông số" />
                 </Item>
@@ -517,19 +577,19 @@ const ProductCreateScreen: React.FC = () => {
             </CustomCard>
           </Col>
           <Col md={12}>
-            <CustomCard defaultOpen={false} title="R&D" collapse>
+            <CustomCard defaultopen={false} title="R&D" collapse>
               <div className="padding-20">
                 <Item
                   label="Merchandiser"
                   required
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Select placeholder="Chọn Merchandiser"></Select>
                 </Item>
                 <Item
                   label="Thiết kế"
                   required
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Select placeholder="Chọn thiết kế"></Select>
                 </Item>
@@ -541,39 +601,58 @@ const ProductCreateScreen: React.FC = () => {
           title="Quản lý thuộc tính"
           collapse
           className="margin-top-20"
-          defaultOpen={true}
+          defaultopen={true}
         >
           <div className="padding-20">
             <Row gutter={50}>
-              <Col span={50} lg={6} md={12} sm={50}>
+              <Col span={50} lg={8} md={12} sm={50}>
                 <Item label="Màu sắc" name="color_id">
-                  <Select
-                    notFoundContent={"Không có dữ liệu"}
+                  <CustomSelect
+                    style={{width: 'calc((100% - 36px)'}}
+                    notFoundContent={'Không có dữ liệu'}
                     showSearch
+                    mode="multiple"
+                    maxTagCount={'responsive'}
+                    showArrow
+                    onChange={onColorChange}
                     placeholder="Chọn màu sắc"
+                    suffix={
+                      <Button
+                        style={{width: 36, height: 36}}
+                        icon={<PlusOutlined />}
+                      />
+                    }
                   >
                     {listColor?.map((item) => (
-                      <Option key={item.id} value={item.id}>
+                      <CustomSelect.Option key={item.id} value={item.id}>
                         {item.name}
-                      </Option>
+                      </CustomSelect.Option>
                     ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
               </Col>
-              <Col span={50} lg={6} md={12} sm={50}>
+              <Col span={50} lg={8} md={12} sm={50}>
                 <Item name="size" label="Kích cỡ">
-                  <Select
-                    notFoundContent={"Không có dữ liệu"}
+                  <CustomSelect
+                    onChange={onSizeChange}
+                    notFoundContent={'Không có dữ liệu'}
                     placeholder="Chọn kích cỡ"
+                    maxTagCount={'responsive'}
                     mode="multiple"
                     showSearch
+                    suffix={
+                      <Button
+                        style={{width: 36, height: 36}}
+                        icon={<PlusOutlined />}
+                      />
+                    }
                   >
                     {listSize?.map((item) => (
-                      <Option key={item.id} value={item.id}>
+                      <CustomSelect.Option key={item.id} value={item.id}>
                         {item.code}
-                      </Option>
+                      </CustomSelect.Option>
                     ))}
-                  </Select>
+                  </CustomSelect>
                 </Item>
               </Col>
             </Row>
@@ -581,17 +660,22 @@ const ProductCreateScreen: React.FC = () => {
         </CustomCard>
         <CustomCard
           title="Danh sách mã"
-          defaultOpen
+          defaultopen
           collapse
           className="margin-top-20"
         >
           <div className="padding-20">
-            <Table columns={columns} pagination={false} />
+            <Table
+              dataSource={variants}
+              columns={columns}
+              rowKey={(item) => item.sku}
+              pagination={false}
+            />
           </div>
         </CustomCard>
-        <div className="margin-top-10" style={{ textAlign: "right" }}>
+        <div className="margin-top-10" style={{textAlign: 'right'}}>
           <Space size={12}>
-            <Button>Huỷ</Button>
+            <Button onClick={onCancel}>Huỷ</Button>
             <Button type="primary" htmlType="submit">
               Lưu
             </Button>
