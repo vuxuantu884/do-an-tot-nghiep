@@ -595,7 +595,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   return (
     <Card
-      className="card-block sale-online-product"
+      className="margin-top-20"
       title={
         <div className="d-flex">
           <img src={productIcon} alt="" /> Sản phẩm
@@ -642,6 +642,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         </Row>
       }
     >
+
+<div className="padding-20">
       <Row gutter={24}>
         <Col xs={24} lg={8}>
           <div className="form-group form-group-with-search">
@@ -886,6 +888,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           </Row>
         </Col>
       </Row>
+      </div>
     </Card>
   );
 };

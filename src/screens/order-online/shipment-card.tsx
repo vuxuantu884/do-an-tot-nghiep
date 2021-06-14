@@ -43,7 +43,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
 
   return (
     <Card
-      className="card-block card-block-normal"
+      className="margin-top-20"
       title={
         <div className="d-flex">
           <img src={truckIcon} alt="" /> Đóng gói và giao hàng
@@ -98,7 +98,11 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
 
       <div>
         {/*--- đối tác ----*/}
-        <Row gutter={24} className="ship-box" hidden={props.shipmentMethod !== 1}>
+        <Row
+          gutter={24}
+          className="ship-box"
+          hidden={props.shipmentMethod !== 1}
+        >
           <Col xs={24} lg={12}>
             <div className="form-group form-group-with-search">
               <label htmlFor="" className="">
@@ -162,7 +166,11 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         </Row>
 
         {/*--- Tự giao hàng ----*/}
-        <Row gutter={24} className="ship-cod" hidden={props.shipmentMethod !== 2}>
+        <Row
+          gutter={24}
+          className="ship-cod"
+          hidden={props.shipmentMethod !== 2}
+        >
           <Col xs={24} lg={12}>
             <div className="form-group form-group-with-search form-search-customer">
               <label htmlFor="" className="">

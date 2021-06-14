@@ -27,7 +27,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   };
 
   return (
-    <Card className="card-block card-block-normal"
+    <Card  className="margin-top-20"
           title={<div className="d-flex"><img src={walletIcon} alt="" /> Thanh toán</div>}>
       <div className="payment-method-radio-list">
         <label htmlFor="" className="required-label"><i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i></label>

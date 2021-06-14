@@ -18,7 +18,7 @@ import {
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import { useHistory } from "react-router";
-import {AccountSearchAction} from "domain/actions/account/account.action";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   OrderItemDiscountModel,
@@ -28,6 +28,8 @@ import { orderCreateAction } from "domain/actions/order/order.action";
 import { showSuccess } from "utils/ToastUtils";
 import { Email } from "utils/RegUtils";
 import { StoreResponse } from "model/core/store.model";
+import { InfoCircleOutlined } from "@ant-design/icons";
+import 'assets/css/v2/_sale-order.scss'
 //#endregion
 
 const CreateBill = () => {
@@ -126,7 +128,7 @@ const CreateBill = () => {
     setVisibleSource(false);
   };
 
-  const onCustomerNote= (item: string) => {
+  const onCustomerNote = (item: string) => {
     setCustomerNote(item);
   };
 
@@ -332,28 +334,24 @@ const CreateBill = () => {
     return request;
   };
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse>) => {
-      setAccounts(data.items);
-    },
-    []
-  );
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
+    setAccounts(data.items);
+  }, []);
 
   useLayoutEffect(() => {
-    
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
 
   return (
     <div>
-      <Form>
+      <Form layout="vertical">
         <Row gutter={24}>
           <Col xs={24} lg={17}>
             {/*--- customer ---*/}
             <CustomerCard
               InfoCustomerSet={onChangeInfoCustomer}
               SelectSource={onSourceSelect}
-              SelectCustomerNote = {onCustomerNote}
+              SelectCustomerNote={onCustomerNote}
               sourceSelect={isVisibleSource}
               ChangeEmail={onEmailChange}
               ShippingAddressChange={onChangeShippingAddress}
@@ -395,13 +393,9 @@ const CreateBill = () => {
                 </div>
               }
             >
-              <div className="form-group form-group-with-search">
-                <label htmlFor="" className="required-label">
-                  Nhân viên bán hàng
-                </label>
-
+              <div className="padding-20">
                 <Form.Item
-                  name="assignee_code"
+                  label="Nhân viên bán hàng"
                   rules={[
                     {
                       required: true,
@@ -447,115 +441,85 @@ const CreateBill = () => {
                     </div>
                   )}
                 </Form.Item>
-              </div>
-              <div className="form-group form-group-with-search">
-                <div className="form-group form-group-with-search mb-0">
-                  <div>
-                    <label htmlFor="" className="">
-                      Tham chiếu
-                    </label>
-                    <Tooltip
-                      title="Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng"
-                      className="tooltip-icon"
-                    >
-                      <span>
-                        <img src={warningCircleIcon} alt="" />
-                      </span>
-                    </Tooltip>
-                  </div>
+                <Form.Item
+                  label="Tham chiếu"
+                  tooltip={{
+                    title:
+                      "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",
+                    icon: <InfoCircleOutlined />,
+                  }}
+                >
                   <Input
                     onChange={(e) => onChangeReference(e.target.value)}
                     placeholder="Điền tham chiếu"
                   />
-                </div>
-              </div>
-
-              <div className="form-group form-group-with-search">
-                <div className="form-group form-group-with-search mb-0">
-                  <div>
-                    <label htmlFor="" className="">
-                      Đường dẫn
-                    </label>
-                    <Tooltip
-                      title="Thêm đường dẫn đơn hàng gốc trên kênh bán hàng"
-                      className="tooltip-icon"
-                    >
-                      <span>
-                        <img src={warningCircleIcon} alt="" />
-                      </span>
-                    </Tooltip>
-                  </div>
+                </Form.Item>
+                <Form.Item
+                  label="Đường dẫn"
+                  style={{ marginBottom: "0px" }}
+                  tooltip={{
+                    title: "Thêm đường dẫn đơn hàng gốc trên kênh bán hàng",
+                    icon: <InfoCircleOutlined />,
+                  }}
+                >
                   <Input
                     onChange={(e) => onChangeUrl(e.target.value)}
                     placeholder="Điền đường dẫn"
                   />
-                </div>
+                </Form.Item>
               </div>
             </Card>
 
             <Card
-              className="card-block card-block-normal"
+              className="margin-top-20"
               title={
                 <div className="d-flex">
                   <img src={documentIcon} alt="" /> Thông tin bổ sung
                 </div>
               }
             >
-              <div className="form-group form-group-with-search">
-                <div>
-                  <label htmlFor="" className="">
-                    Ghi chú
-                  </label>
-                  <Tooltip
-                    title="Thêm thông tin ghi chú chăm sóc khách hàng"
-                    className="tooltip-icon"
-                  >
-                    <span>
-                      <img src={warningCircleIcon} alt="" />
-                    </span>
-                  </Tooltip>
-                </div>
-                <Input.TextArea
-                  onChange={(e) => onChangeNoteOrder(e.target.value)}
-                  placeholder="Nhập ghi chú"
-                />
-              </div>
-              <div className="form-group form-group-with-search mb-0">
-                <div>
-                  <label htmlFor="" className="">
-                    Tag
-                  </label>
-                  <Tooltip
-                    title="Thêm từ khóa để tiện lọc đơn hàng"
-                    className="tooltip-icon"
-                  >
-                    <span>
-                      <img src={warningCircleIcon} alt="" />
-                    </span>
-                  </Tooltip>
-                </div>
+              <div className="padding-20">
+                <Form.Item
+                  label="Nhập ghi chú"
+                  tooltip={{
+                    title: "Thêm thông tin ghi chú chăm sóc khách hàng",
+                    icon: <InfoCircleOutlined />,
+                  }}
+                >
+                  <Input.TextArea
+                    onChange={(e) => onChangeNoteOrder(e.target.value)}
+                    placeholder="Nhập ghi chú"
+                  />
+                </Form.Item>
 
-                <Select
-                  mode="tags"
-                  placeholder="Nhập tags"
-                  style={{ width: "100%" }}
-                  onChange={onChangeTag}
-                  tokenSeparators={[","]}
-                ></Select>
+                <Form.Item
+                  label="Tags"
+                  style={{ marginBottom: "0px" }}
+                  tooltip={{
+                    title: "Thêm từ khóa để tiện lọc đơn hàng",
+                    icon: <InfoCircleOutlined />,
+                  }}
+                >
+                  <Select
+                    mode="tags"
+                    placeholder="Nhập tags"
+                    onChange={onChangeTag}
+                    tokenSeparators={[","]}
+                  ></Select>
+                </Form.Item>
               </div>
             </Card>
           </Col>
         </Row>
 
-        <Row className="footer-row-btn" justify="end">
-          <Button type="default" className="btn-style btn-cancel">
+        <Row className="margin-top-10" justify="end">
+          <Button type="default" className="btn-style btn-cancel" style={{marginRight: '10px'}}>
             Hủy
           </Button>
           <Button
-            type="default"
+            type="primary"
             onClick={finishOrder}
             className="btn-style btn-save"
-            //disabled={source===null && storeId=== null && assignCode === ""}
           >
             Lưu
           </Button>
