@@ -1,10 +1,9 @@
-import { VariantSearchQuery } from 'model/query/variant.search.query';
-import { VariantResponse } from 'model/response/products/variant.response';
 import BaseAxios from "base/BaseAxios"
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig"
 import { generateQuery } from "utils/AppUtils";
 import { PageResponse } from 'model/base/base-metadata.response';
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 
 
 

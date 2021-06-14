@@ -1,22 +1,25 @@
-import { Button, Card, Form, Input, Select } from "antd";
+import { Button, Card, Form, Input, Select, Tooltip } from "antd";
 import { Link, useHistory } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { categoryDeleteAction, getCategoryRequestAction } from "domain/actions/product/category.action";
+import {
+  categoryDeleteAction,
+  getCategoryRequestAction,
+} from "domain/actions/product/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import search from "assets/img/search.svg";
 import {
   CategoryParent,
   CategoryView,
-} from "model/other/Product/category-view";
-import ButtonSetting from "component/table/ButtonSetting";
-import ActionButton, { MenuAction } from "component/table/ActionButton";
-import { CategoryResponse } from "model/response/products/category.response";
+} from "model/product/category.model";
+import { MenuAction } from "component/table/ActionButton";
+import { CategoryResponse, CategoryQuery } from "model/product/category.model";
 import { convertCategory, generateQuery } from "utils/AppUtils";
-import { CategoryQuery } from "model/query/category.query";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
+import CustomFilter from "component/table/custom.filter";
+import { StarOutlined } from "@ant-design/icons";
 
 const actions: Array<MenuAction> = [
   {
@@ -32,6 +35,8 @@ const actions: Array<MenuAction> = [
     name: "Export",
   },
 ];
+
+const { Item } = Form;
 
 const Category = () => {
   const history = useHistory();
@@ -99,11 +104,7 @@ const Category = () => {
     {
       title: "Người tạo",
       dataIndex: "created_name",
-    },
-    {
-      title: () => <ButtonSetting />,
-      width: 70,
-    },
+    }
   ];
   const onFinish = useCallback(
     (values: CategoryQuery) => {
@@ -117,30 +118,30 @@ const Category = () => {
     let newData: Array<CategoryView> = convertCategory(results);
     setData(newData);
   }, []);
-  const onDeleteSuccess = useCallback(
-    () => {
-      setSelected([]);
-      dispatch(getCategoryRequestAction(params, onGetSuccess));
-    },
-    [dispatch, onGetSuccess, params]
-  );
-  const onMenuClick = useCallback((index: number) => {
-    if(selected.length > 0) {
-      let id = selected[0].id
-      switch (index) {
-        case 1:
-          history.push(`${UrlConfig.CATEGORIES}/${id}`)
-          break;
-        case 2:
-          dispatch(categoryDeleteAction(id, onDeleteSuccess))
-          break;
-        case 3:
-          break;
+  const onDeleteSuccess = useCallback(() => {
+    setSelected([]);
+    dispatch(getCategoryRequestAction(params, onGetSuccess));
+  }, [dispatch, onGetSuccess, params]);
+  const onMenuClick = useCallback(
+    (index: number) => {
+      console.log(index);
+      if (selected.length > 0) {
+        let id = selected[0].id;
+        switch (index) {
+          case 1:
+            history.push(`${UrlConfig.CATEGORIES}/${id}`);
+            break;
+          case 2:
+            dispatch(categoryDeleteAction(id, onDeleteSuccess));
+            break;
+          case 3:
+            break;
+        }
       }
-    }
-  }, [selected, history, dispatch, onDeleteSuccess]);
+    },
+    [selected, history, dispatch, onDeleteSuccess]
+  );
 
-  
   const menuFilter = useMemo(() => {
     return actions.filter((item) => {
       if (selected.length > 1) {
@@ -149,77 +150,55 @@ const Category = () => {
       return true;
     });
   }, [selected]);
-  const onSelect = useCallback(
-    (selectedRow: Array<CategoryView>) => {
-      setSelected(selectedRow);
-    },
-    []
-  );
+  const onSelect = useCallback((selectedRow: Array<CategoryView>) => {
+    setSelected(selectedRow);
+  }, []);
   useEffect(() => {
     dispatch(getCategoryRequestAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params]);
   return (
-    <div>
-      <Card className="contain">
-        <Card className="view-control" bordered={false}>
-          <Form
-            className="form-search"
-            onFinish={onFinish}
-            initialValues={params}
-            layout="inline"
-          >
-            <ActionButton disabled={selected.length === 0} onMenuClick={onMenuClick} menu={menuFilter} />
-            <div className="right-form">
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="name"
-              >
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  style={{ width: 250 }}
-                  placeholder="Tên/Mã danh mục"
-                />
-              </Form.Item>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="goods"
-              >
-                <Select
-                  className="select-with-search"
-                  style={{
-                    width: 250,
-                  }}
-                >
-                  <Select.Option value="">Ngành hàng</Select.Option>
-                  {goods.map((item, index) => (
-                    <Select.Option key={index} value={item.value}>
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="yody-search-button"
-                >
-                  Lọc
-                </Button>
-              </Form.Item>
-            </div>
-          </Form>
-        </Card>
-        <CustomTable
-          onSelectedChange={onSelect}
-          className="yody-table"
-          pagination={false}
-          dataSource={data}
-          columns={columns}
-          rowKey={(item: CategoryResponse) => item.id}
-        />
-      </Card>
-    </div>
+    <Card>
+      <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
+        <Form onFinish={onFinish} layout="inline" initialValues={params} >
+          <Item name="name">
+            <Input
+              prefix={<img src={search} alt="" />}
+              style={{ width: 200 }}
+              placeholder="Tên/Mã danh mục"
+            />
+          </Item>
+          <Item name="goods">
+            <Select
+              style={{
+                width: 200,
+              }}
+            >
+              <Select.Option value="">Ngành hàng</Select.Option>
+              {goods.map((item, index) => (
+                <Select.Option key={index} value={item.value}>
+                  {item.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Item>
+          <Item>
+            <Button htmlType="submit" type="primary">Lọc</Button>
+          </Item>
+          <Item>
+            <Tooltip overlay="Lưu bộ lọc" placement="top">
+              <Button icon={<StarOutlined />} />
+            </Tooltip>
+          </Item>
+        </Form>
+      </CustomFilter>
+      <CustomTable
+        onSelectedChange={onSelect}
+        pagination={false}
+        dataSource={data}
+        columns={columns}
+        rowKey={(item: CategoryResponse) => item.id}
+      />
+    </Card>
   );
 };
 

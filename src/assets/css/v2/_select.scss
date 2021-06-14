@@ -1,0 +1,31 @@
+.custom-select{
+  position: relative;
+
+  .ant-select{
+    width: 100%;
+  }
+
+  &-has-suffix{
+
+    
+    .ant-select-selector{
+      padding-right: 50px;
+      
+      & > .ant-select-selection-search{
+        right: 50px;
+      }
+      
+    }
+    .ant-select-arrow{
+      right: 45px;
+    }
+  }
+
+  &-suffix{
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    top: calc(50% - 18px);
+    right: 3px;
+  }
+}

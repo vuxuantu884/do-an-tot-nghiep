@@ -1,9 +1,7 @@
 import BaseAxios from "base/BaseAxios"
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig"
-import { CategoryQuery } from "model/query/category.query";
-import { CreateCatergoryRequest, UpdateCatergoryRequest } from "model/request/create-category.request";
-import { CategoryResponse } from "model/response/products/category.response";
+import { CategoryQuery, CategoryUpdateRequest, CategoryCreateRequest, CategoryResponse } from "model/product/category.model";
 import { generateQuery } from "utils/AppUtils";
 
 export const getCategoryApi = (query: CategoryQuery): Promise<BaseResponse<Array<CategoryResponse>>> => {
@@ -11,7 +9,7 @@ export const getCategoryApi = (query: CategoryQuery): Promise<BaseResponse<Array
   return BaseAxios.get(`${ApiConfig.PRODUCT}/categories?${params}`)
 }
 
-export const updateCategoryApi = (id: string, request: UpdateCatergoryRequest) => {
+export const updateCategoryApi = (id: string, request: CategoryUpdateRequest) => {
   return BaseAxios.put(`${ApiConfig.PRODUCT}/categories/${id}`, request);
 }
 
@@ -19,7 +17,7 @@ export const categoryDetailApi = (id: number): Promise<BaseResponse<CategoryResp
   return BaseAxios.get(`${ApiConfig.PRODUCT}/categories/${id}`);
 }
 
-export const createCategoryApi = (request: CreateCatergoryRequest) => {
+export const createCategoryApi = (request: CategoryCreateRequest) => {
   return BaseAxios.post(`${ApiConfig.PRODUCT}/categories`, request);
 }
 

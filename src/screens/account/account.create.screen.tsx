@@ -17,13 +17,12 @@ import {
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import SupplierAction from "domain/actions/core/supplier.action";
-import { CityView } from "model/other/district-view";
+import { CityView } from "model/content/district.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { SupplierCreateRequest } from "model/request/create-supplier.request";
 import { AccountRequest } from "model/account/account.model";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
-import { CountryResponse } from "model/response/content/country.response";
-import { DistrictResponse } from "model/response/content/district.response";
+import { CountryResponse } from "model/content/country.model";
+import { DistrictResponse } from "model/content/district.model";
 import { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
@@ -113,7 +112,7 @@ const AccountCreateScreen: React.FC = () => {
     history.push("/suppliers");
   }, [history]);
   const onFinish = useCallback(
-    (values: SupplierCreateRequest) => {
+    (values) => {
       dispatch(SupplierAction.supplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]

@@ -1,10 +1,8 @@
-import { SizeResponse } from "./../../model/response/products/size.response";
 import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { PageResponse } from "model/base/base-metadata.response";
-import { SizeCreateRequest, SizeUpdateRequest } from "model/request/size.request";
-import { SizeQuery } from "model/query/size.query";
+import { SizeCreateRequest, SizeQuery, SizeResponse, SizeUpdateRequest } from "model/product/size.model";
 import { generateQuery } from "utils/AppUtils";
 
 export const getAllSizeApi = (): Promise<BaseResponse<PageResponse<SizeResponse>>> => {

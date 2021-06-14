@@ -1,6 +1,6 @@
-import { BaseModel } from '../../other/base-model';
+import { BaseObject } from 'model/base/base.response';
 
-export interface CustomerResponse extends BaseModel {
+export interface CustomerResponse extends BaseObject {
   full_name: string | null,
   phone: string | null,
   email: string | null,
@@ -24,7 +24,7 @@ export interface CustomerResponse extends BaseModel {
 }
 
 
-export interface BillingAddress extends BaseModel {
+export interface BillingAddress extends BaseObject {
   default: boolean,
   name: string,
   email: string,
@@ -41,7 +41,7 @@ export interface BillingAddress extends BaseModel {
   full_address: string
 }
 
-export interface ShippingAddress extends BaseModel {
+export interface ShippingAddress extends BaseObject {
   default: boolean,
   name: string,
   email: string,

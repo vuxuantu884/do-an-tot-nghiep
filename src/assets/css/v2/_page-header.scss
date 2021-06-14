@@ -1,0 +1,53 @@
+.page-header{
+  position: fixed;
+  height: 90px;
+  top: 0;
+  right: 0;
+  left: 270px;
+  background: $background-color;
+  padding: 18px 20px;
+  z-index: 1000;
+  transition: all .2s;
+  
+  &-heading{
+    display: flex;
+    justify-content: space-between;
+
+    &-title{
+      font-size: 20px;
+      margin-bottom: 0;
+    }
+
+    &-left{
+      .ant-breadcrumb{
+        span{
+          .ant-breadcrumb-link{
+            color: rgba(149, 161, 172, 0.9);
+            
+            a{
+              color: rgba(149, 161, 172, 0.9);
+            }
+
+            &:hover{
+              color: $primary-color;
+              a{
+                color: $primary-color;
+              }
+            }
+          }
+
+          &:last-child{
+            .ant-breadcrumb-link{
+              color: $primary-color;
+            }
+          }
+        }
+      }
+    }
+
+    &-extra{
+      display: flex;
+      align-items: center;
+    }
+  }
+}

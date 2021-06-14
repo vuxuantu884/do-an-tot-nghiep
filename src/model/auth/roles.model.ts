@@ -1,4 +1,3 @@
-import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
 
 export interface RoleResponse extends BaseObject {
@@ -10,4 +9,9 @@ export interface RoleSearchQuery {
   name?: string;
   page: number;
   size: number;
+}
+
+export interface AuthenRequest {
+  user_name: string,
+  password: string,
 }
