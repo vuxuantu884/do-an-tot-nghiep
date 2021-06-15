@@ -7,20 +7,21 @@ import {
   Form,
   FormInstance,
   Input,
+  InputNumber,
   Radio,
   Row,
   Select,
   Switch,
+  Table,
 } from "antd";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import SupplierAction from "domain/actions/core/supplier.action";
 import { CityView } from "model/other/district-view";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { SupplierCreateRequest } from "model/request/create-supplier.request";
-import { AccountRequest } from "model/account/account.model";
+import {  DepartmentGetListAction, PositionGetListAction } from "domain/actions/account/account.action";
+import { AccountJobReQuest, AccountRequest } from "model/account/account.model";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { CountryResponse } from "model/response/content/country.response";
 import { DistrictResponse } from "model/response/content/district.response";
@@ -32,6 +33,10 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
 import { RoleGetListAction } from "domain/actions/auth/role.action";
+import deleteIcon from "assets/icon/delete.svg";
+import moment from "moment";
+import { DepartmentResponse } from "model/account/department.model";
+import { PositionResponse } from "model/account/position.model";
 
 const { Item } = Form;
 const { Panel } = Collapse;
@@ -70,11 +75,20 @@ const AccountCreateScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.gender
   );
   //State
-  const [countries, setCountries] = useState<Array<CountryResponse>>([]);
+  const [listaccountJob, setAccountJob] = useState<Array<AccountJobReQuest>>([
+    {
+      department_id: 0,
+      position_id: 0,
+      key: Number(moment().format("x")),
+    },
+  ]);
+  const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
   const [status, setStatus] = useState<string>(initRequest.status);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listRole, setRole] = useState<Array<RoleResponse>>();
+  const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
+  const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   //EndState
   //Callback
 
@@ -91,6 +105,30 @@ const AccountCreateScreen: React.FC = () => {
     },
     [formRef]
   );
+  const addNewJob = () => {
+    let listJob = [...listaccountJob];
+    listJob.push({
+      department_id: 0,
+      position_id: 0,
+      key: Number(moment().format("x")),
+    });
+    setAccountJob(listJob);
+  };
+  const onChangeDepartment = (e: any, key: number) => {
+    let listJob = [...listaccountJob];
+    listJob[key].department_id = e;
+    setAccountJob(listJob);
+  };
+  const onChangePosition = (e: any, key: number) => {
+    let listJob = [...listaccountJob];
+    listJob[key].position_id = e;
+    setAccountJob(listJob);
+  };
+  const onDeleteJob = (key: number) => {
+    let listJob = [...listaccountJob];
+    listJob.splice(key, 1);
+    setAccountJob(listJob);
+  };
   const onSelectDistrict = useCallback(
     (value: number) => {
       let cityId = -1;
@@ -113,8 +151,10 @@ const AccountCreateScreen: React.FC = () => {
     history.push("/suppliers");
   }, [history]);
   const onFinish = useCallback(
-    (values: SupplierCreateRequest) => {
-      dispatch(SupplierAction.supplierCreateAction(values, onCreateSuccess));
+    (values: AccountRequest) => {
+      debugger;
+      values.account_jobs=[...listaccountJob];
+      //dispatch(SupplierAction.supplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]
   );
@@ -131,7 +171,74 @@ const AccountCreateScreen: React.FC = () => {
     return "";
   }, [status, listAccountStatus]);
   //end memo
+
+  const columns = [
+    {
+      title: "Bộ phận",
+      render: (text: string, item: AccountJobReQuest, index: number) => {
+        return (
+          <div>
+            <Select
+              placeholder="Chọn bộ phận"
+              className="selector"
+              allowClear
+              showArrow
+              optionFilterProp="children"
+              onChange={(value) => onChangeDepartment(value, index)}
+            >
+              {listDepartment?.map((item) => (
+                <Option key={item.id} value={item.id}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Vị trí",
+      render: (text: string, item: AccountJobReQuest, index: number) => {
+        return (
+          <div>
+            <Select
+              placeholder="Chọn bộ phận"
+              className="selector"
+              allowClear
+              showArrow
+              optionFilterProp="children"
+              onChange={(value) => onChangePosition(value, index)}
+            >
+              {listPosition?.map((item) => (
+                <Option key={item.id} value={item.id}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+          </div>
+        );
+      },
+    },
+    {
+      title: "",
+      render: (text: string, item: AccountJobReQuest, index: number) => {
+        return (
+          <div>
+            <Button
+              type="text"
+              className="p-0 yody-pos-delete-free-form"
+              onClick={() => onDeleteJob(index)}
+            >
+              <img src={deleteIcon} alt="" />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
   useEffect(() => {
+    dispatch(DepartmentGetListAction(setDepartment));
+    dispatch(PositionGetListAction(setPosition));
     dispatch(RoleGetListAction(initRoleQuery, setRole));
     dispatch(StoreGetListAction(setStore));
     dispatch(CountryGetAllAction(setCountries));
@@ -373,6 +480,102 @@ const AccountCreateScreen: React.FC = () => {
             </Form.Item>
           </Col>
         </Row>
+        <Row className="title-rule">
+          <div className="title">Thông tin khác</div>
+          <div className="rule" />
+        </Row>
+        <Row gutter={24}>
+          <Col span={24} lg={10} md={12} sm={24}>
+            <Item
+              className="form-group form-group-with-search"
+              label="Quốc gia"
+              name="country_id"
+            >
+              <Select disabled className="selector" placeholder="Chọn quốc gia">
+                {listCountries?.map((item) => (
+                  <Option key={item.id} value={item.id}>
+                    {item.name}
+                  </Option>
+                ))}
+              </Select>
+            </Item>
+          </Col>
+          <Col span={24} lg={10} md={12} sm={24}>
+            <Item
+              className="form-group form-group-with-search"
+              label="Khu vực"
+              name="district_id"
+            >
+              <Select
+                showSearch
+                onSelect={onSelectDistrict}
+                className="selector"
+                placeholder="Chọn khu vực"
+              >
+                {cityViews?.map((item) => (
+                  <OptGroup key={item.city_id} label={item.city_name}>
+                    {item.districts.map((item1) => (
+                      <Option key={item1.id} value={item1.id}>
+                        {item1.name}
+                      </Option>
+                    ))}
+                  </OptGroup>
+                ))}
+              </Select>
+            </Item>
+            <Item
+              hidden
+              className="form-group form-group-with-search"
+              name="city_id"
+            >
+              <Input />
+            </Item>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col span={24} lg={20} md={24} sm={24}>
+            <Item
+              className="form-group form-group-with-search"
+              label="Địa chỉ"
+              name="address"
+            >
+              <Input className="r-5" placeholder="Địa chỉ" size="large" />
+            </Item>
+          </Col>
+        </Row>
+        <Collapse
+          expandIconPosition="right"
+          className="view-other card-block card-block-normal"
+        >
+          <Panel header="Thông tin công việc" key="1">
+            <Row gutter={24}>
+              <Col span={24} lg={24} md={24} sm={24}>
+                <Table
+                  columns={columns}
+                  rowKey={(record) => record.key}
+                  dataSource={listaccountJob}
+                  className="sale-product-box-table w-100"
+                  tableLayout="fixed"
+                  pagination={false}
+                />
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col span={24} lg={24} md={24} sm={24}>
+                <Button
+                  onClick={addNewJob}
+                  className="btn-filter yody-search-button w-100"
+                >
+                  Thêm mới
+                </Button>
+              </Col>
+            </Row>
+          </Panel>
+        </Collapse>
+        <Row className="footer-row-btn" justify="end">
+        <Button type="default" className="btn-style btn-cancel">Hủy</Button>
+        <Button htmlType="submit" type="default" className="btn-style btn-save">Lưu</Button>
+      </Row>
       </Card>
     </Form>
   );

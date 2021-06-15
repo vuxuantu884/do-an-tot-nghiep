@@ -10,7 +10,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 function* RoleGetListSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
-    debugger;
+   
     let response: BaseResponse<PageResponse<RoleResponse>> = yield call(RoleGetListService,query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
