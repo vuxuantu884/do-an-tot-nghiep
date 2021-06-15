@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { convertDistrict } from "utils/AppUtils";
 import CustomCard from "component/custom/card.custom";
+import { AppConfig } from "config/AppConfig";
 
 const { Item } = Form;
 const { Option, OptGroup } = Select;
@@ -133,7 +134,7 @@ const CreateSupplierScreen: React.FC = () => {
   }, [status, supplier_status]);
   //end memo
   useEffect(() => {
-    dispatch(AccountSearchAction({ department_ids: [4] }, setDataAccounts));
+    dispatch(AccountSearchAction({ department_ids: [AppConfig.WIN_DEPARTMENT] }, setDataAccounts));
     dispatch(CountryGetAllAction(setCountries))
     dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict))
   }, [dispatch, setDataAccounts, setDataDistrict]);

@@ -6,7 +6,7 @@ import UrlConfig from 'config/UrlConfig';
 
 const Category = React.lazy(() => import ("screens/category/category-list.screen"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
-const ProductCreateScreen = React.lazy(() => import ("screens/product/product-create.screen"));
+const ProductCreateScreen = React.lazy(() => import ("screens/product/product-create"));
 const ColorListScreen = React.lazy(() => import ("screens/color/color-list.screen"));
 const UpdateMaterial = React.lazy(() => import ("screens/materials/ material-update.screen"));
 const ListMaterial = React.lazy(() => import ("screens/materials/materials-list.screen"));

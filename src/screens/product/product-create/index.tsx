@@ -12,24 +12,23 @@ import {
   Table,
   Space,
   Image,
-} from 'antd';
-import CustomEditor from 'component/custom-editor';
-import UrlConfig from 'config/UrlConfig';
-import {CountryGetAllAction} from 'domain/actions/content/content.action';
-import {supplierGetAllAction} from 'domain/actions/core/supplier.action';
-import {getCategoryRequestAction} from 'domain/actions/product/category.action';
-import {colorSearchAll} from 'domain/actions/product/color.action';
-import {materialSearchAll} from 'domain/actions/product/material.action';
-import {sizeGetAll} from 'domain/actions/product/size.action';
-import {CategoryView} from 'model/product/category.model';
-import {RootReducerType} from 'model/reducers/RootReducerType';
-import {SizeCreateRequest} from 'model/product/size.model';
-import {CountryResponse} from 'model/content/country.model';
-import {CategoryResponse} from 'model/product/category.model';
-import {ColorResponse} from 'model/product/color.model';
-import {MaterialResponse} from 'model/product/material.model';
-import {SizeResponse} from 'model/product/size.model';
-import {SupplierResponse} from 'model/core/supplier.model';
+} from "antd";
+import CustomEditor from "component/custom-editor";
+import UrlConfig from "config/UrlConfig";
+import { CountryGetAllAction } from "domain/actions/content/content.action";
+import { supplierGetAllAction } from "domain/actions/core/supplier.action";
+import { getCategoryRequestAction } from "domain/actions/product/category.action";
+import { colorSearchAll } from "domain/actions/product/color.action";
+import { materialSearchAll } from "domain/actions/product/material.action";
+import { sizeGetAll } from "domain/actions/product/size.action";
+import { CategoryView } from "model/product/category.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { CountryResponse } from "model/content/country.model";
+import { CategoryResponse } from "model/product/category.model";
+import { ColorResponse } from "model/product/color.model";
+import { MaterialResponse } from "model/product/material.model";
+import { SizeResponse } from "model/product/size.model";
+import { SupplierResponse } from "model/core/supplier.model";
 import {
   createRef,
   useCallback,
@@ -37,22 +36,67 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {useHistory} from 'react-router-dom';
-import {convertCategory} from 'utils/AppUtils';
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { convertCategory } from "utils/AppUtils";
 import {
   DeleteOutlined,
   InfoCircleOutlined,
   PlusOutlined,
   MinusOutlined,
-} from '@ant-design/icons';
-import CustomCard from 'component/custom/card.custom';
-import CustomSelect from 'component/custom/select.custom';
-import {VariantRequest} from 'model/product/product.model';
+} from "@ant-design/icons";
+import CustomCard from "component/custom/card.custom";
+import CustomSelect from "component/custom/select.custom";
+import {
+  ProductRequestView,
+  VariantRequest,
+} from "model/product/product.model";
+import { CODE } from "utils/RegUtils";
+import NumberInput from "component/custom/number-input.custom";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AppConfig } from "config/AppConfig";
+import { PageResponse } from "model/base/base-metadata.response";
+import { AccountResponse } from "model/account/account.model";
 
-const {Option} = Select;
-const {Item} = Form;
+const { Option } = Select;
+const { Item, List } = Form;
+
+const initialRequest: ProductRequestView = {
+  goods: null,
+  product_type: null,
+  category_id: null,
+  collections: [],
+  code: "",
+  name: "",
+  width: null,
+  height: null,
+  length: null,
+  length_unit: null,
+  weight: null,
+  weight_unit: null,
+  tags: [],
+  product_unit: null,
+  brand: null,
+  content: null,
+  description: null,
+  designer_code: '',
+  made_in_id: null,
+  merchandiser_code: '',
+  preservation: "",
+  specifications: "",
+  status: "",
+  variant_prices: [
+    {
+      retail_price: null,
+      currency: null,
+      import_price: null,
+      whole_sale_price: null,
+      tax_percent: 0,
+    },
+  ],
+};
+
 const ProductCreateScreen: React.FC = () => {
   //Hook
   const dispatch = useDispatch();
@@ -75,6 +119,16 @@ const ProductCreateScreen: React.FC = () => {
   const productUnitList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   );
+  const lengthUnitList = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.length_unit
+  );
+  const weightUnitList = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.weight_unit
+  );
+  const currencyList = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.currency
+  );
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
   const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
@@ -88,14 +142,16 @@ const ProductCreateScreen: React.FC = () => {
   const [variants, setVariants] = useState<Array<VariantRequest>>([]);
   //End State
   const formRef = createRef<FormInstance>();
-  const [status, setStatus] = useState<string>('active');
   const statusValue = useMemo(() => {
-    return 'Đang hoạt dộng';
-  }, []);
+    let status = formRef.current?.getFieldValue("stauts");
+    return status ? "Đang bán" : "Ngừng bán";
+  }, [formRef]);
   const onSuccess = useCallback(() => {
-    history.push(UrlConfig.SIZES);
+    history.push(UrlConfig.PRODUCT);
   }, [history]);
-  const onFinish = useCallback((values: SizeCreateRequest) => {}, []);
+  const onFinish = useCallback((values) => {
+    console.log(values);
+  }, []);
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
@@ -105,40 +161,43 @@ const ProductCreateScreen: React.FC = () => {
     let temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
   }, []);
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
+    setAccounts(data.items);
+  }, []);
   //end callback data
   const columns = [
     {
-      title: 'Mã chi tiết',
-      key: 'sku',
-      dataIndex: 'sku',
+      title: "Mã chi tiết",
+      key: "sku",
+      dataIndex: "sku",
     },
     {
-      title: 'Tên sản phẩm',
-      key: 'name',
-      dataIndex: 'name',
+      title: "Tên sản phẩm",
+      key: "name",
+      dataIndex: "name",
     },
     {
-      title: 'Mã màu',
-      key: 'color',
-      dataIndex: 'color',
+      title: "Mã màu",
+      key: "color",
+      dataIndex: "color",
     },
     {
-      title: 'Size',
-      key: 'size',
-      dataIndex: 'size',
+      title: "Size",
+      key: "size",
+      dataIndex: "size",
     },
     {
-      title: 'Số lượng',
-      key: 'quantity',
-      dataIndex: 'quantity',
+      title: "Số lượng",
+      key: "quantity",
+      dataIndex: "quantity",
       width: 100,
       render: (qty: string) => (
-        <Input style={{textAlign: 'center'}} value={qty} />
+        <Input style={{ textAlign: "center" }} value={qty} />
       ),
     },
     {
-      title: 'Ảnh',
-      dataIndex: 'image',
+      title: "Ảnh",
+      dataIndex: "image",
       render: (image: string) => (
         <Image
           width={40}
@@ -149,55 +208,58 @@ const ProductCreateScreen: React.FC = () => {
       ),
     },
     {
-      title: 'Thao tác',
-      key: 'action',
-      dataIndex: 'id',
+      title: "Thao tác",
+      key: "action",
+      dataIndex: "id",
       width: 100,
       render: (id: number) => <Button type="link" icon={<DeleteOutlined />} />,
     },
   ];
-  const listVariantsFilter = useCallback((colors: Array<ColorResponse>, sizes: Array<SizeResponse>) => {
-    let name = formRef.current?.getFieldValue('name');
-    let width = formRef.current?.getFieldValue('width');
-    let height = formRef.current?.getFieldValue('height');
-    let length = formRef.current?.getFieldValue('length');
-    let code = formRef.current?.getFieldValue('code');
-    let length_unit = formRef.current?.getFieldValue('length_unit');
-    let weight = formRef.current?.getFieldValue('weight');
-    let weight_unit = formRef.current?.getFieldValue('weight_unit');
-    if (name && code) {
-      colors.forEach((i1) => {
-        sizes.forEach((i2) => {
-          let sku = `${code}-${i1.code}-${i2.code}`;
-          let index = variants.findIndex((v) => v.sku === sku);
-          if (index === -1) {
-            variants.push({
-              status: 'avtive',
-              name: `${name} - ${i1.name} - ${i2.code}`,
-              color_id: i1.id,
-              size_id: i2.id,
-              barcode: null,
-              taxable: false,
-              saleable: true,
-              deleted: false,
-              sku: sku,
-              width: width,
-              height: height,
-              length: length,
-              length_unit: length_unit,
-              weight: weight,
-              weight_unit: weight_unit,
-              variant_prices: [],
-              product: null,
-              variant_images: null,
-              inventory: 0,
-            });
-          }
+  const listVariantsFilter = useCallback(
+    (colors: Array<ColorResponse>, sizes: Array<SizeResponse>) => {
+      let name = formRef.current?.getFieldValue("name");
+      let width = formRef.current?.getFieldValue("width");
+      let height = formRef.current?.getFieldValue("height");
+      let length = formRef.current?.getFieldValue("length");
+      let code = formRef.current?.getFieldValue("code");
+      let length_unit = formRef.current?.getFieldValue("length_unit");
+      let weight = formRef.current?.getFieldValue("weight");
+      let weight_unit = formRef.current?.getFieldValue("weight_unit");
+      if (name && code) {
+        colors.forEach((i1) => {
+          sizes.forEach((i2) => {
+            let sku = `${code}-${i1.code}-${i2.code}`;
+            let index = variants.findIndex((v) => v.sku === sku);
+            if (index === -1) {
+              variants.push({
+                status: "avtive",
+                name: `${name} - ${i1.name} - ${i2.code}`,
+                color_id: i1.id,
+                size_id: i2.id,
+                barcode: null,
+                taxable: false,
+                saleable: true,
+                deleted: false,
+                sku: sku,
+                width: width,
+                height: height,
+                length: length,
+                length_unit: length_unit,
+                weight: weight,
+                weight_unit: weight_unit,
+                variant_prices: [],
+                product: null,
+                variant_images: null,
+                inventory: 0,
+              });
+            }
+          });
         });
-      });
-    }
-    setVariants([...variants]);
-  }, [formRef, variants]);
+      }
+      setVariants([...variants]);
+    },
+    [formRef, variants]
+  );
   const onSizeChange = useCallback(
     (values: Array<number>) => {
       let filter = listSize.filter((item) => values.includes(item.id));
@@ -214,7 +276,7 @@ const ProductCreateScreen: React.FC = () => {
     },
     [listColor, listVariantsFilter, sizeSelected]
   );
-    console.log(colorSelected);
+
   useEffect(() => {
     if (!isLoadMaterData.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
@@ -223,14 +285,24 @@ const ProductCreateScreen: React.FC = () => {
       dispatch(CountryGetAllAction(setListCountry));
       dispatch(sizeGetAll(setListSize));
       dispatch(colorSearchAll(setListColor));
+      dispatch(
+        AccountSearchAction(
+          { department_ids: [AppConfig.WIN_DEPARTMENT] },
+          setDataAccounts
+        )
+      );
     }
     isLoadMaterData.current = true;
     return () => {};
-  }, [dispatch, setDataCategory]);
-  console.log(variants);
+  }, [dispatch, setDataAccounts, setDataCategory]);
   return (
     <div>
-      <Form ref={formRef} onFinish={onFinish} layout="vertical">
+      <Form
+        initialValues={initialRequest}
+        ref={formRef}
+        onFinish={onFinish}
+        layout="vertical"
+      >
         <Card
           title="Thông tin cơ bản"
           extra={[
@@ -248,7 +320,7 @@ const ProductCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: 'Vui lòng chọn loại sản phẩm',
+                      message: "Vui lòng chọn loại sản phẩm",
                     },
                   ]}
                   name="product_type"
@@ -268,7 +340,7 @@ const ProductCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: 'Vui lòng chọn loại sản phẩm',
+                      message: "Vui lòng chọn loại sản phẩm",
                     },
                   ]}
                   name="goods"
@@ -283,6 +355,17 @@ const ProductCreateScreen: React.FC = () => {
                   </Select>
                 </Item>
               </Col>
+              <Col
+                lg={8}
+                md={8}
+                style={{ display: "flex", justifyContent: "end" }}
+              >
+                <Space size={15}>
+                  <label className="text-default">Lựa chọn</label>
+                  <Switch className="ant-switch-primary" defaultChecked />
+                  <label className="text-primary">{statusValue}</label>
+                </Space>
+              </Col>
             </Row>
             <Row gutter={50}>
               <Col span={50} lg={8} md={12} sm={50}>
@@ -290,7 +373,7 @@ const ProductCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: 'Vui lòng chọn danh mục',
+                      message: "Vui lòng chọn danh mục",
                     },
                   ]}
                   name="category_id"
@@ -300,7 +383,7 @@ const ProductCreateScreen: React.FC = () => {
                     placeholder="Chọn danh mục"
                     suffix={
                       <Button
-                        style={{width: 36, height: 36}}
+                        style={{ width: 36, height: 36 }}
                         icon={<PlusOutlined />}
                       />
                     }
@@ -331,7 +414,15 @@ const ProductCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: 'Vui lòng nhập mã sản phẩm',
+                      message: "Vui lòng nhập mã sản phẩm",
+                    },
+                    {
+                      len: 7,
+                      message: "Mã sản phẩm bao gồm 7 kí tự",
+                    },
+                    {
+                      pattern: CODE,
+                      message: "Mã sản phẩm chỉ gồm chữ và số",
                     },
                   ]}
                   name="code"
@@ -345,15 +436,13 @@ const ProductCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: 'Vui lòng nhập tên sản phẩm',
+                      message: "Vui lòng nhập tên sản phẩm",
                     },
                   ]}
                   name="name"
                   label="Tên sản phẩm"
                 >
-                  <Input
-                    placeholder="Nhập tên sản phẩm"
-                  />
+                  <Input placeholder="Nhập tên sản phẩm" />
                 </Item>
               </Col>
             </Row>
@@ -361,31 +450,37 @@ const ProductCreateScreen: React.FC = () => {
               <Col span={50} lg={8} md={12} sm={50}>
                 <Item
                   label="Kích thước (dài, rộng, cao)"
-                  required
-                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
                 >
                   <Input.Group compact>
-                    <Item noStyle>
-                      <Input
-                        style={{width: 'calc((100% - 90px) / 3)'}}
+                    <Item name="length" noStyle>
+                      <NumberInput
+                        isFloat
+                        style={{ width: "calc((100% - 100px) / 3)" }}
                         placeholder="Dài"
                       />
                     </Item>
-                    <Item noStyle>
-                      <Input
-                        style={{width: 'calc((100% - 90px) / 3)'}}
+                    <Item name="width" noStyle>
+                      <NumberInput
+                        isFloat
+                        style={{ width: "calc((100% - 100px) / 3)" }}
                         placeholder="Rộng"
                       />
                     </Item>
-                    <Item noStyle>
-                      <Input
+                    <Item name="height" noStyle>
+                      <NumberInput
+                        isFloat
                         placeholder="Cao"
-                        style={{width: 'calc((100% - 90px) / 3)'}}
+                        style={{ width: "calc((100% - 100px) / 3)" }}
                       />
                     </Item>
-                    <Item noStyle>
-                      <Select style={{width: '90px'}} value="cm">
-                        <Option value="cm">cm</Option>
+                    <Item name="length_unit" noStyle>
+                      <Select placeholder="Đơn vị" style={{ width: "100px" }}>
+                        {lengthUnitList?.map((item) => (
+                          <Option key={item.value} value={item.value}>
+                            {item.name}
+                          </Option>
+                        ))}
                       </Select>
                     </Item>
                   </Input.Group>
@@ -394,18 +489,27 @@ const ProductCreateScreen: React.FC = () => {
               <Col md={8}>
                 <Item
                   label="Khối lượng"
-                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
                 >
                   <Input.Group compact>
-                    <Item noStyle>
-                      <Input
+                    <Item name="weight" noStyle>
+                      <NumberInput
+                        isFloat
                         placeholder="Khối lượng"
-                        style={{width: 'calc(100% - 90px)'}}
+                        style={{ width: "calc(100% - 100px)" }}
                       />
                     </Item>
-                    <Item noStyle>
-                      <Select style={{width: '90px'}} value="gram">
-                        <Option value="gram">gram</Option>
+                    <Item name="weight_unit" noStyle>
+                      <Select
+                        placeholder="Đơn vị"
+                        style={{ width: "100px" }}
+                        value="gram"
+                      >
+                        {weightUnitList?.map((item) => (
+                          <Option key={item.value} value={item.value}>
+                            {item.name}
+                          </Option>
+                        ))}
                       </Select>
                     </Item>
                   </Input.Group>
@@ -458,7 +562,7 @@ const ProductCreateScreen: React.FC = () => {
             </Row>
             <Row gutter={50}>
               <Col span={50} lg={8} md={12} sm={50}>
-                <Item name="suppplier_id" label="Xuất xứ">
+                <Item name="made_in_id" label="Xuất xứ">
                   <Select placeholder="Chọn xuất xứ">
                     {listCountry?.map((item) => (
                       <Option key={item.id} value={item.id}>
@@ -469,7 +573,7 @@ const ProductCreateScreen: React.FC = () => {
                 </Item>
               </Col>
               <Col span={50} lg={8} md={12} sm={50}>
-                <Item name="brand" label="Chất liệu">
+                <Item name="material_id" label="Chất liệu">
                   <Select placeholder="Chọn chất liệu">
                     {listMaterial?.map((item) => (
                       <Option key={item.id} value={item.name}>
@@ -492,59 +596,124 @@ const ProductCreateScreen: React.FC = () => {
             </Row>
           </div>
         </Card>
-        <CustomCard title="Thông tin giá" collapse className="margin-top-20">
+        <CustomCard
+          defaultopen={true}
+          title="Thông tin giá"
+          collapse
+          className="margin-top-20"
+        >
           <div className="padding-20">
-            <Row gutter={16}>
-              <Col md={4}>
-                <Item
-                  label="Giá bán"
-                  required
-                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
-                >
-                  <Input placeholder="VD: 100,000" />
-                </Item>
-              </Col>
-              <Col md={4}>
-                <Item
-                  label="Giá buôn"
-                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
-                >
-                  <Input placeholder="VD: 100,000" />
-                </Item>
-              </Col>
-              <Col md={4}>
-                <Item
-                  label="Giá nhập"
-                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
-                >
-                  <Input placeholder="VD: 100,000" />
-                </Item>
-              </Col>
-              <Col md={4}>
-                <Item
-                  label="Đơn vị tiền tệ"
-                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
-                >
-                  <Select value="VND">
-                    <Select.Option value="VND">VND</Select.Option>
-                  </Select>
-                </Item>
-              </Col>
-              <Col md={4}>
-                <Item
-                  label="Thuế"
-                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
-                >
-                  <Input placeholder="VD: 10" suffix={<span>%</span>} />
-                </Item>
-              </Col>
-              <Col md={4} style={{display: 'flex', alignItems: 'center'}}>
-                <Button icon={<DeleteOutlined />} />
-              </Col>
-            </Row>
-            <Button type="link" className="padding-0" icon={<PlusOutlined />}>
-              Thêm mới
-            </Button>
+            <List name="variant_prices">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(
+                    ({ key, name, fieldKey, ...restField }, index) => (
+                      <Row key={key} gutter={16}>
+                        <Col md={4}>
+                          <Item
+                            label="Giá bán"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Giá bán không được để trống",
+                              },
+                            ]}
+                            name={[name, "retail_price"]}
+                            fieldKey={[fieldKey, "retail_price"]}
+                            tooltip={{
+                              title: "Tooltip",
+                              icon: <InfoCircleOutlined />,
+                            }}
+                          >
+                            <NumberInput placeholder="VD: 100,000" />
+                          </Item>
+                        </Col>
+                        <Col md={4}>
+                          <Item
+                            name={[name, "whole_sale_price"]}
+                            fieldKey={[fieldKey, "whole_sale_price"]}
+                            label="Giá buôn"
+                            tooltip={{
+                              title: "Tooltip",
+                              icon: <InfoCircleOutlined />,
+                            }}
+                          >
+                            <NumberInput placeholder="VD: 100,000" />
+                          </Item>
+                        </Col>
+                        <Col md={4}>
+                          <Item
+                            name={[name, "import_price"]}
+                            fieldKey={[fieldKey, "import_price"]}
+                            label="Giá nhập"
+                            tooltip={{
+                              title: "Tooltip",
+                              icon: <InfoCircleOutlined />,
+                            }}
+                          >
+                            <Input placeholder="VD: 100,000" />
+                          </Item>
+                        </Col>
+                        <Col md={4}>
+                          <Item
+                            label="Đơn vị tiền tệ"
+                            tooltip={{
+                              title: "Tooltip",
+                              icon: <InfoCircleOutlined />,
+                            }}
+                            name={[name, "currency"]}
+                            fieldKey={[fieldKey, "currency"]}
+                          >
+                            <Select placeholder="Đơn vị tiền tệ">
+                              {currencyList?.map((item) => (
+                                <Option key={item.value} value={item.value}>
+                                  {item.name}
+                                </Option>
+                              ))}
+                            </Select>
+                          </Item>
+                        </Col>
+                        <Col md={4}>
+                          <Item
+                            label="Thuế"
+                            name={[name, "tax_percent"]}
+                            fieldKey={[fieldKey, "tax_percent"]}
+                            tooltip={{
+                              title: "Tooltip",
+                              icon: <InfoCircleOutlined />,
+                            }}
+                          >
+                            <Input
+                              placeholder="VD: 10"
+                              suffix={<span>%</span>}
+                            />
+                          </Item>
+                        </Col>
+                        {index !== 0 && (
+                          <Col
+                            md={4}
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <Button
+                              onClick={() => remove(name)}
+                              icon={<DeleteOutlined />}
+                            />
+                          </Col>
+                        )}
+                      </Row>
+                    )
+                  )}
+                  <Button
+                    type="link"
+                    className="padding-0"
+                    onClick={() => add()}
+                    icon={<PlusOutlined />}
+                  >
+                    Thêm mới
+                  </Button>
+                </>
+              )}
+            </List>
           </div>
         </CustomCard>
         <Row gutter={24} className="margin-top-20">
@@ -557,7 +726,7 @@ const ProductCreateScreen: React.FC = () => {
               <div className="padding-20">
                 <Item
                   label="Chi tiết thông số"
-                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
                 >
                   <Input placeholder="Điền chi tiết thông số" />
                 </Item>
@@ -580,18 +749,32 @@ const ProductCreateScreen: React.FC = () => {
             <CustomCard defaultopen={false} title="R&D" collapse>
               <div className="padding-20">
                 <Item
+                  name="merchandiser_code"
                   label="Merchandiser"
-                  required
-                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
                 >
-                  <Select placeholder="Chọn Merchandiser"></Select>
+                  <Select>
+                    <Option value="">Chọn Merchandiser</Option>
+                    {accounts.map((item) => (
+                      <Option key={item.code} value={item.code}>
+                        {item.full_name}
+                      </Option>
+                    ))}
+                  </Select>
                 </Item>
                 <Item
+                  name="designer_code"
                   label="Thiết kế"
-                  required
-                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
                 >
-                  <Select placeholder="Chọn thiết kế"></Select>
+                  <Select placeholder="Chọn thiết kế">
+                    <Option value="">Chọn thiết kế</Option>
+                    {accounts.map((item) => (
+                      <Option key={item.code} value={item.code}>
+                        {item.full_name}
+                      </Option>
+                    ))}
+                  </Select>
                 </Item>
               </div>
             </CustomCard>
@@ -608,17 +791,18 @@ const ProductCreateScreen: React.FC = () => {
               <Col span={50} lg={8} md={12} sm={50}>
                 <Item label="Màu sắc" name="color_id">
                   <CustomSelect
-                    style={{width: 'calc((100% - 36px)'}}
-                    notFoundContent={'Không có dữ liệu'}
+                    style={{ width: "calc((100% - 36px)" }}
+                    notFoundContent={"Không có dữ liệu"}
                     showSearch
                     mode="multiple"
-                    maxTagCount={'responsive'}
+                    optionFilterProp="children"
+                    maxTagCount="responsive"
                     showArrow
                     onChange={onColorChange}
                     placeholder="Chọn màu sắc"
                     suffix={
                       <Button
-                        style={{width: 36, height: 36}}
+                        style={{ width: 36, height: 36 }}
                         icon={<PlusOutlined />}
                       />
                     }
@@ -635,14 +819,15 @@ const ProductCreateScreen: React.FC = () => {
                 <Item name="size" label="Kích cỡ">
                   <CustomSelect
                     onChange={onSizeChange}
-                    notFoundContent={'Không có dữ liệu'}
+                    notFoundContent={"Không có dữ liệu"}
                     placeholder="Chọn kích cỡ"
-                    maxTagCount={'responsive'}
+                    maxTagCount="responsive"
                     mode="multiple"
+                    optionFilterProp="children"
                     showSearch
                     suffix={
                       <Button
-                        style={{width: 36, height: 36}}
+                        style={{ width: 36, height: 36 }}
                         icon={<PlusOutlined />}
                       />
                     }
@@ -666,6 +851,9 @@ const ProductCreateScreen: React.FC = () => {
         >
           <div className="padding-20">
             <Table
+              locale={{
+                emptyText: "Không cỏ sản phẩm",
+              }}
               dataSource={variants}
               columns={columns}
               rowKey={(item) => item.sku}
@@ -673,7 +861,7 @@ const ProductCreateScreen: React.FC = () => {
             />
           </div>
         </CustomCard>
-        <div className="margin-top-10" style={{textAlign: 'right'}}>
+        <div className="margin-top-10" style={{ textAlign: "right" }}>
           <Space size={12}>
             <Button onClick={onCancel}>Huỷ</Button>
             <Button type="primary" htmlType="submit">

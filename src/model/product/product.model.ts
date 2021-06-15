@@ -1,4 +1,4 @@
-import { BaseQuery } from 'model/base/base.query';
+ import { BaseQuery } from 'model/base/base.query';
 import { BaseObject } from 'model/base/base.response';
 
 
@@ -133,3 +133,72 @@ export interface VariantRequest {
   inventory: 0,
   version?: null,
 }
+
+export interface ProductRequest {
+  brand: string,
+  category_id: number,
+  code: string,
+  content: string|null,
+  description: string|null,
+  designer_code: string|null,
+  goods: string,
+  made_in_id: number|null,
+  merchandiser_code: string|null,
+  name: string,
+  preservation: string,
+  specifications: string,
+  product_type: string,
+  status: string,
+  tags: string|null,
+  variants: Array<VariantRequest>,
+  product_unit: string|null,
+}
+
+export interface VariantRequestView {
+  status: string,
+  name: string,
+  color_id: number,
+  size_id: number,
+  barcode: string|null,
+  taxable: boolean|null,
+  saleable: boolean|null
+  deleted: boolean,
+  sku: string,
+  product: null,
+  variant_images: null,
+}
+
+export interface VariantPriceViewRequest {
+  retail_price: number|null,
+  import_price: number|null,
+  whole_sale_price: number|null,
+  currency: string|null,
+  tax_percent: number|null
+}
+export interface ProductRequestView {
+  product_type: string|null,
+  goods: string|null,
+  category_id: number|null,
+  collections: Array<string>,
+  code: string,
+  name: string,
+  width: number|null,
+  height: number|null,
+  length: number|null,
+  length_unit: string|null,
+  weight: number|null,
+  weight_unit: string|null,
+  tags: Array<string>,
+  product_unit: string|null,
+  brand: string|null,
+  content: string|null,
+  description: string|null,
+  designer_code: string|null,
+  made_in_id: number|null,
+  merchandiser_code: string|null,
+  preservation: string,
+  specifications: string,
+  status: string,
+  variant_prices: Array<VariantPriceViewRequest>,
+}
+

@@ -152,7 +152,7 @@ const CustomTable = (props: ICustomTableProps) => {
                   >
                     {pagination &&
                       PageConfig.map((size) => (
-                        <Select.Option value={size}>{size}</Select.Option>
+                        <Select.Option key={size} value={size}>{size}</Select.Option>
                       ))}
                   </Select>
                 </div>

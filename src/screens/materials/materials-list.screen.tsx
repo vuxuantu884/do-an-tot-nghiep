@@ -49,10 +49,12 @@ const ListMaterial: React.FC = () => {
   const columns = [
     {
       title: "Mã chất liệu",
-      render: (value: MaterialResponse) => {
+      dataIndex: "code",
+      key: 'code',
+      render: (value: string, item: MaterialResponse) => {
         return (
-          <Link to={`${UrlConfig.MATERIALS}/${value.id.toString()}`}>
-            {value.code}
+          <Link to={`${UrlConfig.MATERIALS}/${item.id}`}>
+            {value}
           </Link>
         );
       },
@@ -60,18 +62,22 @@ const ListMaterial: React.FC = () => {
     {
       title: "Tên chất liệu",
       dataIndex: "name",
+      key: 'name',
     },
     {
       title: "Thành phần",
       dataIndex: "component",
+      key: 'component',
     },
     {
       title: "Người tạo",
       dataIndex: "created_name",
+      key: 'created_name',
     },
     {
       title: "Ghi chú",
       dataIndex: "description",
+      key: 'description',
     },
   ];
   const onDeleteSuccess = useCallback(() => {
@@ -206,11 +212,10 @@ const ListMaterial: React.FC = () => {
           </Form>
         </CustomFilter>
         <CustomTable
-          onChange={onPageChange}
           pagination={{
             pageSize: metadata.limit,
             total: metadata.total,
-            current: metadata.page + 1,
+            current: metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
