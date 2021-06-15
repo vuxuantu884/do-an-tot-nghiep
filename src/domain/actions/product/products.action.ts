@@ -1,7 +1,11 @@
-import { VariantResponse, VariantSearchQuery } from 'model/product/product.model';
-import BaseAction from "base/BaseAction"
-import { ProductType } from 'domain/types/product.type';
-import { PageResponse } from 'model/base/base-metadata.response';
+import {
+  ProductRequest,
+  VariantResponse,
+  VariantSearchQuery,
+} from 'model/product/product.model';
+import BaseAction from 'base/BaseAction';
+import {ProductType} from 'domain/types/product.type';
+import {PageResponse} from 'model/base/base-metadata.response';
 
 export const searchVariantsRequestAction = (
   query: VariantSearchQuery,
@@ -9,9 +13,9 @@ export const searchVariantsRequestAction = (
 ) => {
   return BaseAction(ProductType.SEARCH_PRODUCT_REQUEST, {
     query,
-    setData
+    setData,
   });
-}
+};
 
 export const searchVariantsOrderRequestAction = (
   query: VariantSearchQuery,
@@ -19,10 +23,9 @@ export const searchVariantsOrderRequestAction = (
 ) => {
   return BaseAction(ProductType.SEARCH_PRODUCT_FOR_ORDER_REQUEST, {
     query,
-    setData
+    setData,
   });
-}
-
+};
 
 export const productUploadAction = (
   query: VariantSearchQuery,
@@ -30,6 +33,16 @@ export const productUploadAction = (
 ) => {
   return BaseAction(ProductType.SEARCH_PRODUCT_REQUEST, {
     query,
-    setData
+    setData,
   });
-}
+};
+
+export const productCreateAction = (
+  request: ProductRequest,
+  onCreateSuccess: () => void
+) => {
+  return BaseAction(ProductType.CREATE_PRODUCT_REQEUST, {
+    request,
+    onCreateSuccess,
+  });
+};

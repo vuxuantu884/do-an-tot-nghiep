@@ -39,7 +39,7 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { convertCategory } from "utils/AppUtils";
+import { convertCategory, convertProductViewToRequest } from "utils/AppUtils";
 import {
   DeleteOutlined,
   InfoCircleOutlined,
@@ -50,7 +50,7 @@ import CustomCard from "component/custom/card.custom";
 import CustomSelect from "component/custom/select.custom";
 import {
   ProductRequestView,
-  VariantRequest,
+  VariantRequestView,
 } from "model/product/product.model";
 import { CODE } from "utils/RegUtils";
 import NumberInput from "component/custom/number-input.custom";
@@ -58,6 +58,7 @@ import { AccountSearchAction } from "domain/actions/account/account.action";
 import { AppConfig } from "config/AppConfig";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountResponse } from "model/account/account.model";
+import { productCreateAction } from "domain/actions/product/products.action";
 
 const { Option } = Select;
 const { Item, List } = Form;
@@ -85,14 +86,15 @@ const initialRequest: ProductRequestView = {
   merchandiser_code: '',
   preservation: "",
   specifications: "",
-  status: "",
+  status: "active", 
+  saleable: true,
   variant_prices: [
     {
-      retail_price: null,
-      currency: null,
-      import_price: null,
-      whole_sale_price: null,
-      tax_percent: 0,
+      retail_price: '',
+      currency: AppConfig.currency,
+      import_price: '',
+      whole_sale_price: '',
+      tax_percent: '0',
     },
   ],
 };
@@ -128,6 +130,9 @@ const ProductCreateScreen: React.FC = () => {
   const currencyList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.currency
   );
+  const productStatusList = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.product_status
+  );
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
@@ -139,19 +144,27 @@ const ProductCreateScreen: React.FC = () => {
   //State
   const [colorSelected, setColorSelected] = useState<Array<ColorResponse>>([]);
   const [sizeSelected, setSizeSelected] = useState<Array<SizeResponse>>([]);
-  const [variants, setVariants] = useState<Array<VariantRequest>>([]);
+  const [variants, setVariants] = useState<Array<VariantRequestView>>([]);
+  const [status, setStatus] = useState<string>(initialRequest.status);
   //End State
   const formRef = createRef<FormInstance>();
   const statusValue = useMemo(() => {
-    let status = formRef.current?.getFieldValue("stauts");
-    return status ? "Đang bán" : "Ngừng bán";
-  }, [formRef]);
+    if(!productStatusList) {
+      return '';
+    }
+    let index = productStatusList?.findIndex((item) =>item.value === status);
+    if(index !== -1) {
+      return productStatusList?.[index].name;
+    }
+    return "";
+  }, [productStatusList, status]);
   const onSuccess = useCallback(() => {
     history.push(UrlConfig.PRODUCT);
   }, [history]);
-  const onFinish = useCallback((values) => {
-    console.log(values);
-  }, []);
+  const onFinish = useCallback((values: ProductRequestView) => {
+    let request = convertProductViewToRequest(values, variants, status);
+    dispatch(productCreateAction(request, onSuccess));
+  }, [dispatch, onSuccess, status, variants]);
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
@@ -218,13 +231,7 @@ const ProductCreateScreen: React.FC = () => {
   const listVariantsFilter = useCallback(
     (colors: Array<ColorResponse>, sizes: Array<SizeResponse>) => {
       let name = formRef.current?.getFieldValue("name");
-      let width = formRef.current?.getFieldValue("width");
-      let height = formRef.current?.getFieldValue("height");
-      let length = formRef.current?.getFieldValue("length");
       let code = formRef.current?.getFieldValue("code");
-      let length_unit = formRef.current?.getFieldValue("length_unit");
-      let weight = formRef.current?.getFieldValue("weight");
-      let weight_unit = formRef.current?.getFieldValue("weight_unit");
       if (name && code) {
         colors.forEach((i1) => {
           sizes.forEach((i2) => {
@@ -232,25 +239,13 @@ const ProductCreateScreen: React.FC = () => {
             let index = variants.findIndex((v) => v.sku === sku);
             if (index === -1) {
               variants.push({
-                status: "avtive",
                 name: `${name} - ${i1.name} - ${i2.code}`,
                 color_id: i1.id,
+                color: i1.name,
                 size_id: i2.id,
-                barcode: null,
-                taxable: false,
-                saleable: true,
-                deleted: false,
+                size: i2.code,
                 sku: sku,
-                width: width,
-                height: height,
-                length: length,
-                length_unit: length_unit,
-                weight: weight,
-                weight_unit: weight_unit,
-                variant_prices: [],
-                product: null,
                 variant_images: null,
-                inventory: 0,
               });
             }
           });
@@ -308,8 +303,8 @@ const ProductCreateScreen: React.FC = () => {
           extra={[
             <Space key="a" size={15}>
               <label className="text-default">Trạng thái</label>
-              <Switch className="ant-switch-success" defaultChecked />
-              <label className="text-success">Đang hoạt động</label>
+              <Switch onChange={(checked) => setStatus(checked ? 'active' : 'inactive')} className="ant-switch-success" defaultChecked />
+              <label className={status === 'active' ? 'text-success' : 'text-error'}>{statusValue}</label>
             </Space>,
           ]}
         >
@@ -362,7 +357,9 @@ const ProductCreateScreen: React.FC = () => {
               >
                 <Space size={15}>
                   <label className="text-default">Lựa chọn</label>
-                  <Switch className="ant-switch-primary" defaultChecked />
+                  <Item valuePropName="checked" noStyle name="saleable"> 
+                    <Switch className="ant-switch-primary"  />
+                  </Item>
                   <label className="text-primary">{statusValue}</label>
                 </Space>
               </Col>

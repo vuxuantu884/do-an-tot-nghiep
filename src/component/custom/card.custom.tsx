@@ -9,17 +9,30 @@ interface IProps extends CardProps {
 }
 
 const CustomCard = (props: IProps) => {
+  const { collapse, className, extra, defaultopen,  ...rest} = props;
+  
   const container = useRef<HTMLDivElement>(null);
-  const { collapse, className, extra, defaultopen, ...rest } = props;
+  const [collapsed, setCollapsed] = useState(!defaultopen);
 
-  const [collapsed, setCollapsed] = useState(defaultopen !== undefined ? !defaultopen : true);
+
+  const calcHeight = () => {
+    const bodyElement = container.current?.querySelector<HTMLElement>('.ant-card-collapse > .ant-card-body');
+    bodyElement && (bodyElement.style.height = `${bodyElement.clientHeight}px`);
+  }
 
   const handleHeaderCardClick = useCallback(
     () => {
-      setCollapsed(!collapsed);
+      if (!collapsed) {
+        calcHeight();
+      }
+      setCollapsed(!collapsed)
     },
-    [collapsed],
-  );
+    [collapsed]
+  )
+
+  useEffect(() => {
+    calcHeight();
+  }, []);
 
   useEffect(() => {
     const element = container.current?.querySelector<HTMLElement>(
@@ -33,6 +46,7 @@ const CustomCard = (props: IProps) => {
 
 
 
+
   return (
     <div ref={container}>
       <ANTCard
@@ -42,7 +56,10 @@ const CustomCard = (props: IProps) => {
           collapsed && "collapsed"
         )}
         {...rest}
-        extra={collapse && (collapsed ? <RightOutlined /> : <DownOutlined />)}
+        extra={[
+          extra,
+          collapse && (collapsed ? <RightOutlined key="collapse-icon" /> : <DownOutlined key="collapse-icon" />),
+        ]}
       />
     </div>
   );

@@ -108,7 +108,15 @@ export interface VariantPriceRequest {
   currency_code: string,
   price_type: string,
   tax_percent: number,
-  version?: number,
+}
+
+export interface VariantImageRequest {
+  id?: undefined,
+  position: number|null,
+  image_id: number,
+  url: string,
+  variant_avatar: boolean,
+  product_avatar: boolean,
 }
 
 export interface VariantRequest {
@@ -126,28 +134,27 @@ export interface VariantRequest {
   length: number|null,
   length_unit: string|null,
   weight: number|null,
-  weight_unit: number|null,
+  weight_unit: string|null,
   variant_prices: Array<VariantPriceRequest>
-  product: null,
-  variant_images: null,
+  variant_images: Array<VariantImageRequest>,
   inventory: 0,
   version?: null,
 }
 
 export interface ProductRequest {
-  brand: string,
-  category_id: number,
+  brand: string|null,
+  category_id: number|null,
   code: string,
   content: string|null,
   description: string|null,
   designer_code: string|null,
-  goods: string,
+  goods: string|null,
   made_in_id: number|null,
   merchandiser_code: string|null,
   name: string,
   preservation: string,
   specifications: string,
-  product_type: string,
+  product_type: string|null,
   status: string,
   tags: string|null,
   variants: Array<VariantRequest>,
@@ -155,25 +162,21 @@ export interface ProductRequest {
 }
 
 export interface VariantRequestView {
-  status: string,
   name: string,
   color_id: number,
+  color: string,
   size_id: number,
-  barcode: string|null,
-  taxable: boolean|null,
-  saleable: boolean|null
-  deleted: boolean,
+  size: string,
   sku: string,
-  product: null,
   variant_images: null,
 }
 
 export interface VariantPriceViewRequest {
-  retail_price: number|null,
-  import_price: number|null,
-  whole_sale_price: number|null,
-  currency: string|null,
-  tax_percent: number|null
+  retail_price: string,
+  import_price: string,
+  whole_sale_price: string,
+  currency: string,
+  tax_percent: string,
 }
 export interface ProductRequestView {
   product_type: string|null,
@@ -200,5 +203,6 @@ export interface ProductRequestView {
   specifications: string,
   status: string,
   variant_prices: Array<VariantPriceViewRequest>,
+  saleable: boolean,
 }
 

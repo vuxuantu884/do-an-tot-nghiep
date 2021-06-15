@@ -278,7 +278,8 @@
 
       &.collapsed{
         .ant-card-body{
-          height: 0;
+          height: 0 !important;
+          opacity: 0;
           overflow: hidden;
         }
       }

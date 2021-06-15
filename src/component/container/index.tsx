@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Redirect, useHistory } from "react-router";
 import LoadingScreen from "screens/loading.screen";
 import HeaderContainer from "./header.container";

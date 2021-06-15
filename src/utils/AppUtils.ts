@@ -4,11 +4,10 @@ import { DistrictResponse } from 'model/content/district.model';
 import { CityView } from 'model/content/district.model';
 import { AppConfig } from 'config/AppConfig';
 import { RouteMenu } from "model/other";
-import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel } from 'model/other/Order/order-model';
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import moment from 'moment';
 import { SizeDetail, SizeResponse } from 'model/product/size.model';
-import { VariantImagesResponse, VariantPricesResponse } from 'model/product/product.model';
+import { ProductRequest, ProductRequestView, VariantImagesResponse, VariantPriceRequest, VariantPricesResponse, VariantRequest, VariantRequestView } from 'model/product/product.model';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -37,8 +36,6 @@ export const findCurrentRoute = (routes: Array<RouteMenu> = [], path: string = '
   })
   return obj;
 }
-
-
 
  const checkPath = (p1: string, p2: string, pathIgnore?: Array<string>) => {
   if (p1.includes(":") || p2.includes(":")) {
@@ -98,8 +95,6 @@ export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '
   })
   return result;
 }
-
-
 
 export const convertCategory = (data: Array<CategoryResponse>) => {
   let arr: Array<CategoryView> = [];
@@ -163,8 +158,7 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
   return sizeConvert;
 }
 
-
- const formatCurrency = (currency: number | string): string => {
+export const formatCurrency = (currency: number | string): string => {
   let format = currency.toString();
   return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
@@ -222,7 +216,7 @@ export const convertDistrict = (data: Array<DistrictResponse>) => {
 }
 
 
-const findPriceInVariant = (variantPrices: Array<VariantPricesResponse>, currency_code: string): number => {
+export const findPriceInVariant = (variantPrices: Array<VariantPricesResponse>, currency_code: string): number => {
   let price: number = 0;
   variantPrices.forEach((v) => {
     if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {
@@ -232,7 +226,7 @@ const findPriceInVariant = (variantPrices: Array<VariantPricesResponse>, currenc
   return price;
 }
 
-const findTaxInVariant = (variantPrices: Array<VariantPricesResponse>, currency_code: string): number => {
+export const findTaxInVariant = (variantPrices: Array<VariantPricesResponse>, currency_code: string): number => {
   let tax: number = 0;
   variantPrices.forEach((v) => {
     if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {
@@ -242,7 +236,7 @@ const findTaxInVariant = (variantPrices: Array<VariantPricesResponse>, currency_
   return tax;
 }
 
-const findPrice = (variantPrices: Array<VariantPricesResponse>, currency_code: string): string => {
+export const findPrice = (variantPrices: Array<VariantPricesResponse>, currency_code: string): string => {
   let price: string = '0';
   variantPrices.forEach((v) => {
     if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {
@@ -252,17 +246,12 @@ const findPrice = (variantPrices: Array<VariantPricesResponse>, currency_code: s
   return price.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 }
 
-const replaceFormat = (currency: number | string): number => {
+export const replaceFormat = (currency: number | string): number => {
   let format = currency.toString();
   return parseInt(format.replace(/,/gi, ''));
 }
 
-const replaceFormatString = (currency: number | string): string => {
-  let format = currency.toString();
-  return format.replace(/,/gi, '');
-}
-
-const findAvatar = (variantImages: Array<VariantImagesResponse>): string => {
+export const findAvatar = (variantImages: Array<VariantImagesResponse>): string => {
   let avatar: string = '';
   variantImages.forEach((v) => {
     if (v.variant_avatar) {
@@ -272,7 +261,7 @@ const findAvatar = (variantImages: Array<VariantImagesResponse>): string => {
   return avatar;
 }
 
-const haveAccess = (storeId: number, accountStores: Array<AccountStoreResponse>): boolean => {
+export const haveAccess = (storeId: number, accountStores: Array<AccountStoreResponse>): boolean => {
   let isHave = false;
   let accountStoreFilter = accountStores.filter((store: AccountStoreResponse) => store.store_id === storeId);
   if (accountStoreFilter.length > 0) {
@@ -281,76 +270,80 @@ const haveAccess = (storeId: number, accountStores: Array<AccountStoreResponse>)
   return isHave;
 }
 
-const getTotalQuantity = (items: Array<OrderItemModel>) => {
-  let total = 0;
-  items.forEach((a) => total = total + a.quantity);
-  return total;
-}
-
-const getTotalAmountAfferDiscount = (items: Array<OrderItemModel>) => {
-  let total = 0;
-  items.forEach((a) => total = total + a.line_amount_after_line_discount);
-  return total;
-}
-
-const getTotalAmount = (items: Array<OrderItemModel>) => {
-  let total = 0;
-  items.forEach((a) => {
-    if (a.product_type === 'normal') {
-      total = total + a.amount;
+export const convertProductViewToRequest = (pr: ProductRequestView, arrVariants: Array<VariantRequestView>, status: string) => {
+  let variants: Array<VariantRequest> = [];
+  let variant_prices: Array<VariantPriceRequest> = [];
+  pr.variant_prices.forEach((item) => {
+    let retail_price = parseInt(item.retail_price);
+    let import_price = parseInt(item.import_price);
+    let whole_sale_price = parseInt(item.whole_sale_price);
+    let tax_percent = parseInt(item.tax_percent);
+    if(!isNaN(retail_price)) {
+      variant_prices.push({
+        price: retail_price,
+        price_type: 'retail_price',
+        currency_code: item.currency,
+        tax_percent: tax_percent,
+      })
     }
-  });
-  return total;
-}
-
-const getTotalDiscount = (items: Array<OrderItemModel>) => {
-  let total = 0;
-  items.forEach((a) => total = total + a.discount_amount);
-  return total;
-}
-
-const getDiscountRate = (items: Array<OrderItemDiscountModel>) => {
-  let value = 0;
-  if (items.length > 0) {
-    if (items[0].rate !== null) {
-      value = items[0].rate;
+    if(!isNaN(import_price)) {
+      variant_prices.push({
+        price: import_price,
+        price_type: 'import_price',
+        currency_code: item.currency,
+        tax_percent: tax_percent,
+      })
     }
+    if(!isNaN(whole_sale_price)) {
+      variant_prices.push({
+        price: whole_sale_price,
+        price_type: 'whole_sale_price',
+        currency_code: item.currency,
+        tax_percent: tax_percent,
+      })
+    }
+    
+  })
+  arrVariants.forEach((item) => {
+    variants.push({
+      status: status,
+      name: item.name,
+      color_id: item.color_id,
+      size_id: item.size_id,
+      barcode: null,
+      taxable: false,
+      saleable: pr.saleable,
+      deleted: false,
+      sku: item.sku,
+      width: pr.width,
+      height: pr.height,
+      length: pr.length,
+      length_unit: pr.length_unit,
+      weight: pr.weight,
+      weight_unit: pr.weight_unit,
+      variant_prices: variant_prices,
+      variant_images: [],
+      inventory: 0,
+    })
+  })
+  let productRequest: ProductRequest = {
+    brand: pr.brand,
+    category_id: pr.category_id,
+    code: pr.code,
+    content: pr.content,
+    description: pr.description,
+    designer_code: pr.designer_code,
+    goods: pr.goods,
+    made_in_id: pr.made_in_id,
+    merchandiser_code: pr.merchandiser_code,
+    name: pr.name,
+    preservation: pr.preservation,
+    specifications: pr.specifications,
+    product_type: pr.product_type,
+    status: status,
+    tags: pr.tags.join(','),
+    variants: variants,
+    product_unit: pr.product_unit
   }
-  return value;
+  return productRequest;
 }
-
-const getDiscountValue = (items: Array<OrderItemDiscountModel>) => {
-  let value = 0;
-  if (items.length > 0) {
-    if (items[0].value !== null) {
-      value = items[0].value;
-    }
-  }
-  return value;
-}
-
-const getAmountDiscount = (items: Array<OrderItemDiscountModel>) => {
-  let value = 0;
-  if (items.length > 0) {
-    if (items[0].amount !== null) {
-      value = items[0].amount;
-    }
-  }
-  return value;
-}
-
-const getAmountItemDiscount = (items: Array<OrderItemDiscountModel>) => {
-  let value = 0;
-  items.forEach((i) => value = value + (i.amount ? i.amount : 0));
-  return value;
-}
-
-const findDiscountIndex = (items: Array<OrderDiscountModel>) => {
-  let index = items.findIndex((value) => value.promotion_id == null);
-  return index;
-}
-
-export {findPrice, findAvatar, findPriceInVariant, haveAccess, findTaxInVariant, formatCurrency,
-  replaceFormat, replaceFormatString, getTotalQuantity, getTotalAmount, getTotalDiscount, getTotalAmountAfferDiscount, getDiscountRate, getDiscountValue,
-  getAmountDiscount, getAmountItemDiscount, findDiscountIndex, 
-};
