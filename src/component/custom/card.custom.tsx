@@ -17,7 +17,7 @@ const CustomCard = (props: IProps) => {
 
   const calcHeight = () => {
     const bodyElement = container.current?.querySelector<HTMLElement>('.ant-card-collapse > .ant-card-body');
-    bodyElement && (bodyElement.style.height = `${bodyElement.clientHeight}px`);
+    bodyElement && (bodyElement.style.height = `${bodyElement.scrollHeight}px`);
   }
 
   const handleHeaderCardClick = useCallback(
