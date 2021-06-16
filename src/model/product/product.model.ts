@@ -168,6 +168,7 @@ export interface VariantRequestView {
   size_id: number,
   size: string,
   sku: string,
+  quantity: string|null,
   variant_images: null,
 }
 
@@ -179,7 +180,7 @@ export interface VariantPriceViewRequest {
   tax_percent: string,
 }
 export interface ProductRequestView {
-  product_type: string|null,
+  product_type?: string|null,
   goods: string|null,
   category_id: number|null,
   collections: Array<string>,

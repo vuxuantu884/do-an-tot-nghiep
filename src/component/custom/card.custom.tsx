@@ -16,8 +16,13 @@ const CustomCard = (props: IProps) => {
 
 
   const calcHeight = () => {
-    const bodyElement = container.current?.querySelector<HTMLElement>('.ant-card-collapse > .ant-card-body');
-    bodyElement && (bodyElement.style.height = `${bodyElement.scrollHeight}px`);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const bodyElement = container.current?.querySelector<HTMLElement>('.ant-card-collapse > .ant-card-body');
+        bodyElement && (bodyElement.style.height = `${bodyElement.scrollHeight}px`);
+        resolve(true);
+      }, 200);
+    })
   }
 
   const handleHeaderCardClick = useCallback(
@@ -29,11 +34,6 @@ const CustomCard = (props: IProps) => {
     },
     [collapsed]
   )
-
-  useEffect(() => {
-    calcHeight();
-  }, []);
-
   useEffect(() => {
     const element = container.current?.querySelector<HTMLElement>(
       ".ant-card-collapse > .ant-card-head"
@@ -42,11 +42,7 @@ const CustomCard = (props: IProps) => {
     return () => {
       element?.removeEventListener("click", handleHeaderCardClick);
     };
-  }, [collapsed, handleHeaderCardClick]);
-
-
-
-
+  }, [handleHeaderCardClick]);
   return (
     <div ref={container}>
       <ANTCard

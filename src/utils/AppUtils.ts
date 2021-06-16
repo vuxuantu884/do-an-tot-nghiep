@@ -251,6 +251,11 @@ export const replaceFormat = (currency: number | string): number => {
   return parseInt(format.replace(/,/gi, ''));
 }
 
+export const replaceFormatString = (currency: number | string): string => {
+  let format = currency.toString();
+  return format.replace(/,/gi, '');
+}
+
 export const findAvatar = (variantImages: Array<VariantImagesResponse>): string => {
   let avatar: string = '';
   variantImages.forEach((v) => {
@@ -339,11 +344,17 @@ export const convertProductViewToRequest = (pr: ProductRequestView, arrVariants:
     name: pr.name,
     preservation: pr.preservation,
     specifications: pr.specifications,
-    product_type: pr.product_type,
+    product_type: pr.product_type ? pr.product_type : '',
     status: status,
     tags: pr.tags.join(','),
     variants: variants,
     product_unit: pr.product_unit
   }
   return productRequest;
+}
+
+export const ListUtil = {
+  notEmpty: (a: Array<any>|undefined) => {
+    return a !== undefined &&  a.length >= 0
+  } 
 }

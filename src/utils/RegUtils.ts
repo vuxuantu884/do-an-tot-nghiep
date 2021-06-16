@@ -5,6 +5,8 @@ export const Email =
 
 export const CODE = /^[a-zA-Z0-9]*$/
 
-export const FLOATREG = /^\d+([.]?\d{0,2})?$/
+export const FLOATREG = /^-?\d*(\.\d*)?$/
 
 export const NUMBERREG =  /^[0-9\b]+$/;
+
+export const STRINGUTF8 = /^[a-zA-Z0-9_\-ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ ]+$/

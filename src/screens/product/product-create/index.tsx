@@ -39,7 +39,12 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { convertCategory, convertProductViewToRequest } from "utils/AppUtils";
+import {
+  convertCategory,
+  convertProductViewToRequest,
+  formatCurrency,
+  replaceFormatString,
+} from "utils/AppUtils";
 import {
   DeleteOutlined,
   InfoCircleOutlined,
@@ -52,7 +57,7 @@ import {
   ProductRequestView,
   VariantRequestView,
 } from "model/product/product.model";
-import { CODE } from "utils/RegUtils";
+import { CODE, STRINGUTF8 } from "utils/RegUtils";
 import NumberInput from "component/custom/number-input.custom";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { AppConfig } from "config/AppConfig";
@@ -65,7 +70,6 @@ const { Item, List } = Form;
 
 const initialRequest: ProductRequestView = {
   goods: null,
-  product_type: null,
   category_id: null,
   collections: [],
   code: "",
@@ -80,21 +84,21 @@ const initialRequest: ProductRequestView = {
   product_unit: null,
   brand: null,
   content: null,
-  description: null,
-  designer_code: '',
+  description: "",
+  designer_code: "",
   made_in_id: null,
-  merchandiser_code: '',
+  merchandiser_code: "",
   preservation: "",
   specifications: "",
-  status: "active", 
+  status: "active",
   saleable: true,
   variant_prices: [
     {
-      retail_price: '',
+      retail_price: "",
       currency: AppConfig.currency,
-      import_price: '',
-      whole_sale_price: '',
-      tax_percent: '0',
+      import_price: "",
+      whole_sale_price: "",
+      tax_percent: "0",
     },
   ],
 };
@@ -142,18 +146,37 @@ const ProductCreateScreen: React.FC = () => {
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
   //End get master data
   //State
+  const initialForm: ProductRequestView = {
+    ...initialRequest,
+    product_type:
+      productTypes && productTypes.length > 0 ? productTypes[0].value : null,
+    goods: goods && goods.length > 0 ? goods[0].value : null,
+    weight_unit:
+      weightUnitList && weightUnitList.length > 0
+        ? weightUnitList[0].value
+        : null,
+    length_unit:
+      lengthUnitList && lengthUnitList.length > 0
+        ? lengthUnitList[0].value
+        : null,
+    product_unit:
+      productUnitList && productUnitList.length > 0
+        ? productUnitList[0].value
+        : null,
+  };
   const [colorSelected, setColorSelected] = useState<Array<ColorResponse>>([]);
   const [sizeSelected, setSizeSelected] = useState<Array<SizeResponse>>([]);
   const [variants, setVariants] = useState<Array<VariantRequestView>>([]);
   const [status, setStatus] = useState<string>(initialRequest.status);
+  const [isCombo, setCombo] = useState<boolean>(false);
   //End State
   const formRef = createRef<FormInstance>();
   const statusValue = useMemo(() => {
-    if(!productStatusList) {
-      return '';
+    if (!productStatusList) {
+      return "";
     }
-    let index = productStatusList?.findIndex((item) =>item.value === status);
-    if(index !== -1) {
+    let index = productStatusList?.findIndex((item) => item.value === status);
+    if (index !== -1) {
       return productStatusList?.[index].name;
     }
     return "";
@@ -161,10 +184,13 @@ const ProductCreateScreen: React.FC = () => {
   const onSuccess = useCallback(() => {
     history.push(UrlConfig.PRODUCT);
   }, [history]);
-  const onFinish = useCallback((values: ProductRequestView) => {
-    let request = convertProductViewToRequest(values, variants, status);
-    dispatch(productCreateAction(request, onSuccess));
-  }, [dispatch, onSuccess, status, variants]);
+  const onFinish = useCallback(
+    (values: ProductRequestView) => {
+      let request = convertProductViewToRequest(values, variants, status);
+      dispatch(productCreateAction(request, onSuccess));
+    },
+    [dispatch, onSuccess, status, variants]
+  );
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
@@ -178,56 +204,68 @@ const ProductCreateScreen: React.FC = () => {
     setAccounts(data.items);
   }, []);
   //end callback data
-  const columns = [
-    {
-      title: "Mã chi tiết",
-      key: "sku",
-      dataIndex: "sku",
-    },
-    {
-      title: "Tên sản phẩm",
-      key: "name",
-      dataIndex: "name",
-    },
-    {
-      title: "Mã màu",
-      key: "color",
-      dataIndex: "color",
-    },
-    {
-      title: "Size",
-      key: "size",
-      dataIndex: "size",
-    },
-    {
-      title: "Số lượng",
-      key: "quantity",
-      dataIndex: "quantity",
-      width: 100,
-      render: (qty: string) => (
-        <Input style={{ textAlign: "center" }} value={qty} />
-      ),
-    },
-    {
-      title: "Ảnh",
-      dataIndex: "image",
-      render: (image: string) => (
-        <Image
-          width={40}
-          height={40}
-          src="error"
-          fallback="data:image/png;base64,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"
-        />
-      ),
-    },
-    {
-      title: "Thao tác",
-      key: "action",
-      dataIndex: "id",
-      width: 100,
-      render: (id: number) => <Button type="link" icon={<DeleteOutlined />} />,
-    },
-  ];
+  const skuCol = {
+    title: "Mã chi tiết",
+    key: "sku",
+    dataIndex: "sku",
+  };
+  const nameCol = {
+    title: "Tên sản phẩm",
+    key: "name",
+    dataIndex: "name",
+  };
+  const colorCol = {
+    title: "Mã màu",
+    key: "color",
+    dataIndex: "color",
+  };
+  const sizeCol = {
+    title: "Kích cỡ",
+    key: "size",
+    dataIndex: "size",
+  };
+  const imageCol = {
+    title: "Ảnh",
+    dataIndex: "image",
+    render: (image: string) => (
+      <Image
+        width={40}
+        height={40}
+        src="error"
+        fallback="data:image/png;base64,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"
+      />
+    )
+  };
+  const quanltityCol = {
+    title: "Số lượng",
+    key: "quantity",
+    dataIndex: "quantity",
+    width: 100,
+    render: (quantity: string, item: VariantRequestView) => (
+      <NumberInput 
+        style={{ textAlign: "center" }} 
+        value={quantity} 
+        onChange={(s) => {
+          let index = variants.findIndex((v) => v.sku === item.sku);
+          if(index !== -1) {
+            variants[index].quantity = s;
+          }
+          setVariants([...variants])
+        }} 
+      />
+    ),
+  };
+  const actionCol = {
+    title: "Thao tác",
+    key: "action",
+    dataIndex: "id",
+    width: 100,
+    render: (id: number) => <Button type="link" icon={<DeleteOutlined />} />,
+  }
+  let columns: Array<any> = [skuCol, nameCol, colorCol, sizeCol, imageCol, actionCol];
+  if(isCombo) {
+    columns = [skuCol, nameCol, colorCol, sizeCol, quanltityCol, imageCol, actionCol]
+  }
   const listVariantsFilter = useCallback(
     (colors: Array<ColorResponse>, sizes: Array<SizeResponse>) => {
       let name = formRef.current?.getFieldValue("name");
@@ -246,6 +284,7 @@ const ProductCreateScreen: React.FC = () => {
                 size: i2.code,
                 sku: sku,
                 variant_images: null,
+                quantity: ''
               });
             }
           });
@@ -293,7 +332,7 @@ const ProductCreateScreen: React.FC = () => {
   return (
     <div>
       <Form
-        initialValues={initialRequest}
+        initialValues={initialForm}
         ref={formRef}
         onFinish={onFinish}
         layout="vertical"
@@ -303,8 +342,18 @@ const ProductCreateScreen: React.FC = () => {
           extra={[
             <Space key="a" size={15}>
               <label className="text-default">Trạng thái</label>
-              <Switch onChange={(checked) => setStatus(checked ? 'active' : 'inactive')} className="ant-switch-success" defaultChecked />
-              <label className={status === 'active' ? 'text-success' : 'text-error'}>{statusValue}</label>
+              <Switch
+                onChange={(checked) =>
+                  setStatus(checked ? "active" : "inactive")
+                }
+                className="ant-switch-success"
+                defaultChecked
+              />
+              <label
+                className={status === "active" ? "text-success" : "text-error"}
+              >
+                {statusValue}
+              </label>
             </Space>,
           ]}
         >
@@ -321,7 +370,10 @@ const ProductCreateScreen: React.FC = () => {
                   name="product_type"
                   label="Loại sản phẩm"
                 >
-                  <Select placeholder="Chọn loại sản phẩm ">
+                  <Select
+                    onChange={(value) => setCombo(value === 'combo')}
+                    placeholder="Chọn loại sản phẩm "
+                  >
                     {productTypes?.map((item) => (
                       <Option key={item.value} value={item.value}>
                         {item.name}
@@ -357,8 +409,8 @@ const ProductCreateScreen: React.FC = () => {
               >
                 <Space size={15}>
                   <label className="text-default">Lựa chọn</label>
-                  <Item valuePropName="checked" noStyle name="saleable"> 
-                    <Switch className="ant-switch-primary"  />
+                  <Item valuePropName="checked" noStyle name="saleable">
+                    <Switch className="ant-switch-primary" />
                   </Item>
                   <label className="text-primary">{statusValue}</label>
                 </Space>
@@ -387,7 +439,7 @@ const ProductCreateScreen: React.FC = () => {
                   >
                     {listCategory.map((item) => (
                       <CustomSelect.Option key={item.id} value={item.id}>
-                        {item.name}
+                        {`${item.code} - ${item.name}`}
                       </CustomSelect.Option>
                     ))}
                   </CustomSelect>
@@ -422,10 +474,15 @@ const ProductCreateScreen: React.FC = () => {
                       message: "Mã sản phẩm chỉ gồm chữ và số",
                     },
                   ]}
+                  tooltip={{
+                    title:
+                      "Tên sản phẩm không bao gồm các giá trị thuộc tính như màu sắc, chất liệu, kích cỡ...",
+                    icon: <InfoCircleOutlined />,
+                  }}
                   name="code"
                   label="Mã sản phẩm"
                 >
-                  <Input placeholder="Nhập mã sản phẩm" />
+                  <Input maxLength={7} placeholder="Nhập mã sản phẩm" />
                 </Item>
               </Col>
               <Col span={50} lg={8} md={12} sm={50}>
@@ -435,11 +492,20 @@ const ProductCreateScreen: React.FC = () => {
                       required: true,
                       message: "Vui lòng nhập tên sản phẩm",
                     },
+                    {
+                      pattern: STRINGUTF8,
+                      message: "Tên sản phẩm không báo gồm kí tự đặc biệt",
+                    },
                   ]}
+                  tooltip={{
+                    title:
+                      "Tên sản phẩm không bao gồm các giá trị thuộc tính như màu sắc, chất liệu, kích cỡ...",
+                    icon: <InfoCircleOutlined />,
+                  }}
                   name="name"
                   label="Tên sản phẩm"
                 >
-                  <Input placeholder="Nhập tên sản phẩm" />
+                  <Input maxLength={120} placeholder="Nhập tên sản phẩm" />
                 </Item>
               </Col>
             </Row>
@@ -447,7 +513,10 @@ const ProductCreateScreen: React.FC = () => {
               <Col span={50} lg={8} md={12} sm={50}>
                 <Item
                   label="Kích thước (dài, rộng, cao)"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{
+                    title: "Kích thước (dài, rộng, cao)",
+                    icon: <InfoCircleOutlined />,
+                  }}
                 >
                   <Input.Group compact>
                     <Item name="length" noStyle>
@@ -485,11 +554,24 @@ const ProductCreateScreen: React.FC = () => {
               </Col>
               <Col md={8}>
                 <Item
+                  required
                   label="Khối lượng"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{
+                    title: "Nhập khối lượng của sản phẩm",
+                    icon: <InfoCircleOutlined />,
+                  }}
                 >
                   <Input.Group compact>
-                    <Item name="weight" noStyle>
+                    <Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Khối lượng không được để trống",
+                        },
+                      ]}
+                      name="weight"
+                      noStyle
+                    >
                       <NumberInput
                         isFloat
                         placeholder="Khối lượng"
@@ -517,12 +599,19 @@ const ProductCreateScreen: React.FC = () => {
             <Divider orientation="left">Thông tin khác</Divider>
             <Row gutter={50}>
               <Col span={50} lg={8} md={12} sm={50}>
-                <Item name="tags" label="Từ khóa">
+                <Item
+                  tooltip={{
+                    title: "Thẻ ngày giúp tìm kiếm các sản phẩm",
+                    icon: <InfoCircleOutlined />,
+                  }}
+                  name="tags"
+                  label="Từ khóa"
+                >
                   <Input placeholder="Nhập từ khóa" />
                 </Item>
               </Col>
               <Col span={50} lg={8} md={12} sm={50}>
-                <Item name="unit" label="Đơn vị">
+                <Item name="product_unit" label="Đơn vị">
                   <Select placeholder="Chọn đơn vị">
                     {productUnitList?.map((item) => (
                       <Option key={item.value} value={item.value}>
@@ -560,7 +649,11 @@ const ProductCreateScreen: React.FC = () => {
             <Row gutter={50}>
               <Col span={50} lg={8} md={12} sm={50}>
                 <Item name="made_in_id" label="Xuất xứ">
-                  <Select placeholder="Chọn xuất xứ">
+                  <Select
+                    showSearch
+                    optionFilterProp="children"
+                    placeholder="Chọn xuất xứ"
+                  >
                     {listCountry?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -571,7 +664,11 @@ const ProductCreateScreen: React.FC = () => {
               </Col>
               <Col span={50} lg={8} md={12} sm={50}>
                 <Item name="material_id" label="Chất liệu">
-                  <Select placeholder="Chọn chất liệu">
+                  <Select
+                    showSearch
+                    optionFilterProp="children"
+                    placeholder="Chọn chất liệu"
+                  >
                     {listMaterial?.map((item) => (
                       <Option key={item.id} value={item.name}>
                         {item.name}
@@ -584,8 +681,8 @@ const ProductCreateScreen: React.FC = () => {
             <Button type="link" className="padding-0" icon={<MinusOutlined />}>
               Mô tả sản phẩm
             </Button>
-            <Row gutter={50}>
-              <Col span={50}>
+            <Row gutter={24}>
+              <Col span={24}>
                 <Item name="description">
                   <CustomEditor />
                 </Item>
@@ -618,11 +715,20 @@ const ProductCreateScreen: React.FC = () => {
                             name={[name, "retail_price"]}
                             fieldKey={[fieldKey, "retail_price"]}
                             tooltip={{
-                              title: "Tooltip",
+                              title: (
+                                <div>
+                                  <b>Giá bán lẻ</b> là giá mà bạn sẽ bán sản
+                                  phẩm này cho những khách hàng đơn lẻ..
+                                </div>
+                              ),
                               icon: <InfoCircleOutlined />,
                             }}
                           >
-                            <NumberInput placeholder="VD: 100,000" />
+                            <NumberInput
+                              format={(a: string) => formatCurrency(a)}
+                              replace={(a: string) => replaceFormatString(a)}
+                              placeholder="VD: 100,000"
+                            />
                           </Item>
                         </Col>
                         <Col md={4}>
@@ -631,11 +737,21 @@ const ProductCreateScreen: React.FC = () => {
                             fieldKey={[fieldKey, "whole_sale_price"]}
                             label="Giá buôn"
                             tooltip={{
-                              title: "Tooltip",
+                              title: () => (
+                                <div>
+                                  <b>Giá buôn</b> là giá mà bạn sẽ bán sản phẩm
+                                  này cho những khách hàng mua hàng với số lượng
+                                  lớn.
+                                </div>
+                              ),
                               icon: <InfoCircleOutlined />,
                             }}
                           >
-                            <NumberInput placeholder="VD: 100,000" />
+                            <NumberInput
+                              format={(a: string) => formatCurrency(a)}
+                              replace={(a: string) => replaceFormatString(a)}
+                              placeholder="VD: 100,000"
+                            />
                           </Item>
                         </Col>
                         <Col md={4}>
@@ -644,11 +760,20 @@ const ProductCreateScreen: React.FC = () => {
                             fieldKey={[fieldKey, "import_price"]}
                             label="Giá nhập"
                             tooltip={{
-                              title: "Tooltip",
+                              title: () => (
+                                <div>
+                                  <b>Giá nhập</b> là giá mà nhập sản phẩm từ đơn
+                                  mua hàng của nhà cung cấp.
+                                </div>
+                              ),
                               icon: <InfoCircleOutlined />,
                             }}
                           >
-                            <Input placeholder="VD: 100,000" />
+                            <NumberInput
+                              format={(a: string) => formatCurrency(a)}
+                              replace={(a: string) => replaceFormatString(a)}
+                              placeholder="VD: 100,000"
+                            />
                           </Item>
                         </Col>
                         <Col md={4}>
@@ -680,7 +805,7 @@ const ProductCreateScreen: React.FC = () => {
                               icon: <InfoCircleOutlined />,
                             }}
                           >
-                            <Input
+                            <NumberInput
                               placeholder="VD: 10"
                               suffix={<span>%</span>}
                             />
@@ -736,7 +861,9 @@ const ProductCreateScreen: React.FC = () => {
                 </Button>
                 <Row className="margin-top-20">
                   <Col md={24}>
-                    <CustomEditor />
+                    <Item name="preservation">
+                      <CustomEditor />
+                    </Item>
                   </Col>
                 </Row>
               </div>
