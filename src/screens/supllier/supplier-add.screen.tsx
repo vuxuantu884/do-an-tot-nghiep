@@ -1,51 +1,67 @@
-import { Button, Card, Col, Space, Form, FormInstance, Input, Radio, Row, Select, Switch, Divider } from "antd";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
-import SupplierAction from "domain/actions/core/supplier.action";
-import { CityView } from "model/content/district.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { SupplierCreateRequest } from "model/core/supplier.model";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { CountryResponse } from "model/content/country.model";
-import { DistrictResponse } from "model/content/district.model";
-import { createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { convertDistrict } from "utils/AppUtils";
-import CustomCard from "component/custom/card.custom";
-import { AppConfig } from "config/AppConfig";
+import {
+  Button,
+  Card,
+  Col,
+  Space,
+  Form,
+  FormInstance,
+  Input,
+  Radio,
+  Row,
+  Select,
+  Switch,
+  Divider,
+  Collapse,
+} from 'antd';
+import {AccountSearchAction} from 'domain/actions/account/account.action';
+import {
+  CountryGetAllAction,
+  DistrictGetByCountryAction,
+} from 'domain/actions/content/content.action';
+import SupplierAction from 'domain/actions/core/supplier.action';
+import {CityView} from 'model/content/district.model';
+import {RootReducerType} from 'model/reducers/RootReducerType';
+import {SupplierCreateRequest} from 'model/core/supplier.model';
+import {AccountResponse} from 'model/account/account.model';
+import {PageResponse} from 'model/base/base-metadata.response';
+import {CountryResponse} from 'model/content/country.model';
+import {DistrictResponse} from 'model/content/district.model';
+import {createRef, useCallback, useEffect, useMemo, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {useHistory} from 'react-router';
+import {convertDistrict} from 'utils/AppUtils';
+import {AppConfig} from 'config/AppConfig';
 
-const { Item } = Form;
-const { Option, OptGroup } = Select;
+const {Item} = Form;
+const {Option, OptGroup} = Select;
 
 const DefaultCountry = 233;
 const initRequest: SupplierCreateRequest = {
-  address: "",
-  bank_brand: "",
-  bank_name: "",
-  bank_number: "",
-  beneficiary_name: "",
+  address: '',
+  bank_brand: '',
+  bank_name: '',
+  bank_number: '',
+  beneficiary_name: '',
   certifications: [],
   city_id: null,
   country_id: DefaultCountry,
-  contact_name: "",
+  contact_name: '',
   debt_time: null,
   debt_time_unit: null,
   district_id: null,
   website: null,
-  email: "",
-  fax: "",
+  email: '',
+  fax: '',
   goods: [],
   person_in_charge: null,
   moq: null,
-  note: "",
-  name: "",
-  phone: "",
+  note: '',
+  name: '',
+  phone: '',
   scorecard: null,
-  status: "active",
-  tax_code: "",
-  type: "",
+  status: 'active',
+  tax_code: '',
+  type: '',
 };
 const CreateSupplierScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -85,9 +101,9 @@ const CreateSupplierScreen: React.FC = () => {
   }, []);
   const onChangeStatus = useCallback(
     (checked: boolean) => {
-      setStatus(checked ? "active" : "inactive");
+      setStatus(checked ? 'active' : 'inactive');
       formRef.current?.setFieldsValue({
-        status: checked ? "active" : "inactive",
+        status: checked ? 'active' : 'inactive',
       });
     },
     [formRef]
@@ -111,7 +127,7 @@ const CreateSupplierScreen: React.FC = () => {
     [cityViews, formRef]
   );
   const onCreateSuccess = useCallback(() => {
-    history.push("/suppliers");
+    history.push('/suppliers');
   }, [history]);
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
@@ -124,19 +140,24 @@ const CreateSupplierScreen: React.FC = () => {
   //Memo
   const statusValue = useMemo(() => {
     if (!supplier_status) {
-      return "";
+      return '';
     }
     let index = supplier_status.findIndex((item) => item.value === status);
     if (index !== -1) {
       return supplier_status[index].name;
     }
-    return "";
+    return '';
   }, [status, supplier_status]);
   //end memo
   useEffect(() => {
-    dispatch(AccountSearchAction({ department_ids: [AppConfig.WIN_DEPARTMENT] }, setDataAccounts));
-    dispatch(CountryGetAllAction(setCountries))
-    dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict))
+    dispatch(
+      AccountSearchAction(
+        {department_ids: [AppConfig.WIN_DEPARTMENT]},
+        setDataAccounts
+      )
+    );
+    dispatch(CountryGetAllAction(setCountries));
+    dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
   }, [dispatch, setDataAccounts, setDataDistrict]);
   return (
     <Form
@@ -150,10 +171,18 @@ const CreateSupplierScreen: React.FC = () => {
         extra={[
           <Space size={15}>
             <label className="text-default">Trạng thái</label>
-            <Switch onChange={onChangeStatus} className="ant-switch-success" defaultChecked />
-            <label className={status === 'active' ? "text-success" : "text-error"}>{statusValue}</label>
+            <Switch
+              onChange={onChangeStatus}
+              className="ant-switch-success"
+              defaultChecked
+            />
+            <label
+              className={status === 'active' ? 'text-success' : 'text-error'}
+            >
+              {statusValue}
+            </label>
             <Item noStyle name="status" hidden>
-               <Input value={status} />
+              <Input value={status} />
             </Item>
           </Space>,
         ]}
@@ -162,7 +191,7 @@ const CreateSupplierScreen: React.FC = () => {
           <Row>
             <Item
               rules={[
-                { required: true, message: "Vui lòng chọn loại nhà cung cấp" },
+                {required: true, message: 'Vui lòng chọn loại nhà cung cấp'},
               ]}
               label="Loại nhà cung cấp"
               name="type"
@@ -194,7 +223,7 @@ const CreateSupplierScreen: React.FC = () => {
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 rules={[
-                  { required: true, message: "Vui lòng nhập tên nhà cung cấp" },
+                  {required: true, message: 'Vui lòng nhập tên nhà cung cấp'},
                 ]}
                 name="name"
                 label="Tên nhà cung cấp"
@@ -210,9 +239,7 @@ const CreateSupplierScreen: React.FC = () => {
           <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
-                rules={[
-                  { required: true, message: "Vui lòng chọn ngành hàng" },
-                ]}
+                rules={[{required: true, message: 'Vui lòng chọn ngành hàng'}]}
                 name="goods"
                 label="Ngành hàng"
               >
@@ -234,7 +261,7 @@ const CreateSupplierScreen: React.FC = () => {
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng chọ nhân viên phụ trách",
+                    message: 'Vui lòng chọ nhân viên phụ trách',
                   },
                 ]}
                 name="person_in_charge"
@@ -273,7 +300,7 @@ const CreateSupplierScreen: React.FC = () => {
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 rules={[
-                  { required: true, message: "Vui lòng nhập người liên hệ" },
+                  {required: true, message: 'Vui lòng nhập người liên hệ'},
                 ]}
                 name="contact_name"
                 label="Người liên hệ"
@@ -313,7 +340,7 @@ const CreateSupplierScreen: React.FC = () => {
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 rules={[
-                  { required: true, message: "Vui lòng nhập số điện thoại" },
+                  {required: true, message: 'Vui lòng nhập số điện thoại'},
                 ]}
                 name="phone"
                 label="Số điện thoại"
@@ -364,161 +391,165 @@ const CreateSupplierScreen: React.FC = () => {
           </Row>
         </div>
       </Card>
-      <CustomCard
-        title="Chi tiết nhà cung cấp"
-        collapse
-        className="margin-top-20"
+      <Collapse
+        defaultActiveKey="1"
+        className="ant-collapse-card margin-top-20"
+        expandIconPosition="right"
       >
-        <div className="padding-20">
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item label="Phân cấp nhà cung cấp" name="scorecard">
-                <Select
-                  className="selector"
-                  placeholder="Chọn phân cấp nhà cung cấp"
+        <Collapse.Panel key="1" header="Chi tiết nhà cung cấp">
+          <div className="padding-20">
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item label="Phân cấp nhà cung cấp" name="scorecard">
+                  <Select
+                    className="selector"
+                    placeholder="Chọn phân cấp nhà cung cấp"
+                  >
+                    {scorecards?.map((item) => (
+                      <Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item label="Thời gian công nợ">
+                  <Input.Group className="ip-group" size="large" compact>
+                    <Item name="debt_time" noStyle>
+                      <Input
+                        placeholder="Nhập thời gian công nợ"
+                        style={{width: '70%'}}
+                        className="ip-text-group"
+                        onFocus={(e) => e.target.select()}
+                      />
+                    </Item>
+                    <Item name="debt_time_unit" noStyle>
+                      <Select
+                        className="selector-group"
+                        defaultActiveFirstOption
+                        style={{width: '30%'}}
+                      >
+                        {date_unit?.map((item) => (
+                          <Option key={item.value} value={item.value}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Item>
+                  </Input.Group>
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  label="Chứng chỉ"
+                  name="certifications"
+                  help={
+                    <div className="t-help">
+                      Tối đa 1 files (doc, pdf, png, jpeg, jpg) và dung lượng
+                      tối đa 3 MB
+                    </div>
+                  }
                 >
-                  {scorecards?.map((item) => (
-                    <Option key={item.value} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item label="Thời gian công nợ">
-                <Input.Group className="ip-group" size="large" compact>
-                  <Item name="debt_time" noStyle>
-                    <Input
-                      placeholder="Nhập thời gian công nợ"
-                      style={{ width: "70%" }}
-                      className="ip-text-group"
-                      onFocus={(e) => e.target.select()}
-                    />
-                  </Item>
-                  <Item name="debt_time_unit" noStyle>
-                    <Select
-                      className="selector-group"
-                      defaultActiveFirstOption
-                      style={{ width: "30%" }}
-                    >
-                      {date_unit?.map((item) => (
-                        <Option key={item.value} value={item.value}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
-                </Input.Group>
-              </Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                label="Chứng chỉ"
-                name="certifications"
-                help={
-                  <div className="t-help">
-                    Tối đa 1 files (doc, pdf, png, jpeg, jpg) và dung lượng tối
-                    đa 3 MB
-                  </div>
-                }
-              >
-                <Input
-                  className="r-5 ip-upload"
-                  multiple
-                  type="file"
-                  placeholder="Tên danh mục"
-                />
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item label="Thời gian công nợ">
-                <Input.Group className="ip-group" size="large" compact>
-                  <Item name="moq" noStyle>
-                    <Input
-                      placeholder="Nhập số lượng"
-                      style={{ width: "70%" }}
-                      className="ip-text-group"
-                      onFocus={(e) => e.target.select()}
-                    />
-                  </Item>
-                  <Item name="moq_unit" noStyle>
-                    <Select className="selector-group" style={{ width: "30%" }}>
-                      {moq_unit?.map((item) => (
-                        <Option key={item.value} value={item.value}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
-                </Input.Group>
-              </Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={16} md={24} sm={24}>
-              <Item label="Ghi chú" name="note">
-                <Input
-                  className="r-5 ip-upload"
-                  size="large"
-                  placeholder="Nhập ghi chú"
-                />
-              </Item>
-            </Col>
-          </Row>
-        </div>
-      </CustomCard>
-      <CustomCard
-        title="Chi tiết nhà cung cấp"
-        collapse
-        className="margin-top-20"
+                  <Input
+                    className="r-5 ip-upload"
+                    multiple
+                    type="file"
+                    placeholder="Tên danh mục"
+                  />
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item label="Thời gian công nợ">
+                  <Input.Group className="ip-group" size="large" compact>
+                    <Item name="moq" noStyle>
+                      <Input
+                        placeholder="Nhập số lượng"
+                        style={{width: '70%'}}
+                        className="ip-text-group"
+                        onFocus={(e) => e.target.select()}
+                      />
+                    </Item>
+                    <Item name="moq_unit" noStyle>
+                      <Select className="selector-group" style={{width: '30%'}}>
+                        {moq_unit?.map((item) => (
+                          <Option key={item.value} value={item.value}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Item>
+                  </Input.Group>
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={16} md={24} sm={24}>
+                <Item label="Ghi chú" name="note">
+                  <Input
+                    className="r-5 ip-upload"
+                    size="large"
+                    placeholder="Nhập ghi chú"
+                  />
+                </Item>
+              </Col>
+            </Row>
+          </div>
+        </Collapse.Panel>
+      </Collapse>
+      <Collapse
+        defaultActiveKey="1"
+        className="ant-collapse-card margin-top-20"
+        expandIconPosition="right"
       >
-        <div className="padding-20">
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item label="Ngân hàng" name="bank_name">
-                <Input
-                  className="r-5"
-                  placeholder="Nhập ngân hàng"
-                  size="large"
-                />
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item name="bank_brand" label="Chi nhánh">
-                <Input
-                  className="r-5"
-                  placeholder="Nhập chi nhánh"
-                  size="large"
-                />
-              </Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item label="Số tài khoản" name="bank_number">
-                <Input
-                  className="r-5"
-                  placeholder="Nhập số tài khoản"
-                  size="large"
-                />
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item name="beneficiary_name" label="Chủ tài khoản">
-                <Input
-                  className="r-5"
-                  placeholder="Nhập chủ tài khoản"
-                  size="large"
-                />
-              </Item>
-            </Col>
-          </Row>
-        </div>
-      </CustomCard>
-      <div className="margin-top-10" style={{ textAlign: "right" }}>
+        <Collapse.Panel key="1" header="Thông tin giá">
+          <div className="padding-20">
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item label="Ngân hàng" name="bank_name">
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập ngân hàng"
+                    size="large"
+                  />
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item name="bank_brand" label="Chi nhánh">
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập chi nhánh"
+                    size="large"
+                  />
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item label="Số tài khoản" name="bank_number">
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập số tài khoản"
+                    size="large"
+                  />
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item name="beneficiary_name" label="Chủ tài khoản">
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập chủ tài khoản"
+                    size="large"
+                  />
+                </Item>
+              </Col>
+            </Row>
+          </div>
+        </Collapse.Panel>
+      </Collapse>
+      <div className="margin-top-10" style={{textAlign: 'right'}}>
         <Space size={12}>
           <Button type="default" onClick={onCancel}>
             Hủy

@@ -55,6 +55,31 @@
       cursor: pointer;
       box-shadow: 0 0 2px 1px #eee;
     }
+
+    &-move-left, &-move-right{
+      display: flex;
+      width: 16px;
+      height: 16px;
+      border: 1px solid $red;
+      border-radius: 5px;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+  
+      span{
+        font-size: 11px;
+        color: $red;
+      }
+    }
+  
+    &-move-right{
+      border-color: #2D9CDB;
+  
+      span{
+        color: #2D9CDB;
+      }
+    }
+
   }
 
   .loading{
@@ -102,6 +127,14 @@
 
       &-error{
         color: $red;
+      }
+
+      &-secondary {
+        color: $secondary-color;
+      }
+
+      &-center{
+        text-align: center;
       }
 
       &-primary{
@@ -204,23 +237,74 @@
       }
     }
   }
-  .upload-bottom {
-    width:  150px;
-    margin-top: 12px;
-    text-align: center;
-    font-family: Inter;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 14px;
-    line-height: 18px;
-    color: rgba(79, 104, 125, 0.9);
+  
+}
+
+.custom-badge{
+  .ant-badge-count{
+    background-color: #E9E9F1;
+    color: #FFA600;
   }
-  .t-help {
-    font-family: Inter;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 12px;
-    margin-top: 6px;
-    color: #768592; 
+}
+
+.panel-background{
+  background: $white;
+  border-radius: 0 0 $border-radius $border-radius;
+}
+
+@media screen and(max-width: 576px) {
+  .ant-layout-sider-collapsed{
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+  }
+
+  .container.collapsed{
+    margin-left: 0;
+
+    .page-header{
+      left: 0;
+    }
+  }
+
+  .ant-menu-submenu-popup{
+    display: none !important;
+  }
+}
+
+.upload-bottom {
+  width:  150px;
+  margin-top: 12px;
+  text-align: center;
+  font-family: Inter;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 18px;
+  color: rgba(79, 104, 125, 0.9);
+}
+.t-help {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 12px;
+  margin-top: 6px;
+  color: #768592; 
+}
+
+.notfound{
+  position: fixed;
+  display: flex;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column wrap;
+
+  h1{
+    font-size: 48px;
+    margin: 0;
   }
 }

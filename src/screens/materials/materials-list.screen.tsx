@@ -118,7 +118,7 @@ const ListMaterial: React.FC = () => {
   }, []);
   const onFinish = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 0 };
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.MATERIALS}?${queryParam}`);
@@ -126,8 +126,8 @@ const ListMaterial: React.FC = () => {
     [history, params]
   );
   const onPageChange = useCallback(
-    (size, page) => {
-      params.page = page - 1;
+    (page, size) => {
+      params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });

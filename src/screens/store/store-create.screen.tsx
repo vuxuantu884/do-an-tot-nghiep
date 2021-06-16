@@ -1,19 +1,32 @@
-import { Button, Card, Col, Collapse, Form, FormInstance, Input, Row, Select } from "antd";
-import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
-import { StoreCreateAction } from "domain/actions/core/store.action";
-import { StoreCreateRequest } from "model/core/store.model";
-import { CityView } from "model/content/district.model";
-import { CountryResponse } from "model/content/country.model";
-import { DistrictResponse } from "model/content/district.model";
-import moment from "moment";
-import { createRef, useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
-import { convertDistrict } from "utils/AppUtils";
+import {
+  Button,
+  Card,
+  Col,
+  Collapse,
+  Form,
+  FormInstance,
+  Input,
+  Row,
+  Select,
+} from 'antd';
+import {
+  CountryGetAllAction,
+  DistrictGetByCountryAction,
+} from 'domain/actions/content/content.action';
+import {StoreCreateAction} from 'domain/actions/core/store.action';
+import {StoreCreateRequest} from 'model/core/store.model';
+import {CityView} from 'model/content/district.model';
+import {CountryResponse} from 'model/content/country.model';
+import {DistrictResponse} from 'model/content/district.model';
+import moment from 'moment';
+import {createRef, useCallback, useEffect, useState} from 'react';
+import {useDispatch} from 'react-redux';
+import {useHistory} from 'react-router';
+import {convertDistrict} from 'utils/AppUtils';
 
-const { Item } = Form;
-const { Panel } = Collapse;
-const { OptGroup, Option } = Select
+const {Item} = Form;
+const {Panel} = Collapse;
+const {OptGroup, Option} = Select;
 const DefaultCountry = 233;
 const initRequest: StoreCreateRequest = {
   name: '',
@@ -32,7 +45,7 @@ const initRequest: StoreCreateRequest = {
   latitude: null,
   longtitude: null,
   group_id: null,
-}
+};
 
 const StoreCreateScreen: React.FC = () => {
   //Hook
@@ -42,67 +55,82 @@ const StoreCreateScreen: React.FC = () => {
   //State
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
-  const formRef = createRef<FormInstance>()
+  const formRef = createRef<FormInstance>();
   //EndState
   const setDataDistrict = useCallback((data: Array<DistrictResponse>) => {
     let cityViews: Array<CityView> = convertDistrict(data);
     setCityView(cityViews);
   }, []);
-  const onSelectDistrict = useCallback((value: number) => {
-    let cityId = -1;
-    cityViews.forEach((item) => {
-      item.districts.forEach((item1) => {
-        if (item1.id === value) {
-          cityId = item.city_id
-        }
-      })
-    })
-    if (cityId !== -1) {
-      formRef.current?.setFieldsValue({
-        city_id: cityId
-      })
-    }
-  }, [cityViews, formRef])
+  const onSelectDistrict = useCallback(
+    (value: number) => {
+      let cityId = -1;
+      cityViews.forEach((item) => {
+        item.districts.forEach((item1) => {
+          if (item1.id === value) {
+            cityId = item.city_id;
+          }
+        });
+      });
+      if (cityId !== -1) {
+        formRef.current?.setFieldsValue({
+          city_id: cityId,
+        });
+      }
+    },
+    [cityViews, formRef]
+  );
   const onCreateSuccess = useCallback(() => {
     history.push('/suppliers');
-  }, [history])
-  const onFinish = useCallback((values: StoreCreateRequest) => {
-    dispatch(StoreCreateAction(values, onCreateSuccess))
-  }, [dispatch, onCreateSuccess])
+  }, [history]);
+  const onFinish = useCallback(
+    (values: StoreCreateRequest) => {
+      dispatch(StoreCreateAction(values, onCreateSuccess));
+    },
+    [dispatch, onCreateSuccess]
+  );
   useEffect(() => {
-    dispatch(CountryGetAllAction(setCountries))
-    dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict))
-  }, [dispatch, setDataDistrict])
+    dispatch(CountryGetAllAction(setCountries));
+    dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
+  }, [dispatch, setDataDistrict]);
   return (
-    <Form ref={formRef} layout="vertical" onFinish={onFinish} initialValues={initRequest}>
+    <Form
+      ref={formRef}
+      layout="vertical"
+      onFinish={onFinish}
+      initialValues={initRequest}
+    >
       <Card
         className="card-block card-block-normal"
         title="Thông tin cơ bản"
-        extra={
-          <div className="v-extra d-flex align-items-center">
-
-          </div>
-        }
+        extra={<div className="v-extra d-flex align-items-center"></div>}
       >
         <Row gutter={50}>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
-              rules={[{ required: true, message: 'Vui lòng nhập tên cửa hàng' }]}
+              rules={[{required: true, message: 'Vui lòng nhập tên cửa hàng'}]}
               className="form-group form-group-with-search"
               label="Tên cửa hàng"
               name="name"
             >
-              <Input className="r-5" placeholder="Nhập tên cửa hàng" size="large" />
+              <Input
+                className="r-5"
+                placeholder="Nhập tên cửa hàng"
+                size="large"
+              />
             </Item>
           </Col>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
-              rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
+              rules={[{required: true, message: 'Vui lòng nhập số điện thoại'}]}
               className="form-group form-group-with-search"
               name="hotline"
               label="Số điện thoại"
             >
-              <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
+              <Input
+                className="r-5"
+                placeholder="Nhập số điện thoại"
+                size="large"
+              />
             </Item>
           </Col>
         </Row>
@@ -114,10 +142,16 @@ const StoreCreateScreen: React.FC = () => {
               label="Quốc gia"
               name="country_id"
             >
-              <Select disabled className="selector" placeholder="Chọn ngành hàng">
-                {
-                  countries?.map((item) => (<Option key={item.id} value={item.id}>{item.name}</Option>))
-                }
+              <Select
+                disabled
+                className="selector"
+                placeholder="Chọn ngành hàng"
+              >
+                {countries?.map((item) => (
+                  <Option key={item.id} value={item.id}>
+                    {item.name}
+                  </Option>
+                ))}
               </Select>
             </Item>
           </Col>
@@ -134,17 +168,15 @@ const StoreCreateScreen: React.FC = () => {
                 className="selector"
                 placeholder="Chọn khu vực"
               >
-                {
-                  cityViews?.map((item) => (
-                    <OptGroup key={item.city_id} label={item.city_name}>
-                      {
-                        item.districts.map((item1) => (
-                          <Option key={item1.id} value={item1.id}>{item1.name}</Option>
-                        ))
-                      }
-                    </OptGroup>
-                  ))
-                }
+                {cityViews?.map((item) => (
+                  <OptGroup key={item.city_id} label={item.city_name}>
+                    {item.districts.map((item1) => (
+                      <Option key={item1.id} value={item1.id}>
+                        {item1.name}
+                      </Option>
+                    ))}
+                  </OptGroup>
+                ))}
               </Select>
             </Item>
             <Item
@@ -160,27 +192,30 @@ const StoreCreateScreen: React.FC = () => {
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
               className="form-group form-group-with-search"
-              rules={[
-                { required: true, message: 'Vui lòng chọn ngành hàng' },
-              ]}
+              rules={[{required: true, message: 'Vui lòng chọn ngành hàng'}]}
               name="goods"
               label="Ngành hàng"
             >
-              <Select mode="multiple" className="selector" placeholder="Chọn ngành hàng">
-
-              </Select>
+              <Select
+                mode="multiple"
+                className="selector"
+                placeholder="Chọn ngành hàng"
+              ></Select>
             </Item>
           </Col>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
-              rules={[{ required: true, message: 'Vui lòng chọ nhân viên phụ trách' }]}
+              rules={[
+                {required: true, message: 'Vui lòng chọ nhân viên phụ trách'},
+              ]}
               className="form-group form-group-with-search"
               name="person_in_charge"
               label="Nhân viên phụ trách"
             >
-              <Select placeholder="Chọn nhân viên phụ trách" className="selector">
-
-              </Select>
+              <Select
+                placeholder="Chọn nhân viên phụ trách"
+                className="selector"
+              ></Select>
             </Item>
           </Col>
         </Row>
@@ -195,21 +230,31 @@ const StoreCreateScreen: React.FC = () => {
               label="Quốc gia"
               name="country_id"
             >
-              <Select disabled className="selector" placeholder="Chọn ngành hàng">
-                {
-                  countries?.map((item) => (<Option key={item.id} value={item.id}>{item.name}</Option>))
-                }
+              <Select
+                disabled
+                className="selector"
+                placeholder="Chọn ngành hàng"
+              >
+                {countries?.map((item) => (
+                  <Option key={item.id} value={item.id}>
+                    {item.name}
+                  </Option>
+                ))}
               </Select>
             </Item>
           </Col>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
-              rules={[{ required: true, message: 'Vui lòng nhập người liên hệ' }]}
+              rules={[{required: true, message: 'Vui lòng nhập người liên hệ'}]}
               className="form-group form-group-with-search"
               name="contact_name"
               label="Người liên hệ"
             >
-              <Input className="r-5" placeholder="Nhập người liên hệ" size="large" />
+              <Input
+                className="r-5"
+                placeholder="Nhập người liên hệ"
+                size="large"
+              />
             </Item>
           </Col>
         </Row>
@@ -226,17 +271,15 @@ const StoreCreateScreen: React.FC = () => {
                 className="selector"
                 placeholder="Chọn khu vực"
               >
-                {
-                  cityViews?.map((item) => (
-                    <OptGroup key={item.city_id} label={item.city_name}>
-                      {
-                        item.districts.map((item1) => (
-                          <Option key={item1.id} value={item1.id}>{item1.name}</Option>
-                        ))
-                      }
-                    </OptGroup>
-                  ))
-                }
+                {cityViews?.map((item) => (
+                  <OptGroup key={item.city_id} label={item.city_name}>
+                    {item.districts.map((item1) => (
+                      <Option key={item1.id} value={item1.id}>
+                        {item1.name}
+                      </Option>
+                    ))}
+                  </OptGroup>
+                ))}
               </Select>
             </Item>
             <Item
@@ -249,12 +292,16 @@ const StoreCreateScreen: React.FC = () => {
           </Col>
           <Col span={24} lg={8} md={12} sm={24}>
             <Item
-              rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
+              rules={[{required: true, message: 'Vui lòng nhập số điện thoại'}]}
               className="form-group form-group-with-search"
               name="phone"
               label="Số điện thoại"
             >
-              <Input className="r-5" placeholder="Nhập số điện thoại" size="large" />
+              <Input
+                className="r-5"
+                placeholder="Nhập số điện thoại"
+                size="large"
+              />
             </Item>
           </Col>
         </Row>
@@ -294,61 +341,91 @@ const StoreCreateScreen: React.FC = () => {
               name="tax_code"
               label="Mã số thuế"
             >
-              <Input className="r-5" placeholder="Nhập mã số thuế" size="large" />
+              <Input
+                className="r-5"
+                placeholder="Nhập mã số thuế"
+                size="large"
+              />
             </Item>
           </Col>
         </Row>
       </Card>
-      <Collapse expandIconPosition="right" className="view-other card-block card-block-normal">
-        <Panel header="Thông tin thanh toán" key="1">
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                className="form-group form-group-with-search"
-                label="Ngân hàng"
-                name="bank_name"
-              >
-                <Input className="r-5" placeholder="Nhập ngân hàng" size="large" />
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                className="form-group form-group-with-search"
-                name="bank_brand"
-                label="Chi nhánh"
-              >
-                <Input className="r-5" placeholder="Nhập chi nhánh" size="large" />
-              </Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                className="form-group form-group-with-search"
-                label="Số tài khoản"
-                name="bank_number"
-              >
-                <Input className="r-5" placeholder="Nhập số tài khoản" size="large" />
-              </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                className="form-group form-group-with-search"
-                name="beneficiary_name"
-                label="Chủ tài khoản"
-              >
-                <Input className="r-5" placeholder="Nhập chủ tài khoản" size="large" />
-              </Item>
-            </Col>
-          </Row>
+      <Collapse
+        defaultActiveKey="1"
+        className="ant-collapse-card margin-top-20"
+        expandIconPosition="right"
+      >
+        <Panel key="1" header="Thông tin thanh toán">
+          <div className="padding-20">
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  className="form-group form-group-with-search"
+                  label="Ngân hàng"
+                  name="bank_name"
+                >
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập ngân hàng"
+                    size="large"
+                  />
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  className="form-group form-group-with-search"
+                  name="bank_brand"
+                  label="Chi nhánh"
+                >
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập chi nhánh"
+                    size="large"
+                  />
+                </Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  className="form-group form-group-with-search"
+                  label="Số tài khoản"
+                  name="bank_number"
+                >
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập số tài khoản"
+                    size="large"
+                  />
+                </Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Item
+                  className="form-group form-group-with-search"
+                  name="beneficiary_name"
+                  label="Chủ tài khoản"
+                >
+                  <Input
+                    className="r-5"
+                    placeholder="Nhập chủ tài khoản"
+                    size="large"
+                  />
+                </Item>
+              </Col>
+            </Row>  
+          </div>
         </Panel>
       </Collapse>
       <Row className="footer-row-btn" justify="end">
-        <Button type="default" className="btn-style btn-cancel">Hủy</Button>
-        <Button htmlType="submit" type="default" className="btn-style btn-save">Lưu</Button>
+        <Button type="default" className="btn-style btn-cancel">
+          Hủy
+        </Button>
+        <Button htmlType="submit" type="default" className="btn-style btn-save">
+          Lưu
+        </Button>
       </Row>
     </Form>
-  )
-}
+  );
+};
 
 export default StoreCreateScreen;

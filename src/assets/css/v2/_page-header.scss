@@ -37,7 +37,7 @@
           }
 
           &:last-child{
-            .ant-breadcrumb-link{
+            .ant-breadcrumb-link, a{
               color: $primary-color;
             }
           }

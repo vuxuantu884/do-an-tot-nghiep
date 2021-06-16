@@ -4,10 +4,12 @@
     display: flex;
     padding: 20px 24px;
     justify-content: space-between;
+    flex-wrap: wrap;
 
     &-left, &-right{
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     &-show-total{
@@ -17,6 +19,7 @@
     &-container{
       display: flex;
       justify-content: center;
+      align-items: center
     }
 
     &-size-change{
