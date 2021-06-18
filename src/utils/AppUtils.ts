@@ -1,16 +1,14 @@
-import { SizeDetail, SizeResponse } from './../model/response/products/size.response';
 import { convertDateToUtc } from './DateUtils';
 import { AccountStoreResponse } from 'model/account/account.model';
-import { DistrictResponse } from 'model/response/content/district.response';
-import { CityView } from 'model/other/district-view';
+import { DistrictResponse } from 'model/content/district.model';
+import { CityView } from 'model/content/district.model';
 import { AppConfig } from 'config/AppConfig';
-import { VariantPrice } from 'model/other/Product/product-model';
 import { RouteMenu } from "model/other";
-import { CategoryView } from "model/other/Product/category-view";
 import { OrderDiscountModel, OrderItemDiscountModel, OrderItemModel } from 'model/other/Order/order-model';
-import { CategoryResponse } from "model/response/products/category.response";
-import { VariantImagesResponse } from 'model/response/products/variant.images.response';
+import { CategoryResponse, CategoryView } from "model/product/category.model";
 import moment from 'moment';
+import { SizeDetail, SizeResponse } from 'model/product/size.model';
+import { VariantImagesResponse, VariantPricesResponse } from 'model/product/product.model';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -224,7 +222,7 @@ export const convertDistrict = (data: Array<DistrictResponse>) => {
 }
 
 
-const findPriceInVariant = (variantPrices: Array<VariantPrice>, currency_code: string): number => {
+const findPriceInVariant = (variantPrices: Array<VariantPricesResponse>, currency_code: string): number => {
   let price: number = 0;
   variantPrices.forEach((v) => {
     if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {
@@ -234,7 +232,7 @@ const findPriceInVariant = (variantPrices: Array<VariantPrice>, currency_code: s
   return price;
 }
 
-const findTaxInVariant = (variantPrices: Array<VariantPrice>, currency_code: string): number => {
+const findTaxInVariant = (variantPrices: Array<VariantPricesResponse>, currency_code: string): number => {
   let tax: number = 0;
   variantPrices.forEach((v) => {
     if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {
@@ -244,7 +242,7 @@ const findTaxInVariant = (variantPrices: Array<VariantPrice>, currency_code: str
   return tax;
 }
 
-const findPrice = (variantPrices: Array<VariantPrice>, currency_code: string): string => {
+const findPrice = (variantPrices: Array<VariantPricesResponse>, currency_code: string): string => {
   let price: string = '0';
   variantPrices.forEach((v) => {
     if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {

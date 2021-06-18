@@ -1,11 +1,9 @@
-import { SizeResponse } from 'model/response/products/size.response';
 import { SizeType } from 'domain/types/product.type';
 import BaseAction from "base/BaseAction"
 import { PageResponse } from 'model/base/base-metadata.response';
-import { SizeCreateRequest, SizeUpdateRequest } from 'model/request/size.request';
-import { SizeQuery } from 'model/query/size.query';
+import { SizeQuery, SizeResponse, SizeCreateRequest, SizeUpdateRequest} from 'model/product/size.model';
 
-export const getAllSize = (setData: (data: Array<SizeResponse>) => void) => {
+export const sizeGetAll = (setData: (data: Array<SizeResponse>) => void) => {
   return BaseAction(SizeType.GET_ALL_SIZE_REQUEST, {setData});
 }
 

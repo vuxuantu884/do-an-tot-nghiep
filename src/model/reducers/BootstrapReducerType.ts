@@ -1,4 +1,4 @@
-import { BootstrapResponse } from "model/response/bootstrap/BootstrapReponse";
+import { BootstrapResponse } from "model/content/bootstrap.model";
 
 export interface BootstrapReducerType {
   isLoad: boolean,

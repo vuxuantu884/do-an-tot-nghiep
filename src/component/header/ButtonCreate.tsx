@@ -1,16 +1,26 @@
 import { Link } from "react-router-dom";
-import plus from 'assets/img/plus.svg';
+import { Button } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 type ButtonCreateProps = {
-  path: string
-}
+  path: string;
+};
 
-const ButtonCreate: React.FC<ButtonCreateProps> = (props: ButtonCreateProps) => {
+const ButtonCreate: React.FC<ButtonCreateProps> = (
+  props: ButtonCreateProps
+) => {
   return (
-    <Link to={props.path} style={{backgroundColor: "#FFA600", borderRadius: 6, padding: 10, color: 'white'}}>
-      <img src={plus} alt="Thêm" /> Thêm mới
+    <Link to={props.path}>
+      <Button
+        type="primary"
+        className="ant-btn-secondary"
+        size="large"
+        icon={<PlusOutlined />}
+      >
+        Thêm mới
+      </Button>
     </Link>
-  )
-}
+  );
+};
 
 export default ButtonCreate;

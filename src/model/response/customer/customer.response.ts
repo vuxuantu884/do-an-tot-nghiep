@@ -1,30 +1,30 @@
-import { BaseModel } from '../../other/base-model';
+import { BaseObject } from 'model/base/base.response';
 
-export interface CustomerResponse extends BaseModel {
-  full_name: string,
-  phone: string,
-  email: string,
-  facebook_url: string,
+export interface CustomerResponse extends BaseObject {
+  full_name: string | null,
+  phone: string | null,
+  email: string | null,
+  facebook_url: string | null,
   group_id: number,
   type_id: number,
   company_id: number,
-  company: string,
-  tax_code : string,
-  notes: string,
+  company: string | null,
+  tax_code : string | null,
+  notes: string | null,
   customer_level_id: number,
-  customer_level: string,
+  customer_level: string | null,
   wedding_date: number,
   birthday: number,
-  gender: string,
+  gender: string | null,
   responsible_staff_id: number,
-  affiliate_code: string,
+  affiliate_code: string | null,
   loyalty: number,
   billing_addresses: Array<BillingAddress>;
   shipping_addresses: Array<ShippingAddress>;
 }
 
 
-export interface BillingAddress extends BaseModel {
+export interface BillingAddress extends BaseObject {
   default: boolean,
   name: string,
   email: string,
@@ -41,7 +41,7 @@ export interface BillingAddress extends BaseModel {
   full_address: string
 }
 
-export interface ShippingAddress extends BaseModel {
+export interface ShippingAddress extends BaseObject {
   default: boolean,
   name: string,
   email: string,

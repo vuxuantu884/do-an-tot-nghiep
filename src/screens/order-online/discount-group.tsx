@@ -1,7 +1,6 @@
 import { Input, InputNumber, Select, Typography } from "antd";
 import { OrderItemModel } from "model/other/Order/order-model";
 import React, {useCallback, useState} from "react";
-import {useDispatch} from "react-redux";
 import {formatCurrency, replaceFormat} from "../../utils/AppUtils";
 
 type DiscountGroupProps = {
@@ -16,7 +15,6 @@ type DiscountGroupProps = {
 
 const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) => {
   const { Text } = Typography;
-  const dispatch = useDispatch();
   const [selected, setSelected ] = useState('money');
   const [showResult, setShowResult ] = useState(true);
 
@@ -24,9 +22,9 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
     setSelected(value);
   }
 
-  const onChangeValue = useCallback((v) => {
+  const ChangeValueDiscount = useCallback((v) => {
     console.log(v)
-    let _items = [... props.items]
+    let _items = [...props.items]
     let _item = _items[props.index].discount_items[0]
     let _price = _items[props.index].price
     if(selected === 'money'){
@@ -39,7 +37,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
       _item.amount = v*_price/100
     }
     props.setItems(_items)
-  },[props.items,props.index,props.setItems,selected]
+  },[props,selected]
   )
 
   return (
@@ -54,7 +52,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
           style={{height: '32px', width: '100%'}}
           value={selected === "percent" ? props.discountRate : formatCurrency(props.discountValue) }
           max = {selected === "percent" ? 100 : props.price}
-          onChange={onChangeValue}
+          onChange={ChangeValueDiscount}
           parser={value => replaceFormat(value ? value : "0")}
           className="yody-table-discount-input hide-number-handle"
           onFocus={(e) => {

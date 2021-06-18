@@ -1,4 +1,7 @@
-import { BaseBootstrapResponse } from "./BaseBootstrapResponse";
+export interface BaseBootstrapResponse {
+  name: string,
+  value: string,
+}
 
 export interface BootstrapResponse {
   fulfillment_status: Array<BaseBootstrapResponse>,

@@ -48,17 +48,16 @@ import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "../../config/TypeConfig";
-import "../../assets/css/container.scss";
+import "../../assets/css/v1/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "./modal/AddGiftModal";
 import {
   OrderItemDiscountModel,
   OrderItemModel,
 } from "model/other/Order/order-model";
-import { VariantSearchQuery } from "model/query/variant.search.query";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { VariantResponse } from "model/response/products/variant.response";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { StoreResponse } from "model/core/store.model";
 
 type ProductCardProps = {

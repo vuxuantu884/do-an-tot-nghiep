@@ -7,6 +7,7 @@ import {
   Input,
   Row,
   Select,
+  Space,
 } from "antd";
 import UrlConfig from "config/UrlConfig";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
@@ -14,10 +15,12 @@ import {
   sizeDetailAction,
   sizeUpdateAction,
 } from "domain/actions/product/size.action";
-import { CategoryView } from "model/other/Product/category-view";
-import { SizeUpdateRequest } from "model/request/size.request";
-import { CategoryResponse } from "model/response/products/category.response";
-import { SizeDetail, SizeResponse } from "model/response/products/size.response";
+import { SizeUpdateRequest } from "model/product/size.model";
+import { CategoryResponse, CategoryView } from "model/product/category.model";
+import {
+  SizeDetail,
+  SizeResponse,
+} from "model/product/size.model";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
@@ -33,7 +36,7 @@ const SizeUpdateScreen: React.FC = () => {
   const { id } = useParams<SizeParam>();
   let idNumber = parseInt(id);
   const [categories, setCategories] = useState<Array<CategoryView>>([]);
-  const [size, setSize] = useState<SizeDetail|null>(null);
+  const [size, setSize] = useState<SizeDetail | null>(null);
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -48,9 +51,6 @@ const SizeUpdateScreen: React.FC = () => {
     },
     [dispatch, idNumber, onSuccess]
   );
-  const onSave = useCallback(() => {
-    formRef.current?.submit();
-  }, [formRef]);
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
@@ -78,14 +78,14 @@ const SizeUpdateScreen: React.FC = () => {
     );
   }
   return (
-    <div>
-      <Card className="card-block card-block-normal" title="Thông tin cơ bản">
-        <Form
-          ref={formRef}
-          onFinish={onFinish}
-          initialValues={size}
-          layout="vertical"
-        >
+    <Form
+      ref={formRef}
+      onFinish={onFinish}
+      initialValues={size}
+      layout="vertical"
+    >
+      <Card title="Thông tin cơ bản">
+        <div className="padding-20">
           <Row gutter={24}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item hidden noStyle label="Kích cỡ" name="version">
@@ -96,7 +96,6 @@ const SizeUpdateScreen: React.FC = () => {
           <Row gutter={24}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
-                className="form-group form-group-with-search"
                 rules={[{ required: true, message: "Vui lòng nhập kích cỡ" }]}
                 label="Kích cỡ"
                 name="code"
@@ -117,7 +116,6 @@ const SizeUpdateScreen: React.FC = () => {
                     message: "Vui lòng chọn ít nhất 1 danh mục",
                   },
                 ]}
-                className="form-group form-group-with-search"
                 name="category_ids"
                 label="Danh mục"
               >
@@ -135,21 +133,19 @@ const SizeUpdateScreen: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-        </Form>
+        </div>
       </Card>
-      <Row className="footer-row-btn" justify="end">
-        <Button
-          type="default"
-          onClick={onCancel}
-          className="btn-style btn-cancel"
-        >
-          Hủy
-        </Button>
-        <Button type="default" onClick={onSave} className="btn-style btn-save">
-          Lưu
-        </Button>
-      </Row>
-    </div>
+      <div className="margin-top-10" style={{ textAlign: "right" }}>
+        <Space size={12}>
+          <Button type="default" onClick={onCancel}>
+            Hủy
+          </Button>
+          <Button htmlType="submit" type="primary">
+            Lưu
+          </Button>
+        </Space>
+      </div>
+    </Form>
   );
 };
 

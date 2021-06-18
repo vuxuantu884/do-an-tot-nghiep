@@ -13,15 +13,12 @@ import {
 
 // @ts-ignore
 import arrowDownIcon from 'assets/img/drow-down.svg';
-
 import walletIcon from "../../assets/img/wallet.svg";
-
 
 type PaymentCardProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
   paymentMethod: number
 }
-
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
 

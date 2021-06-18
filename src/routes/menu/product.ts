@@ -6,6 +6,7 @@ import UrlConfig from 'config/UrlConfig';
 
 const Category = React.lazy(() => import ("screens/category/category-list.screen"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
+const ProductCreateScreen = React.lazy(() => import ("screens/product/product-create.screen"));
 const ColorListScreen = React.lazy(() => import ("screens/color/color-list.screen"));
 const UpdateMaterial = React.lazy(() => import ("screens/materials/ material-update.screen"));
 const ListMaterial = React.lazy(() => import ("screens/materials/materials-list.screen"));
@@ -29,9 +30,25 @@ const product: Array<RouteMenu> = [
     key: "submenu21",
     isShow: true,
     header: null,
-    subMenu: [],
-    type: 0,
-    object: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.PRODUCT}/create`,
+        exact: true,
+        title: "Thêm sản phẩm mới",
+        icon: 'icon-dot',
+        component: ProductCreateScreen,
+        key: "submenu221",
+        isShow: false,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+    ],
+    type: HEADER_TYPE.BUTTON_CREATE,
+    object: {
+      pathCreate: `${UrlConfig.PRODUCT}/create`,
+    },
   },
   {
     path: UrlConfig.CATEGORIES,

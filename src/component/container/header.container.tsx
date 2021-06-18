@@ -1,6 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import {Layout, Breadcrumb} from 'antd';
+import {Breadcrumb} from 'antd';
 import { Link } from 'react-router-dom';
 import menu from 'routes/menu';
 import {getListBreadcumb} from 'utils/AppUtils';
@@ -15,7 +15,6 @@ type HeaderContainerProps = {
   title: string
 }
 
-const {Header} = Layout;
 const {Item} = Breadcrumb;
 
 const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerProps) => {
@@ -27,9 +26,10 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
         <meta charSet="utf-8" />
         <title>Yody-o2o</title>
       </Helmet>
-      <Header className="yody-header">
-        <div>
-          <span className="yody-title">{props.title}</span>
+      <div className="page-header">
+      <div className="page-header-heading">
+        <div className="page-header-heading-left">
+          <h1 className="page-header-heading-title">{props.title}</h1>
           <Breadcrumb>
             {listBreadcumb.map((item, index) => (
               <Item key={index}>
@@ -43,17 +43,18 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
             ))}
           </Breadcrumb>
         </div>
-        <div>
+        <div className="page-header-heading-extra">
           {props.type === HEADER_TYPE.BUTTON_CREATE && (
-            <ButtonCreate path={props.object.pathCreate} />
-          )}
-          {
-            props.type === HEADER_TYPE.STEP && (
-              <CreateBillStep />
-            )
-          }
+              <ButtonCreate path={props.object.pathCreate} />
+            )}
+            {
+              props.type === HEADER_TYPE.STEP && (
+                <CreateBillStep />
+              )
+            }
         </div>
-      </Header>
+        </div>
+      </div>
     </React.Fragment>
   )
 }
