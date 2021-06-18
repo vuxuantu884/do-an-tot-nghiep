@@ -45,7 +45,7 @@ export interface StoreQuery extends BaseQuery {
     from_square?: number,
     group_id?: number,
     hotline?: number,
-    is_simple?: boolean,
+    simple?: boolean,
     mail?: string,
     manager_code?: string,
     name?: string,

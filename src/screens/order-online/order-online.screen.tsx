@@ -242,6 +242,7 @@ const CreateBill = () => {
       items: orderLineItemsRequest,
       discounts: [],
       payments: [],
+      fulfillment: [],
       shipping_address: objShippingAddress,
       billing_address: objBillingAddress,
     };

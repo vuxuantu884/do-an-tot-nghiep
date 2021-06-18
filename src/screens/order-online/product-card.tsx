@@ -75,7 +75,7 @@ type ProductCardProps = {
 
 const initQuery: VariantSearchQuery = {
   limit: 10,
-  page: 0,
+  page: 1,
 };
 
 const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
