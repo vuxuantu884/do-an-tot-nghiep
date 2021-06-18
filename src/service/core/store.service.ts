@@ -4,7 +4,7 @@ import BaseAxios from "base/BaseAxios";
 import { ApiConfig } from "config/ApiConfig";
 
 const getListStore = (): Promise<BaseResponse<Array<StoreResponse>>> => {
-  let link = `${ApiConfig.CORE}/stores?is_simple=true`
+  let link = `${ApiConfig.CORE}/stores?simple=true`
   return BaseAxios.get(link);
 };
 
