@@ -156,7 +156,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
               placeholder="Tên/Mã người phụ trách"
             />
           </Item>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={12}>
               <Item
                 name="status"
@@ -191,7 +191,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
           <Item label="Địa chỉ">
             <Input className="r-5 ip-search" placeholder="Địa chỉ" />
           </Item>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={12}>
               <Item
                 name="from_created_date"

@@ -142,7 +142,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (
           initialValues={params}
           layout="vertical"
         >
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={12}>
               <Form.Item name="from_date" label="Thời gian tạo từ">
                 <DatePicker placeholder="20/01/2021" format="DD/MM/YYYY" />
@@ -154,7 +154,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24}>
               <Form.Item name="position_ids" label="Vị trí">
                 <Select showArrow placeholder="Vị trí">
@@ -167,14 +167,14 @@ const AccountFilter: React.FC<AccountFilterProps> = (
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24}>
               <Form.Item name="mobile" label="Số điện thoại">
                 <Input placeholder="Số điện thoại" />
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24}>
               <Form.Item name="status" label="Trạng thái">
                 <Select showArrow placeholder="Trạng thái">

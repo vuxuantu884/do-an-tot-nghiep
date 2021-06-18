@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Redirect, useHistory } from "react-router";
 import LoadingScreen from "screens/loading.screen";
 import HeaderContainer from "./header.container";
@@ -10,6 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { getBootstrapAction } from "domain/actions/content/bootstrap.action";
 import classNames from "classnames";
+import { saveSettingAction } from "domain/actions/app.action";
+import { useMemo } from "react";
 
 type ContainerProps = {
   title: string;
@@ -33,12 +35,15 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
+  const collapse = useSelector(
+    (state: RootReducerType) => state.appSettingReducer.collapse
+  );
+  const collapsed = useMemo(() => collapse ? collapse : false, [collapse])
   const { isLogin, isLoad: isLoadUser } = userReducer;
   const { isLoad } = bootstrapReducer;
-  const [collapsed, setCollapsed] = useState(false);
   const onCollapsed = useCallback((b: boolean) => {
-    setCollapsed(b);
-  }, []);
+    dispatch(saveSettingAction({collapse: b}))
+  }, [dispatch]);
   useEffect(() => {
     if (!isLoad && isLogin) {
       dispatch(getBootstrapAction());

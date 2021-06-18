@@ -44,7 +44,7 @@
 
       &-children{
         background-color: $white;
-
+        box-shadow: 0 0 2px 1px #eee;
         .ant{
 
           &-menu{
@@ -96,6 +96,17 @@
                   
                   .ant-menu-item-icon {
                     color: $primary-color;
+                  }
+                }
+              }
+              &-popup {
+                & > .ant-menu {
+                  background-color: #F9F9FB;
+                }
+                .ant-menu-item {
+                  
+                  .ant-menu-title-content {
+                    
                   }
                 }
               }
@@ -259,7 +270,7 @@
   //Card
   &-card{
     border-radius: $border-radius;
-
+    box-shadow: 0 0 2px 1px #eee;
     &-collapse{
       .ant-card-head{
         cursor: pointer;
@@ -267,7 +278,8 @@
 
       &.collapsed{
         .ant-card-body{
-          height: 0;
+          height: 0 !important;
+          opacity: 0;
           overflow: hidden;
         }
       }
@@ -275,6 +287,7 @@
 
     &-body{
       height: auto;
+      opacity: 1;
       padding: 0;
       transition: all .2s;
     }
@@ -395,6 +408,9 @@
       min-height: 25px;
       border-radius: $border-radius/2;
       padding: 3px 20px;
+      a {
+        color: $white;
+      }
     }
   }
 
@@ -520,6 +536,7 @@
           color: $label-color;
 
           .ant-form-item-tooltip{
+            cursor: pointer;
             color: #2D9CDB;
           }
 
@@ -574,11 +591,28 @@
 
     &-tbody{
       & > tr:nth-child(2n) > td {
-        background-color: rgba($background-color-secondary, 0.5);
+        // background-color: rgba($background-color-secondary, 0.5);
       }
       & > tr.ant-table-row-selected > td {
         background-color: inherit;
       }
+    }
+    @for $i from 1 through 5 {
+      .ant-table-row-level-#{$i} {
+        .ant-table-cell-with-append{
+          .text-indent{
+            padding-left: $i * 15px;
+          }
+        }
+      }
+    }
+
+    .ant-table-cell-with-append{
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+      align-items: center;
+
     }
   }
 
@@ -605,6 +639,7 @@
             &-link{
               border-color: transparent;
               background-color: rgba($primary-color, 0.05);
+              color: $primary-color;
             }
           }
         }
@@ -626,10 +661,16 @@
 
       &:hover{
         background-color: rgba($primary-color, 0.05);
+        a {
+          color: $primary-color !important;
+        }
       }
 
       &-active{
         background-color: rgba($primary-color, 0.05);
+        a {
+          color: $primary-color !important;
+        }
       }
       
       a {
@@ -643,6 +684,31 @@
 
     &-header{
       border-radius: 5px 5px 0 0;
+
+      &-nostyle{
+        .ant-modal{
+          &-header{
+            border-bottom: 0;
+          }
+          &-title{
+            position: relative;
+            padding-left: 10px;
+            font-size: $font-size-large;
+
+            &::after{
+              content: '';
+              position: absolute;
+              width: 3px;
+              height: 100%;
+              background-color: #EB5757;
+              left: 0;
+            }
+          }
+          &-footer{
+            background-color: #FBFBFF;
+          }
+        }
+      }
     }
 
     &-content{
@@ -684,8 +750,110 @@
     .ant-divider-inner-text{
       padding-left: 0 !important;
     }
+    &-primary{
+      .ant-divider-inner-text{
+        color: $primary-color;
+      }
+    }
   }
 
+  //Tabs
+  &-tabs{
+    border-radius: $border-radius;
+    // background-color: $white;
+    
+    & > &-nav{
+      margin-bottom: 0;
+    }
+    
+    &-nav{
+      padding: 10px;
+      padding-bottom: 0;
+      margin-bottom: 0;
+      background-color: $white;
+      
+      &::before{
+        border-width: 2px !important;
+      }
+    }
+
+    &-tab{
+      padding: 12px 20px;
+      &.ant-tabs-tab-active .ant-tabs-tab-btn{
+        color: $primary-color;
+      }
+
+      &:hover{
+        color: $primary-color;
+      }
+    }
+
+    &-ink-bar{
+      background-color: $primary-color;
+      border-radius: 2px;
+    }
+  }
+
+  //Checkbox
+  &-checkbox{
+    &-checked{
+
+      &::after{
+        border-color: $primary-color;
+      }
+
+      .ant-checkbox-inner{
+        background-color: $primary-color;
+        border-color: $primary-color;
+      }
+
+    }
+
+    &-indeterminate{
+      .ant-checkbox-inner::after {
+        height: 2px;
+        background-color: $white;
+      }
+    }
+  }
+
+  //Collapse
+  &-collapse{
+    &-card{
+      border: 0;
+      background-color: $white;
+      border-radius: $border-radius;
+
+      & > .ant-collapse-item{
+        border-radius: 0 0 $border-radius $border-radius;
+        border-bottom: 0;
+      }
+
+      .ant-collapse-item {
+        .ant-collapse-header{
+          font-size: 16px;
+          font-weight: 500;
+          padding-left: 24px;
+        }
+
+        &:last-child{
+          .ant-collapse-content{
+            border-radius: 0 0 $border-radius $border-radius;
+          }
+        }
+        .ant-collapse-content{
+          border-top-color: #f0f0f0;
+          &-box {
+            padding: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+.ant-checkbox-input:focus + .ant-checkbox-inner, .ant-checkbox-wrapper:hover .ant-checkbox-inner, .ant-checkbox:hover .ant-checkbox-inner{
+  border-color: $primary-color;
 }
 
 .ant-input-group.ant-input-group-compact > .ant-cascader-picker:first-child .ant-input, .ant-input-group.ant-input-group-compact > .ant-select-auto-complete:first-child .ant-input, .ant-input-group.ant-input-group-compact > .ant-select:first-child > .ant-select-selector, .ant-input-group.ant-input-group-compact > :first-child {

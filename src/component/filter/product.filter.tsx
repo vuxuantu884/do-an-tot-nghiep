@@ -153,7 +153,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
           initialValues={params}
           layout="vertical"
         >
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={12}>
               <Item
                 name="from_inventory"
@@ -171,7 +171,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24}>
               <Item
                 name="made_in"
@@ -188,7 +188,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24}>
               <Item
                 name="merchandiser"
@@ -207,7 +207,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
             </Col>
           </Row>
 
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={12}>
               <Item
                 name="from_created_date"
@@ -231,7 +231,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={12}>
               <Item
                 name="size"
@@ -263,7 +263,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24}>
               <Item
                 name="main_color"
@@ -280,7 +280,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24}>
               <Item
                 name="color"
@@ -297,7 +297,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24}>
               <Item
                 name="supplier"

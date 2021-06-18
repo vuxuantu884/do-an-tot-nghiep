@@ -14,7 +14,7 @@ function* searchColorSaga(action: YodyAction) {
     let response: BaseResponse<PageResponse<ColorResponse>> = yield call(colorSearchApi, query);
     switch(response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setData(response.data.items);
         break;
       default:
         response.errors.forEach((e) => showError(e));

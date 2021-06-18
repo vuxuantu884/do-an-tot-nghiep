@@ -1,4 +1,4 @@
-import { BaseQuery } from 'model/base/base.query';
+ import { BaseQuery } from 'model/base/base.query';
 import { BaseObject } from 'model/base/base.response';
 
 
@@ -102,3 +102,108 @@ export interface VariantSearchQuery extends BaseQuery {
   color?:string,
   supplier?:string
 }
+
+export interface VariantPriceRequest {
+  price: number,
+  currency_code: string,
+  price_type: string,
+  tax_percent: number,
+}
+
+export interface VariantImageRequest {
+  id?: number,
+  position: number|null,
+  image_id: number,
+  url: string,
+  variant_avatar: boolean,
+  product_avatar: boolean,
+}
+
+export interface VariantRequest {
+  status: string,
+  name: string,
+  color_id: number,
+  size_id: number,
+  barcode: string|null,
+  taxable: boolean|null,
+  saleable: boolean|null
+  deleted: boolean,
+  sku: string,
+  width: number|null,
+  height: number|null,
+  length: number|null,
+  length_unit: string|null,
+  weight: number|null,
+  weight_unit: string|null,
+  variant_prices: Array<VariantPriceRequest>
+  variant_images: Array<VariantImageRequest>,
+  inventory: 0,
+  version?: null,
+}
+
+export interface ProductRequest {
+  brand: string|null,
+  category_id: number|null,
+  code: string,
+  content: string|null,
+  description: string|null,
+  designer_code: string|null,
+  goods: string|null,
+  made_in_id: number|null,
+  merchandiser_code: string|null,
+  name: string,
+  preservation: string,
+  specifications: string,
+  product_type: string|null,
+  status: string,
+  tags: string|null,
+  variants: Array<VariantRequest>,
+  product_unit: string|null,
+}
+
+export interface VariantRequestView {
+  name: string,
+  color_id: number,
+  color: string,
+  size_id: number,
+  size: string,
+  sku: string,
+  quantity: string|null,
+  variant_images: Array<VariantImageRequest>,
+}
+
+export interface VariantPriceViewRequest {
+  retail_price: string,
+  import_price: string,
+  whole_sale_price: string,
+  currency: string,
+  tax_percent: string,
+}
+export interface ProductRequestView {
+  product_type?: string|null,
+  goods: string|null,
+  category_id: number|null,
+  collections: Array<string>,
+  code: string,
+  name: string,
+  width: number|null,
+  height: number|null,
+  length: number|null,
+  length_unit: string|null,
+  weight: number|null,
+  weight_unit: string|null,
+  tags: Array<string>,
+  product_unit: string|null,
+  brand: string|null,
+  content: string|null,
+  description: string|null,
+  designer_code: string|null,
+  made_in_id: number|null,
+  merchandiser_code: string|null,
+  preservation: string,
+  specifications: string,
+  status: string,
+  variant_prices: Array<VariantPriceViewRequest>,
+  saleable: boolean,
+}
+
