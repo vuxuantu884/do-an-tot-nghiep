@@ -86,14 +86,14 @@ const SizeUpdateScreen: React.FC = () => {
     >
       <Card title="Thông tin cơ bản">
         <div className="padding-20">
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item hidden noStyle label="Kích cỡ" name="version">
                 <Input />
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 rules={[{ required: true, message: "Vui lòng nhập kích cỡ" }]}

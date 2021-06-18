@@ -58,8 +58,8 @@ const SizeListScreen: React.FC = () => {
   });
   const [data, setData] = useState<PageResponse<SizeResponse>>({
     metadata: {
-      limit: 0,
-      page: 0,
+      limit: 30,
+      page: 1,
       total: 0,
     },
     items: [],
@@ -206,11 +206,10 @@ const SizeListScreen: React.FC = () => {
           </Form>
         </CustomFilter>
         <CustomTable
-          onChange={onPageChange}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
-            current: data.metadata.page + 1,
+            current: data.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,

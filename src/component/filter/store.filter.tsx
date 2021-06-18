@@ -111,7 +111,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           <Item label="Địa chỉ">
             <Input placeholder="Địa chỉ" />
           </Item>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={12}>
               <Item name="from_created_date" label="Ngày tạo từ">
                 <DatePicker placeholder="Ngày tạo từ" />
