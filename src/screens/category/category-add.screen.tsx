@@ -73,7 +73,7 @@ const AddCategory: React.FC = () => {
     >
       <Card className="card-block card-block-normal" title="Thông tin cơ bản">
         <div className="padding-20">
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 className="form-group form-group-with-search"
@@ -113,18 +113,19 @@ const AddCategory: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 rules={[
                   { required: true, message: "Vui lòng nhập mã danh mục" },
+                  { len: 3, message: "Mã danh mục gồm 3 kí tự" },
                 ]}
                 className="form-group form-group-with-search"
                 name="code"
                 labelAlign="right"
                 label="Mã danh mục"
               >
-                <Input className="r-5" placeholder="Mã danh mục" size="large" />
+                <Input maxLength={3} className="r-5" placeholder="Mã danh mục" size="large" />
               </Form.Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>

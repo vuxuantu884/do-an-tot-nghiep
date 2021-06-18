@@ -96,7 +96,6 @@ const CustomTable = (props: ICustomTableProps) => {
   const totalPage = pagination
     ? Math.ceil((pagination.total || 1) / (pagination.pageSize || 1))
     : 1;
-  console.log(totalPage);
   const configSettingColumns: ICustomTableColumType<any>[] = [
     {
       title: (
@@ -153,7 +152,7 @@ const CustomTable = (props: ICustomTableProps) => {
                   >
                     {pagination &&
                       PageConfig.map((size) => (
-                        <Select.Option value={size}>{size}</Select.Option>
+                        <Select.Option key={size} value={size}>{size}</Select.Option>
                       ))}
                   </Select>
                 </div>

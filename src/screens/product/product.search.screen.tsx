@@ -10,8 +10,7 @@ import ProductFilter from "component/filter/product.filter";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable from "component/table/CustomTable";
-import { CategoryView } from "model/product/category.model";
-import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import { ProductResponse, VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { CountryResponse } from "model/content/country.model";
 import { ColorResponse } from "model/product/color.model";
 import { SupplierResponse } from "model/core/supplier.model";
@@ -26,6 +25,8 @@ import {
   AccountResponse,
   AccountSearchQuery,
 } from "model/account/account.model";
+import UrlConfig from "config/UrlConfig";
+import {EyeOutlined} from '@ant-design/icons'
 
 const actions: Array<MenuAction> = [
   {
@@ -55,14 +56,10 @@ const initAccountQuery: AccountSearchQuery = {
 };
 
 const initMainColorQuery: ColorSearchQuery = {
-  page: 0,
   is_main_color: 1,
-  limit: 200,
 };
 const initColorQuery: ColorSearchQuery = {
-  page: 0,
   is_main_color: 0,
-  limit: 200,
 };
 const ListProductScreen: React.FC = () => {
   const query = useQuery();
@@ -89,8 +86,8 @@ const ListProductScreen: React.FC = () => {
   let [params, setPrams] = useState<VariantSearchQuery>(dataQuery);
   const [data, setData] = useState<PageResponse<VariantResponse>>({
     metadata: {
-      limit: 0,
-      page: 0,
+      limit: 30,
+      page: 1,
       total: 0,
     },
     items: [],
@@ -108,7 +105,7 @@ const ListProductScreen: React.FC = () => {
               "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg";
           }
         });
-        return <Image src={imgUrl} width={60} />;
+        return <Image preview={{mask: <EyeOutlined />}} src={imgUrl} width={50} />;
         // return img;
         //   value.variant_images.map((item, index) => {
         //     if (item.variant_avatar) {
@@ -172,20 +169,20 @@ const ListProductScreen: React.FC = () => {
 
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page - 1;
+      params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`/products?${queryParam}`);
+      history.replace(`${UrlConfig.PRODUCT}?${queryParam}`);
     },
     [history, params]
   );
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 0 };
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`/products?${queryParam}`);
+      history.push(`${UrlConfig.PRODUCT}?${queryParam}`);
     },
     [history, params]
   );
@@ -224,14 +221,14 @@ const ListProductScreen: React.FC = () => {
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
-            current: data.metadata.page + 1,
+            current: data.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
           dataSource={data.items}
           columns={columns}
-          rowKey={(item: CategoryView) => item.id}
+          rowKey={(item: ProductResponse) => item.id}
         />
       </Card>
     </div>

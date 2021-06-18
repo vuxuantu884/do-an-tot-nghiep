@@ -1,66 +1,15 @@
-.editor{
-  &-wrapper{
-    border: 1px solid #CFDCE9;
-    border-radius: 5px;
-  }
-
-  &-content{
-    padding: 20px;
-    height: 200px;
-
-    .public-DraftStyleDefault-block{
-      margin: 0;
+.quill{
+  width: 100%;
+  border: 1px solid #CFDCE9;
+  border-radius: 5px;
+  .ql{
+    &-toolbar  {
+      border: none;
+      background-color: rgba($background-color-secondary, 0.5);
     }
-    .DraftEditor-root{
-      height: auto;
-    }
-  }
-
-  &-toolbars{
-    padding: 12px 20px;
-    border: 0;
-    border-radius: 5px 5px 0 0;
-    background-color: rgba($background-color-secondary, 0.5);
-
-    .rdw-option-active{
-      color: $primary-color !important;
-      border-color: rgba($primary-color, .1) !important;
-      background-color: rgba($primary-color, .1) !important;
-      box-shadow: unset;
-    }
-
-    .rdw-option-wrapper, .rdw-dropdown-wrapper{
-      position: relative;
-      height: 28px;
-      padding: 6px 15px;
-      border-radius: 3px;
-      color: #6C6C9A;
-      border: 1px solid #CFDCE9;
-      background-color: #F4F4F750;
-
-      &:hover{
-        color: $primary-color;
-        border-color: rgba($primary-color, .1);
-        background-color: rgba($primary-color, .1);
-        box-shadow: unset;
-      }
-
-      .rdw-dropdown-selectedtext{
-
-        .rdw-dropdown-carettoopen, .rdw-dropdown-carettoclose{
-          position: unset;
-          margin-left: 10px;
-        }
-      }
-
-      .rdw-dropdown-optionwrapper{
-        position: absolute;
-        top: 30px;
-      }
-    }
-
-    .rdw-fontfamily-dropdown, .rdw-block-dropdown{
-      width: unset;
+    &-container  {
+      height: 200px;
+      border: none;
     }
   }
 }

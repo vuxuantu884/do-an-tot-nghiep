@@ -82,7 +82,7 @@ const ColorUpdateScreen: React.FC = () => {
     >
       <Card className="card-block card-block-normal" title="Thông tin cơ bản">
         <div className="padding-20">
-          <Row gutter={24}>
+          <Row gutter={50}>
             <Col
               style={{
                 display: "flex",
@@ -112,7 +112,7 @@ const ColorUpdateScreen: React.FC = () => {
               <div className="upload-bottom">Ảnh màu</div>
             </Col>
             <Col span={24} lg={20} sm={24} md={24}>
-              <Row gutter={24}>
+              <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Form.Item
                     className="form-group form-group-with-search"
@@ -148,7 +148,7 @@ const ColorUpdateScreen: React.FC = () => {
                   </Form.Item>
                 </Col>
               </Row>
-              <Row gutter={24}>
+              <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Form.Item
                     rules={[

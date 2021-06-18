@@ -1,7 +1,6 @@
 //#region Import
 import { Button, Card, Input, Row, Col, Tooltip, Select, Form } from "antd";
 import documentIcon from "../../assets/img/document.svg";
-import warningCircleIcon from "assets/img/warning-circle.svg";
 import ProductCard from "./product-card";
 import CustomerCard from "./customer-card";
 import PaymentCard from "./payment-card";
