@@ -11,6 +11,8 @@ import {
   Typography,
   Radio,
   InputNumber,
+  Select,
+  DatePicker,
 } from "antd";
 
 // @ts-ignore
@@ -28,18 +30,34 @@ import dhlIcon from "../../assets/img/dhl.svg";
 import { formatCurrency } from "../../utils/AppUtils";
 import ghtkIcon from "../../assets/img/ghtk.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { useSelector } from "react-redux";
+import { Moment } from "moment";
 
 type ShipmentCardProps = {
   shipmentMethod: number;
   setSelectedShipmentType: (paymentType: number) => void;
+  //setDatingShip: (item: Moment | null,dateString: string) => void;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
   props: ShipmentCardProps
 ) => {
-  const changeShipMethod = (value: number) => {
+  const ShipMethodOnChange = (value: number) => {
     props.setSelectedShipmentType(value);
   };
+
+  const DatingShipOnChange = (value: Moment | null, dateString: string) => {
+    console.log("datetime", value);
+    //props.setDatingShip(value, dateString);
+  };
+
+  const shipping_requirements = useSelector(
+    (state: RootReducerType) =>
+      state.bootstrapReducer.data?.shipping_requirement
+  );
+
+  const ChangeShippingRequirement = () => {};
 
   return (
     <Card
@@ -61,7 +79,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             <div style={{ marginTop: 15 }}>
               <Radio.Group
                 value={props.shipmentMethod}
-                onChange={(e) => changeShipMethod(e.target.value)}
+                onChange={(e) => ShipMethodOnChange(e.target.value)}
               >
                 <Space direction="vertical">
                   <Radio value={1}>Chuyển đối tác giao hàng</Radio>
@@ -78,19 +96,46 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               <label htmlFor="" className="">
                 Hẹn giao
               </label>
-              <Input
-                placeholder="Chọn ngày giao"
-                suffix={<img src={arrowDownIcon} alt="down" />}
+
+              <DatePicker
+                className="r-5 w-100 ip-search"
+                placeholder="Ngày tạo từ"
+                onChange={DatingShipOnChange}
               />
             </div>
             <div className="form-group form-group-with-search">
-              <label htmlFor="" className="">
-                Yêu cầu
-              </label>
-              <Input
-                placeholder="Cho phép xem hàng và thử hàng"
-                suffix={<img src={arrowDownIcon} alt="down" />}
-              />
+              <div>
+                <label htmlFor="" className="">
+                  Yêu cầu
+                </label>
+              </div>
+              <Select
+                className="select-with-search"
+                showSearch
+                style={{ width: "100%" }}
+                placeholder="Chọn nguồn đơn hàng"
+                onChange={ChangeShippingRequirement}
+                filterOption={(input, option) => {
+                  if (option) {
+                    return (
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
+              >
+                {shipping_requirements?.map((item, index) => (
+                  <Select.Option
+                    style={{ width: "100%" }}
+                    key={index.toString()}
+                    value={item.value}
+                  >
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
             </div>
           </Col>
         </Row>
