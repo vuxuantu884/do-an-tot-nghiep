@@ -22,8 +22,10 @@ import {
 import { CityView } from "model/content/district.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
+  AccountGetByIdtAction,
   DepartmentGetListAction,
   PositionGetListAction,
+  AccountUpdateAction,
 } from "domain/actions/account/account.action";
 import {
   AccountJobReQuest,
@@ -41,12 +43,11 @@ import {
 } from "@ant-design/icons";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { convertDistrict } from "utils/AppUtils";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { AccountCreateAction } from "domain/actions/account/account.action";
 import { StoreResponse } from "model/core/store.model";
 import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
 import { RoleGetListAction } from "domain/actions/auth/role.action";
@@ -55,36 +56,26 @@ import moment from "moment";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
 import CustomCard from "component/card.custom";
-import { ConvertDateToUtc } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
+import { useParams } from "react-router-dom";
+import UrlConfig from "config/UrlConfig";
 
 const { Item } = Form;
 const { Panel } = Collapse;
 const { Option, OptGroup } = Select;
 
 const DefaultCountry = 233;
-const initRequest: AccountView = {
-  code: "",
-  user_id: "",
-  user_name: "",
-  gender: "",
-  full_name: "",
-  mobile: "",
-  account_stores: [],
-  account_jobs: [],
-  roles: [],
-  address: "",
-  status: "active",
-  password: "",
-  country_id: 233,
-};
 
 const initRoleQuery: RoleSearchQuery = {
   page: 0,
   size: 200,
 };
+type AccountParam = {
+  id: string;
+};
 
-const AccountCreateScreen: React.FC = () => {
+const AccountUpdateScreen: React.FC = () => {
+  const { id } = useParams<AccountParam>();
+  let idNumber = parseInt(id);
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const history = useHistory();
@@ -95,6 +86,10 @@ const AccountCreateScreen: React.FC = () => {
   const listGender = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.gender
   );
+
+  const listStoreRoot=useRef<Array<AccountStoreResponse>>();
+  const listRolesRoot=useRef<Array<AccountRolesResponse>>();
+
   //State
   const [listaccountJob, setAccountJob] = useState<Array<AccountJobReQuest>>([
     {
@@ -105,11 +100,12 @@ const AccountCreateScreen: React.FC = () => {
   ]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
-  const [status, setStatus] = useState<string>(initRequest.status);
+  const [status, setStatus] = useState<string>("active");
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [listRole, setRole] = useState<Array<RoleResponse>>();
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
+  const [accountDetail, setAccountDetail] = useState<AccountView | null>(null);
   //EndState
   //Callback
 
@@ -135,14 +131,16 @@ const AccountCreateScreen: React.FC = () => {
     });
     setAccountJob(listJob);
   };
-  const onChangeDepartment = (e: any, key: number) => {
+  const onChangeDepartment = (e: any, key: number,jobId?:number) => {
     let listJob = [...listaccountJob];
     listJob[key].department_id = e;
+    listJob[key].id = jobId;
     setAccountJob(listJob);
   };
-  const onChangePosition = (e: any, key: number) => {
+  const onChangePosition = (e: any, key: number,jobId?:number) => {
     let listJob = [...listaccountJob];
     listJob[key].position_id = e;
+    listJob[key].id = jobId;
     setAccountJob(listJob);
   };
   const onDeleteJob = (key: number) => {
@@ -168,28 +166,30 @@ const AccountCreateScreen: React.FC = () => {
     },
     [cityViews, formRef]
   );
-  const onCreateSuccess = useCallback(
+  const onUpdateSuccess = useCallback(
     (data: AccountResponse) => {
-      showSuccess("Thêm mới dữ liệu thành công");
-      history.push("/accounts");
+      history.push(UrlConfig.ACCOUNTS);
     },
     [history]
   );
   const onFinish = useCallback(
     (values: AccountView) => {
-      debugger;
       let accStores: Array<AccountStoreResponse> = [];
       let accRoles: Array<AccountRolesResponse> = [];
       let accJobs: Array<AccountJobResponse> = [];
       let listAccountSelected = [...listaccountJob];
       values.account_stores.forEach((el: number) => {
+        var checkSote=listStoreRoot.current?.find(rr=>rr.store_id===el);
         accStores.push({
           store_id: el,
+          id:checkSote?.id
         });
       });
       values.roles.forEach((el: number) => {
+        var checkRole=listRolesRoot.current?.find(rr=>rr.role_id===el);
         accRoles.push({
           role_id: el,
+          id:checkRole?.id
         });
       });
       listAccountSelected.forEach((el: AccountJobReQuest) => {
@@ -214,12 +214,56 @@ const AccountCreateScreen: React.FC = () => {
         city_id: values.city_id,
         district_id: values.district_id,
         account_jobs: [...accJobs],
+        version:values.version
       };
-      dispatch(AccountCreateAction(accountModel, onCreateSuccess));
+      dispatch(AccountUpdateAction(idNumber, accountModel, onUpdateSuccess));
     },
-    [dispatch, listaccountJob, onCreateSuccess]
+    [dispatch, listaccountJob, onUpdateSuccess]
   );
   const onCancel = useCallback(() => history.goBack(), [history]);
+  const setAccount = useCallback((data: AccountResponse) => {
+    debugger;
+    let storeIds: Array<number> = [];
+    data.account_stores?.forEach((item) => {
+      if (item.store_id) {
+        storeIds.push(item.store_id);
+      }
+    });
+    let roleIds: Array<number> = [];
+    data.account_roles?.forEach((item) => {
+      if (item.role_id) {
+        roleIds.push(item.role_id);
+      }
+    });
+    let jobs: Array<AccountJobReQuest> = [];
+    data.account_jobs?.forEach((item, index) => {
+      jobs.push({
+        position_id: item.position_id,
+        department_id: item.department_id,
+        key: Number(moment().format("x")) + index,
+      });
+    });
+    setAccountJob(jobs);
+
+    let accountView: AccountView = {
+      user_name: data.user_name,
+      gender: data.gender,
+      code: data.code,
+      full_name: data.full_name,
+      password: "",
+      mobile: data.mobile,
+      address: data.address,
+      birthday: moment(data.birthday),
+      country_id: data.country_id,
+      district_id: data.district_id,
+      city_id: data.city_id,
+      account_stores: storeIds,
+      roles: roleIds,
+      status: data.status,
+      version:data.version
+    };
+    setAccountDetail(accountView);
+  }, []);
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -246,7 +290,9 @@ const AccountCreateScreen: React.FC = () => {
               allowClear
               showArrow
               optionFilterProp="children"
-              onChange={(value) => onChangeDepartment(value, index)}
+              onChange={(value) => onChangeDepartment(value, index,item.id)}
+              style={{ width: "100%" }}
+              defaultValue={item.department_id}
             >
               {listDepartment?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -269,7 +315,9 @@ const AccountCreateScreen: React.FC = () => {
               allowClear
               showArrow
               optionFilterProp="children"
-              onChange={(value) => onChangePosition(value, index)}
+              onChange={(value) => onChangePosition(value, index,item.id)}
+              style={{ width: "100%" }}
+              defaultValue={item.position_id}
             >
               {listPosition?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -305,13 +353,21 @@ const AccountCreateScreen: React.FC = () => {
     dispatch(StoreGetListAction(setStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
-  }, [dispatch, setDataDistrict]);
+    dispatch(AccountGetByIdtAction(idNumber, setAccount));
+  }, [dispatch, setDataDistrict, idNumber, setAccount]);
+  if (accountDetail == null) {
+    return (
+      <Card className="card-block card-block-normal">
+        Không tìm thấy nhân viên
+      </Card>
+    );
+  }
   return (
     <Form
       ref={formRef}
       layout="vertical"
       onFinish={onFinish}
-      initialValues={initRequest}
+      initialValues={accountDetail}
     >
       <Card
         title="Thông tin cơ bản"
@@ -334,6 +390,9 @@ const AccountCreateScreen: React.FC = () => {
           </Space>,
         ]}
       >
+         <Item noStyle name="version" hidden>
+              <Input />
+            </Item>
         <div className="padding-20">
           <Row gutter={24}>
             <Col span={24} lg={8} md={12} sm={24}>
@@ -383,25 +442,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Input className="r-5" placeholder="VD: YD0000" size="large" />
               </Item>
             </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Item
-                rules={[{ required: true, message: "Vui lòng nhập mật khẩu" }]}
-                name="password"
-                label="Mật khẩu"
-                hasFeedback
-              >
-                <Input.Password
-                  className="r-5"
-                  placeholder="Nhập mật khẩu"
-                  size="large"
-                  iconRender={(visible) =>
-                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                  }
-                />
-              </Item>
-            </Col>
-          </Row>
-          <Row gutter={24}>
+
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
                 label="Họ và tên"
@@ -415,33 +456,6 @@ const AccountCreateScreen: React.FC = () => {
                   size="large"
                 />
               </Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                name="confirm"
-                label="Nhập lại mật khẩu"
-                dependencies={["password"]}
-                hasFeedback
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập lại mật khẩu",
-                  },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue("password") === value) {
-                        return Promise.resolve();
-                      }
-
-                      return Promise.reject(
-                        new Error("Nhập lại mật khẩu không đúng!")
-                      );
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password />
-              </Form.Item>
             </Col>
           </Row>
           <Row gutter={24}>
@@ -480,6 +494,7 @@ const AccountCreateScreen: React.FC = () => {
                   showArrow
                   mode="multiple"
                   optionFilterProp="children"
+                  maxTagCount="responsive"
                 >
                   {listStore?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -525,6 +540,7 @@ const AccountCreateScreen: React.FC = () => {
                   showArrow
                   mode="multiple"
                   optionFilterProp="children"
+                  maxTagCount="responsive"
                 >
                   {listRole?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -626,4 +642,4 @@ const AccountCreateScreen: React.FC = () => {
   );
 };
 
-export default AccountCreateScreen;
+export default AccountUpdateScreen;

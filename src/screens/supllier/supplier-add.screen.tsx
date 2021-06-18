@@ -1,6 +1,22 @@
-import { Button, Card, Col, Space, Form, FormInstance, Input, Radio, Row, Select, Switch, Divider } from "antd";
-import {AccountSearchAction} from "domain/actions/account/account.action";
-import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
+import {
+  Button,
+  Card,
+  Col,
+  Space,
+  Form,
+  FormInstance,
+  Input,
+  Radio,
+  Row,
+  Select,
+  Switch,
+  Divider,
+} from "antd";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import {
+  CountryGetAllAction,
+  DistrictGetByCountryAction,
+} from "domain/actions/content/content.action";
 import SupplierAction from "domain/actions/core/supplier.action";
 import { CityView } from "model/content/district.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -134,8 +150,8 @@ const CreateSupplierScreen: React.FC = () => {
   //end memo
   useEffect(() => {
     dispatch(AccountSearchAction({ department_ids: [4] }, setDataAccounts));
-    dispatch(CountryGetAllAction(setCountries))
-    dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict))
+    dispatch(CountryGetAllAction(setCountries));
+    dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
   }, [dispatch, setDataAccounts, setDataDistrict]);
   return (
     <Form
@@ -149,10 +165,18 @@ const CreateSupplierScreen: React.FC = () => {
         extra={[
           <Space size={15}>
             <label className="text-default">Trạng thái</label>
-            <Switch onChange={onChangeStatus} className="ant-switch-success" defaultChecked />
-            <label className={status === 'active' ? "text-success" : "text-error"}>{statusValue}</label>
+            <Switch
+              onChange={onChangeStatus}
+              className="ant-switch-success"
+              defaultChecked
+            />
+            <label
+              className={status === "active" ? "text-success" : "text-error"}
+            >
+              {statusValue}
+            </label>
             <Item noStyle name="status" hidden>
-               <Input value={status} />
+              <Input value={status} />
             </Item>
           </Space>,
         ]}

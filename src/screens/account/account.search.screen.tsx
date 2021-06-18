@@ -21,7 +21,7 @@ import {
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { convertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
 import UrlConfig from "config/UrlConfig";
@@ -69,7 +69,7 @@ const ListAccountScreen: React.FC = () => {
     {
       title: "Mã nhân viên",
       render: (value: AccountResponse) => {
-        return <Link to="#">{value.code}</Link>;
+        return <Link to={`${UrlConfig.ACCOUNTS}/${value.id}`}>{value.code}</Link>;
       },
     },
     {
@@ -99,7 +99,7 @@ const ListAccountScreen: React.FC = () => {
     {
       title: "Ngày tạo",
       render: (value: AccountResponse) => {
-        return convertUtcToLocalDate(value.created_date);
+        return ConvertUtcToLocalDate(value.created_date,'DD/MM/YYYY');
       },
     },
 
@@ -161,7 +161,6 @@ const ListAccountScreen: React.FC = () => {
           listStore={listStore}
         />
         <CustomTable
-          onChange={onPageChange}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,

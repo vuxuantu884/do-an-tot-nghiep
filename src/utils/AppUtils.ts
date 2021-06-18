@@ -1,4 +1,4 @@
-import { convertDateToUtc } from './DateUtils';
+import { ConvertDateToUtc } from './DateUtils';
 import { AccountStoreResponse } from 'model/account/account.model';
 import { DistrictResponse } from 'model/content/district.model';
 import { CityView } from 'model/content/district.model';
@@ -179,7 +179,7 @@ export const generateQuery = (obj: any) => {
           value = obj[key].join(',')
         }
         if(obj[key] instanceof Date) {
-          value = convertDateToUtc(obj[key])
+          value = ConvertDateToUtc(obj[key])
         }
         if(moment.isMoment(obj[key] )) {
           value = obj[key].utc().format();
