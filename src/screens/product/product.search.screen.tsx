@@ -10,8 +10,7 @@ import ProductFilter from "component/filter/product.filter";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable from "component/table/CustomTable";
-import { CategoryView } from "model/product/category.model";
-import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import { ProductResponse, VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { CountryResponse } from "model/content/country.model";
 import { ColorResponse } from "model/product/color.model";
 import { SupplierResponse } from "model/core/supplier.model";
@@ -229,7 +228,7 @@ const ListProductScreen: React.FC = () => {
           }}
           dataSource={data.items}
           columns={columns}
-          rowKey={(item: CategoryView) => item.id}
+          rowKey={(item: ProductResponse) => item.id}
         />
       </Card>
     </div>

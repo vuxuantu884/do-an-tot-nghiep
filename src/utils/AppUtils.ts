@@ -7,7 +7,7 @@ import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import moment from 'moment';
 import { SizeDetail, SizeResponse } from 'model/product/size.model';
-import { ProductRequest, ProductRequestView, VariantImagesResponse, VariantPriceRequest, VariantPricesResponse, VariantRequest, VariantRequestView } from 'model/product/product.model';
+import { ProductRequest, ProductRequestView, VariantImageRequest, VariantImagesResponse, VariantPriceRequest, VariantPricesResponse, VariantRequest, VariantRequestView } from 'model/product/product.model';
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -275,86 +275,99 @@ export const haveAccess = (storeId: number, accountStores: Array<AccountStoreRes
   return isHave;
 }
 
-export const convertProductViewToRequest = (pr: ProductRequestView, arrVariants: Array<VariantRequestView>, status: string) => {
-  let variants: Array<VariantRequest> = [];
-  let variant_prices: Array<VariantPriceRequest> = [];
-  pr.variant_prices.forEach((item) => {
-    let retail_price = parseInt(item.retail_price);
-    let import_price = parseInt(item.import_price);
-    let whole_sale_price = parseInt(item.whole_sale_price);
-    let tax_percent = parseInt(item.tax_percent);
-    if(!isNaN(retail_price)) {
-      variant_prices.push({
-        price: retail_price,
-        price_type: 'retail_price',
-        currency_code: item.currency,
-        tax_percent: tax_percent,
-      })
-    }
-    if(!isNaN(import_price)) {
-      variant_prices.push({
-        price: import_price,
-        price_type: 'import_price',
-        currency_code: item.currency,
-        tax_percent: tax_percent,
-      })
-    }
-    if(!isNaN(whole_sale_price)) {
-      variant_prices.push({
-        price: whole_sale_price,
-        price_type: 'whole_sale_price',
-        currency_code: item.currency,
-        tax_percent: tax_percent,
-      })
-    }
-    
-  })
-  arrVariants.forEach((item) => {
-    variants.push({
-      status: status,
-      name: item.name,
-      color_id: item.color_id,
-      size_id: item.size_id,
-      barcode: null,
-      taxable: false,
-      saleable: pr.saleable,
-      deleted: false,
-      sku: item.sku,
-      width: pr.width,
-      height: pr.height,
-      length: pr.length,
-      length_unit: pr.length_unit,
-      weight: pr.weight,
-      weight_unit: pr.weight_unit,
-      variant_prices: variant_prices,
-      variant_images: [],
-      inventory: 0,
-    })
-  })
-  let productRequest: ProductRequest = {
-    brand: pr.brand,
-    category_id: pr.category_id,
-    code: pr.code,
-    content: pr.content,
-    description: pr.description,
-    designer_code: pr.designer_code,
-    goods: pr.goods,
-    made_in_id: pr.made_in_id,
-    merchandiser_code: pr.merchandiser_code,
-    name: pr.name,
-    preservation: pr.preservation,
-    specifications: pr.specifications,
-    product_type: pr.product_type ? pr.product_type : '',
-    status: status,
-    tags: pr.tags.join(','),
-    variants: variants,
-    product_unit: pr.product_unit
-  }
-  return productRequest;
-}
+
 
 export const ListUtil = {
   notEmpty: (a: Array<any>|undefined) => {
     return a !== undefined &&  a.length >= 0
   } 
+}
+
+export const Products = {
+  convertProductViewToRequest: (pr: ProductRequestView, arrVariants: Array<VariantRequestView>, status: string) => {
+    let variants: Array<VariantRequest> = [];
+    let variant_prices: Array<VariantPriceRequest> = [];
+    pr.variant_prices.forEach((item) => {
+      let retail_price = parseInt(item.retail_price);
+      let import_price = parseInt(item.import_price);
+      let whole_sale_price = parseInt(item.whole_sale_price);
+      let tax_percent = parseInt(item.tax_percent);
+      if(!isNaN(retail_price)) {
+        variant_prices.push({
+          price: retail_price,
+          price_type: 'retail_price',
+          currency_code: item.currency,
+          tax_percent: tax_percent,
+        })
+      }
+      if(!isNaN(import_price)) {
+        variant_prices.push({
+          price: import_price,
+          price_type: 'import_price',
+          currency_code: item.currency,
+          tax_percent: tax_percent,
+        })
+      }
+      if(!isNaN(whole_sale_price)) {
+        variant_prices.push({
+          price: whole_sale_price,
+          price_type: 'whole_sale_price',
+          currency_code: item.currency,
+          tax_percent: tax_percent,
+        })
+      }
+      
+    })
+    arrVariants.forEach((item) => {
+      variants.push({
+        status: status,
+        name: item.name,
+        color_id: item.color_id,
+        size_id: item.size_id,
+        barcode: null,
+        taxable: false,
+        saleable: pr.saleable,
+        deleted: false,
+        sku: item.sku,
+        width: pr.width,
+        height: pr.height,
+        length: pr.length,
+        length_unit: pr.length_unit,
+        weight: pr.weight,
+        weight_unit: pr.weight_unit,
+        variant_prices: variant_prices,
+        variant_images: [],
+        inventory: 0,
+      })
+    })
+    let productRequest: ProductRequest = {
+      brand: pr.brand,
+      category_id: pr.category_id,
+      code: pr.code,
+      content: pr.content,
+      description: pr.description,
+      designer_code: pr.designer_code,
+      goods: pr.goods,
+      made_in_id: pr.made_in_id,
+      merchandiser_code: pr.merchandiser_code,
+      name: pr.name,
+      preservation: pr.preservation,
+      specifications: pr.specifications,
+      product_type: pr.product_type ? pr.product_type : '',
+      status: status,
+      tags: pr.tags.join(','),
+      variants: variants,
+      product_unit: pr.product_unit
+    }
+    return productRequest;
+  },
+  findAvatar: (images: Array<VariantImageRequest>) => {
+    let image: VariantImageRequest|null = null;
+    images.forEach((imagerRequest) => {
+      if(imagerRequest.variant_avatar) {
+        image = imagerRequest;
+      }
+    })
+    return image;
+  }
 }

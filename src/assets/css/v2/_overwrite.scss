@@ -44,7 +44,7 @@
 
       &-children{
         background-color: $white;
-
+        box-shadow: 0 0 2px 1px #eee;
         .ant{
 
           &-menu{
@@ -270,7 +270,7 @@
   //Card
   &-card{
     border-radius: $border-radius;
-
+    box-shadow: 0 0 2px 1px #eee;
     &-collapse{
       .ant-card-head{
         cursor: pointer;
@@ -408,6 +408,9 @@
       min-height: 25px;
       border-radius: $border-radius/2;
       padding: 3px 20px;
+      a {
+        color: $white;
+      }
     }
   }
 
@@ -588,7 +591,7 @@
 
     &-tbody{
       & > tr:nth-child(2n) > td {
-        background-color: rgba($background-color-secondary, 0.5);
+        // background-color: rgba($background-color-secondary, 0.5);
       }
       & > tr.ant-table-row-selected > td {
         background-color: inherit;
@@ -681,6 +684,7 @@
 
     &-header{
       border-radius: 5px 5px 0 0;
+
       &-nostyle{
         .ant-modal{
           &-header{
@@ -839,6 +843,9 @@
         }
         .ant-collapse-content{
           border-top-color: #f0f0f0;
+          &-box {
+            padding: 0;
+          }
         }
       }
     }

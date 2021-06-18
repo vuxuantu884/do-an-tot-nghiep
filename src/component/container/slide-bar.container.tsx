@@ -54,7 +54,7 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
     </Menu>
   );
   return (
-    <Sider collapsed={collapsed} width={250} theme="light">
+    <Sider collapsed={collapsed} width={270} theme="light">
       <div className="logo">
         <img src={logo} alt="Yody" />
       </div>

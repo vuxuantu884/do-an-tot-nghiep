@@ -111,7 +111,7 @@ export interface VariantPriceRequest {
 }
 
 export interface VariantImageRequest {
-  id?: undefined,
+  id?: number,
   position: number|null,
   image_id: number,
   url: string,
@@ -169,7 +169,7 @@ export interface VariantRequestView {
   size: string,
   sku: string,
   quantity: string|null,
-  variant_images: null,
+  variant_images: Array<VariantImageRequest>,
 }
 
 export interface VariantPriceViewRequest {
