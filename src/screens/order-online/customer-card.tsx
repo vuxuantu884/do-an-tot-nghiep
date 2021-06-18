@@ -63,7 +63,7 @@ type CustomerCardProps = {
 const initQuery: CustomerSearchQuery = {
   request: "",
   limit: 10,
-  page: 0,
+  page: 1,
 };
 
 const CustomerCard: React.FC<CustomerCardProps> = (
