@@ -54,7 +54,6 @@ import deleteIcon from "assets/icon/delete.svg";
 import moment from "moment";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
-import CustomCard from "component/card.custom";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 
@@ -585,33 +584,38 @@ const AccountCreateScreen: React.FC = () => {
           </Row>
         </div>
       </Card>
-      <CustomCard
-        title="Thông tin công việc"
-        collapse
-        className="margin-top-20"
+
+      <Collapse
+        defaultActiveKey="1"
+        className="ant-collapse-card margin-top-20"
+        expandIconPosition="right"
       >
-        <Row gutter={24}>
-          <Col span={24} lg={24} md={24} sm={24}>
-            <Table
-              columns={columns}
-              rowKey={(record) => record.key}
-              dataSource={listaccountJob}
-              className="sale-product-box-table w-100"
-              tableLayout="fixed"
-              pagination={false}
-            />
-          </Col>
-        </Row>
-        <div className="margin-top-10" style={{ textAlign: "right" }}>
-          <Row gutter={24}>
-            <Col span={24} lg={24} md={24} sm={24}>
-              <Button type="dashed" onClick={addNewJob}>
-                <PlusOutlined /> Add field
-              </Button>
-            </Col>
-          </Row>
-        </div>
-      </CustomCard>
+        <Collapse.Panel key="1" header="Thông tin công việc">
+          <div className="padding-20">
+            <Row gutter={24}>
+              <Col span={24} lg={24} md={24} sm={24}>
+                <Table
+                  columns={columns}
+                  rowKey={(record) => record.key}
+                  dataSource={listaccountJob}
+                  className="sale-product-box-table w-100"
+                  tableLayout="fixed"
+                  pagination={false}
+                />
+              </Col>
+            </Row>
+            <div className="margin-top-10" style={{ textAlign: "right" }}>
+              <Row gutter={24}>
+                <Col span={24} lg={24} md={24} sm={24}>
+                  <Button type="dashed" onClick={addNewJob}>
+                    <PlusOutlined /> Add field
+                  </Button>
+                </Col>
+              </Row>
+            </div>
+          </div>
+        </Collapse.Panel>
+      </Collapse>
       <div className="margin-top-10" style={{ textAlign: "right" }}>
         <Space size={12}>
           <Button type="default" onClick={onCancel}>

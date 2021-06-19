@@ -43,7 +43,14 @@ import {
 } from "@ant-design/icons";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { convertDistrict } from "utils/AppUtils";
@@ -55,7 +62,6 @@ import deleteIcon from "assets/icon/delete.svg";
 import moment from "moment";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
-import CustomCard from "component/card.custom";
 import { useParams } from "react-router-dom";
 import UrlConfig from "config/UrlConfig";
 
@@ -87,8 +93,8 @@ const AccountUpdateScreen: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer.data?.gender
   );
 
-  const listStoreRoot=useRef<Array<AccountStoreResponse>>();
-  const listRolesRoot=useRef<Array<AccountRolesResponse>>();
+  const listStoreRoot = useRef<Array<AccountStoreResponse>>();
+  const listRolesRoot = useRef<Array<AccountRolesResponse>>();
 
   //State
   const [listaccountJob, setAccountJob] = useState<Array<AccountJobReQuest>>([
@@ -131,13 +137,13 @@ const AccountUpdateScreen: React.FC = () => {
     });
     setAccountJob(listJob);
   };
-  const onChangeDepartment = (e: any, key: number,jobId?:number) => {
+  const onChangeDepartment = (e: any, key: number, jobId?: number) => {
     let listJob = [...listaccountJob];
     listJob[key].department_id = e;
     listJob[key].id = jobId;
     setAccountJob(listJob);
   };
-  const onChangePosition = (e: any, key: number,jobId?:number) => {
+  const onChangePosition = (e: any, key: number, jobId?: number) => {
     let listJob = [...listaccountJob];
     listJob[key].position_id = e;
     listJob[key].id = jobId;
@@ -179,17 +185,17 @@ const AccountUpdateScreen: React.FC = () => {
       let accJobs: Array<AccountJobResponse> = [];
       let listAccountSelected = [...listaccountJob];
       values.account_stores.forEach((el: number) => {
-        var checkSote=listStoreRoot.current?.find(rr=>rr.store_id===el);
+        var checkSote = listStoreRoot.current?.find((rr) => rr.store_id === el);
         accStores.push({
           store_id: el,
-          id:checkSote?.id
+          id: checkSote?.id,
         });
       });
       values.roles.forEach((el: number) => {
-        var checkRole=listRolesRoot.current?.find(rr=>rr.role_id===el);
+        var checkRole = listRolesRoot.current?.find((rr) => rr.role_id === el);
         accRoles.push({
           role_id: el,
-          id:checkRole?.id
+          id: checkRole?.id,
         });
       });
       listAccountSelected.forEach((el: AccountJobReQuest) => {
@@ -214,7 +220,7 @@ const AccountUpdateScreen: React.FC = () => {
         city_id: values.city_id,
         district_id: values.district_id,
         account_jobs: [...accJobs],
-        version:values.version
+        version: values.version,
       };
       dispatch(AccountUpdateAction(idNumber, accountModel, onUpdateSuccess));
     },
@@ -260,7 +266,7 @@ const AccountUpdateScreen: React.FC = () => {
       account_stores: storeIds,
       roles: roleIds,
       status: data.status,
-      version:data.version
+      version: data.version,
     };
     setAccountDetail(accountView);
   }, []);
@@ -290,9 +296,9 @@ const AccountUpdateScreen: React.FC = () => {
               allowClear
               showArrow
               optionFilterProp="children"
-              onChange={(value) => onChangeDepartment(value, index,item.id)}
+              onChange={(value) => onChangeDepartment(value, index, item.id)}
               style={{ width: "100%" }}
-              defaultValue={item.department_id}
+              defaultValue={item.department_id===0?undefined:item.position_id}
             >
               {listDepartment?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -315,9 +321,9 @@ const AccountUpdateScreen: React.FC = () => {
               allowClear
               showArrow
               optionFilterProp="children"
-              onChange={(value) => onChangePosition(value, index,item.id)}
+              onChange={(value) => onChangePosition(value, index, item.id)}
               style={{ width: "100%" }}
-              defaultValue={item.position_id}
+              defaultValue={item.position_id===0?undefined:item.position_id}
             >
               {listPosition?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -390,9 +396,9 @@ const AccountUpdateScreen: React.FC = () => {
           </Space>,
         ]}
       >
-         <Item noStyle name="version" hidden>
-              <Input />
-            </Item>
+        <Item noStyle name="version" hidden>
+          <Input />
+        </Item>
         <div className="padding-20">
           <Row gutter={24}>
             <Col span={24} lg={8} md={12} sm={24}>
@@ -601,33 +607,39 @@ const AccountUpdateScreen: React.FC = () => {
           </Row>
         </div>
       </Card>
-      <CustomCard
-        title="Thông tin công việc"
-        collapse
-        className="margin-top-20"
+
+      <Collapse
+        defaultActiveKey="1"
+        className="ant-collapse-card margin-top-20"
+        expandIconPosition="right"
       >
-        <Row gutter={24}>
-          <Col span={24} lg={24} md={24} sm={24}>
-            <Table
-              columns={columns}
-              rowKey={(record) => record.key}
-              dataSource={listaccountJob}
-              className="sale-product-box-table w-100"
-              tableLayout="fixed"
-              pagination={false}
-            />
-          </Col>
-        </Row>
-        <div className="margin-top-10" style={{ textAlign: "right" }}>
-          <Row gutter={24}>
-            <Col span={24} lg={24} md={24} sm={24}>
-              <Button type="dashed" onClick={addNewJob}>
-                <PlusOutlined /> Add field
-              </Button>
-            </Col>
-          </Row>
-        </div>
-      </CustomCard>
+        <Collapse.Panel key="1" header="Thông tin công việc">
+          <div className="padding-20">
+            <Row gutter={24}>
+              <Col span={24} lg={24} md={24} sm={24}>
+                <Table
+                  columns={columns}
+                  rowKey={(record) => record.key}
+                  dataSource={listaccountJob}
+                  className="sale-product-box-table w-100"
+                  tableLayout="fixed"
+                  pagination={false}
+                />
+              </Col>
+            </Row>
+            <div className="margin-top-10" style={{ textAlign: "right" }}>
+              <Row gutter={24}>
+                <Col span={24} lg={24} md={24} sm={24}>
+                  <Button type="dashed" onClick={addNewJob}>
+                    <PlusOutlined /> Add field
+                  </Button>
+                </Col>
+              </Row>
+            </div>
+          </div>
+        </Collapse.Panel>
+      </Collapse>
+
       <div className="margin-top-10" style={{ textAlign: "right" }}>
         <Space size={12}>
           <Button type="default" onClick={onCancel}>
