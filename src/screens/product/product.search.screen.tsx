@@ -1,4 +1,4 @@
-import { Card, Image } from "antd";
+import { Card } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -10,7 +10,7 @@ import ProductFilter from "component/filter/product.filter";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable from "component/table/CustomTable";
-import { ProductResponse, VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { CountryResponse } from "model/content/country.model";
 import { ColorResponse } from "model/product/color.model";
 import { SupplierResponse } from "model/core/supplier.model";
@@ -26,7 +26,7 @@ import {
   AccountSearchQuery,
 } from "model/account/account.model";
 import UrlConfig from "config/UrlConfig";
-import {EyeOutlined} from '@ant-design/icons'
+import ImageProduct from "./component/image-product.component";
 
 const actions: Array<MenuAction> = [
   {
@@ -96,30 +96,13 @@ const ListProductScreen: React.FC = () => {
     {
       title: "Ảnh",
       render: (value: VariantResponse) => {
-        let variant_images = value.variant_images;
-        let imgUrl =
-          "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg";
-        variant_images.forEach((el) => {
-          if (el.variant_avatar) {
-            imgUrl =
-              "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg";
-          }
-        });
-        return <Image preview={{mask: <EyeOutlined />}} src={imgUrl} width={50} />;
-        // return img;
-        //   value.variant_images.map((item, index) => {
-        //     if (item.variant_avatar) {
-        //       return  <Image src="" width={100} />;
-        //     }
-        //   });
-        // }
+        return <ImageProduct onClick={()=> {}}  />
       },
-    },
+    }, 
     {
       title: "Mã sản phẩm",
-      render: (value: VariantResponse) => {
-        return <Link to="#">{value.sku}</Link>;
-      },
+      dataIndex: 'sku',
+      render: (value: string, i: VariantResponse) => <Link to={`${UrlConfig.VARIANTS}/${i.id}`}>{value}</Link>
     },
     {
       title: "Tên sản phẩm",
@@ -158,7 +141,7 @@ const ListProductScreen: React.FC = () => {
       render: (value: string, row: VariantResponse) => (
         <div
           className={
-            row.status === "active" ? "status-active" : "status-not-active"
+            row.status === "active" ? "text-success" : "text-error"
           }
         >
           {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
@@ -217,7 +200,6 @@ const ListProductScreen: React.FC = () => {
           listCountries={listCountry}
         />
         <CustomTable
-          onChange={onPageChange}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
@@ -228,7 +210,7 @@ const ListProductScreen: React.FC = () => {
           }}
           dataSource={data.items}
           columns={columns}
-          rowKey={(item: ProductResponse) => item.id}
+          rowKey={(item: VariantResponse) => item.id}
         />
       </Card>
     </div>
