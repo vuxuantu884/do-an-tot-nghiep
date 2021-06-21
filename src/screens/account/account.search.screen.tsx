@@ -92,7 +92,6 @@ const ListAccountScreen: React.FC = () => {
     {
       title: "Phân quyền",
       render: (value: AccountResponse) => {
-        let role = "";
         return <Link to="#">{value.code}</Link>;
       },
     },

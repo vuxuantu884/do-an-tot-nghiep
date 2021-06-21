@@ -36,11 +36,7 @@ import {
   AccountStoreResponse,
   AccountView,
 } from "model/account/account.model";
-import {
-  EyeInvisibleOutlined,
-  EyeTwoTone,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import {
@@ -66,7 +62,6 @@ import { useParams } from "react-router-dom";
 import UrlConfig from "config/UrlConfig";
 
 const { Item } = Form;
-const { Panel } = Collapse;
 const { Option, OptGroup } = Select;
 
 const DefaultCountry = 233;
@@ -228,7 +223,6 @@ const AccountUpdateScreen: React.FC = () => {
   );
   const onCancel = useCallback(() => history.goBack(), [history]);
   const setAccount = useCallback((data: AccountResponse) => {
-    debugger;
     let storeIds: Array<number> = [];
     data.account_stores?.forEach((item) => {
       if (item.store_id) {
@@ -298,7 +292,9 @@ const AccountUpdateScreen: React.FC = () => {
               optionFilterProp="children"
               onChange={(value) => onChangeDepartment(value, index, item.id)}
               style={{ width: "100%" }}
-              defaultValue={item.department_id===0?undefined:item.position_id}
+              defaultValue={
+                item.department_id === 0 ? undefined : item.position_id
+              }
             >
               {listDepartment?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -323,7 +319,9 @@ const AccountUpdateScreen: React.FC = () => {
               optionFilterProp="children"
               onChange={(value) => onChangePosition(value, index, item.id)}
               style={{ width: "100%" }}
-              defaultValue={item.position_id===0?undefined:item.position_id}
+              defaultValue={
+                item.position_id === 0 ? undefined : item.position_id
+              }
             >
               {listPosition?.map((item) => (
                 <Option key={item.id} value={item.id}>

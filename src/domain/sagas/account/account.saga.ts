@@ -98,7 +98,7 @@ function* AccountUpdateSaga(action: YodyAction) {
 function* AccountGetByIdSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
-    debugger;
+    
     let response: BaseResponse<AccountResponse> = yield call(
       AccountGetByIdService,
       id

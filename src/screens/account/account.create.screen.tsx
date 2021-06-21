@@ -54,11 +54,9 @@ import deleteIcon from "assets/icon/delete.svg";
 import moment from "moment";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
-import { ConvertDateToUtc } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 
 const { Item } = Form;
-const { Panel } = Collapse;
 const { Option, OptGroup } = Select;
 
 const DefaultCountry = 233;
@@ -176,7 +174,7 @@ const AccountCreateScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: AccountView) => {
-      debugger;
+      
       let accStores: Array<AccountStoreResponse> = [];
       let accRoles: Array<AccountRolesResponse> = [];
       let accJobs: Array<AccountJobResponse> = [];

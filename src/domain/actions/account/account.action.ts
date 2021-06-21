@@ -27,7 +27,7 @@ export const AccountGetByIdtAction = (
   id: number,
   setData: (data: AccountResponse) => void
 ) => {
-  debugger;
+  
   return BaseAction(AccountType.GET_ACCOUNT_DETAIL_REQUEST, { id, setData });
 };
 
