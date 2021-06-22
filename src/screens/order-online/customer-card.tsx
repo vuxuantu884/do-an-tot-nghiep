@@ -63,7 +63,7 @@ type CustomerCardProps = {
 const initQuery: CustomerSearchQuery = {
   request: "",
   limit: 10,
-  page: 0,
+  page: 1,
 };
 
 const CustomerCard: React.FC<CustomerCardProps> = (
@@ -80,8 +80,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
-  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
+  const [shippingAddress, setShippingAddress] =
+    useState<ShippingAddress | null>(null);
+  const [billingAddress, setBillingAddress] =
+    useState<BillingAddress | null>(null);
   const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
   const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
 
@@ -138,10 +140,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         <div className="rs-left w-100">
           <img src={imgdefault} alt="anh" placeholder={imgdefault} />
           <div className="rs-info w-100">
-            <span
-              style={{ color: "#37394D", marginTop: "10px" }}
-              className="text"
-            >
+            <span className="text">
               {item.full_name} - {item.phone}
             </span>
           </div>
@@ -172,7 +171,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     (value, o) => {
       let index: number = -1;
       index = resultSearch.findIndex(
-        (customerResponse: CustomerResponse) => customerResponse.id && customerResponse.id.toString() === value
+        (customerResponse: CustomerResponse) =>
+          customerResponse.id && customerResponse.id.toString() === value
       );
       if (index !== -1) {
         setCustomer(resultSearch[index]);
@@ -279,12 +279,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         <div className="d-flex align-items-center form-group-with-search">
           <Form.Item
             name="source"
-            label="Nguồn"
             style={{ margin: "10px 0px" }}
             rules={[
               { required: true, message: "Vui lòng chọn nguồn đơn hàng" },
             ]}
           >
+            <label style={{ marginRight: "10px" }}>
+              Nguồn <span style={{ color: "red" }}>*</span>
+            </label>
             <Select
               className="select-with-search"
               showSearch
@@ -314,7 +316,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             </Select>
             {props.sourceSelect === true && (
               <div>
-                <div className="ant-form-item-explain ant-form-item-explain-error" style={{padding: '5px'}}>
+                <div
+                  className="ant-form-item-explain ant-form-item-explain-error"
+                  style={{ padding: "5px" }}
+                >
                   <div role="alert">Vui lòng chọn nguồn đơn hàng</div>
                 </div>
               </div>
@@ -323,10 +328,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         </div>
       }
     >
-      <div className="form-group form-group-with-search form-search-customer">
-        <label htmlFor="" className="">
-          Tên khách hàng
-        </label>
+      <div className="padding-20">
+        <div className="padding-bottom-5">
+          <label htmlFor="">Tên khách hàng</label>
+        </div>
         <div>
           <AutoComplete
             notFoundContent={
@@ -343,6 +348,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           >
             <Input.Search
               placeholder="Tìm hoặc thêm khách hàng"
+              className="border-input"
               enterButton={
                 <Button type="text">
                   <img src={plusBlueIcon} alt="" />
@@ -358,7 +364,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           <Row
             align="middle"
             justify="space-between"
-            className="row-customer-detail"
+            className="row-customer-detail padding-custom"
           >
             <Row align="middle" className="customer-detail-name">
               <Space>
@@ -439,7 +445,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             </Space>
           </Row>
           <Divider />
-          <div className="customer-info">
+          <div className="customer-info padding-custom">
             {customer.shipping_addresses !== undefined && (
               <Row gutter={24}>
                 <Col
@@ -447,20 +453,20 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   lg={12}
                   className="font-weight-500 customer-info-left"
                 >
-                  <div>Địa chỉ giao hàng</div>
-                  <Row className="row-info customer-row-info">
+                  <div className="title-address">Địa chỉ giao hàng</div>
+                  <Row className="customer-row-info">
                     <img src={peopleIcon2} alt="" style={{ width: 19 }} />{" "}
                     <span style={{ marginLeft: 9 }}>
                       {shippingAddress?.name}
                     </span>
                   </Row>
-                  <Row className="row-info customer-row-info">
-                    <img src={callIcon} alt="" />{" "}
-                    <span>{shippingAddress?.phone}</span>
+                  <Row className="customer-row-info">
+                    <img src={callIcon} alt="" style={{ width: 19 }}/>{" "}
+                    <span style={{ marginLeft: 9 }}>{shippingAddress?.phone}</span>
                   </Row>
-                  <Row className="row-info customer-row-info">
-                    <img src={locationIcon} alt="" />{" "}
-                    <span>{shippingAddress?.full_address}</span>
+                  <Row className="customer-row-info">
+                    <img src={locationIcon} alt="" style={{ width: 19 }}/>{" "}
+                    <span style={{ marginLeft: 9 }}>{shippingAddress?.full_address}</span>
                   </Row>
                   <Row>
                     <Popover
@@ -514,7 +520,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       onVisibleChange={handleVisibleShippingAddressChange}
                       className="change-shipping-address"
                     >
-                      <Button type="link" className="p-0 m-0">
+                      <Button type="link" className="btn-style">
                         Thay đổi địa chỉ giao hàng
                       </Button>
                     </Popover>
@@ -555,21 +561,21 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     lg={12}
                     className="font-weight-500 customer-info-left"
                   >
-                    <div>Địa chỉ gửi hoá đơn</div>
-                    <Row className="row-info customer-row-info">
-                      <img src={peopleIcon2} alt="" style={{ width: 19 }} />{" "}
-                      <span style={{ marginLeft: 9 }}>
-                        {billingAddress?.name}
-                      </span>
-                    </Row>
-                    <Row className="row-info customer-row-info">
-                      <img src={callIcon} alt="" />{" "}
-                      <span>{billingAddress?.phone}</span>
-                    </Row>
-                    <Row className="row-info customer-row-info">
-                      <img src={locationIcon} alt="" />{" "}
-                      <span>{billingAddress?.full_address}</span>
-                    </Row>
+                    <div className="title-address">Địa chỉ giao hàng</div>
+                  <Row className="customer-row-info">
+                    <img src={peopleIcon2} alt="" style={{ width: 19 }} />{" "}
+                    <span style={{ marginLeft: 9 }}>
+                      {shippingAddress?.name}
+                    </span>
+                  </Row>
+                  <Row className="customer-row-info">
+                    <img src={callIcon} alt="" style={{ width: 19 }}/>{" "}
+                    <span style={{ marginLeft: 9 }}>{shippingAddress?.phone}</span>
+                  </Row>
+                  <Row className="customer-row-info">
+                    <img src={locationIcon} alt="" style={{ width: 19 }}/>{" "}
+                    <span style={{ marginLeft: 9 }}>{shippingAddress?.full_address}</span>
+                  </Row>
                     <Row>
                       <Popover
                         placement="bottomLeft"
@@ -622,7 +628,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         onVisibleChange={handleVisibleBillingAddressChange}
                         className="change-shipping-address"
                       >
-                        <Button type="link" className="p-0 m-0">
+                        <Button type="link" className="btn-style">
                           Thay đổi địa chỉ gửi hóa đơn
                         </Button>
                       </Popover>
