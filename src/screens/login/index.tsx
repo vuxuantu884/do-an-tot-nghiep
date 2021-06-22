@@ -38,7 +38,7 @@ const Login = () => {
             name="username"
             rules={[{ required: true, message: 'Tên đăng nhập không được bỏ trống'}, {pattern: /^[a-zA-Z0-9]{4,20}$/, message: "Tên đăng nhập sai định dạng"}]}
           >
-            <Input size="large" placeholder="Tên đăng nhập" />
+            <Input size="large" disabled={loading} placeholder="Tên đăng nhập" />
           </Form.Item>
 
           <Form.Item
@@ -47,7 +47,7 @@ const Login = () => {
             name="password"
             rules={[{ required: true, message: 'Mật khẩu không được bỏ trống' }, {min: 6, message: "Mật khẩu sai định dạng"}]}
           >
-            <Input.Password size="large" placeholder="Mật khẩu" />
+            <Input.Password disabled={loading} size="large" placeholder="Mật khẩu" />
           </Form.Item>
           <Form.Item>
             <Button loading={loading}  size="large" type="primary" htmlType="submit" className="login-form-button">

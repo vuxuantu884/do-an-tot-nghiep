@@ -1,6 +1,7 @@
 const UrlConfig = {
   HOME: "/",
   PRODUCT: "/products",
+  VARIANTS: "/products/variants",
   CATEGORIES: "/categories",  
   MATERIALS: "/materials",
   SIZES: "/sizes",

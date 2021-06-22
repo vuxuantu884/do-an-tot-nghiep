@@ -510,7 +510,13 @@
     }
 
     &-body{
-      padding: 10px 32px;
+      padding: 0;
+      .body-container {
+        &-form {
+          padding: 10px 32px;
+        }
+        
+      }
     }
 
     &-footer{

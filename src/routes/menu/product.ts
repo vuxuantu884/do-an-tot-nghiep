@@ -19,6 +19,9 @@ const AddCategory = React.lazy(() => import ("screens/category/category-add.scre
 const UpdateCategory = React.lazy(() => import ("screens/category/category-update.screen"))
 const SupplierCreateScreen = React.lazy(() => import ("screens/supllier/supplier-add.screen"));
 const ColorCreateScreen = React.lazy(() => import ("screens/color/color-create.screen"));
+const  VariantUpdateScreen = React.lazy(() => import ("screens/product/variant-update.screen"));
+const  ProductUpdateScreen = React.lazy(() => import ("screens/product/product-update.screen"));
+
 
 const product: Array<RouteMenu> = [
   {
@@ -43,6 +46,33 @@ const product: Array<RouteMenu> = [
         subMenu: [],
         type: 0,
         object: null,
+      },
+      {
+        path: `${UrlConfig.PRODUCT}/variants/:id`,
+        exact: true,
+        title: "Sửa biến thể",
+        icon: 'icon-dot',
+        component: VariantUpdateScreen,
+        key: "submenu221",
+        isShow: false,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+      {
+        path: `${UrlConfig.PRODUCT}/:id`,
+        exact: true,
+        title: "Sửa sản phẩm",
+        icon: 'icon-dot',
+        component: ProductUpdateScreen,
+        key: "submenu221",
+        isShow: false,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore: ['create']
       },
     ],
     type: HEADER_TYPE.BUTTON_CREATE,
