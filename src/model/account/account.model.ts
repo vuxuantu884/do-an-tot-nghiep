@@ -51,7 +51,7 @@ export interface AccountJobResponse {
 export interface AccountStoreResponse {
   id?:number,
   store_id?: number;
-  store_name?: string;
+  store?: string;
 }
 export interface AccountRolesResponse {
   id?:number,

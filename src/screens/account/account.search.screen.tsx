@@ -1,4 +1,4 @@
-import { Card } from "antd";
+import { Card, Tag } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -11,6 +11,8 @@ import { VariantResponse } from "model/product/product.model";
 import {
   AccountSearchQuery,
   AccountResponse,
+  AccountRolesResponse,
+  AccountStoreResponse,
 } from "model/account/account.model";
 import AccountFilter from "component/filter/account.filter";
 import {
@@ -60,7 +62,7 @@ const ListAccountScreen: React.FC = () => {
   const [data, setData] = useState<PageResponse<AccountResponse>>({
     metadata: {
       limit: 0,
-      page: 0,
+      page: 1,
       total: 0,
     },
     items: [],
@@ -87,13 +89,33 @@ const ListAccountScreen: React.FC = () => {
     },
     {
       title: "Cửa hàng",
-      dataIndex: "mobile",
+      dataIndex: 'account_stores',
+      render: (stores:Array<AccountStoreResponse>) => (
+        <span>
+          {stores.map(stores => {
+            return (
+              <Tag color='green'>
+                {stores.store}
+              </Tag>
+            );
+          })}
+        </span>
+      ),
     },
     {
       title: "Phân quyền",
-      render: (value: AccountResponse) => {
-        return <Link to="#">{value.code}</Link>;
-      },
+      dataIndex: 'account_roles',
+      render: (values:Array<AccountRolesResponse>) => (
+        <span>
+          {values.map(item => {
+            return (
+              <Tag color='blue'>
+                {item.role_name}
+              </Tag>
+            );
+          })}
+        </span>
+      ),
     },
     {
       title: "Ngày tạo",
@@ -129,7 +151,7 @@ const ListAccountScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 0 };
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.ACCOUNTS}?${queryParam}`);

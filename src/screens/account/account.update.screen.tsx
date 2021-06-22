@@ -179,15 +179,16 @@ const AccountUpdateScreen: React.FC = () => {
       let accRoles: Array<AccountRolesResponse> = [];
       let accJobs: Array<AccountJobResponse> = [];
       let listAccountSelected = [...listaccountJob];
+      debugger;
       values.account_stores.forEach((el: number) => {
-        var checkSote = listStoreRoot.current?.find((rr) => rr.store_id === el);
+        let checkSote = listStoreRoot.current?.find((rr) => rr.store_id === el);
         accStores.push({
           store_id: el,
           id: checkSote?.id,
         });
       });
       values.roles.forEach((el: number) => {
-        var checkRole = listRolesRoot.current?.find((rr) => rr.role_id === el);
+        let checkRole = listRolesRoot.current?.find((rr) => rr.role_id === el);
         accRoles.push({
           role_id: el,
           id: checkRole?.id,
@@ -224,6 +225,9 @@ const AccountUpdateScreen: React.FC = () => {
   const onCancel = useCallback(() => history.goBack(), [history]);
   const setAccount = useCallback((data: AccountResponse) => {
     let storeIds: Array<number> = [];
+    debugger;
+    listStoreRoot.current=data.account_stores;
+    listRolesRoot.current=data.account_roles;
     data.account_stores?.forEach((item) => {
       if (item.store_id) {
         storeIds.push(item.store_id);
