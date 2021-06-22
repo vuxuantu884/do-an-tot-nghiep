@@ -3,12 +3,10 @@ import {
   Button,
   Card,
   Divider,
-  Input,
   Row,
   Col,
   Radio,
   InputNumber,
-  Select,
 } from "antd";
 
 import {
@@ -20,7 +18,6 @@ import {
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 // @ts-ignore
-import arrowDownIcon from "assets/img/drow-down.svg";
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useLayoutEffect, useMemo, useState } from "react";

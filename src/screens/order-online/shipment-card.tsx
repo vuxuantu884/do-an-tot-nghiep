@@ -59,7 +59,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         }
       }
     },
-    [dispatch, props.storeId]
+    [dispatch, props]
   );
 
   const DatingShipOnChange = (value: Moment | null, dateString: string) => {
@@ -74,7 +74,6 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
 
   const ChangeShippingRequirement = () => {};
 
-  console.log("storeDetail", storeDetail);
   return (
     <Card
       className="margin-top-20"

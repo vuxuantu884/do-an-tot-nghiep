@@ -26,7 +26,6 @@ import {
 import { orderCreateAction } from "domain/actions/order/order.action";
 import { showSuccess } from "utils/ToastUtils";
 import { Email } from "utils/RegUtils";
-import { StoreResponse } from "model/core/store.model";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import "assets/css/v2/_sale-order.scss";
 //#endregion
@@ -46,16 +45,6 @@ const CreateBill = () => {
     useState<BillingAddress | null>(null);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [priceType, setPriceType] = useState<string>("retail_price");
-  const [discountRate, setDiscountRate] = useState<number>(0);
-  const [discountValue, setDiscountValue] = useState<number>(0);
-  const [amount, setAmount] = useState<number>(0);
-  const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [isVisibleCustomer, setVisibleCustomer] = useState(false);
-  const [isVisibleBilling, setVisibleBilling] = useState(true);
-  const [isVerify, setVerify] = useState(false);
-  const [selectedShipMethod, setSelectedShipMethod] = useState(1);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(1);
-  const [store, setStore] = useState<StoreResponse | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [assignCode, setAssignCode] = useState<string>("");
   const [reference, setReference] = useState<string>("");
@@ -67,42 +56,6 @@ const CreateBill = () => {
   const [isVisibleAssignCode, setVisibleAssignCode] = useState<boolean>(false);
   const [isVisibleSource, setVisibleSource] = useState<boolean>(false);
   const [isVisibleStore, setVisibleStore] = useState<boolean>(false);
-  //#endregion
-
-  //#region modal
-  //Address modal
-  const showAddressModal = () => {
-    setVisibleAddress(true);
-  };
-  const onCancleConfirmAddress = useCallback(() => {
-    setVisibleAddress(false);
-  }, []);
-  const onOkConfirmAddress = useCallback(() => {
-    setVisibleAddress(false);
-  }, []);
-
-  //Customer modal
-  const showCustomerModal = () => {
-    setVisibleCustomer(true);
-  };
-  const onCancleConfirmCustomer = useCallback(() => {
-    setVisibleCustomer(false);
-  }, []);
-  const onOkConfirmCustomer = useCallback(() => {
-    setVisibleCustomer(false);
-  }, []);
-
-  //Bill Addresss
-  const showBillingAddress = () => {
-    setVisibleBilling(!isVisibleBilling);
-  };
-  const changeShipMethod = (value: number) => {
-    setSelectedShipMethod(value);
-  };
-  const changePaymentMethod = (value: number) => {
-    setSelectedPaymentMethod(value);
-  };
-
   //#endregion
 
   const onStoreSelect = (storeId: number) => {
@@ -142,9 +95,6 @@ const CreateBill = () => {
     discount_value: number
   ) => {
     setItems(_items);
-    setDiscountRate(discount_rate);
-    setDiscountValue(discount_value);
-    setAmount(amount);
   };
 
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
