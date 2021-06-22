@@ -63,6 +63,12 @@ export const findCurrentRoute = (routes: Array<RouteMenu> = [], path: string = '
   return p1 === p2;
 }
 
+export const formatSuffixPoint = (point: number | string): string => {
+  let format = point.toString();
+  //return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")} điểm`;
+  return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")}`;
+}
+
 export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '') => {
   let result: Array<RouteMenu> = [];
   if (path === '' || path === '/') {

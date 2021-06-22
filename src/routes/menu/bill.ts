@@ -2,7 +2,7 @@ import { HEADER_TYPE } from "config/HeaderConfig";
 import { RouteMenu } from "model/other";
 import React from "react";
 
-const CreateBill = React.lazy(() => import ("screens/order-online/order-online.screen"))
+const CreateBill = React.lazy(() => import ("screens/order-online/order.screen"))
 const ListOrder = React.lazy(() => import ("screens/order-online/index.screen"))
 
 const bill: Array<RouteMenu> = [

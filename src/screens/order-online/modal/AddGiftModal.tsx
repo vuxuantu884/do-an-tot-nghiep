@@ -33,7 +33,7 @@ type AddGiftModalProps = {
 
 const initQuery: VariantSearchQuery  = {
   limit: 10,
-  page: 0,
+  page: 1,
 };
 
 export interface AddGiftRef {

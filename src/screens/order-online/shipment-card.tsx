@@ -31,21 +31,36 @@ import { formatCurrency } from "../../utils/AppUtils";
 import ghtkIcon from "../../assets/img/ghtk.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Moment } from "moment";
+import { useCallback, useState } from "react";
+import { StoreDetailAction } from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
 
 type ShipmentCardProps = {
   shipmentMethod: number;
   setSelectedShipmentType: (paymentType: number) => void;
+  storeId: number | null;
   //setDatingShip: (item: Moment | null,dateString: string) => void;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
   props: ShipmentCardProps
 ) => {
-  const ShipMethodOnChange = (value: number) => {
-    props.setSelectedShipmentType(value);
-  };
+  const dispatch = useDispatch();
+  const [storeDetail, setStoreDetail] = useState<StoreResponse>();
+
+  const ShipMethodOnChange = useCallback(
+    (value: number) => {
+      props.setSelectedShipmentType(value);
+      if (value === 3) {
+        if (props.storeId != null) {
+          dispatch(StoreDetailAction(props.storeId, setStoreDetail));
+        }
+      }
+    },
+    [dispatch, props.storeId]
+  );
 
   const DatingShipOnChange = (value: Moment | null, dateString: string) => {
     console.log("datetime", value);
@@ -59,6 +74,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
 
   const ChangeShippingRequirement = () => {};
 
+  console.log("storeDetail", storeDetail);
   return (
     <Card
       className="margin-top-20"
@@ -155,8 +171,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                   Phí ship báo khách
                 </label>
                 <InputNumber
-                  placeholder=""
-                  className="text-right hide-handler-wrap w-100"
+                  style={{ width: "100%" }}
+                  placeholder="Phí ship báo khách"
                 />
               </div>
             </Col>
@@ -247,8 +263,11 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 </label>
                 <div>
                   <InputNumber
-                    placeholder="Nhập số tiền"
-                    className="text-right hide-handler-wrap w-100"
+                    style={{ width: "100%" }}
+                    min={0}
+                    max={12}
+                    placeholder="Phí ship báo khách"
+                    defaultValue={20000}
                   />
                 </div>
               </div>
@@ -261,8 +280,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 </label>
                 <div>
                   <InputNumber
-                    placeholder="Nhập số tiền"
-                    className="text-right hide-handler-wrap w-100"
+                    style={{ width: "100%" }}
+                    min={0}
+                    max={12}
+                    placeholder="Phí ship trả đối tác giao hàng"
                   />
                 </div>
               </div>
@@ -279,7 +300,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 </div>
                 <div className="row-info-title">Cửa hàng</div>
                 <div className="row-info-content">
-                  <Typography.Link>YODY Kho Online</Typography.Link>
+                  <Typography.Link>{storeDetail?.name}</Typography.Link>
                 </div>
               </Space>
             </Row>
@@ -289,7 +310,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                   <img src={callIcon} alt="" />
                 </div>
                 <div className="row-info-title">Điện thoại</div>
-                <div className="row-info-content">0968563666</div>
+                <div className="row-info-content">{storeDetail?.hotline}</div>
               </Space>
             </Row>
             <Row className="row-info">
@@ -299,8 +320,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 </div>
                 <div className="row-info-title">Địa chỉ</div>
                 <div className="row-info-content">
-                  Khu Tiểu Thủ CN Gia Xuyên - Phố ĐInh Lễ - Xã Gia Xuyên - TP
-                  Hải Dương
+                {storeDetail?.full_address}
                 </div>
               </Space>
             </Row>

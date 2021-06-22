@@ -5,7 +5,7 @@ import ProductCard from "./product-card";
 import CustomerCard from "./customer-card";
 import PaymentCard from "./payment-card";
 import ShipmentCard from "./shipment-card";
-import { useState, useCallback, useLayoutEffect } from "react";
+import { useState, useCallback, useLayoutEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { OrderRequest } from "model/request/order.request";
 import { OrderLineItemRequest } from "model/request/order-line-item.request";
@@ -28,7 +28,7 @@ import { showSuccess } from "utils/ToastUtils";
 import { Email } from "utils/RegUtils";
 import { StoreResponse } from "model/core/store.model";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import 'assets/css/v2/_sale-order.scss'
+import "assets/css/v2/_sale-order.scss";
 //#endregion
 
 const CreateBill = () => {
@@ -48,7 +48,6 @@ const CreateBill = () => {
   const [priceType, setPriceType] = useState<string>("retail_price");
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
-  const [amount, setAmount] = useState<number>(0);
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
@@ -144,8 +143,9 @@ const CreateBill = () => {
     setItems(_items);
     setDiscountRate(discount_rate);
     setDiscountValue(discount_value);
-    setAmount(amount);
   };
+
+  const total = useMemo(() => {return 0;}, []);
 
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setObjCustomer(_objCustomer);
@@ -373,6 +373,7 @@ const CreateBill = () => {
             <ShipmentCard
               setSelectedShipmentType={onShipmentSelect}
               shipmentMethod={shipmentType}
+              storeId = {storeId}
             />
             {/*--- end shipment ---*/}
 
@@ -380,6 +381,7 @@ const CreateBill = () => {
             <PaymentCard
               setSelectedPaymentMethod={onPaymentSelect}
               paymentMethod={paymentType}
+              amount={total}
             />
             {/*--- end payment ---*/}
           </Col>
@@ -513,7 +515,11 @@ const CreateBill = () => {
         </Row>
 
         <Row className="margin-top-10" justify="end">
-          <Button type="default" className="btn-style btn-cancel" style={{marginRight: '10px'}}>
+          <Button
+            type="default"
+            className="btn-style btn-cancel"
+            style={{ marginRight: "10px" }}
+          >
             Hủy
           </Button>
           <Button

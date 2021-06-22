@@ -1,12 +1,11 @@
 //#region Import
-import { Button, Card, Input, Row, Col, Tooltip, Select, Form } from "antd";
+import { Button, Card, Input, Row, Col, Select, Form } from "antd";
 import documentIcon from "../../assets/img/document.svg";
-import warningCircleIcon from "assets/img/warning-circle.svg";
 import ProductCard from "./product-card";
 import CustomerCard from "./customer-card";
 import PaymentCard from "./payment-card";
 import ShipmentCard from "./shipment-card";
-import { useState, useCallback, useLayoutEffect } from "react";
+import { useState, useCallback, useLayoutEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { OrderRequest } from "model/request/order.request";
 import { OrderLineItemRequest } from "model/request/order-line-item.request";
@@ -29,7 +28,7 @@ import { showSuccess } from "utils/ToastUtils";
 import { Email } from "utils/RegUtils";
 import { StoreResponse } from "model/core/store.model";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import 'assets/css/v2/_sale-order.scss'
+import "assets/css/v2/_sale-order.scss";
 //#endregion
 
 const CreateBill = () => {
@@ -335,6 +334,10 @@ const CreateBill = () => {
     return request;
   };
 
+  const total = useMemo(() => {
+    return 0;
+  }, []);
+
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
     setAccounts(data.items);
   }, []);
@@ -374,6 +377,7 @@ const CreateBill = () => {
             <ShipmentCard
               setSelectedShipmentType={onShipmentSelect}
               shipmentMethod={shipmentType}
+              storeId = {storeId}
             />
             {/*--- end shipment ---*/}
 
@@ -381,6 +385,7 @@ const CreateBill = () => {
             <PaymentCard
               setSelectedPaymentMethod={onPaymentSelect}
               paymentMethod={paymentType}
+              amount={total}
             />
             {/*--- end payment ---*/}
           </Col>
@@ -514,7 +519,11 @@ const CreateBill = () => {
         </Row>
 
         <Row className="margin-top-10" justify="end">
-          <Button type="default" className="btn-style btn-cancel" style={{marginRight: '10px'}}>
+          <Button
+            type="default"
+            className="btn-style btn-cancel"
+            style={{ marginRight: "10px" }}
+          >
             Hủy
           </Button>
           <Button
