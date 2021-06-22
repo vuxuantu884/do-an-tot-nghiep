@@ -200,6 +200,7 @@ const ListProductScreen: React.FC = () => {
           listCountries={listCountry}
         />
         <CustomTable
+          scroll={{ x: 1080 }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
