@@ -1,133 +1,169 @@
-import { colorCreateApi, colorDeleteManyApi, colorDeleteOneApi, colorDetailApi, colorSearchApi } from 'service/product/color.service';
-import { call, takeLatest, takeEvery } from '@redux-saga/core/effects';
-import { YodyAction } from 'base/BaseAction';
-import BaseResponse from 'base/BaseResponse';
-import { HttpStatus } from 'config/HttpStatus';
-import { showError } from 'utils/ToastUtils';
-import { PageResponse } from 'model/base/base-metadata.response';
-import { ColorResponse } from 'model/product/color.model';
-import { ColorType } from 'domain/types/product.type';
+import {
+  colorCreateApi,
+  colorDeleteManyApi,
+  colorDeleteOneApi,
+  colorDetailApi,
+  colorSearchApi,
+} from "service/product/color.service";
+import { call, takeLatest, takeEvery } from "@redux-saga/core/effects";
+import { YodyAction } from "base/BaseAction";
+import BaseResponse from "base/BaseResponse";
+import { HttpStatus } from "config/HttpStatus";
+import { showError } from "utils/ToastUtils";
+import { PageResponse } from "model/base/base-metadata.response";
+import { ColorResponse } from "model/product/color.model";
+import { ColorType } from "domain/types/product.type";
+import { put } from "redux-saga/effects";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
 
 function* searchColorSaga(action: YodyAction) {
-  const {query,setData} = action.payload;
+  const { query, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(colorSearchApi, query);
-    switch(response.code) {
+    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(
+      colorSearchApi,
+      query
+    );
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
         break;
       default:
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* getListColorSaga(action: YodyAction) {
-  const {query,setData} = action.payload;
+  const { query, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(colorSearchApi, query);
-    switch(response.code) {
+    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(
+      colorSearchApi,
+      query
+    );
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
         break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
-        console.log('getListColorSaga:'+response.errors)
+        console.log("getListColorSaga:" + response.errors);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    console.log('getListColorSaga:'+error)
-    showError('Có lỗi vui lòng thử lại sau');
+    console.log("getListColorSaga:" + error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* getColorSaga(action: YodyAction) {
-  const {query, setData} = action.payload;
+  const { query, setData } = action.payload;
   try {
-   
-    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(colorSearchApi,query);
-    switch(response.code) {
+    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(
+      colorSearchApi,
+      query
+    );
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
         break;
       default:
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* deleteColorSaga(action: YodyAction) {
-  const {id, onDeleteSuccess} = action.payload;
+  const { id, onDeleteSuccess } = action.payload;
   try {
     let response: BaseResponse<string> = yield call(colorDeleteOneApi, id);
-    switch(response.code) {
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         onDeleteSuccess();
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
         break;
       default:
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* deleteManyColorSaga(action: YodyAction) {
-  const {ids, onDeleteSuccess} = action.payload;
+  const { ids, onDeleteSuccess } = action.payload;
   try {
     let response: BaseResponse<string> = yield call(colorDeleteManyApi, ids);
-    switch(response.code) {
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         onDeleteSuccess();
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
         break;
       default:
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 export function* colorCreateSaga(action: YodyAction) {
-  const {request, onCreateSuccess} = action.payload;
+  const { request, onCreateSuccess } = action.payload;
   try {
     let response: BaseResponse<string> = yield call(colorCreateApi, request);
-    switch(response.code) {
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess();
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
         break;
       default:
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 export function* colorDetailRequest(action: YodyAction) {
-  const {id, setData} = action.payload;
+  const { id, setData } = action.payload;
   try {
     let response: BaseResponse<ColorResponse> = yield call(colorDetailApi, id);
-    switch(response.code) {
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
         break;
       default:
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

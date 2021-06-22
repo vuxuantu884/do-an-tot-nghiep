@@ -9,6 +9,14 @@ export const loginSuccessAction = () => {
   return BaseAction(AuthType.LOGIN_RESPONSE, null);
 }
 
+export const unauthorizedAction = () => {
+  return BaseAction(AuthType.UNAUTHORIZED_REQUEST, null);
+}
+
+export const unauthorizedSuccessAction = () => {
+  return BaseAction(AuthType.UNAUTHORIZED_SUCCESS, null);
+}
+
 export const logoutAction = () => {
   return BaseAction(AuthType.LOGOUT_REQUEST, null);
 }

@@ -6,6 +6,7 @@ const intitalState = {
   isLogin: false,
   isLoad: false,
   account: null,
+  isError: false,
 };
 
 const userReducer = (state = intitalState, action: YodyAction) => {
@@ -14,11 +15,12 @@ const userReducer = (state = intitalState, action: YodyAction) => {
     case AppType.LOAD_USER_FROM_STORAGE_SUCCESS:
       return {...state, isLogin: true, isLoad: true, account: payload.account};
     case AppType.LOAD_USER_FROM_STORAGE_FAIL:
-      return {...state, isLogin: false, isLoad: true};
+      return {...state, isError: true, isLoad: true};
     case AuthType.LOGIN_RESPONSE:
       return {...state, isLogin: true, isLoad: false};
+    case AuthType.UNAUTHORIZED_SUCCESS:
     case AuthType.LOGOUT_SUCCESS:
-      return {...state, isLogin: false};
+      return {...state, isLogin: false, account: null};
     default:
       return state;
   }
