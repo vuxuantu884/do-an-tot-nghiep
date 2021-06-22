@@ -3,7 +3,7 @@ if [[ -z $1 ]]; then
     echo "Please provide module in the first argument"
     exit 1
 fi
-MODULE_DIR="deployment/k8s/$1"
+MODULE_DIR="deployment/k8s/$ENVIRONMENT/$1"
 
 if [[ -z $IMAGE_TAG ]]; then
   echo "IMAGE_TAG is empty"
