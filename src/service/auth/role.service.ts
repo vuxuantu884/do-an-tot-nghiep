@@ -6,6 +6,6 @@ import { generateQuery } from "utils/AppUtils";
 
 export const RoleGetListService = (query:RoleSearchQuery): Promise<BaseResponse<Array<RoleResponse>>> => {
   let params = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.AUTH}/auth/roles?${params}`);
+  return BaseAxios.get(`${ApiConfig.AUTH}/roles?${params}`);
 }
 

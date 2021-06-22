@@ -2,7 +2,7 @@ import { isUndefinedOrNull } from 'utils/AppUtils';
 import { takeLatest, call, put } from "@redux-saga/core/effects";
 import { AppType } from "domain/types/app.type";
 import { getSettingApp, getToken } from "utils/LocalStorageUtils";
-import { loadUserFromStorageSuccessAction, loadSettingAppResultAction} from 'domain/actions/app.action';
+import { loadUserFromStorageSuccessAction, loadSettingAppResultAction, loadUserFromStorageFailAction} from 'domain/actions/app.action';
 import { getAcccountDetail } from 'service/accounts/account.service';
 import BaseResponse from 'base/BaseResponse';
 import { AccountResponse } from 'model/account/account.model';
@@ -13,6 +13,7 @@ import { unauthorizedAction } from 'domain/actions/auth/auth.action';
 function* loadUserFromStorageSaga() {
   let token: string = yield call(getToken);
   //TODO: Handle token here
+  console.log(token);
   if(!isUndefinedOrNull(token)) {
     try {
       let response: BaseResponse<AccountResponse> = yield call(getAcccountDetail); 
@@ -21,16 +22,20 @@ function* loadUserFromStorageSaga() {
           yield put(loadUserFromStorageSuccessAction(response.data));
           break;
         case HttpStatus.UNAUTHORIZED:
+          yield put(loadUserFromStorageFailAction())
           yield put(unauthorizedAction());
           break;
         default:
+          yield put(loadUserFromStorageFailAction())
           yield put(unauthorizedAction());
           break;
       }
     } catch (error) {
+      yield put(loadUserFromStorageFailAction())
       yield put(unauthorizedAction());
     }
   } else {
+    yield put(loadUserFromStorageFailAction())
     yield put(unauthorizedAction());
   }
 }

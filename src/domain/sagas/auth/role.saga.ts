@@ -12,7 +12,6 @@ import { put } from "redux-saga/effects";
 function* RoleGetListSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
-    debugger;
     let response: BaseResponse<PageResponse<RoleResponse>> = yield call(
       RoleGetListService,
       query

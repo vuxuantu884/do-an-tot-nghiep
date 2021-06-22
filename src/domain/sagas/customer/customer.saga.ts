@@ -2,7 +2,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import BaseResponse from "base/BaseResponse";
 import { YodyAction } from "base/BaseAction";
-import { call, takeLatest, put } from "redux-saga/effects";
+import { call, put, takeLatest} from "redux-saga/effects";
 import { HttpStatus } from "config/HttpStatus";
 import { getCustomers } from "service/cusomer/customer.service";
 import { CustomerType } from "domain/types/customer.type";

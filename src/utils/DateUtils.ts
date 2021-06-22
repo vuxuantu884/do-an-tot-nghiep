@@ -4,7 +4,7 @@ export const DATE_FORMAT = {
   DDMMYYY:"DD/MM/YYYY"
 }
 
-export const convertUtcToLocalDate = (date?: Date | string | number,format?:string) => {
+export const ConvertUtcToLocalDate = (date?: Date | string | number,format?:string) => {
   if(date!==undefined){
     let localDate = moment.utc(date).toDate();
     let dateFormat=moment(localDate).format(format?format:"DD/MM/YYYY HH:mm:ss");
@@ -13,6 +13,6 @@ export const convertUtcToLocalDate = (date?: Date | string | number,format?:stri
   return '';  
 }
 
-export const convertDateToUtc = (date: Date | string | number) => {
+export const ConvertDateToUtc = (date: Date | string | number) => {
   return moment(date).utc().format()
 }

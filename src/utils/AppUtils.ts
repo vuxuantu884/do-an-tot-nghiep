@@ -1,12 +1,8 @@
-import {
-  VariantPriceViewRequest,
-  VariantUpdateView,
-} from "./../model/product/product.model";
-import { convertDateToUtc } from "./DateUtils";
-import { AccountStoreResponse } from "model/account/account.model";
-import { DistrictResponse } from "model/content/district.model";
-import { CityView } from "model/content/district.model";
-import { AppConfig } from "config/AppConfig";
+import { ConvertDateToUtc } from './DateUtils';
+import { AccountStoreResponse } from 'model/account/account.model';
+import { DistrictResponse } from 'model/content/district.model';
+import { CityView } from 'model/content/district.model';
+import { AppConfig } from 'config/AppConfig';
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import moment from "moment";
@@ -18,9 +14,11 @@ import {
   VariantImagesResponse,
   VariantPriceRequest,
   VariantPricesResponse,
+  VariantPriceViewRequest,
   VariantRequest,
   VariantRequestView,
   VariantResponse,
+  VariantUpdateView,
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
 
@@ -199,7 +197,7 @@ export const generateQuery = (obj: any) => {
             value = obj[key].join(",");
           }
           if (obj[key] instanceof Date) {
-            value = convertDateToUtc(obj[key]);
+            value = ConvertDateToUtc(obj[key]);
           }
           if (moment.isMoment(obj[key])) {
             value = obj[key].utc().format();
