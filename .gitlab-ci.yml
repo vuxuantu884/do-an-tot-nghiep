@@ -26,9 +26,21 @@ docker build:
   only:
     refs:
       - develop
-      - uat
   variables:
     DOCKER_FILE: Dockerfile
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - bash deployment/dockerbuild.sh
+
+docker build uat:
+  stage: docker_build
+  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  only:
+    refs:
+      - uat
+  variables:
+    DOCKER_FILE: Dockerfile-uat
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
