@@ -46,3 +46,7 @@ export const productCreateAction = (
     onCreateSuccess,
   });
 };
+
+export const variantDetailAction = (id: number, setData: (data: VariantResponse) => void) => {
+  return BaseAction(ProductType.VARIANT_DETAIL_REQUEST, {id, setData});
+}

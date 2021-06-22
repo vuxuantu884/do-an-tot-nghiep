@@ -130,7 +130,7 @@ const ListAccountScreen: React.FC = () => {
       render: (value: string, row: VariantResponse) => (
         <div
           className={
-            row.status === "active" ? "status-active" : "status-not-active"
+            row.status === "active" ? "text-success" : "text-error"
           }
         >
           {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
@@ -185,7 +185,7 @@ const ListAccountScreen: React.FC = () => {
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
-            current: data.metadata.page + 1,
+            current: data.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
