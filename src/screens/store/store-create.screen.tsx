@@ -8,40 +8,51 @@ import {
   Input,
   Row,
   Select,
-} from 'antd';
+  Space,
+} from "antd";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
-} from 'domain/actions/content/content.action';
-import {StoreCreateAction} from 'domain/actions/core/store.action';
-import {StoreCreateRequest} from 'model/core/store.model';
-import {CityView} from 'model/content/district.model';
-import {CountryResponse} from 'model/content/country.model';
-import {DistrictResponse} from 'model/content/district.model';
-import moment from 'moment';
-import {createRef, useCallback, useEffect, useState} from 'react';
-import {useDispatch} from 'react-redux';
-import {useHistory} from 'react-router';
-import {convertDistrict} from 'utils/AppUtils';
+  GroupGetAction,
+  WardGetByDistrictAction,
+} from "domain/actions/content/content.action";
+import {
+  StoreCreateAction,
+  StoreRankAction,
+} from "domain/actions/core/store.action";
+import { StoreCreateRequest } from "model/core/store.model";
+import { CityView } from "model/content/district.model";
+import { CountryResponse } from "model/content/country.model";
+import { DistrictResponse } from "model/content/district.model";
+import { createRef, useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
+import { convertDistrict } from "utils/AppUtils";
+import { StoreRankResponse } from "model/core/store-rank.model";
+import { WardResponse } from "model/content/ward.model";
+import { GroupResponse } from "model/content/group.model";
+import CustomDatepicker from "component/custom/date-picker.custom";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import UrlConfig from "config/UrlConfig";
 
-const {Item} = Form;
-const {Panel} = Collapse;
-const {OptGroup, Option} = Select;
+const { Item } = Form;
+const { Panel } = Collapse;
+const { OptGroup, Option } = Select;
 const DefaultCountry = 233;
 const initRequest: StoreCreateRequest = {
-  name: '',
-  hotline: '',
+  name: "",
+  hotline: "",
   country_id: DefaultCountry,
   city_id: null,
   district_id: null,
-  ward_id: null,
-  address: '',
+  ward_id: "",
+  address: "",
   zip_code: null,
   email: null,
   square: null,
-  rank: null,
-  status: '',
-  begin_date: moment(),
+  rank: "",
+  status: "active",
+  begin_date: null,
   latitude: null,
   longtitude: null,
   group_id: null,
@@ -55,7 +66,14 @@ const StoreCreateScreen: React.FC = () => {
   //State
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
+  const [wards, setWards] = useState<Array<WardResponse>>([]);
+  const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
+  const [groups, setGroups] = useState<Array<GroupResponse>>([]);
+  const storeStatusList = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.store_status
+  );
   const formRef = createRef<FormInstance>();
+  const firstload = useRef(true);
   //EndState
   const setDataDistrict = useCallback((data: Array<DistrictResponse>) => {
     let cityViews: Array<CityView> = convertDistrict(data);
@@ -76,11 +94,15 @@ const StoreCreateScreen: React.FC = () => {
           city_id: cityId,
         });
       }
+      dispatch(WardGetByDistrictAction(value, setWards));
     },
-    [cityViews, formRef]
+    [cityViews, dispatch, formRef]
   );
   const onCreateSuccess = useCallback(() => {
-    history.push('/suppliers');
+    history.push(UrlConfig.STORE);
+  }, [history]);
+  const onCancel = useCallback(() => {
+    history.goBack();
   }, [history]);
   const onFinish = useCallback(
     (values: StoreCreateRequest) => {
@@ -89,8 +111,13 @@ const StoreCreateScreen: React.FC = () => {
     [dispatch, onCreateSuccess]
   );
   useEffect(() => {
-    dispatch(CountryGetAllAction(setCountries));
-    dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
+    if (firstload.current) {
+      dispatch(CountryGetAllAction(setCountries));
+      dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
+      dispatch(StoreRankAction(setStoreRank));
+      dispatch(GroupGetAction(setGroups));
+    }
+    firstload.current = true;
   }, [dispatch, setDataDistrict]);
   return (
     <Form
@@ -102,328 +129,199 @@ const StoreCreateScreen: React.FC = () => {
       <Card
         className="card-block card-block-normal"
         title="Thông tin cơ bản"
-        extra={<div className="v-extra d-flex align-items-center"></div>}
+        extra={
+          <div className="v-extra d-flex align-items-center">
+            <Space key="a" size={15}>
+            <label className="text-default">Trạng thái</label>
+              <Item name="status" noStyle>
+                <Select style={{width: 180}}>
+                  {storeStatusList?.map((item) => <Option key={item.value} value={item.value}>{item.name}</Option>)}
+                </Select>
+              </Item>
+            </Space>
+          </div>
+        }
       >
-        <Row gutter={50}>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              rules={[{required: true, message: 'Vui lòng nhập tên cửa hàng'}]}
-              className="form-group form-group-with-search"
-              label="Tên cửa hàng"
-              name="name"
-            >
-              <Input
-                className="r-5"
-                placeholder="Nhập tên cửa hàng"
-                size="large"
-              />
-            </Item>
-          </Col>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              rules={[{required: true, message: 'Vui lòng nhập số điện thoại'}]}
-              className="form-group form-group-with-search"
-              name="hotline"
-              label="Số điện thoại"
-            >
-              <Input
-                className="r-5"
-                placeholder="Nhập số điện thoại"
-                size="large"
-              />
-            </Item>
-          </Col>
-        </Row>
-        <Row gutter={50}>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              rules={[{required: true}]}
-              className="form-group form-group-with-search"
-              label="Quốc gia"
-              name="country_id"
-            >
-              <Select
-                disabled
-                className="selector"
-                placeholder="Chọn ngành hàng"
+        <div className="padding-20">
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[
+                  { required: true, message: "Vui lòng nhập tên cửa hàng" },
+                ]}
+                label="Tên cửa hàng"
+                name="name"
               >
-                {countries?.map((item) => (
-                  <Option key={item.id} value={item.id}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
-            </Item>
-          </Col>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              rules={[{required: true, message: 'Vui lòng chọn khu vực'}]}
-              className="form-group form-group-with-search"
-              label="Khu vực"
-              name="district_id"
-            >
-              <Select
-                showSearch
-                onSelect={onSelectDistrict}
-                className="selector"
-                placeholder="Chọn khu vực"
+                <Input placeholder="Nhập tên cửa hàng" />
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[
+                  { required: true, message: "Vui lòng nhập số điện thoại" },
+                ]}
+                name="hotline"
+                label="Số điện thoại"
               >
-                {cityViews?.map((item) => (
-                  <OptGroup key={item.city_id} label={item.city_name}>
-                    {item.districts.map((item1) => (
-                      <Option key={item1.id} value={item1.id}>
-                        {item1.name}
-                      </Option>
-                    ))}
-                  </OptGroup>
-                ))}
-              </Select>
-            </Item>
-            <Item
-              hidden
-              className="form-group form-group-with-search"
-              name="city_id"
-            >
-              <Input />
-            </Item>
-          </Col>
-        </Row>
-        <Row gutter={50}>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              className="form-group form-group-with-search"
-              rules={[{required: true, message: 'Vui lòng chọn ngành hàng'}]}
-              name="goods"
-              label="Ngành hàng"
-            >
-              <Select
-                mode="multiple"
-                className="selector"
-                placeholder="Chọn ngành hàng"
-              ></Select>
-            </Item>
-          </Col>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              rules={[
-                {required: true, message: 'Vui lòng chọ nhân viên phụ trách'},
-              ]}
-              className="form-group form-group-with-search"
-              name="person_in_charge"
-              label="Nhân viên phụ trách"
-            >
-              <Select
-                placeholder="Chọn nhân viên phụ trách"
-                className="selector"
-              ></Select>
-            </Item>
-          </Col>
-        </Row>
-        <Row className="title-rule">
-          <div className="title">Thông tin khác</div>
-          <div className="rule" />
-        </Row>
-        <Row gutter={50}>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              className="form-group form-group-with-search"
-              label="Quốc gia"
-              name="country_id"
-            >
-              <Select
-                disabled
-                className="selector"
-                placeholder="Chọn ngành hàng"
+                <Input placeholder="Nhập số điện thoại" />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[{ required: true }]}
+                 label="Quốc gia"
+                name="country_id"
               >
-                {countries?.map((item) => (
-                  <Option key={item.id} value={item.id}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
-            </Item>
-          </Col>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              rules={[{required: true, message: 'Vui lòng nhập người liên hệ'}]}
-              className="form-group form-group-with-search"
-              name="contact_name"
-              label="Người liên hệ"
-            >
-              <Input
-                className="r-5"
-                placeholder="Nhập người liên hệ"
-                size="large"
-              />
-            </Item>
-          </Col>
-        </Row>
-        <Row gutter={50}>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              className="form-group form-group-with-search"
-              label="Khu vực"
-              name="district_id"
-            >
-              <Select
-                showSearch
-                onSelect={onSelectDistrict}
-                className="selector"
-                placeholder="Chọn khu vực"
+                <Select disabled placeholder="Chọn quốc gia">
+                  {countries?.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[{ required: true, message: "Vui lòng chọn khu vực" }]}
+                label="Khu vực"
+                name="district_id"
               >
-                {cityViews?.map((item) => (
-                  <OptGroup key={item.city_id} label={item.city_name}>
-                    {item.districts.map((item1) => (
-                      <Option key={item1.id} value={item1.id}>
-                        {item1.name}
-                      </Option>
-                    ))}
-                  </OptGroup>
-                ))}
-              </Select>
-            </Item>
-            <Item
-              hidden
-              className="form-group form-group-with-search"
-              name="city_id"
-            >
-              <Input />
-            </Item>
-          </Col>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              rules={[{required: true, message: 'Vui lòng nhập số điện thoại'}]}
-              className="form-group form-group-with-search"
-              name="phone"
-              label="Số điện thoại"
-            >
-              <Input
-                className="r-5"
-                placeholder="Nhập số điện thoại"
-                size="large"
-              />
-            </Item>
-          </Col>
-        </Row>
-        <Row gutter={50}>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              className="form-group form-group-with-search"
-              label="Địa chỉ"
-              name="address"
-            >
-              <Input className="r-5" placeholder="Nhập địa chỉ" size="large" />
-            </Item>
-          </Col>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              className="form-group form-group-with-search"
-              name="email"
-              label="Nhập email"
-            >
-              <Input className="r-5" placeholder="Nhập email" size="large" />
-            </Item>
-          </Col>
-        </Row>
-        <Row gutter={50}>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              className="form-group form-group-with-search"
-              label="Website"
-              name="website"
-            >
-              <Input className="r-5" placeholder="Nhập website" size="large" />
-            </Item>
-          </Col>
-          <Col span={24} lg={8} md={12} sm={24}>
-            <Item
-              className="form-group form-group-with-search"
-              name="tax_code"
-              label="Mã số thuế"
-            >
-              <Input
-                className="r-5"
-                placeholder="Nhập mã số thuế"
-                size="large"
-              />
-            </Item>
-          </Col>
-        </Row>
+                <Select
+                  showSearch
+                  onSelect={onSelectDistrict}
+                  placeholder="Chọn khu vực"
+                >
+                  {cityViews?.map((item) => (
+                    <OptGroup key={item.city_id} label={item.city_name}>
+                      {item.districts.map((item1) => (
+                        <Option key={item1.id} value={item1.id}>
+                          {item1.name}
+                        </Option>
+                      ))}
+                    </OptGroup>
+                  ))}
+                </Select>
+              </Item>
+              <Item hidden name="city_id">
+                <Input />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                label="Phường/xã"
+                name="ward_id"
+                rules={[{ required: true, message: "Vui lòng chọn phường/xã" }]}
+              >
+                <Select>
+                  <Option value="">Chọn phường xã</Option>
+                  {wards.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                label="Địa chỉ"
+                name="address"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập địa chỉ",
+                  },
+                ]}
+              >
+                <Input placeholder="Nhập địa chỉ" size="large" />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item label="Mã bưu điện" name="zip_code">
+                <Input placeholder="Nhập mã bưu điện" />
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item name="mail" label="Email">
+                <Input placeholder="Nhập địa chỉ email" />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item label="Diện tích cửa hàng" name="square">
+                <Input placeholder="Nhập diện tích cửa hàng" />
+              </Item>
+            </Col>
+            <Col span={24} lg={8} md={12} sm={24}>
+              <Item
+                rules={[
+                  { required: true, message: "Vui lòng chọn trực thuộc" },
+                ]}
+                label="Trực thuộc"
+                name="group_id"
+              >
+                <Select placeholder="Chọn trực thuộc">
+                  {groups.map((i, index) => (
+                    <Option key={i.id} value={i.id}>
+                      {i.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+            </Col>
+          </Row>
+        </div>
       </Card>
       <Collapse
         defaultActiveKey="1"
         className="ant-collapse-card margin-top-20"
         expandIconPosition="right"
       >
-        <Panel key="1" header="Thông tin thanh toán">
+        <Panel key="1" header="Thông tin khác">
           <div className="padding-20">
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  className="form-group form-group-with-search"
-                  label="Ngân hàng"
-                  name="bank_name"
-                >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập ngân hàng"
-                    size="large"
-                  />
+                <Item label="Phân cấp" name="rank">
+                  <Select>
+                    <Option value={""}>Chọn phân cấp</Option>
+                    {storeRanks.map((i, index) => (
+                      <Option key={i.id} value={i.id}>
+                        {i.code}
+                      </Option>
+                    ))}
+                  </Select>
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  className="form-group form-group-with-search"
-                  name="bank_brand"
-                  label="Chi nhánh"
-                >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập chi nhánh"
-                    size="large"
+                <Item label="Ngày mở cửa" name="begin_date">
+                  <CustomDatepicker
+                    style={{ width: "100%" }}
+                    placeholder="Chọn ngày mở cửa"
                   />
                 </Item>
               </Col>
             </Row>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  className="form-group form-group-with-search"
-                  label="Số tài khoản"
-                  name="bank_number"
-                >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập số tài khoản"
-                    size="large"
-                  />
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  className="form-group form-group-with-search"
-                  name="beneficiary_name"
-                  label="Chủ tài khoản"
-                >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập chủ tài khoản"
-                    size="large"
-                  />
-                </Item>
-              </Col>
-            </Row>  
           </div>
         </Panel>
       </Collapse>
-      <Row className="footer-row-btn" justify="end">
-        <Button type="default" className="btn-style btn-cancel">
-          Hủy
-        </Button>
-        <Button htmlType="submit" type="default" className="btn-style btn-save">
-          Lưu
-        </Button>
-      </Row>
+      <div className="margin-top-20" style={{ textAlign: "right" }}>
+        <Space size={12}>
+          <Button type="default" onClick={onCancel}>
+            Hủy
+          </Button>
+          <Button htmlType="submit" type="primary">
+            Lưu
+          </Button>
+        </Space>
+      </div>
     </Form>
   );
 };

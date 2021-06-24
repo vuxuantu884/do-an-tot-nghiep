@@ -61,14 +61,14 @@ export interface StoreQuery extends BaseQuery {
     country_id: number
     city_id: number|null
     district_id: number|null
-    ward_id: number|null
+    ward_id: number|''
     address: string
     zip_code: string|null
     email: string|null
     square: number|null
-    rank: number|null
+    rank: number|''
     status: string,
-    begin_date: Moment
+    begin_date: string|null
     latitude: number|null
     longtitude: number|null
     group_id: number|null

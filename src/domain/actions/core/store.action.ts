@@ -4,6 +4,7 @@ import { StoreType } from 'domain/types/core.type';
 import { StoreQuery } from 'model/core/store.model';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { StoreCreateRequest, StoreUpdateRequest } from 'model/core/store.model';
+import { StoreRankResponse } from 'model/core/store-rank.model';
 
 export const StoreGetListAction = (setData: (data: Array<StoreResponse>) => void) => {
     return BaseAction(StoreType.GET_LIST_STORE_REQUEST, {setData});
@@ -27,5 +28,10 @@ export const StoreDetailAction = (id: number, setData: (data: StoreResponse) => 
 
 export const StoreDeleteAction = (id: number, onDeleteSuccess: (data: StoreResponse) => void) => {
     return BaseAction(StoreType.STORE_DELETE, {id, onDeleteSuccess});
+}
+
+
+export const StoreRankAction = (setData: (data: Array<StoreRankResponse>) => void) => {
+    return BaseAction(StoreType.STORE_RANK, {setData});
 }
 

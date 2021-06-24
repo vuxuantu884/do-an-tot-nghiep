@@ -73,6 +73,9 @@
                   font-size: 20px !important;
                   vertical-align: middle;
                 }
+                .ant-menu-submenu-selected {
+                  background-color: $background-color
+                }
               }
             }
 
