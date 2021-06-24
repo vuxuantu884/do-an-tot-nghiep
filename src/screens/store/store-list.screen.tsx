@@ -1,18 +1,23 @@
-import { Card } from "antd";
+import { Card, Tooltip } from "antd";
 import StoreFilter from "component/filter/store.filter";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
-import { StoreSearchAction } from "domain/actions/core/store.action";
+import { StoreRankAction, StoreSearchAction } from "domain/actions/core/store.action";
 import { StoreQuery } from "model/core/store.model";
 import { StoreResponse } from "model/core/store.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { RiCheckboxCircleLine } from "react-icons/ri";
+import { StoreRankResponse } from "model/core/store-rank.model";
+import { GroupGetAction } from "domain/actions/content/content.action";
+import { GroupResponse } from "model/content/group.model";
 
 const initQuery: StoreQuery = {};
 
@@ -37,12 +42,19 @@ const StoreListScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   //end hook
+  //master data
+  const storeStatusList = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.store_status
+  );
+  const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
+  const [groups, setGroups] = useState<Array<GroupResponse>>([]);
+  //end master data
   let dataQuery: StoreQuery = { ...initQuery, ...getQueryParams(query) };
   let [params, setPrams] = useState<StoreQuery>(dataQuery);
   const [data, setData] = useState<PageResponse<StoreResponse>>({
     metadata: {
-      limit: 0,
-      page: 0,
+      limit: 30,
+      page: 1,
       total: 0,
     },
     items: [],
@@ -78,20 +90,35 @@ const StoreListScreen: React.FC = () => {
     {
       title: "Trạng thái",
       dataIndex: "status_name",
-      render: (value: string, item: StoreResponse) => (
-        <div
-          className={
-            item.status === "active" ? "status-active" : "status-not-active"
-          }
-        >
-          {value}
-        </div>
-      ),
-    }
+      render: (value: string, item: StoreResponse) => {
+        let text = "";
+        switch (item.status) {
+          case "active":
+            text = "text-success";
+            break;
+          case "temp_lock":
+            text = "text-secondary";
+            break;
+          case "permanent_lock":
+            text = "text-error";
+            break;
+        }
+        return (
+          <div
+            style={{ textAlign: "center", fontSize: "20px" }}
+            className={text}
+          >
+            <Tooltip title={value}>
+              <RiCheckboxCircleLine />
+            </Tooltip>
+          </div>
+        );
+      },
+    },
   ];
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page - 1;
+      params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
@@ -101,7 +128,7 @@ const StoreListScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 0 };
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.STORE}?${queryParam}`);
@@ -111,22 +138,27 @@ const StoreListScreen: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {}, []);
   useEffect(() => {
     dispatch(StoreSearchAction(params, setData));
+    dispatch(StoreRankAction(setStoreRank));
+    dispatch(GroupGetAction(setGroups));
   }, [dispatch, params]);
+  console.log(storeStatusList);
   return (
     <div>
       <Card className="contain">
         <StoreFilter
+          storeStatusList={storeStatusList}
           onMenuClick={onMenuClick}
           actions={actions}
           onFilter={onFilter}
           params={params}
+          storeRanks={storeRanks}
+          groups={groups}
         />
-       <CustomTable
-          onChange={onPageChange}
+        <CustomTable
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
-            current: data.metadata.page + 1,
+            current: data.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,

@@ -196,7 +196,6 @@ const ColorListScreen: React.FC = () => {
           </Form>
         </CustomFilter>
         <CustomTable
-          onChange={onPageChange}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,

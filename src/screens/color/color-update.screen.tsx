@@ -8,7 +8,7 @@ import {
   Row,
   Select,
   Upload,
-  Space
+  Space,
 } from "antd";
 import { ColorCreateRequest, ColorResponse } from "model/product/color.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -68,8 +68,8 @@ const ColorUpdateScreen: React.FC = () => {
   }, [dispatch, id]);
   if (color == null) {
     return (
-      <Card className="card-block card-block-normal">
-        Không tìm thấy màu sắc
+      <Card>
+        <div className="padding-20">Không tìm thấy màu sắc</div>
       </Card>
     );
   }
