@@ -40,14 +40,16 @@ export interface OrderRequest {
   finished_on: string | null;
   currency: string | null;
   items: Array<OrderLineItemRequest>;
-  discounts: Array<OrderDiscountRequest>;
+  discounts: Array<OrderDiscountRequest> | null;
   payments: Array<OrderPaymentRequest>;
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
-  fulfillment: Array<FulFillment>;
+  fulfillment: Array<FulFillmentRequest>;
+  pre_payments: Array<OrderPaymentRequest>
 }
 
-export interface FulFillment {
+export interface FulFillmentRequest {
+  store_id: number|null;
   account_code: string | null;
   assignee_code: string | null;
   delivery_type: string | null;
@@ -73,9 +75,10 @@ export interface FulFillment {
   discount_value: number | null;
   discount_amount: number | null;
   total_line_amount_after_line_discount: number | null;
-  shipment: Shipment;
-  billingAddress: BillingAddress;
+  shipment: ShipmentRequest | null | undefined;
+  billing_address: BillingAddress | null;
   items: Array<OrderLineItemRequest>;
+  payments: Array<OrderPaymentRequest>;
 }
 
 export interface BillingAddress {
@@ -112,15 +115,17 @@ export interface ShippingAddress {
   full_address: string;
 }
 
-export interface Shipment {
-  deliveryServiceProvider_id: number | null;
-  deliveryServiceProvider_type: string | null;
+export interface ShipmentRequest {
+  delivery_service_provider_id: number | null;
+  delivery_service_provider_type: string | null;
   handover_id: number | null;
   service: number | null;
   who_paid: string | null;
   fee_type: string | null;
   fee_base_on: string | null;
-  delivery_fee: string | null;
+  delivery_fee: number | null;
+  shipping_fee_informed_to_customer: number|null;
+  shipping_fee_paid_to_3pls: number|null;
   reference_status: string | null;
   reference_status_explanation: string | null;
   cancel_reason: string | null;
@@ -130,6 +135,5 @@ export interface Shipment {
   sender_address_id: number | null;
   note_to_shipper: string | null;
   requirements: string | null;
-  shippingAddress: ShippingAddress;
-  payments: Array<OrderPaymentRequest>;
+  shipping_address: ShippingAddress | null;
 }

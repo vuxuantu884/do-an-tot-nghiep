@@ -52,9 +52,7 @@ function* storeSearchSaga(action: YodyAction) {
 function* storeDetailSaga(action: YodyAction) {
   const {id, setData} = action.payload;
   try {
-    yield put(showLoading());
     let response: BaseResponse<StoreResponse> = yield call(storesDetailApi, id);
-    yield put(hideLoading());
     switch(response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);

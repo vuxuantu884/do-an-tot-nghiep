@@ -32,3 +32,7 @@ export const getDepartmentAllApi = (): Promise<BaseResponse<DepartmentResponse>>
 export const getPositionAllApi = (): Promise<BaseResponse<PositionResponse>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/positions`);
 }
+
+export const searchShipperApi = (): Promise<BaseResponse<PageResponse<AccountResponse>>> => {
+  return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts?is_shipper=1`);
+}

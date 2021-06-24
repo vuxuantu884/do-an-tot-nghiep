@@ -34,6 +34,7 @@ import {
 
 type PaymentCardProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
+  setCodeMonay: (value: number) => void;
   paymentMethod: number;
   amount: number;
 };
@@ -63,6 +64,10 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     paymentData[index].amount = point * 1000;
     setPaymentData([...paymentData]);
   };
+
+  const ChangeCodMoney = (value:number) => {
+    props.setCodeMonay(value)
+  }
 
   const totalAmountPaid = useMemo(() => {
     let total = 0;
@@ -162,6 +167,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                     min={0}
                     placeholder="Nhập số tiền"
                     className="text-right hide-handler-wrap w-100"
+                    onChange={ChangeCodMoney}
                   />
                 </div>
               </div>

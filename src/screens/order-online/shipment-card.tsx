@@ -1,12 +1,9 @@
 // @ts-ignore
 import {
-  Button,
   Card,
   Divider,
-  Input,
   Row,
   Col,
-  AutoComplete,
   Space,
   Typography,
   Radio,
@@ -15,16 +12,9 @@ import {
   DatePicker,
 } from "antd";
 
-// @ts-ignore
-import plusBlueIcon from "assets/img/plus-blue.svg";
-// @ts-ignore
-import arrowDownIcon from "assets/img/drow-down.svg";
-// @ts-ignore
 import callIcon from "assets/img/call.svg";
 // @ts-ignore
 import locationIcon from "assets/img/location.svg";
-
-import { SearchOutlined } from "@ant-design/icons";
 import truckIcon from "../../assets/img/truck.svg";
 import dhlIcon from "../../assets/img/dhl.svg";
 import { formatCurrency } from "../../utils/AppUtils";
@@ -33,15 +23,20 @@ import storeBluecon from "../../assets/img/storeBlue.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useDispatch, useSelector } from "react-redux";
 import { Moment } from "moment";
-import { useCallback, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
+import { AccountResponse } from "model/account/account.model";
+import { ShipperGetListAction } from "domain/actions/account/account.action";
 
 type ShipmentCardProps = {
   shipmentMethod: number;
-  setSelectedShipmentType: (paymentType: number) => void;
+  SelectedShipmentType: (paymentType: number) => void;
+  ShipFeeCustomer: (item: number) => void;
+  ShipDeliveryFee: (item: number) => void;
+  RequirementShip: (item: string) => void;
+  ShipDeliveryPartner : (item: number) => void;
   storeId: number | null;
-  //setDatingShip: (item: Moment | null,dateString: string) => void;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
@@ -49,22 +44,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
 ) => {
   const dispatch = useDispatch();
   const [storeDetail, setStoreDetail] = useState<StoreResponse>();
+  const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
 
-  const ShipMethodOnChange = useCallback(
-    (value: number) => {
-      props.setSelectedShipmentType(value);
-      if (value === 3) {
-        if (props.storeId != null) {
-          dispatch(StoreDetailAction(props.storeId, setStoreDetail));
-        }
-      }
-    },
-    [dispatch, props]
-  );
-
-  const DatingShipOnChange = (value: Moment | null, dateString: string) => {
-    console.log("datetime", value);
-    //props.setDatingShip(value, dateString);
+  const ShipMethodOnChange = (value: number) => {
+    props.SelectedShipmentType(value);
   };
 
   const shipping_requirements = useSelector(
@@ -72,7 +55,31 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       state.bootstrapReducer.data?.shipping_requirement
   );
 
-  const ChangeShippingRequirement = () => {};
+  const changeShipFeeCustomer = (value: number) => {
+    props.ShipFeeCustomer(value);
+  };
+
+  const changeShipFeeHvc = (value: number) => {
+    props.ShipDeliveryFee(value);
+  };
+
+  const ChangeShippingRequirement = (value: string) => {
+    props.RequirementShip(value);
+  };
+
+  const ChangeDeliveryPartner = (value: number) => {
+    props.ShipDeliveryPartner(value);
+  };
+
+  useLayoutEffect(() => {
+    if (props.storeId != null) {
+      dispatch(StoreDetailAction(props.storeId, setStoreDetail));
+    }
+  }, [dispatch, props.storeId]);
+
+  useLayoutEffect(() => {
+    dispatch(ShipperGetListAction(setShipper));
+  }, [dispatch]);
 
   return (
     <Card
@@ -115,7 +122,6 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               <DatePicker
                 className="r-5 w-100 ip-search"
                 placeholder="Ngày tạo từ"
-                onChange={DatingShipOnChange}
               />
             </div>
             <div className="form-group form-group-with-search">
@@ -128,7 +134,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 className="select-with-search"
                 showSearch
                 style={{ width: "100%" }}
-                placeholder="Chọn nguồn đơn hàng"
+                placeholder="Chọn yêu cầu"
                 onChange={ChangeShippingRequirement}
                 filterOption={(input, option) => {
                   if (option) {
@@ -238,19 +244,33 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                   Đối tác giao hàng
                 </label>
                 <div>
-                  <AutoComplete>
-                    <Input.Search
-                      placeholder="Chọn đối tác giao hàng"
-                      enterButton={
-                        <Button type="text">
-                          <img src={plusBlueIcon} alt="" />
-                        </Button>
+                  <Select
+                    className="select-with-search"
+                    showSearch
+                    style={{ width: "100%" }}
+                    placeholder="Chọn đối tác giao hàng"
+                    onChange={ChangeDeliveryPartner}
+                    filterOption={(input, option) => {
+                      if (option) {
+                        return (
+                          option.children
+                            .toLowerCase()
+                            .indexOf(input.toLowerCase()) >= 0
+                        );
                       }
-                      prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                      onSearch={() => console.log(1)}
-                      suffix={<img src={arrowDownIcon} alt="down" />}
-                    />
-                  </AutoComplete>
+                      return false;
+                    }}
+                  >
+                    {shipper?.map((item, index) => (
+                      <Select.Option
+                        style={{ width: "100%" }}
+                        key={index.toString()}
+                        value={item.id}
+                      >
+                        {item.full_name}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </div>
               </div>
             </Col>
@@ -264,9 +284,9 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                   <InputNumber
                     style={{ width: "100%" }}
                     min={0}
-                    max={12}
+                    max={9999999999}
                     placeholder="Phí ship báo khách"
-                    defaultValue={20000}
+                    onChange={changeShipFeeCustomer}
                   />
                 </div>
               </div>
@@ -281,8 +301,9 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                   <InputNumber
                     style={{ width: "100%" }}
                     min={0}
-                    max={12}
+                    max={9999999999999}
                     placeholder="Phí ship trả đối tác giao hàng"
+                    onChange={changeShipFeeHvc}
                   />
                 </div>
               </div>
@@ -318,9 +339,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                   <img src={locationIcon} alt="" />
                 </div>
                 <div className="row-info-title">Địa chỉ</div>
-                <div className="row-info-content">
-                {storeDetail?.full_address}
-                </div>
+                <div className="row-info-content">{storeDetail?.address}</div>
               </Space>
             </Row>
           </div>

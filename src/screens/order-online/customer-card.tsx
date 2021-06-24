@@ -328,37 +328,40 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         </div>
       }
     >
-      <div className="padding-20">
-        <div className="padding-bottom-5">
-          <label htmlFor="">Tên khách hàng</label>
-        </div>
-        <div>
-          <AutoComplete
-            notFoundContent={
-              keysearch.length >= 3 ? "Không tìm thấy khách hàng" : undefined
-            }
-            value={keysearch}
-            ref={autoCompleteRef}
-            onSelect={SearchCustomerSelect}
-            dropdownClassName="search-layout dropdown-search-header"
-            dropdownMatchSelectWidth={456}
-            className="w-100"
-            onSearch={CustomerChangeSearch}
-            options={CustomerConvertResultSearch}
-          >
-            <Input.Search
-              placeholder="Tìm hoặc thêm khách hàng"
-              className="border-input"
-              enterButton={
-                <Button type="text">
-                  <img src={plusBlueIcon} alt="" />
-                </Button>
+      {customer === null && (
+        <div className="padding-20">
+          <div className="padding-bottom-5">
+            <label htmlFor="">Tên khách hàng</label>
+          </div>
+          <div>
+            <AutoComplete
+              notFoundContent={
+                keysearch.length >= 3 ? "Không tìm thấy khách hàng" : undefined
               }
-              prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-            />
-          </AutoComplete>
+              value={keysearch}
+              ref={autoCompleteRef}
+              onSelect={SearchCustomerSelect}
+              dropdownClassName="search-layout dropdown-search-header"
+              dropdownMatchSelectWidth={456}
+              className="w-100"
+              onSearch={CustomerChangeSearch}
+              options={CustomerConvertResultSearch}
+            >
+              <Input.Search
+                placeholder="Tìm hoặc thêm khách hàng"
+                className="border-input"
+                enterButton={
+                  <Button type="text">
+                    <img src={plusBlueIcon} alt="" />
+                  </Button>
+                }
+                prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+              />
+            </AutoComplete>
+          </div>
         </div>
-      </div>
+      )}
+
       {customer !== null && (
         <React.Fragment>
           <Row
@@ -461,12 +464,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </span>
                   </Row>
                   <Row className="customer-row-info">
-                    <img src={callIcon} alt="" style={{ width: 19 }}/>{" "}
-                    <span style={{ marginLeft: 9 }}>{shippingAddress?.phone}</span>
+                    <img src={callIcon} alt="" style={{ width: 19 }} />{" "}
+                    <span style={{ marginLeft: 9 }}>
+                      {shippingAddress?.phone}
+                    </span>
                   </Row>
                   <Row className="customer-row-info">
-                    <img src={locationIcon} alt="" style={{ width: 19 }}/>{" "}
-                    <span style={{ marginLeft: 9 }}>{shippingAddress?.full_address}</span>
+                    <img src={locationIcon} alt="" style={{ width: 19 }} />{" "}
+                    <span style={{ marginLeft: 9 }}>
+                      {shippingAddress?.full_address}
+                    </span>
                   </Row>
                   <Row>
                     <Popover
@@ -562,20 +569,24 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     className="font-weight-500 customer-info-left"
                   >
                     <div className="title-address">Địa chỉ giao hàng</div>
-                  <Row className="customer-row-info">
-                    <img src={peopleIcon2} alt="" style={{ width: 19 }} />{" "}
-                    <span style={{ marginLeft: 9 }}>
-                      {shippingAddress?.name}
-                    </span>
-                  </Row>
-                  <Row className="customer-row-info">
-                    <img src={callIcon} alt="" style={{ width: 19 }}/>{" "}
-                    <span style={{ marginLeft: 9 }}>{shippingAddress?.phone}</span>
-                  </Row>
-                  <Row className="customer-row-info">
-                    <img src={locationIcon} alt="" style={{ width: 19 }}/>{" "}
-                    <span style={{ marginLeft: 9 }}>{shippingAddress?.full_address}</span>
-                  </Row>
+                    <Row className="customer-row-info">
+                      <img src={peopleIcon2} alt="" style={{ width: 19 }} />{" "}
+                      <span style={{ marginLeft: 9 }}>
+                        {shippingAddress?.name}
+                      </span>
+                    </Row>
+                    <Row className="customer-row-info">
+                      <img src={callIcon} alt="" style={{ width: 19 }} />{" "}
+                      <span style={{ marginLeft: 9 }}>
+                        {shippingAddress?.phone}
+                      </span>
+                    </Row>
+                    <Row className="customer-row-info">
+                      <img src={locationIcon} alt="" style={{ width: 19 }} />{" "}
+                      <span style={{ marginLeft: 9 }}>
+                        {shippingAddress?.full_address}
+                      </span>
+                    </Row>
                     <Row>
                       <Popover
                         placement="bottomLeft"
