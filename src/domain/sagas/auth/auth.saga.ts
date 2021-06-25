@@ -2,7 +2,7 @@ import { delay, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
-import { logoutSuccessAction, loginSuccessAction } from "domain/actions/auth/auth.action";
+import { logoutSuccessAction, loginSuccessAction, unauthorizedSuccessAction } from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { AuthType } from 'domain/types/auth.type';
 import { AuthenRequest } from "model/auth/roles.model";
@@ -48,7 +48,13 @@ function* logoutSaga() {
   yield put(logoutSuccessAction())
 }
 
+function* unauthorizeSaga() {
+  yield removeToken();
+  yield put(unauthorizedSuccessAction())
+}
+
 export function* authSaga() {
   yield takeLatest(AuthType.LOGIN_REQUEST, loginSaga)
   yield takeLatest(AuthType.LOGOUT_REQUEST, logoutSaga)
+  yield takeLatest(AuthType.UNAUTHORIZED_REQUEST, unauthorizeSaga)
 }

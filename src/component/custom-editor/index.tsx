@@ -4,13 +4,16 @@ import "react-quill/dist/quill.snow.css";
 type CustomEditorProps = {
   value?: string;
   onChange?: (value: string) => void;
+  disabled?: boolean,
 };
 
 const CustomEditor: React.FC<CustomEditorProps> = (
   props: CustomEditorProps
 ) => {
+  const {value, onChange, disabled} = props;
   return (
     <ReactQuill
+      readOnly={disabled}
       theme="snow"
       modules={{
         toolbar: [
@@ -49,9 +52,9 @@ const CustomEditor: React.FC<CustomEditorProps> = (
         "color",
         "background",
       ]}
-      value={props.value}
+      value={value}
       onChange={(content, delta, source, editor) => {
-        props.onChange && props.onChange(content);
+        onChange && onChange(content);
       }}
     />
   );

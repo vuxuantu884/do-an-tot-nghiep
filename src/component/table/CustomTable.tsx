@@ -41,6 +41,9 @@ const defaultLocale: TableLocale = {
   filterEmptyText: "Không tìm thấy bản ghi nào",
   selectNone: "Bỏ chọn",
   selectAll: "Chọn tất cả",
+  cancelSort: "Loại bỏ sắp xếp",
+  triggerAsc: 'Sắp xếp tăng dần',
+  triggerDesc: 'Sắp xếp giảm dần',
 };
 
 const defaultPagination: ICustomTablePaginationConfig = {
@@ -119,12 +122,12 @@ const CustomTable = (props: ICustomTableProps) => {
   return (
     <div className="custom-table">
       <ANTTable
+        {...props}
         rowSelection={{
           type: "checkbox",
           onSelect: onSelect,
           onSelectAll: onSelectAll,
         }}
-        {...props}
         columns={columns?.concat(configSettingColumns)}
         locale={locale}
         pagination={false}

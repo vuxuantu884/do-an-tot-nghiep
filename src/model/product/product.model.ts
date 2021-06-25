@@ -46,12 +46,14 @@ export interface ProductResponse extends BaseObject {
   merchandiser:string,
   designer_code:string,
   designer:string,
-  tags:string,
+  tags:string|null,
   status:string,
   status_name:string,
   preservation:string,
   unit:string,
   product_type:string,
+  product_collections: Array<ProductCollectionsResponse>,
+  specifications: string,
 }
 
 
@@ -61,7 +63,7 @@ export interface VariantResponse extends BaseObject {
   category: string,
   supplier_id:number,
   supplier:string,
-  color_id:string,
+  color_id:number,
   color:string,
   size_id:number,
   size:string,
@@ -72,9 +74,9 @@ export interface VariantResponse extends BaseObject {
   status:string,
   status_name:string,
   composite:boolean,
-  width:number,
-  length:number,
-  height:number,
+  width:number|null,
+  length:number|null,
+  height:number|null,
   weight:number,
   weight_unit:string,
   length_unit:string,
@@ -207,3 +209,40 @@ export interface ProductRequestView {
   saleable: boolean,
 }
 
+export interface ProductUpdateView {
+  product_type?: string|null,
+  goods: string|null,
+  category_id: number|null,
+  collections: Array<string>,
+  tags: Array<string>,
+  product_unit: string|null,
+  brand: string|null,
+  content: string|null,
+  description: string|null,
+  designer_code: string|null,
+  made_in_id: number|null,
+  merchandiser_code: string|null,
+  preservation: string,
+  specifications: string,
+  material_id: number,
+}
+
+export interface VariantUpdateView {
+  status: string,
+  name: string,
+  color_id: number,
+  size_id: number,
+  barcode: string|null,
+  taxable: boolean|null,
+  saleable: boolean|null
+  deleted: boolean,
+  sku: string,
+  width: string|null,
+  height: string|null,
+  length: string|null,
+  length_unit: string|null,
+  weight: string,
+  weight_unit: string|null,
+  variant_prices: Array<VariantPriceViewRequest>,
+  product: ProductUpdateView
+}

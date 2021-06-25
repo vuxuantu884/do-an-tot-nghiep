@@ -91,12 +91,12 @@ const ListSupplierScreen: React.FC = () => {
       title: 'Trạng thái',
       dataIndex: 'status_name',
       render: (value: string, item: SupplierResponse) => (
-        <div className={item.status === 'active' ? 'status-active' : 'status-not-active'}>{value}</div>
+        <div className={item.status === 'active' ? 'text-success' : 'text-error'}>{value}</div>
       )
     },
   ];
   const onPageChange = useCallback((page, size) => {
-    params.page = page - 1;
+    params.page = page;
     params.limit = size
     let queryParam = generateQuery(params);
     setPrams({ ...params });
@@ -127,11 +127,10 @@ const ListSupplierScreen: React.FC = () => {
           params={params}
         />
          <CustomTable
-          onChange={onPageChange}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
-            current: data.metadata.page + 1,
+            current: data.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,

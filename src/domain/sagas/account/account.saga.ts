@@ -1,6 +1,7 @@
+
 import { PositionResponse } from "model/account/position.model";
 import { DepartmentResponse } from "model/account/department.model";
-import { call, takeLatest } from "@redux-saga/core/effects";
+import { call, takeEvery, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
@@ -12,7 +13,12 @@ import {
   getDepartmentAllApi,
   getPositionAllApi,
   searchShipperApi,
+  AccountCreateService,
+  AccountGetByIdService,
+  AccountUpdateService,
 } from "service/accounts/account.service";
+import { showError } from "utils/ToastUtils";
+
 
 function* AccountSearchSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -23,6 +29,7 @@ function* AccountSearchSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        console.log(response.data);
         setData(response.data);
         break;
       default:
@@ -46,6 +53,72 @@ function* AccountGetListSaga(action: YodyAction) {
         break;
     }
   } catch (e) {}
+}
+
+function* AccountCreateSaga(action: YodyAction) {
+  const { request, setData } = action.payload;
+  try {
+    let response: BaseResponse<AccountResponse> = yield call(
+      AccountCreateService,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("AccountCreateSaga:" + error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* AccountUpdateSaga(action: YodyAction) {
+  const { id, request, setData } = action.payload;
+  try {
+    let response: BaseResponse<AccountResponse> = yield call(
+      AccountUpdateService,
+      id,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("AccountUpdateSaga:" + error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* AccountGetByIdSaga(action: YodyAction) {
+  const { id, setData } = action.payload;
+  try {
+    
+    let response: BaseResponse<AccountResponse> = yield call(
+      AccountGetByIdService,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response.data);
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("AccountGetByIdSaga:" + error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
 }
 
 function* DepartmentGetListSaga(action: YodyAction) {
@@ -103,4 +176,7 @@ export function* accountSaga() {
   );
   yield takeLatest(AccountType.GET_LIST_POSITION_REQUEST, PositionGetListSaga);
   yield takeLatest(AccountType.GET_LIST_SHIPPER_REQUEST, ShipperSearchSaga);
+  yield takeLatest(AccountType.GET_ACCOUNT_DETAIL_REQUEST, AccountGetByIdSaga);
+  yield takeEvery(AccountType.CREATE_ACCOUNT_REQUEST, AccountCreateSaga);
+  yield takeEvery(AccountType.UPDATE_ACCOUNT_REQUEST, AccountUpdateSaga);
 }

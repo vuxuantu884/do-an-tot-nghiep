@@ -1,3 +1,4 @@
+import { AccountRequest } from "./../../../model/account/account.model";
 import { PositionResponse } from "model/account/position.model";
 import { DepartmentResponse } from "model/account/department.model";
 import BaseAction from "base/BaseAction";
@@ -22,6 +23,7 @@ export const AccountGetListAction = (
   return BaseAction(AccountType.GET_LIST_ACCOUNT_REQUEST, { query, setData });
 };
 
+
 export const DepartmentGetListAction = (
   setData: (data: Array<DepartmentResponse>) => void
 ) => {
@@ -37,5 +39,31 @@ export const PositionGetListAction = (
 export const ShipperGetListAction = (
   setData: (data: Array<AccountResponse>) => void
 ) => {
-  return BaseAction(AccountType.GET_LIST_SHIPPER_REQUEST, { setData });
+  return BaseAction(AccountType.GET_LIST_SHIPPER_REQUEST, { setData }); 
+};
+
+export const AccountGetByIdtAction = (
+  id: number,
+  setData: (data: AccountResponse) => void
+) => {
+  
+  return BaseAction(AccountType.GET_ACCOUNT_DETAIL_REQUEST, { id, setData });
+};
+
+export const AccountCreateAction = (
+  request: AccountRequest,
+  setData: (data: AccountResponse) => void
+) => {
+  return BaseAction(AccountType.CREATE_ACCOUNT_REQUEST, { request, setData });
+};
+export const AccountUpdateAction = (
+  id: number,
+  request: AccountRequest,
+  setData: (data: AccountResponse) => void
+) => {
+  return BaseAction(AccountType.UPDATE_ACCOUNT_REQUEST, {
+    id,
+    request,
+    setData,
+  });
 };

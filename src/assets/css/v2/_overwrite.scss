@@ -73,6 +73,9 @@
                   font-size: 20px !important;
                   vertical-align: middle;
                 }
+                .ant-menu-submenu-selected {
+                  background-color: $background-color
+                }
               }
             }
 
@@ -510,7 +513,13 @@
     }
 
     &-body{
-      padding: 10px 32px;
+      padding: 0;
+      .body-container {
+        &-form {
+          padding: 10px 32px;
+        }
+        
+      }
     }
 
     &-footer{

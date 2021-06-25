@@ -886,6 +886,7 @@ const ProductCreateScreen: React.FC = () => {
               <Collapse.Panel key="1" header="Thông tin chi tiết sản phẩm">
                 <div className="padding-20">
                   <Item
+                    name="specifications"
                     label="Chi tiết thông số"
                     tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
                   >
@@ -914,13 +915,13 @@ const ProductCreateScreen: React.FC = () => {
               defaultActiveKey="1"
               className="ant-collapse-card margin-top-20"
               expandIconPosition="right"
-            >
+            > 
               <Collapse.Panel key="1" header="Win">
                 <div className="padding-20">
                   <Item
                     name="merchandiser_code"
                     label="Merchandiser"
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                    tooltip={{ title: "Chọn nhân viên mua hàng", icon: <InfoCircleOutlined /> }}
                   >
                     <Select>
                       <Option value="">Chọn Merchandiser</Option>

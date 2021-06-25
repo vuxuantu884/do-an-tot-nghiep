@@ -7,6 +7,7 @@ const ManageUserScreen = React.lazy(() => import("screens/account/account.search
 const ManageStoreScreen = React.lazy(() => import("screens/setting/manage-store.screen"));
 const ManageRoleScreen = React.lazy(() => import("screens/setting/manage-role.screen"));
 const AccountCreateScreen = React.lazy(() => import("screens/account/account.create.screen"));
+const AccountUpdateScreen = React.lazy(() => import("screens/account/account.update.screen"));
 
 
 
@@ -45,8 +46,8 @@ const setting: Array<RouteMenu> = [
         exact: true,
         title: "Chỉnh sửa người dùng",
         icon: 'icon-dot',
-        component: AccountCreateScreen,
-        key: "submenu261",
+        component: AccountUpdateScreen,
+        key: "account2",
         isShow: true,
         header: null,
         subMenu: [],

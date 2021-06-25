@@ -6,7 +6,6 @@ import {
   Form,
   FormInstance,
   Input,
-  InputNumber,
   Row,
   Select,
   Tooltip,
@@ -24,6 +23,8 @@ import { CountryResponse } from "model/content/country.model";
 import { VariantSearchQuery } from "model/product/product.model";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined } from "@ant-design/icons";
+import NumberInput from "component/custom/number-input.custom";
+import CustomDatepicker from "component/custom/date-picker.custom";
 
 type ProductFilterProps = {
   params: VariantSearchQuery;
@@ -153,25 +154,25 @@ const ProductFilter: React.FC<ProductFilterProps> = (
           initialValues={params}
           layout="vertical"
         >
-          <Row gutter={50}>
-            <Col span={12}>
+          <Row gutter={12}>
+            <Col md={12}>
               <Item
                 name="from_inventory"
                 label="Tồn kho từ"
               >
-                <InputNumber style={{ width: "100%" }} placeholder="Từ" />
+                <NumberInput style={{ width: "100%" }} placeholder="Từ" />
               </Item>
             </Col>
-            <Col span={12}>
+            <Col md={12}>
               <Item
                 name="to_inventory"
                 label="đến"
               >
-                <InputNumber style={{ width: "100%" }} placeholder="Đến" />
+                <NumberInput style={{ width: "100%" }} placeholder="Từ" />
               </Item>
             </Col>
           </Row>
-          <Row gutter={50}>
+          <Row gutter={12}>
             <Col span={24}>
               <Item
                 name="made_in"
@@ -188,7 +189,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Row gutter={50}>
+          <Row gutter={12}>
             <Col span={24}>
               <Item
                 name="merchandiser"
@@ -206,14 +207,13 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-
-          <Row gutter={50}>
+          <Row gutter={12}>
             <Col span={12}>
               <Item
                 name="from_created_date"
                 label="Ngày tạo từ"
               >
-                <DatePicker
+                <CustomDatepicker
                   placeholder="Ngày tạo từ"
                   format="DD/MM/YYYY"
                 />
@@ -231,7 +231,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Row gutter={50}>
+          <Row gutter={12}>
             <Col span={12}>
               <Item
                 name="size"
@@ -263,7 +263,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Row gutter={50}>
+          <Row gutter={12}>
             <Col span={24}>
               <Item
                 name="main_color"
@@ -280,7 +280,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Row gutter={50}>
+          <Row gutter={12}>
             <Col span={24}>
               <Item
                 name="color"
@@ -297,7 +297,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Row gutter={50}>
+          <Row gutter={12}>
             <Col span={24}>
               <Item
                 name="supplier"

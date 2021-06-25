@@ -1,25 +1,41 @@
-import { convertDateToUtc } from './DateUtils';
+import { ConvertDateToUtc } from './DateUtils';
 import { AccountStoreResponse } from 'model/account/account.model';
 import { DistrictResponse } from 'model/content/district.model';
 import { CityView } from 'model/content/district.model';
 import { AppConfig } from 'config/AppConfig';
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
-import moment from 'moment';
-import { SizeDetail, SizeResponse } from 'model/product/size.model';
-import { ProductRequest, ProductRequestView, VariantImageRequest, VariantImagesResponse, VariantPriceRequest, VariantPricesResponse, VariantRequest, VariantRequestView } from 'model/product/product.model';
+import moment from "moment";
+import { SizeDetail, SizeResponse } from "model/product/size.model";
+import {
+  ProductRequest,
+  ProductRequestView,
+  VariantImageRequest,
+  VariantImagesResponse,
+  VariantPriceRequest,
+  VariantPricesResponse,
+  VariantPriceViewRequest,
+  VariantRequest,
+  VariantRequestView,
+  VariantResponse,
+  VariantUpdateView,
+} from "model/product/product.model";
+import { PriceConfig } from "config/PriceConfig";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
     return false;
   }
   return true;
-}
+};
 
-export const findCurrentRoute = (routes: Array<RouteMenu> = [], path: string = '') => {
+export const findCurrentRoute = (
+  routes: Array<RouteMenu> = [],
+  path: string = ""
+) => {
   let obj = {
-    current: '',
-    subMenu: '',
+    current: "",
+    subMenu: "",
   };
   routes.forEach((route) => {
     if (path.includes(route.path)) {
@@ -28,40 +44,40 @@ export const findCurrentRoute = (routes: Array<RouteMenu> = [], path: string = '
     if (route.subMenu.length > 0) {
       route.subMenu.forEach((item) => {
         if (path.includes(item.path)) {
-          obj.current = item.key
+          obj.current = item.key;
           obj.subMenu = route.key;
         }
-      })
+      });
     }
-  })
+  });
   return obj;
-}
+};
 
- const checkPath = (p1: string, p2: string, pathIgnore?: Array<string>) => {
+const checkPath = (p1: string, p2: string, pathIgnore?: Array<string>) => {
   if (p1.includes(":") || p2.includes(":")) {
     if (p1.includes(":")) {
       let urls1 = p1.split("/");
       let urls2 = p2.split("/");
       let index = urls1.findIndex((a) => a.includes(":"));
-      if(pathIgnore &&  pathIgnore.includes(urls2[index])) {
+      if (pathIgnore && pathIgnore.includes(urls2[index])) {
         return false;
       }
       urls1[index] = urls2[index];
-      return urls1.join("/") === urls2.join("/")
+      return urls1.join("/") === urls2.join("/");
     }
   }
   if (p2.includes(":")) {
     let urls1 = p2.split("/");
     let urls2 = p1.split("/");
     let index = urls1.findIndex((a) => a.includes(":"));
-    if(pathIgnore &&  pathIgnore.includes(urls2[index])) {
+    if (pathIgnore && pathIgnore.includes(urls2[index])) {
       return false;
     }
     urls1[index] = urls2[index];
-    return urls1.join("/") === urls2.join("/")
+    return urls1.join("/") === urls2.join("/");
   }
   return p1 === p2;
-}
+};
 
 export const formatSuffixPoint = (point: number | string): string => {
   let format = point.toString();
@@ -70,8 +86,12 @@ export const formatSuffixPoint = (point: number | string): string => {
 }
 
 export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '') => {
+export const getListBreadcumb = (
+  routes: Array<RouteMenu> = [],
+  path: string = ""
+) => {
   let result: Array<RouteMenu> = [];
-  if (path === '' || path === '/') {
+  if (path === "" || path === "/") {
     return result;
   }
   result.push(routes[0]);
@@ -92,15 +112,15 @@ export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '
                   result.push(route1);
                   result.push(route2);
                 }
-              })
+              });
             }
           }
-        })
+        });
       }
     }
-  })
+  });
   return result;
-}
+};
 
 export const convertCategory = (data: Array<CategoryResponse>) => {
   let arr: Array<CategoryView> = [];
@@ -108,18 +128,22 @@ export const convertCategory = (data: Array<CategoryResponse>) => {
     let level = 0;
     let temp = getArrCategory(item, level, null);
     arr = [...arr, ...temp];
-  })
+  });
   return arr;
-}
+};
 
-export const getArrCategory = (i: CategoryResponse, level: number, parent: CategoryResponse | null) => {
+export const getArrCategory = (
+  i: CategoryResponse,
+  level: number,
+  parent: CategoryResponse | null
+) => {
   let arr: Array<CategoryView> = [];
   let parentTemp = null;
   if (parent !== null) {
     parentTemp = {
       id: parent.id,
       name: parent.name,
-    }
+    };
   }
   arr.push({
     id: i.id,
@@ -136,19 +160,19 @@ export const getArrCategory = (i: CategoryResponse, level: number, parent: Categ
     level: level,
     parent: parentTemp,
     name: i.name,
-  })
+  });
   if (i.children.length > 0) {
     i.children.forEach((i1) => {
       let c = getArrCategory(i1, level + 1, i);
       arr = [...arr, ...c];
-    })
+    });
   }
   return arr;
-}
+};
 
 export const convertSizeResponeToDetail = (size: SizeResponse) => {
-  let ids: Array<number> = []
-  size.categories.forEach((category) => ids.push(category.category_id))
+  let ids: Array<number> = [];
+  size.categories.forEach((category) => ids.push(category.category_id));
   let sizeConvert: SizeDetail = {
     id: size.id,
     created_by: size.created_by,
@@ -159,51 +183,56 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
     updated_date: size.updated_date,
     version: size.version,
     code: size.code,
-    category_ids: ids
-  }
+    category_ids: ids,
+  };
   return sizeConvert;
-}
+};
 
 export const formatCurrency = (currency: number | string): string => {
   let format = currency.toString();
   return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-}
+};
 
 export const generateQuery = (obj: any) => {
-  if(obj!==undefined){
-    let a: string = Object.keys(obj).map((key, index) => {
-      let url = '';
-      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
-        let value = obj[key];
-        if(obj[key] instanceof Array) {
-          value = obj[key].join(',')
+  if (obj !== undefined) {
+    let a: string = Object.keys(obj)
+      .map((key, index) => {
+        let url = "";
+        if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") {
+          let value = obj[key];
+          if (obj[key] instanceof Array) {
+            value = obj[key].join(",");
+          }
+          if (obj[key] instanceof Date) {
+            value = ConvertDateToUtc(obj[key]);
+          }
+          if (moment.isMoment(obj[key])) {
+            value = obj[key].utc().format();
+            console.log(value);
+          }
+          url = key + "=" + encodeURIComponent(value) + "&";
         }
-        if(obj[key] instanceof Date) {
-          value = convertDateToUtc(obj[key])
-        }
-        if(moment.isMoment(obj[key] )) {
-          value = obj[key].utc().format();
-          console.log(value);
-        }
-        url = key + '=' + encodeURIComponent(value) + '&'
-      }
-      return url
-    }).join('')
-    if (a.charAt(a.length - 1) === '&') {
+        return url;
+      })
+      .join("");
+    if (a.charAt(a.length - 1) === "&") {
       a = a.substring(0, a.length - 1);
     }
     return a;
   }
   return "";
-  
-}
+};
 
 export const convertDistrict = (data: Array<DistrictResponse>) => {
   let array: Array<CityView> = [];
   data.forEach((item) => {
     let index = array.findIndex((item1) => item1.city_id === item.city_id);
-    if(index !== -1) {
-      array[index].districts.push({id: item.id, name: item.name, code: item.code});
+    if (index !== -1) {
+      array[index].districts.push({
+        id: item.id,
+        name: item.name,
+        code: item.code,
+      });
     } else {
       array.push({
         city_id: item.city_id,
@@ -212,85 +241,111 @@ export const convertDistrict = (data: Array<DistrictResponse>) => {
           {
             id: item.id,
             name: item.name,
-            code: item.code
-          }
-        ]
-      })
+            code: item.code,
+          },
+        ],
+      });
     }
-  })
+  });
   return array;
-}
+};
 
-
-export const findPriceInVariant = (variantPrices: Array<VariantPricesResponse>, currency_code: string): number => {
+export const findPriceInVariant = (
+  variantPrices: Array<VariantPricesResponse>,
+  currency_code: string
+): number => {
   let price: number = 0;
   variantPrices.forEach((v) => {
-    if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {
+    if (
+      v.currency_code === currency_code &&
+      v.price_type === AppConfig.price_type
+    ) {
       price = v.price;
     }
-  })
+  });
   return price;
-}
+};
 
-export const findTaxInVariant = (variantPrices: Array<VariantPricesResponse>, currency_code: string): number => {
+export const findTaxInVariant = (
+  variantPrices: Array<VariantPricesResponse>,
+  currency_code: string
+): number => {
   let tax: number = 0;
   variantPrices.forEach((v) => {
-    if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {
+    if (
+      v.currency_code === currency_code &&
+      v.price_type === AppConfig.price_type
+    ) {
       tax = v.tax_percent;
     }
-  })
+  });
   return tax;
-}
+};
 
-export const findPrice = (variantPrices: Array<VariantPricesResponse>, currency_code: string): string => {
-  let price: string = '0';
+export const findPrice = (
+  variantPrices: Array<VariantPricesResponse>,
+  currency_code: string
+): string => {
+  let price: string = "0";
   variantPrices.forEach((v) => {
-    if (v.currency_code === currency_code && v.price_type === AppConfig.price_type) {
+    if (
+      v.currency_code === currency_code &&
+      v.price_type === AppConfig.price_type
+    ) {
       price = v.price.toString();
     }
-  })
+  });
   return price.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-}
+};
 
 export const replaceFormat = (currency: number | string): number => {
   let format = currency.toString();
-  return parseInt(format.replace(/,/gi, ''));
-}
+  return parseInt(format.replace(/,/gi, ""));
+};
 
 export const replaceFormatString = (currency: number | string): string => {
   let format = currency.toString();
-  return format.replace(/,/gi, '');
-}
+  return format.replace(/,/gi, "");
+};
 
-export const findAvatar = (variantImages: Array<VariantImagesResponse>): string => {
-  let avatar: string = '';
+export const findAvatar = (
+  variantImages: Array<VariantImagesResponse>
+): string => {
+  let avatar: string = "";
   variantImages.forEach((v) => {
     if (v.variant_avatar) {
       avatar = v.url;
     }
-  })
+  });
   return avatar;
-}
+};
 
-export const haveAccess = (storeId: number, accountStores: Array<AccountStoreResponse>): boolean => {
+export const haveAccess = (
+  storeId: number,
+  accountStores: Array<AccountStoreResponse>
+): boolean => {
   let isHave = false;
-  let accountStoreFilter = accountStores.filter((store: AccountStoreResponse) => store.store_id === storeId);
+  let accountStoreFilter = accountStores.filter(
+    (store: AccountStoreResponse) => store.store_id === storeId
+  );
   if (accountStoreFilter.length > 0) {
-    return isHave = true;
+    return (isHave = true);
   }
   return isHave;
-}
-
-
+};
 
 export const ListUtil = {
-  notEmpty: (a: Array<any>|undefined) => {
-    return a !== undefined &&  a.length >= 0
-  } 
-}
+  notEmpty: (a: Array<any> | undefined) => {
+    return a !== undefined && a.length >= 0;
+  },
+};
 
 export const Products = {
-  convertProductViewToRequest: (pr: ProductRequestView, arrVariants: Array<VariantRequestView>, status: string) => {
+  convertProductViewToRequest: (
+    pr: ProductRequestView,
+    arrVariants: Array<VariantRequestView>,
+    status: string
+  ) => {
     let variants: Array<VariantRequest> = [];
     let variant_prices: Array<VariantPriceRequest> = [];
     pr.variant_prices.forEach((item) => {
@@ -298,32 +353,31 @@ export const Products = {
       let import_price = parseInt(item.import_price);
       let whole_sale_price = parseInt(item.whole_sale_price);
       let tax_percent = parseInt(item.tax_percent);
-      if(!isNaN(retail_price)) {
+      if (!isNaN(retail_price)) {
         variant_prices.push({
           price: retail_price,
-          price_type: 'retail_price',
+          price_type: PriceConfig.RETAIL,
           currency_code: item.currency,
           tax_percent: tax_percent,
-        })
+        });
       }
-      if(!isNaN(import_price)) {
+      if (!isNaN(import_price)) {
         variant_prices.push({
           price: import_price,
-          price_type: 'import_price',
+          price_type: PriceConfig.IMPORT,
           currency_code: item.currency,
           tax_percent: tax_percent,
-        })
+        });
       }
-      if(!isNaN(whole_sale_price)) {
+      if (!isNaN(whole_sale_price)) {
         variant_prices.push({
           price: whole_sale_price,
-          price_type: 'whole_sale_price',
+          price_type: PriceConfig.WHOLE_SALE,
           currency_code: item.currency,
           tax_percent: tax_percent,
-        })
+        });
       }
-      
-    })
+    });
     arrVariants.forEach((item) => {
       variants.push({
         status: status,
@@ -344,8 +398,8 @@ export const Products = {
         variant_prices: variant_prices,
         variant_images: [],
         inventory: 0,
-      })
-    })
+      });
+    });
     let productRequest: ProductRequest = {
       brand: pr.brand,
       category_id: pr.category_id,
@@ -359,21 +413,102 @@ export const Products = {
       name: pr.name,
       preservation: pr.preservation,
       specifications: pr.specifications,
-      product_type: pr.product_type ? pr.product_type : '',
+      product_type: pr.product_type ? pr.product_type : "",
       status: status,
-      tags: pr.tags.join(','),
+      tags: pr.tags.join(","),
       variants: variants,
-      product_unit: pr.product_unit
-    }
+      product_unit: pr.product_unit,
+    };
     return productRequest;
   },
   findAvatar: (images: Array<VariantImageRequest>) => {
-    let image: VariantImageRequest|null = null;
+    let image: VariantImageRequest | null = null;
     images.forEach((imagerRequest) => {
-      if(imagerRequest.variant_avatar) {
+      if (imagerRequest.variant_avatar) {
         image = imagerRequest;
       }
-    })
+    });
     return image;
-  }
-}
+  },
+  convertVariantRequestToView: (variant: VariantResponse) => {
+    let variantPrices: Array<VariantPriceViewRequest> = [];
+    variant.variant_prices.forEach((item) => {
+      let index = variantPrices.findIndex(
+        (v) => (v.currency = item.currency_code)
+      );
+      let price = item.price;
+      let type = item.price_type;
+      let tax_percent = item.tax_percent;
+      let temp: VariantPriceViewRequest | null = null;
+      if (index === -1) {
+        temp = {
+          currency: item.currency_code,
+          retail_price: "",
+          import_price: "",
+          tax_percent: tax_percent.toString(),
+          whole_sale_price: "",
+        };
+        if (type === PriceConfig.RETAIL) {
+          temp.retail_price = price.toString();
+        }
+        if (type === PriceConfig.IMPORT) {
+          temp.import_price = price.toString();
+        }
+        if (type === PriceConfig.WHOLE_SALE) {
+          temp.whole_sale_price = price.toString();
+        }
+        variantPrices.push(temp);
+      } else {
+        temp = variantPrices[index];
+        if (type === PriceConfig.RETAIL) {
+          temp.retail_price = price.toString();
+        }
+        if (type === PriceConfig.IMPORT) {
+          temp.import_price = price.toString();
+        }
+        if (type === PriceConfig.WHOLE_SALE) {
+          temp.whole_sale_price = price.toString();
+        }
+      }
+    });
+    let variantUpdateView: VariantUpdateView = {
+      status: variant.status,
+      name: variant.name,
+      color_id: variant.color_id,
+      size_id: variant.size_id,
+      barcode: variant.barcode,
+      taxable: variant.taxable,
+      saleable: variant.saleable,
+      deleted: false,
+      sku: variant.sku,
+      width: variant.width !=null ? variant.width.toString() : '',
+      height: variant.height !=null ? variant.height.toString() : '',
+      length:variant.length !=null ? variant.length.toString() : '',
+      length_unit: variant.length_unit,
+      weight: variant.weight.toString(),
+      weight_unit: variant.weight_unit,
+      variant_prices: variantPrices,
+      product: {
+        product_type: variant.product.product_type,
+        goods: variant.product.goods,
+        category_id: variant.product.category_id,
+        collections: variant.product.product_collections.map(
+          (i) => i.collection
+        ),
+        tags: variant.product.tags !== null ? variant.product.tags.split(";") : [],
+        product_unit: variant.product.unit,
+        brand: variant.product.brand,
+        content: variant.product.content,
+        description: variant.product.description,
+        designer_code: variant.product.designer_code,
+        made_in_id: variant.product.made_in_id,
+        merchandiser_code: variant.product.merchandiser_code,
+        preservation: variant.product.preservation,
+        specifications: variant.product.specifications,
+        material_id: variant.product.material_id,
+        
+      },
+    };
+    return variantUpdateView;
+  },
+};

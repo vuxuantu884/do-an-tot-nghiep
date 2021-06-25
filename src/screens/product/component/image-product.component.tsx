@@ -3,7 +3,7 @@ import uploadIcon from "assets/img/upload.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 
 type ImageProductProps = {
-  onClick: () => void;
+  onClick?: () => void;
 };
 
 const ImageProduct: React.FC<ImageProductProps> = (
