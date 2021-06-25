@@ -35,6 +35,7 @@ import { GroupResponse } from "model/content/group.model";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { useParams } from "react-router-dom";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { Email } from "utils/RegUtils";
 
 const { Item } = Form;
 const { Option, OptGroup } = Select;
@@ -266,7 +267,7 @@ const StoreUpdateScreen: React.FC = () => {
               </Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
-              <Item name="mail" label="Email">
+            <Item rules={[{pattern: Email, message: 'Vui lòng nhập đúng định dạng email'}]} name="mail" label="Email">
                 <Input placeholder="Nhập địa chỉ email" />
               </Item>
             </Col>

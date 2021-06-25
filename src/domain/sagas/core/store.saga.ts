@@ -42,12 +42,10 @@ function* storeGetAllSaga(action: YodyAction) {
 function* storeSearchSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    yield put(showLoading());
     let response: BaseResponse<PageResponse<StoreResponse>> = yield call(
       storeGetApi,
       query
     );
-    yield put(hideLoading());
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -68,11 +66,9 @@ function* storeSearchSaga(action: YodyAction) {
 function* storeRanksaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    yield put(showLoading());
     let response: BaseResponse<Array<StoreRankResponse>> = yield call(
       storeRankGetApi
     );
-    yield put(hideLoading());
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
