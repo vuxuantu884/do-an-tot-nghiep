@@ -41,11 +41,11 @@ export interface OrderRequest {
   currency: string | null;
   items: Array<OrderLineItemRequest>;
   discounts: Array<OrderDiscountRequest> | null;
-  payments: Array<OrderPaymentRequest>;
+  payments: Array<OrderPaymentRequest> | null;
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
-  fulfillment: Array<FulFillmentRequest>;
-  pre_payments: Array<OrderPaymentRequest>
+  fulfillment: Array<FulFillmentRequest> | null;
+  pre_payments: Array<OrderPaymentRequest> | null;
 }
 
 export interface FulFillmentRequest {

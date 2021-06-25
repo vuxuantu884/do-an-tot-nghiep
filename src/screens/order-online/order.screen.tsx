@@ -34,6 +34,7 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import "assets/css/v2/_sale-order.scss";
 import { OrderDiscountRequest } from "model/request/order-discount.request";
 import { Moment } from "moment";
+import { OrderPaymentRequest } from "model/request/order-payment.request";
 //#endregion
 
 const CreateBill = () => {
@@ -44,6 +45,7 @@ const CreateBill = () => {
   const [email, setEmail] = useState<string>("");
   const [CustomerNote, setCustomerNote] = useState<string>("");
   const [items, setItems] = useState<Array<OrderItemModel>>([]);
+  const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [objCustomer, setObjCustomer] = useState<CustomerResponse | null>(null);
   const [objShippingAddress, setObjShippingAddress] =
     useState<ShippingAddress | null>(null);
@@ -64,14 +66,14 @@ const CreateBill = () => {
   const [isVisibleStore, setVisibleStore] = useState<boolean>(false);
   const [orderDiscountRate, setOrderDiscountRate] = useState<number>(0);
   const [orderDiscountValue, setOrderDiscountValue] = useState<number>(0);
-  const [orderDiscounAmount, setOrderDiscounAmount] = useState<number>(0);
+  const [orderAmount, setOrderAmount] = useState<number>(0);
   const [ShipFeeCustomer, setShipFeeCustomer] = useState<number>(0);
   const [ShipDeliveryFee, setShipDeliveryFee] = useState<number>(0);
   const [ShipDeliveryPartner, setShipDeliveryPartner] =
     useState<number | null>(null);
   const [RequirementShip, setRequirementShip] = useState<string>("");
   const [shipment, setShipment] = useState<ShipmentRequest | null>(null);
-  const [CODMoney, setCODMoney] = useState<number>(0)
+  const [CODMoney, setCODMoney] = useState<number>(0);
   //#endregion
 
   const onStoreSelect = (storeId: number) => {
@@ -119,9 +121,9 @@ const CreateBill = () => {
     setEmail(email);
   };
 
-  const CodMoneyChange = (value:number) => {
+  const CodMoneyChange = (value: number) => {
     setCODMoney(value);
-  }
+  };
 
   const onChangeInfo = (
     _items: Array<OrderItemModel>,
@@ -132,7 +134,11 @@ const CreateBill = () => {
     setItems(_items);
     setOrderDiscountRate(discount_rate);
     setOrderDiscountValue(discount_value);
-    setOrderDiscounAmount(amount);
+    setOrderAmount(amount);
+  };
+
+  const onPayments = (value: Array<OrderPaymentRequest>) => {
+    setPayments(value);
   };
 
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
@@ -231,19 +237,28 @@ const CreateBill = () => {
       currency: "VNĐ",
       items: orderLineItemsRequest,
       discounts: discountRequest,
-      payments: [],
+      payments: null,
       fulfillment: fulfillmentRequest,
       shipping_address: objShippingAddress,
       billing_address: objBillingAddress,
-      pre_payments: [],
+      pre_payments: null,
     };
 
     if (objCustomer != null) {
       orderRequest.customer_id = objCustomer.id;
     }
 
-    const emailValid = validateEmail(email);
-    if (emailValid === false) {
+    if (payments !== null) {
+      if (paymentType !== 3) {
+        orderRequest.payments = payments;
+      } else {
+        orderRequest.payments = null;
+      }
+
+      //Thanh toán trước
+      if (paymentType === 2) {
+        orderRequest.pre_payments = payments;
+      }
     }
 
     if (assignCode === "") {
@@ -259,8 +274,6 @@ const CreateBill = () => {
     }
 
     if (assignCode !== "" && storeId !== null && storeId !== null) {
-
-      console.log(orderRequest)
       dispatch(orderCreateAction(orderRequest, onCreateSuccess));
     }
   };
@@ -335,7 +348,7 @@ const CreateBill = () => {
     const request: OrderDiscountRequest = {
       rate: orderDiscountRate,
       value: orderDiscountValue,
-      amount: orderDiscounAmount,
+      amount: null,
       promotion_id: null,
       reason: "",
       source: "",
@@ -377,13 +390,14 @@ const CreateBill = () => {
       status_before_cancellation: "",
       discount_rate: orderDiscountRate,
       discount_value: orderDiscountValue,
-      discount_amount: orderDiscounAmount,
+      discount_amount: null,
       total_line_amount_after_line_discount: null,
       shipment: shipmentRequest,
       billing_address: objBillingAddress,
       items: orderLineItemsRequest,
-      payments: [],
+      payments: payments,
     };
+    
     let listFullfillmentRequest = [];
     listFullfillmentRequest.push(request);
     return listFullfillmentRequest;
@@ -432,8 +446,8 @@ const CreateBill = () => {
   };
 
   const total = useMemo(() => {
-    return 0;
-  }, []);
+    return orderAmount;
+  }, [orderAmount]);
 
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
     setAccounts(data.items);
@@ -485,7 +499,8 @@ const CreateBill = () => {
             {/*--- payment ---*/}
             <PaymentCard
               setSelectedPaymentMethod={onPaymentSelect}
-              setCodeMonay = {CodMoneyChange}
+              setCodeMonay={CodMoneyChange}
+              setPayments={onPayments}
               paymentMethod={paymentType}
               amount={total}
             />

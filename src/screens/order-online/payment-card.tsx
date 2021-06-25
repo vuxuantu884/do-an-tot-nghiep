@@ -1,13 +1,5 @@
 // @ts-ignore
-import {
-  Button,
-  Card,
-  Divider,
-  Row,
-  Col,
-  Radio,
-  InputNumber,
-} from "antd";
+import { Button, Card, Divider, Row, Col, Radio, InputNumber } from "antd";
 
 import {
   BugOutlined,
@@ -34,6 +26,7 @@ import {
 
 type PaymentCardProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
+  setPayments: (value: Array<OrderPaymentRequest>)  => void;
   setCodeMonay: (value: number) => void;
   paymentMethod: number;
   amount: number;
@@ -42,7 +35,7 @@ type PaymentCardProps = {
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
-    if (value===2) {
+    if (value === 2) {
       handlePickPaymentMethod("cash");
     }
   };
@@ -65,9 +58,9 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     setPaymentData([...paymentData]);
   };
 
-  const ChangeCodMoney = (value:number) => {
-    props.setCodeMonay(value)
-  }
+  const ChangeCodMoney = (value: number) => {
+    props.setCodeMonay(value);
+  };
 
   const totalAmountPaid = useMemo(() => {
     let total = 0;
@@ -80,7 +73,6 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   }, [props.amount, totalAmountPaid]);
 
   const handlePickPaymentMethod = (code?: string) => {
-    console.log("1")
     let paymentMaster = ListMaymentMethods.find((p) => code === p.code);
     if (!paymentMaster) return;
     let indexPayment = paymentData.findIndex((p) => p.code === code);
@@ -116,6 +108,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
       paymentData[index].paid_amount = amount;
     }
     setPaymentData([...paymentData]);
+    props.setPayments([...paymentData]);
   };
 
   useLayoutEffect(() => {
@@ -164,9 +157,12 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 </label>
                 <div>
                   <InputNumber
-                    min={0}
                     placeholder="Nhập số tiền"
                     className="text-right hide-handler-wrap w-100"
+                    min={0}
+                    max={999999999999}
+                    value={props.amount}
+                    formatter={(value) => formatCurrency(value ? value : "0")}
                     onChange={ChangeCodMoney}
                   />
                 </div>
