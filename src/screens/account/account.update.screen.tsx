@@ -220,7 +220,7 @@ const AccountUpdateScreen: React.FC = () => {
       };
       dispatch(AccountUpdateAction(idNumber, accountModel, onUpdateSuccess));
     },
-    [dispatch, listaccountJob, onUpdateSuccess]
+    [dispatch, idNumber, listaccountJob, onUpdateSuccess]
   );
   const onCancel = useCallback(() => history.goBack(), [history]);
   const setAccount = useCallback((data: AccountResponse) => {

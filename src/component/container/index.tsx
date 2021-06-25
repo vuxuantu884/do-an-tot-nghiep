@@ -12,6 +12,7 @@ import { getBootstrapAction } from "domain/actions/content/bootstrap.action";
 import classNames from "classnames";
 import { saveSettingAction } from "domain/actions/app.action";
 import { useMemo } from "react";
+import SplashScreen from "screens/splash.screen";
 
 type ContainerProps = {
   title: string;
@@ -21,7 +22,6 @@ type ContainerProps = {
   object: any;
 };
 
-const SplashScreen = React.lazy(() => import("screens/splash.screen"));
 
 const { Content } = Layout;
 const Container: React.FC<ContainerProps> = (props: ContainerProps) => {

@@ -1,13 +1,16 @@
 import { Card, Tooltip } from "antd";
 import StoreFilter from "component/filter/store.filter";
 import { MenuAction } from "component/table/ActionButton";
-import CustomTable from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
-import { StoreRankAction, StoreSearchAction } from "domain/actions/core/store.action";
+import {
+  StoreRankAction,
+  StoreSearchAction,
+} from "domain/actions/core/store.action";
 import { StoreQuery } from "model/core/store.model";
 import { StoreResponse } from "model/core/store.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
@@ -18,6 +21,8 @@ import { RiCheckboxCircleLine } from "react-icons/ri";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { GroupGetAction } from "domain/actions/content/content.action";
 import { GroupResponse } from "model/content/group.model";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
 const initQuery: StoreQuery = {};
 
@@ -48,9 +53,10 @@ const StoreListScreen: React.FC = () => {
   );
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
   const [groups, setGroups] = useState<Array<GroupResponse>>([]);
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
   //end master data
   let dataQuery: StoreQuery = { ...initQuery, ...getQueryParams(query) };
-  let [params, setPrams] = useState<StoreQuery>(dataQuery);
+  const [params, setPrams] = useState<StoreQuery>(dataQuery);
   const [data, setData] = useState<PageResponse<StoreResponse>>({
     metadata: {
       limit: 30,
@@ -59,38 +65,86 @@ const StoreListScreen: React.FC = () => {
     },
     items: [],
   });
-  const columns = [
+  const isFirstLoad = useRef(true);
+  const [loading, setLoading] = useState(false);
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<StoreResponse>>>([
     {
       title: "Mã cửa hàng",
+      width: 120,
       dataIndex: "code",
-      render: (value: string, item: StoreResponse) => {
+      render: (value, item) => {
         return <Link to={`${UrlConfig.STORE}/${item.id}`}>{value}</Link>;
       },
+      visible: true,
     },
     {
       title: "Tên cửa hàng",
       dataIndex: "name",
+      sorter: true,
+      visible: true
     },
     {
       title: "Số điện thoại",
       dataIndex: "hotline",
+      visible: true,
     },
     {
       title: "Thành phố",
       dataIndex: "city_name",
+      visible: true
     },
     {
       title: "Địa chỉ",
       dataIndex: "address",
+      visible: true
     },
     {
       title: "Phân cấp",
       dataIndex: "rank_name",
+      width: 100,
+      align: 'center',
+      visible: true
+    },
+    {
+      title: "Người tạo",
+      dataIndex: "created_name",
+      align: 'center',
+      width: 150,
+      visible: false
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "created_date",
+      align: 'left',
+      width: 130,
+      visible: false,
+      render: (value: string) => {
+        return ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY);
+      },
+    },
+    {
+      title: "Ngày sửa",
+      dataIndex: "updated_date",
+      align: 'center',
+      width: 130,
+      visible: false,
+      render: (value: string) => {
+        return ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY);
+      },
+    },
+    {
+      title: "Người sửa",
+      dataIndex: "updated_name",
+      align: 'center',
+      width: 150,
+      visible: false
     },
     {
       title: "Trạng thái",
       dataIndex: "status_name",
-      render: (value: string, item: StoreResponse) => {
+      width: 100,
+      visible: true,
+      render: (value, item) => {
         let text = "";
         switch (item.status) {
           case "active":
@@ -115,7 +169,7 @@ const StoreListScreen: React.FC = () => {
         );
       },
     },
-  ];
+  ]);
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
@@ -135,13 +189,21 @@ const StoreListScreen: React.FC = () => {
     },
     [history, params]
   );
+  const onGetDataSuccess = useCallback((data: PageResponse<StoreResponse>) => {
+    setLoading(false);
+    setData(data);
+  }, [])
   const onMenuClick = useCallback((index: number) => {}, []);
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
   useEffect(() => {
-    dispatch(StoreSearchAction(params, setData));
-    dispatch(StoreRankAction(setStoreRank));
-    dispatch(GroupGetAction(setGroups));
-  }, [dispatch, params]);
-  console.log(storeStatusList);
+    if(isFirstLoad.current) {
+      dispatch(StoreRankAction(setStoreRank));
+      dispatch(GroupGetAction(setGroups));
+    }
+    isFirstLoad.current = false;
+    setLoading(true);
+    dispatch(StoreSearchAction(params, onGetDataSuccess));
+  }, [dispatch, onGetDataSuccess, params]);
   return (
     <div>
       <Card className="contain">
@@ -155,6 +217,7 @@ const StoreListScreen: React.FC = () => {
           groups={groups}
         />
         <CustomTable
+          isLoading={loading}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
@@ -163,9 +226,20 @@ const StoreListScreen: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          scroll={{ x: 1080 }}
+          onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
-          columns={columns}
+          columns={columnFinal}
           rowKey={(item: StoreResponse) => item.id}
+        />
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data)
+          }}
+          data={columns}
         />
       </Card>
     </div>

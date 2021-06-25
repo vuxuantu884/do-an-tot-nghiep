@@ -46,7 +46,7 @@ const renderSearch = (item: VariantResponse) => {
     <div className="row-search w-100">
       <div className="rs-left w-100">
         <img
-          src={avatar == "" ? imgdefault : avatar}
+          src={avatar === "" ? imgdefault : avatar}
           alt="anh"
           placeholder={imgdefault}
         />
@@ -133,8 +133,8 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
           <Input
             onChange={(e) => {
               const re = /^[0-9\b]+$/;
-              if (e.target.value == "" || re.test(e.target.value)) {
-                if (e.target.value == "") {
+              if (e.target.value === "" || re.test(e.target.value)) {
+                if (e.target.value === "") {
                   update(index, 0);
                 } else {
                   update(index, parseInt(e.target.value));
@@ -190,35 +190,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     return options;
   }, [resultSearch]);
 
-  const onVariantSelect = useCallback(
-    (v, o) => {
-      console.log(o);
-      let _items = [...props.items];
-      let indexSearch = resultSearch.items.findIndex((s) => s.id == v);
-      let index = _items.findIndex((i) => i.variant_id == v);
-      let r: VariantResponse = resultSearch.items[indexSearch];
-      if (r.id == v) {
-        if (index == -1) {
-          const item: OrderItemModel = createItem(r);
-          _items.push(item);
-        } else {
-          let lastIndex = index;
-          _items.forEach((value, _index) => {
-            if (_index > lastIndex) {
-              lastIndex = _index;
-            }
-          });
-          _items[lastIndex].quantity += 1;
-        }
-      }
-      props.onUpdateData(_items);
-      setKeysearch("");
-    },
-    [resultSearch, props]
-    // autoCompleteRef, dispatch, resultSearch
-  );
-
-  const createItem = (variant: VariantResponse) => {
+  const createItem = useCallback((variant: VariantResponse) => {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
@@ -252,7 +224,37 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       gifts: [],
     };
     return orderLine;
-  };
+  }, []);
+
+  const onVariantSelect = useCallback(
+    (v, o) => {
+      console.log(o);
+      let _items = [...props.items];
+      let indexSearch = resultSearch.items.findIndex((s) => s.id === v);
+      let index = _items.findIndex((i) => i.variant_id === v);
+      let r: VariantResponse = resultSearch.items[indexSearch];
+      if (r.id === v) {
+        if (index === -1) {
+          const item: OrderItemModel = createItem(r);
+          _items.push(item);
+        } else {
+          let lastIndex = index;
+          _items.forEach((value, _index) => {
+            if (_index > lastIndex) {
+              lastIndex = _index;
+            }
+          });
+          _items[lastIndex].quantity += 1;
+        }
+      }
+      props.onUpdateData(_items);
+      setKeysearch("");
+    },
+    [props, resultSearch.items, createItem]
+    // autoCompleteRef, dispatch, resultSearch
+  );
+
+  
 
   const createNewDiscountItem = () => {
     const newDiscountItem: OrderItemDiscountModel = {

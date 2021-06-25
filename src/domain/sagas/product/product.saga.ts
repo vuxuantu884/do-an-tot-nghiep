@@ -18,6 +18,7 @@ function* searchVariantSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
     yield put(showLoading());
+    debugger;
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       searchVariantsApi,
       query
@@ -25,6 +26,7 @@ function* searchVariantSaga(action: YodyAction) {
     yield put(hideLoading());
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        console.log(response);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
