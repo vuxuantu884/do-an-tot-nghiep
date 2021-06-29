@@ -74,8 +74,6 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
                 actions
               ) => (
                 <>
-
-                  {console.log(file)}
                   <Image src={file.url} fallback={noImage} />
                   <Tooltip overlay="Xoá ảnh sản phẩm" placement="top">
                     <Button

@@ -13,7 +13,6 @@ import { unauthorizedAction } from 'domain/actions/auth/auth.action';
 function* loadUserFromStorageSaga() {
   let token: string = yield call(getToken);
   //TODO: Handle token here
-  console.log(token);
   if(!isUndefinedOrNull(token)) {
     try {
       let response: BaseResponse<AccountResponse> = yield call(getAcccountDetail); 

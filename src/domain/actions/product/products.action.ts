@@ -28,11 +28,13 @@ export const searchVariantsOrderRequestAction = (
 };
 
 export const productUploadAction = (
-  query: VariantSearchQuery,
-  setData: (data: PageResponse<VariantResponse>) => void
+  files: Array<File>,
+  folder: string,
+  setData: (data: any) => void
 ) => {
-  return BaseAction(ProductType.SEARCH_PRODUCT_REQUEST, {
-    query,
+  return BaseAction(ProductType.UPLOAD_PRODUCT_REQUEST, {
+    files,
+    folder,
     setData,
   });
 };

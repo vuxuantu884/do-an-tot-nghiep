@@ -7,6 +7,7 @@ import {
   FormInstance,
   Input,
   Row,
+  Select,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { SupplierQuery } from "model/core/supplier.model";
@@ -15,6 +16,10 @@ import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { StoreQuery } from "model/core/store.model";
 import CustomFilter from "component/table/custom.filter";
+import { BaseBootstrapResponse } from "model/content/bootstrap.model";
+import { StoreRankResponse } from "model/core/store-rank.model";
+import { GroupResponse } from "model/content/group.model";
+import NumberInput from "component/custom/number-input.custom";
 
 type StoreFilterProps = {
   params: StoreQuery;
@@ -22,12 +27,24 @@ type StoreFilterProps = {
   onClearFilter?: () => void;
   onMenuClick?: (index: number) => void;
   actions: Array<MenuAction>;
+  storeStatusList?: Array<BaseBootstrapResponse>;
+  storeRanks?: Array<StoreRankResponse>;
+  groups?: Array<GroupResponse>;
 };
 
 const { Item } = Form;
-
+const { Option } = Select;
 const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
-  const { onClearFilter, onFilter, params, actions, onMenuClick } = props;
+  const {
+    onClearFilter,
+    onFilter,
+    params,
+    actions,
+    onMenuClick,
+    storeStatusList,
+    storeRanks,
+    groups,
+  } = props;
   const [visible, setVisible] = useState(false);
 
   const formRef = createRef<FormInstance>();
@@ -71,22 +88,27 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           <Form.Item name="info">
             <Input
               prefix={<img src={search} alt="" />}
-              style={{ width: 250 }}
-              placeholder="Tên/Mã nhà cung cấp"
+              style={{ width: 200 }}
+              placeholder="Tên/Id cửa hàng"
             />
           </Form.Item>
+          <Form.Item name="status">
+            <Select style={{ width: 200 }} placeholder="Trạng thái">
+              <Option value="">Trạng thái</Option>
+              {storeStatusList?.map((item) => (
+                <Option key={item.value} value={item.value}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-            >
+            <Button type="primary" htmlType="submit">
               Lọc
             </Button>
           </Form.Item>
           <Form.Item>
-            <Button onClick={openFilter}>
-              Thêm bộ lọc
-            </Button>
+            <Button onClick={openFilter}>Thêm bộ lọc</Button>
           </Form.Item>
         </Form>
       </CustomFilter>
@@ -102,30 +124,53 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           initialValues={params}
           layout="vertical"
         >
-          <Item name="contact" label="Tên / SDT người liên hệ">
-            <Input placeholder="Tên/SDT người liên hệ" />
+          <Item name="rank" label="Phân cấp">
+            <Select placeholder="Chọn phân cấp">
+              <Option value="">Chọn phân cấp</Option>
+              {storeRanks?.map((item) => (
+                <Option key={item.id} value={item.id}>
+                  {item.code}
+                </Option>
+              ))}
+            </Select>
           </Item>
-          <Item name="pic" label="Tên / Mã người phục trách">
-            <Input placeholder="Tên/Mã người phụ trách" />
+          <Item name="hotline" label="Số điện thoại">
+            <Input placeholder="Nhập số điện thoại" />
           </Item>
-          <Item label="Địa chỉ">
-            <Input placeholder="Địa chỉ" />
+          <Item name="group_id" label="Trực thuộc">
+            <Select placeholder="Chọn trực thuộc">
+              <Option value="">Chọn trực thuộc</Option>
+              {groups?.map((item) => (
+                <Option key={item.id} value={item.id}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
           </Item>
-          <Row gutter={50}>
+          <Row gutter={24}>
             <Col span={12}>
-              <Item name="from_created_date" label="Ngày tạo từ">
-                <DatePicker placeholder="Ngày tạo từ" />
+              <Item name="from_begin_date" label="Ngày mở cừa từ">
+                <DatePicker placeholder="Ngày mở cửa từ" />
               </Item>
             </Col>
             <Col span={12}>
-              <Item name="to_created_date" label="Đến">
-                <DatePicker placeholder="Ngày tạo đến" />
+              <Item name="to_begin_date" label="Đến">
+                <DatePicker placeholder="Đến" />
               </Item>
             </Col>
           </Row>
-          <Item name="note" label="Ghi chú">
-            <Input placeholder="Ghi chú" />
-          </Item>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Item name="from_square" label="Diện tích từ">
+                <NumberInput placeholder="Diện tích từ" />
+              </Item>
+            </Col>
+            <Col span={12}>
+              <Item name="to_square" label="Đến">
+                <NumberInput placeholder="Đến" />
+              </Item>
+            </Col>
+          </Row>
         </Form>
       </BaseFilter>
     </Card>

@@ -17,8 +17,13 @@ export const getVariantApi = (id: string): Promise<BaseResponse<VariantResponse>
   return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/${id}`);
 }
 
-export const productUploadApi = (id: string) => {
-  return BaseAxios.put(`${ApiConfig.PRODUCT}/products/upload`);
+export const productUploadApi = (files: Array<File>, folder: string) => {
+  let body = new FormData();
+  body.append('folder', folder);
+  files.forEach((item) => {
+    body.append('file_upload', item)
+  })
+  return BaseAxios.post(`${ApiConfig.PRODUCT}/products/upload`, body, {headers:  {"content-type": "multipart/form-data"}});
 }
 
 export const createProductApi= (request: ProductRequest) => {

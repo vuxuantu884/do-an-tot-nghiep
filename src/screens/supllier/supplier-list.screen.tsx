@@ -127,7 +127,6 @@ const ListSupplierScreen: React.FC = () => {
           params={params}
         />
          <CustomTable
-          onChange={onPageChange}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,

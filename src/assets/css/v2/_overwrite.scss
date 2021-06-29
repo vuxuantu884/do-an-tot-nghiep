@@ -73,6 +73,9 @@
                   font-size: 20px !important;
                   vertical-align: middle;
                 }
+                .ant-menu-submenu-selected {
+                  background-color: $background-color
+                }
               }
             }
 
@@ -103,12 +106,12 @@
                 & > .ant-menu {
                   background-color: #F9F9FB;
                 }
-                .ant-menu-item {
+                // .ant-menu-item {
                   
-                  .ant-menu-title-content {
+                //   .ant-menu-title-content {
                     
-                  }
-                }
+                //   }
+                // }
               }
             }
 
@@ -321,23 +324,23 @@
       .ant-select{
 
         &-selector{
-          min-height: 42px;
+          height: 38px;
           border-radius: $border-radius;
-          padding: 0 16px;
+          padding: 0 14px;
 
           .ant-select-selection{
 
             &-search-input{
-              height: 42px;
+              height: 38px;
             }
 
             &-item{
-              line-height: 42px;
+              line-height: 38px;
             }
 
             &-placeholder{
               color: $label-color;
-              line-height: 42px;
+              line-height: 38px;
             }
 
           }
@@ -351,10 +354,10 @@
       }
 
       .ant-select-selection-item{
-        height: 34px;
+        height: 30px;
         border-radius: 3px;
         padding: 0 12px;
-        line-height: 34px !important;
+        line-height: 30px !important;
       }
     }
 
@@ -376,7 +379,7 @@
 
     &-item{
       padding: 5px 16px;
-      height: 42px;
+      height: 38px;
       line-height: 2em;
 
       &-option{
@@ -393,7 +396,7 @@
 
   //Picker
   &-picker{
-    height: 42px;
+    height: 38px;
     border-radius: $border-radius;
     
     &:hover, &-focused{
@@ -416,9 +419,10 @@
 
   //Input
   &-input{
-    height: 42px;
-    padding: 4px 16px;
+    height: 38px;
+    padding: 7px 14px;
     border-color: $border-color;
+    font-size: 14px;
     border-radius: $border-radius;
     color: $label-color;
 
@@ -460,8 +464,8 @@
       }
 
       & > input.ant-input{
-        height: 40px;
-        padding: 4px 16px;
+        height: 38px;
+        padding: 4px 14px;
       }
       & > .ant-input-prefix + input.ant-input{
         padding-left: 5px;
@@ -528,11 +532,11 @@
   //Form
   &-form{
 
-    &-vertical{
-      .ant-form{
+    // &-vertical{
+    //   // .ant-form{
         
-      }
-    }
+    //   // }
+    // }
 
     &-item{
 
@@ -596,9 +600,9 @@
     }
 
     &-tbody{
-      & > tr:nth-child(2n) > td {
-        // background-color: rgba($background-color-secondary, 0.5);
-      }
+      // & > tr:nth-child(2n) > td {
+      //   background-color: rgba($background-color-secondary, 0.5);
+      // }
       & > tr.ant-table-row-selected > td {
         background-color: inherit;
       }
@@ -862,10 +866,7 @@
   border-color: $primary-color;
 }
 
-.ant-input-group.ant-input-group-compact > .ant-cascader-picker:first-child .ant-input, .ant-input-group.ant-input-group-compact > .ant-select-auto-complete:first-child .ant-input, .ant-input-group.ant-input-group-compact > .ant-select:first-child > .ant-select-selector, .ant-input-group.ant-input-group-compact > :first-child {
-  border-top-left-radius: $border-radius;
-  border-bottom-left-radius: $border-radius;
-}
+// custom-select-suffix
 .ant-input-group.ant-input-group-compact > .ant-cascader-picker-focused:last-child .ant-input, .ant-input-group.ant-input-group-compact > .ant-cascader-picker:last-child .ant-input, .ant-input-group.ant-input-group-compact > .ant-select:last-child > .ant-select-selector, .ant-input-group.ant-input-group-compact > :last-child {
   border-top-right-radius: $border-radius;
   border-bottom-right-radius: $border-radius;

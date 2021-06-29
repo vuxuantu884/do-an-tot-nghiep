@@ -396,7 +396,7 @@ const ProductCreateScreen: React.FC = () => {
         >
           <div className="padding-20">
             <Row gutter={50}>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   rules={[
                     {
@@ -419,7 +419,7 @@ const ProductCreateScreen: React.FC = () => {
                   </Select>
                 </Item>
               </Col>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   rules={[
                     {
@@ -454,7 +454,7 @@ const ProductCreateScreen: React.FC = () => {
               </Col>
             </Row>
             <Row gutter={50}>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   rules={[
                     {
@@ -469,7 +469,7 @@ const ProductCreateScreen: React.FC = () => {
                     placeholder="Chọn danh mục"
                     suffix={
                       <Button
-                        style={{ width: 36, height: 36 }}
+                        style={{ width: 37, height: 37 }}
                         icon={<PlusOutlined />}
                       />
                     }
@@ -482,7 +482,7 @@ const ProductCreateScreen: React.FC = () => {
                   </CustomSelect>
                 </Item>
               </Col>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item name="collections" label="Bộ sưu tập">
                   <Select mode="multiple" placeholder="Chọn bộ sưu tập">
                     {collectionList?.map((item) => (
@@ -495,7 +495,7 @@ const ProductCreateScreen: React.FC = () => {
               </Col>
             </Row>
             <Row gutter={50}>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   rules={[
                     {
@@ -522,7 +522,7 @@ const ProductCreateScreen: React.FC = () => {
                   <Input maxLength={7} placeholder="Nhập mã sản phẩm" />
                 </Item>
               </Col>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   rules={[
                     {
@@ -547,7 +547,7 @@ const ProductCreateScreen: React.FC = () => {
               </Col>
             </Row>
             <Row gutter={50}>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   label="Kích thước (dài, rộng, cao)"
                   tooltip={{
@@ -589,7 +589,7 @@ const ProductCreateScreen: React.FC = () => {
                   </Input.Group>
                 </Item>
               </Col>
-              <Col md={8}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   required
                   label="Khối lượng"
@@ -635,7 +635,7 @@ const ProductCreateScreen: React.FC = () => {
 
             <Divider orientation="left">Thông tin khác</Divider>
             <Row gutter={50}>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   tooltip={{
                     title: "Thẻ ngày giúp tìm kiếm các sản phẩm",
@@ -647,7 +647,7 @@ const ProductCreateScreen: React.FC = () => {
                   <Input placeholder="Nhập từ khóa" />
                 </Item>
               </Col>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item name="product_unit" label="Đơn vị">
                   <Select placeholder="Chọn đơn vị">
                     {productUnitList?.map((item) => (
@@ -660,7 +660,7 @@ const ProductCreateScreen: React.FC = () => {
               </Col>
             </Row>
             <Row gutter={50}>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item name="suppplier_id" label="Nhà cung cấp">
                   <Select placeholder="Chọn nhà cung cấp">
                     {listSupplier?.map((item) => (
@@ -671,7 +671,7 @@ const ProductCreateScreen: React.FC = () => {
                   </Select>
                 </Item>
               </Col>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item name="brand" label="Thương hiệu">
                   <Select placeholder="Chọn thương hiệu">
                     {brandList?.map((item) => (
@@ -684,7 +684,7 @@ const ProductCreateScreen: React.FC = () => {
               </Col>
             </Row>
             <Row gutter={50}>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item name="made_in_id" label="Xuất xứ">
                   <Select
                     showSearch
@@ -699,7 +699,7 @@ const ProductCreateScreen: React.FC = () => {
                   </Select>
                 </Item>
               </Col>
-              <Col span={50} lg={8} md={12} sm={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
                 <Item name="material_id" label="Chất liệu">
                   <Select
                     showSearch
@@ -877,10 +877,9 @@ const ProductCreateScreen: React.FC = () => {
           </Collapse.Panel>
         </Collapse>
         <Row gutter={24} className="margin-top-20">
-          <Col md={12}>
+          <Col span={24} lg={12} md={12} sm={24}>
             <Collapse
-              defaultActiveKey="1"
-              className="ant-collapse-card margin-top-20"
+              className="ant-collapse-card"
               expandIconPosition="right"
             >
               <Collapse.Panel key="1" header="Thông tin chi tiết sản phẩm">
@@ -910,10 +909,9 @@ const ProductCreateScreen: React.FC = () => {
               </Collapse.Panel>
             </Collapse>
           </Col>
-          <Col md={12}>
+          <Col span={24} lg={12} md={12} sm={24}>
             <Collapse
-              defaultActiveKey="1"
-              className="ant-collapse-card margin-top-20"
+              className="ant-collapse-card"
               expandIconPosition="right"
             > 
               <Collapse.Panel key="1" header="Win">
@@ -959,10 +957,9 @@ const ProductCreateScreen: React.FC = () => {
           <Collapse.Panel key="1" header="Quản lý thuộc tính">
             <div className="padding-20">
               <Row gutter={50}>
-                <Col span={50} lg={8} md={12} sm={50}>
+                <Col span={24} lg={8} md={12} sm={24}>
                   <Item label="Màu sắc" name="color_id">
                     <CustomSelect
-                      style={{ width: "calc((100% - 36px)" }}
                       notFoundContent={"Không có dữ liệu"}
                       showSearch
                       mode="multiple"
@@ -973,7 +970,7 @@ const ProductCreateScreen: React.FC = () => {
                       placeholder="Chọn màu sắc"
                       suffix={
                         <Button
-                          style={{ width: 36, height: 36 }}
+                          style={{ width: 37, height: 37 }}
                           icon={<PlusOutlined />}
                         />
                       }
@@ -986,7 +983,7 @@ const ProductCreateScreen: React.FC = () => {
                     </CustomSelect>
                   </Item>
                 </Col>
-                <Col span={50} lg={8} md={12} sm={50}>
+                <Col span={24} lg={8} md={12} sm={24}>
                   <Item name="size" label="Kích cỡ">
                     <CustomSelect
                       onChange={onSizeChange}
@@ -998,7 +995,7 @@ const ProductCreateScreen: React.FC = () => {
                       showSearch
                       suffix={
                         <Button
-                          style={{ width: 36, height: 36 }}
+                          style={{ width: 37, height: 37 }}
                           icon={<PlusOutlined />}
                         />
                       }

@@ -3,7 +3,7 @@ import { appSaga } from './app.saga';
 import { colorSaga } from './product/color.saga';
 import { supplierSagas } from './core/supplier.saga';
 import OrderOnlineSaga from './order/order-online.saga';
-import storeSaga  from './core/store.saga'
+import {StoreSaga}  from './core/store.saga'
 import { authSaga } from './auth/auth.saga';
 import { bootstrapSaga } from './content/bootstrap.saga';
 import { contentSaga } from './content/content.saga';
@@ -23,7 +23,7 @@ function* rootSaga(){
       categorySaga(),
       productSaga(),
       materialSaga(),
-      storeSaga(),
+      StoreSaga(),
       OrderOnlineSaga(),
       contentSaga(),
       sizeSaga(),

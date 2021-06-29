@@ -8,6 +8,7 @@ import { ProductType } from "domain/types/product.type";
 import {
   createProductApi,
   getVariantApi,
+  productUploadApi,
   searchVariantsApi,
 } from "service/product/product.service";
 import { showError } from "utils/ToastUtils";
@@ -18,6 +19,7 @@ function* searchVariantSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
     yield put(showLoading());
+    debugger;
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       searchVariantsApi,
       query
@@ -25,6 +27,7 @@ function* searchVariantSaga(action: YodyAction) {
     yield put(hideLoading());
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        console.log(response);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -109,6 +112,27 @@ function* variantDetailSaga(action: YodyAction) {
   }
 }
 
+function* uploadProductSaga(action: YodyAction) {
+  const { files, folder, setData } = action.payload;
+  try {
+    let response: BaseResponse<VariantResponse> = yield call(productUploadApi, files, folder,);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error ", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
   yield takeLatest(
@@ -117,4 +141,5 @@ export function* productSaga() {
   );
   yield takeLatest(ProductType.CREATE_PRODUCT_REQEUST, createProductSaga);
   yield takeLatest(ProductType.VARIANT_DETAIL_REQUEST, variantDetailSaga);
+  yield takeLatest(ProductType.UPLOAD_PRODUCT_REQUEST, uploadProductSaga);
 }
