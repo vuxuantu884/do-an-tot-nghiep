@@ -14,14 +14,19 @@ import {
 } from "@ant-design/icons";
 import classNames from "classnames";
 import { PageConfig } from "config/PageConfig";
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 
 export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   pagination?: false | ICustomTablePaginationConfig;
   onShowColumnSetting?: () => void;
   onSelectedChange?: (selectedRows: any[]) => void;
+  isLoading?: boolean;
 }
 
-export interface ICustomTableColumType<T> extends ColumnType<T> {}
+export interface ICustomTableColumType<T> extends ColumnType<T> {
+  visible: boolean;
+}
 
 export interface ICustomTablePaginationConfig {
   total?: number;
@@ -42,8 +47,8 @@ const defaultLocale: TableLocale = {
   selectNone: "Bỏ chọn",
   selectAll: "Chọn tất cả",
   cancelSort: "Loại bỏ sắp xếp",
-  triggerAsc: 'Sắp xếp tăng dần',
-  triggerDesc: 'Sắp xếp giảm dần',
+  triggerAsc: "Sắp xếp tăng dần",
+  triggerDesc: "Sắp xếp giảm dần",
 };
 
 const defaultPagination: ICustomTablePaginationConfig = {
@@ -58,6 +63,9 @@ const showTotal = (pagination: ICustomTablePaginationConfig) => {
   let { total = 1, current = 1, pageSize = 1 } = pagination;
   let from = (current - 1) * pageSize + 1;
   let to = current * pageSize;
+  if (from > total) {
+    return "Hiển thị kết quả: 0 kết quả";
+  }
   if (to > total) to = total;
   return `Hiển thị kết quả: ${from}-${to} / ${total} kết quả`;
 };
@@ -94,6 +102,7 @@ const CustomTable = (props: ICustomTableProps) => {
     columns,
     onSelectedChange,
     onShowColumnSetting,
+    isLoading,
   } = props;
 
   const totalPage = pagination
@@ -108,17 +117,23 @@ const CustomTable = (props: ICustomTableProps) => {
           onClick={onShowColumnSetting}
         />
       ),
+      visible: true,
       key: "configColumn",
       width: 50,
     },
   ];
-  const onSelect = useCallback((item: any, selected: boolean, selectedRow: any[]) => {
-    onSelectedChange && onSelectedChange(selectedRow);
-  }, [onSelectedChange]);
-  const onSelectAll = useCallback((selected, selectedRow: any[], changeRow: any[]) => {
-    onSelectedChange && onSelectedChange(selectedRow);
-  }, [onSelectedChange]);
-
+  const onSelect = useCallback(
+    (item: any, selected: boolean, selectedRow: any[]) => {
+      onSelectedChange && onSelectedChange(selectedRow);
+    },
+    [onSelectedChange]
+  );
+  const onSelectAll = useCallback(
+    (selected, selectedRow: any[], changeRow: any[]) => {
+      onSelectedChange && onSelectedChange(selectedRow);
+    },
+    [onSelectedChange]
+  );
   return (
     <div className="custom-table">
       <ANTTable
@@ -130,6 +145,19 @@ const CustomTable = (props: ICustomTableProps) => {
         }}
         columns={columns?.concat(configSettingColumns)}
         locale={locale}
+        loading={
+          isLoading
+            ? {
+                indicator: (
+                  <Spin
+                    indicator={
+                      <LoadingOutlined style={{ fontSize: 24 }} spin />
+                    }
+                  />
+                ),
+              }
+            : false
+        }
         pagination={false}
       />
       {pagination && (
@@ -155,14 +183,16 @@ const CustomTable = (props: ICustomTableProps) => {
                   >
                     {pagination &&
                       PageConfig.map((size) => (
-                        <Select.Option key={size} value={size}>{size}</Select.Option>
+                        <Select.Option key={size} value={size}>
+                          {size}
+                        </Select.Option>
                       ))}
                   </Select>
                 </div>
               )}
               <div className="custom-table-pagination-container">
                 <li
-                  title="First Page"
+                  title="Trang đầu"
                   className={classNames(
                     "ant-pagination-prev",
                     pagination.current &&
@@ -186,7 +216,7 @@ const CustomTable = (props: ICustomTableProps) => {
                   showSizeChanger={false}
                 />
                 <li
-                  title="First Page"
+                  title="Trang cuối"
                   className={classNames(
                     "ant-pagination-prev",
                     pagination.current &&

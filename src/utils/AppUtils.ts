@@ -207,7 +207,6 @@ export const generateQuery = (obj: any) => {
           }
           if (moment.isMoment(obj[key])) {
             value = obj[key].utc().format();
-            console.log(value);
           }
           url = key + "=" + encodeURIComponent(value) + "&";
         }

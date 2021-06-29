@@ -34,6 +34,7 @@ import { GroupResponse } from "model/content/group.model";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import UrlConfig from "config/UrlConfig";
+import { Email } from "utils/RegUtils";
 
 const { Item } = Form;
 const { Panel } = Collapse;
@@ -159,6 +160,7 @@ const StoreCreateScreen: React.FC = () => {
               <Item
                 rules={[
                   { required: true, message: "Vui lòng nhập số điện thoại" },
+                  {min: 10, max: 15, message: "Số điện thoại 10-15 kí tự "}
                 ]}
                 name="hotline"
                 label="Số điện thoại"
@@ -217,7 +219,7 @@ const StoreCreateScreen: React.FC = () => {
                 name="ward_id"
                 rules={[{ required: true, message: "Vui lòng chọn phường/xã" }]}
               >
-                <Select>
+                <Select showSearch>
                   <Option value="">Chọn phường xã</Option>
                   {wards.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -249,7 +251,7 @@ const StoreCreateScreen: React.FC = () => {
               </Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
-              <Item name="mail" label="Email">
+              <Item rules={[{pattern: Email, message: 'Vui lòng nhập đúng định dạng email'}]} name="mail" label="Email">
                 <Input placeholder="Nhập địa chỉ email" />
               </Item>
             </Col>

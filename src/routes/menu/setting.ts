@@ -9,8 +9,6 @@ const ManageRoleScreen = React.lazy(() => import("screens/setting/manage-role.sc
 const AccountCreateScreen = React.lazy(() => import("screens/account/account.create.screen"));
 const AccountUpdateScreen = React.lazy(() => import("screens/account/account.update.screen"));
 
-
-
 //store
 const StoreCreateScreen = React.lazy(() => import("screens/store/store-create.screen"));
 const StoreListScreen = React.lazy(() => import("screens/store/store-list.screen"));
