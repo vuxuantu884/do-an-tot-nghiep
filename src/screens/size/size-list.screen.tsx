@@ -75,10 +75,16 @@ const SizeListScreen: React.FC = () => {
     {
       title: "Danh mục",
       dataIndex: "categories",
-      render: (value: Array<SizeCategory>) =>
-        value.map((item: SizeCategory) => (
-          <div key={item.category_id}>{item.category_name}</div>
-        )),
+      render: (value: Array<SizeCategory>) => {
+        if(value.length === 1) {
+          return <div>{value[0].category_name}</div>
+        }
+        return (
+          <Tooltip placement="bottomLeft" title={value.map((item) => <div>{item.category_name}</div>)}>
+            <div>{`${value.length} danh mục`}</div>
+          </Tooltip>
+        )
+      }
     },
     {
       title: "Người tạo",

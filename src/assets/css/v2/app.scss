@@ -333,8 +333,12 @@ label {
 .upload-v {
     width: 150px;
     height: 150px;
+    .ant-upload img {
+        position: absolute;
+        width: 150px;
+    }
     .upload-view {
-        background: rgba(79, 104, 125, 0.1);
+        background: rgba($primary-color, 0.01);
         border: 2px dashed #cfdce9;
         width: 150px;
         height: 150px;

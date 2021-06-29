@@ -33,6 +33,19 @@ docker build:
   script:
     - bash deployment/dockerbuild.sh
 
+docker build uat:
+  stage: docker_build
+  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  only:
+    refs:
+      - uat
+  variables:
+    DOCKER_FILE: Dockerfile-uat
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - bash deployment/dockerbuild.sh
+
 deploy to dev:
   stage: deploy
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
@@ -46,6 +59,22 @@ deploy to dev:
     HOST: dev.app-admin.yody.io
     NAMESPACE: dev
     ENVIRONMENT: dev
+    SERVICE_NAME: yody-app-admin
+    DOCKER_IMAGE_NAME: yody-app-admin
+  script:
+    - bash deployment/deploy.sh app-admin
+
+deploy to uat:
+  stage: deploy
+  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  dependencies: []
+  when: manual
+  only:
+    - uat
+  variables:
+    HOST: uat.app-admin.yody.io
+    NAMESPACE: uat
+    ENVIRONMENT: uat
     SERVICE_NAME: yody-app-admin
     DOCKER_IMAGE_NAME: yody-app-admin
   script:
