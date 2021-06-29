@@ -85,7 +85,6 @@ export const formatSuffixPoint = (point: number | string): string => {
   return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")}`;
 }
 
-export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = '') => {
 export const getListBreadcumb = (
   routes: Array<RouteMenu> = [],
   path: string = ""

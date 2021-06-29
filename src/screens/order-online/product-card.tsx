@@ -57,7 +57,10 @@ import {
 } from "model/other/Order/order-model";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import {
+  VariantResponse,
+  VariantSearchQuery,
+} from "model/product/product.model";
 import { StoreResponse } from "model/core/store.model";
 
 type ProductCardProps = {
@@ -139,7 +142,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const total = useCallback(() => {
     let _items = [...items];
     let _amount = 0;
-    _items.forEach( i => {
+    _items.forEach((i) => {
       let amountItem = (i.price - i.discount_items[0].value) * i.quantity;
       i.line_amount_after_line_discount = amountItem;
       i.amount = i.price * i.quantity;
@@ -641,252 +644,226 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         </Row>
       }
     >
-
-<div className="padding-20">
-      <Row gutter={24}>
-        <Col xs={24} lg={8}>
-          <div className="form-group form-group-with-search">
-            <label htmlFor="" className="required-label">
-              Cửa hàng
-            </label>
-            <Select
-              className="select-with-search"
-              showSearch
-              style={{ width: "100%" }}
-              placeholder="Chọn cửa hàng"
-              onChange={props.selectStore}
-              filterOption={(input, option) => {
-                if (option) {
-                  return (
-                    option.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
-                  );
-                }
-                return false;
-              }}
-            >
-              {dataCanAccess.map((item, index) => (
-                <Select.Option key={index.toString()} value={item.id}>
-                  {item.name}
-                </Select.Option>
-              ))}
-            </Select>
-
-            {props.isVisibleStore === true && (
-              <div>
-                <div
-                  className="ant-form-item-explain ant-form-item-explain-error"
-                  style={{ padding: "5px" }}
-                >
-                  <div role="alert">Vui lòng chọn cửa hàng</div>
-                </div>
-              </div>
-            )}
-          </div>
-        </Col>
-        <Col xs={24} lg={16}>
-          <div className="form-group form-group-with-search">
-            <label htmlFor="" className="">
-              Sản phẩm
-            </label>
-            <div>
-              <AutoComplete
-                notFoundContent={
-                  keysearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
-                }
-                value={keysearch}
-                ref={autoCompleteRef}
-                onSelect={onSearchVariantSelect}
-                dropdownClassName="search-layout dropdown-search-header"
-                dropdownMatchSelectWidth={456}
-                className="w-100"
-                onSearch={onChangeProductSearch}
-                options={convertResultSearch}
-              >
-                <Input
-                  size="middle"
-                  className="yody-search"
-                  placeholder="Tìm sản phẩm theo tên/ SKU (F3)"
-                  prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                />
-              </AutoComplete>
-            </div>
-          </div>
-        </Col>
-      </Row>
-
-      <Row className="sale-product-box">
-        <AddGiftModal
-          items={itemGifts}
-          onUpdateData={onUpdateData}
-          onCancel={onCancleConfirm}
-          onOk={onOkConfirm}
-          visible={isVisibleGift}
-        />
-        <Table
-          locale={{
-            emptyText: (
-              <Button
-                type="text"
-                className="font-weight-500"
-                style={{
-                  color: "#2A2A86",
-                  background: "rgba(42,42,134,0.05)",
-                  borderRadius: 5,
-                  padding: 8,
-                  height: "auto",
-                  marginTop: 15,
-                  marginBottom: 15,
+      <div className="padding-20">
+        <Row gutter={24}>
+          <Col xs={24} lg={8}>
+            <div className="form-group form-group-with-search">
+              <label htmlFor="" className="required-label">
+                Cửa hàng
+              </label>
+              <Select
+                className="select-with-search"
+                showSearch
+                style={{ width: "100%" }}
+                placeholder="Chọn cửa hàng"
+                onChange={props.selectStore}
+                filterOption={(input, option) => {
+                  if (option) {
+                    return (
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
                 }}
               >
-                Thêm sản phẩm ngay (F3)
-              </Button>
-            ),
-          }}
-          rowKey={(record) => record.id}
-          columns={columns}
-          dataSource={items}
-          className="sale-product-box-table w-100"
-          tableLayout="fixed"
-          pagination={false}
-          // summary={(pageData) => {
-          // let totalBorrow = 0;
-          // let totalRepayment = 0;
-          // // pageData.forEach(({ borrow, repayment }) => {
-          // //   totalBorrow += borrow;
-          // //   totalRepayment += repayment;
-          // // });
-          // return (
-          //   <Table.Summary.Row>
-          //     <Table.Summary.Cell index={1} colSpan={2}>
-          //       Tổng
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} className="text-right">
-          //       <Typography.Text>{formatCurrency(987000)}</Typography.Text>
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} className="text-right">
-          //       <Typography.Text type="danger">
-          //         {formatCurrency(296100)}
-          //       </Typography.Text>
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} className="text-right">
-          //       <Typography.Link>{formatCurrency(690900)}</Typography.Link>
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} />
-          //   </Table.Summary.Row>
-          // );
-          // }}
-        />
-      </Row>
+                {dataCanAccess.map((item, index) => (
+                  <Select.Option key={index.toString()} value={item.id}>
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
 
-      <PickDiscountModal
-        amount={amount}
-        type={discountType}
-        value={discountValue}
-        rate={discountRate}
-        counpon={counpon}
-        onCancel={onCancleDiscountConfirm}
-        onOk={onOkDiscountConfirm}
-        visible={isVisiblePickDiscount}
-      />
-
-      <Row className="sale-product-box-payment" gutter={24}>
-        <Col xs={24} lg={12}>
-          <div className="payment-row">
-            <Checkbox
-              className="checkbox-style"
-              onChange={() => console.log(1)}
-            >
-              Bỏ chiết khấu tự động
-            </Checkbox>
-          </div>
-          <div className="payment-row">
-            <Checkbox
-              className="checkbox-style"
-              onChange={() => console.log(1)}
-            >
-              Không tính thuế VAT
-            </Checkbox>
-          </div>
-          <div className="payment-row">
-            <Checkbox
-              className="checkbox-style"
-              onChange={() => console.log(1)}
-            >
-              Bỏ tích điểm tự động
-            </Checkbox>
-          </div>
-        </Col>
-        <Col xs={24} lg={12}>
-          <Row className="payment-row" justify="space-between">
-            <div className="font-weight-500">Tổng tiền</div>
-            <div className="font-weight-500 payment-row-money">
-              {formatCurrency(amount)}
+              {props.isVisibleStore === true && (
+                <div>
+                  <div
+                    className="ant-form-item-explain ant-form-item-explain-error"
+                    style={{ padding: "5px" }}
+                  >
+                    <div role="alert">Vui lòng chọn cửa hàng</div>
+                  </div>
+                </div>
+              )}
             </div>
-          </Row>
+          </Col>
+          <Col xs={24} lg={16}>
+            <div className="form-group form-group-with-search">
+              <label htmlFor="" className="">
+                Sản phẩm
+              </label>
+              <div>
+                <AutoComplete
+                  notFoundContent={
+                    keysearch.length >= 3
+                      ? "Không tìm thấy sản phẩm"
+                      : undefined
+                  }
+                  value={keysearch}
+                  ref={autoCompleteRef}
+                  onSelect={onSearchVariantSelect}
+                  dropdownClassName="search-layout dropdown-search-header"
+                  dropdownMatchSelectWidth={456}
+                  className="w-100"
+                  onSearch={onChangeProductSearch}
+                  options={convertResultSearch}
+                >
+                  <Input
+                    size="middle"
+                    className="yody-search"
+                    placeholder="Tìm sản phẩm theo tên/ SKU (F3)"
+                    prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                  />
+                </AutoComplete>
+              </div>
+            </div>
+          </Col>
+        </Row>
 
-          <Row className="payment-row" justify="space-between" align="middle">
-            <Space align="center">
-              <Typography.Link
-                className="font-weight-500"
-                onClick={ShowDiscountModal}
-              >
-                Chiết khấu
-              </Typography.Link>
-              <div className="badge-style badge-danger">
-                {discountRate !== null ? discountRate : 0}%{" "}
+        <Row className="sale-product-box">
+          <AddGiftModal
+            items={itemGifts}
+            onUpdateData={onUpdateData}
+            onCancel={onCancleConfirm}
+            onOk={onOkConfirm}
+            visible={isVisibleGift}
+          />
+          <Table
+            locale={{
+              emptyText: (
                 <Button
                   type="text"
-                  className="p-0"
-                  onClick={() => {
-                    setDiscountRate(0);
-                    setDiscountValue(0);
-                    calculateChangeMoney(items, amount, 0, 0);
+                  className="font-weight-500"
+                  style={{
+                    color: "#2A2A86",
+                    background: "rgba(42,42,134,0.05)",
+                    borderRadius: 5,
+                    padding: 8,
+                    height: "auto",
+                    marginTop: 15,
+                    marginBottom: 15,
                   }}
                 >
-                  x
+                  Thêm sản phẩm ngay (F3)
                 </Button>
-              </div>
-            </Space>
-            <div className="font-weight-500 ">
-              {formatCurrency(discountValue)}
-            </div>
-          </Row>
+              ),
+            }}
+            rowKey={(record) => record.id}
+            columns={columns}
+            dataSource={items}
+            className="sale-product-box-table w-100"
+            tableLayout="fixed"
+            pagination={false}
+          />
+        </Row>
 
-          <Row className="payment-row" justify="space-between" align="middle">
-            <Space align="center">
-              <Typography.Link
-                className="font-weight-500"
-                onClick={ShowDiscountModal}
+        <PickDiscountModal
+          amount={amount}
+          type={discountType}
+          value={discountValue}
+          rate={discountRate}
+          counpon={counpon}
+          onCancel={onCancleDiscountConfirm}
+          onOk={onOkDiscountConfirm}
+          visible={isVisiblePickDiscount}
+        />
+
+        <Row className="sale-product-box-payment" gutter={24}>
+          <Col xs={24} lg={12}>
+            <div className="payment-row">
+              <Checkbox
+                className="checkbox-style"
+                onChange={() => console.log(1)}
               >
-                Mã giảm giá
-              </Typography.Link>
-              <div className="badge-style badge-primary">
-                {counpon}{" "}
-                <Button type="text" className="p-0">
-                  x
-                </Button>
-              </div>
-            </Space>
-            <div className="font-weight-500 ">0</div>
-          </Row>
-
-          <Row className="payment-row" justify="space-between">
-            <div className="font-weight-500">Phí ship báo khách</div>
-            <div className="font-weight-500 payment-row-money">20,000</div>
-          </Row>
-
-          <Row className="payment-row" justify="space-between">
-            <div className="font-weight-500">Khách cần trả</div>
-            <div className="font-weight-500 payment-row-money">
-              {/* <Typography.Text type="success" className="font-weight-500"> */}
-              {formatCurrency(changeMoney)}
-              {/* </Typography.Text> */}
+                Bỏ chiết khấu tự động
+              </Checkbox>
             </div>
-          </Row>
-        </Col>
-      </Row>
+            <div className="payment-row">
+              <Checkbox
+                className="checkbox-style"
+                onChange={() => console.log(1)}
+              >
+                Không tính thuế VAT
+              </Checkbox>
+            </div>
+            <div className="payment-row">
+              <Checkbox
+                className="checkbox-style"
+                onChange={() => console.log(1)}
+              >
+                Bỏ tích điểm tự động
+              </Checkbox>
+            </div>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Row className="payment-row" justify="space-between">
+              <div className="font-weight-500">Tổng tiền</div>
+              <div className="font-weight-500 payment-row-money">
+                {formatCurrency(amount)}
+              </div>
+            </Row>
+
+            <Row className="payment-row" justify="space-between" align="middle">
+              <Space align="center">
+                <Typography.Link
+                  className="font-weight-500"
+                  onClick={ShowDiscountModal}
+                >
+                  Chiết khấu
+                </Typography.Link>
+                <div className="badge-style badge-danger">
+                  {discountRate !== null ? discountRate : 0}%{" "}
+                  <Button
+                    type="text"
+                    className="p-0"
+                    onClick={() => {
+                      setDiscountRate(0);
+                      setDiscountValue(0);
+                      calculateChangeMoney(items, amount, 0, 0);
+                    }}
+                  >
+                    x
+                  </Button>
+                </div>
+              </Space>
+              <div className="font-weight-500 ">
+                {formatCurrency(discountValue)}
+              </div>
+            </Row>
+
+            <Row className="payment-row" justify="space-between" align="middle">
+              <Space align="center">
+                <Typography.Link
+                  className="font-weight-500"
+                  onClick={ShowDiscountModal}
+                >
+                  Mã giảm giá
+                </Typography.Link>
+                <div className="badge-style badge-primary">
+                  {counpon}{" "}
+                  <Button type="text" className="p-0">
+                    x
+                  </Button>
+                </div>
+              </Space>
+              <div className="font-weight-500 ">0</div>
+            </Row>
+
+            <Row className="payment-row" justify="space-between">
+              <div className="font-weight-500">Phí ship báo khách</div>
+              <div className="font-weight-500 payment-row-money">20,000</div>
+            </Row>
+
+            <Row className="payment-row" justify="space-between">
+              <div className="font-weight-500">Khách cần trả</div>
+              <div className="font-weight-500 payment-row-money">
+                {/* <Typography.Text type="success" className="font-weight-500"> */}
+                {formatCurrency(changeMoney)}
+                {/* </Typography.Text> */}
+              </div>
+            </Row>
+          </Col>
+        </Row>
       </div>
     </Card>
   );

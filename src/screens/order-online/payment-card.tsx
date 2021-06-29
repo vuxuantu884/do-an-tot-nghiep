@@ -17,12 +17,12 @@ import { useDispatch } from "react-redux";
 import { PaymentMethodCode } from "utils/Constants";
 import walletIcon from "../../assets/img/wallet.svg";
 import deleteIcon from "assets/icon/delete.svg";
-import { OrderPaymentRequest } from "model/request/order-payment.request";
 import {
   formatCurrency,
   formatSuffixPoint,
   replaceFormat,
 } from "utils/AppUtils";
+import { OrderPaymentRequest } from "model/request/order.request";
 
 type PaymentCardProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;

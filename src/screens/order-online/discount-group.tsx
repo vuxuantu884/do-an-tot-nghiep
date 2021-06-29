@@ -43,13 +43,13 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
   return (
     <div>
       <Input.Group compact>
-        <Select onChange={(value: string) => changeDiscountType(value)} value={selected} className="yody-pos-discount-type">
+        <Select onChange={(value: string) => changeDiscountType(value)} value={selected}>
           <Select.Option value="percent">%</Select.Option>
           <Select.Option value="money">₫</Select.Option>
         </Select>
         <InputNumber
           formatter={value => formatCurrency(value ? value : '0')}
-          style={{height: '32px', width: '100%'}}
+          style={{height: '42px', width: '100%'}}
           value={selected === "percent" ? props.discountRate : formatCurrency(props.discountValue) }
           max = {selected === "percent" ? 100 : props.price}
           onChange={ChangeValueDiscount}

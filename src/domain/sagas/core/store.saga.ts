@@ -169,7 +169,7 @@ export function* storeDetailSaga(action: YodyAction) {
   }
 }
 
-export function* StoreSaga() {
+export function* storeSaga() {
   yield takeLatest(StoreType.GET_LIST_STORE_REQUEST, storeGetAllSaga);
   yield takeLatest(StoreType.STORE_SEARCH, storeSearchSaga);
   yield takeLatest(StoreType.STORE_RANK, storeRanksaga);

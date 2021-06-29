@@ -1,10 +1,15 @@
-export interface OrderRequest {
+export interface OrderResponse {
+  id: number | null;
+  version: number | null;
   company_id: number | null;
+  company: string | null;
   store_id: number | null;
+  store: string | null;
   status: string | null;
   price_type: string | null;
   tax_treatment: string | null;
   source_id: number | null;
+  source: string | null;
   note: string | null;
   tags: string | null;
   customer_note: string | null;
@@ -12,8 +17,13 @@ export interface OrderRequest {
   account_code: string | null;
   account: string | null;
   assignee_code: string | null;
+  assignee: string | null;
   channel_id: number | null;
+  channel: string| null;
   customer_id: number | null;
+  customer: string | null;
+  customer_phone_number: string | null;
+  customer_email: string | null;
   fulfillment_status: string | null;
   packed_status: string | null;
   received_Status: string | null;
@@ -35,16 +45,44 @@ export interface OrderRequest {
   cancelled_on: string | null;
   finished_on: string | null;
   currency: string | null;
-  items: Array<OrderLineItemRequest>;
-  discounts: Array<OrderDiscountRequest> | null;
-  payments: Array<OrderPaymentRequest> | null;
+  items: Array<OrderLineItemResponse>;
+  discounts: Array<OrderDiscountResponse> | null;
+  payments: Array<OrderPaymentResponse> | null;
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
-  fulfillment: Array<FulFillmentRequest> | null;
-  pre_payments: Array<OrderPaymentRequest> | null;
+  fulfillment: Array<FulFillmentResponse> | null;
+  pre_payments: Array<OrderPaymentResponse> | null;
 }
 
-export interface FulFillmentRequest {
+export interface OrderLineItemResponse {
+  id: number;
+  sku: string;
+  variant_id: number;
+  variant: string;
+  product_id: number;
+  product: string;
+  variant_barcode: string;
+  product_type: string;
+  quantity: number;
+  price: number;
+  amount: number;
+  note: string;
+  type: string;
+  variant_image: string;
+  unit: string;
+  warranty: string;
+  tax_rate: number;
+  tax_include: boolean;
+  line_amount_after_line_discount: number;
+  discount_items: Array<OrderItemDiscountResponse>;
+  discount_rate: number;
+  discount_value: number;
+  discount_amount: number;
+  position?: number;
+  gifts: Array<OrderLineItemResponse>;
+}
+
+export interface FulFillmentResponse {
   store_id: number|null;
   account_code: string | null;
   assignee_code: string | null;
@@ -73,8 +111,42 @@ export interface FulFillmentRequest {
   total_line_amount_after_line_discount: number | null;
   shipment: ShipmentRequest | null | undefined;
   billing_address: BillingAddress | null;
-  items: Array<OrderLineItemRequest>;
-  payments: Array<OrderPaymentRequest>;
+  items: Array<OrderLineItemResponse>;
+  payments: Array<OrderPaymentResponse>;
+}
+
+export interface OrderDiscountResponse {
+  rate: number|null;
+  value: number|null;
+  amount: number | null;
+  promotion_id: number|null;
+  reason: string | null;
+  source: string | null;
+}
+
+export interface OrderItemDiscountResponse {
+  rate: number|null;
+  value: number|null;
+  amount: number|null;
+  promotion_id?: number | null;
+  reason: string | null;
+}
+
+export interface OrderPaymentResponse {
+  payment_method_id: number,
+  payment_method: string,
+  amount: number,
+  reference: string,
+  source: string,
+  paid_amount: number,
+  return_amount: number,
+  status: string,
+  name?: string,
+  code?: string,
+  point?: number,
+  customer_id: number,
+  type: string,
+  note: string,
 }
 
 export interface BillingAddress {
@@ -132,66 +204,4 @@ export interface ShipmentRequest {
   note_to_shipper: string | null;
   requirements: string | null;
   shipping_address: ShippingAddress | null;
-}
-
-export interface OrderPaymentRequest {
-  payment_method_id: number,
-  payment_method: string,
-  amount: number,
-  reference: string,
-  source: string,
-  paid_amount: number,
-  return_amount: number,
-  status: string,
-  name?: string,
-  code?: string,
-  point?: number,
-  customer_id: number,
-  type: string,
-  note: string,
-}
-
-export interface OrderLineItemRequest {
-  sku: string;
-  variant_id: number;
-  variant: string;
-  product_id: number;
-  product: string;
-  show_note:boolean;
-  variant_barcode: string;
-  product_type: string;
-  quantity: number;
-  price: number;
-  amount: number;
-  note: string;
-  type: string;
-  variant_image: string;
-  unit: string;
-  warranty: string;
-  tax_rate: number;
-  tax_include: boolean;
-  line_amount_after_line_discount: number;
-  discount_items: Array<OrderItemDiscountRequest>;
-  discount_rate: number;
-  discount_value: number;
-  discount_amount: number;
-  position?: number;
-  gifts: Array<OrderLineItemRequest>;
-}
-
-export interface OrderItemDiscountRequest {
-  rate: number;
-  value: number;
-  amount: number;
-  promotion_id?: number;
-  reason: string | null;
-}
-
-export interface OrderDiscountRequest {
-  rate: number|null;
-  value: number|null;
-  amount: number | null;
-  promotion_id: number|null;
-  reason: string | null;
-  source: string | null;
 }

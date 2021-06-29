@@ -1,8 +1,0 @@
-export interface OrderDiscountRequest {
-  rate: number|null;
-  value: number|null;
-  amount: number | null;
-  promotion_id: number|null;
-  reason: string | null;
-  source: string | null;
-}

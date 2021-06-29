@@ -1,0 +1,1559 @@
+import React, {
+  createRef,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  Card,
+  Button,
+  Form,
+  Row,
+  Col,
+  Checkbox,
+  Input,
+  Space,
+  Divider,
+  Radio,
+  Avatar,
+  Tag,
+  Popover,
+  AutoComplete,
+  Typography,
+  Menu,
+  Dropdown,
+  Tooltip,
+  InputNumber,
+  Table as ANTTable,
+} from "antd";
+import {
+  ArrowRightOutlined,
+  BorderOutlined,
+  CalendarOutlined,
+  CheckOutlined,
+  CreditCardOutlined,
+  DeleteOutlined,
+  DollarOutlined,
+  DownOutlined,
+  InfoCircleOutlined,
+  PhoneFilled,
+  PlusOutlined,
+  ProfileOutlined,
+  SearchOutlined,
+  ShopOutlined,
+  UserOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
+
+import { Select } from "component/common/select";
+import { Link } from "react-router-dom";
+import { ICustomTableColumType, Table } from "component/common/table";
+import "assets/css/v2/_sale-order.scss";
+import { SourceResponse } from "model/response/order/source.response";
+import { useDispatch, useSelector } from "react-redux";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+
+import peopleIcon2 from "assets/img/people.svg";
+import bithdayIcon from "assets/img/bithday.svg";
+import editBlueIcon from "assets/img/editBlue.svg";
+import deleteRedIcon from "assets/img/deleteRed.svg";
+import pointIcon from "assets/img/point.svg";
+import callIcon from "assets/img/call.svg";
+import locationIcon from "assets/img/location.svg";
+import imgdefault from "assets/icon/img-default.svg";
+import productIcon from "../../assets/img/cube.svg";
+import deleteIcon from "assets/icon/delete.svg";
+import giftIcon from "assets/icon/gift.svg";
+import arrowDownIcon from "../../assets/img/drow-down.svg";
+import {
+  BillingAddress,
+  CustomerResponse,
+  ShippingAddress,
+} from "model/response/customer/customer.response";
+import { RefSelectProps } from "antd/lib/select";
+import { CustomerSearch } from "domain/actions/customer/customer.action";
+import { CustomerSearchQuery } from "model/query/customer.query";
+import moment from "moment";
+import { StoreResponse } from "model/core/store.model";
+import {
+  findAvatar,
+  findPrice,
+  findPriceInVariant,
+  findTaxInVariant,
+  formatCurrency,
+  haveAccess,
+  replaceFormat,
+  replaceFormatString,
+} from "utils/AppUtils";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import {
+  VariantResponse,
+  VariantSearchQuery,
+} from "model/product/product.model";
+import { AppConfig } from "config/AppConfig";
+import {
+  OrderItemDiscountModel,
+  OrderItemModel,
+} from "model/other/Order/order-model";
+import DiscountGroup from "./discount-group";
+import { PageResponse } from "model/base/base-metadata.response";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { Type } from "../../config/TypeConfig";
+import NumberInput from "component/custom/number-input.custom";
+const { Summary } = ANTTable;
+
+const dataSource = [
+  {
+    sku: "APN3340 - XXA - XL",
+    name: "Polo mắt chim nữ - xanh xám - XL",
+  },
+];
+
+const summary = () => (
+  <Summary>
+    <Summary.Row>
+      <Summary.Cell index={0}></Summary.Cell>
+      <Summary.Cell index={1}>Tổng</Summary.Cell>
+      <Summary.Cell index={2}></Summary.Cell>
+      <Summary.Cell index={3}>
+        <span>300.000</span>
+      </Summary.Cell>
+      <Summary.Cell index={4}>
+        <span className="text-error">90.000</span>
+      </Summary.Cell>
+      <Summary.Cell index={5}>
+        <span className="text-error">270.000</span>
+      </Summary.Cell>
+    </Summary.Row>
+  </Summary>
+);
+
+const initQueryCustomer: CustomerSearchQuery = {
+  request: "",
+  limit: 10,
+  page: 1,
+};
+
+const initQueryVariant: VariantSearchQuery = {
+  limit: 10,
+  page: 1,
+};
+
+export default function Order() {
+  //#region State
+  const dispatch = useDispatch();
+  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [customer, setCustomer] = useState<CustomerResponse | null>(null);
+  const [resultSearchCustomer, setResultSearchCustomer] = useState<
+    Array<CustomerResponse>
+  >([]);
+  const [shippingAddress, setShippingAddress] =
+    useState<ShippingAddress | null>(null);
+  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
+    null
+  );
+  const [splitLine, setSplitLine] = useState<boolean>(false);
+  const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
+  const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
+  const [isVisibleAddress, setVisibleAddress] = useState(false);
+  const [isVisibleBilling, setVisibleBilling] = useState(true);
+  let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
+  const [keysearchCustomer, setKeySearchCustomer] = useState("");
+  const autoCompleteRef = createRef<RefSelectProps>();
+  const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+  const [items, setItems] = useState<Array<OrderItemModel>>([]);
+  const [isVisibleGift, setVisibleGift] = useState(false);
+  const [indexItem, setIndexItem] = useState<number>(-1);
+  const [amount, setAmount] = useState<number>(0);
+  const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
+  const [discountType, setDiscountType] = useState<string>("money");
+  const [discountValue, setDiscountValue] = useState<number>(0);
+  const [discountRate, setDiscountRate] = useState<number>(0);
+  const [changeMoney, setChangeMoney] = useState<number>(0);
+  const [counpon, setCounpon] = useState<string>("");
+  const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
+  const [keysearchVariant, setKeysearchVariant] = useState("");
+
+  const [resultSearchVariant, setResultSearchVariant] = useState<
+    PageResponse<VariantResponse>
+  >({
+    metadata: {
+      limit: 0,
+      page: 0,
+      total: 0,
+    },
+    items: [],
+  });
+  //#endregion
+
+  //#region Customer
+  const CustomerChangeSearch = useCallback(
+    (value) => {
+      setKeySearchCustomer(value);
+      initQueryCustomer.request = value;
+      dispatch(CustomerSearch(initQueryCustomer, setResultSearchCustomer));
+    },
+    [dispatch]
+  );
+
+  const SearchCustomerSelect = useCallback(
+    (value, o) => {
+      let index: number = -1;
+      index = resultSearchCustomer.findIndex(
+        (customerResponse: CustomerResponse) =>
+          customerResponse.id && customerResponse.id.toString() === value
+      );
+      if (index !== -1) {
+        setCustomer(resultSearchCustomer[index]);
+        //set Shipping Address
+        if (
+          resultSearchCustomer[index].shipping_addresses !== undefined &&
+          resultSearchCustomer[index].shipping_addresses !== null
+        ) {
+          resultSearchCustomer[index].shipping_addresses.forEach(
+            (item, index2) => {
+              if (item.default === true) {
+                setShippingAddress(item);
+              }
+            }
+          );
+        }
+
+        //set Billing Address
+        if (
+          resultSearchCustomer[index].billing_addresses !== undefined &&
+          resultSearchCustomer[index].billing_addresses !== null
+        ) {
+          resultSearchCustomer[index].billing_addresses.forEach(
+            (item, index2) => {
+              if (item.default === true) {
+                setBillingAddress(item);
+              }
+            }
+          );
+        }
+        autoCompleteRef.current?.blur();
+        setKeySearchCustomer("");
+      }
+    },
+    [autoCompleteRef, dispatch, resultSearchCustomer, customer]
+  );
+
+  //Render result search
+  const CustomerRenderSearchResult = (item: CustomerResponse) => {
+    return (
+      <div className="row-search w-100">
+        <div className="rs-left w-100">
+          <img src={imgdefault} alt="anh" placeholder={imgdefault} />
+          <div className="rs-info w-100">
+            <span className="text">
+              {item.full_name} - {item.phone}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const CustomerConvertResultSearch = useMemo(() => {
+    let options: any[] = [];
+    resultSearchCustomer.forEach((item: CustomerResponse, index: number) => {
+      options.push({
+        label: CustomerRenderSearchResult(item),
+        value: item.id ? item.id.toString() : "",
+      });
+    });
+    return options;
+  }, [dispatch, resultSearchCustomer]);
+
+  //Delete customer
+  const CustomerDeleteInfo = () => {
+    setCustomer(null);
+  };
+
+  const ShowBillingAddress = () => {
+    setVisibleBilling(!isVisibleBilling);
+  };
+  //#endregion
+
+  //#region Product
+  const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer
+  );
+
+  const onDeleteItem = (index: number) => {
+    let _items = [...items];
+    let _amount = amount - _items[index].line_amount_after_line_discount;
+    setAmount(_amount);
+    _items.splice(index, 1);
+    setItems(_items);
+  };
+
+  const onChangeNote = (e: any, index: number) => {
+    let value = e.target.value;
+    let _items = [...items];
+    _items[index].note = value;
+    setItems(_items);
+  };
+
+  const onDiscountItem = (_items: Array<OrderItemModel>) => {
+    setItems(_items);
+    total();
+  };
+
+  const onChangeQuantity = (value: number, index: number) => {
+    let _items = [...items];
+
+    _items[index].quantity = Number(
+      value == null ? "0" : value.toString().replace(".", "")
+    );
+    setItems(_items);
+    total();
+  };
+
+  const total = useCallback(() => {
+    let _items = [...items];
+    let _amount = 0;
+    _items.forEach((i) => {
+      let amountItem = (i.price - i.discount_items[0].value) * i.quantity;
+      i.line_amount_after_line_discount = amountItem;
+      i.amount = i.price * i.quantity;
+      _amount += amountItem;
+    });
+    setItems(_items);
+    setAmount(_amount);
+  }, [items]);
+
+  const showAddGiftModal = useCallback(
+    (index: number) => {
+      setIndexItem(index);
+      setItemGift([...items[index].gifts]);
+      setVisibleGift(true);
+    },
+    [items]
+  );
+
+  const createNewDiscountItem = () => {
+    const newDiscountItem: OrderItemDiscountModel = {
+      amount: 0,
+      rate: 0,
+      reason: "",
+      value: 0,
+    };
+    return newDiscountItem;
+  };
+
+  const renderSearchVariant = (item: VariantResponse) => {
+    let avatar = findAvatar(item.variant_images);
+    return (
+      <div className="row-search w-100">
+        <div className="rs-left w-100" style={{ width: "100%" }}>
+          <img
+            src={avatar === "" ? imgdefault : avatar}
+            alt="anh"
+            placeholder={imgdefault}
+          />
+          <div className="rs-info w-100">
+            <span style={{ color: "#37394D" }} className="text">
+              {item.name}
+            </span>
+            <span style={{ color: "#95A1AC" }} className="text p-4">
+              {item.sku}
+            </span>
+          </div>
+        </div>
+        <div className="rs-right">
+          <span style={{ color: "#37394D" }} className="text t-right">
+            {findPrice(item.variant_prices, AppConfig.currency)}
+          </span>
+          <span style={{ color: "#95A1AC" }} className="text t-right p-4">
+            Có thể bán{" "}
+            <span
+              style={{
+                color:
+                  item.inventory > 0
+                    ? "rgba(0, 128, 255, 1)"
+                    : "rgba(226, 67, 67, 1)",
+              }}
+            >
+              {item.inventory}
+            </span>
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  const convertResultSearchVariant = useMemo(() => {
+    let options: any[] = [];
+    resultSearchVariant.items.forEach(
+      (item: VariantResponse, index: number) => {
+        options.push({
+          label: renderSearchVariant(item),
+          value: item.id ? item.id.toString() : "",
+        });
+      }
+    );
+    return options;
+  }, [resultSearchVariant]);
+
+  const createItem = (variant: VariantResponse) => {
+    let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
+    let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
+    let avatar = findAvatar(variant.variant_images);
+    const discountItem: OrderItemDiscountModel = createNewDiscountItem();
+    let orderLine: OrderItemModel = {
+      id: new Date().getTime(),
+      sku: variant.sku,
+      variant_id: variant.id,
+      product_id: variant.product.id,
+      variant: variant.name,
+      variant_barcode: variant.barcode,
+      product_type: variant.product.product_type,
+      quantity: 1,
+      price: price,
+      amount: price,
+      note: "",
+      type: Type.NORMAL,
+      variant_image: avatar,
+      unit: variant.product.unit,
+      warranty: variant.product.preservation,
+      discount_items: [discountItem],
+      discount_amount: 0,
+      discount_rate: 0,
+      is_composite: variant.composite,
+      discount_value: 0,
+      line_amount_after_line_discount: price,
+      product: variant.product.name,
+      tax_include: true,
+      tax_rate: taxRate,
+      show_note: false,
+      gifts: [],
+    };
+    return orderLine;
+  };
+
+  const onSearchVariantSelect = useCallback(
+    (v, o) => {
+      let _items = [...items].reverse();
+      let indexSearch = resultSearchVariant.items.findIndex((s) => s.id == v);
+      console.log(indexSearch);
+      let index = _items.findIndex((i) => i.variant_id == v);
+      let r: VariantResponse = resultSearchVariant.items[indexSearch];
+      if (r.id == v) {
+        if (splitLine || index === -1) {
+          const item: OrderItemModel = createItem(r);
+          _items.push(item);
+          setAmount(amount + item.price);
+          setSplitLine(false);
+        } else {
+          let lastIndex = index;
+          _items.forEach((value, _index) => {
+            if (_index > lastIndex) {
+              lastIndex = _index;
+            }
+          });
+          _items[lastIndex].quantity += 1;
+          _items[lastIndex].line_amount_after_line_discount +=
+            items[lastIndex].price - _items[lastIndex].discount_items[0].amount;
+          setAmount(
+            amount +
+              _items[lastIndex].price -
+              _items[lastIndex].discount_items[0].amount
+          );
+        }
+      }
+      setItems(_items.reverse());
+      autoCompleteRef.current?.blur();
+      setKeysearchVariant("");
+    },
+    [resultSearchVariant, items, splitLine]
+    // autoCompleteRef, dispatch, resultSearch
+  );
+
+  const onChangeProductSearch = useCallback(
+    (value) => {
+      setKeysearchVariant(value);
+      initQueryVariant.info = value;
+      dispatch(
+        searchVariantsOrderRequestAction(
+          initQueryVariant,
+          setResultSearchVariant
+        )
+      );
+    },
+    [dispatch]
+  );
+
+  const ProductColumn = {
+    title: () => (
+      <div className="text-center">
+        <div>Sản phẩm</div>
+        <span style={{ color: "#0080FF" }}></span>
+      </div>
+    ),
+    width: 255,
+    className: "yody-pos-name",
+    render: (l: OrderItemModel, item: any, index: number) => {
+      return (
+        <div className="w-100" style={{ overflow: "hidden" }}>
+          <div className="d-flex align-items-center">
+            <Button
+              type="text"
+              className="p-0 ant-btn-custom"
+              onClick={() => onDeleteItem(index)}
+              style={{ float: "left", marginRight: "13px" }}
+            >
+              <img src={deleteIcon} alt="" />
+            </Button>
+            <div style={{ width: "calc(100% - 32px)", float: "left" }}>
+              <div className="yody-pos-sku">
+                <Typography.Link style={{ color: "#2A2A86" }}>
+                  {l.sku}
+                </Typography.Link>
+              </div>
+              <div className="yody-pos-varian">
+                <Tooltip title={l.variant} className="yody-pos-varian-name">
+                  <span>{l.variant}</span>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+          {l.gifts.map((a, index1) => (
+            <div key={index1} className="yody-pos-addition yody-pos-gift">
+              <div>
+                <img src={giftIcon} alt="" /> {a.variant}{" "}
+                <span>({a.quantity})</span>
+              </div>
+            </div>
+          ))}
+
+          <div className="yody-pos-note" hidden={!l.show_note && l.note === ""}>
+            <Input
+              addonBefore={<EditOutlined />}
+              maxLength={255}
+              allowClear={true}
+              onBlur={() => {
+                if (l.note === "") {
+                  let _items = [...items];
+                  _items[index].show_note = false;
+                  setItems(_items);
+                }
+              }}
+              className="note"
+              value={l.note}
+              onChange={(e) => onChangeNote(e, index)}
+              placeholder="Ghi chú"
+            />
+          </div>
+        </div>
+      );
+    },
+  };
+
+  const AmountColumnt = {
+    title: () => (
+      <div className="text-center">
+        <div>Số lượng</div>
+        <span style={{ color: "#0080FF" }}></span>
+      </div>
+    ),
+    className: "yody-pos-quantity text-center",
+    width: 95,
+    render: (l: OrderItemModel, item: any, index: number) => {
+      return (
+        <div className="yody-pos-qtt">
+          <InputNumber
+            onChange={(value) => onChangeQuantity(value, index)}
+            value={l.quantity}
+            min={1}
+            max={9999}
+            onFocus={(e) => e.target.select()}
+            style={{ width: 60, textAlign: "right" }}
+          />
+        </div>
+      );
+    },
+  };
+
+  const PriceColumnt = {
+    title: "Đơn giá",
+    className: "yody-pos-price text-right",
+    width: 130,
+    render: (l: OrderItemModel, item: any, index: number) => {
+      return (
+        <div className="yody-pos-price">
+          <NumberInput
+            format={(a: string) => formatCurrency(a)}
+            replace={(a: string) => replaceFormatString(a)}
+            placeholder="VD: 100,000"
+            style={{ minWidth: 110, maxWidth: 130, textAlign: "right" }}
+            value={l.price.toString()}
+            onChange={(e) => console.log(1)}
+          />
+        </div>
+      );
+    },
+  };
+
+  const DiscountColumnt = {
+    title: "Chiết khấu",
+    align: "center",
+    width: 185,
+    className: "yody-table-discount text-right",
+    render: (l: OrderItemModel, item: any, index: number) => {
+      return (
+        <div className="site-input-group-wrapper">
+          <DiscountGroup
+            price={l.price}
+            index={index}
+            discountRate={l.discount_items[0].rate}
+            discountValue={l.discount_items[0].value}
+            totalAmount={l.discount_items[0].amount}
+            items={items}
+            setItems={onDiscountItem}
+          />
+        </div>
+      );
+    },
+  };
+
+  const TotalPriceColumn = {
+    title: "Tổng tiền",
+    className: "yody-table-total-money text-right",
+    // width: 100,
+    render: (l: OrderItemModel, item: any, index: number) => {
+      return <div>{formatCurrency(l.line_amount_after_line_discount)}</div>;
+    },
+  };
+
+  const ActionColumn = {
+    title: "Thao tác",
+    width: 85,
+    className: "yody-table-action text-center",
+    render: (l: OrderItemModel, item: any, index: number) => {
+      const menu = (
+        <Menu className="yody-line-item-action-menu">
+          <Menu.Item key="0">
+            <Button
+              type="text"
+              onClick={() => showAddGiftModal(index)}
+              className="p-0 m-0 w-100"
+            >
+              Thêm quà tặng
+            </Button>
+          </Menu.Item>
+          <Menu.Item key="1">
+            <Button
+              type="text"
+              onClick={() => {
+                let _items = [...items];
+                _items[index].show_note = true;
+                setItems(_items);
+              }}
+              className="p-0 m-0 w-100"
+            >
+              Thêm ghi chú
+            </Button>
+          </Menu.Item>
+        </Menu>
+      );
+      return (
+        <div className="site-input-group-wrapper">
+          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+            <Button
+              type="text"
+              className="ant-dropdown-link circle-button yody-pos-action"
+            >
+              <img src={arrowDownIcon} alt="" />
+            </Button>
+          </Dropdown>
+        </div>
+      );
+    },
+  };
+  const columns = [
+    ProductColumn,
+    AmountColumnt,
+    PriceColumnt,
+    DiscountColumnt,
+    TotalPriceColumn,
+    ActionColumn,
+  ];
+
+  const dataCanAccess = useMemo(() => {
+    let newData: Array<StoreResponse> = [];
+    if (listStores && listStores != null) {
+      newData = listStores.filter((store) =>
+        haveAccess(
+          store.id,
+          userReducer.account ? userReducer.account.account_stores : []
+        )
+      );
+    }
+    return newData;
+  }, [listStores, userReducer.account]);
+  //#endregion
+
+  const listSources = useMemo(() => {
+    return listSource.filter((item) => item.code !== "pos");
+  }, [listSource]);
+
+  useLayoutEffect(() => {
+    dispatch(getListSourceRequest(setListSource));
+  }, [dispatch]);
+
+  useLayoutEffect(() => {
+    dispatch(StoreGetListAction(setListStores));
+  }, [dispatch]);
+  return (
+    <div className="orders">
+      <Form layout="vertical">
+        <Row gutter={20}>
+          {/* Left Side */}
+          <Col md={18}>
+            <Card
+              title={
+                <div className="d-flex">
+                  <img src={peopleIcon2} alt="" /> Khách hàng
+                </div>
+              }
+              extra={
+                <div className="d-flex align-items-center form-group-with-search">
+                  <Form.Item
+                    name="source"
+                    style={{ margin: "10px 0px" }}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn nguồn đơn hàng",
+                      },
+                    ]}
+                  >
+                    <div className="display-flex align-item-center">
+                      <Space>
+                        <div>
+                          Nguồn <span className="text-error">*</span>
+                        </div>
+                        <Select
+                          style={{ width: 300 }}
+                          showArrow
+                          placeholder="Chọn nguồn đơn hàng"
+                          filterOption={(input, option) => {
+                            if (option) {
+                              return (
+                                option.children
+                                  .toLowerCase()
+                                  .indexOf(input.toLowerCase()) >= 0
+                              );
+                            }
+                            return false;
+                          }}
+                          suffix={
+                            <Button
+                              style={{ width: 36, height: 36 }}
+                              icon={<PlusOutlined />}
+                            />
+                          }
+                        >
+                          {listSources.map((item, index) => (
+                            <Select.Option
+                              style={{ width: "100%" }}
+                              key={index.toString()}
+                              value={item.id}
+                            >
+                              {item.name}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Space>
+                    </div>
+                  </Form.Item>
+                </div>
+              }
+            >
+              <div className="padding-lef-right" style={{ paddingTop: "15px" }}>
+                {customer === null && (
+                  <div>
+                    <div className="padding-bottom-5">
+                      <label htmlFor="">Tên khách hàng</label>
+                    </div>
+                    <AutoComplete
+                      notFoundContent={
+                        keysearchCustomer.length >= 3
+                          ? "Không tìm thấy khách hàng"
+                          : undefined
+                      }
+                      value={keysearchCustomer}
+                      ref={autoCompleteRef}
+                      onSelect={SearchCustomerSelect}
+                      dropdownClassName="search-layout-customer dropdown-search-header"
+                      dropdownMatchSelectWidth={456}
+                      className="w-100"
+                      style={{ width: "100%" }}
+                      onSearch={CustomerChangeSearch}
+                      options={CustomerConvertResultSearch}
+                    >
+                      <Input.Search
+                        placeholder="Tìm hoặc thêm khách hàng"
+                        className="border-input"
+                        enterButton={
+                          <Button
+                            style={{ width: 40, height: 36 }}
+                            icon={<PlusOutlined />}
+                          ></Button>
+                        }
+                        prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                      />
+                    </AutoComplete>
+                    <Divider className="margin-0" />
+                  </div>
+                )}
+              </div>
+              <div>
+                {customer !== null && (
+                  <div className="padding-lef-right">
+                    <Space size={55}>
+                      <Space>
+                        <Avatar size={32}>A</Avatar>
+                        <Link to="#">{customer.full_name}</Link>
+                        <Tag className="orders-tag orders-tag-vip">
+                          <b>{customer.customer_level}</b>
+                        </Tag>
+                      </Space>
+                      <Space className="customer-detail-phone">
+                        <span className="customer-detail-icon">
+                          <img src={callIcon} alt="" />
+                        </span>
+                        <span className="customer-detail-text">
+                          {customer?.phone === undefined
+                            ? "0987654321"
+                            : customer?.phone}
+                        </span>
+                      </Space>
+
+                      <Space className="customer-detail-point">
+                        <span className="customer-detail-icon">
+                          <img src={pointIcon} alt="" />
+                        </span>
+                        <span className="customer-detail-text">
+                          Tổng điểm{" "}
+                          <Typography.Text
+                            type="success"
+                            style={{ color: "#0080FF" }}
+                            strong
+                          >
+                            {customer?.loyalty === undefined
+                              ? "0"
+                              : customer?.loyalty}
+                          </Typography.Text>
+                        </span>
+                      </Space>
+
+                      <Space className="customer-detail-birthday">
+                        <span className="customer-detail-icon">
+                          <img src={bithdayIcon} alt="" />
+                        </span>
+                        <span className="customer-detail-text">
+                          {customerBirthday}
+                        </span>
+                      </Space>
+
+                      <Space className="customer-detail-action">
+                        <Button
+                          type="text"
+                          className="p-0 ant-btn-custom"
+                          //   onClick={ShowCustomerModal}
+                        >
+                          <img src={editBlueIcon} alt="" />
+                        </Button>
+                        <Button
+                          type="text"
+                          className="p-0 ant-btn-custom"
+                          onClick={CustomerDeleteInfo}
+                        >
+                          <img src={deleteRedIcon} alt="" />
+                        </Button>
+                      </Space>
+                    </Space>
+                    <Divider className="margin-0" />
+                    {customer.shipping_addresses !== undefined && (
+                      <Row gutter={24}>
+                        <Col
+                          xs={24}
+                          lg={12}
+                          className="font-weight-500 customer-info-left"
+                        >
+                          <div className="title-address">Địa chỉ giao hàng</div>
+                          <Row className="customer-row-info">
+                            <img
+                              src={peopleIcon2}
+                              alt=""
+                              style={{ width: 19 }}
+                            />{" "}
+                            <span style={{ marginLeft: 9 }}>
+                              {shippingAddress?.name}
+                            </span>
+                          </Row>
+                          <Row className="customer-row-info">
+                            <img src={callIcon} alt="" style={{ width: 19 }} />{" "}
+                            <span style={{ marginLeft: 9 }}>
+                              {shippingAddress?.phone}
+                            </span>
+                          </Row>
+                          <Row className="customer-row-info">
+                            <img
+                              src={locationIcon}
+                              alt=""
+                              style={{ width: 19 }}
+                            />{" "}
+                            <span style={{ marginLeft: 9 }}>
+                              {shippingAddress?.full_address}
+                            </span>
+                          </Row>
+                          <Row>
+                            <Popover
+                              placement="bottomLeft"
+                              title={
+                                <Row
+                                  justify="space-between"
+                                  align="middle"
+                                  className="change-shipping-address-title"
+                                >
+                                  <div style={{ color: "#4F687D" }}>
+                                    Thay đổi địa chỉ
+                                  </div>
+                                  <Button
+                                    type="link"
+                                    // onClick={ShowAddressModal}
+                                  >
+                                    Thêm địa chỉ mới
+                                  </Button>
+                                </Row>
+                              }
+                              content={
+                                <div className="change-shipping-address-content">
+                                  {customer.shipping_addresses.map(
+                                    (item, index) => (
+                                      <div
+                                        className="shipping-address-row"
+                                        // onClick={(e) =>
+                                        //   SelectShippingAddress(item)
+                                        // }
+                                      >
+                                        <div className="shipping-address-name">
+                                          Địa chỉ 1{" "}
+                                          <Button
+                                            type="text"
+                                            // onClick={ShowAddressModal}
+                                            className="p-0"
+                                          >
+                                            <img src={editBlueIcon} alt="" />
+                                          </Button>
+                                        </div>
+                                        <div className="shipping-customer-name">
+                                          {item.name}
+                                        </div>
+                                        <div className="shipping-customer-mobile">
+                                          {item.phone}
+                                        </div>
+                                        <div className="shipping-customer-address">
+                                          {item.full_address}
+                                        </div>
+                                      </div>
+                                    )
+                                  )}
+                                </div>
+                              }
+                              trigger="click"
+                              visible={visibleShippingAddress}
+                              //   onVisibleChange={
+                              //     handleVisibleShippingAddressChange
+                              //   }
+                              className="change-shipping-address"
+                            >
+                              <Button type="link" className="btn-style">
+                                Thay đổi địa chỉ giao hàng
+                              </Button>
+                            </Popover>
+                          </Row>
+                        </Col>
+                        <Col xs={24} lg={12} className="font-weight-500">
+                          <Form.Item
+                            name="customer_note"
+                            label="Ghi chú của khách hàng"
+                          >
+                            <Input.TextArea
+                              placeholder="Điền ghi chú"
+                              rows={4}
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    )}
+                    <Divider />
+
+                    <div className="send-order-box">
+                      <Row style={{ marginBottom: 15 }}>
+                        <Checkbox
+                          className="checkbox-style"
+                          onChange={ShowBillingAddress}
+                        >
+                          Gửi hoá đơn
+                        </Checkbox>
+                      </Row>
+
+                      {customer.billing_addresses !== undefined && (
+                        <Row gutter={24} hidden={isVisibleBilling}>
+                          <Col
+                            xs={24}
+                            lg={12}
+                            className="font-weight-500 customer-info-left"
+                          >
+                            <div className="title-address">
+                              Địa chỉ giao hàng
+                            </div>
+                            <Row className="customer-row-info">
+                              <img
+                                src={peopleIcon2}
+                                alt=""
+                                style={{ width: 19 }}
+                              />{" "}
+                              <span style={{ marginLeft: 9 }}>
+                                {shippingAddress?.name}
+                              </span>
+                            </Row>
+                            <Row className="customer-row-info">
+                              <img
+                                src={callIcon}
+                                alt=""
+                                style={{ width: 19 }}
+                              />{" "}
+                              <span style={{ marginLeft: 9 }}>
+                                {shippingAddress?.phone}
+                              </span>
+                            </Row>
+                            <Row className="customer-row-info">
+                              <img
+                                src={locationIcon}
+                                alt=""
+                                style={{ width: 19 }}
+                              />{" "}
+                              <span style={{ marginLeft: 9 }}>
+                                {shippingAddress?.full_address}
+                              </span>
+                            </Row>
+                            <Row>
+                              <Popover
+                                placement="bottomLeft"
+                                title={
+                                  <Row
+                                    justify="space-between"
+                                    align="middle"
+                                    className="change-shipping-address-title"
+                                  >
+                                    <div style={{ color: "#4F687D" }}>
+                                      Thay đổi địa chỉ
+                                    </div>
+                                    <Button
+                                      type="link"
+                                      //   onClick={ShowAddressModal}
+                                    >
+                                      Thêm địa chỉ mới
+                                    </Button>
+                                  </Row>
+                                }
+                                content={
+                                  <div className="change-shipping-address-content">
+                                    {customer.billing_addresses.map(
+                                      (item, index) => (
+                                        <div
+                                          className="shipping-address-row"
+                                          //   onClick={(e) =>
+                                          //     SelectBillingAddress(item)
+                                          //   }
+                                        >
+                                          <div className="shipping-address-name">
+                                            Địa chỉ 1{" "}
+                                            <Button
+                                              type="text"
+                                              //   onClick={ShowAddressModal}
+                                              className="p-0"
+                                            >
+                                              <img src={editBlueIcon} alt="" />
+                                            </Button>
+                                          </div>
+                                          <div className="shipping-customer-name">
+                                            {item.name}
+                                          </div>
+                                          <div className="shipping-customer-mobile">
+                                            {item.phone}
+                                          </div>
+                                          <div className="shipping-customer-address">
+                                            {item.full_address}
+                                          </div>
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                }
+                                trigger="click"
+                                visible={visibleBillingAddress}
+                                className="change-shipping-address"
+                              >
+                                <Button type="link" className="btn-style">
+                                  Thay đổi địa chỉ gửi hóa đơn
+                                </Button>
+                              </Popover>
+                            </Row>
+                          </Col>
+                          <Col xs={24} lg={12} className="font-weight-500">
+                            <Form.Item name="email" label="Email hóa đơn đến">
+                              <Input
+                                type="email"
+                                placeholder="Nhập email hoá đơn đến"
+                              />
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+            <Card
+              className="margin-top-20"
+              title={
+                <Space>
+                  <img src={productIcon} alt="" /> Sản phẩm
+                </Space>
+              }
+              extra={
+                <Space size={20}>
+                  <Checkbox onChange={() => setSplitLine(!splitLine)}>
+                    Tách dòng
+                  </Checkbox>
+                  <span>Chính sách giá</span>
+                  <Form.Item name="price_type" style={{ margin: "0px" }}>
+                    <Select
+                      defaultValue="retail_price"
+                      style={{ minWidth: 150 }}
+                    >
+                      <Select.Option value="retail_price">
+                        Giá bán lẻ
+                      </Select.Option>
+                      <Select.Option value="whole_sale_price">
+                        Giá bán buôn
+                      </Select.Option>
+                    </Select>
+                  </Form.Item>
+                  <Link className="text-focus" to="#">
+                    <Space>
+                      <ShopOutlined /> Xem tồn <ArrowRightOutlined />
+                    </Space>
+                  </Link>
+                </Space>
+              }
+            >
+              <div className="padding-20">
+                <Row gutter={20}>
+                  <Col md={8}>
+                    <Form.Item
+                      label="Cửa hàng"
+                      name="store_id"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn cửa hàng",
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="select-with-search"
+                        showSearch
+                        style={{ width: "100%" }}
+                        placeholder="Chọn cửa hàng"
+                        filterOption={(input, option) => {
+                          if (option) {
+                            return (
+                              option.children
+                                .toLowerCase()
+                                .indexOf(input.toLowerCase()) >= 0
+                            );
+                          }
+                          return false;
+                        }}
+                      >
+                        {dataCanAccess.map((item, index) => (
+                          <Select.Option key={index.toString()} value={item.id}>
+                            {item.name}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col md={16}>
+                    <Form.Item label="Sản phẩm">
+                      <AutoComplete
+                        notFoundContent={
+                          keysearchVariant.length >= 3
+                            ? "Không tìm thấy sản phẩm"
+                            : undefined
+                        }
+                        value={keysearchVariant}
+                        ref={autoCompleteRef}
+                        onSelect={onSearchVariantSelect}
+                        dropdownClassName="search-layout dropdown-search-header"
+                        dropdownMatchSelectWidth={456}
+                        className="w-100"
+                        onSearch={onChangeProductSearch}
+                        options={convertResultSearchVariant}
+                      >
+                        <Input
+                          size="middle"
+                          className="yody-search"
+                          placeholder="Tìm sản phẩm theo tên/ SKU (F3)"
+                          prefix={
+                            <SearchOutlined style={{ color: "#ABB4BD" }} />
+                          }
+                        />
+                      </AutoComplete>
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </div>
+              <Table
+                locale={{
+                  emptyText: (
+                    <Button
+                      type="text"
+                      className="font-weight-500"
+                      style={{
+                        color: "#2A2A86",
+                        background: "rgba(42,42,134,0.05)",
+                        borderRadius: 5,
+                        padding: 8,
+                        height: "auto",
+                        marginTop: 15,
+                        marginBottom: 15,
+                      }}
+                    >
+                      Thêm sản phẩm ngay (F3)
+                    </Button>
+                  ),
+                }}
+                rowKey={(record) => record.id}
+                columns={columns}
+                dataSource={items}
+                className="sale-product-box-table w-100"
+                tableLayout="fixed"
+                pagination={false}
+              />
+              <Divider />
+              <div className="padding-20">
+                <Row gutter={20}>
+                  <Col md={12}>
+                    <Form.Item>
+                      <Checkbox>Bỏ chiết khấu tự động</Checkbox>
+                    </Form.Item>
+                    <Form.Item>
+                      <Checkbox>Không tính thuế VAT</Checkbox>
+                    </Form.Item>
+                    <Form.Item>
+                      <Checkbox>Bỏ tích điểm tự động</Checkbox>
+                    </Form.Item>
+                  </Col>
+                  <Col md={12}>
+                    <Form.Item>
+                      <div className="display-flex flex-space-between align-center">
+                        <strong>Tổng tiền</strong>
+                        <strong>300.000</strong>
+                      </div>
+                    </Form.Item>
+                    <Form.Item>
+                      <div className="display-flex flex-space-between align-center">
+                        <div>
+                          <span className="text-focus text-bottom-dash margin-right-10">
+                            Chiết khấu
+                          </span>
+                          <Tag
+                            className="orders-tag orders-tag-danger"
+                            closable
+                          >
+                            10%
+                          </Tag>
+                        </div>
+                        <span>30.000</span>
+                      </div>
+                    </Form.Item>
+                    <Form.Item>
+                      <div className="display-flex flex-space-between align-center">
+                        <div>
+                          <span className="text-focus margin-right-10">
+                            Mã giảm giá
+                          </span>{" "}
+                          <Tag className="orders-tag orders-tag-focus" closable>
+                            10%
+                          </Tag>
+                        </div>
+                        <span>70.000</span>
+                      </div>
+                    </Form.Item>
+                    <Form.Item>
+                      <div className="display-flex flex-space-between align-center">
+                        <span>Phí ship báo khách</span>
+                        <span>20.000</span>
+                      </div>
+                    </Form.Item>
+                    <Divider />
+                    <Form.Item>
+                      <div className="display-flex flex-space-between align-center">
+                        <strong>Khách cần trả</strong>
+                        <strong className="text-success">200.000</strong>
+                      </div>
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </div>
+            </Card>
+            <Card
+              className="margin-top-20"
+              title={
+                <Space>
+                  <ProfileOutlined />
+                  Đóng gói và giao hàng
+                </Space>
+              }
+            >
+              <div className="padding-20">
+                <Row gutter={20}>
+                  <Col md={12}>
+                    <Form.Item
+                      label={<i>Lựa chọn 1 trong hình thức giao hàng</i>}
+                      required
+                    >
+                      <Radio.Group>
+                        <Space direction="vertical" size={20}>
+                          <Radio value="1">Chuyển đối tác giao hàng</Radio>
+                          <Radio value="2">Tự giao hàng</Radio>
+                          <Radio value="3">Nhận tại cửa hàng</Radio>
+                          <Radio value="4">Giao hàng sau</Radio>
+                        </Space>
+                      </Radio.Group>
+                    </Form.Item>
+                  </Col>
+                  <Col md={12}>
+                    <Form.Item label="Hẹn giao">
+                      <Select showArrow placeholder="Chọn hẹn giao"></Select>
+                    </Form.Item>
+                    <Form.Item label="Yêu cầu">
+                      <Select showArrow placeholder="Chọn yêu cầu"></Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Divider />
+                <Row gutter={20}>
+                  <Col md={12}>
+                    <Form.Item label="Đối tác giao hàng">
+                      <Select
+                        showArrow
+                        showSearch
+                        placeholder="Đối tác giao hàng"
+                        suffix={
+                          <Button
+                            style={{ width: 36, height: 36 }}
+                            icon={<PlusOutlined />}
+                          />
+                        }
+                      ></Select>
+                    </Form.Item>
+                    <Form.Item label="Phí ship trả đối tác giao hàng">
+                      <Input placeholder="Phí ship trả đối tác giao hàng" />
+                    </Form.Item>
+                  </Col>
+                  <Col md={12}>
+                    <Form.Item label="Phí ship báo khách">
+                      <Input placeholder="Phí ship báo khách" />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </div>
+            </Card>
+            <Card
+              className="margin-top-20"
+              title={
+                <Space>
+                  <CreditCardOutlined />
+                  Thanh toán
+                </Space>
+              }
+            >
+              <div className="padding-20">
+                <Form.Item
+                  label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
+                  required
+                >
+                  <Radio.Group>
+                    <Space size={20}>
+                      <Radio value="1">COD</Radio>
+                      <Radio value="2">Thanh toán trước</Radio>
+                      <Radio value="3">Thanh toán sau</Radio>
+                    </Space>
+                  </Radio.Group>
+                </Form.Item>
+                <Divider />
+                <Row>
+                  <Col md={12}>
+                    <Form.Item label="Tiền thu hộ">
+                      <Input value="200000" className="text-right" />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Divider />
+                <Row>
+                  <Col md={24}>
+                    <Form.Item
+                      label={
+                        <i>
+                          Lựa chọn 1 hoặc nhiều phương thức thanh toán trước
+                        </i>
+                      }
+                      required
+                    >
+                      <Space size={12}>
+                        <Button type="primary">Tiền mặt</Button>
+                        <Button type="primary">Chuyển khoản</Button>
+                        <Button type="primary">QR Pay</Button>
+                        <Button type="primary">Tiêu điểm</Button>
+                      </Space>
+                    </Form.Item>
+                  </Col>
+                  <Col md={12}>
+                    {/* Use form item for validate if necessary */}
+                    <Form.Item>
+                      <div className="display-flex flex-space-between align-center">
+                        <strong>Khách cần trả</strong>
+                        <strong className="margin-right-40">200.000</strong>
+                      </div>
+                    </Form.Item>
+                    <Form.Item>
+                      <div className="display-flex flex-space-between align-center">
+                        <span>Tiền mặt</span>
+                        <div className="display-flex">
+                          <Input />
+                          <Button type="link" icon={<DeleteOutlined />} />
+                        </div>
+                      </div>
+                    </Form.Item>
+                    <Form.Item>
+                      <div className="display-flex flex-space-between align-center">
+                        <span>Chuyển khoản</span>
+                        <div className="display-flex">
+                          <Input />
+                          <Button type="link" icon={<DeleteOutlined />} />
+                        </div>
+                      </div>
+                    </Form.Item>
+                    <Form.Item>
+                      <div className="display-flex flex-space-between align-center">
+                        <span>QR Pay</span>
+                        <div className="display-flex">
+                          <Input />
+                          <Button type="link" icon={<DeleteOutlined />} />
+                        </div>
+                      </div>
+                    </Form.Item>
+                    <Form.Item>
+                      <div className="display-flex flex-space-between align-center">
+                        <strong>Còn phải trả</strong>
+                        <strong className="text-success margin-right-40">
+                          0
+                        </strong>
+                      </div>
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </div>
+            </Card>
+          </Col>
+          {/* Right Side */}
+          <Col md={6}>
+            <Card
+              title={
+                <Space>
+                  <ProfileOutlined />
+                  Thông tin đơn hàng
+                </Space>
+              }
+            >
+              <div className="padding-20">
+                <Form.Item
+                  label="Nhân viên bán hàng"
+                  name="assign_code"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn nhân viên bán hàng",
+                    },
+                  ]}
+                >
+                  <Select
+                    showArrow
+                    placeholder="Chọn nhân viên bán hàng"
+                  ></Select>
+                </Form.Item>
+                <Form.Item
+                  label="Tham chiếu"
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Input placeholder="Điền tham chiếu" />
+                </Form.Item>
+                <Form.Item
+                  label="Đường dẫn"
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Input placeholder="Điền đường dẫn" />
+                </Form.Item>
+              </div>
+            </Card>
+            <Card
+              className="margin-top-20"
+              title={
+                <Space>
+                  <ProfileOutlined />
+                  Thông tin bổ sung
+                </Space>
+              }
+            >
+              <div className="padding-20">
+                <Form.Item
+                  label="Ghi chú"
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Input.TextArea placeholder="Điền Ghi chú" />
+                </Form.Item>
+                <Form.Item
+                  label="Tag"
+                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                >
+                  <Input placeholder="Thêm tag" />
+                </Form.Item>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+        <div className="margin-top-20 text-right">
+          <Space size={12}>
+            <Button>Huỷ</Button>
+            <Button type="primary" htmlType="submit">
+              Lưu
+            </Button>
+          </Space>
+        </div>
+      </Form>
+    </div>
+  );
+}

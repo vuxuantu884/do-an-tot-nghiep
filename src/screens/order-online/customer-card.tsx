@@ -14,6 +14,7 @@ import {
   Popover,
   Form,
   Select,
+  Tag,
 } from "antd";
 import React, {
   createRef,
@@ -82,8 +83,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
-  const [billingAddress, setBillingAddress] =
-    useState<BillingAddress | null>(null);
+  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
+    null
+  );
   const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
   const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
 
@@ -269,7 +271,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   return (
     <Card
-      className="card-block card-block-customer"
       title={
         <div className="d-flex">
           <img src={peopleIcon2} alt="" /> Khách hàng
@@ -288,10 +289,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               Nguồn <span style={{ color: "red" }}>*</span>
             </label>
             <Select
-              className="select-with-search"
               showSearch
               style={{ width: "200px" }}
-              placeholder="Chọn nguồn đơn hàng"
+              placeholder="Chọn nguồn đơn hàng" 
               onChange={ChangeSource}
               filterOption={(input, option) => {
                 if (option) {
@@ -398,11 +398,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     ? "Nguyễn Văn A"
                     : customer?.full_name}
                 </span>
-                <span className="cdn-level">
-                  {customer?.customer_level === undefined
-                    ? "Level 1"
-                    : customer?.customer_level}
-                </span>
+                <Tag className="orders-tag orders-tag-vip">
+                  <b>
+                    {" "}
+                    {customer?.customer_level === undefined
+                      ? "Level 1"
+                      : customer?.customer_level}
+                  </b>
+                </Tag>
               </Space>
             </Row>
 

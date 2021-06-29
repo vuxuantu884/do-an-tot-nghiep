@@ -1,4 +1,5 @@
-import { getSources } from './../../../service/order/order.service';
+import { unauthorizedAction } from './../../actions/auth/auth.action';
+import { getSources, getOrderDetail } from './../../../service/order/order.service';
 import { SourceResponse } from './../../../model/response/order/source.response';
 import { PaymentMethodResponse } from './../../../model/response/order/paymentmethod.response';
 import { getPaymentMethod, orderPostApi } from "../../../service/order/order.service";
@@ -9,7 +10,7 @@ import { HttpStatus } from "config/HttpStatus";
 import { YodyAction } from "../../../base/BaseAction";
 import { showError } from "utils/ToastUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { OrderResponse } from "model/response/order/order-online.response";
+import { OrderResponse } from "model/response/order/order.response";
 
 function* orderCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
@@ -63,10 +64,35 @@ function* getDataSource(action: YodyAction) {
 }
 
 
+export function* orderDetailSaga(action: YodyAction) {
+  const { id, setData } = action.payload;
+  try {
+    let response: BaseResponse<OrderResponse> = yield call(
+      getOrderDetail,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+
 function* OrderOnlineSaga() {
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
+  yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga)
 }
 
 export default OrderOnlineSaga;

@@ -9,11 +9,13 @@ import { useState, useCallback, useLayoutEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import {
   FulFillmentRequest,
+  OrderDiscountRequest,
+  OrderItemDiscountRequest,
+  OrderLineItemRequest,
+  OrderPaymentRequest,
   OrderRequest,
   ShipmentRequest,
 } from "model/request/order.request";
-import { OrderLineItemRequest } from "model/request/order-line-item.request";
-import { OrderItemDiscountRequest } from "model/request/order-item-discount.request";
 import { AccountResponse } from "model/account/account.model";
 import {
   BillingAddress,
@@ -32,11 +34,8 @@ import { showSuccess } from "utils/ToastUtils";
 import { Email } from "utils/RegUtils";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import "assets/css/v2/_sale-order.scss";
-import { OrderDiscountRequest } from "model/request/order-discount.request";
 import { Moment } from "moment";
-import { OrderPaymentRequest } from "model/request/order-payment.request";
 //#endregion
-
 
 const CreateBill = () => {
   //#region state
@@ -315,6 +314,7 @@ const CreateBill = () => {
       price: model.price,
       amount: model.amount,
       note: model.note,
+      show_note:model.show_note,
       type: type,
       variant_image: model.variant_image,
       unit: model.unit,
@@ -327,6 +327,7 @@ const CreateBill = () => {
       discount_value: model.discount_items[0].value,
       discount_amount: model.discount_items[0].amount,
       position: position,
+      gifts:[]
     };
 
     return request;

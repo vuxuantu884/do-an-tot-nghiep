@@ -124,7 +124,7 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
       >
         <div className="ant-layout-sider-user">
           <Avatar
-            src="https://scontent.fhph1-2.fna.fbcdn.net/v/t1.6435-9/56949224_288371682061828_6967061974932783104_n.jpg?_nc_cat=105&ccb=1-3&_nc_sid=8bfeb9&_nc_ohc=dI-Ql5l_WycAX-WPTcH&_nc_ht=scontent.fhph1-2.fna&oh=5ef29c2cdaaa3c2d63e21bf3b162d87b&oe=60D0400C"
+            src=""
             size={40}
           />
           <div className="sider-user-info">
