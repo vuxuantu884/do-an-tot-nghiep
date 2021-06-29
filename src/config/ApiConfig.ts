@@ -1,13 +1,15 @@
-const v1 = `v1`;
+import { AppConfig } from "./AppConfig";
+
+const v1 = ``;
 
 const ApiConfig = {
-  CONTENT: `${v1}/yody-content-service`,
-  PRODUCT: `${v1}/yody-product-service`,
-  CORE: `${v1}/yody-core-service`,
-  ACCOUNTS: `${v1}/yody-account-service`,
-  ORDER: `${v1}/yody-order-service`,
-  CUSTOMER: `${v1}/yody-customer-service`,
-  AUTH: `${v1}/yody-auth-service`,
+  CONTENT: `${v1}/${AppConfig.CONTENT_SERVICE}`,
+  PRODUCT: `${v1}/${AppConfig.PRODUCT_SERVICE}`,
+  CORE: `${v1}/${AppConfig.CORE_SERVICE}`,
+  ACCOUNTS: `${v1}/${AppConfig.ACCOUNT_SERVICE}`,
+  ORDER: `${v1}/${AppConfig.ORDER_SERVICE}`,
+  CUSTOMER: `${v1}/${AppConfig.CUSTOMER_SERVICE}`,
+  AUTH: `${v1}/${AppConfig.AUTH_SERVICE}`,
 }
 
 export { ApiConfig };
