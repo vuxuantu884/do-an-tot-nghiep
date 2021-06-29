@@ -1,4 +1,4 @@
-import { RoleGetListService } from "service/auth/role.service";
+import { roleGetListAPI } from "service/auth/role.service";
 import { RoleType } from "domain/types/auth.type";
 import { RoleResponse } from "model/auth/roles.model";
 import { call, takeLatest } from "@redux-saga/core/effects";
@@ -13,7 +13,7 @@ function* RoleGetListSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
     let response: BaseResponse<PageResponse<RoleResponse>> = yield call(
-      RoleGetListService,
+      roleGetListAPI,
       query
     );
     switch (response.code) {

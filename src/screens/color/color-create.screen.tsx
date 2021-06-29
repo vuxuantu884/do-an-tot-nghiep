@@ -21,6 +21,7 @@ import {
   colorCreateAction,
   getColorAction,
 } from "domain/actions/product/color.action";
+import { productUploadAction } from "domain/actions/product/products.action";
 
 let initialRequest: ColorCreateRequest = {
   code: "",
@@ -39,7 +40,7 @@ const ColorCreateScreen: React.FC = () => {
     },
     items: [],
   });
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState<string|null>('https://kevinlli.vn/upload/i/pd/s02%20316%20268.jpg');
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -85,7 +86,13 @@ const ColorCreateScreen: React.FC = () => {
             >
               <Upload
                 customRequest={(options) => {
-                  console.log(options);
+                  let files: Array<File> = [];
+                  if(options.file instanceof File) {
+                    files.push(options.file);
+                  }
+                  if(files.length > 0) {
+                    dispatch(productUploadAction(files, 'color', setImageUrl))
+                  }
                 }}
                 listType="picture"
                 action=""
@@ -93,6 +100,11 @@ const ColorCreateScreen: React.FC = () => {
                 showUploadList={false}
                 className="upload-v"
               >
+                {
+                  imageUrl && (
+                    <img src={imageUrl} alt="" />
+                  )
+                }
                 <div className="upload-view">
                   <img className="img-upload" src={uploadIcon} alt="" />
                   <img className="img-default" src={imgDefIcon} alt="" />
