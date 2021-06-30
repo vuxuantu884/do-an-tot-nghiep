@@ -55,12 +55,12 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (props: PickDiscount
         <div className="site-input-group-wrapper">
           <Form.Item label="Chiết khấu dơn hàng">
             <Input.Group size="large" compact>
-                <Select style={{ width: '16%' }} defaultValue={_type}  onChange={handleChangeSelect}>
+                <Select style={{ width: '17%' }} defaultValue={_type}  onChange={handleChangeSelect}>
                   <Select.Option value="percent">%</Select.Option>
                   <Select.Option value="money">₫</Select.Option>
                 </Select>
                 <InputNumber
-                  style={{ width: '84%' }}
+                  style={{ width: '83%' }}
                   className="hide-number-handle"
                   onFocus={(e) => e.target.select()}
                   value={_type==="money"?_value:_rate}

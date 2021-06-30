@@ -4,6 +4,11 @@
   padding-bottom: 5px;
 }
 
+.margin-bottom-15 {
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
 .ant-input-search .ant-input-group .ant-input-affix-wrapper:not(:last-child) {
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -452,4 +457,18 @@ input {
   .ant-input-number-handler-wrap {
     display: none;
   }
+}
+.badge-style {
+  border-radius: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  background-color: rgba(226, 67, 67, 0.1);
+}
+
+.font-weight-500{
+  font-weight: 500;
+}
+
+.font-size-text{
+  font-size: 16px;
 }

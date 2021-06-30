@@ -102,6 +102,8 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { Type } from "../../config/TypeConfig";
 import NumberInput from "component/custom/number-input.custom";
+import PickDiscountModal from "./modal/PickDiscountModal";
+import { showError, showSuccess } from "utils/ToastUtils";
 const { Summary } = ANTTable;
 
 const dataSource = [
@@ -486,6 +488,32 @@ export default function Order() {
     },
     [dispatch]
   );
+
+  const ShowDiscountModal = useCallback(() => {
+    setVisiblePickDiscount(true);
+  }, [setVisiblePickDiscount]);
+
+  const onCancleDiscountConfirm = useCallback(() => {
+    setVisiblePickDiscount(false);
+  }, []);
+
+  const onOkDiscountConfirm = (
+    type: string,
+    value: number,
+    rate: number,
+    counpon: string
+  ) => {
+    if (amount === 0) {
+      showError("Bạn cần chọn sản phẩm trước khi thêm chiết khấu");
+    } else {
+      setVisiblePickDiscount(false);
+      setDiscountType(type);
+      setDiscountValue(value);
+      setDiscountRate(rate);
+      setCounpon(counpon);
+      showSuccess("Thêm chiết khấu thành công");
+    }
+  };
 
   const ProductColumn = {
     title: () => (
@@ -1240,6 +1268,7 @@ export default function Order() {
                         marginTop: 15,
                         marginBottom: 15,
                       }}
+                      onClick={()=>{autoCompleteRef.current?.focus()}}
                     >
                       Thêm sản phẩm ngay (F3)
                     </Button>
@@ -1252,73 +1281,132 @@ export default function Order() {
                 tableLayout="fixed"
                 pagination={false}
               />
-              <Divider />
-              <div className="padding-20">
-                <Row gutter={20}>
-                  <Col md={12}>
-                    <Form.Item>
-                      <Checkbox>Bỏ chiết khấu tự động</Checkbox>
-                    </Form.Item>
-                    <Form.Item>
-                      <Checkbox>Không tính thuế VAT</Checkbox>
-                    </Form.Item>
-                    <Form.Item>
-                      <Checkbox>Bỏ tích điểm tự động</Checkbox>
-                    </Form.Item>
+              <div className="padding-20" style={{ paddingTop: "30px" }}>
+                <Row className="sale-product-box-payment" gutter={24}>
+                  <Col xs={24} lg={12}>
+                    <div className="payment-row">
+                      <Checkbox
+                        className="margin-bottom-15"
+                        onChange={() => console.log(1)}
+                      >
+                        Bỏ chiết khấu tự động
+                      </Checkbox>
+                    </div>
+                    <div className="payment-row">
+                      <Checkbox
+                        className="margin-bottom-15"
+                        onChange={() => console.log(1)}
+                      >
+                        Không tính thuế VAT
+                      </Checkbox>
+                    </div>
+                    <div className="payment-row">
+                      <Checkbox
+                        className="margin-bottom-15"
+                        onChange={() => console.log(1)}
+                      >
+                        Bỏ tích điểm tự động
+                      </Checkbox>
+                    </div>
                   </Col>
-                  <Col md={12}>
-                    <Form.Item>
-                      <div className="display-flex flex-space-between align-center">
-                        <strong>Tổng tiền</strong>
-                        <strong>300.000</strong>
+                  <Col xs={24} lg={12}>
+                    <Row className="payment-row" justify="space-between">
+                      <strong className="font-size-text">Tổng tiền</strong>
+                      <strong className="font-size-text">{formatCurrency(amount)}</strong>
+                    </Row>
+
+                    <Row
+                      className="payment-row"
+                      justify="space-between"
+                      align="middle"
+                      style={{ marginTop: "5px" }}
+                    >
+                      <Space align="center">
+                        <Typography.Link
+                          className="font-weight-500"
+                          onClick={ShowDiscountModal}
+                          style={{ borderBottom: "1px dashed #0080FF" }}
+                        >
+                          Chiết khấu
+                        </Typography.Link>
+
+                        {}
+                        <Tag
+                          className="orders-tag orders-tag-danger"
+                          closable
+                          onClose={() => {
+                            setDiscountRate(0);
+                            setDiscountValue(0);
+                          }}
+                        >
+                          {discountRate !== 0 ? discountRate : 0}%{" "}
+                        </Tag>
+                      </Space>
+                      <div className="font-weight-500 ">
+                        {formatCurrency(discountValue)}
                       </div>
-                    </Form.Item>
-                    <Form.Item>
-                      <div className="display-flex flex-space-between align-center">
-                        <div>
-                          <span className="text-focus text-bottom-dash margin-right-10">
-                            Chiết khấu
-                          </span>
+                    </Row>
+
+                    <Row
+                      className="payment-row"
+                      justify="space-between"
+                      align="middle"
+                      style={{ marginTop: "5px" }}
+                    >
+                      <Space align="center">
+                        <Typography.Link
+                          className="font-weight-500"
+                          onClick={ShowDiscountModal}
+                        >
+                          Mã giảm giá
+                        </Typography.Link>
+
+                        {counpon !== "" && (
                           <Tag
                             className="orders-tag orders-tag-danger"
                             closable
+                            onClose={() => {
+                              setDiscountRate(0);
+                              setDiscountValue(0);
+                            }}
                           >
-                            10%
+                            {counpon}{" "}
                           </Tag>
-                        </div>
-                        <span>30.000</span>
+                        )}
+                      </Space>
+                      <div className="font-weight-500 ">0</div>
+                    </Row>
+
+                    <Row
+                      className="payment-row padding-top-10"
+                      justify="space-between"
+                    >
+                      <div className="font-weight-500">Phí ship báo khách</div>
+                      <div className="font-weight-500 payment-row-money">
+                        20,000
                       </div>
-                    </Form.Item>
-                    <Form.Item>
-                      <div className="display-flex flex-space-between align-center">
-                        <div>
-                          <span className="text-focus margin-right-10">
-                            Mã giảm giá
-                          </span>{" "}
-                          <Tag className="orders-tag orders-tag-focus" closable>
-                            10%
-                          </Tag>
-                        </div>
-                        <span>70.000</span>
-                      </div>
-                    </Form.Item>
-                    <Form.Item>
-                      <div className="display-flex flex-space-between align-center">
-                        <span>Phí ship báo khách</span>
-                        <span>20.000</span>
-                      </div>
-                    </Form.Item>
-                    <Divider />
-                    <Form.Item>
-                      <div className="display-flex flex-space-between align-center">
-                        <strong>Khách cần trả</strong>
-                        <strong className="text-success">200.000</strong>
-                      </div>
-                    </Form.Item>
+                    </Row>
+                    <Divider className="margin-top-5 margin-bottom-5" />
+                    <Row className="payment-row" justify="space-between">
+                      <strong className="font-size-text">Khách cần trả</strong>
+                      <strong className="text-success font-size-text">
+                        {formatCurrency(changeMoney)}
+                      </strong>
+                    </Row>
                   </Col>
                 </Row>
               </div>
             </Card>
+            <PickDiscountModal
+              amount={amount}
+              type={discountType}
+              value={discountValue}
+              rate={discountRate}
+              counpon={counpon}
+              onCancel={onCancleDiscountConfirm}
+              onOk={onOkDiscountConfirm}
+              visible={isVisiblePickDiscount}
+            />
             <Card
               className="margin-top-20"
               title={
