@@ -29,26 +29,19 @@ import {
 } from "antd";
 import {
   ArrowRightOutlined,
-  BorderOutlined,
-  CalendarOutlined,
-  CheckOutlined,
   CreditCardOutlined,
   DeleteOutlined,
-  DollarOutlined,
-  DownOutlined,
   InfoCircleOutlined,
-  PhoneFilled,
   PlusOutlined,
   ProfileOutlined,
   SearchOutlined,
   ShopOutlined,
-  UserOutlined,
   EditOutlined,
 } from "@ant-design/icons";
 
 import { Select } from "component/common/select";
 import { Link } from "react-router-dom";
-import { ICustomTableColumType, Table } from "component/common/table";
+import { Table } from "component/common/table";
 import "assets/css/v2/_sale-order.scss";
 import { SourceResponse } from "model/response/order/source.response";
 import { useDispatch, useSelector } from "react-redux";
@@ -66,6 +59,7 @@ import productIcon from "../../assets/img/cube.svg";
 import deleteIcon from "assets/icon/delete.svg";
 import giftIcon from "assets/icon/gift.svg";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
+import storeBluecon from "../../assets/img/storeBlue.svg";
 import {
   BillingAddress,
   CustomerResponse,
@@ -82,11 +76,15 @@ import {
   findPriceInVariant,
   findTaxInVariant,
   formatCurrency,
+  formatSuffixPoint,
   haveAccess,
   replaceFormat,
   replaceFormatString,
 } from "utils/AppUtils";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import {
+  StoreDetailAction,
+  StoreGetListAction,
+} from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   VariantResponse,
@@ -97,6 +95,11 @@ import {
   OrderItemDiscountModel,
   OrderItemModel,
 } from "model/other/Order/order-model";
+
+import { BugOutlined, QrcodeOutlined } from "@ant-design/icons";
+
+import Cash from "component/icon/Cash";
+import YdCoin from "component/icon/YdCoin";
 import DiscountGroup from "./discount-group";
 import { PageResponse } from "model/base/base-metadata.response";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
@@ -104,33 +107,11 @@ import { Type } from "../../config/TypeConfig";
 import NumberInput from "component/custom/number-input.custom";
 import PickDiscountModal from "./modal/PickDiscountModal";
 import { showError, showSuccess } from "utils/ToastUtils";
-const { Summary } = ANTTable;
-
-const dataSource = [
-  {
-    sku: "APN3340 - XXA - XL",
-    name: "Polo mắt chim nữ - xanh xám - XL",
-  },
-];
-
-const summary = () => (
-  <Summary>
-    <Summary.Row>
-      <Summary.Cell index={0}></Summary.Cell>
-      <Summary.Cell index={1}>Tổng</Summary.Cell>
-      <Summary.Cell index={2}></Summary.Cell>
-      <Summary.Cell index={3}>
-        <span>300.000</span>
-      </Summary.Cell>
-      <Summary.Cell index={4}>
-        <span className="text-error">90.000</span>
-      </Summary.Cell>
-      <Summary.Cell index={5}>
-        <span className="text-error">270.000</span>
-      </Summary.Cell>
-    </Summary.Row>
-  </Summary>
-);
+import { AccountResponse } from "model/account/account.model";
+import { AccountSearchAction, ShipperGetListAction } from "domain/actions/account/account.action";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { OrderPaymentRequest } from "model/request/order.request";
+import { PaymentMethodCode } from "utils/Constants";
 
 const initQueryCustomer: CustomerSearchQuery = {
   request: "",
@@ -177,7 +158,17 @@ export default function Order() {
   const [counpon, setCounpon] = useState<string>("");
   const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
   const [keysearchVariant, setKeysearchVariant] = useState("");
-
+  const [shipmentMethod, setShipmentMethod] = useState<number>(4);
+  const [paymentMethod, setPaymentMethod] = useState<number>(3);
+  const [storeDetail, setStoreDetail] = useState<StoreResponse>();
+  const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
+    []
+  );
+  const [listPaymentMethod, setListPaymentMethod] = useState<
+    Array<PaymentMethodResponse>
+  >([]);
   const [resultSearchVariant, setResultSearchVariant] = useState<
     PageResponse<VariantResponse>
   >({
@@ -725,9 +716,99 @@ export default function Order() {
   }, [listStores, userReducer.account]);
   //#endregion
 
+  //#region Shipment
+  const ShipMethodOnChange = (value: number) => {
+    setShipmentMethod(value);
+  };
+
+  const ChangeStore = (value: number) => {
+    StoreDetailAction(value, setStoreDetail);
+  };
+
+  const shipping_requirements = useSelector(
+    (state: RootReducerType) =>
+      state.bootstrapReducer.data?.shipping_requirement
+  );
+  //#endregion
+
+  //#region Payment
+  const changePaymentMethod = (value: number) => {
+    setPaymentMethod(value);
+    if (value === 2) {
+      handlePickPaymentMethod("cash");
+    }
+  };
+
+  const handleInputPoint = (index: number, point: number) => {
+    paymentData[index].point = point;
+    paymentData[index].amount = point * 1000;
+    setPaymentData([...paymentData]);
+  };
+
+  const ListMaymentMethods = useMemo(() => {
+    return listPaymentMethod.filter((item) => item.code !== "card");
+  }, [listPaymentMethod]);
+
+  const totalAmountPaid = useMemo(() => {
+    let total = 0;
+    paymentData.forEach((p) => (total = total + p.amount));
+    return total;
+  }, [paymentData]);
+
+  const moneyReturn = useMemo(() => {
+    return amount - totalAmountPaid;
+  }, [amount, totalAmountPaid]);
+
+  const handlePickPaymentMethod = (code?: string) => {
+    let paymentMaster = ListMaymentMethods.find((p) => code === p.code);
+    if (!paymentMaster) return;
+    let indexPayment = paymentData.findIndex((p) => p.code === code);
+    if (indexPayment === -1) {
+      paymentData.push({
+        payment_method_id: paymentMaster.id,
+        amount: 0,
+        paid_amount: 0,
+        return_amount: 0,
+        status: "",
+        name: paymentMaster.name,
+        code: paymentMaster.code,
+        payment_method: paymentMaster.name,
+        reference: "",
+        source: "",
+        customer_id: 1,
+        note: "",
+        type: "",
+      });
+    } else {
+      paymentData.splice(indexPayment, 1);
+    }
+    setPaymentData([...paymentData]);
+  };
+
+  const handleInputMoney = (index: number, amount: number) => {
+    if (paymentData[index].code === PaymentMethodCode.POINT) {
+      paymentData[index].point = amount;
+      paymentData[index].amount = amount * 1000;
+      paymentData[index].paid_amount = amount * 1000;
+    } else {
+      paymentData[index].amount = amount;
+      paymentData[index].paid_amount = amount;
+    }
+    setPaymentData([...paymentData]);
+  };
+  //#endregion
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "pos");
   }, [listSource]);
+
+  
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
+    setAccounts(data.items);
+  }, []);
+
+  useLayoutEffect(() => {
+    dispatch(AccountSearchAction({}, setDataAccounts));
+  }, [dispatch, setDataAccounts]);
 
   useLayoutEffect(() => {
     dispatch(getListSourceRequest(setListSource));
@@ -735,6 +816,10 @@ export default function Order() {
 
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));
+  }, [dispatch]);
+
+  useLayoutEffect(() => {
+    dispatch(ShipperGetListAction(setShipper));
   }, [dispatch]);
   return (
     <div className="orders">
@@ -1204,6 +1289,7 @@ export default function Order() {
                         showSearch
                         style={{ width: "100%" }}
                         placeholder="Chọn cửa hàng"
+                        onChange={ChangeStore}
                         filterOption={(input, option) => {
                           if (option) {
                             return (
@@ -1268,7 +1354,9 @@ export default function Order() {
                         marginTop: 15,
                         marginBottom: 15,
                       }}
-                      onClick={()=>{autoCompleteRef.current?.focus()}}
+                      onClick={() => {
+                        autoCompleteRef.current?.focus();
+                      }}
                     >
                       Thêm sản phẩm ngay (F3)
                     </Button>
@@ -1312,7 +1400,9 @@ export default function Order() {
                   <Col xs={24} lg={12}>
                     <Row className="payment-row" justify="space-between">
                       <strong className="font-size-text">Tổng tiền</strong>
-                      <strong className="font-size-text">{formatCurrency(amount)}</strong>
+                      <strong className="font-size-text">
+                        {formatCurrency(amount)}
+                      </strong>
                     </Row>
 
                     <Row
@@ -1420,15 +1510,18 @@ export default function Order() {
                 <Row gutter={20}>
                   <Col md={12}>
                     <Form.Item
-                      label={<i>Lựa chọn 1 trong hình thức giao hàng</i>}
+                      label={<i style={{marginBottom:"15px"}}>Lựa chọn 1 trong hình thức giao hàng</i>}
                       required
                     >
-                      <Radio.Group>
-                        <Space direction="vertical" size={20}>
-                          <Radio value="1">Chuyển đối tác giao hàng</Radio>
-                          <Radio value="2">Tự giao hàng</Radio>
-                          <Radio value="3">Nhận tại cửa hàng</Radio>
-                          <Radio value="4">Giao hàng sau</Radio>
+                      <Radio.Group
+                        value={shipmentMethod}
+                        onChange={(e) => ShipMethodOnChange(e.target.value)}
+                      >
+                        <Space direction="vertical" size={15}>
+                          <Radio value={1}>Chuyển đối tác giao hàng</Radio>
+                          <Radio value={2}>Tự giao hàng</Radio>
+                          <Radio value={3}>Nhận tại cửa hàng</Radio>
+                          <Radio value={4}>Giao hàng sau</Radio>
                         </Space>
                       </Radio.Group>
                     </Form.Item>
@@ -1438,25 +1531,72 @@ export default function Order() {
                       <Select showArrow placeholder="Chọn hẹn giao"></Select>
                     </Form.Item>
                     <Form.Item label="Yêu cầu">
-                      <Select showArrow placeholder="Chọn yêu cầu"></Select>
+                      <Select
+                        className="select-with-search"
+                        showSearch
+                        showArrow
+                        style={{ width: "100%" }}
+                        placeholder="Chọn yêu cầu"
+                        filterOption={(input, option) => {
+                          if (option) {
+                            return (
+                              option.children
+                                .toLowerCase()
+                                .indexOf(input.toLowerCase()) >= 0
+                            );
+                          }
+                          return false;
+                        }}
+                      >
+                        {shipping_requirements?.map((item, index) => (
+                          <Select.Option
+                            style={{ width: "100%" }}
+                            key={index.toString()}
+                            value={item.value}
+                          >
+                            {item.name}
+                          </Select.Option>
+                        ))}
+                      </Select>
                     </Form.Item>
                   </Col>
                 </Row>
                 <Divider />
-                <Row gutter={20}>
+                <Row gutter={20} hidden={shipmentMethod !== 2}>
                   <Col md={12}>
                     <Form.Item label="Đối tác giao hàng">
                       <Select
-                        showArrow
+                        className="select-with-search"
                         showSearch
-                        placeholder="Đối tác giao hàng"
+                        style={{ width: "100%" }}
+                        placeholder="Chọn đối tác giao hàng"
                         suffix={
                           <Button
                             style={{ width: 36, height: 36 }}
                             icon={<PlusOutlined />}
                           />
                         }
-                      ></Select>
+                        filterOption={(input, option) => {
+                          if (option) {
+                            return (
+                              option.children
+                                .toLowerCase()
+                                .indexOf(input.toLowerCase()) >= 0
+                            );
+                          }
+                          return false;
+                        }}
+                      >
+                        {shipper?.map((item, index) => (
+                          <Select.Option
+                            style={{ width: "100%" }}
+                            key={index.toString()}
+                            value={item.id}
+                          >
+                            {item.full_name}
+                          </Select.Option>
+                        ))}
+                      </Select>
                     </Form.Item>
                     <Form.Item label="Phí ship trả đối tác giao hàng">
                       <Input placeholder="Phí ship trả đối tác giao hàng" />
@@ -1467,6 +1607,56 @@ export default function Order() {
                       <Input placeholder="Phí ship báo khách" />
                     </Form.Item>
                   </Col>
+                </Row>
+
+                {/*--- Nhận tại cửa hàng ----*/}
+                <div className="receive-at-store" hidden={shipmentMethod !== 3}>
+                  <Row style={{ marginBottom: "10px" }}>Nhận tại cửa hàng</Row>
+                  <Row className="row-info">
+                    <Space>
+                      <div className="row-info-icon">
+                        <img src={storeBluecon} alt="" width="20px" />
+                      </div>
+                      <div className="row-info-title">Cửa hàng</div>
+                      <div className="row-info-content">
+                        <Typography.Link>{storeDetail?.name}</Typography.Link>
+                      </div>
+                    </Space>
+                  </Row>
+                  <Row className="row-info">
+                    <Space>
+                      <div className="row-info-icon">
+                        <img src={callIcon} alt="" width="18px" />
+                      </div>
+                      <div className="row-info-title">Điện thoại</div>
+                      <div className="row-info-content">
+                        {storeDetail?.hotline}
+                      </div>
+                    </Space>
+                  </Row>
+                  <Row className="row-info">
+                    <Space>
+                      <div className="row-info-icon">
+                        <img src={locationIcon} alt="" width="18px" />
+                      </div>
+                      <div className="row-info-title">Địa chỉ</div>
+                      <div className="row-info-content">
+                        {storeDetail?.address}
+                      </div>
+                    </Space>
+                  </Row>
+                </div>
+
+                {/*--- Giao hàng sau ----*/}
+                <Row className="ship-later-box" hidden={shipmentMethod !== 4}>
+                  <div className="form-group m-0">
+                    <label htmlFor="">
+                      <i>
+                        Bạn có thể xử lý giao hàng sau khi tạo và duyệt đơn
+                        hàng.
+                      </i>
+                    </label>
+                  </div>
                 </Row>
               </div>
             </Card>
@@ -1484,84 +1674,258 @@ export default function Order() {
                   label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
                   required
                 >
-                  <Radio.Group>
+                  <Radio.Group
+                    value={paymentMethod}
+                    onChange={(e) => changePaymentMethod(e.target.value)}
+                  >
                     <Space size={20}>
-                      <Radio value="1">COD</Radio>
-                      <Radio value="2">Thanh toán trước</Radio>
-                      <Radio value="3">Thanh toán sau</Radio>
+                      <Radio value={1}>COD</Radio>
+                      <Radio value={2}>Thanh toán trước</Radio>
+                      <Radio value={3}>Thanh toán sau</Radio>
                     </Space>
                   </Radio.Group>
                 </Form.Item>
-                <Divider />
-                <Row>
-                  <Col md={12}>
+
+                <Row
+                  gutter={24}
+                  className="payment-cod-box"
+                  hidden={paymentMethod !== 1}
+                >
+                  <Col xs={24} lg={6}>
                     <Form.Item label="Tiền thu hộ">
-                      <Input value="200000" className="text-right" />
+                      <InputNumber
+                        placeholder="Nhập số tiền"
+                        className="form-control text-right hide-handler-wrap w-100"
+                        style={{ width: "100%" }}
+                        min={0}
+                        max={999999999999}
+                        value={amount}
+                        formatter={(value) =>
+                          formatCurrency(value ? value : "0")
+                        }
+                      />
                     </Form.Item>
                   </Col>
                 </Row>
-                <Divider />
-                <Row>
-                  <Col md={24}>
-                    <Form.Item
-                      label={
-                        <i>
-                          Lựa chọn 1 hoặc nhiều phương thức thanh toán trước
-                        </i>
-                      }
-                      required
-                    >
-                      <Space size={12}>
-                        <Button type="primary">Tiền mặt</Button>
-                        <Button type="primary">Chuyển khoản</Button>
-                        <Button type="primary">QR Pay</Button>
-                        <Button type="primary">Tiêu điểm</Button>
-                      </Space>
-                    </Form.Item>
+
+                <Row gutter={24} hidden={paymentMethod !== 2}>
+                  <Col xs={24} lg={24}>
+                    <div className="form-group form-group-with-search">
+                      <i>
+                        Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *
+                      </i>
+                    </div>
                   </Col>
-                  <Col md={12}>
-                    {/* Use form item for validate if necessary */}
-                    <Form.Item>
-                      <div className="display-flex flex-space-between align-center">
-                        <strong>Khách cần trả</strong>
-                        <strong className="margin-right-40">200.000</strong>
-                      </div>
-                    </Form.Item>
-                    <Form.Item>
-                      <div className="display-flex flex-space-between align-center">
-                        <span>Tiền mặt</span>
-                        <div className="display-flex">
-                          <Input />
-                          <Button type="link" icon={<DeleteOutlined />} />
-                        </div>
-                      </div>
-                    </Form.Item>
-                    <Form.Item>
-                      <div className="display-flex flex-space-between align-center">
-                        <span>Chuyển khoản</span>
-                        <div className="display-flex">
-                          <Input />
-                          <Button type="link" icon={<DeleteOutlined />} />
-                        </div>
-                      </div>
-                    </Form.Item>
-                    <Form.Item>
-                      <div className="display-flex flex-space-between align-center">
-                        <span>QR Pay</span>
-                        <div className="display-flex">
-                          <Input />
-                          <Button type="link" icon={<DeleteOutlined />} />
-                        </div>
-                      </div>
-                    </Form.Item>
-                    <Form.Item>
-                      <div className="display-flex flex-space-between align-center">
-                        <strong>Còn phải trả</strong>
-                        <strong className="text-success margin-right-40">
-                          0
-                        </strong>
-                      </div>
-                    </Form.Item>
+                  <Col xs={24} lg={24}>
+                    <Row
+                      className="btn-list-method"
+                      gutter={5}
+                      align="middle"
+                      style={{ marginLeft: 0, marginRight: 0 }}
+                    >
+                      {ListMaymentMethods.map((method, index) => {
+                        let icon = null;
+                        switch (method.code) {
+                          case PaymentMethodCode.CASH:
+                            icon = <Cash />;
+                            break;
+                          case PaymentMethodCode.CARD:
+                          case PaymentMethodCode.BANK_TRANSFER:
+                            icon = <CreditCardOutlined />;
+                            break;
+                          case PaymentMethodCode.QR_CODE:
+                            icon = <QrcodeOutlined />;
+                            break;
+                          case PaymentMethodCode.POINT:
+                            icon = <YdCoin />;
+                            break;
+                          default:
+                            icon = <BugOutlined />;
+                            break;
+                        }
+                        return (
+                          <Col key={method.code} className="btn-payment-method">
+                            <Button
+                              type={
+                                paymentData.some((p) => p.code === method.code)
+                                  ? "primary"
+                                  : "default"
+                              }
+                              value={method.id}
+                              icon={icon}
+                              size="large"
+                              onClick={() => {
+                                handlePickPaymentMethod(method.code);
+                              }}
+                              className=""
+                            >
+                              {method.name}
+                            </Button>
+                          </Col>
+                        );
+                      })}
+                    </Row>
+                  </Col>
+
+                  <Col span={24}>
+                    <Row
+                      gutter={24}
+                      className="row-price"
+                      style={{ padding: "5px 0px" }}
+                    >
+                      <Col xs={13} lg={15} className="row-large-title">
+                        Khách cần trả
+                      </Col>
+                      <Col
+                        className="lbl-money"
+                        xs={11}
+                        lg={6}
+                        style={{
+                          textAlign: "right",
+                          fontWeight: 500,
+                          fontSize: "20px",
+                        }}
+                      >
+                        <span className="t-result-blue">
+                          {formatCurrency(amount)}
+                        </span>
+                      </Col>
+                    </Row>
+
+                    {paymentData.map((method, index) => {
+                      return (
+                        <Row
+                          gutter={24}
+                          className="row-price"
+                          style={{ padding: "5px 0" }}
+                          key={index}
+                        >
+                          <Col xs={24} lg={15}>
+                            <Row align="middle">
+                              {method.name}
+                              {method.code === PaymentMethodCode.POINT ? (
+                                <div>
+                                  <span
+                                    style={{
+                                      fontSize: 14,
+                                      marginLeft: 5,
+                                    }}
+                                  >
+                                    {" "}
+                                    (1 điểm = 1,000₫)
+                                  </span>
+                                  <InputNumber
+                                    value={method.point}
+                                    style={{
+                                      width: 100,
+                                      marginLeft: 7,
+                                      fontSize: 17,
+                                      paddingTop: 4,
+                                      paddingBottom: 4,
+                                    }}
+                                    className="hide-number-handle"
+                                    onFocus={(e) => e.target.select()}
+                                    formatter={(value) =>
+                                      formatSuffixPoint(value ? value : "0")
+                                    }
+                                    parser={(value) =>
+                                      replaceFormat(value ? value : "0")
+                                    }
+                                    min={0}
+                                    max={99999}
+                                    onChange={(value) => {
+                                      handleInputPoint(index, value);
+                                    }}
+                                  />
+                                </div>
+                              ) : null}
+                            </Row>
+                          </Col>
+                          <Col className="lbl-money" xs={22} lg={6}>
+                            <InputNumber
+                              size="middle"
+                              min={0}
+                              max={999999999999}
+                              value={method.amount}
+                              disabled={method.code === PaymentMethodCode.POINT}
+                              className="yody-payment-input hide-number-handle"
+                              formatter={(value) =>
+                                formatCurrency(value ? value : "0")
+                              }
+                              placeholder="Nhập tiền mặt"
+                              style={{ textAlign: "right", width: "100%" }}
+                              onChange={(value) =>
+                                handleInputMoney(index, value)
+                              }
+                              onFocus={(e) => e.target.select()}
+                            />
+                          </Col>
+                          <Col span={2} style={{ paddingLeft: 0 }}>
+                            <Button
+                              type="text"
+                              className="p-0 m-0"
+                              onClick={() => {
+                                handlePickPaymentMethod(method.code);
+                              }}
+                            >
+                              <img src={deleteIcon} alt="" />
+                            </Button>
+                          </Col>
+                        </Row>
+                      );
+                    })}
+                    <Row
+                      gutter={24}
+                      className="row-price total-customer-pay"
+                      style={{ marginLeft: 0, marginRight: 0 }}
+                    >
+                      <Col
+                        xs={13}
+                        lg={15}
+                        className="row-large-title"
+                        style={{ paddingLeft: 0 }}
+                      >
+                        Tổng số tiền khách trả
+                      </Col>
+                      <Col
+                        className="lbl-money"
+                        xs={11}
+                        lg={6}
+                        style={{
+                          textAlign: "right",
+                          fontWeight: 500,
+                          fontSize: "20px",
+                          paddingRight: 3,
+                        }}
+                      >
+                        <span>{formatCurrency(totalAmountPaid)}</span>
+                      </Col>
+                    </Row>
+                    <Row
+                      gutter={24}
+                      className="row-price"
+                      style={{ padding: "5px 0" }}
+                    >
+                      <Col xs={12} lg={15} className="row-large-title">
+                        {moneyReturn > 0 ? "Tiền thiếu" : "Tiền thừa"}
+                      </Col>
+                      <Col
+                        className="lbl-money"
+                        xs={12}
+                        lg={6}
+                        style={{
+                          textAlign: "right",
+                          fontWeight: 500,
+                          fontSize: "20px",
+                        }}
+                      >
+                        <span
+                          style={{ color: moneyReturn <= 0 ? "blue" : "red" }}
+                        >
+                          {formatCurrency(Math.abs(moneyReturn))}
+                        </span>
+                      </Col>
+                    </Row>
                   </Col>
                 </Row>
               </div>
@@ -1580,7 +1944,6 @@ export default function Order() {
               <div className="padding-20">
                 <Form.Item
                   label="Nhân viên bán hàng"
-                  name="assign_code"
                   rules={[
                     {
                       required: true,
@@ -1589,9 +1952,30 @@ export default function Order() {
                   ]}
                 >
                   <Select
-                    showArrow
+                    className="select-with-search"
+                    showSearch
                     placeholder="Chọn nhân viên bán hàng"
-                  ></Select>
+                    filterOption={(input, option) => {
+                      if (option) {
+                        return (
+                          option.children
+                            .toLowerCase()
+                            .indexOf(input.toLowerCase()) >= 0
+                        );
+                      }
+                      return false;
+                    }}
+                  >
+                    {accounts.map((item, index) => (
+                      <Select.Option
+                        style={{ width: "100%" }}
+                        key={index.toString()}
+                        value={item.code}
+                      >
+                        {item.full_name}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </Form.Item>
                 <Form.Item
                   label="Tham chiếu"
@@ -1627,13 +2011,17 @@ export default function Order() {
                   label="Tag"
                   tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
                 >
-                  <Input placeholder="Thêm tag" />
+                  <Select
+                    mode="tags"
+                    placeholder="Nhập tags"
+                    tokenSeparators={[","]}
+                  ></Select>
                 </Form.Item>
               </div>
             </Card>
           </Col>
         </Row>
-        <div className="margin-top-20 text-right">
+        <div className="margin-top-10" style={{ textAlign: "right" }}>
           <Space size={12}>
             <Button>Huỷ</Button>
             <Button type="primary" htmlType="submit">
