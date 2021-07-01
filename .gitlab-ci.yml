@@ -56,7 +56,7 @@ deploy to dev:
     - feature/sprint-4-app-admin
     - feature/ci-cd
   variables:
-    HOST: dev.app-admin.yody.io
+    HOST: dev.yody.io
     NAMESPACE: dev
     ENVIRONMENT: dev
     SERVICE_NAME: yody-app-admin
