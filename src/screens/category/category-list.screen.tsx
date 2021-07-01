@@ -20,6 +20,8 @@ import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined } from "@ant-design/icons";
+import ContentContainer from "component/container/content.container";
+import ButtonCreate from "component/header/ButtonCreate";
 
 const actions: Array<MenuAction> = [
   {
@@ -156,6 +158,26 @@ const Category = () => {
     dispatch(getCategoryRequestAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params]);
   return (
+    <ContentContainer
+      title="Quản lý danh mục"
+      breadcrumb={[
+        {
+          name: 'Tổng quản',
+          path: '/',
+        },
+        {
+          name: 'Sản phẩm',
+          path: `${UrlConfig.PRODUCT}`,
+        },
+        {
+          name: 'Danh mục',
+          path: `${UrlConfig.CATEGORIES}`,
+        },
+      ]}
+      extra={
+        <ButtonCreate path={`${UrlConfig.CATEGORIES}/create`} />
+      }
+    >
     <Card>
       <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
         <Form onFinish={onFinish} layout="inline" initialValues={params} >
@@ -198,6 +220,7 @@ const Category = () => {
         rowKey={(item: CategoryResponse) => item.id}
       />
     </Card>
+    </ContentContainer>
   );
 };
 

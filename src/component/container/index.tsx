@@ -1,17 +1,15 @@
-import { Layout } from "antd";
-import React, { useCallback, useEffect } from "react";
-import { Redirect, useHistory } from "react-router";
-import LoadingScreen from "screens/loading.screen";
-import HeaderContainer from "./header.container";
-
-// import './container.styles.scss';
-import SlidebarContainer from "./slide-bar.container";
-import { useDispatch, useSelector } from "react-redux";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { getBootstrapAction } from "domain/actions/content/bootstrap.action";
-import classNames from "classnames";
-import { saveSettingAction } from "domain/actions/app.action";
-import { useMemo } from "react";
+import {Layout} from 'antd';
+import React, {useCallback, useEffect} from 'react';
+import {Redirect, useHistory} from 'react-router';
+import LoadingScreen from 'screens/loading.screen';
+import SlidebarContainer from './slide-bar.container';
+import {useDispatch, useSelector} from 'react-redux';
+import {RootReducerType} from 'model/reducers/RootReducerType';
+import {getBootstrapAction} from 'domain/actions/content/bootstrap.action';
+import classNames from 'classnames';
+import {saveSettingAction} from 'domain/actions/app.action';
+import {useMemo} from 'react';
+import SplashScreen from 'screens/splash.screen';
 
 type ContainerProps = {
   title: string;
@@ -21,14 +19,11 @@ type ContainerProps = {
   object: any;
 };
 
-const SplashScreen = React.lazy(() => import("screens/splash.screen"));
-
-const { Content } = Layout;
 const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
-  const { title, children, type, object } = props;
+  const {children} = props;
   const dispatch = useDispatch();
   const history = useHistory();
-  const { location } = history;
+  const {location} = history;
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
@@ -38,12 +33,15 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   const collapse = useSelector(
     (state: RootReducerType) => state.appSettingReducer.collapse
   );
-  const collapsed = useMemo(() => collapse ? collapse : false, [collapse])
-  const { isLogin, isLoad: isLoadUser } = userReducer;
-  const { isLoad } = bootstrapReducer;
-  const onCollapsed = useCallback((b: boolean) => {
-    dispatch(saveSettingAction({collapse: b}))
-  }, [dispatch]);
+  const collapsed = useMemo(() => (collapse ? collapse : false), [collapse]);
+  const {isLogin, isLoad: isLoadUser} = userReducer;
+  const {isLoad} = bootstrapReducer;
+  const onCollapsed = useCallback(
+    (b: boolean) => {
+      dispatch(saveSettingAction({collapse: b}));
+    },
+    [dispatch]
+  );
   useEffect(() => {
     if (!isLoad && isLogin) {
       dispatch(getBootstrapAction());
@@ -63,16 +61,8 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
         setCollapsed={onCollapsed}
         path={location.pathname}
       />
-      <Layout className={classNames("container", collapsed && "collapsed")}>
-        <Content>
-          <HeaderContainer
-            type={type}
-            object={object}
-            path={location.pathname}
-            title={title}
-          />
-          {children}
-        </Content>
+      <Layout className={classNames('container', collapsed && 'collapsed')}>
+        {children}
       </Layout>
     </Layout>
   );

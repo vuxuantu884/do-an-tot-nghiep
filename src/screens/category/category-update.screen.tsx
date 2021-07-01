@@ -9,13 +9,13 @@ import {
   Row,
   Select,
   TreeSelect,
-} from "antd";
+} from 'antd';
 import {
   categoryDetailAction,
   categoryUpdateAction,
   getCategoryRequestAction,
-} from "domain/actions/product/category.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
+} from 'domain/actions/product/category.action';
+import {RootReducerType} from 'model/reducers/RootReducerType';
 import React, {
   createRef,
   useCallback,
@@ -23,19 +23,24 @@ import React, {
   useMemo,
   useRef,
   useState,
-} from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router";
-import { CategoryUpdateRequest, CategoryResponse } from "model/product/category.model";
+} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {useHistory, useParams} from 'react-router';
+import {
+  CategoryUpdateRequest,
+  CategoryResponse,
+} from 'model/product/category.model';
+import ContentContainer from 'component/container/content.container';
+import UrlConfig from 'config/UrlConfig';
 
-const { TreeNode } = TreeSelect;
+const {TreeNode} = TreeSelect;
 
 type CategoryParam = {
   id: string;
 };
 
 const CategoryUpdate: React.FC = () => {
-  const { id } = useParams<CategoryParam>();
+  const {id} = useParams<CategoryParam>();
   let idNumber = parseInt(id);
 
   const history = useHistory();
@@ -54,7 +59,7 @@ const CategoryUpdate: React.FC = () => {
     return [];
   }, [bootstrapReducer]);
   const onSuccess = useCallback(() => {
-    history.push("/categories");
+    history.push('/categories');
   }, [history]);
   const onFinish = useCallback(
     (values: CategoryUpdateRequest) => {
@@ -74,106 +79,130 @@ const CategoryUpdate: React.FC = () => {
     }
     isFirstLoad.current = false;
   }, [dispatch, idNumber]);
-  if (detail == null) {
-    return (
-      <Card className="card-block card-block-normal">
-        Không tìm thấy danh mục
-      </Card>
-    );
-  }
   return (
-    <Form
-      ref={formRef}
-      onFinish={onFinish}
-      initialValues={detail}
-      layout="vertical"
+    <ContentContainer
+      title="Sửa danh mục"
+      breadcrumb={[
+        {
+          name: 'Tổng quản',
+          path: '/',
+        },
+        {
+          name: 'Sản phẩm',
+          path: `${UrlConfig.PRODUCT}`,
+        },
+        {
+          name: 'Danh mục',
+          path: `${UrlConfig.CATEGORIES}`,
+        },
+        {
+          name: 'Sửa danh mục',
+        },
+      ]}
     >
-      <Card title="Thông tin cơ bản">
-        <div className="padding-20">
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item name="version" hidden noStyle>
-                <Input />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[
-                  { required: true, message: "Vui lòng nhập tên danh mục" },
-                ]}
-                label="Tên danh mục"
-                name="name"
-              >
-                <Input
-                  className="r-5"
-                  placeholder="Tên danh mục"
-                  size="large"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập thành phần chất liệu",
-                  },
-                ]}
-                name="goods"
-                label="Ngành hàng"
-              >
-                <Select className="selector">
-                  <Select.Option value="">Ngành hàng</Select.Option>
-                  {goods.map((item, index) => (
-                    <Select.Option key={index} value={item.value}>
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[
-                  { required: true, message: "Vui lòng nhập mã danh mục" },
-                ]}
-                name="code"
-                labelAlign="right"
-                label="Mã danh mục"
-              >
-                <Input className="r-5" placeholder="Mã danh mục" size="large" />
-              </Form.Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item name="parent_id" label="Danh mục cha">
-                <TreeSelect treeDefaultExpandAll className="selector">
-                  <TreeNode value={-1} title="Danh mục cha" />
-                  {categories.map((item, index) => (
-                    <React.Fragment key={index}>
-                      {TreeCategory(item, idNumber)}
-                    </React.Fragment>
-                  ))}
-                </TreeSelect>
-              </Form.Item>
-            </Col>
-          </Row>
-        </div>
-      </Card>
-      <div className="margin-top-10" style={{ textAlign: "right" }}>
-        <Space size={12}>
-          <Button type="default" onClick={onCancel}>
-            Hủy
-          </Button>
-          <Button htmlType="submit" type="primary">
-            Lưu
-          </Button>
-        </Space>
-      </div>
-    </Form>
+      {detail === null ? (
+        <Card>
+          <div className="padding-20">Không tìm thấy danh mục</div>
+        </Card>
+      ) : (
+        <Form
+          ref={formRef}
+          onFinish={onFinish}
+          initialValues={detail}
+          layout="vertical"
+        >
+          <Card title="Thông tin cơ bản">
+            <div className="padding-20">
+              <Row gutter={50}>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Form.Item name="version" hidden noStyle>
+                    <Input />
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={50}>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Form.Item
+                    rules={[
+                      {required: true, message: 'Vui lòng nhập tên danh mục'},
+                    ]}
+                    label="Tên danh mục"
+                    name="name"
+                  >
+                    <Input
+                      className="r-5"
+                      placeholder="Tên danh mục"
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Form.Item
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Vui lòng nhập thành phần chất liệu',
+                      },
+                    ]}
+                    name="goods"
+                    label="Ngành hàng"
+                  >
+                    <Select>
+                      <Select.Option value="">Ngành hàng</Select.Option>
+                      {goods.map((item, index) => (
+                        <Select.Option key={index} value={item.value}>
+                          {item.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              </Row>
+              <Row gutter={50}>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Form.Item
+                    rules={[
+                      {required: true, message: 'Vui lòng nhập mã danh mục'},
+                    ]}
+                    name="code"
+                    labelAlign="right"
+                    label="Mã danh mục"
+                  >
+                    <Input
+                      className="r-5"
+                      placeholder="Mã danh mục"
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Form.Item name="parent_id" label="Danh mục cha">
+                    <TreeSelect treeDefaultExpandAll>
+                      <TreeNode value={-1} title="Danh mục cha" />
+                      {categories.map((item, index) => (
+                        <React.Fragment key={index}>
+                          {TreeCategory(item, idNumber)}
+                        </React.Fragment>
+                      ))}
+                    </TreeSelect>
+                  </Form.Item>
+                </Col>
+              </Row>
+            </div>
+          </Card>
+          <div className="margin-top-10" style={{textAlign: 'right'}}>
+            <Space size={12}>
+              <Button type="default" onClick={onCancel}>
+                Hủy
+              </Button>
+              <Button htmlType="submit" type="primary">
+                Lưu
+              </Button>
+            </Space>
+          </div>
+        </Form>
+      )}
+    </ContentContainer>
   );
 };
 

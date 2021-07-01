@@ -1,54 +1,53 @@
-import { Card } from "antd";
-import { MenuAction } from "component/table/ActionButton";
-import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { useDispatch, useSelector } from "react-redux";
-import ProductFilter from "component/filter/product.filter";
-import { searchVariantsRequestAction } from "domain/actions/product/products.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import CustomTable from "component/table/CustomTable";
-import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
-import { CountryResponse } from "model/content/country.model";
-import { ColorResponse } from "model/product/color.model";
-import { SupplierResponse } from "model/core/supplier.model";
-import { CountryGetAllAction } from "domain/actions/content/content.action";
-import { listColorAction } from "domain/actions/product/color.action";
-import { ColorSearchQuery } from "model/product/color.model";
-import { SizeResponse } from "model/product/size.model";
-import { sizeGetAll } from "domain/actions/product/size.action";
-import { supplierGetAllAction } from "domain/actions/core/supplier.action";
-import { AccountGetListAction } from "domain/actions/account/account.action";
-import {
-  AccountResponse,
-  AccountSearchQuery,
-} from "model/account/account.model";
-import UrlConfig from "config/UrlConfig";
-import ImageProduct from "./component/image-product.component";
+import {Card} from 'antd';
+import {MenuAction} from 'component/table/ActionButton';
+import {PageResponse} from 'model/base/base-metadata.response';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {Link, useHistory} from 'react-router-dom';
+import {generateQuery} from 'utils/AppUtils';
+import {getQueryParams, useQuery} from 'utils/useQuery';
+import {useDispatch, useSelector} from 'react-redux';
+import ProductFilter from 'component/filter/product.filter';
+import {searchVariantsRequestAction} from 'domain/actions/product/products.action';
+import {RootReducerType} from 'model/reducers/RootReducerType';
+import CustomTable from 'component/table/CustomTable';
+import {VariantResponse, VariantSearchQuery} from 'model/product/product.model';
+import {CountryResponse} from 'model/content/country.model';
+import {ColorResponse} from 'model/product/color.model';
+import {SupplierResponse} from 'model/core/supplier.model';
+import {CountryGetAllAction} from 'domain/actions/content/content.action';
+import {listColorAction} from 'domain/actions/product/color.action';
+import {ColorSearchQuery} from 'model/product/color.model';
+import {SizeResponse} from 'model/product/size.model';
+import {sizeGetAll} from 'domain/actions/product/size.action';
+import {supplierGetAllAction} from 'domain/actions/core/supplier.action';
+import {AccountGetListAction} from 'domain/actions/account/account.action';
+import {AccountResponse, AccountSearchQuery} from 'model/account/account.model';
+import UrlConfig from 'config/UrlConfig';
+import ImageProduct from './component/image-product.component';
+import ButtonCreate from 'component/header/ButtonCreate';
+import ContentContainer from 'component/container/content.container';
 
 const actions: Array<MenuAction> = [
   {
     id: 1,
-    name: "Xóa",
+    name: 'Xóa',
   },
   {
     id: 2,
-    name: "Export",
+    name: 'Export',
   },
 ];
 
 const initQuery: VariantSearchQuery = {
-  info: "",
-  barcode: "",
-  status: "",
-  brand: "",
-  made_in: "",
-  size: "",
-  main_color: "",
-  color: "",
-  supplier: "",
+  info: '',
+  barcode: '',
+  status: '',
+  brand: '',
+  made_in: '',
+  size: '',
+  main_color: '',
+  color: '',
+  supplier: '',
 };
 
 const initAccountQuery: AccountSearchQuery = {
@@ -94,57 +93,57 @@ const ListProductScreen: React.FC = () => {
   });
   const columns = [
     {
-      title: "Ảnh",
+      title: 'Ảnh',
       render: (value: VariantResponse) => {
-        return <ImageProduct onClick={()=> {}}  />
+        return <ImageProduct onClick={() => {}} />;
       },
-    }, 
-    {
-      title: "Mã sản phẩm",
-      dataIndex: 'sku',
-      render: (value: string, i: VariantResponse) => <Link to={`${UrlConfig.VARIANTS}/${i.id}`}>{value}</Link>
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: "name",
+      title: 'Mã sản phẩm',
+      dataIndex: 'sku',
+      render: (value: string, i: VariantResponse) => (
+        <Link to={`${UrlConfig.VARIANTS}/${i.id}`}>{value}</Link>
+      ),
+    },
+    {
+      title: 'Tên sản phẩm',
+      dataIndex: 'name',
       sorter: true,
     },
     {
-      title: "Màu sắc",
-      dataIndex: "color",
+      title: 'Màu sắc',
+      dataIndex: 'color',
     },
     {
-      title: "Size",
-      dataIndex: "size",
+      title: 'Size',
+      dataIndex: 'size',
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "phone",
+      title: 'Số điện thoại',
+      dataIndex: 'phone',
     },
     {
-      title: "Nhà thiết kế",
+      title: 'Nhà thiết kế',
       render: (value: VariantResponse) => <div> {value.product.designer}</div>,
     },
     {
-      title: "Merchandiser",
+      title: 'Merchandiser',
       render: (value: VariantResponse) => (
         <div> {value.product.merchandiser}</div>
       ),
     },
     {
-      title: "Tồn có thể bán",
-      dataIndex: "inventory",
+      title: 'Tồn có thể bán',
+      dataIndex: 'inventory',
     },
     {
-      title: "Trạng thái",
-      dataIndex: "status",
+      title: 'Trạng thái',
+      dataIndex: 'status',
       render: (value: string, row: VariantResponse) => (
         <div
-          className={
-            row.status === "active" ? "text-success" : "text-error"
-          }
+          className={row.status === 'active' ? 'text-success' : 'text-error'}
         >
-          {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
+          {value === 'active' ? 'Đang hoạt động' : 'Ngừng hoạt động'}
         </div>
       ),
     },
@@ -155,14 +154,14 @@ const ListProductScreen: React.FC = () => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
+      setPrams({...params});
       history.replace(`${UrlConfig.PRODUCT}?${queryParam}`);
     },
     [history, params]
   );
   const onFilter = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 1 };
+      let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.PRODUCT}?${queryParam}`);
@@ -183,8 +182,20 @@ const ListProductScreen: React.FC = () => {
     dispatch(searchVariantsRequestAction(params, setData));
   }, [dispatch, params]);
   return (
-    <div>
-      <Card className="contain">
+    <ContentContainer
+      title="Quản lý chất liệu"
+      breadcrumb={[
+        {
+          name: 'Tổng quản',
+          path: '/',
+        },
+        {
+          name: 'Sản phẩm',
+        },
+      ]}
+      extra={<ButtonCreate path={`${UrlConfig.PRODUCT}/create`} />}
+    >
+      <Card>
         <ProductFilter
           onMenuClick={onMenuClick}
           actions={actions}
@@ -200,7 +211,7 @@ const ListProductScreen: React.FC = () => {
           listCountries={listCountry}
         />
         <CustomTable
-          scroll={{ x: 1080 }}
+          scroll={{x: 1080}}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
@@ -214,7 +225,7 @@ const ListProductScreen: React.FC = () => {
           rowKey={(item: VariantResponse) => item.id}
         />
       </Card>
-    </div>
+    </ContentContainer>
   );
 };
 

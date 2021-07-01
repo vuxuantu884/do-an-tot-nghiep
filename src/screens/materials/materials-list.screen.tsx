@@ -18,6 +18,8 @@ import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined } from "@ant-design/icons";
+import ContentContainer from "component/container/content.container";
+import ButtonCreate from "component/header/ButtonCreate";
 
 const actions: Array<MenuAction> = [
   {
@@ -165,11 +167,28 @@ const ListMaterial: React.FC = () => {
   }, [dispatch, params]);
   console.log(menuFilter);
   return (
-    <div>
-      <Card className="contain">
+    <ContentContainer
+      title="Quản lý chất liệu"
+      breadcrumb={[
+        {
+          name: 'Tổng quản',
+          path: '/',
+        },
+        {
+          name: 'Sản phẩm',
+          path: `${UrlConfig.PRODUCT}`,
+        },
+        {
+          name: 'Chất liệu',
+        },
+      ]}
+      extra={
+        <ButtonCreate path={`${UrlConfig.MATERIALS}/create`} />
+      }
+    >
+      <Card>
         <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
           <Form
-            size="middle"
             onFinish={onFinish}
             initialValues={params}
             layout="inline"
@@ -199,7 +218,6 @@ const ListMaterial: React.FC = () => {
               <Button
                 type="primary"
                 htmlType="submit"
-                className="yody-search-button"
               >
                 Lọc
               </Button>
@@ -226,7 +244,7 @@ const ListMaterial: React.FC = () => {
           rowKey={(item: MaterialResponse) => item.id}
         />
       </Card>
-    </div>
+    </ContentContainer>
   );
 };
 

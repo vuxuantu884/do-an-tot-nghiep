@@ -24,6 +24,8 @@ import UrlConfig from "config/UrlConfig";
 import { showWarning } from "utils/ToastUtils";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined } from "@ant-design/icons";
+import ButtonCreate from "component/header/ButtonCreate";
+import ContentContainer from "component/container/content.container";
 
 const actions: Array<MenuAction> = [
   {
@@ -75,10 +77,16 @@ const SizeListScreen: React.FC = () => {
     {
       title: "Danh mục",
       dataIndex: "categories",
-      render: (value: Array<SizeCategory>) =>
-        value.map((item: SizeCategory) => (
-          <div key={item.category_id}>{item.category_name}</div>
-        )),
+      render: (value: Array<SizeCategory>) => {
+        if(value.length === 1) {
+          return <div>{value[0].category_name}</div>
+        }
+        return (
+          <Tooltip placement="bottomLeft" title={value.map((item) => <div>{item.category_name}</div>)}>
+            <div>{`${value.length} danh mục`}</div>
+          </Tooltip>
+        )
+      }
     },
     {
       title: "Người tạo",
@@ -172,8 +180,27 @@ const SizeListScreen: React.FC = () => {
     dispatch(sizeSearchAction(params, setData));
   }, [dispatch, params, setCategory]);
   return (
-    <div>
-      <Card className="contain">
+    <ContentContainer
+      title="Quản lý kích cỡ"
+      breadcrumb={[
+        {
+          name: 'Tổng quản',
+          path: '/',
+        },
+        {
+          name: 'Sản phẩm',
+          path: `${UrlConfig.PRODUCT}`,
+        },
+        {
+          name: 'Kích cỡ',
+          path: `${UrlConfig.SIZES}`,
+        },
+      ]}
+      extra={
+        <ButtonCreate path={`${UrlConfig.SIZES}/create`} />
+      }
+    >
+      <Card>
         <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
           <Form layout="inline" initialValues={params} onFinish={onFinish}>
             <Form.Item name="code">
@@ -220,7 +247,7 @@ const SizeListScreen: React.FC = () => {
           rowKey={(item: SizeResponse) => item.id}
         />
       </Card>
-    </div>
+    </ContentContainer>
   );
 };
 

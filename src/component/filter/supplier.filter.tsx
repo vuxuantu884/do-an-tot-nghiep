@@ -12,7 +12,7 @@ import {
 import { MenuAction } from "component/table/ActionButton";
 import { SupplierQuery } from "model/core/supplier.model";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { createRef, useCallback, useLayoutEffect, useState } from "react";
+import { createRef, useCallback, useEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import CustomFilter from "component/table/custom.filter";
@@ -69,7 +69,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
     },
     [onMenuClick]
   );
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (visible) {
       formRef.current?.resetFields();
     }
