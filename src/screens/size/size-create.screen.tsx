@@ -19,6 +19,7 @@ import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { convertCategory } from "utils/AppUtils";
+import ContentContainer from "component/container/content.container";
 
 const { Option } = Select;
 
@@ -48,6 +49,27 @@ const SizeCreateScreen: React.FC = () => {
     return () => {};
   }, [dispatch, setCategory]);
   return (
+    <ContentContainer
+      title="Thêm mới kích cỡ"
+      breadcrumb={[
+        {
+          name: 'Tổng quản',
+          path: '/',
+        },
+        {
+          name: 'Sản phẩm',
+          path: `${UrlConfig.PRODUCT}`,
+        },
+        {
+          name: 'Kích cỡ',
+          path: `${UrlConfig.SIZES}`,
+        },
+        {
+          name: 'Thêm mới',
+          path: `${UrlConfig.SIZES}/create`,
+        },
+      ]}
+    >
     <Form ref={formRef} onFinish={onFinish} layout="vertical">
       <Card title="Thông tin cơ bản">
         <div className="padding-20">
@@ -106,6 +128,7 @@ const SizeCreateScreen: React.FC = () => {
         </Space>
       </div>
     </Form>
+    </ContentContainer>
   );
 };
 

@@ -10,6 +10,7 @@ const UrlConfig = {
   SUPPLIERS: "/suppliers",
   ACCOUNTS: "/accounts",
   STORE: "/stores",
+  ROLES: '/roles',
 }
 
 export default UrlConfig;
