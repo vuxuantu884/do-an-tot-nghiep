@@ -70,6 +70,7 @@ deploy to uat:
   dependencies: []
   when: manual
   only:
+    - develop
     - uat
   variables:
     HOST: uat.app-admin.yody.io

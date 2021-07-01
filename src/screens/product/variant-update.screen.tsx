@@ -1,35 +1,32 @@
-import { AppConfig } from "config/AppConfig";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { CountryGetAllAction } from "domain/actions/content/content.action";
-import { supplierGetAllAction } from "domain/actions/core/supplier.action";
-import { getCategoryRequestAction } from "domain/actions/product/category.action";
-import { colorSearchAll } from "domain/actions/product/color.action";
-import { materialSearchAll } from "domain/actions/product/material.action";
-import { variantDetailAction } from "domain/actions/product/products.action";
-import { sizeGetAll } from "domain/actions/product/size.action";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { CountryResponse } from "model/content/country.model";
-import { SupplierResponse } from "model/core/supplier.model";
-import { CategoryResponse, CategoryView } from "model/product/category.model";
-import { ColorResponse } from "model/product/color.model";
-import { MaterialResponse } from "model/product/material.model";
-import {
-  VariantResponse,
-  VariantUpdateView,
-} from "model/product/product.model";
-import { SizeResponse } from "model/product/size.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { useCallback } from "react";
-import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import {AppConfig} from 'config/AppConfig';
+import {AccountSearchAction} from 'domain/actions/account/account.action';
+import {CountryGetAllAction} from 'domain/actions/content/content.action';
+import {supplierGetAllAction} from 'domain/actions/core/supplier.action';
+import {getCategoryRequestAction} from 'domain/actions/product/category.action';
+import {colorSearchAll} from 'domain/actions/product/color.action';
+import {materialSearchAll} from 'domain/actions/product/material.action';
+import {variantDetailAction} from 'domain/actions/product/products.action';
+import {sizeGetAll} from 'domain/actions/product/size.action';
+import {AccountResponse} from 'model/account/account.model';
+import {PageResponse} from 'model/base/base-metadata.response';
+import {CountryResponse} from 'model/content/country.model';
+import {SupplierResponse} from 'model/core/supplier.model';
+import {CategoryResponse, CategoryView} from 'model/product/category.model';
+import {ColorResponse} from 'model/product/color.model';
+import {MaterialResponse} from 'model/product/material.model';
+import {VariantResponse, VariantUpdateView} from 'model/product/product.model';
+import {SizeResponse} from 'model/product/size.model';
+import {RootReducerType} from 'model/reducers/RootReducerType';
+import {useCallback} from 'react';
+import {useEffect, useRef, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {useHistory, useParams} from 'react-router-dom';
 import {
   convertCategory,
   formatCurrency,
   Products,
   replaceFormatString,
-} from "utils/AppUtils";
+} from 'utils/AppUtils';
 import {
   Button,
   Card,
@@ -43,28 +40,30 @@ import {
   Select,
   Space,
   Switch,
-} from "antd";
+} from 'antd';
 import {
   DeleteOutlined,
   InfoCircleOutlined,
   MinusOutlined,
   PlusOutlined,
-} from "@ant-design/icons";
-import CustomSelect from "component/custom/select.custom";
-import CustomEditor from "component/custom-editor";
-import NumberInput from "component/custom/number-input.custom";
-import { useMemo } from "react";
-import { createRef } from "react";
+} from '@ant-design/icons';
+import CustomSelect from 'component/custom/select.custom';
+import CustomEditor from 'component/custom-editor';
+import NumberInput from 'component/custom/number-input.custom';
+import {useMemo} from 'react';
+import {createRef} from 'react';
+import ContentContainer from 'component/container/content.container';
+import UrlConfig from 'config/UrlConfig';
 
 type VariantUpdateParam = {
   id: string;
 };
 
-const { Item, List } = Form;
-const { Option } = Select;
+const {Item, List} = Form;
+const {Option} = Select;
 
 const VariantUpdateScreen: React.FC = () => {
-  const { id } = useParams<VariantUpdateParam>();
+  const {id} = useParams<VariantUpdateParam>();
   const idNumber = parseInt(id);
   //Hook
   const dispatch = useDispatch();
@@ -113,13 +112,13 @@ const VariantUpdateScreen: React.FC = () => {
   const [status, setStatus] = useState<string>('active');
   const statusValue = useMemo(() => {
     if (!productStatusList) {
-      return "";
+      return '';
     }
     let index = productStatusList?.findIndex((item) => item.value === status);
     if (index !== -1) {
       return productStatusList?.[index].name;
     }
-    return "";
+    return '';
   }, [productStatusList, status]);
   //end state
   //callback data
@@ -139,7 +138,7 @@ const VariantUpdateScreen: React.FC = () => {
   //functional
   const onCancel = useCallback(() => {
     history.goBack();
-  }, [history])
+  }, [history]);
   //end functional
   useEffect(() => {
     if (!isLoadMaterData.current) {
@@ -151,7 +150,7 @@ const VariantUpdateScreen: React.FC = () => {
       dispatch(colorSearchAll(setListColor));
       dispatch(
         AccountSearchAction(
-          { department_ids: [AppConfig.WIN_DEPARTMENT] },
+          {department_ids: [AppConfig.WIN_DEPARTMENT]},
           setDataAccounts
         )
       );
@@ -170,21 +169,40 @@ const VariantUpdateScreen: React.FC = () => {
     );
   }
   return (
-    <div>
+    <ContentContainer
+      title="Sửa biến thể"
+      breadcrumb={[
+        {
+          name: 'Tổng quản',
+          path: '/',
+        },
+        {
+          name: 'Sản phẩm',
+          path: `${UrlConfig.PRODUCT}`,
+        },
+        {
+          name: 'Sửa biến thể',
+        },
+      ]}
+    >
       <Form ref={formRef} initialValues={detail} layout="vertical">
         <Card
           title="Thông tin chi tiết"
           extra={[
             <Space key="status" size={15}>
               <label className="text-default">Trạng thái</label>
-              <Switch 
-                className="ant-switch-success" 
-                checked={status === 'active'} 
-                onChange={(checked) =>{
-                  setStatus(checked ? "active" : "inactive")
+              <Switch
+                className="ant-switch-success"
+                checked={status === 'active'}
+                onChange={(checked) => {
+                  setStatus(checked ? 'active' : 'inactive');
                 }}
               />
-              <label className={status === "active" ? "text-success" : "text-error"}>{statusValue}</label>
+              <label
+                className={status === 'active' ? 'text-success' : 'text-error'}
+              >
+                {statusValue}
+              </label>
             </Space>,
           ]}
         >
@@ -195,7 +213,7 @@ const VariantUpdateScreen: React.FC = () => {
                   label="Mã sản phẩm"
                   required
                   name="sku"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Input placeholder="VD: APN0000" />
                 </Item>
@@ -205,7 +223,7 @@ const VariantUpdateScreen: React.FC = () => {
                   label="Tên sản phẩm"
                   name="name"
                   required
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Input
                     placeholder="Tên sản phẩm"
@@ -214,7 +232,7 @@ const VariantUpdateScreen: React.FC = () => {
                 </Item>
               </Col>
 
-              <Col md={8} style={{ display: "flex", justifyContent: "center" }}>
+              <Col md={8} style={{display: 'flex', justifyContent: 'center'}}>
                 <Space size={15}>
                   <label className="text-default">Lựa chọn</label>
                   <Switch className="ant-switch-primary" defaultChecked />
@@ -227,7 +245,7 @@ const VariantUpdateScreen: React.FC = () => {
                 <Item
                   name="color_id"
                   label="Màuc sắc"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Select showSearch placeholder="Chọn màu sắc">
                     {listColor?.map((item) => (
@@ -242,7 +260,7 @@ const VariantUpdateScreen: React.FC = () => {
                 <Item
                   name="size_id"
                   label="Size"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Select showSearch placeholder="Chọn size">
                     {listSize?.map((item) => (
@@ -259,20 +277,20 @@ const VariantUpdateScreen: React.FC = () => {
                 <Item
                   label="Kích thước (dài, rộng, cao)"
                   required
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Input.Group compact>
                     <Item name="length" noStyle>
                       <NumberInput
                         isFloat
-                        style={{ width: "calc((100% - 100px) / 3)" }}
+                        style={{width: 'calc((100% - 100px) / 3)'}}
                         placeholder="Dài"
                       />
                     </Item>
                     <Item name="width" noStyle>
                       <NumberInput
                         isFloat
-                        style={{ width: "calc((100% - 100px) / 3)" }}
+                        style={{width: 'calc((100% - 100px) / 3)'}}
                         placeholder="Rộng"
                       />
                     </Item>
@@ -280,11 +298,11 @@ const VariantUpdateScreen: React.FC = () => {
                       <NumberInput
                         isFloat
                         placeholder="Cao"
-                        style={{ width: "calc((100% - 100px) / 3)" }}
+                        style={{width: 'calc((100% - 100px) / 3)'}}
                       />
                     </Item>
                     <Item name="length_unit" noStyle>
-                      <Select placeholder="Đơn vị" style={{ width: "100px" }}>
+                      <Select placeholder="Đơn vị" style={{width: '100px'}}>
                         {lengthUnitList?.map((item) => (
                           <Option key={item.value} value={item.value}>
                             {item.name}
@@ -298,14 +316,14 @@ const VariantUpdateScreen: React.FC = () => {
               <Col md={8}>
                 <Item
                   label="Khối lượng"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <Input.Group compact>
                     <Item
                       rules={[
                         {
                           required: true,
-                          message: "Khối lượng không được để trống",
+                          message: 'Khối lượng không được để trống',
                         },
                       ]}
                       name="weight"
@@ -314,13 +332,13 @@ const VariantUpdateScreen: React.FC = () => {
                       <NumberInput
                         isFloat
                         placeholder="Khối lượng"
-                        style={{ width: "calc(100% - 100px)" }}
+                        style={{width: 'calc(100% - 100px)'}}
                       />
                     </Item>
                     <Item name="weight_unit" noStyle>
                       <Select
                         placeholder="Đơn vị"
-                        style={{ width: "100px" }}
+                        style={{width: '100px'}}
                         value="gram"
                       >
                         {weightUnitList?.map((item) => (
@@ -339,13 +357,13 @@ const VariantUpdateScreen: React.FC = () => {
                 <Item
                   label="Nhà cung cấp"
                   name="supplier_id"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                 >
                   <CustomSelect
                     placeholder="Chọn nhà cung cấp"
                     suffix={
                       <Button
-                        style={{ width: 36, height: 36 }}
+                        style={{width: 36, height: 36}}
                         icon={<PlusOutlined />}
                       />
                     }
@@ -369,10 +387,10 @@ const VariantUpdateScreen: React.FC = () => {
           <Collapse.Panel key="1" header="Thông tin giá">
             <div className="padding-20">
               <List name="variant_prices">
-                {(fields, { add, remove }) => (
+                {(fields, {add, remove}) => (
                   <>
                     {fields.map(
-                      ({ key, name, fieldKey, ...restField }, index) => (
+                      ({key, name, fieldKey, ...restField}, index) => (
                         <Row key={key} gutter={16}>
                           <Col md={4}>
                             <Item
@@ -380,11 +398,11 @@ const VariantUpdateScreen: React.FC = () => {
                               rules={[
                                 {
                                   required: true,
-                                  message: "Giá bán không được để trống",
+                                  message: 'Giá bán không được để trống',
                                 },
                               ]}
-                              name={[name, "retail_price"]}
-                              fieldKey={[fieldKey, "retail_price"]}
+                              name={[name, 'retail_price']}
+                              fieldKey={[fieldKey, 'retail_price']}
                               tooltip={{
                                 title: (
                                   <div>
@@ -404,8 +422,8 @@ const VariantUpdateScreen: React.FC = () => {
                           </Col>
                           <Col md={4}>
                             <Item
-                              name={[name, "whole_sale_price"]}
-                              fieldKey={[fieldKey, "whole_sale_price"]}
+                              name={[name, 'whole_sale_price']}
+                              fieldKey={[fieldKey, 'whole_sale_price']}
                               label="Giá buôn"
                               tooltip={{
                                 title: () => (
@@ -427,8 +445,8 @@ const VariantUpdateScreen: React.FC = () => {
                           </Col>
                           <Col md={4}>
                             <Item
-                              name={[name, "import_price"]}
-                              fieldKey={[fieldKey, "import_price"]}
+                              name={[name, 'import_price']}
+                              fieldKey={[fieldKey, 'import_price']}
                               label="Giá nhập"
                               tooltip={{
                                 title: () => (
@@ -451,11 +469,11 @@ const VariantUpdateScreen: React.FC = () => {
                             <Item
                               label="Đơn vị tiền tệ"
                               tooltip={{
-                                title: "Tooltip",
+                                title: 'Tooltip',
                                 icon: <InfoCircleOutlined />,
                               }}
-                              name={[name, "currency"]}
-                              fieldKey={[fieldKey, "currency"]}
+                              name={[name, 'currency']}
+                              fieldKey={[fieldKey, 'currency']}
                             >
                               <Select placeholder="Đơn vị tiền tệ">
                                 {currencyList?.map((item) => (
@@ -469,10 +487,10 @@ const VariantUpdateScreen: React.FC = () => {
                           <Col md={4}>
                             <Item
                               label="Thuế"
-                              name={[name, "tax_percent"]}
-                              fieldKey={[fieldKey, "tax_percent"]}
+                              name={[name, 'tax_percent']}
+                              fieldKey={[fieldKey, 'tax_percent']}
                               tooltip={{
-                                title: "Tooltip",
+                                title: 'Tooltip',
                                 icon: <InfoCircleOutlined />,
                               }}
                             >
@@ -485,7 +503,7 @@ const VariantUpdateScreen: React.FC = () => {
                           {index !== 0 && (
                             <Col
                               md={4}
-                              style={{ display: "flex", alignItems: "center" }}
+                              style={{display: 'flex', alignItems: 'center'}}
                             >
                               <Button
                                 onClick={() => remove(name)}
@@ -523,14 +541,14 @@ const VariantUpdateScreen: React.FC = () => {
                 <Col md={8}>
                   <Item
                     label="Loại sản phẩm"
-                    name={["product", "product_type"]}
+                    name={['product', 'product_type']}
                     rules={[
                       {
                         required: true,
-                        message: "Required",
+                        message: 'Required',
                       },
                     ]}
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                    tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                   >
                     <Select
                       disabled
@@ -548,8 +566,8 @@ const VariantUpdateScreen: React.FC = () => {
                 <Col md={8}>
                   <Item
                     label="Ngành hàng"
-                    name={["product", "goods"]}
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                    name={['product', 'goods']}
+                    tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                   >
                     <Select
                       disabled
@@ -570,8 +588,8 @@ const VariantUpdateScreen: React.FC = () => {
                   <Item
                     label="Danh mục"
                     required
-                    name={["product", "category_id"]}
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                    name={['product', 'category_id']}
+                    tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                   >
                     <Select
                       placeholder="Chọn danh mục"
@@ -590,8 +608,8 @@ const VariantUpdateScreen: React.FC = () => {
                   <Item
                     label="Bộ sưu tập"
                     required
-                    name={["product", "collections"]}
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                    name={['product', 'collections']}
+                    tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                   >
                     <Select
                       placeholder="Chọn bộ sư tập"
@@ -610,9 +628,9 @@ const VariantUpdateScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col md={8}>
                   <Item
-                    name={["product", "brand"]}
+                    name={['product', 'brand']}
                     label="Thương hiệu"
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                    tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                   >
                     <Select
                       disabled
@@ -628,7 +646,7 @@ const VariantUpdateScreen: React.FC = () => {
                   </Item>
                 </Col>
                 <Col md={8}>
-                  <Item name={["product", "made_in_id"]} label="Xuất xứ">
+                  <Item name={['product', 'made_in_id']} label="Xuất xứ">
                     <Select
                       disabled
                       showArrow={false}
@@ -647,8 +665,8 @@ const VariantUpdateScreen: React.FC = () => {
                 <Col md={8}>
                   <Item
                     label="Chất liệu"
-                    name={["product", "material_id"]}
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                    name={['product', 'material_id']}
+                    tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                   >
                     <Select
                       disabled
@@ -666,8 +684,8 @@ const VariantUpdateScreen: React.FC = () => {
                 <Col md={8}>
                   <Item
                     label="Đơn vị"
-                    name={["product", "product_unit"]}
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                    name={['product', 'product_unit']}
+                    tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                   >
                     <Select
                       disabled
@@ -686,9 +704,9 @@ const VariantUpdateScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col md={8}>
                   <Item
-                    name={["product", "tags"]}
+                    name={['product', 'tags']}
                     label="Từ khoá"
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                    tooltip={{title: 'Tooltip', icon: <InfoCircleOutlined />}}
                   >
                     <Input disabled placeholder="VD: Aoxanh" />
                   </Item>
@@ -703,7 +721,7 @@ const VariantUpdateScreen: React.FC = () => {
               </Button>
               <Row className="margin-top-20">
                 <Col md={24}>
-                  <Item  name={["product", "description"]}>
+                  <Item name={['product', 'description']}>
                     <CustomEditor disabled />
                   </Item>
                 </Col>
@@ -721,8 +739,11 @@ const VariantUpdateScreen: React.FC = () => {
                 <div className="padding-20">
                   <Item
                     label="Chi tiết thông số"
-                    name={["product", "specifications"]}
-                    tooltip={{ title: "Nhập chi thiết thông số sản phổng", icon: <InfoCircleOutlined /> }}
+                    name={['product', 'specifications']}
+                    tooltip={{
+                      title: 'Nhập chi thiết thông số sản phổng',
+                      icon: <InfoCircleOutlined />,
+                    }}
                   >
                     <Input disabled placeholder="Điền chi tiết thông số" />
                   </Item>
@@ -735,7 +756,7 @@ const VariantUpdateScreen: React.FC = () => {
                   </Button>
                   <Row className="margin-top-20">
                     <Col md={24}>
-                      <Item  name={["product", "preservation"]}>
+                      <Item name={['product', 'preservation']}>
                         <CustomEditor disabled />
                       </Item>
                     </Col>
@@ -753,8 +774,11 @@ const VariantUpdateScreen: React.FC = () => {
                 <div className="padding-20">
                   <Item
                     label="Merchandiser"
-                    name={["product", "merchandiser_code"]}
-                    tooltip={{ title: "Chọn nhân viên mua hàng", icon: <InfoCircleOutlined /> }}
+                    name={['product', 'merchandiser_code']}
+                    tooltip={{
+                      title: 'Chọn nhân viên mua hàng',
+                      icon: <InfoCircleOutlined />,
+                    }}
                   >
                     <Select
                       disabled
@@ -770,8 +794,11 @@ const VariantUpdateScreen: React.FC = () => {
                   </Item>
                   <Item
                     label="Thiết kế"
-                    name={["product", "designer_code"]}
-                    tooltip={{ title: "Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
+                    name={['product', 'designer_code']}
+                    tooltip={{
+                      title: 'Chọn nhân viên thiết kế',
+                      icon: <InfoCircleOutlined />,
+                    }}
                   >
                     <Select
                       disabled
@@ -790,7 +817,7 @@ const VariantUpdateScreen: React.FC = () => {
             </Collapse>
           </Col>
         </Row>
-        <div className="margin-top-10" style={{ textAlign: "right" }}>
+        <div className="margin-top-10" style={{textAlign: 'right'}}>
           <Space size={12}>
             <Button onClick={onCancel}>Huỷ</Button>
             <Button type="primary" htmlType="submit">
@@ -799,7 +826,7 @@ const VariantUpdateScreen: React.FC = () => {
           </Space>
         </div>
       </Form>
-    </div>
+    </ContentContainer>
   );
 };
 

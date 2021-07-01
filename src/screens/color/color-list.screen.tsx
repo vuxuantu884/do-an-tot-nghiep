@@ -1,36 +1,39 @@
-import { Button, Card, Form, Input, Image, Select } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
-import search from "assets/img/search.svg";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import { generateQuery } from "utils/AppUtils";
-import { useDispatch } from "react-redux";
-import { PageResponse } from "model/base/base-metadata.response";
-import { MenuAction } from "component/table/ActionButton";
-import { showWarning } from "utils/ToastUtils";
-import CustomTable from "component/table/CustomTable";
-import { ColorResponse, ColorSearchQuery } from "model/product/color.model";
-import imgDefault from "assets/icon/img-default.svg";
+import {Button, Card, Form, Input, Image, Select} from 'antd';
+import React, {useCallback, useEffect, useState} from 'react';
+import {Link, useHistory} from 'react-router-dom';
+import search from 'assets/img/search.svg';
+import {getQueryParams, useQuery} from 'utils/useQuery';
+import {generateQuery} from 'utils/AppUtils';
+import {useDispatch} from 'react-redux';
+import {PageResponse} from 'model/base/base-metadata.response';
+import {MenuAction} from 'component/table/ActionButton';
+import {showWarning} from 'utils/ToastUtils';
+import CustomTable from 'component/table/CustomTable';
+import {ColorResponse, ColorSearchQuery} from 'model/product/color.model';
+import imgDefault from 'assets/icon/img-default.svg';
 import {
   colorDeleteAction,
   colorDeleteManyAction,
   getColorAction,
-} from "domain/actions/product/color.action";
-import { isUndefinedOrNull } from "utils/AppUtils";
-import CustomFilter from "component/table/custom.filter";
+} from 'domain/actions/product/color.action';
+import {isUndefinedOrNull} from 'utils/AppUtils';
+import CustomFilter from 'component/table/custom.filter';
+import ContentContainer from 'component/container/content.container';
+import UrlConfig from 'config/UrlConfig';
+import ButtonCreate from 'component/header/ButtonCreate';
 
 const action: Array<MenuAction> = [
   {
     id: 1,
-    name: "Xóa",
+    name: 'Xóa',
   },
   {
     id: 1,
-    name: "Export",
+    name: 'Export',
   },
 ];
 
-const { Option } = Select;
+const {Option} = Select;
 const ColorListScreen: React.FC = () => {
   const [selected, setSelected] = useState<Array<ColorResponse>>([]);
   const [data, setData] = useState<PageResponse<ColorResponse>>({
@@ -55,47 +58,47 @@ const ColorListScreen: React.FC = () => {
   let [params, setPrams] = useState<ColorSearchQuery>(getQueryParams(query));
   const columns = [
     {
-      title: "Mã màu",
-      dataIndex: "code",
+      title: 'Mã màu',
+      dataIndex: 'code',
       render: (value: string, item: ColorResponse) => {
         return <Link to={`colors/${item.id}`}>{value}</Link>;
       },
     },
     {
-      title: "Tên màu",
-      dataIndex: "name",
+      title: 'Tên màu',
+      dataIndex: 'name',
     },
     {
-      title: "Màu chủ đạo",
-      dataIndex: "parent_id",
+      title: 'Màu chủ đạo',
+      dataIndex: 'parent_id',
     },
     {
-      title: "Màu hex",
-      dataIndex: "hex_code",
-      render: (value: string) => (value !== null ? `#${value}` : ""),
+      title: 'Màu hex',
+      dataIndex: 'hex_code',
+      render: (value: string) => (value !== null ? `#${value}` : ''),
     },
     {
-      title: "Ảnh màu",
-      dataIndex: "image",
+      title: 'Ảnh màu',
+      dataIndex: 'image',
       render: (value: string) => {
-        return !isUndefinedOrNull(value) && value !== "" ? (
+        return !isUndefinedOrNull(value) && value !== '' ? (
           <Image
             width={40}
             src={value}
             placeholder={<img alt="" src={imgDefault} />}
           />
         ) : (
-          ""
+          ''
         );
       },
     },
     {
-      title: "Người tạo",
-      dataIndex: "created_name",
+      title: 'Người tạo',
+      dataIndex: 'created_name',
     },
     {
-      title: "Ghi chú",
-      dataIndex: "description",
+      title: 'Ghi chú',
+      dataIndex: 'description',
     },
   ];
   const onDeleteSuccess = useCallback(() => {
@@ -104,7 +107,7 @@ const ColorListScreen: React.FC = () => {
   }, [dispatch, params, selected]);
   const onDelete = useCallback(() => {
     if (selected.length === 0) {
-      showWarning("Vui lòng chọn phần từ cần xóa");
+      showWarning('Vui lòng chọn phần từ cần xóa');
       return;
     }
     if (selected.length === 1) {
@@ -121,7 +124,7 @@ const ColorListScreen: React.FC = () => {
   }, []);
   const onFinish = useCallback(
     (values) => {
-      let newPrams = { ...params, ...values, page: 0 };
+      let newPrams = {...params, ...values, page: 0};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`/colors?${queryParam}`);
@@ -133,7 +136,7 @@ const ColorListScreen: React.FC = () => {
       params.page = page - 1;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({ ...params });
+      setPrams({...params});
       history.replace(`/colors?${queryParam}`);
     },
     [history, params]
@@ -150,12 +153,30 @@ const ColorListScreen: React.FC = () => {
   );
   useEffect(() => {
     dispatch(getColorAction(params, setData));
-    dispatch(getColorAction({ is_main_color: 1 }, setSelector));
+    dispatch(getColorAction({is_main_color: 1}, setSelector));
     return () => {};
   }, [dispatch, params]);
   return (
-    <div>
-      <Card className="contain">
+    <ContentContainer
+      title="Quản lý màu sắc"
+      breadcrumb={[
+        {
+          name: 'Tổng quản',
+          path: '/',
+        },
+        {
+          name: 'Sản phẩm',
+          path: `${UrlConfig.PRODUCT}`,
+        },
+        {
+          name: 'Màu sắc',
+        },
+      ]}
+      extra={
+        <ButtonCreate path={`${UrlConfig.COLORS}/create`} />
+      }
+    >
+      <Card>
         <CustomFilter menu={action} onMenuClick={onMenuClick}>
           <Form
             className="form-search"
@@ -167,12 +188,12 @@ const ColorListScreen: React.FC = () => {
             <Form.Item name="info">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
+                style={{width: 200}}
                 placeholder="Tên/Mã màu sắc"
               />
             </Form.Item>
             <Form.Item name="parent_id">
-              <Select placeholder="Chọn màu chủ đạo" style={{ width: 200 }}>
+              <Select placeholder="Chọn màu chủ đạo" style={{width: 200}}>
                 <Option value="">Chọn màu chủ đạo</Option>
                 {selector.items.map((item) => (
                   <Option key={item.id} value={item.id}>
@@ -184,7 +205,7 @@ const ColorListScreen: React.FC = () => {
             <Form.Item name="hex_code">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
+                style={{width: 200}}
                 placeholder="Mã hex"
               />
             </Form.Item>
@@ -210,7 +231,7 @@ const ColorListScreen: React.FC = () => {
           rowKey={(item: ColorResponse) => item.id}
         />
       </Card>
-    </div>
+    </ContentContainer>
   );
 };
 

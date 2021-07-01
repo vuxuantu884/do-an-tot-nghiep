@@ -31,6 +31,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import {useHistory} from 'react-router';
 import {convertDistrict} from 'utils/AppUtils';
 import {AppConfig} from 'config/AppConfig';
+import ContentContainer from 'component/container/content.container';
+import UrlConfig from 'config/UrlConfig';
 
 const {Item} = Form;
 const {Option, OptGroup} = Select;
@@ -160,6 +162,26 @@ const CreateSupplierScreen: React.FC = () => {
     dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
   }, [dispatch, setDataAccounts, setDataDistrict]);
   return (
+    <ContentContainer
+      title="Quản lý nhà cung cấp"
+      breadcrumb={[
+        {
+          name: 'Tổng quản',
+          path: '/',
+        },
+        {
+          name: 'Sản phẩm',
+          path: `${UrlConfig.PRODUCT}`,
+        },
+        {
+          name: 'Nhà cung cấp',
+          path: `${UrlConfig.SUPPLIERS}`,
+        },
+        {
+          name: 'Thêm mới',
+        },
+      ]}
+    >
     <Form
       ref={formRef}
       layout="vertical"
@@ -560,6 +582,7 @@ const CreateSupplierScreen: React.FC = () => {
         </Space>
       </div>
     </Form>
+    </ContentContainer>
   );
 };
 
