@@ -1,7 +1,8 @@
+//#region Import
 import React, {
   createRef,
   useCallback,
-  useLayoutEffect,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -25,12 +26,12 @@ import {
   Dropdown,
   Tooltip,
   InputNumber,
-  Table as ANTTable,
+  Table,
+  FormInstance,
 } from "antd";
 import {
   ArrowRightOutlined,
   CreditCardOutlined,
-  DeleteOutlined,
   InfoCircleOutlined,
   PlusOutlined,
   ProfileOutlined,
@@ -41,7 +42,6 @@ import {
 
 import { Select } from "component/common/select";
 import { Link } from "react-router-dom";
-import { Table } from "component/common/table";
 import "assets/css/v2/_sale-order.scss";
 import { SourceResponse } from "model/response/order/source.response";
 import { useDispatch, useSelector } from "react-redux";
@@ -108,10 +108,14 @@ import NumberInput from "component/custom/number-input.custom";
 import PickDiscountModal from "./modal/PickDiscountModal";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { AccountResponse } from "model/account/account.model";
-import { AccountSearchAction, ShipperGetListAction } from "domain/actions/account/account.action";
+import {
+  AccountSearchAction,
+  ShipperGetListAction,
+} from "domain/actions/account/account.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { OrderPaymentRequest } from "model/request/order.request";
+import { OrderPaymentRequest, OrderRequest } from "model/request/order.request";
 import { PaymentMethodCode } from "utils/Constants";
+//#endregion
 
 const initQueryCustomer: CustomerSearchQuery = {
   request: "",
@@ -801,29 +805,94 @@ export default function Order() {
     return listSource.filter((item) => item.code !== "pos");
   }, [listSource]);
 
-  
+  const formRef = createRef<FormInstance>();
+
+  let initialRequest: OrderRequest = {
+    company_id: null,
+    store_id: null,
+    status: "",
+    price_type: null,
+    tax_treatment: "",
+    source_id: null,
+    note: "",
+    tags: "",
+    customer_note: "",
+    sale_note: "",
+    account_code: "",
+    account: "",
+    assignee_code: "",
+    channel_id: null,
+    customer_id: null,
+    fulfillment_status: "",
+    packed_status: "",
+    received_Status: "",
+    payment_status: "",
+    return_status: "",
+    reference: "",
+    url: "",
+    total_line_amount_after_line_discount: null,
+    total: null,
+    order_discount_rate: null,
+    order_discount_value: null,
+    discount_reason: "",
+    total_discount: null,
+    total_tax: "",
+    finalized_account_code: "",
+    cancel_account_code: "",
+    finish_account_code: "",
+    finalized_on: "",
+    cancelled_on: "",
+    finished_on: "",
+    currency: "VNĐ",
+    items: [],
+    discounts: [],
+    payments: null,
+    fulfillment: [],
+    shipping_address: null,
+    billing_address: null,
+    pre_payments: null,
+  };
+
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
     setAccounts(data.items);
   }, []);
 
-  useLayoutEffect(() => {
+  const initialForm: OrderRequest = {
+    ...initialRequest,
+    billing_address: billingAddress,
+  };
+
+  const onFinish = useCallback(
+    (values: OrderRequest) => {
+      
+    },
+    []
+  );
+
+  useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
   }, [dispatch]);
+
   return (
     <div className="orders">
-      <Form layout="vertical">
+      <Form
+        layout="vertical"
+        initialValues={initialForm}
+        ref={formRef}
+        onFinish={onFinish}
+      >
         <Row gutter={20}>
           {/* Left Side */}
           <Col md={18}>
@@ -1487,16 +1556,6 @@ export default function Order() {
                 </Row>
               </div>
             </Card>
-            <PickDiscountModal
-              amount={amount}
-              type={discountType}
-              value={discountValue}
-              rate={discountRate}
-              counpon={counpon}
-              onCancel={onCancleDiscountConfirm}
-              onOk={onOkDiscountConfirm}
-              visible={isVisiblePickDiscount}
-            />
             <Card
               className="margin-top-20"
               title={
@@ -1510,7 +1569,11 @@ export default function Order() {
                 <Row gutter={20}>
                   <Col md={12}>
                     <Form.Item
-                      label={<i style={{marginBottom:"15px"}}>Lựa chọn 1 trong hình thức giao hàng</i>}
+                      label={
+                        <i style={{ marginBottom: "15px" }}>
+                          Lựa chọn 1 trong hình thức giao hàng
+                        </i>
+                      }
                       required
                     >
                       <Radio.Group
@@ -1603,7 +1666,10 @@ export default function Order() {
                     </Form.Item>
                   </Col>
                   <Col md={12}>
-                    <Form.Item label="Phí ship báo khách">
+                    <Form.Item
+                      name="shipping_fee_informed_to_customer"
+                      label="Phí ship báo khách"
+                    >
                       <Input placeholder="Phí ship báo khách" />
                     </Form.Item>
                   </Col>
@@ -1930,6 +1996,16 @@ export default function Order() {
                 </Row>
               </div>
             </Card>
+            <PickDiscountModal
+              amount={amount}
+              type={discountType}
+              value={discountValue}
+              rate={discountRate}
+              counpon={counpon}
+              onCancel={onCancleDiscountConfirm}
+              onOk={onOkDiscountConfirm}
+              visible={isVisiblePickDiscount}
+            />
           </Col>
           {/* Right Side */}
           <Col md={6}>
