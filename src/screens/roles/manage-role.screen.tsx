@@ -1,8 +1,20 @@
+import ContentContainer from "component/container/content.container";
+import UrlConfig from "config/UrlConfig";
+
 const ManageRoleScreen = () => {
   return (
-    <div>
-      Quản lý phân quyền
-    </div>
+    <ContentContainer title="Quản lý phân quyền" breadcrumb={[
+      {
+        name: 'Tổng quản',
+        path: '/',
+      },
+      {
+        name: 'Phân quyền',
+        path: `${UrlConfig.ROLES}`
+      },
+    ]}>
+      Invetory
+    </ContentContainer>
   )
 }
 
