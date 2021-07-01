@@ -1,8 +1,10 @@
+import ContentContainer from "component/container/content.container";
+
 const Inventory = () => {
   return (
-    <div>
+    <ContentContainer title="Intentory">
       Invetory
-    </div>
+    </ContentContainer>
   )
 }
 

@@ -23,6 +23,8 @@ import { GroupGetAction } from "domain/actions/content/content.action";
 import { GroupResponse } from "model/content/group.model";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import ContentContainer from "component/container/content.container";
+import ButtonCreate from "component/header/ButtonCreate";
 
 const initQuery: StoreQuery = {};
 
@@ -205,8 +207,22 @@ const StoreListScreen: React.FC = () => {
     dispatch(StoreSearchAction(params, onGetDataSuccess));
   }, [dispatch, onGetDataSuccess, params]);
   return (
-    <div>
-      <Card className="contain">
+    <ContentContainer
+      title="Quản lý cửa hàng"
+      breadcrumb={[
+        {
+          name: 'Tổng quản',
+          path: '/',
+        },
+        {
+          name: 'Cửa hàng',
+        },
+      ]}
+      extra={
+        <ButtonCreate path={`${UrlConfig.STORE}/create`} />
+      }
+    >
+      <Card>
         <StoreFilter
           storeStatusList={storeStatusList}
           onMenuClick={onMenuClick}
@@ -242,7 +258,7 @@ const StoreListScreen: React.FC = () => {
           data={columns}
         />
       </Card>
-    </div>
+      </ContentContainer>
   );
 };
 

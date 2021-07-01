@@ -1,8 +1,12 @@
+import ContentContainer from "component/container/content.container";
 
 const Dashboard = () => {
   return (
-    <div>
-    </div>
+    <ContentContainer
+      title="Tổng quan"
+    >
+
+    </ContentContainer>
   )
 }
 
