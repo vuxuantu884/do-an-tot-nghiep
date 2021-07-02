@@ -1,6 +1,9 @@
 import { BaseObject } from 'model/base/base.response';
 
-export interface CustomerResponse extends BaseObject {
+export interface CustomerResponse {
+  id: number | null;
+  code: string | null;
+  version: number | null,
   full_name: string | null,
   phone: string | null,
   email: string | null,

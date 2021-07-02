@@ -115,7 +115,11 @@ function* variantDetailSaga(action: YodyAction) {
 function* uploadProductSaga(action: YodyAction) {
   const { files, folder, setData } = action.payload;
   try {
-    let response: BaseResponse<VariantResponse> = yield call(productUploadApi, files, folder,);
+    let response: BaseResponse<VariantResponse> = yield call(
+      productUploadApi,
+      files,
+      folder
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response);

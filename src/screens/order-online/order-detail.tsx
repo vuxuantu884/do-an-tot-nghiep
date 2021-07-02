@@ -751,11 +751,11 @@ const OrderDetail = () => {
 
             {/*--- shipment ---*/}
             <ShipmentCard
-              SelectedShipmentType={onShipmentSelect}
-              ShipFeeCustomer={ChangeShipFeeCustomer}
-              ShipDeliveryFee={ChangeShipDeliveryFee}
-              RequirementShip={ChangeRequirementShip}
-              ShipDeliveryPartner={ChangeShipDeliveryPartner}
+              setShipmentMethodProps={onShipmentSelect}
+              //ShipFeeCustomer={ChangeShipFeeCustomer}
+              // ShipDeliveryFee={ChangeShipDeliveryFee}
+              // RequirementShip={ChangeRequirementShip}
+              // ShipDeliveryPartner={ChangeShipDeliveryPartner}
               shipmentMethod={shipmentType}
               storeId={storeId}
             />
@@ -764,7 +764,6 @@ const OrderDetail = () => {
             {/*--- payment ---*/}
             <PaymentCard
               setSelectedPaymentMethod={onPaymentSelect}
-              setCodeMonay={CodMoneyChange}
               setPayments={onPayments}
               paymentMethod={paymentType}
               amount={total}

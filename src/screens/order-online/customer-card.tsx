@@ -13,8 +13,8 @@ import {
   Typography,
   Popover,
   Form,
-  Select,
   Tag,
+  Avatar,
 } from "antd";
 import React, {
   createRef,
@@ -23,16 +23,17 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { Select } from "component/common/select";
+import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import peopleIcon2 from "assets/img/people.svg";
 import bithdayIcon from "assets/img/bithday.svg";
 import editBlueIcon from "assets/img/editBlue.svg";
 import deleteRedIcon from "assets/img/deleteRed.svg";
 import pointIcon from "assets/img/point.svg";
-import plusBlueIcon from "assets/img/plus-blue.svg";
 import callIcon from "assets/img/call.svg";
 import locationIcon from "assets/img/location.svg";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
 import AddAddressModal from "./modal/addAddressModal";
 import EditCustomerModal from "./modal/editCustomerModal";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -47,21 +48,16 @@ import imgdefault from "assets/icon/img-default.svg";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
-import { Email } from "utils/RegUtils";
 //#endregion
 
 type CustomerCardProps = {
-  sourceSelect: boolean;
   InfoCustomerSet: (items: CustomerResponse) => void;
-  SelectSource: (source: number) => void;
-  SelectCustomerNote: (source: string) => void;
-  ChangeEmail: (email: string) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
 };
 
 //Add query for search Customer
-const initQuery: CustomerSearchQuery = {
+const initQueryCustomer: CustomerSearchQuery = {
   request: "",
   limit: 10,
   page: 1,
@@ -75,9 +71,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
-  const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
-  const [keysearch, setKeySearch] = useState("");
-  const [inputEmail, setInputEmail] = useState<string>("");
+  const [keysearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -128,11 +122,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //Search and render customer by name, phone, code
   const CustomerChangeSearch = useCallback(
     (value) => {
-      setKeySearch(value);
-      initQuery.request = value;
-      dispatch(CustomerSearch(initQuery, setResultSearch));
+      setKeySearchCustomer(value);
+      initQueryCustomer.request = value;
+      dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
     },
-    [dispatch]
+    [dispatch, initQueryCustomer]
   );
 
   //Render result search
@@ -206,46 +200,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           });
         }
         autoCompleteRef.current?.blur();
-        setKeySearch("");
+        setKeySearchCustomer("");
       }
     },
     [autoCompleteRef, dispatch, resultSearch, customer]
-  );
-
-  const InputNoteOrderChange = (value: string) => {
-    props.SelectCustomerNote(value);
-  };
-
-  const EmailBillingAddressChange = (value: string) => {
-    const email = value;
-    const emailValid = ValidateEmail(email);
-    setInputEmail(value);
-    setIsEmailValid(emailValid);
-
-    props.ChangeEmail(value);
-
-    let item = billingAddress;
-    if (item !== null && emailValid === true) {
-      item.email = value;
-      setBillingAddress(item);
-    }
-  };
-
-  const SelectShippingAddress = (value: ShippingAddress) => {
-    setShippingAddress(value);
-    props.ShippingAddressChange(value);
-  };
-
-  const SelectBillingAddress = (value: ShippingAddress) => {
-    setBillingAddress(value);
-    props.BillingAddressChange(value);
-  };
-
-  const ChangeSource = useCallback(
-    (value: number) => {
-      props.SelectSource(value);
-    },
-    [props]
   );
 
   const listSources = useMemo(() => {
@@ -264,11 +222,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleBillingAddress(value);
   };
 
-  const ValidateEmail = (email: string) => {
-    const resquest = Email;
-    return resquest.test(email);
-  };
-
   return (
     <Card
       title={
@@ -278,21 +231,29 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       }
       extra={
         <div className="d-flex align-items-center form-group-with-search">
+          <span
+            style={{
+              float: "left",
+              lineHeight: "40px",
+              marginRight: "10px",
+            }}
+          >
+            Nguồn <span className="text-error">*</span>
+          </span>
           <Form.Item
-            name="source"
+            name="source_id"
             style={{ margin: "10px 0px" }}
             rules={[
-              { required: true, message: "Vui lòng chọn nguồn đơn hàng" },
+              {
+                required: true,
+                message: "Vui lòng chọn nguồn đơn hàng",
+              },
             ]}
           >
-            <label style={{ marginRight: "10px" }}>
-              Nguồn <span style={{ color: "red" }}>*</span>
-            </label>
             <Select
-              showSearch
-              style={{ width: "200px" }}
-              placeholder="Chọn nguồn đơn hàng" 
-              onChange={ChangeSource}
+              style={{ width: 300 }}
+              showArrow
+              placeholder="Chọn nguồn đơn hàng"
               filterOption={(input, option) => {
                 if (option) {
                   return (
@@ -303,6 +264,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 }
                 return false;
               }}
+              suffix={
+                <Button
+                  style={{ width: 36, height: 36 }}
+                  icon={<PlusOutlined />}
+                />
+              }
             >
               {listSources.map((item, index) => (
                 <Select.Option
@@ -314,36 +281,29 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </Select.Option>
               ))}
             </Select>
-            {props.sourceSelect === true && (
-              <div>
-                <div
-                  className="ant-form-item-explain ant-form-item-explain-error"
-                  style={{ padding: "5px" }}
-                >
-                  <div role="alert">Vui lòng chọn nguồn đơn hàng</div>
-                </div>
-              </div>
-            )}
           </Form.Item>
         </div>
       }
     >
-      {customer === null && (
-        <div className="padding-20">
-          <div className="padding-bottom-5">
-            <label htmlFor="">Tên khách hàng</label>
-          </div>
+      <div className="padding-lef-right" style={{ paddingTop: "15px" }}>
+        {customer === null && (
           <div>
+            <div className="padding-bottom-5">
+              <label htmlFor="">Tên khách hàng</label>
+            </div>
             <AutoComplete
               notFoundContent={
-                keysearch.length >= 3 ? "Không tìm thấy khách hàng" : undefined
+                keysearchCustomer.length >= 3
+                  ? "Không tìm thấy khách hàng"
+                  : undefined
               }
-              value={keysearch}
+              value={keysearchCustomer}
               ref={autoCompleteRef}
               onSelect={SearchCustomerSelect}
-              dropdownClassName="search-layout dropdown-search-header"
+              dropdownClassName="search-layout-customer dropdown-search-header"
               dropdownMatchSelectWidth={456}
               className="w-100"
+              style={{ width: "100%" }}
               onSearch={CustomerChangeSearch}
               options={CustomerConvertResultSearch}
             >
@@ -351,107 +311,81 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 placeholder="Tìm hoặc thêm khách hàng"
                 className="border-input"
                 enterButton={
-                  <Button type="text">
-                    <img src={plusBlueIcon} alt="" />
-                  </Button>
+                  <Button
+                    style={{ width: 40, height: 36 }}
+                    icon={<PlusOutlined />}
+                  ></Button>
                 }
                 prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
               />
             </AutoComplete>
+            <Divider className="margin-0" />
           </div>
-        </div>
-      )}
-
-      {customer !== null && (
-        <React.Fragment>
-          <Row
-            align="middle"
-            justify="space-between"
-            className="row-customer-detail padding-custom"
-          >
-            <Row align="middle" className="customer-detail-name">
+        )}
+      </div>
+      <div>
+        {customer !== null && (
+          <div className="padding-lef-right">
+            <Space size={55}>
               <Space>
-                <span className="cdn-avatar">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    {" "}
-                    <circle
-                      opacity="0.2"
-                      cx="16"
-                      cy="16"
-                      r="16"
-                      fill="#6966FF"
-                    />{" "}
-                    <path
-                      d="M12.853 22L13.8132 19.1307H18.1882L19.1541 22H21.4041L17.3018 10.3636H14.6996L10.603 22H12.853ZM14.3814 17.4375L15.9553 12.75H16.0462L17.62 17.4375H14.3814Z"
-                      fill="#6C449F"
-                    />{" "}
-                  </svg>
-                </span>
-                <span style={{ fontWeight: 500, fontSize: "14px" }}>
-                  {customer?.full_name === undefined
-                    ? "Nguyễn Văn A"
-                    : customer?.full_name}
-                </span>
+                <Avatar size={32}>A</Avatar>
+                <Link to="#">{customer.full_name}</Link>
                 <Tag className="orders-tag orders-tag-vip">
-                  <b>
-                    {" "}
-                    {customer?.customer_level === undefined
-                      ? "Level 1"
-                      : customer?.customer_level}
-                  </b>
+                  <b>{customer.customer_level}</b>
                 </Tag>
               </Space>
-            </Row>
+              <Space className="customer-detail-phone">
+                <span className="customer-detail-icon">
+                  <img src={callIcon} alt="" />
+                </span>
+                <span className="customer-detail-text">
+                  {customer?.phone === undefined
+                    ? "0987654321"
+                    : customer?.phone}
+                </span>
+              </Space>
 
-            <Space className="customer-detail-phone">
-              <span className="customer-detail-icon">
-                <img src={callIcon} alt="" />
-              </span>
-              <span className="customer-detail-text">
-                {customer?.phone === undefined ? "0987654321" : customer?.phone}
-              </span>
-            </Space>
+              <Space className="customer-detail-point">
+                <span className="customer-detail-icon">
+                  <img src={pointIcon} alt="" />
+                </span>
+                <span className="customer-detail-text">
+                  Tổng điểm{" "}
+                  <Typography.Text
+                    type="success"
+                    style={{ color: "#0080FF" }}
+                    strong
+                  >
+                    {customer?.loyalty === undefined ? "0" : customer?.loyalty}
+                  </Typography.Text>
+                </span>
+              </Space>
 
-            <Space className="customer-detail-point">
-              <span className="customer-detail-icon">
-                <img src={pointIcon} alt="" />
-              </span>
-              <span className="customer-detail-text">
-                Tổng điểm{" "}
-                <Typography.Text
-                  type="success"
-                  style={{ color: "#0080FF" }}
-                  strong
+              <Space className="customer-detail-birthday">
+                <span className="customer-detail-icon">
+                  <img src={bithdayIcon} alt="" />
+                </span>
+                <span className="customer-detail-text">{customerBirthday}</span>
+              </Space>
+
+              <Space className="customer-detail-action">
+                <Button
+                  type="text"
+                  className="p-0 ant-btn-custom"
+                  onClick={ShowCustomerModal}
                 >
-                  {customer?.loyalty === undefined ? "0" : customer?.loyalty}
-                </Typography.Text>
-              </span>
+                  <img src={editBlueIcon} alt="" />
+                </Button>
+                <Button
+                  type="text"
+                  className="p-0 ant-btn-custom"
+                  onClick={CustomerDeleteInfo}
+                >
+                  <img src={deleteRedIcon} alt="" />
+                </Button>
+              </Space>
             </Space>
-
-            <Space className="customer-detail-birthday">
-              <span className="customer-detail-icon">
-                <img src={bithdayIcon} alt="" />
-              </span>
-              <span className="customer-detail-text">{customerBirthday}</span>
-            </Space>
-
-            <Space className="customer-detail-action">
-              <Button type="text" className="p-0" onClick={ShowCustomerModal}>
-                <img src={editBlueIcon} alt="" />
-              </Button>
-              <Button type="text" className="p-0" onClick={CustomerDeleteInfo}>
-                <img src={deleteRedIcon} alt="" />
-              </Button>
-            </Space>
-          </Row>
-          <Divider />
-          <div className="customer-info padding-custom">
+            <Divider className="margin-0" />
             {customer.shipping_addresses !== undefined && (
               <Row gutter={24}>
                 <Col
@@ -490,7 +424,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           <div style={{ color: "#4F687D" }}>
                             Thay đổi địa chỉ
                           </div>
-                          <Button type="link" onClick={ShowAddressModal}>
+                          <Button
+                            type="link"
+                            // onClick={ShowAddressModal}
+                          >
                             Thêm địa chỉ mới
                           </Button>
                         </Row>
@@ -500,7 +437,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           {customer.shipping_addresses.map((item, index) => (
                             <div
                               className="shipping-address-row"
-                              onClick={(e) => SelectShippingAddress(item)}
+                              // onClick={(e) =>
+                              //   SelectShippingAddress(item)
+                              // }
                             >
                               <div className="shipping-address-name">
                                 Địa chỉ 1{" "}
@@ -526,7 +465,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         </div>
                       }
                       trigger="click"
-                      visible={visibleShippingAddress}
                       onVisibleChange={handleVisibleShippingAddressChange}
                       className="change-shipping-address"
                     >
@@ -537,18 +475,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   </Row>
                 </Col>
                 <Col xs={24} lg={12} className="font-weight-500">
-                  <div className="form-group form-group-with-search">
-                    <div>
-                      <label htmlFor="" className="">
-                        Ghi chú của khách hàng
-                      </label>
-                    </div>
-                    <Input.TextArea
-                      onChange={(e) => InputNoteOrderChange(e.target.value)}
-                      placeholder="Điền ghi chú"
-                      rows={4}
-                    />
-                  </div>
+                  <Form.Item
+                    name="customer_note"
+                    label="Ghi chú của khách hàng"
+                  >
+                    <Input.TextArea placeholder="Điền ghi chú" rows={4} />
+                  </Form.Item>
                 </Col>
               </Row>
             )}
@@ -612,7 +544,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             {customer.billing_addresses.map((item, index) => (
                               <div
                                 className="shipping-address-row"
-                                onClick={(e) => SelectBillingAddress(item)}
+                                // onClick={(e) =>
+                                //   SelectBillingAddress(item)
+                                // }
                               >
                                 <div className="shipping-address-name">
                                   Địa chỉ 1{" "}
@@ -638,7 +572,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           </div>
                         }
                         trigger="click"
-                        visible={visibleBillingAddress}
                         onVisibleChange={handleVisibleBillingAddressChange}
                         className="change-shipping-address"
                       >
@@ -649,32 +582,19 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </Row>
                   </Col>
                   <Col xs={24} lg={12} className="font-weight-500">
-                    <div className="form-group form-group-with-search">
-                      <div>
-                        <label htmlFor="" className="">
-                          Email hoá đơn đến
-                        </label>
-                      </div>
+                    <Form.Item name="email" label="Email hóa đơn đến">
                       <Input
                         type="email"
-                        onChange={(e) =>
-                          EmailBillingAddressChange(e.target.value)
-                        }
                         placeholder="Nhập email hoá đơn đến"
                       />
-                      {isEmailValid === false && inputEmail !== "" && (
-                        <span style={{ color: "red" }}>
-                          Email chưa đúng định dạng
-                        </span>
-                      )}
-                    </div>
+                    </Form.Item>
                   </Col>
                 </Row>
               )}
             </div>
           </div>
-        </React.Fragment>
-      )}
+        )}
+      </div>
 
       <AddAddressModal
         visible={isVisibleAddress}
