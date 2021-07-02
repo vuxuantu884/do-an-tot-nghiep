@@ -9,7 +9,7 @@ cache:
     - .npm/
 
 variables:
-#  SERVICE_PATH: /unicorn/admin
+  SERVICE_PATH: /unicorn/admin
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
 
 stages:
@@ -56,7 +56,7 @@ deploy to dev:
     - feature/sprint-4-app-admin
     - feature/ci-cd
   variables:
-    HOST: dev.app-admin.yody.io
+    HOST: dev.yody.io
     NAMESPACE: dev
     ENVIRONMENT: dev
     SERVICE_NAME: yody-app-admin
