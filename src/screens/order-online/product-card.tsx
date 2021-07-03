@@ -368,7 +368,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <Button
               type="text"
               onClick={() => showAddGiftModal(index)}
-              className="p-0 m-0 w-100"
+              className="p-0 ant-btn-custom"
             >
               Thêm quà tặng
             </Button>
@@ -381,7 +381,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 _items[index].show_note = true;
                 setItems(_items);
               }}
-              className="p-0 m-0 w-100"
+              className="p-0 ant-btn-custom"
             >
               Thêm ghi chú
             </Button>
@@ -393,7 +393,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
             <Button
               type="text"
-              className="ant-dropdown-link circle-button yody-pos-action"
+              className="p-0 ant-btn-custom"
             >
               <img src={arrowDownIcon} alt="" />
             </Button>

@@ -49,12 +49,11 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) 
         </Select>
         <InputNumber
           formatter={value => formatCurrency(value ? value : '0')}
-          style={{height: '42px', width: '100%'}}
+          style={{width: '100%', textAlign:"right"}}
           value={selected === "percent" ? props.discountRate : formatCurrency(props.discountValue) }
           max = {selected === "percent" ? 100 : props.price}
           onChange={ChangeValueDiscount}
           parser={value => replaceFormat(value ? value : "0")}
-          className="yody-table-discount-input hide-number-handle"
           onFocus={(e) => {
             e.target.setSelectionRange(0, e.target.value.length)
           }}
