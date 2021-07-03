@@ -423,6 +423,10 @@ const ProductCreateScreen: React.FC = () => {
                   ]}
                   name="product_type"
                   label="Loại sản phẩm"
+                  tooltip={{
+                    title: "Loại sản phẩm",
+                    icon: <InfoCircleOutlined />,
+                  }}
                 >
                   <Select
                     onChange={(value) => setCombo(value === 'combo')}
@@ -444,6 +448,10 @@ const ProductCreateScreen: React.FC = () => {
                       message: 'Vui lòng chọn loại sản phẩm',
                     },
                   ]}
+                  tooltip={{
+                    title: "Ngành hàng",
+                    icon: <InfoCircleOutlined />,
+                  }}
                   name="goods"
                   label="Ngành hàng"
                 >
