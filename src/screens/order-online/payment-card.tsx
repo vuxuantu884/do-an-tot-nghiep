@@ -21,7 +21,7 @@ import YdCoin from "component/icon/YdCoin";
 // @ts-ignore
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useEffect,  useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { PaymentMethodCode } from "utils/Constants";
 import deleteIcon from "assets/icon/delete.svg";
@@ -114,9 +114,9 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     props.setPayments([...paymentData]);
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
-  }, [dispatch, props]);
+  }, [dispatch]);
 
   return (
     <Card

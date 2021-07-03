@@ -302,14 +302,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               onSelect={SearchCustomerSelect}
               dropdownClassName="search-layout-customer dropdown-search-header"
               dropdownMatchSelectWidth={456}
-              className="w-100"
               style={{ width: "100%" }}
               onSearch={CustomerChangeSearch}
               options={CustomerConvertResultSearch}
             >
               <Input.Search
                 placeholder="Tìm hoặc thêm khách hàng"
-                className="border-input"
                 enterButton={
                   <Button
                     style={{ width: 40, height: 36 }}
