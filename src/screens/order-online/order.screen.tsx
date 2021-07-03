@@ -35,6 +35,8 @@ import ShipmentCard from "./shipment-card";
 import ProductCard from "./product-card";
 import PaymentCard from "./payment-card";
 import CustomerCard from "./customer-card";
+import ContentContainer from 'component/container/content.container';
+import CreateBillStep from 'component/header/create-bill-step';
 //#endregion
 
 export default function Order() {
@@ -274,6 +276,22 @@ export default function Order() {
   }, [dispatch, setDataAccounts]);
 
   return (
+    <ContentContainer
+      title="Quản lý chất liệu"
+      breadcrumb={[
+        {
+          name: 'Tổng quan',
+          path: '/',
+        },
+        {
+          name: 'Đơn hàng',
+        },
+        {
+          name: 'Tạo mới đơn hàng',
+        },
+      ]}
+      extra={<CreateBillStep />}
+    >
     <div className="orders">
       <Form
         layout="vertical"
@@ -425,5 +443,6 @@ export default function Order() {
         </div>
       </Form>
     </div>
+    </ContentContainer>
   );
 }
