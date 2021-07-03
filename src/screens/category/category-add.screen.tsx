@@ -9,31 +9,36 @@ import {
   Row,
   Select,
   TreeSelect,
-} from "antd";
+} from 'antd';
 import {
   createCategoryAction,
   getCategoryRequestAction,
-} from "domain/actions/product/category.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
+} from 'domain/actions/product/category.action';
+import {RootReducerType} from 'model/reducers/RootReducerType';
 import React, {
   createRef,
   useCallback,
   useLayoutEffect,
   useMemo,
   useState,
-} from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router";
-import { CategoryCreateRequest, CategoryResponse } from "model/product/category.model";
+} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {useHistory} from 'react-router';
+import {
+  CategoryCreateRequest,
+  CategoryResponse,
+} from 'model/product/category.model';
+import ContentContainer from 'component/container/content.container';
+import UrlConfig from 'config/UrlConfig';
 
 let initialRequest: CategoryCreateRequest = {
-  code: "",
+  code: '',
   parent_id: -1,
-  goods: "",
-  name: "",
+  goods: '',
+  name: '',
 };
 
-const { TreeNode } = TreeSelect;
+const {TreeNode} = TreeSelect;
 
 const AddCategory: React.FC = () => {
   const history = useHistory();
@@ -50,7 +55,7 @@ const AddCategory: React.FC = () => {
     return [];
   }, [bootstrapReducer]);
   const onSuccess = useCallback(() => {
-    history.push("/categories");
+    history.push('/categories');
   }, [history]);
   const onFinish = useCallback(
     (values: CategoryCreateRequest) => {
@@ -65,99 +70,125 @@ const AddCategory: React.FC = () => {
     dispatch(getCategoryRequestAction({}, setCategories));
   }, [dispatch]);
   return (
-    <Form
-      ref={formRef}
-      onFinish={onFinish}
-      initialValues={initialRequest}
-      layout="vertical"
+    <ContentContainer
+      title="Thêm mới danh mục"
+      breadcrumb={[
+        {
+          name: 'Tổng quản',
+          path: '/',
+        },
+        {
+          name: 'Sản phẩm',
+          path: `${UrlConfig.PRODUCT}`,
+        },
+        {
+          name: 'Danh mục',
+          path: `${UrlConfig.CATEGORIES}`,
+        },
+        {
+          name: 'Thêm danh mục',
+        },
+      ]}
     >
-      <Card className="card-block card-block-normal" title="Thông tin cơ bản">
-        <div className="padding-20">
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                rules={[
-                  { required: true, message: "Vui lòng nhập tên danh mục" },
-                ]}
-                label="Tên danh mục"
-                name="name"
-              >
-                <Input
-                  className="r-5"
-                  placeholder="Tên danh mục"
-                  size="large"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập thành phần chất liệu",
-                  },
-                ]}
-                className="form-group form-group-with-search"
-                name="goods"
-                label="Ngành hàng"
-              >
-                <Select className="selector">
-                  <Select.Option value="">Ngành hàng</Select.Option>
-                  {goods.map((item, index) => (
-                    <Select.Option key={index} value={item.value}>
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                rules={[
-                  { required: true, message: "Vui lòng nhập mã danh mục" },
-                  { len: 3, message: "Mã danh mục gồm 3 kí tự" },
-                ]}
-                className="form-group form-group-with-search"
-                name="code"
-                labelAlign="right"
-                label="Mã danh mục"
-              >
-                <Input maxLength={3} className="r-5" placeholder="Mã danh mục" size="large" />
-              </Form.Item>
-            </Col>
-            <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item
-                className="form-group form-group-with-search"
-                name="parent_id"
-                label="Danh mục cha"
-              >
-                <TreeSelect treeDefaultExpandAll className="selector">
-                  <TreeNode value={-1} title="Danh mục cha" />
-                  {categories.map((item, index) => (
-                    <React.Fragment key={index}>
-                      {TreeCategory(item)}
-                    </React.Fragment>
-                  ))}
-                </TreeSelect>
-              </Form.Item>
-            </Col>
-          </Row>
+      <Form
+        ref={formRef}
+        onFinish={onFinish}
+        initialValues={initialRequest}
+        layout="vertical"
+      >
+        <Card className="card-block card-block-normal" title="Thông tin cơ bản">
+          <div className="padding-20">
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item
+                  className="form-group form-group-with-search"
+                  rules={[
+                    {required: true, message: 'Vui lòng nhập tên danh mục'},
+                  ]}
+                  label="Tên danh mục"
+                  name="name"
+                >
+                  <Input
+                    className="r-5"
+                    placeholder="Tên danh mục"
+                    size="large"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Vui lòng nhập thành phần chất liệu',
+                    },
+                  ]}
+                  className="form-group form-group-with-search"
+                  name="goods"
+                  label="Ngành hàng"
+                >
+                  <Select className="selector">
+                    <Select.Option value="">Ngành hàng</Select.Option>
+                    {goods.map((item, index) => (
+                      <Select.Option key={index} value={item.value}>
+                        {item.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item
+                  rules={[
+                    {required: true, message: 'Vui lòng nhập mã danh mục'},
+                    {len: 3, message: 'Mã danh mục gồm 3 kí tự'},
+                  ]}
+                  className="form-group form-group-with-search"
+                  name="code"
+                  labelAlign="right"
+                  label="Mã danh mục"
+                >
+                  <Input
+                    maxLength={3}
+                    className="r-5"
+                    placeholder="Mã danh mục"
+                    size="large"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item
+                  className="form-group form-group-with-search"
+                  name="parent_id"
+                  label="Danh mục cha"
+                >
+                  <TreeSelect treeDefaultExpandAll className="selector">
+                    <TreeNode value={-1} title="Danh mục cha" />
+                    {categories.map((item, index) => (
+                      <React.Fragment key={index}>
+                        {TreeCategory(item)}
+                      </React.Fragment>
+                    ))}
+                  </TreeSelect>
+                </Form.Item>
+              </Col>
+            </Row>
+          </div>
+        </Card>
+        <div className="margin-top-10" style={{textAlign: 'right'}}>
+          <Space size={12}>
+            <Button type="default" onClick={onCancel}>
+              Hủy
+            </Button>
+            <Button htmlType="submit" type="primary">
+              Lưu
+            </Button>
+          </Space>
         </div>
-      </Card>
-      <div className="margin-top-10" style={{ textAlign: "right" }}>
-        <Space size={12}>
-          <Button type="default" onClick={onCancel}>
-            Hủy
-          </Button>
-          <Button htmlType="submit" type="primary">
-            Lưu
-          </Button>
-        </Space>
-      </div>
-    </Form>
+      </Form>
+    </ContentContainer>
   );
 };
 
