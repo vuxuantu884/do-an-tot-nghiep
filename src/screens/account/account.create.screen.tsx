@@ -3,7 +3,6 @@ import {
   Card,
   Col,
   Collapse,
-  DatePicker,
   Divider,
   Form,
   FormInstance,
@@ -56,6 +55,7 @@ import {DepartmentResponse} from 'model/account/department.model';
 import {PositionResponse} from 'model/account/position.model';
 import {showSuccess} from 'utils/ToastUtils';
 import ContentContainer from 'component/container/content.container';
+import CustomDatepicker from 'component/custom/date-picker.custom';
 
 const {Item} = Form;
 const {Option, OptGroup} = Select;
@@ -201,7 +201,7 @@ const AccountCreateScreen: React.FC = () => {
         user_name: values.user_name,
         code: values.code,
         password: values.password,
-        birthday: values.birthday?.utc().format(),
+        birthday: values.birthday,
         account_stores: [...accStores],
         mobile: values.mobile,
         roles: [...accRoles],
@@ -239,7 +239,6 @@ const AccountCreateScreen: React.FC = () => {
           <div>
             <Select
               placeholder="Chọn bộ phận"
-              className="selector"
               allowClear
               showArrow
               optionFilterProp="children"
@@ -262,7 +261,6 @@ const AccountCreateScreen: React.FC = () => {
           <div>
             <Select
               placeholder="Chọn bộ phận"
-              className="selector"
               allowClear
               showArrow
               optionFilterProp="children"
@@ -457,7 +455,7 @@ const AccountCreateScreen: React.FC = () => {
                     }),
                   ]}
                 >
-                  <Input.Password />
+                  <Input.Password placeholder="Nhập lại mật khẩu" />
                 </Form.Item>
               </Col>
             </Row>
@@ -492,7 +490,6 @@ const AccountCreateScreen: React.FC = () => {
                 >
                   <Select
                     placeholder="Chọn cửa hàng"
-                    className="selector"
                     allowClear
                     showArrow
                     mode="multiple"
@@ -515,10 +512,8 @@ const AccountCreateScreen: React.FC = () => {
                   rules={[{required: true, message: 'Vui lòng nhập ngày sinh'}]}
                   hasFeedback
                 >
-                  <DatePicker
-                    className="r-5 w-100 ip-search"
-                    placeholder="20/01/2021"
-                    format="DD/MM/YYYY"
+                  <CustomDatepicker
+                    placeholder="Nhập ngày sinh"
                     style={{width: '100%'}}
                   />
                 </Item>
@@ -537,7 +532,6 @@ const AccountCreateScreen: React.FC = () => {
                 >
                   <Select
                     placeholder="Chọn cửa hàng"
-                    className="selector"
                     allowClear
                     showArrow
                     mode="multiple"
@@ -556,11 +550,7 @@ const AccountCreateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Quốc gia" name="country_id">
-                  <Select
-                    disabled
-                    className="selector"
-                    placeholder="Chọn quốc gia"
-                  >
+                  <Select disabled placeholder="Chọn quốc gia">
                     {listCountries?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -574,7 +564,6 @@ const AccountCreateScreen: React.FC = () => {
                   <Select
                     showSearch
                     onSelect={onSelectDistrict}
-                    className="selector"
                     placeholder="Chọn khu vực"
                   >
                     {cityViews?.map((item) => (
