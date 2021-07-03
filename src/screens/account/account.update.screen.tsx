@@ -3,7 +3,6 @@ import {
   Card,
   Col,
   Collapse,
-  DatePicker,
   Divider,
   Form,
   FormInstance,
@@ -61,6 +60,7 @@ import {PositionResponse} from 'model/account/position.model';
 import {useParams} from 'react-router-dom';
 import UrlConfig from 'config/UrlConfig';
 import ContentContainer from 'component/container/content.container';
+import CustomDatepicker from 'component/custom/date-picker.custom';
 
 const {Item} = Form;
 const {Option, OptGroup} = Select;
@@ -180,7 +180,6 @@ const AccountUpdateScreen: React.FC = () => {
       let accRoles: Array<AccountRolesResponse> = [];
       let accJobs: Array<AccountJobResponse> = [];
       let listAccountSelected = [...listaccountJob];
-      debugger;
       values.account_stores.forEach((el: number) => {
         let checkSote = listStoreRoot.current?.find((rr) => rr.store_id === el);
         accStores.push({
@@ -207,7 +206,7 @@ const AccountUpdateScreen: React.FC = () => {
         user_name: values.user_name,
         code: values.code,
         password: values.password,
-        birthday: values.birthday?.utc().format(),
+        birthday: values.birthday,
         account_stores: [...accStores],
         mobile: values.mobile,
         roles: [...accRoles],
@@ -226,7 +225,6 @@ const AccountUpdateScreen: React.FC = () => {
   const onCancel = useCallback(() => history.goBack(), [history]);
   const setAccount = useCallback((data: AccountResponse) => {
     let storeIds: Array<number> = [];
-    debugger;
     listStoreRoot.current = data.account_stores;
     listRolesRoot.current = data.account_roles;
     data.account_stores?.forEach((item) => {
@@ -258,7 +256,7 @@ const AccountUpdateScreen: React.FC = () => {
       password: '',
       mobile: data.mobile,
       address: data.address,
-      birthday: moment(data.birthday),
+      birthday: data.birthday,
       country_id: data.country_id,
       district_id: data.district_id,
       city_id: data.city_id,
@@ -366,8 +364,8 @@ const AccountUpdateScreen: React.FC = () => {
   }, [dispatch, setDataDistrict, idNumber, setAccount]);
   if (accountDetail == null) {
     return (
-      <Card className="card-block card-block-normal">
-        Không tìm thấy nhân viên
+      <Card>
+        <div className="padding-20">Không tìm thấy nhân viên</div>
       </Card>
     );
   }
@@ -396,7 +394,7 @@ const AccountUpdateScreen: React.FC = () => {
       >
         <Card
           title="Thông tin cơ bản"
-          extra={[
+          extra={
             <Space size={15}>
               <label className="text-default">Trạng thái</label>
               <Switch
@@ -412,8 +410,8 @@ const AccountUpdateScreen: React.FC = () => {
               <Item noStyle name="status" hidden>
                 <Input value={status} />
               </Item>
-            </Space>,
-          ]}
+            </Space>
+          }
         >
           <Item noStyle name="version" hidden>
             <Input />
@@ -425,7 +423,6 @@ const AccountUpdateScreen: React.FC = () => {
                   label="Tên đăng nhập"
                   name="user_name"
                   rules={[{required: true, message: 'Vui lòng nhập họ và tên'}]}
-                  hasFeedback
                 >
                   <Input
                     className="r-5"
@@ -462,7 +459,6 @@ const AccountUpdateScreen: React.FC = () => {
                   rules={[
                     {required: true, message: 'Vui lòng nhập mã nhân viên'},
                   ]}
-                  hasFeedback
                 >
                   <Input
                     className="r-5"
@@ -477,7 +473,6 @@ const AccountUpdateScreen: React.FC = () => {
                   label="Họ và tên"
                   name="full_name"
                   rules={[{required: true, message: 'Vui lòng nhập họ và tên'}]}
-                  hasFeedback
                 >
                   <Input
                     className="r-5"
@@ -495,7 +490,6 @@ const AccountUpdateScreen: React.FC = () => {
                   rules={[
                     {required: true, message: 'Vui lòng nhập số điện thoại'},
                   ]}
-                  hasFeedback
                 >
                   <Input
                     className="r-5"
@@ -508,7 +502,6 @@ const AccountUpdateScreen: React.FC = () => {
                 <Form.Item
                   name="account_stores"
                   label="Cửa hàng"
-                  hasFeedback
                   rules={[
                     {
                       required: true,
@@ -540,12 +533,9 @@ const AccountUpdateScreen: React.FC = () => {
                   label="Ngày sinh"
                   name="birthday"
                   rules={[{required: true, message: 'Vui lòng nhập ngày sinh'}]}
-                  hasFeedback
                 >
-                  <DatePicker
-                    className="r-5 w-100 ip-search"
-                    placeholder="20/01/2021"
-                    format="DD/MM/YYYY"
+                  <CustomDatepicker
+                    placeholder="Nhập ngày sinh"
                     style={{width: '100%'}}
                   />
                 </Item>
@@ -554,7 +544,6 @@ const AccountUpdateScreen: React.FC = () => {
                 <Form.Item
                   name="roles"
                   label="Nhóm phân quyền"
-                  hasFeedback
                   rules={[
                     {
                       required: true,

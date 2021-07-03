@@ -5,7 +5,7 @@ import { HEADER_TYPE } from 'config/HeaderConfig';
 
 const ManageUserScreen = React.lazy(() => import("screens/account/account.search.screen"));
 const ManageStoreScreen = React.lazy(() => import("screens/setting/manage-store.screen"));
-const ManageRoleScreen = React.lazy(() => import("screens/roles/manage-role.screen"));
+const ManageRoleScreen = React.lazy(() => import("screens/roles/role-list.screen"));
 const AccountCreateScreen = React.lazy(() => import("screens/account/account.create.screen"));
 const AccountUpdateScreen = React.lazy(() => import("screens/account/account.update.screen"));
 

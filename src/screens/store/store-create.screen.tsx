@@ -145,7 +145,6 @@ const StoreCreateScreen: React.FC = () => {
         initialValues={initRequest}
       >
         <Card
-          className="card-block card-block-normal"
           title="Thông tin cơ bản"
           extra={
             <div className="v-extra d-flex align-items-center">
