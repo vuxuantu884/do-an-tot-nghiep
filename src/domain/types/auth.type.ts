@@ -8,6 +8,7 @@ export const AuthType = {
   }
   
   export const RoleType = {
-    GET_LIST_ROLE_REQUEST:'GET_LIST_ROLE_REQUEST'
+    GET_LIST_ROLE_REQUEST:'GET_LIST_ROLE_REQUEST',
+    SEARCH_LIST_ROLE_REQUEST:'SEARCH_LIST_ROLE_REQUEST'
   }
   

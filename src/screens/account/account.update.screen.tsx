@@ -3,7 +3,6 @@ import {
   Card,
   Col,
   Collapse,
-  DatePicker,
   Divider,
   Form,
   FormInstance,
@@ -226,7 +225,6 @@ const AccountUpdateScreen: React.FC = () => {
   const onCancel = useCallback(() => history.goBack(), [history]);
   const setAccount = useCallback((data: AccountResponse) => {
     let storeIds: Array<number> = [];
-    debugger;
     listStoreRoot.current = data.account_stores;
     listRolesRoot.current = data.account_roles;
     data.account_stores?.forEach((item) => {
@@ -366,8 +364,8 @@ const AccountUpdateScreen: React.FC = () => {
   }, [dispatch, setDataDistrict, idNumber, setAccount]);
   if (accountDetail == null) {
     return (
-      <Card className="card-block card-block-normal">
-        Không tìm thấy nhân viên
+      <Card>
+        <div className="padding-20">Không tìm thấy nhân viên</div>
       </Card>
     );
   }
@@ -396,7 +394,7 @@ const AccountUpdateScreen: React.FC = () => {
       >
         <Card
           title="Thông tin cơ bản"
-          extra={[
+          extra={
             <Space size={15}>
               <label className="text-default">Trạng thái</label>
               <Switch
@@ -412,8 +410,8 @@ const AccountUpdateScreen: React.FC = () => {
               <Item noStyle name="status" hidden>
                 <Input value={status} />
               </Item>
-            </Space>,
-          ]}
+            </Space>
+          }
         >
           <Item noStyle name="version" hidden>
             <Input />
@@ -425,7 +423,6 @@ const AccountUpdateScreen: React.FC = () => {
                   label="Tên đăng nhập"
                   name="user_name"
                   rules={[{required: true, message: 'Vui lòng nhập họ và tên'}]}
-                  hasFeedback
                 >
                   <Input
                     className="r-5"
@@ -462,7 +459,6 @@ const AccountUpdateScreen: React.FC = () => {
                   rules={[
                     {required: true, message: 'Vui lòng nhập mã nhân viên'},
                   ]}
-                  hasFeedback
                 >
                   <Input
                     className="r-5"
@@ -477,7 +473,6 @@ const AccountUpdateScreen: React.FC = () => {
                   label="Họ và tên"
                   name="full_name"
                   rules={[{required: true, message: 'Vui lòng nhập họ và tên'}]}
-                  hasFeedback
                 >
                   <Input
                     className="r-5"
@@ -495,7 +490,6 @@ const AccountUpdateScreen: React.FC = () => {
                   rules={[
                     {required: true, message: 'Vui lòng nhập số điện thoại'},
                   ]}
-                  hasFeedback
                 >
                   <Input
                     className="r-5"
@@ -508,7 +502,6 @@ const AccountUpdateScreen: React.FC = () => {
                 <Form.Item
                   name="account_stores"
                   label="Cửa hàng"
-                  hasFeedback
                   rules={[
                     {
                       required: true,
@@ -540,7 +533,6 @@ const AccountUpdateScreen: React.FC = () => {
                   label="Ngày sinh"
                   name="birthday"
                   rules={[{required: true, message: 'Vui lòng nhập ngày sinh'}]}
-                  hasFeedback
                 >
                   {/* <DatePicker
                     className="r-5 w-100 ip-search"
@@ -558,7 +550,6 @@ const AccountUpdateScreen: React.FC = () => {
                 <Form.Item
                   name="roles"
                   label="Nhóm phân quyền"
-                  hasFeedback
                   rules={[
                     {
                       required: true,

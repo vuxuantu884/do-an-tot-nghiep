@@ -1,6 +1,5 @@
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
-import { Moment } from "moment";
 
 export interface AccountBaseModel {
   user_name: string;

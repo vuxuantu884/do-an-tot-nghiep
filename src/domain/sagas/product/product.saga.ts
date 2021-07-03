@@ -19,7 +19,6 @@ function* searchVariantSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
     yield put(showLoading());
-    debugger;
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       searchVariantsApi,
       query
@@ -113,7 +112,7 @@ function* variantDetailSaga(action: YodyAction) {
 }
 
 function* uploadProductSaga(action: YodyAction) {
-  const { files, folder, setData } = action.payload;
+  const { files, folder, } = action.payload;
   try {
     let response: BaseResponse<VariantResponse> = yield call(productUploadApi, files, folder,);
     switch (response.code) {

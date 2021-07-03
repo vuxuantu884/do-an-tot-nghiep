@@ -7,8 +7,8 @@ export interface RoleResponse extends BaseObject {
 
 export interface RoleSearchQuery {
   name?: string;
-  page: number;
-  size: number;
+  page?: number;
+  size?: number;
 }
 
 export interface AuthenRequest {

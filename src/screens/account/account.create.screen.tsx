@@ -239,7 +239,6 @@ const AccountCreateScreen: React.FC = () => {
           <div>
             <Select
               placeholder="Chọn bộ phận"
-              className="selector"
               allowClear
               showArrow
               optionFilterProp="children"
@@ -263,7 +262,6 @@ const AccountCreateScreen: React.FC = () => {
           <div>
             <Select
               placeholder="Chọn bộ phận"
-              className="selector"
               allowClear
               showArrow
               optionFilterProp="children"
@@ -502,7 +500,6 @@ const AccountCreateScreen: React.FC = () => {
                 >
                   <Select
                     placeholder="Chọn cửa hàng"
-                    className="selector"
                     allowClear
                     showArrow
                     mode="multiple"
@@ -553,7 +550,6 @@ const AccountCreateScreen: React.FC = () => {
                 >
                   <Select
                     placeholder="Chọn cửa hàng"
-                    className="selector"
                     allowClear
                     showArrow
                     mode="multiple"
@@ -572,11 +568,7 @@ const AccountCreateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Quốc gia" name="country_id">
-                  <Select
-                    disabled
-                    className="selector"
-                    placeholder="Chọn quốc gia"
-                  >
+                  <Select disabled placeholder="Chọn quốc gia">
                     {listCountries?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -590,7 +582,6 @@ const AccountCreateScreen: React.FC = () => {
                   <Select
                     showSearch
                     onSelect={onSelectDistrict}
-                    className="selector"
                     placeholder="Chọn khu vực"
                   >
                     {cityViews?.map((item) => (
