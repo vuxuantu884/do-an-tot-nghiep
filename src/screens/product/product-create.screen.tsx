@@ -16,7 +16,7 @@ import {
 import CustomEditor from 'component/custom-editor';
 import UrlConfig from 'config/UrlConfig';
 import {CountryGetAllAction} from 'domain/actions/content/content.action';
-import {supplierGetAllAction} from 'domain/actions/core/supplier.action';
+import {SupplierGetAllAction} from 'domain/actions/core/supplier.action';
 import {getCategoryRequestAction} from 'domain/actions/product/category.action';
 import {colorSearchAll} from 'domain/actions/product/color.action';
 import {materialSearchAll} from 'domain/actions/product/material.action';
@@ -353,7 +353,7 @@ const ProductCreateScreen: React.FC = () => {
   useEffect(() => {
     if (!isLoadMaterData.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
-      dispatch(supplierGetAllAction(setListSupplier));
+      dispatch(SupplierGetAllAction(setListSupplier));
       dispatch(materialSearchAll(setListMaterial));
       dispatch(CountryGetAllAction(setListCountry));
       dispatch(sizeGetAll(setListSize));

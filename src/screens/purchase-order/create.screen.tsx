@@ -15,24 +15,65 @@ import {
   Space,
   AutoComplete,
 } from "antd";
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import SupplierInfo from "./supplier-info";
 import PurchaseItem from "./purchase-item";
 import PurchaseInfo from "./purchase-info";
+import { SupplierQuery, SupplierResponse } from "model/core/supplier.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { SupplierSearchAction } from "domain/actions/core/supplier.action";
+
+const initSupplierQuery: SupplierQuery = {
+  limit: 10,
+  page: 1,
+};
 
 const CreatePO = () => {
   //#region state
   const dispatch = useDispatch();
   const history = useHistory();
-  const onFinish = () => {};
-  const onChangeSearchSupplier = (val:string) => {
-    console.log("test:"+val)
-  };
-  useEffect(() => {
+  const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
+  const [searchValue, setSearchValue] = useState("");
 
-  }, []);
+  const setDataSupplier = useCallback(
+    (data: PageResponse<SupplierResponse>) => {
+      setListSupplier(data.items);
+    },
+    []
+  );
+  const OptionRenderAutocomplete = (item: SupplierResponse) => {
+    return (
+      <div className="row-search w-100">
+        <div className="rs-left w-100">
+          {/* <img src={imgdefault} alt="anh" placeholder={imgdefault} /> */}
+          <div className="rs-info w-100">
+            <span className="text">
+              {item.name} - {item.phone}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  const supplierOptionAutocomplete = useMemo(() => {
+    let options: any[] = [];
+    listSupplier.forEach((item: SupplierResponse, index: number) => {
+      options.push({
+        label: OptionRenderAutocomplete(item),
+        value: item.id ? item.id.toString() : "",
+      });
+    });
+    return options;
+  }, [dispatch, listSupplier]);
+
+  const onChangeSearchSupplier = (val: string) => {
+    initSupplierQuery.info = val;
+
+    dispatch(SupplierSearchAction(initSupplierQuery, setDataSupplier));
+  };
+  useEffect(() => {}, []);
 
   return (
     <div className="orders">
@@ -44,19 +85,23 @@ const CreatePO = () => {
               title={
                 <Space>
                   <UserOutlined />
-                  Khách hàng
+                  Nhà cung cấp
                 </Space>
               }
             >
               <div className="padding-20">
                 <AutoComplete
+                  notFoundContent={"Không tìm thấy thông tin nhà cung cấp"}
+                  value={searchValue}
                   dropdownClassName="search-layout dropdown-search-header"
                   className="w-100"
                   style={{ width: "100%" }}
                   onChange={onChangeSearchSupplier}
+                  dataSource={listSupplier}
+                  options={supplierOptionAutocomplete}
                 >
                   <Input
-                    placeholder="Tìm hoặc thêm khách hàng"
+                    placeholder="Tìm hoặc thêm nhà cung cấp"
                     className="border-input"
                     prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                   />

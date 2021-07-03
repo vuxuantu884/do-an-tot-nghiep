@@ -75,7 +75,7 @@ export interface AccountJobReQuest {
 
 export interface AccountView extends AccountBaseModel {
   code: string;
-  birthday?: Moment;
+  birthday?: string;
   account_jobs?: Array<AccountJobReQuest>;
   account_stores: Array<number>;
   roles: Array<number>;

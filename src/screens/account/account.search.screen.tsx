@@ -84,8 +84,7 @@ const ListAccountScreen: React.FC = () => {
     },
     {
       title: 'Họ tên',
-      dataIndex: 'full_name',
-      sorter: true,
+      dataIndex: 'full_name'
     },
     {
       title: 'Số điện thoại',

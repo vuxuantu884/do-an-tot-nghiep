@@ -61,6 +61,7 @@ import {PositionResponse} from 'model/account/position.model';
 import {useParams} from 'react-router-dom';
 import UrlConfig from 'config/UrlConfig';
 import ContentContainer from 'component/container/content.container';
+import CustomDatepicker from 'component/custom/date-picker.custom';
 
 const {Item} = Form;
 const {Option, OptGroup} = Select;
@@ -180,7 +181,6 @@ const AccountUpdateScreen: React.FC = () => {
       let accRoles: Array<AccountRolesResponse> = [];
       let accJobs: Array<AccountJobResponse> = [];
       let listAccountSelected = [...listaccountJob];
-      debugger;
       values.account_stores.forEach((el: number) => {
         let checkSote = listStoreRoot.current?.find((rr) => rr.store_id === el);
         accStores.push({
@@ -207,7 +207,7 @@ const AccountUpdateScreen: React.FC = () => {
         user_name: values.user_name,
         code: values.code,
         password: values.password,
-        birthday: values.birthday?.utc().format(),
+        birthday: values.birthday,
         account_stores: [...accStores],
         mobile: values.mobile,
         roles: [...accRoles],
@@ -258,7 +258,7 @@ const AccountUpdateScreen: React.FC = () => {
       password: '',
       mobile: data.mobile,
       address: data.address,
-      birthday: moment(data.birthday),
+      birthday:data.birthday,
       country_id: data.country_id,
       district_id: data.district_id,
       city_id: data.city_id,
@@ -542,12 +542,16 @@ const AccountUpdateScreen: React.FC = () => {
                   rules={[{required: true, message: 'Vui lòng nhập ngày sinh'}]}
                   hasFeedback
                 >
-                  <DatePicker
+                  {/* <DatePicker
                     className="r-5 w-100 ip-search"
                     placeholder="20/01/2021"
                     format="DD/MM/YYYY"
                     style={{width: '100%'}}
-                  />
+                  /> */}
+                    <CustomDatepicker
+                      style={{width: '100%'}}
+                      placeholder="20/01/2021"
+                    />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -650,7 +654,7 @@ const AccountUpdateScreen: React.FC = () => {
                   />
                 </Col>
               </Row>
-              <div className="margin-top-10" style={{textAlign: 'right'}}>
+              <div className="margin-top-10">
                 <Row gutter={24}>
                   <Col span={24} lg={24} md={24} sm={24}>
                     <Button type="dashed" onClick={addNewJob}>

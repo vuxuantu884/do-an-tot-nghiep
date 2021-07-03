@@ -13,12 +13,10 @@ import { showError } from "utils/ToastUtils";
 function* supplierSearchSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    yield put(showLoading());
     let response: BaseResponse<PageResponse<SupplierResponse>> = yield call(
       supplierGetApi,
       query
     );
-    yield put(hideLoading());
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -31,7 +29,6 @@ function* supplierSearchSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
