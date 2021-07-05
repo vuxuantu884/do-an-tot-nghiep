@@ -215,7 +215,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               >
                 <CustomDatepicker
                   placeholder="Ngày tạo từ"
-                  format="DD/MM/YYYY"
                 />
               </Item>
             </Col>
@@ -226,7 +225,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               >
                 <DatePicker
                   placeholder="Ngày tạo đến"
-                  format="DD/MM/YYYY"
                 />
               </Item>
             </Col>

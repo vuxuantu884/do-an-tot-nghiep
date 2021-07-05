@@ -1,6 +1,5 @@
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
-import { Moment } from "moment";
 
 export interface AccountBaseModel {
   user_name: string;
@@ -75,7 +74,7 @@ export interface AccountJobReQuest {
 
 export interface AccountView extends AccountBaseModel {
   code: string;
-  birthday?: Moment;
+  birthday?: string;
   account_jobs?: Array<AccountJobReQuest>;
   account_stores: Array<number>;
   roles: Array<number>;

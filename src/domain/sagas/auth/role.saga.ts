@@ -29,6 +29,27 @@ function* RoleGetListSaga(action: YodyAction) {
   } catch (e) {}
 }
 
+function* RoleSearchSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<RoleResponse>> = yield call(
+      roleGetListAPI,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        break;
+    }
+  } catch (e) {}
+}
+
 export function* roleSaga() {
   yield takeLatest(RoleType.GET_LIST_ROLE_REQUEST, RoleGetListSaga);
+  yield takeLatest(RoleType.SEARCH_LIST_ROLE_REQUEST, RoleSearchSaga);  
 }
