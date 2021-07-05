@@ -69,6 +69,11 @@ const AddMaterial: React.FC = () => {
                                             message:
                                                 'Vui lòng nhập tên chất liệu',
                                         },
+                                        {
+                                            max: 50,
+                                            message:
+                                                'Tên chất liệu không vượt quá 50 ký tự',
+                                        },
                                     ]}
                                     label="Tên chất liệu"
                                     name="name"
@@ -87,11 +92,6 @@ const AddMaterial: React.FC = () => {
                                             required: true,
                                             message:
                                                 'Vui lòng nhập thành phần chất liệu',
-                                        },
-                                        {
-                                            max: 50,
-                                            message:
-                                                'Tên chất liệu không vượt quá 50 ký tự',
                                         },
                                     ]}
                                     className="form-group form-group-with-search"
