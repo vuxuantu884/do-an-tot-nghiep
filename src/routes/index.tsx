@@ -35,7 +35,7 @@ const MainRoute = () => {
           <AuthRoute type={item.type} object={item.object} key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
         ))
       }
-      <Route path="/login" component={Login} />
+      <Route path="/login" exact={true} component={Login} />
     </Switch>
   )
 }
