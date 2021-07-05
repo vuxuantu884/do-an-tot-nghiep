@@ -80,7 +80,7 @@ const AddMaterial: React.FC = () => {
                                 >
                                     <Input
                                         className="r-5"
-                                        placeholder="Tên danh mục"
+                                        placeholder="Cotton"
                                         size="large"
                                     />
                                 </Form.Item>
@@ -100,7 +100,7 @@ const AddMaterial: React.FC = () => {
                                 >
                                     <Input
                                         className="r-5"
-                                        placeholder="Thành phần"
+                                        placeholder="Nhập thành phần"
                                         size="large"
                                     />
                                 </Form.Item>
@@ -123,7 +123,7 @@ const AddMaterial: React.FC = () => {
                                 >
                                     <Input
                                         className="r-5"
-                                        placeholder="Mã chất liệu"
+                                        placeholder="CTN01"
                                         size="large"
                                     />
                                 </Form.Item>
@@ -136,7 +136,7 @@ const AddMaterial: React.FC = () => {
                                 >
                                     <Input
                                         className="r-5"
-                                        placeholder="Mã chất liệu"
+                                        placeholder="Nhập ghi chú"
                                         size="large"
                                     />
                                 </Form.Item>
