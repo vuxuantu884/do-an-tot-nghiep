@@ -52,7 +52,7 @@ function* supplierGetAllSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     console.log("supplierGetAllSaga:" + error);
     showError("Có lỗi vui lòng thử lại sau");
   }
@@ -61,12 +61,12 @@ function* supplierGetAllSaga(action: YodyAction) {
 function* supplierCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<SupplierResponse> = yield call(
       supplierPostApi,
       request
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -79,7 +79,7 @@ function* supplierCreateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

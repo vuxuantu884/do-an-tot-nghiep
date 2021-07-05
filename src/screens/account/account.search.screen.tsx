@@ -50,6 +50,7 @@ const ListAccountScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const isFirstLoad = useRef(true);
+  const [tableLoading,setTableLoading]=useState(true);
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
@@ -151,6 +152,11 @@ const ListAccountScreen: React.FC = () => {
     },
     [history, params]
   );
+  const setSearchResult = useCallback((listResult: PageResponse<AccountResponse>) => {
+    setTableLoading(false);
+    setData(listResult);
+
+  },[]);
   const onMenuClick = useCallback((index: number) => {}, []);
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -159,7 +165,7 @@ const ListAccountScreen: React.FC = () => {
       dispatch(StoreGetListAction(setStore));
     }
     isFirstLoad.current = false;
-    dispatch(AccountSearchAction(params, setData));
+    dispatch(AccountSearchAction(params, setSearchResult));
   }, [dispatch, params]);
   return (
     <ContentContainer
@@ -196,6 +202,7 @@ const ListAccountScreen: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isLoading={tableLoading}
           dataSource={data.items}
           columns={columns}
           rowKey={(item: AccountResponse) => item.id}

@@ -18,12 +18,12 @@ import { showError } from "utils/ToastUtils";
 function* getCategorySaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<Array<CategoryResponse>> = yield call(
       getCategoryApi,
       query
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -36,7 +36,7 @@ function* getCategorySaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -44,12 +44,12 @@ function* getCategorySaga(action: YodyAction) {
 function* createCategorySaga(action: YodyAction) {
   const { request, onCreateSuccess } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<CategoryResponse> = yield call(
       createCategoryApi,
       request
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess();
@@ -62,7 +62,7 @@ function* createCategorySaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -70,12 +70,12 @@ function* createCategorySaga(action: YodyAction) {
 function* categoryDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<CategoryResponse> = yield call(
       categoryDetailApi,
       id
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -88,7 +88,7 @@ function* categoryDetailSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -96,13 +96,13 @@ function* categoryDetailSaga(action: YodyAction) {
 function* categoryUpdateSaga(action: YodyAction) {
   const { id, request, onUpdateSuccess } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<CategoryResponse> = yield call(
       updateCategoryApi,
       id,
       request
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onUpdateSuccess();
@@ -115,7 +115,7 @@ function* categoryUpdateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -123,9 +123,9 @@ function* categoryUpdateSaga(action: YodyAction) {
 function* categoryDeleteSaga(action: YodyAction) {
   const { id, onDeleteSuccess } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<string> = yield call(categoryDeleteApi, id);
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onDeleteSuccess();
@@ -138,7 +138,7 @@ function* categoryDeleteSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

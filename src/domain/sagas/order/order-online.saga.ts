@@ -12,9 +12,9 @@ import { OrderResponse } from 'model/response/order/order-online.response';
 function* orderCreateSaga(action: YodyAction) {
     const {request, setData} = action.payload;
     try {
-      yield put(showLoading());
+      
       let response: BaseResponse<OrderResponse> = yield call(orderPostApi, request);
-      yield put(hideLoading());
+      
       switch(response.code) {
         case HttpStatus.SUCCESS:
           setData(response.data);
@@ -24,7 +24,7 @@ function* orderCreateSaga(action: YodyAction) {
           break;
       }
     } catch (error) {
-      yield put(hideLoading());
+      
       showError(error);
     }
   }

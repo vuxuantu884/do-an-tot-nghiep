@@ -34,7 +34,7 @@ function* storeGetAllSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -58,7 +58,7 @@ function* storeSearchSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -81,7 +81,7 @@ function* storeRanksaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -89,12 +89,12 @@ function* storeRanksaga(action: YodyAction) {
 function* storeCreateSaga(action: YodyAction) {
   const { request, onCreateSuccess } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<StoreResponse> = yield call(
       storesPostApi,
       request
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess(response.data);
@@ -107,7 +107,7 @@ function* storeCreateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -115,13 +115,13 @@ function* storeCreateSaga(action: YodyAction) {
 function* storeUpdateSaga(action: YodyAction) {
   const { id, request, onUpdateSuccess } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<StoreResponse> = yield call(
       storesPutApi,
       id,
       request
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onUpdateSuccess(response.data);
@@ -134,7 +134,7 @@ function* storeUpdateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -142,12 +142,12 @@ function* storeUpdateSaga(action: YodyAction) {
 export function* storeDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<StoreResponse> = yield call(
       storesDetailApi,
       id
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -160,7 +160,7 @@ export function* storeDetailSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

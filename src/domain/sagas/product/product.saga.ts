@@ -18,12 +18,12 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 function* searchVariantSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       searchVariantsApi,
       query
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response);
@@ -37,7 +37,7 @@ function* searchVariantSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

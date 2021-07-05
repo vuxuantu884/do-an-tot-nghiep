@@ -55,7 +55,7 @@ import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
 import { showSuccess } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
-import CustomDatepicker from 'component/custom/date-picker.custom';
+import CustomDatepicker from "component/custom/date-picker.custom";
 
 const { Item } = Form;
 const { Option, OptGroup } = Select;
@@ -530,10 +530,10 @@ const AccountCreateScreen: React.FC = () => {
                     format="DD/MM/YYYY"
                     style={{ width: "100%" }}
                   /> */}
-                   <CustomDatepicker
-                      style={{width: '100%'}}
-                      placeholder="20/01/2021"
-                    />
+                  <CustomDatepicker
+                    style={{ width: "100%" }}
+                    placeholder="20/01/2021"
+                  />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -629,11 +629,20 @@ const AccountCreateScreen: React.FC = () => {
                   />
                 </Col>
               </Row>
-              <div className="margin-top-10" >
+              <div className="margin-top-10">
                 <Row gutter={24}>
                   <Col span={24} lg={24} md={24} sm={24}>
-                    <Button type="dashed" onClick={addNewJob}>
+                    {/* <Button type="dashed" onClick={addNewJob}>
                       <PlusOutlined /> Thêm phòng ban/vị trí
+                    </Button>
+                    */}
+                    <Button
+                      type="link"
+                      className="padding-0"
+                      icon={<PlusOutlined />}
+                      onClick={addNewJob}
+                    >
+                      Thêm phòng ban/vị trí
                     </Button>
                   </Col>
                 </Row>
