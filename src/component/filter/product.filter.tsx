@@ -168,7 +168,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 name="to_inventory"
                 label="đến"
               >
-                <NumberInput style={{ width: "100%" }} placeholder="Từ" />
+                <NumberInput style={{ width: "100%" }} placeholder="Đến" />
               </Item>
             </Col>
           </Row>
@@ -178,7 +178,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 name="made_in"
                 label="Xuất sứ"
               >
-                <Select>
+                <Select optionFilterProp="children" showSearch>
                   <Option value="">Xuất sứ</Option>
                   {listCountries?.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -197,7 +197,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (
               >
                 <Select>
                   <Option value="">Nhà thiết kế</Option>
-
                   {listMerchandisers?.map((item) => (
                     <Option key={item.id} value={item.id}>
                       {item.full_name}
@@ -214,6 +213,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 label="Ngày tạo từ"
               >
                 <CustomDatepicker
+                  style={{width: '100%'}}
                   placeholder="Ngày tạo từ"
                 />
               </Item>
@@ -224,6 +224,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
                 label="Đến"
               >
                 <DatePicker
+                  style={{width: '100%'}}
                   placeholder="Ngày tạo đến"
                 />
               </Item>

@@ -102,7 +102,8 @@ function* variantDetailSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e) => showError(e));
+        setData(null);
+        // response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {

@@ -305,12 +305,14 @@
         .ant-select{
           &-selector{
             border-color: rgba(42, 42, 134, 0.6) !important;
-            background-color: #EAEAF3 !important;
+            background-color: transparent !important;
             box-shadow: unset !important;
 
             .ant-select-selection{
               &-placeholder{
-                color: $primary-color !important;
+                color: $label-color !important;
+                right: 14px;
+                left: 14px;
               }
             }
           }
@@ -375,6 +377,9 @@
       border-radius: $border-radius/2;
       padding: 10px 0;
       box-shadow: rgba(70, 128, 160, 0.4) 0 0 5px;
+      &-hashtag{
+        display: none;
+      }
     }
 
     &-item{

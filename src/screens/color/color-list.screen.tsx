@@ -133,7 +133,7 @@ const ColorListScreen: React.FC = () => {
   );
   const onPageChange = useCallback(
     (size, page) => {
-      params.page = page - 1;
+      params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({...params});
@@ -220,7 +220,7 @@ const ColorListScreen: React.FC = () => {
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
-            current: data.metadata.page + 1,
+            current: data.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
