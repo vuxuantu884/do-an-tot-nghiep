@@ -91,14 +91,14 @@
 }
 
 .container {
-    margin-left: 270px;
+    margin-left: 255px;
     padding: 18px 20px;
     padding-top: 90px;
     transition: all 0.2s;
     &.collapsed {
-        margin-left: 80px;
+        margin-left: 65px;
         .page-header {
-            left: 80px;
+            left: 65px;
         }
     }
 }

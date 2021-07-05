@@ -149,7 +149,7 @@ export const getArrCategory = (
     version: i.version,
     code: i.code,
     goods_name: i.goods_name,
-    gooods: i.gooods,
+    goods: i.goods,
     level: level,
     parent: parentTemp,
     name: i.name,
@@ -498,7 +498,6 @@ export const Products = {
         preservation: variant.product.preservation,
         specifications: variant.product.specifications,
         material_id: variant.product.material_id,
-        
       },
     };
     return variantUpdateView;

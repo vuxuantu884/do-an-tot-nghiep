@@ -18,7 +18,7 @@ import UrlConfig from 'config/UrlConfig';
 import {CountryGetAllAction} from 'domain/actions/content/content.action';
 import {SupplierGetAllAction} from 'domain/actions/core/supplier.action';
 import {getCategoryRequestAction} from 'domain/actions/product/category.action';
-import {colorSearchAll} from 'domain/actions/product/color.action';
+import {listColorAction} from 'domain/actions/product/color.action';
 import {materialSearchAll} from 'domain/actions/product/material.action';
 import {sizeGetAll} from 'domain/actions/product/size.action';
 import {CategoryView} from 'model/product/category.model';
@@ -175,6 +175,9 @@ const ProductCreateScreen: React.FC = () => {
   const [isCombo, setCombo] = useState<boolean>(false);
   const [isVisibleUpload, setVisibleUpload] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantRequestView | null>(null);
+  const [selectedGood, setSelectedGood] = useState<string | null>(
+    initialForm.goods
+  );
   //End State
   const formRef = createRef<FormInstance>();
   const statusValue = useMemo(() => {
@@ -187,6 +190,12 @@ const ProductCreateScreen: React.FC = () => {
     }
     return '';
   }, [productStatusList, status]);
+  const categoryFilter = useMemo(() => {
+    if (selectedGood === null) {
+      return listCategory;
+    }
+    return listCategory.filter((item) => item.goods === selectedGood);
+  }, [listCategory, selectedGood]);
   const onSuccess = useCallback(() => {
     history.push(UrlConfig.PRODUCT);
   }, [history]);
@@ -310,28 +319,27 @@ const ProductCreateScreen: React.FC = () => {
       let name = formRef.current?.getFieldValue('name');
       let code = formRef.current?.getFieldValue('code');
       if (name && code) {
+        let newVariants: Array<VariantRequestView> = [];
         colors.forEach((i1) => {
           sizes.forEach((i2) => {
             let sku = `${code}-${i1.code}-${i2.code}`;
-            let index = variants.findIndex((v) => v.sku === sku);
-            if (index === -1) {
-              variants.push({
-                name: `${name} - ${i1.name} - ${i2.code}`,
-                color_id: i1.id,
-                color: i1.name,
-                size_id: i2.id,
-                size: i2.code,
-                sku: sku,
-                variant_images: [],
-                quantity: '',
-              });
-            }
+            newVariants.push({
+              name: `${name} - ${i1.name} - ${i2.code}`,
+              color_id: i1.id,
+              color: i1.name,
+              size_id: i2.id,
+              size: i2.code,
+              sku: sku,
+              variant_images: [],
+              quantity: '',
+            });
           });
         });
+        console.log(newVariants);
+        setVariants([...newVariants]);
       }
-      setVariants([...variants]);
     },
-    [formRef, variants]
+    [formRef]
   );
   const onSizeChange = useCallback(
     (values: Array<number>) => {
@@ -349,7 +357,23 @@ const ProductCreateScreen: React.FC = () => {
     },
     [listColor, listVariantsFilter, sizeSelected]
   );
-
+  const onCategoryChange = useCallback(
+    (value: number) => {
+      let categoryIndex = listCategory.findIndex((item) => item.id === value);
+      if (categoryIndex !== -1) {
+        formRef.current?.setFieldsValue({
+          code: listCategory[categoryIndex].code,
+        });
+      }
+    },
+    [formRef, listCategory]
+  );
+  const onGoodsChange = useCallback((value: string) => {
+    setSelectedGood(value);
+  }, []);
+  const onNameChange = useCallback((event) => {
+    listVariantsFilter(colorSelected, sizeSelected);
+  }, [colorSelected, listVariantsFilter, sizeSelected]);
   useEffect(() => {
     if (!isLoadMaterData.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
@@ -357,7 +381,7 @@ const ProductCreateScreen: React.FC = () => {
       dispatch(materialSearchAll(setListMaterial));
       dispatch(CountryGetAllAction(setListCountry));
       dispatch(sizeGetAll(setListSize));
-      dispatch(colorSearchAll(setListColor));
+      dispatch(listColorAction({is_main_color: 0}, setListColor));
       dispatch(
         AccountSearchAction(
           {department_ids: [AppConfig.WIN_DEPARTMENT]},
@@ -393,8 +417,8 @@ const ProductCreateScreen: React.FC = () => {
       >
         <Card
           title="Thông tin cơ bản"
-          extra={[
-            <Space key="a" size={15}>
+          extra={
+            <Space size={15}>
               <label className="text-default">Trạng thái</label>
               <Switch
                 onChange={(checked) =>
@@ -408,8 +432,8 @@ const ProductCreateScreen: React.FC = () => {
               >
                 {statusValue}
               </label>
-            </Space>,
-          ]}
+            </Space>
+          }
         >
           <div className="padding-20">
             <Row gutter={50}>
@@ -423,6 +447,10 @@ const ProductCreateScreen: React.FC = () => {
                   ]}
                   name="product_type"
                   label="Loại sản phẩm"
+                  tooltip={{
+                    title: 'Loại sản phẩm',
+                    icon: <InfoCircleOutlined />,
+                  }}
                 >
                   <Select
                     onChange={(value) => setCombo(value === 'combo')}
@@ -444,10 +472,17 @@ const ProductCreateScreen: React.FC = () => {
                       message: 'Vui lòng chọn loại sản phẩm',
                     },
                   ]}
+                  tooltip={{
+                    title: 'Ngành hàng',
+                    icon: <InfoCircleOutlined />,
+                  }}
                   name="goods"
                   label="Ngành hàng"
                 >
-                  <Select placeholder="Chọn ngành hàng ">
+                  <Select
+                    onChange={onGoodsChange}
+                    placeholder="Chọn ngành hàng "
+                  >
                     {goods?.map((item) => (
                       <Option key={item.value} value={item.value}>
                         {item.name}
@@ -483,6 +518,7 @@ const ProductCreateScreen: React.FC = () => {
                   label="Danh mục"
                 >
                   <CustomSelect
+                    onChange={onCategoryChange}
                     placeholder="Chọn danh mục"
                     suffix={
                       <Button
@@ -491,7 +527,7 @@ const ProductCreateScreen: React.FC = () => {
                       />
                     }
                   >
-                    {listCategory.map((item) => (
+                    {categoryFilter.map((item) => (
                       <CustomSelect.Option key={item.id} value={item.id}>
                         {`${item.code} - ${item.name}`}
                       </CustomSelect.Option>
@@ -530,7 +566,7 @@ const ProductCreateScreen: React.FC = () => {
                   ]}
                   tooltip={{
                     title:
-                      'Tên sản phẩm không bao gồm các giá trị thuộc tính như màu sắc, chất liệu, kích cỡ...',
+                      'Mã sản phẩm bao gồm 3 kí tự đầu mã danh mục và 4 kí tự tiếp theo do người dùng nhập',
                     icon: <InfoCircleOutlined />,
                   }}
                   name="code"
@@ -559,7 +595,11 @@ const ProductCreateScreen: React.FC = () => {
                   name="name"
                   label="Tên sản phẩm"
                 >
-                  <Input maxLength={120} placeholder="Nhập tên sản phẩm" />
+                  <Input
+                    onChange={onNameChange}
+                    maxLength={120}
+                    placeholder="Nhập tên sản phẩm"
+                  />
                 </Item>
               </Col>
             </Row>
@@ -661,7 +701,12 @@ const ProductCreateScreen: React.FC = () => {
                   name="tags"
                   label="Từ khóa"
                 >
-                  <Input placeholder="Nhập từ khóa" />
+                  <Select
+                    className="ant-select-hashtag"
+                    dropdownClassName="ant-select-dropdown-hashtag"
+                    mode="tags"
+                    placeholder="Nhập từ khóa"
+                  />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -679,7 +724,7 @@ const ProductCreateScreen: React.FC = () => {
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item name="suppplier_id" label="Nhà cung cấp">
-                  <Select placeholder="Chọn nhà cung cấp">
+                  <Select showSearch placeholder="Chọn nhà cung cấp">
                     {listSupplier?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
