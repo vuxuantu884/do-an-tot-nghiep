@@ -50,7 +50,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/pos",
+    path: "/unicorn/pos",
     exact: true,
     title: "Bán hàng",
     icon: 'icon-sale',
