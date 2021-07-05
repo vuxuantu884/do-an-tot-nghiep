@@ -11,7 +11,7 @@ const OrderOnline = React.lazy(() => import ("screens/order-online/order-online.
 
 const menu: Array<RouteMenu> = [
   {
-    path: "/",
+    path: "/admin",
     exact: true,
     title: "Tổng quan",
     icon: 'icon-dashboard',
@@ -24,7 +24,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/products",
+    path: "/admin/products",
     exact: true,
     title: "Sản phẩm",
     icon: 'icon-product',
@@ -37,7 +37,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/inventory",
+    path: "/admin/inventory",
     exact: true,
     title: "Kho hàng",
     icon: 'icon-inventory',
@@ -50,20 +50,20 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/sale",
+    path: "/pos",
     exact: true,
     title: "Bán hàng",
     icon: 'icon-sale',
     component: Inventory,
     key: "4",
-    isShow: true,
+    isShow: false,
     header: null,
     subMenu: [],
     type: 0,
     object: null,
   },
   {
-    path: "/bill",
+    path: "/admin/bill",
     exact: true,
     title: "Đơn hàng",
     icon: 'icon-order',
@@ -76,7 +76,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/customer",
+    path: "/admin/customer",
     exact: true,
     title: "Khách hàng",
     icon: 'icon-customer',
@@ -89,7 +89,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/promotion",
+    path: "/admin/promotion",
     exact: true,
     title: "Khuyến mại",
     icon: 'icon-promotion',
@@ -102,7 +102,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/report",
+    path: "/admin/report",
     exact: true,
     title: "Báo cáo",
     icon: 'icon-report',
@@ -115,7 +115,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/setting",
+    path: "/admin/setting",
     exact: true,
     title: "Cài đặt",
     icon: 'icon-setting',
