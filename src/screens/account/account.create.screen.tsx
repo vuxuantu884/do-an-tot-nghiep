@@ -13,17 +13,17 @@ import {
   Space,
   Switch,
   Table,
-} from 'antd';
+} from "antd";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
-} from 'domain/actions/content/content.action';
-import {CityView} from 'model/content/district.model';
-import {RootReducerType} from 'model/reducers/RootReducerType';
+} from "domain/actions/content/content.action";
+import { CityView } from "model/content/district.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   DepartmentGetListAction,
   PositionGetListAction,
-} from 'domain/actions/account/account.action';
+} from "domain/actions/account/account.action";
 import {
   AccountJobReQuest,
   AccountJobResponse,
@@ -32,48 +32,48 @@ import {
   AccountRolesResponse,
   AccountStoreResponse,
   AccountView,
-} from 'model/account/account.model';
+} from "model/account/account.model";
 import {
   EyeInvisibleOutlined,
   EyeTwoTone,
   PlusOutlined,
-} from '@ant-design/icons';
-import {CountryResponse} from 'model/content/country.model';
-import {DistrictResponse} from 'model/content/district.model';
-import {createRef, useCallback, useEffect, useMemo, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {useHistory} from 'react-router';
-import {convertDistrict} from 'utils/AppUtils';
-import {StoreGetListAction} from 'domain/actions/core/store.action';
-import {AccountCreateAction} from 'domain/actions/account/account.action';
-import {StoreResponse} from 'model/core/store.model';
-import {RoleResponse, RoleSearchQuery} from 'model/auth/roles.model';
-import {RoleGetListAction} from 'domain/actions/auth/role.action';
-import deleteIcon from 'assets/icon/delete.svg';
-import moment from 'moment';
-import {DepartmentResponse} from 'model/account/department.model';
-import {PositionResponse} from 'model/account/position.model';
-import {showSuccess} from 'utils/ToastUtils';
-import ContentContainer from 'component/container/content.container';
-import CustomDatepicker from 'component/custom/date-picker.custom';
+} from "@ant-design/icons";
+import { CountryResponse } from "model/content/country.model";
+import { DistrictResponse } from "model/content/district.model";
+import { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
+import { convertDistrict } from "utils/AppUtils";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { AccountCreateAction } from "domain/actions/account/account.action";
+import { StoreResponse } from "model/core/store.model";
+import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
+import { RoleGetListAction } from "domain/actions/auth/role.action";
+import deleteIcon from "assets/icon/delete.svg";
+import moment from "moment";
+import { DepartmentResponse } from "model/account/department.model";
+import { PositionResponse } from "model/account/position.model";
+import { showSuccess } from "utils/ToastUtils";
+import ContentContainer from "component/container/content.container";
+import CustomDatepicker from "component/custom/date-picker.custom";
 
-const {Item} = Form;
-const {Option, OptGroup} = Select;
+const { Item } = Form;
+const { Option, OptGroup } = Select;
 
 const DefaultCountry = 233;
 const initRequest: AccountView = {
-  code: '',
-  user_id: '',
-  user_name: '',
-  gender: '',
-  full_name: '',
-  mobile: '',
+  code: "",
+  user_id: "",
+  user_name: "",
+  gender: "",
+  full_name: "",
+  mobile: "",
   account_stores: [],
   account_jobs: [],
   roles: [],
-  address: '',
-  status: 'active',
-  password: '',
+  address: "",
+  status: "active",
+  password: "",
   country_id: 233,
 };
 
@@ -98,7 +98,7 @@ const AccountCreateScreen: React.FC = () => {
     {
       department_id: 0,
       position_id: 0,
-      key: Number(moment().format('x')),
+      key: Number(moment().format("x")),
     },
   ]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
@@ -117,9 +117,9 @@ const AccountCreateScreen: React.FC = () => {
   }, []);
   const onChangeStatus = useCallback(
     (checked: boolean) => {
-      setStatus(checked ? 'active' : 'inactive');
+      setStatus(checked ? "active" : "inactive");
       formRef.current?.setFieldsValue({
-        status: checked ? 'active' : 'inactive',
+        status: checked ? "active" : "inactive",
       });
     },
     [formRef]
@@ -129,7 +129,7 @@ const AccountCreateScreen: React.FC = () => {
     listJob.push({
       department_id: 0,
       position_id: 0,
-      key: Number(moment().format('x')),
+      key: Number(moment().format("x")),
     });
     setAccountJob(listJob);
   };
@@ -168,8 +168,8 @@ const AccountCreateScreen: React.FC = () => {
   );
   const onCreateSuccess = useCallback(
     (data: AccountResponse) => {
-      showSuccess('Thêm mới dữ liệu thành công');
-      history.push('/accounts');
+      showSuccess("Thêm mới dữ liệu thành công");
+      history.push("/accounts");
     },
     [history]
   );
@@ -221,19 +221,19 @@ const AccountCreateScreen: React.FC = () => {
   //Memo
   const statusValue = useMemo(() => {
     if (!listAccountStatus) {
-      return '';
+      return "";
     }
     let index = listAccountStatus.findIndex((item) => item.value === status);
     if (index !== -1) {
       return listAccountStatus[index].name;
     }
-    return '';
+    return "";
   }, [status, listAccountStatus]);
   //end memo
 
   const columns = [
     {
-      title: 'Bộ phận',
+      title: "Bộ phận",
       render: (text: string, item: AccountJobReQuest, index: number) => {
         return (
           <div>
@@ -243,6 +243,7 @@ const AccountCreateScreen: React.FC = () => {
               showArrow
               optionFilterProp="children"
               onChange={(value) => onChangeDepartment(value, index)}
+              style={{ width: "100%" }}
             >
               {listDepartment?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -255,7 +256,7 @@ const AccountCreateScreen: React.FC = () => {
       },
     },
     {
-      title: 'Vị trí',
+      title: "Vị trí",
       render: (text: string, item: AccountJobReQuest, index: number) => {
         return (
           <div>
@@ -265,6 +266,7 @@ const AccountCreateScreen: React.FC = () => {
               showArrow
               optionFilterProp="children"
               onChange={(value) => onChangePosition(value, index)}
+              style={{ width: "100%" }}
             >
               {listPosition?.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -277,7 +279,7 @@ const AccountCreateScreen: React.FC = () => {
       },
     },
     {
-      title: '',
+      title: "",
       render: (text: string, item: AccountJobReQuest, index: number) => {
         return (
           <div>
@@ -306,15 +308,15 @@ const AccountCreateScreen: React.FC = () => {
       title="Thêm mới người dùng"
       breadcrumb={[
         {
-          name: 'Tổng quản',
-          path: '/',
+          name: "Tổng quản",
+          path: "/",
         },
         {
-          name: 'Quản lý người dùng',
-          path: '/accounts',
+          name: "Quản lý người dùng",
+          path: "/accounts",
         },
         {
-          name: 'Thêm mới người dùng',
+          name: "Thêm mới người dùng",
         },
       ]}
     >
@@ -335,7 +337,7 @@ const AccountCreateScreen: React.FC = () => {
                 defaultChecked
               />
               <label
-                className={status === 'active' ? 'text-success' : 'text-error'}
+                className={status === "active" ? "text-success" : "text-error"}
               >
                 {statusValue}
               </label>
@@ -351,7 +353,9 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Tên đăng nhập"
                   name="user_name"
-                  rules={[{required: true, message: 'Vui lòng nhập họ và tên'}]}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập họ và tên" },
+                  ]}
                   hasFeedback
                 >
                   <Input
@@ -363,7 +367,9 @@ const AccountCreateScreen: React.FC = () => {
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[{required: true, message: 'Vui lòng chọn giới tính'}]}
+                  rules={[
+                    { required: true, message: "Vui lòng chọn giới tính" },
+                  ]}
                   name="gender"
                   label="Giới tính"
                 >
@@ -387,7 +393,7 @@ const AccountCreateScreen: React.FC = () => {
                   label="Mã nhân viên"
                   name="code"
                   rules={[
-                    {required: true, message: 'Vui lòng nhập mã nhân viên'},
+                    { required: true, message: "Vui lòng nhập mã nhân viên" },
                   ]}
                   hasFeedback
                 >
@@ -400,7 +406,9 @@ const AccountCreateScreen: React.FC = () => {
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[{required: true, message: 'Vui lòng nhập mật khẩu'}]}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập mật khẩu" },
+                  ]}
                   name="password"
                   label="Mật khẩu"
                   hasFeedback
@@ -421,7 +429,9 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Họ và tên"
                   name="full_name"
-                  rules={[{required: true, message: 'Vui lòng nhập họ và tên'}]}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập họ và tên" },
+                  ]}
                   hasFeedback
                 >
                   <Input
@@ -435,21 +445,21 @@ const AccountCreateScreen: React.FC = () => {
                 <Form.Item
                   name="confirm"
                   label="Nhập lại mật khẩu"
-                  dependencies={['password']}
+                  dependencies={["password"]}
                   hasFeedback
                   rules={[
                     {
                       required: true,
-                      message: 'Vui lòng nhập lại mật khẩu',
+                      message: "Vui lòng nhập lại mật khẩu",
                     },
-                    ({getFieldValue}) => ({
+                    ({ getFieldValue }) => ({
                       validator(_, value) {
-                        if (!value || getFieldValue('password') === value) {
+                        if (!value || getFieldValue("password") === value) {
                           return Promise.resolve();
                         }
 
                         return Promise.reject(
-                          new Error('Nhập lại mật khẩu không đúng!')
+                          new Error("Nhập lại mật khẩu không đúng")
                         );
                       },
                     }),
@@ -465,7 +475,7 @@ const AccountCreateScreen: React.FC = () => {
                   label="Số điện thoại"
                   name="mobile"
                   rules={[
-                    {required: true, message: 'Vui lòng nhập số điện thoại'},
+                    { required: true, message: "Vui lòng nhập số điện thoại" },
                   ]}
                   hasFeedback
                 >
@@ -484,7 +494,7 @@ const AccountCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: 'Vui lòng chọn cửa hàng',
+                      message: "Vui lòng chọn cửa hàng",
                     },
                   ]}
                 >
@@ -509,12 +519,20 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Ngày sinh"
                   name="birthday"
-                  rules={[{required: true, message: 'Vui lòng nhập ngày sinh'}]}
+                  rules={[
+                    { required: true, message: "Vui lòng nhập ngày sinh" },
+                  ]}
                   hasFeedback
                 >
+                  {/* <DatePicker
+                    className="r-5 w-100 ip-search"
+                    placeholder="20/01/2021"
+                    format="DD/MM/YYYY"
+                    style={{ width: "100%" }}
+                  /> */}
                   <CustomDatepicker
-                    placeholder="Nhập ngày sinh"
-                    style={{width: '100%'}}
+                    style={{ width: "100%" }}
+                    placeholder="20/01/2021"
                   />
                 </Item>
               </Col>
@@ -526,7 +544,7 @@ const AccountCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: 'Vui lòng chọn nhóm phân quyền',
+                      message: "Vui lòng chọn nhóm phân quyền",
                     },
                   ]}
                 >
@@ -611,11 +629,20 @@ const AccountCreateScreen: React.FC = () => {
                   />
                 </Col>
               </Row>
-              <div className="margin-top-10" style={{textAlign: 'right'}}>
+              <div className="margin-top-10">
                 <Row gutter={24}>
                   <Col span={24} lg={24} md={24} sm={24}>
-                    <Button type="dashed" onClick={addNewJob}>
-                      <PlusOutlined /> Add field
+                    {/* <Button type="dashed" onClick={addNewJob}>
+                      <PlusOutlined /> Thêm phòng ban/vị trí
+                    </Button>
+                    */}
+                    <Button
+                      type="link"
+                      className="padding-0"
+                      icon={<PlusOutlined />}
+                      onClick={addNewJob}
+                    >
+                      Thêm phòng ban/vị trí
                     </Button>
                   </Col>
                 </Row>
@@ -623,7 +650,7 @@ const AccountCreateScreen: React.FC = () => {
             </div>
           </Collapse.Panel>
         </Collapse>
-        <div className="margin-top-10" style={{textAlign: 'right'}}>
+        <div className="margin-top-10" style={{ textAlign: "right" }}>
           <Space size={12}>
             <Button type="default" onClick={onCancel}>
               Hủy

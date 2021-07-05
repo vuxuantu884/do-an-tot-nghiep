@@ -21,6 +21,7 @@ const SupplierCreateScreen = React.lazy(() => import ("screens/supllier/supplier
 const ColorCreateScreen = React.lazy(() => import ("screens/color/color-create.screen"));
 const  VariantUpdateScreen = React.lazy(() => import ("screens/product/variant-update.screen"));
 const  ProductUpdateScreen = React.lazy(() => import ("screens/product/product-update.screen"));
+const  PurchaseOrderScreen = React.lazy(() => import ("screens/purchase-order/create.screen"));
 
 
 const product: Array<RouteMenu> = [
@@ -79,6 +80,19 @@ const product: Array<RouteMenu> = [
     object: {
       pathCreate: `${UrlConfig.PRODUCT}/create`,
     },
+  },
+  {
+    path: UrlConfig.PURCHASEORDER,
+    exact: true,
+    title: "Nhập hàng",
+    icon: 'icon-dot',
+    component: PurchaseOrderScreen,
+    key: "supo22",
+    isShow: true,
+    header: null,
+    subMenu: [],
+    type: 0,
+    object: {},
   },
   {
     path: UrlConfig.CATEGORIES,
