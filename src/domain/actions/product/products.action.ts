@@ -49,6 +49,6 @@ export const productCreateAction = (
   });
 };
 
-export const variantDetailAction = (id: number, setData: (data: VariantResponse) => void) => {
+export const variantDetailAction = (id: number, setData: (data: VariantResponse|null) => void) => {
   return BaseAction(ProductType.VARIANT_DETAIL_REQUEST, {id, setData});
 }

@@ -102,7 +102,7 @@ const ColorUpdateScreen: React.FC = () => {
         onFinish={onFinish}
         layout="vertical"
       >
-        <Card className="card-block card-block-normal" title="Thông tin cơ bản">
+        <Card title="Thông tin cơ bản">
           <div className="padding-20">
             <Row gutter={50}>
               <Col
