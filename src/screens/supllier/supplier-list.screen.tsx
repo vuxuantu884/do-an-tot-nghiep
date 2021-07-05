@@ -12,12 +12,12 @@ import {generateQuery} from 'utils/AppUtils';
 import {getQueryParams, useQuery} from 'utils/useQuery';
 import {useDispatch, useSelector, shallowEqual} from 'react-redux';
 import SupplierFilter from 'component/filter/supplier.filter';
-import SupplierAction from 'domain/actions/core/supplier.action';
 import {RootReducerType} from 'model/reducers/RootReducerType';
 import CustomTable from 'component/table/CustomTable';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
 import ButtonCreate from 'component/header/ButtonCreate';
+import {SupplierSearchAction} from 'domain/actions/core/supplier.action'
 
 const actions: Array<MenuAction> = [
   {
@@ -133,7 +133,7 @@ const ListSupplierScreen: React.FC = () => {
   );
   const onMenuClick = useCallback((index: number) => {}, []);
   useEffect(() => {
-    dispatch(SupplierAction.supplierSearchAction(params, setData));
+    dispatch(SupplierSearchAction(params, setData));
   }, [dispatch, params]);
   return (
     <ContentContainer

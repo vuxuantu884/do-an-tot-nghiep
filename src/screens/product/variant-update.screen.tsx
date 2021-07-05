@@ -1,7 +1,7 @@
 import {AppConfig} from 'config/AppConfig';
 import {AccountSearchAction} from 'domain/actions/account/account.action';
 import {CountryGetAllAction} from 'domain/actions/content/content.action';
-import {supplierGetAllAction} from 'domain/actions/core/supplier.action';
+import {SupplierGetAllAction} from 'domain/actions/core/supplier.action';
 import {getCategoryRequestAction} from 'domain/actions/product/category.action';
 import {materialSearchAll} from 'domain/actions/product/material.action';
 import {variantDetailAction} from 'domain/actions/product/products.action';
@@ -153,7 +153,7 @@ const VariantUpdateScreen: React.FC = () => {
   useEffect(() => {
     if (!isLoadMaterData.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
-      dispatch(supplierGetAllAction(setListSupplier));
+      dispatch(SupplierGetAllAction(setListSupplier));
       dispatch(materialSearchAll(setListMaterial));
       dispatch(CountryGetAllAction(setListCountry));
       dispatch(sizeGetAll(setListSize));

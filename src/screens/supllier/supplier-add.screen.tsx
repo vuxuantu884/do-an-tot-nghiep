@@ -18,7 +18,7 @@ import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from 'domain/actions/content/content.action';
-import SupplierAction from 'domain/actions/core/supplier.action';
+import { SupplierCreateAction } from 'domain/actions/core/supplier.action';
 import {CityView} from 'model/content/district.model';
 import {RootReducerType} from 'model/reducers/RootReducerType';
 import {SupplierCreateRequest} from 'model/core/supplier.model';
@@ -133,7 +133,7 @@ const CreateSupplierScreen: React.FC = () => {
   }, [history]);
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
-      dispatch(SupplierAction.supplierCreateAction(values, onCreateSuccess));
+      dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]
   );
