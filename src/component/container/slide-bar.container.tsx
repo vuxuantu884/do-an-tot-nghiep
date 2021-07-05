@@ -117,7 +117,7 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
                 key={route.key}
               >
                 {
-                  route.isShow && <Link to={route.path}>{route.title}</Link>
+                  route.isShow ? <Link to={route.path}>{route.title}</Link> : route.title
                 }
               </Menu.Item>
             );
