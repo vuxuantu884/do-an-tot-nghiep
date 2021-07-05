@@ -91,7 +91,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         amount: 0,
         paid_amount: 0,
         return_amount: 0,
-        status: "",
+        status: "paid",
         name: paymentMaster.name,
         code: paymentMaster.code,
         payment_method: paymentMaster.name,
@@ -123,7 +123,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const onUpdateSuccess = useCallback(
     (value: OrderResponse) => {
       showSuccess("Thanh toán thành công");
-      history.push(`/order-online/detail/${value.id}`);
+     window.location.reload();
     },
     [history]
   );

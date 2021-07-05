@@ -139,7 +139,7 @@ export default function Order() {
     currency: "VNĐ",
     items: [],
     discounts: [],
-    fulfillment: [],
+    fulfillments: [],
     shipping_address: null,
     billing_address: null,
     payments: [],
@@ -253,12 +253,12 @@ export default function Order() {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     if (typeButton === 0) {
-      values.fulfillment = [];
+      values.fulfillments = [];
       values.payments = [];
       values.action = OrderStatus.DRAFT;
     } else {
       if (lstFulFillment != null) {
-        values.fulfillment = lstFulFillment;
+        values.fulfillments = lstFulFillment;
       }
       values.action = "finalized";
       values.payments = payments;

@@ -53,7 +53,7 @@ export interface OrderResponse {
   payments: Array<OrderPaymentResponse> | null;
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
-  fulfillment: Array<FulFillmentResponse> | null;
+  fulfillments: Array<FulFillmentResponse> | null | undefined;
 }
 
 export interface OrderLineItemResponse {

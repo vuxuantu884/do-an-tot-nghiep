@@ -347,7 +347,7 @@ const OrderDetail = () => {
     };
     value.order_id = OrderDetail?.id;
     let fulfillment_id =
-      OrderDetail?.fulfillment !== null ? OrderDetail?.fulfillment[0].id : null;
+      OrderDetail?.fulfillments !== null && OrderDetail?.fulfillments !== undefined ? OrderDetail?.fulfillments[0].id : null;
     value.fulfillment_id = fulfillment_id;
     value.status = "shipping";
     dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
@@ -382,10 +382,10 @@ const OrderDetail = () => {
 
   const onFinishUpdateShipment = (value: UpdateShipmentRequest) => {
     value.expected_received_date = value.dating_ship?.utc().format();
-    if (OrderDetail?.fulfillment !== undefined && OrderDetail?.fulfillment) {
-      value.code = OrderDetail.fulfillment[0].shipment?.code;
+    if (OrderDetail?.fulfillments !== undefined && OrderDetail?.fulfillments) {
+      value.code = OrderDetail.fulfillments[0].shipment?.code;
       value.fulfillment_id =
-        OrderDetail.fulfillment[0].shipment?.fulfillment_id;
+        OrderDetail.fulfillments[0].shipment?.fulfillment_id;
     }
 
     dispatch(UpdateShipmentAction(value, onUpdateSuccess));
@@ -851,7 +851,7 @@ const OrderDetail = () => {
             {/*--- end product ---*/}
 
             {/*--- shipment ---*/}
-            {OrderDetail?.fulfillment !== undefined ? (
+            {(OrderDetail?.fulfillments?.length !== 0) ? (
               <Card
                 className="margin-top-20"
                 title={
@@ -870,9 +870,9 @@ const OrderDetail = () => {
                     <div className="text-menu">
                       <EyeOutlined />
                       <span>
-                        {OrderDetail?.fulfillment !== null &&
-                          OrderDetail?.fulfillment !== undefined &&
-                          OrderDetail?.fulfillment.map(
+                        {OrderDetail?.fulfillments !== null &&
+                          OrderDetail?.fulfillments !== undefined &&
+                          OrderDetail?.fulfillments.map(
                             (item, index) => item.shipment?.requirements
                           )}
                       </span>
@@ -880,9 +880,9 @@ const OrderDetail = () => {
                     <div className="text-menu">
                       <CalendarOutlined />{" "}
                       <span>
-                        {OrderDetail?.fulfillment !== null &&
-                          OrderDetail?.fulfillment !== undefined &&
-                          OrderDetail?.fulfillment.map((item, index) =>
+                        {OrderDetail?.fulfillments !== null &&
+                          OrderDetail?.fulfillments !== undefined &&
+                          OrderDetail?.fulfillments.map((item, index) =>
                             moment(item.shipment?.created_date).format(
                               "DD/MM/YYYY HH:MM a"
                             )
@@ -920,9 +920,9 @@ const OrderDetail = () => {
                               className="text-field"
                               style={{ color: "#2A2A86", fontWeight: 500 }}
                             >
-                              {OrderDetail?.fulfillment !== null &&
-                                OrderDetail?.fulfillment !== undefined &&
-                                OrderDetail?.fulfillment.map(
+                              {OrderDetail?.fulfillments !== null &&
+                                OrderDetail?.fulfillments !== undefined &&
+                                OrderDetail?.fulfillments.map(
                                   (item, index) => item.id
                                 )}
                             </p>
@@ -945,9 +945,9 @@ const OrderDetail = () => {
                         </Col>
                         <Col span={5}>
                           <p className="text-field">
-                            {OrderDetail?.fulfillment !== null &&
-                              OrderDetail?.fulfillment !== undefined &&
-                              OrderDetail?.fulfillment.map(
+                            {OrderDetail?.fulfillments !== null &&
+                              OrderDetail?.fulfillments !== undefined &&
+                              OrderDetail?.fulfillments.map(
                                 (item, index) =>
                                   item.shipment
                                     ?.shipping_fee_informed_to_customer !==
@@ -977,9 +977,9 @@ const OrderDetail = () => {
                         </Col>
                         <Col span={5}>
                           <p className="text-field">
-                            {OrderDetail?.fulfillment !== null &&
-                              OrderDetail?.fulfillment !== undefined &&
-                              OrderDetail?.fulfillment.map((item, index) =>
+                            {OrderDetail?.fulfillments !== null &&
+                              OrderDetail?.fulfillments !== undefined &&
+                              OrderDetail?.fulfillments.map((item, index) =>
                                 item.shipment?.shipping_fee_paid_to_3pls !==
                                   undefined &&
                                 item.shipment?.shipping_fee_paid_to_3pls !==
@@ -1475,9 +1475,9 @@ const OrderDetail = () => {
                   </Col>
                   <Col span={15}>
                     <span>
-                      {OrderDetail?.fulfillment !== null &&
-                        OrderDetail?.fulfillment !== undefined &&
-                        OrderDetail?.fulfillment.map((item, index) =>
+                      {OrderDetail?.fulfillments !== null &&
+                        OrderDetail?.fulfillments !== undefined &&
+                        OrderDetail?.fulfillments.map((item, index) =>
                           moment(item.shipment?.created_date).format(
                             "DD/MM/YYYY HH:MM a"
                           )

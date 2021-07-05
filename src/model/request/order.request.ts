@@ -28,7 +28,7 @@ export interface OrderRequest {
   discounts: Array<OrderDiscountRequest> | null;
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
-  fulfillment: Array<FulFillmentRequest> | null;
+  fulfillments: Array<FulFillmentRequest> | null;
   payments: Array<OrderPaymentRequest> | null;
 }
 
