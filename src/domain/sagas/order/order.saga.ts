@@ -1,5 +1,5 @@
 import { unauthorizedAction } from './../../actions/auth/auth.action';
-import { getSources, getOrderDetail } from './../../../service/order/order.service';
+import { getSources, getOrderDetail, updateFulFillmentStatus, updateShipment, updatePayment } from './../../../service/order/order.service';
 import { SourceResponse } from './../../../model/response/order/source.response';
 import { PaymentMethodResponse } from './../../../model/response/order/paymentmethod.response';
 import { getPaymentMethod, orderPostApi } from "../../../service/order/order.service";
@@ -9,18 +9,16 @@ import { put, call, takeLatest } from "redux-saga/effects";
 import { HttpStatus } from "config/HttpStatus";
 import { YodyAction } from "../../../base/BaseAction";
 import { showError } from "utils/ToastUtils";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { OrderResponse } from "model/response/order/order.response";
+import { hideLoading, showLoading } from 'domain/actions/loading.action';
 
 function* orderCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
-    yield put(showLoading());
     let response: BaseResponse<OrderResponse> = yield call(
       orderPostApi,
       request
     );
-    yield put(hideLoading());
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -30,7 +28,67 @@ function* orderCreateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    showError(error);
+  }
+}
+
+function* updateFulFillmentStatusSaga(action: YodyAction) {
+  const { request, setData } = action.payload;
+  try {
+    let response: BaseResponse<OrderResponse> = yield call(
+      updateFulFillmentStatus,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError(error);
+  }
+}
+
+function* updatePaymentSaga(action: YodyAction) {
+  const { request, order_id, setData } = action.payload;
+  try {
+    let response: BaseResponse<OrderResponse> = yield call(
+      updatePayment,
+      request,
+      order_id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError(error);
+  }
+}
+
+function* updateShipmentSaga(action: YodyAction) {
+  const { request, setData } = action.payload;
+  try {
+    let response: BaseResponse<OrderResponse> = yield call(
+      updateShipment,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
     showError(error);
   }
 }
@@ -63,8 +121,7 @@ function* getDataSource(action: YodyAction) {
   } catch (error) {}
 }
 
-
-export function* orderDetailSaga(action: YodyAction) {
+function* orderDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
     let response: BaseResponse<OrderResponse> = yield call(
@@ -92,7 +149,10 @@ function* OrderOnlineSaga() {
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
-  yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga)
+  yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga);
+  yield takeLatest(OrderType.UPDATE_FULFILLMENT_METHOD, updateFulFillmentStatusSaga);
+  yield takeLatest(OrderType.UPDATE_SHIPPING_METHOD, updateShipmentSaga);
+  yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD,updatePaymentSaga);
 }
 
 export default OrderOnlineSaga;

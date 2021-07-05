@@ -11,3 +11,9 @@ export const getCustomers = (query : CustomerSearchQuery): Promise<BaseResponse<
   let link = `${ApiConfig.CUSTOMER}/customers?${params}`;
   return BaseAxios.get(link);
 };
+
+
+export const getDetailCustomer = (id: number): Promise<BaseResponse<CustomerResponse>> => {
+  let link = `${ApiConfig.CUSTOMER}/customers/${id}`;
+  return BaseAxios.get(link);
+};

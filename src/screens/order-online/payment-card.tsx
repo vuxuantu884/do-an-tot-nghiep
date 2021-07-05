@@ -1,14 +1,5 @@
 // @ts-ignore
-import {
-  Button,
-  Card,
-  Row,
-  Col,
-  Radio,
-  InputNumber,
-  Form,
-  Space,
-} from "antd";
+import { Button, Card, Row, Col, Radio, InputNumber, Form, Space } from "antd";
 
 import {
   BugOutlined,
@@ -21,7 +12,7 @@ import YdCoin from "component/icon/YdCoin";
 // @ts-ignore
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { useEffect,  useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { PaymentMethodCode } from "utils/Constants";
 import deleteIcon from "assets/icon/delete.svg";
@@ -55,9 +46,10 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
+
   const ListMaymentMethods = useMemo(() => {
     return listPaymentMethod.filter((item) => item.code !== "card");
-  }, [listPaymentMethod]);
+  }, [dispatch, listPaymentMethod]);
 
   const handleInputPoint = (index: number, point: number) => {
     paymentData[index].point = point;
@@ -85,7 +77,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
         amount: 0,
         paid_amount: 0,
         return_amount: 0,
-        status: "",
+        status: "paid",
         name: paymentMaster.name,
         code: paymentMaster.code,
         payment_method: paymentMaster.name,
@@ -113,6 +105,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     setPaymentData([...paymentData]);
     props.setPayments([...paymentData]);
   };
+
+  console.log(listPaymentMethod);
 
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
@@ -241,7 +235,9 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                   fontSize: "20px",
                 }}
               >
-                <span className="t-result-blue">{formatCurrency(props.amount)}</span>
+                <span className="t-result-blue">
+                  {formatCurrency(props.amount)}
+                </span>
               </Col>
             </Row>
 

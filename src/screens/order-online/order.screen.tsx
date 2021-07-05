@@ -6,17 +6,13 @@ import { Select } from "component/common/select";
 import { useHistory } from "react-router-dom";
 import "assets/css/v2/_sale-order.scss";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  CustomerResponse,
-} from "model/response/customer/customer.response";
-
+import { CustomerResponse } from "model/response/customer/customer.response";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderItemModel } from "model/other/Order/order-model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { showSuccess } from "utils/ToastUtils";
 import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import {
   BillingAddress,
   FulFillmentRequest,
@@ -27,18 +23,18 @@ import {
   ShipmentRequest,
   ShippingAddress,
 } from "model/request/order.request";
-import {
-  orderCreateAction,
-  PaymentMethodGetList,
-} from "domain/actions/order/order.action";
+import { orderCreateAction } from "domain/actions/order/order.action";
 import ShipmentCard from "./shipment-card";
 import ProductCard from "./product-card";
 import PaymentCard from "./payment-card";
 import CustomerCard from "./customer-card";
-import ContentContainer from 'component/container/content.container';
-import CreateBillStep from 'component/header/create-bill-step';
+import ContentContainer from "component/container/content.container";
+import CreateBillStep from "component/header/create-bill-step";
+import { OrderResponse } from "model/response/order/order.response";
+import { OrderStatus, TaxTreatment } from "utils/Constants";
 //#endregion
 
+var typeButton = -1;
 export default function Order() {
   //#region State
   const dispatch = useDispatch();
@@ -58,9 +54,6 @@ export default function Order() {
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  const [listPaymentMethod, setListPaymentMethod] = useState<
-    Array<PaymentMethodResponse>
-  >([]);
   //#endregion
 
   //#region Customer
@@ -124,7 +117,7 @@ export default function Order() {
     action: "", //finalized
     store_id: null,
     price_type: "retail_price", //giá bán lẻ giá bán buôn
-    tax_treatment: "test",
+    tax_treatment: TaxTreatment.INCLUSIVE,
     delivery_service_provider_id: null,
     delivery_fee: null,
     shipping_fee_informed_to_customer: null,
@@ -149,24 +142,17 @@ export default function Order() {
     fulfillment: [],
     shipping_address: null,
     billing_address: null,
-    pre_payments: null,
+    payments: [],
   };
+  
 
   //#region Order
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
-    setAccounts(data.items);
-  }, []);
 
   const initialForm: OrderRequest = {
     ...initialRequest,
     shipping_address: shippingAddress,
     billing_address: billingAddress,
   };
-
-  const onCreateSuccess = useCallback(() => {
-    showSuccess("Thêm đơn hàng thành công");
-    history.push("/list-orders");
-  }, [history]);
 
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
@@ -191,7 +177,9 @@ export default function Order() {
     };
 
     let listFullfillmentRequest = [];
-    listFullfillmentRequest.push(request);
+    if (paymentMethod !== 3) {
+      listFullfillmentRequest.push(request);
+    }
     return listFullfillmentRequest;
   };
 
@@ -253,24 +241,41 @@ export default function Order() {
     return listDiscountRequest;
   };
 
+  const onCreateSuccess = useCallback(
+    (value: OrderResponse) => {
+      showSuccess("Thêm đơn hàng thành công");
+      history.push(`/order-online/detail/${value.id}`);
+    },
+    [history]
+  );
+
   const onFinish = (values: OrderRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    values.fulfillment = lstFulFillment;
+    if (typeButton === 0) {
+      values.fulfillment = [];
+      values.payments = [];
+      values.action = OrderStatus.DRAFT;
+    } else {
+      if (lstFulFillment != null) {
+        values.fulfillment = lstFulFillment;
+      }
+      values.action = "finalized";
+      values.payments = payments;
+    }
+
     values.items = items;
     values.discounts = lstDiscount;
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
-    values.pre_payments = payments;
     values.customer_id = customer?.id;
     dispatch(orderCreateAction(values, onCreateSuccess));
   };
   //#endregion
 
-  useEffect(() => {
-    dispatch(PaymentMethodGetList(setListPaymentMethod));
-  }, [dispatch, setListPaymentMethod]);
-
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
+    setAccounts(data.items);
+  }, []);
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
@@ -280,169 +285,188 @@ export default function Order() {
       title="Quản lý chất liệu"
       breadcrumb={[
         {
-          name: 'Tổng quan',
-          path: '/',
+          name: "Tổng quan",
+          path: "/",
         },
         {
-          name: 'Đơn hàng',
+          name: "Đơn hàng",
         },
         {
-          name: 'Tạo mới đơn hàng',
+          name: "Tạo mới đơn hàng",
         },
       ]}
-      extra={<CreateBillStep />}
+      extra={<CreateBillStep status="draff" />}
     >
-    <div className="orders">
-      <Form
-        layout="vertical"
-        initialValues={initialForm}
-        ref={formRef}
-        onFinish={onFinish}
-      >
-        <Form.Item noStyle hidden name="currency">
-          <Input></Input>
-        </Form.Item>
-        <Form.Item noStyle hidden name="account_code">
-          <Input></Input>
-        </Form.Item>
-        <Form.Item noStyle hidden name="tax_treatment">
-          <Input></Input>
-        </Form.Item>
-        <Row gutter={20}>
-          {/* Left Side */}
-          <Col md={18}>
-            {/*--- customer ---*/}
-            <CustomerCard
-              InfoCustomerSet={onChangeInfoCustomer}
-              ShippingAddressChange={onChangeShippingAddress}
-              BillingAddressChange={onChangeBillingAddress}
-            />
-            {/*--- product ---*/}
-            <ProductCard
-              changeInfo={onChangeInfoProduct}
-              selectStore={onStoreSelect}
-              storeId={storeId}
-            />
-            {/*--- end product ---*/}
-            {/*--- shipment ---*/}
-            <ShipmentCard
-              setShipmentMethodProps={onShipmentSelect}
-              shipmentMethod={shipmentMethod}
-              storeId={storeId}
-            />
-            <PaymentCard
-              setSelectedPaymentMethod={changePaymentMethod}
-              setPayments={onPayments}
-              paymentMethod={paymentMethod}
-              amount={orderAmount}
-            />
-          </Col>
-          {/* Right Side */}
-          <Col md={6}>
-            <Card
-              title={
-                <Space>
-                  <ProfileOutlined />
-                  Thông tin đơn hàng
-                </Space>
-              }
-            >
-              <div className="padding-20">
-                <Form.Item
-                  label="Nhân viên bán hàng"
-                  name="assignee_code"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn nhân viên bán hàng",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="select-with-search"
-                    showSearch
-                    showArrow
-                    placeholder="Chọn nhân viên bán hàng"
-                    filterOption={(input, option) => {
-                      if (option) {
-                        return (
-                          option.children
-                            .toLowerCase()
-                            .indexOf(input.toLowerCase()) >= 0
-                        );
-                      }
-                      return false;
-                    }}
+      <div className="orders">
+        <Form
+          layout="vertical"
+          initialValues={initialForm}
+          ref={formRef}
+          onFinish={onFinish}
+        >
+          <Form.Item noStyle hidden name="action">
+            <Input></Input>
+          </Form.Item>
+          <Form.Item noStyle hidden name="currency">
+            <Input></Input>
+          </Form.Item>
+          <Form.Item noStyle hidden name="account_code">
+            <Input></Input>
+          </Form.Item>
+          <Form.Item noStyle hidden name="tax_treatment">
+            <Input></Input>
+          </Form.Item>
+          <Row gutter={20}>
+            {/* Left Side */}
+            <Col md={18}>
+              {/*--- customer ---*/}
+              <CustomerCard
+                InfoCustomerSet={onChangeInfoCustomer}
+                ShippingAddressChange={onChangeShippingAddress}
+                BillingAddressChange={onChangeBillingAddress}
+              />
+              {/*--- product ---*/}
+              <ProductCard
+                changeInfo={onChangeInfoProduct}
+                selectStore={onStoreSelect}
+                storeId={storeId}
+              />
+              {/*--- end product ---*/}
+              {/*--- shipment ---*/}
+              <ShipmentCard
+                setShipmentMethodProps={onShipmentSelect}
+                shipmentMethod={shipmentMethod}
+                storeId={storeId}
+              />
+              <PaymentCard
+                setSelectedPaymentMethod={changePaymentMethod}
+                setPayments={onPayments}
+                paymentMethod={paymentMethod}
+                amount={orderAmount}
+              />
+            </Col>
+            {/* Right Side */}
+            <Col md={6}>
+              <Card
+                title={
+                  <Space>
+                    <ProfileOutlined />
+                    Thông tin đơn hàng
+                  </Space>
+                }
+              >
+                <div className="padding-20">
+                  <Form.Item
+                    label="Nhân viên bán hàng"
+                    name="assignee_code"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn nhân viên bán hàng",
+                      },
+                    ]}
                   >
-                    {accounts.map((item, index) => (
-                      <Select.Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.code}
-                      >
-                        {item.full_name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-                <Form.Item
-                  label="Tham chiếu"
-                  name="reference"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
-                >
-                  <Input placeholder="Điền tham chiếu" />
-                </Form.Item>
-                <Form.Item
-                  label="Đường dẫn"
-                  name="url"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
-                >
-                  <Input placeholder="Điền đường dẫn" />
-                </Form.Item>
-              </div>
-            </Card>
-            <Card
-              className="margin-top-20"
-              title={
-                <Space>
-                  <ProfileOutlined />
-                  Thông tin bổ sung
-                </Space>
-              }
-            >
-              <div className="padding-20">
-                <Form.Item
-                  name="note"
-                  label="Ghi chú"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
-                >
-                  <Input.TextArea placeholder="Điền Ghi chú" />
-                </Form.Item>
-                <Form.Item
-                  label="Tag"
-                  name="tags"
-                  tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
-                >
-                  <Select
-                    mode="tags"
-                    placeholder="Nhập tags"
-                    tokenSeparators={[","]}
-                  ></Select>
-                </Form.Item>
-              </div>
-            </Card>
-          </Col>
-        </Row>
-        <div className="margin-top-10" style={{ textAlign: "right" }}>
-          <Space size={12}>
-            <Button>Huỷ</Button>
-            <Button type="primary" htmlType="submit">
-              Lưu
-            </Button>
-          </Space>
-        </div>
-      </Form>
-    </div>
+                    <Select
+                      className="select-with-search"
+                      showSearch
+                      showArrow
+                      placeholder="Chọn nhân viên bán hàng"
+                      filterOption={(input, option) => {
+                        if (option) {
+                          return (
+                            option.children
+                              .toLowerCase()
+                              .indexOf(input.toLowerCase()) >= 0
+                          );
+                        }
+                        return false;
+                      }}
+                    >
+                      {accounts.map((item, index) => (
+                        <Select.Option
+                          style={{ width: "100%" }}
+                          key={index.toString()}
+                          value={item.code}
+                        >
+                          {item.full_name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                  <Form.Item
+                    label="Tham chiếu"
+                    name="reference"
+                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  >
+                    <Input placeholder="Điền tham chiếu" />
+                  </Form.Item>
+                  <Form.Item
+                    label="Đường dẫn"
+                    name="url"
+                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  >
+                    <Input placeholder="Điền đường dẫn" />
+                  </Form.Item>
+                </div>
+              </Card>
+              <Card
+                className="margin-top-20"
+                title={
+                  <Space>
+                    <ProfileOutlined />
+                    Thông tin bổ sung
+                  </Space>
+                }
+              >
+                <div className="padding-20">
+                  <Form.Item
+                    name="note"
+                    label="Ghi chú"
+                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  >
+                    <Input.TextArea placeholder="Điền Ghi chú" />
+                  </Form.Item>
+                  <Form.Item
+                    label="Tag"
+                    name="tags"
+                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                  >
+                    <Select
+                      className="ant-select-hashtag"
+                      dropdownClassName="ant-select-dropdown-hashtag"
+                      mode="tags"
+                      placeholder="Nhập tags"
+                      tokenSeparators={[","]}
+                    ></Select>
+                  </Form.Item>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+          <div className="margin-top-10" style={{ textAlign: "right" }}>
+            <Space size={12}>
+              <Button>Huỷ</Button>
+              <Button
+                onClick={() => {
+                  typeButton = 0;
+                  formRef.current?.submit();
+                }}
+              >
+                Lưu nháp
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => {
+                  typeButton = 1;
+                  formRef.current?.submit();
+                }}
+              >
+                Lưu và duyệt
+              </Button>
+            </Space>
+          </div>
+        </Form>
+      </div>
     </ContentContainer>
   );
 }

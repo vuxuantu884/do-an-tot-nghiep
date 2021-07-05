@@ -2,10 +2,8 @@
 import {
   Button,
   Card,
-  Input,
   Row,
   Col,
-  Select,
   Form,
   Space,
   Typography,
@@ -14,30 +12,52 @@ import {
   Checkbox,
   Tooltip,
   Table,
+  Avatar,
+  Tag,
+  Collapse,
+  Radio,
+  DatePicker,
+  Input,
+  FormInstance,
 } from "antd";
 import documentIcon from "../../assets/img/document.svg";
-import PaymentCard from "./payment-card";
-import ShipmentCard from "./shipment-card";
+import UpdatePaymentCard from "./update-payment-card";
 import {
   useState,
   useCallback,
   useLayoutEffect,
-  useMemo,
   useRef,
   useEffect,
+  createRef,
 } from "react";
-import { useDispatch } from "react-redux";
-import { OrderPaymentRequest } from "model/request/order.request";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  OrderPaymentRequest,
+  UpdateFulFillmentStatusRequest,
+  UpdateShipmentRequest,
+} from "model/request/order.request";
 import { AccountResponse } from "model/account/account.model";
 import { useHistory } from "react-router";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import {
+  AccountSearchAction,
+  ShipperGetListAction,
+} from "domain/actions/account/account.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderItemModel } from "model/other/Order/order-model";
-import { OrderDetailAction } from "domain/actions/order/order.action";
-import { showSuccess } from "utils/ToastUtils";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import {
+  OrderDetailAction,
+  UpdateFulFillmentStatusAction,
+  UpdateShipmentAction,
+} from "domain/actions/order/order.action";
+import {
+  CreditCardOutlined,
+  ProfileOutlined,
+  EyeOutlined,
+  CalendarOutlined,
+  CaretRightOutlined,
+  ShopOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import "assets/css/v2/_sale-order.scss";
-import { Moment } from "moment";
 import AddAddressModal from "./modal/addAddressModal";
 import EditCustomerModal from "./modal/editCustomerModal";
 import peopleIcon2 from "assets/img/people.svg";
@@ -48,14 +68,27 @@ import callIcon from "assets/img/call.svg";
 import locationIcon from "assets/img/location.svg";
 import deleteIcon from "assets/icon/delete.svg";
 import giftIcon from "assets/icon/gift.svg";
-import { EditOutlined } from "@ant-design/icons";
 import productIcon from "../../assets/img/cube.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { useParams } from "react-router-dom";
+import ContentContainer from "component/container/content.container";
+import CreateBillStep from "component/header/create-bill-step";
+import { Link } from "react-router-dom";
 import {
   OrderLineItemResponse,
   OrderResponse,
 } from "model/response/order/order.response";
+import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import moment from "moment";
+import { formatCurrency } from "utils/AppUtils";
+import { showSuccess } from "utils/ToastUtils";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { StoreDetailAction } from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
+import { Select } from "component/common/select";
+
+const { Panel } = Collapse;
 //#endregion
 
 type OrderParam = {
@@ -64,69 +97,42 @@ type OrderParam = {
 
 const OrderDetail = () => {
   const { id } = useParams<OrderParam>();
-  let OrderId = parseInt(id);
+  let OrderId = id;
   //#region state
   const dispatch = useDispatch();
   const history = useHistory();
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  const [storeId, setStoreId] = useState<number | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const [assignCode, setAssignCode] = useState<string>("");
-  const [reference, setReference] = useState<string>("");
-  const [url, setUrl] = useState<string>("");
-  const [tag, setTag] = useState<string>("");
-  const [shipmentType, setShipmentType] = useState<number>(4);
   const [paymentType, setPaymentType] = useState<number>(3);
-  const [isVisibleAssignCode, setVisibleAssignCode] = useState<boolean>(false);
-  const [orderAmount, setOrderAmount] = useState<number>(0);
-  const [ShipFeeCustomer, setShipFeeCustomer] = useState<number>(0);
-  const [ShipDeliveryFee, setShipDeliveryFee] = useState<number>(0);
-  const [ShipDeliveryPartner, setShipDeliveryPartner] = useState<number | null>(
-    null
-  );
-  const [RequirementShip, setRequirementShip] = useState<string>("");
-  const [CODMoney, setCODMoney] = useState<number>(0);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
-
   const [isVisibleAddress, setVisibleAddress] = useState(false);
+  const [isVisibleShipping, setVisibleShipping] = useState(false);
   const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
   const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
+  const [shipmentMethod, setShipmentMethod] = useState<number>(4);
+  const [storeDetail, setStoreDetail] = useState<StoreResponse>();
+  const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
+  const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
+    null
+  );
   const [amount, setAmount] = useState<number>(0);
   //#endregion
 
   const isFirstLoad = useRef(true);
 
+  //#region Orther
   const handleVisibleBillingAddressChange = (value: boolean) => {
     setVisibleBillingAddress(value);
   };
 
-  const onShipmentSelect = (shipmentType: number) => {
-    setShipmentType(shipmentType);
-  };
-
-  const ChangeShipFeeCustomer = (item: number) => {
-    setShipFeeCustomer(item);
-  };
-
-  const ChangeShipDeliveryFee = (item: number) => {
-    setShipDeliveryFee(item);
-  };
-
-  const ChangeShipDeliveryPartner = (item: number) => {
-    setShipDeliveryPartner(item);
-  };
-  const ChangeRequirementShip = (item: string) => {
-    setRequirementShip(item);
+  const ShowShipping = () => {
+    setVisibleShipping(true);
   };
 
   const onPaymentSelect = (paymentType: number) => {
     setPaymentType(paymentType);
-  };
-
-  const CodMoneyChange = (value: number) => {
-    setCODMoney(value);
   };
 
   const CancleConfirmAddress = useCallback(() => {
@@ -149,43 +155,37 @@ const OrderDetail = () => {
     setPayments(value);
   };
 
-  const onChangeAssignCode = (value: string) => {
-    setAssignCode(value);
-    setVisibleAssignCode(false);
-  };
-
-  const onChangeReference = (value: string) => {
-    setReference(value);
-  };
-
-  const onChangeUrl = (value: string) => {
-    setUrl(value);
-  };
-
   const ShowBillingAddress = () => {
     setVisibleBilling(!isVisibleBilling);
   };
+  //#endregion
 
-  const onChangeTag = (value: []) => {
-    let strTag = "";
-    value.forEach((element) => {
-      strTag = strTag + element + ",";
-    });
+  // const onChangeTag = (value: []) => {
+  //   let strTag = "";
+  //   value.forEach((element) => {
+  //     strTag = strTag + element + ",";
+  //   });
 
-    setTag(strTag);
-  };
+  //   setTag(strTag);
+  // };
+  const formRef = createRef<FormInstance>();
 
-  const onCreateSuccess = useCallback(() => {
-    showSuccess("Thêm đơn hàng thành công");
-    history.push("/list-orders");
-  }, [history]);
-
-  //#region Modal
   const ShowAddressModal = () => {
     setVisibleAddress(true);
     setVisibleShippingAddress(false);
     setVisibleBillingAddress(false);
   };
+
+  useEffect(() => {
+    if (OrderDetail?.store_id != null) {
+      dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
+    }
+  }, [dispatch, OrderDetail?.store_id]);
+
+  const shipping_requirements = useSelector(
+    (state: RootReducerType) =>
+      state.bootstrapReducer.data?.shipping_requirement
+  );
 
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -196,13 +196,20 @@ const OrderDetail = () => {
     isFirstLoad.current = false;
   }, [dispatch, OrderId]);
 
-  const total = useMemo(() => {
-    return orderAmount;
-  }, [orderAmount]);
+  useEffect(() => {
+    if (OrderDetail != null) {
+      dispatch(CustomerDetail(OrderDetail.customer_id, setCustomerDetail));
+    }
+  }, [dispatch, OrderDetail]);
 
+  //#region Product
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
     setAccounts(data.items);
   }, []);
+
+  const ShipMethodOnChange = (value: number) => {
+    setShipmentMethod(value);
+  };
 
   const onDeleteItem = (index: number) => {
     if (OrderDetail != null) {
@@ -214,6 +221,10 @@ const OrderDetail = () => {
       setOrderDetail(_items);
     }
   };
+
+  useLayoutEffect(() => {
+    dispatch(ShipperGetListAction(setShipper));
+  }, [dispatch]);
 
   useLayoutEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -229,8 +240,9 @@ const OrderDetail = () => {
           <div className="d-flex align-items-center">
             <Button
               type="text"
-              className="p-0 yody-pos-delete-free-form"
+              className="p-0 ant-btn-custom"
               onClick={() => onDeleteItem(index)}
+              style={{ float: "left", marginRight: "13px" }}
             >
               <img src={deleteIcon} alt="" />
             </Button>
@@ -267,8 +279,8 @@ const OrderDetail = () => {
     ),
     className: "yody-pos-quantity text-center",
     width: 125,
-    render: (l: OrderItemModel, item: any, index: number) => {
-      return <div className="yody-pos-qtt">35</div>;
+    render: (l: OrderLineItemResponse, item: any, index: number) => {
+      return <div className="yody-pos-qtt">{l.quantity}</div>;
     },
   };
 
@@ -276,8 +288,8 @@ const OrderDetail = () => {
     title: "Đơn giá",
     className: "yody-pos-price text-right",
     //width: 100,
-    render: (l: OrderItemModel, item: any, index: number) => {
-      return <div className="yody-pos-price">399.000</div>;
+    render: (l: OrderLineItemResponse, item: any, index: number) => {
+      return <div className="yody-pos-price">{formatCurrency(l.price)}</div>;
     },
   };
 
@@ -286,8 +298,16 @@ const OrderDetail = () => {
     align: "center",
     width: 165,
     className: "yody-table-discount text-right",
-    render: (l: OrderItemModel, item: any, index: number) => {
-      return <div className="site-input-group-wrapper">10%</div>;
+    render: (l: OrderLineItemResponse, item: any, index: number) => {
+      return (
+        <div className="site-input-group-wrapper">
+          {l.discount_rate !== null
+            ? l.discount_rate
+            : l.discount_value !== null
+            ? formatCurrency(l.discount_value)
+            : 0}
+        </div>
+      );
     },
   };
 
@@ -295,8 +315,8 @@ const OrderDetail = () => {
     title: "Tổng tiền",
     className: "yody-table-total-money text-right",
     // width: 100,
-    render: (l: OrderItemModel, item: any, index: number) => {
-      return <div>1000000</div>;
+    render: (l: OrderLineItemResponse, item: any, index: number) => {
+      return <div>{formatCurrency(l.amount)}</div>;
     },
   };
 
@@ -307,12 +327,91 @@ const OrderDetail = () => {
     DiscountColumnt,
     TotalPriceColumn,
   ];
+  //#endregion
+  let customerBirthday = moment(customerDetail?.birthday).format("DD/MM/YYYY");
 
+  //#region Update Fulfillment Status
+  const onUpdateSuccess = useCallback(
+    (value: OrderResponse) => {
+      showSuccess("Xuất kho thành công");
+      history.push(`/order-online/detail/${value.id}`);
+    },
+    [history]
+  );
+
+  const PackOrder = () => {
+    let value: UpdateFulFillmentStatusRequest = {
+      order_id: "",
+      fulfillment_id: null,
+      status: "",
+    };
+    value.order_id = OrderDetail?.id;
+    let fulfillment_id =
+      OrderDetail?.fulfillment !== null ? OrderDetail?.fulfillment[0].id : null;
+    value.fulfillment_id = fulfillment_id;
+    value.status = "shipping";
+    dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
+  };
+  //#endregion
+
+  //#region
+  let initialFormUpdateShipment: UpdateShipmentRequest = {
+    order_id: "",
+    code: "",
+    delivery_service_provider_id: null, //id người shipper
+    delivery_service_provider_type: "", //shipper
+    handover_id: null,
+    service: null,
+    fee_type: "",
+    fee_base_on: "",
+    delivery_fee: null,
+    shipping_fee_paid_to_3pls: null,
+    expected_received_date: "",
+    reference_status: "",
+    shipping_fee_informed_to_customer: null,
+    reference_status_explanation: "",
+    cancel_reason: "",
+    tracking_code: "",
+    tracking_url: "",
+    received_date: "",
+    sender_address_id: null,
+    note_to_shipper: "",
+    requirements: "",
+    fulfillment_id: "",
+  };
+
+  const onFinishUpdateShipment = (value: UpdateShipmentRequest) => {
+    value.expected_received_date = value.dating_ship?.utc().format();
+    if (OrderDetail?.fulfillment !== undefined && OrderDetail?.fulfillment) {
+      value.code = OrderDetail.fulfillment[0].shipment?.code;
+      value.fulfillment_id =
+        OrderDetail.fulfillment[0].shipment?.fulfillment_id;
+    }
+
+    dispatch(UpdateShipmentAction(value, onUpdateSuccess));
+  };
+
+  //#endregion
   return (
-    <div>
-      <Form layout="vertical">
+    <ContentContainer
+      title="Quản lý chất liệu"
+      breadcrumb={[
+        {
+          name: "Tổng quan",
+          path: "/",
+        },
+        {
+          name: "Đơn hàng",
+        },
+        {
+          name: "Đơn hàng " + id,
+        },
+      ]}
+      extra={<CreateBillStep status={OrderDetail?.status} />}
+    >
+      <div className="orders">
         <Row gutter={24}>
-          <Col xs={24} lg={17}>
+          <Col xs={24} lg={18}>
             {/*--- customer ---*/}
             <Card
               className="card-block card-block-customer"
@@ -323,14 +422,20 @@ const OrderDetail = () => {
               }
               extra={
                 <div className="d-flex align-items-center form-group-with-search">
-                  <Form.Item>
-                    <label style={{ marginRight: "10px" }}>
-                      Nguồn:{" "}
+                  <span
+                    style={{
+                      float: "left",
+                      lineHeight: "40px",
+                      marginRight: "10px",
+                    }}
+                  >
+                    Nguồn:
+                    <span className="text-error">
                       <span style={{ color: "red" }}>
                         {OrderDetail?.source}
                       </span>
-                    </label>
-                  </Form.Item>
+                    </span>
+                  </span>
                 </div>
               }
             >
@@ -340,43 +445,19 @@ const OrderDetail = () => {
                   justify="space-between"
                   className="row-customer-detail padding-custom"
                 >
-                  <Row align="middle" className="customer-detail-name">
-                    <Space>
-                      <span className="cdn-avatar">
-                        <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          {" "}
-                          <circle
-                            opacity="0.2"
-                            cx="16"
-                            cy="16"
-                            r="16"
-                            fill="#6966FF"
-                          />{" "}
-                          <path
-                            d="M12.853 22L13.8132 19.1307H18.1882L19.1541 22H21.4041L17.3018 10.3636H14.6996L10.603 22H12.853ZM14.3814 17.4375L15.9553 12.75H16.0462L17.62 17.4375H14.3814Z"
-                            fill="#6C449F"
-                          />{" "}
-                        </svg>
-                      </span>
-                      <span style={{ fontWeight: 500, fontSize: "14px" }}>
-                        {OrderDetail?.customer}
-                      </span>
-                      <span className="cdn-level">Level 1</span>
-                    </Space>
-                  </Row>
-
+                  <Space>
+                    <Avatar size={32}>A</Avatar>
+                    <Link to="#">{customerDetail?.full_name}</Link>
+                    <Tag className="orders-tag orders-tag-vip">
+                      <b>{customerDetail?.customer_level}</b>
+                    </Tag>
+                  </Space>
                   <Space className="customer-detail-phone">
                     <span className="customer-detail-icon">
                       <img src={callIcon} alt="" />
                     </span>
                     <span className="customer-detail-text">
-                      {OrderDetail?.customer_phone_number}
+                      {customerDetail?.phone}
                     </span>
                   </Space>
 
@@ -391,7 +472,9 @@ const OrderDetail = () => {
                         style={{ color: "#0080FF" }}
                         strong
                       >
-                        0
+                        {customerDetail?.loyalty === undefined
+                          ? "0"
+                          : customerDetail?.loyalty}
                       </Typography.Text>
                     </span>
                   </Space>
@@ -400,7 +483,9 @@ const OrderDetail = () => {
                     <span className="customer-detail-icon">
                       <img src={bithdayIcon} alt="" />
                     </span>
-                    <span className="customer-detail-text">11/11/2020</span>
+                    <span className="customer-detail-text">
+                      {customerBirthday}
+                    </span>
                   </Space>
                 </Row>
                 <Divider />
@@ -414,15 +499,21 @@ const OrderDetail = () => {
                       <div className="title-address">Địa chỉ giao hàng</div>
                       <Row className="customer-row-info">
                         <img src={peopleIcon2} alt="" style={{ width: 19 }} />{" "}
-                        <span style={{ marginLeft: 9 }}>Ha Noi</span>
+                        <span style={{ marginLeft: 9 }}>
+                          {OrderDetail?.shipping_address?.name}
+                        </span>
                       </Row>
                       <Row className="customer-row-info">
                         <img src={callIcon} alt="" style={{ width: 19 }} />{" "}
-                        <span style={{ marginLeft: 9 }}>0987654321</span>
+                        <span style={{ marginLeft: 9 }}>
+                          {OrderDetail?.shipping_address?.phone}
+                        </span>
                       </Row>
                       <Row className="customer-row-info">
                         <img src={locationIcon} alt="" style={{ width: 19 }} />{" "}
-                        <span style={{ marginLeft: 9 }}>Cau Giay-Ha Noi</span>
+                        <span style={{ marginLeft: 9 }}>
+                          {OrderDetail?.shipping_address?.full_address}
+                        </span>
                       </Row>
                       <Row>
                         <Popover
@@ -484,7 +575,7 @@ const OrderDetail = () => {
                             Ghi chú của khách hàng
                           </label>
                         </div>
-                        <Input.TextArea placeholder="Điền ghi chú" rows={4} />
+                        <span>{OrderDetail?.customer_note}</span>
                       </div>
                     </Col>
                   </Row>
@@ -508,12 +599,16 @@ const OrderDetail = () => {
                       >
                         <div className="title-address">Địa chỉ giao hàng</div>
                         <Row className="customer-row-info">
-                          <img src={peopleIcon2} alt="" style={{ width: 19 }} />{" "}
-                          <span style={{ marginLeft: 9 }}>Do Van A</span>
+                          <img src={peopleIcon2} alt="" style={{ width: 19 }} />
+                          <span style={{ marginLeft: 9 }}>
+                            {OrderDetail?.billing_address?.name}
+                          </span>
                         </Row>
                         <Row className="customer-row-info">
                           <img src={callIcon} alt="" style={{ width: 19 }} />{" "}
-                          <span style={{ marginLeft: 9 }}>0987654321</span>
+                          <span style={{ marginLeft: 9 }}>
+                            {OrderDetail?.billing_address?.phone}
+                          </span>
                         </Row>
                         <Row className="customer-row-info">
                           <img
@@ -522,7 +617,7 @@ const OrderDetail = () => {
                             style={{ width: 19 }}
                           />{" "}
                           <span style={{ marginLeft: 9 }}>
-                            Cau Giay - Ha Noi
+                            {OrderDetail?.billing_address?.full_address}
                           </span>
                         </Row>
                         <Row>
@@ -585,10 +680,7 @@ const OrderDetail = () => {
                               Email hoá đơn đến
                             </label>
                           </div>
-                          <Input
-                            type="email"
-                            placeholder="Nhập email hoá đơn đến"
-                          />
+                          <span>{OrderDetail?.billing_address?.email}</span>
                         </div>
                       </Col>
                     </Row>
@@ -663,11 +755,15 @@ const OrderDetail = () => {
                   />
                 </Row>
 
-                <Row className="sale-product-box-payment" gutter={24}>
+                <Row
+                  className="sale-product-box-payment"
+                  gutter={24}
+                  style={{ paddingTop: "30px" }}
+                >
                   <Col xs={24} lg={12}>
                     <div className="payment-row">
                       <Checkbox
-                        className="checkbox-style"
+                        className="margin-bottom-15"
                         onChange={() => console.log(1)}
                       >
                         Bỏ chiết khấu tự động
@@ -675,7 +771,7 @@ const OrderDetail = () => {
                     </div>
                     <div className="payment-row">
                       <Checkbox
-                        className="checkbox-style"
+                        className="margin-bottom-15"
                         onChange={() => console.log(1)}
                       >
                         Không tính thuế VAT
@@ -683,7 +779,7 @@ const OrderDetail = () => {
                     </div>
                     <div className="payment-row">
                       <Checkbox
-                        className="checkbox-style"
+                        className="margin-bottom-15"
                         onChange={() => console.log(1)}
                       >
                         Bỏ tích điểm tự động
@@ -692,9 +788,34 @@ const OrderDetail = () => {
                   </Col>
                   <Col xs={24} lg={12}>
                     <Row className="payment-row" justify="space-between">
-                      <div className="font-weight-500">Tổng tiền</div>
-                      <div className="font-weight-500 payment-row-money">
-                        Amount
+                      <strong className="font-size-text">Tổng tiền</strong>
+                      <strong className="font-size-text">
+                        {OrderDetail?.total !== undefined &&
+                          OrderDetail?.total !== null &&
+                          formatCurrency(OrderDetail?.total)}
+                      </strong>
+                    </Row>
+
+                    <Row
+                      className="payment-row"
+                      justify="space-between"
+                      align="middle"
+                      style={{ marginTop: "5px" }}
+                    >
+                      <Space align="center">
+                        <Typography.Link
+                          className="font-weight-500"
+                          style={{ borderBottom: "1px dashed #0080FF" }}
+                        >
+                          Chiết khấu
+                        </Typography.Link>
+                        {OrderDetail?.order_discount_rate !== 0
+                          ? OrderDetail?.order_discount_rate
+                          : 0}
+                        %{" "}
+                      </Space>
+                      <div className="font-weight-500 ">
+                        {OrderDetail?.order_discount_value}
                       </div>
                     </Row>
 
@@ -702,46 +823,26 @@ const OrderDetail = () => {
                       className="payment-row"
                       justify="space-between"
                       align="middle"
+                      style={{ marginTop: "5px" }}
                     >
-                      <Space align="center">
-                        <Typography.Link className="font-weight-500">
-                          Chiết khấu
-                        </Typography.Link>
-                        <div className="badge-style badge-danger">
-                          {/* {discountRate !== null ? discountRate : 0}%{" "} */}
-                          0%
-                        </div>
-                      </Space>
-                      <div className="font-weight-500 ">1000</div>
-                    </Row>
-
-                    <Row
-                      className="payment-row"
-                      justify="space-between"
-                      align="middle"
-                    >
-                      <Space align="center">
-                        <Typography.Link className="font-weight-500">
-                          Mã giảm giá
-                        </Typography.Link>
-                        <div className="badge-style badge-primary">jfaj</div>
-                      </Space>
                       <div className="font-weight-500 ">0</div>
                     </Row>
 
-                    <Row className="payment-row" justify="space-between">
+                    <Row
+                      className="payment-row padding-top-10"
+                      justify="space-between"
+                    >
                       <div className="font-weight-500">Phí ship báo khách</div>
-                      <div className="font-weight-500 payment-row-money">
-                        20,000
-                      </div>
+                      <div className="font-weight-500 payment-row-money">0</div>
                     </Row>
-
+                    <Divider className="margin-top-5 margin-bottom-5" />
                     <Row className="payment-row" justify="space-between">
-                      <div className="font-weight-500">Khách cần trả</div>
-                      <div className="font-weight-500 payment-row-money">
-                        {/* {formatCurrency(changeMoney)} */}
-                        Khách cần trả
-                      </div>
+                      <strong className="font-size-text">Khách cần trả</strong>
+                      <strong className="text-success font-size-text">
+                        {OrderDetail?.total !== undefined &&
+                          OrderDetail?.total !== null &&
+                          formatCurrency(OrderDetail?.total)}
+                      </strong>
                     </Row>
                   </Col>
                 </Row>
@@ -750,28 +851,575 @@ const OrderDetail = () => {
             {/*--- end product ---*/}
 
             {/*--- shipment ---*/}
-            <ShipmentCard
-              setShipmentMethodProps={onShipmentSelect}
-              //ShipFeeCustomer={ChangeShipFeeCustomer}
-              // ShipDeliveryFee={ChangeShipDeliveryFee}
-              // RequirementShip={ChangeRequirementShip}
-              // ShipDeliveryPartner={ChangeShipDeliveryPartner}
-              shipmentMethod={shipmentType}
-              storeId={storeId}
-            />
+            {OrderDetail?.fulfillment !== undefined ? (
+              <Card
+                className="margin-top-20"
+                title={
+                  <Space>
+                    <ProfileOutlined />
+                    Đóng gói và giao hàng
+                    <Tag className="orders-tag text-menu">
+                      {OrderDetail?.fulfillment_status !== null
+                        ? OrderDetail?.fulfillment_status
+                        : "Chưa giao hàng"}
+                    </Tag>
+                  </Space>
+                }
+                extra={
+                  <Space size={26}>
+                    <div className="text-menu">
+                      <EyeOutlined />
+                      <span>
+                        {OrderDetail?.fulfillment !== null &&
+                          OrderDetail?.fulfillment !== undefined &&
+                          OrderDetail?.fulfillment.map(
+                            (item, index) => item.shipment?.requirements
+                          )}
+                      </span>
+                    </div>
+                    <div className="text-menu">
+                      <CalendarOutlined />{" "}
+                      <span>
+                        {OrderDetail?.fulfillment !== null &&
+                          OrderDetail?.fulfillment !== undefined &&
+                          OrderDetail?.fulfillment.map((item, index) =>
+                            moment(item.shipment?.created_date).format(
+                              "DD/MM/YYYY HH:MM a"
+                            )
+                          )}
+                      </span>
+                    </div>
+                  </Space>
+                }
+              >
+                <div className="padding-20">
+                  <Collapse
+                    className="orders-timeline"
+                    defaultActiveKey={["1"]}
+                    expandIcon={({ isActive }) => (
+                      <CaretRightOutlined
+                        style={{
+                          float: "right",
+                          paddingTop: "5px",
+                          marginLeft: "120px",
+                        }}
+                        rotate={isActive ? 90 : 0}
+                      />
+                    )}
+                    ghost
+                  >
+                    <Panel
+                      className="orders-timeline-custom"
+                      header={
+                        <Row gutter={24}>
+                          <Col span={18}>
+                            <p className="text-field">Mã vận đơn</p>
+                          </Col>
+                          <Col span={6}>
+                            <p
+                              className="text-field"
+                              style={{ color: "#2A2A86", fontWeight: 500 }}
+                            >
+                              {OrderDetail?.fulfillment !== null &&
+                                OrderDetail?.fulfillment !== undefined &&
+                                OrderDetail?.fulfillment.map(
+                                  (item, index) => item.id
+                                )}
+                            </p>
+                          </Col>
+                        </Row>
+                      }
+                      key="1"
+                    >
+                      <Row gutter={24}>
+                        <Col span={6}>
+                          <p className="text-field">Đối tác giao hàng:</p>
+                        </Col>
+                        <Col span={6}>
+                          <p className="text-field">Viettel Post</p>
+                        </Col>
+                        <Col span={7}>
+                          <p className="text-field">
+                            Phí vận chuyển báo khách:
+                          </p>
+                        </Col>
+                        <Col span={5}>
+                          <p className="text-field">
+                            {OrderDetail?.fulfillment !== null &&
+                              OrderDetail?.fulfillment !== undefined &&
+                              OrderDetail?.fulfillment.map(
+                                (item, index) =>
+                                  item.shipment
+                                    ?.shipping_fee_informed_to_customer !==
+                                    undefined &&
+                                  item.shipment
+                                    ?.shipping_fee_informed_to_customer !==
+                                    null &&
+                                  formatCurrency(
+                                    item.shipment
+                                      ?.shipping_fee_informed_to_customer
+                                  )
+                              )}
+                          </p>
+                        </Col>
+                      </Row>
+                      <Row gutter={24}>
+                        <Col span={6}>
+                          <p className="text-field">Trọng lượng:</p>
+                        </Col>
+                        <Col span={6}>
+                          <p className="text-field">200g</p>
+                        </Col>
+                        <Col span={7}>
+                          <p className="text-field">
+                            Phí vận chuyển trả đối tác:
+                          </p>
+                        </Col>
+                        <Col span={5}>
+                          <p className="text-field">
+                            {OrderDetail?.fulfillment !== null &&
+                              OrderDetail?.fulfillment !== undefined &&
+                              OrderDetail?.fulfillment.map((item, index) =>
+                                item.shipment?.shipping_fee_paid_to_3pls !==
+                                  undefined &&
+                                item.shipment?.shipping_fee_paid_to_3pls !==
+                                  null
+                                  ? item.shipment?.shipping_fee_paid_to_3pls
+                                  : 0
+                              )}
+                          </p>
+                        </Col>
+                      </Row>
+                      {/* <Row className="margin-top-20">
+                          <Col span={12}>
+                            <i className="text-field">
+                              Ngày hẹn giao đơn hàng
+                              {OrderDetail?.fulfillment.map((item, index) =>
+                                moment(
+                                  item.shipment?.expected_received_date
+                                ).format("DD/MM/YYYY HH:MM a")
+                              )}
+                            </i>
+                          </Col>
+                        </Row> */}
+                    </Panel>
+                  </Collapse>
+                </div>
+                <Divider style={{ margin: "0px" }} />
+                <div className="padding-20 text-right">
+                  <Button
+                    type="default"
+                    className="ant-btn-outline fixed-button"
+                    style={{ color: "#737373", border: "1px solid #E5E5E5" }}
+                  >
+                    Hủy đơn giao
+                  </Button>
+                  <Button
+                    type="primary"
+                    className="ant-btn-outline fixed-button"
+                    style={{ marginLeft: "10px" }}
+                    onClick={PackOrder}
+                  >
+                    Xuất kho
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <Card
+                className="margin-top-20"
+                title={
+                  <Space>
+                    <ProfileOutlined />
+                    Đóng gói và giao hàng
+                    <Tag className="orders-tag text-menu">
+                      {OrderDetail?.fulfillment_status !== null
+                        ? OrderDetail?.fulfillment_status
+                        : "Chưa giao hàng"}
+                    </Tag>
+                  </Space>
+                }
+              >
+                {isVisibleShipping === true && (
+                  <div className="padding-20">
+                    <Row gutter={20}>
+                      <Col md={12}>
+                        <Form.Item
+                          label={
+                            <i style={{ marginBottom: "15px" }}>
+                              Lựa chọn 1 trong hình thức giao hàng
+                            </i>
+                          }
+                          required
+                        >
+                          <Radio.Group
+                            value={shipmentMethod}
+                            onChange={(e) => ShipMethodOnChange(e.target.value)}
+                          >
+                            <Space direction="vertical" size={15}>
+                              <Radio value={1}>Chuyển đối tác giao hàng</Radio>
+                              <Radio value={2}>Tự giao hàng</Radio>
+                              <Radio value={3}>Nhận tại cửa hàng</Radio>
+                              <Radio value={4}>Giao hàng sau</Radio>
+                            </Space>
+                          </Radio.Group>
+                        </Form.Item>
+                      </Col>
+                      <Col md={12}>
+                        <Form.Item label="Hẹn giao" name="dating_ship">
+                          <DatePicker
+                            format="DD/MM/YYYY"
+                            style={{ width: "100%" }}
+                            className="r-5 w-100 ip-search"
+                            placeholder="Ngày hẹn giao"
+                          />
+                        </Form.Item>
+                        <Form.Item label="Yêu cầu" name="requirements">
+                          <Select
+                            className="select-with-search"
+                            showSearch
+                            showArrow
+                            style={{ width: "100%" }}
+                            placeholder="Chọn yêu cầu"
+                            filterOption={(input, option) => {
+                              if (option) {
+                                return (
+                                  option.children
+                                    .toLowerCase()
+                                    .indexOf(input.toLowerCase()) >= 0
+                                );
+                              }
+                              return false;
+                            }}
+                          >
+                            {shipping_requirements?.map((item, index) => (
+                              <Select.Option
+                                style={{ width: "100%" }}
+                                key={index.toString()}
+                                value={item.value}
+                              >
+                                {item.name}
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    <Divider />
+                    <Row gutter={20} hidden={shipmentMethod !== 2}>
+                      <Form
+                        initialValues={initialFormUpdateShipment}
+                        ref={formRef}
+                        onFinish={onFinishUpdateShipment}
+                        layout="vertical"
+                      >
+                        <Row gutter={24} style={{padding:"10px"}}>
+                          <Col md={12}>
+                            <Form.Item
+                              label="Đối tác giao hàng"
+                              name="delivery_service_provider_id"
+                            >
+                              <Select
+                                className="select-with-search"
+                                showSearch
+                                style={{ width: "100%" }}
+                                placeholder="Chọn đối tác giao hàng"
+                                suffix={
+                                  <Button
+                                    style={{ width: 36, height: 36 }}
+                                    icon={<PlusOutlined />}
+                                  />
+                                }
+                                filterOption={(input, option) => {
+                                  if (option) {
+                                    return (
+                                      option.children
+                                        .toLowerCase()
+                                        .indexOf(input.toLowerCase()) >= 0
+                                    );
+                                  }
+                                  return false;
+                                }}
+                              >
+                                {shipper?.map((item, index) => (
+                                  <Select.Option
+                                    style={{ width: "100%" }}
+                                    key={index.toString()}
+                                    value={item.id}
+                                  >
+                                    {item.full_name}
+                                  </Select.Option>
+                                ))}
+                              </Select>
+                            </Form.Item>
+                            <Form.Item
+                              name="shipping_fee_paid_to_3pls"
+                              label="Phí ship trả đối tác giao hàng"
+                            >
+                              <Input placeholder="Phí ship trả đối tác giao hàng" />
+                            </Form.Item>
+                          </Col>
+                          <Col md={12}>
+                            <Form.Item
+                              name="shipping_fee_informed_to_customer"
+                              label="Phí ship báo khách"
+                            >
+                              <Input placeholder="Phí ship báo khách" />
+                            </Form.Item>
+                          </Col>
+
+                          <Col md={24}>
+                            <div>
+                              <Button
+                                type="primary"
+                                className="ant-btn-outline fixed-button text-right"
+                                style={{ float: "right" }}
+                                htmlType="submit"
+                              >
+                                Tạo đơn giao hàng
+                              </Button>
+                            </div>
+                          </Col>
+                        </Row>
+                      </Form>
+                    </Row>
+
+                    {/*--- Nhận tại cửa hàng ----*/}
+                    <div
+                      className="receive-at-store"
+                      hidden={shipmentMethod !== 3}
+                    >
+                      <Row style={{ marginBottom: "10px" }}>
+                        Nhận tại cửa hàng
+                      </Row>
+                      <Row className="row-info">
+                        <Space>
+                          <div className="row-info-icon">
+                            <img src={storeBluecon} alt="" width="20px" />
+                          </div>
+                          <div className="row-info-title">Cửa hàng</div>
+                          <div className="row-info-content">
+                            <Typography.Link>
+                              {storeDetail?.name}
+                            </Typography.Link>
+                          </div>
+                        </Space>
+                      </Row>
+                      <Row className="row-info">
+                        <Space>
+                          <div className="row-info-icon">
+                            <img src={callIcon} alt="" width="18px" />
+                          </div>
+                          <div className="row-info-title">Điện thoại</div>
+                          <div className="row-info-content">
+                            {storeDetail?.hotline}
+                          </div>
+                        </Space>
+                      </Row>
+                      <Row className="row-info">
+                        <Space>
+                          <div className="row-info-icon">
+                            <img src={locationIcon} alt="" width="18px" />
+                          </div>
+                          <div className="row-info-title">Địa chỉ</div>
+                          <div className="row-info-content">
+                            {storeDetail?.address}
+                          </div>
+                        </Space>
+                      </Row>
+                    </div>
+
+                    {/*--- Giao hàng sau ----*/}
+                    <Row
+                      className="ship-later-box"
+                      hidden={shipmentMethod !== 4}
+                    ></Row>
+                  </div>
+                )}
+
+                {isVisibleShipping === false && (
+                  <div
+                    className="padding-lef-right"
+                    style={{ paddingTop: "20px" }}
+                  >
+                    <label
+                      className="text-left"
+                      style={{ marginTop: "20px", lineHeight: "40px" }}
+                    >
+                      <i>Chưa tạo đơn giao hàng</i>{" "}
+                    </label>
+                    <Button
+                      type="primary"
+                      className="ant-btn-outline fixed-button text-right"
+                      style={{ float: "right", marginBottom: "20px" }}
+                      onClick={ShowShipping}
+                    >
+                      Giao hàng
+                    </Button>
+                  </div>
+                )}
+              </Card>
+            )}
+
             {/*--- end shipment ---*/}
 
             {/*--- payment ---*/}
-            <PaymentCard
-              setSelectedPaymentMethod={onPaymentSelect}
-              setPayments={onPayments}
-              paymentMethod={paymentType}
-              amount={total}
-            />
+            {OrderDetail !== null &&
+              (OrderDetail.payments?.length !== 0 ? (
+                <Card
+                  className="margin-top-20"
+                  title={
+                    <Space>
+                      <CreditCardOutlined />
+                      Thanh toán
+                      {OrderDetail?.payments !== null
+                        ? OrderDetail?.payments.map(
+                            (item, index) =>
+                              OrderDetail.total !== null &&
+                              (OrderDetail.total - item.paid_amount === 0 ? (
+                                <Tag
+                                  className="orders-tag orders-tag-success"
+                                  style={{ backgroundColor: "#d3fff3" }}
+                                >
+                                  <span style={{ color: "#27AE60" }}>
+                                    {" "}
+                                    Đã thanh toán
+                                  </span>
+                                </Tag>
+                              ) : OrderDetail.total === item.paid_amount ? (
+                                <Tag className="orders-tag orders-tag-danger">
+                                  Chưa thanh toán
+                                </Tag>
+                              ) : (
+                                <Tag className="orders-tag orders-tag-warning">
+                                  Thanh toán 1 phần
+                                </Tag>
+                              ))
+                          )
+                        : "Chưa thanh toán"}
+                    </Space>
+                  }
+                >
+                  <div className="padding-20">
+                    <Row>
+                      <Col span={12}>
+                        <span className="text-field margin-right-40">
+                          Đã thanh toán:
+                        </span>
+                        <span>
+                          {OrderDetail?.payments !== null
+                            ? OrderDetail?.payments.map((item, index) =>
+                                formatCurrency(item.paid_amount)
+                              )
+                            : 0}
+                        </span>
+                      </Col>
+                      <Col span={12}>
+                        <span className="text-field margin-right-40">
+                          Còn phải trả
+                        </span>
+                        <span className="text-success">
+                          {OrderDetail?.payments !== null
+                            ? OrderDetail?.payments.map(
+                                (item, index) =>
+                                  OrderDetail.total !== null &&
+                                  formatCurrency(
+                                    OrderDetail.total - item.paid_amount
+                                  )
+                              )
+                            : formatCurrency(OrderDetail.total)}
+                        </span>
+                      </Col>
+                    </Row>
+                  </div>
+                  <Divider style={{ margin: "0px" }} />
+                  {OrderDetail?.payments !== null && (
+                    <div className="padding-20">
+                      <Collapse
+                        className="orders-timeline"
+                        defaultActiveKey={["1"]}
+                        ghost
+                      >
+                        <Panel
+                          className="orders-timeline-custom"
+                          header={
+                            <span>
+                              Đã thanh toán:{" "}
+                              <b>
+                                {OrderDetail?.payments !== null &&
+                                  OrderDetail?.payments.map(
+                                    (item, index) => item.payment_method
+                                  )}
+                              </b>
+                            </span>
+                          }
+                          key="1"
+                          extra={
+                            <>
+                              {OrderDetail?.payments !== null &&
+                                OrderDetail?.payments.map((item, index) => (
+                                  <div>
+                                    <b className="fixed-total">
+                                      {formatCurrency(item.paid_amount)}
+                                    </b>
+                                    <span className="fixed-time text-field">
+                                      {moment(item.created_date).format(
+                                        "DD/MM/YYYY HH:MM a"
+                                      )}
+                                    </span>
+                                  </div>
+                                ))}
+                            </>
+                          }
+                        >
+                          <Row gutter={24}>
+                            {OrderDetail?.payments !== null &&
+                              OrderDetail?.payments.map((item, index) => (
+                                <Col span={12}>
+                                  <p className="text-field">
+                                    {item.payment_method}
+                                  </p>
+                                  <p>{formatCurrency(item.paid_amount)}</p>
+                                </Col>
+                              ))}
+                          </Row>
+                        </Panel>
+                        {/* <Panel key="2" showArrow={false} header="COD" /> */}
+                      </Collapse>
+                      <Divider style={{ margin: "0px" }} />
+                    </div>
+                  )}
+
+                  <div className="padding-20 text-right">
+                    {OrderDetail?.payments !== null
+                      ? OrderDetail?.payments.map(
+                          (item, index) =>
+                            OrderDetail.total !== null &&
+                            OrderDetail.total - item.paid_amount !== 0 && (
+                              <Button
+                                type="primary"
+                                className="ant-btn-outline fixed-button"
+                              >
+                                Thanh toán
+                              </Button>
+                            )
+                        )
+                      : "Chưa thanh toán"}
+                  </div>
+                </Card>
+              ) : (
+                <UpdatePaymentCard
+                  setSelectedPaymentMethod={onPaymentSelect}
+                  setPayments={onPayments}
+                  paymentMethod={paymentType}
+                  amount={OrderDetail.total}
+                  order_id={OrderDetail.id}
+                />
+              ))}
+
             {/*--- end payment ---*/}
           </Col>
 
-          <Col xs={24} lg={7}>
+          <Col xs={24} lg={6}>
             <Card
               className="card-block card-block-normal"
               title={
@@ -781,116 +1429,117 @@ const OrderDetail = () => {
               }
             >
               <div className="padding-20">
-                <Form.Item
-                  label="Nhân viên bán hàng"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn nhân viên bán hàng",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="select-with-search"
-                    showSearch
-                    placeholder="Chọn nhân viên bán hàng"
-                    onChange={onChangeAssignCode}
-                    filterOption={(input, option) => {
-                      if (option) {
-                        return (
-                          option.children
-                            .toLowerCase()
-                            .indexOf(input.toLowerCase()) >= 0
-                        );
-                      }
-                      return false;
-                    }}
-                  >
-                    {accounts.map((item, index) => (
-                      <Select.Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.code}
-                      >
-                        {item.full_name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-
-                  {isVisibleAssignCode === true && (
-                    <div>
-                      <div
-                        className="ant-form-item-explain ant-form-item-explain-error"
-                        style={{ padding: "5px" }}
-                      >
-                        <div role="alert">Vui lòng chọn nhân viên bán hàng</div>
-                      </div>
-                    </div>
-                  )}
-                </Form.Item>
-                <Form.Item
-                  label="Tham chiếu"
-                  tooltip={{
-                    title:
-                      "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",
-                    icon: <InfoCircleOutlined />,
-                  }}
-                >
-                  <Input
-                    onChange={(e) => onChangeReference(e.target.value)}
-                    placeholder="Điền tham chiếu"
-                  />
-                </Form.Item>
-                <Form.Item
-                  label="Đường dẫn"
-                  style={{ marginBottom: "0px" }}
-                  tooltip={{
-                    title: "Thêm đường dẫn đơn hàng gốc trên kênh bán hàng",
-                    icon: <InfoCircleOutlined />,
-                  }}
-                >
-                  <Input
-                    onChange={(e) => onChangeUrl(e.target.value)}
-                    placeholder="Điền đường dẫn"
-                  />
-                </Form.Item>
+                <Row className="" gutter={5}>
+                  <Col span={9}>
+                    <ShopOutlined /> Cửa hàng
+                  </Col>
+                  <Col span={15}>
+                    <span className="text-focus">{OrderDetail?.store}</span>
+                  </Col>
+                </Row>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>
+                    <ShopOutlined /> Điện thoại
+                  </Col>
+                  <Col span={15}>
+                    <span>{OrderDetail?.customer_phone_number}</span>
+                  </Col>
+                </Row>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>
+                    <ShopOutlined /> Địa chỉ
+                  </Col>
+                  <Col span={15}>
+                    <span>{OrderDetail?.shipping_address?.full_address}</span>
+                  </Col>
+                </Row>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>
+                    <ShopOutlined /> NVBH
+                  </Col>
+                  <Col span={15}>
+                    <span className="text-focus">{OrderDetail?.assignee}</span>
+                  </Col>
+                </Row>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>
+                    <ShopOutlined /> Người tạo
+                  </Col>
+                  <Col span={15}>
+                    <span className="text-focus">{OrderDetail?.account}</span>
+                  </Col>
+                </Row>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>
+                    <ShopOutlined /> Thời gian
+                  </Col>
+                  <Col span={15}>
+                    <span>
+                      {OrderDetail?.fulfillment !== null &&
+                        OrderDetail?.fulfillment !== undefined &&
+                        OrderDetail?.fulfillment.map((item, index) =>
+                          moment(item.shipment?.created_date).format(
+                            "DD/MM/YYYY HH:MM a"
+                          )
+                        )}
+                    </span>
+                  </Col>
+                </Row>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>
+                    <ShopOutlined /> Đường dẫn
+                  </Col>
+                  <Col span={15}>
+                    <span className="text-focus">
+                      {OrderDetail?.url !== undefined
+                        ? OrderDetail?.url
+                        : "Không"}
+                    </span>
+                  </Col>
+                </Row>
               </div>
             </Card>
 
             <Card
               className="margin-top-20"
               title={
-                <div className="d-flex">
-                  <img src={documentIcon} alt="" /> Thông tin bổ sung
-                </div>
+                <Space>
+                  <ProfileOutlined />
+                  Thông tin bổ sung
+                </Space>
               }
             >
               <div className="padding-20">
-                <Form.Item
-                  label="Nhập ghi chú"
-                  tooltip={{
-                    title: "Thêm thông tin ghi chú chăm sóc khách hàng",
-                    icon: <InfoCircleOutlined />,
-                  }}
-                >
-                  <Input.TextArea placeholder="Nhập ghi chú" />
-                </Form.Item>
+                <Row className="" gutter={5}>
+                  <Col span={9}>
+                    <ShopOutlined /> Ghi chú
+                  </Col>
+                  <Col span={15}>
+                    <span className="text-focus">
+                      {OrderDetail?.note !== ""
+                        ? OrderDetail?.note
+                        : "Không có ghi chú"}
+                    </span>
+                  </Col>
+                </Row>
 
-                <Form.Item
-                  label="Tags"
-                  style={{ marginBottom: "0px" }}
-                  tooltip={{
-                    title: "Thêm từ khóa để tiện lọc đơn hàng",
-                    icon: <InfoCircleOutlined />,
-                  }}
-                >
-                  <Select
-                    mode="tags"
-                    placeholder="Nhập tags"
-                    onChange={onChangeTag}
-                    tokenSeparators={[","]}
-                  ></Select>
-                </Form.Item>
+                <Row className="margin-top-10" gutter={5}>
+                  <Col span={9}>
+                    <ShopOutlined /> Tags
+                  </Col>
+                  <Col span={15}>
+                    <span className="text-focus">
+                      {OrderDetail?.tags !== ""
+                        ? OrderDetail?.tags
+                        : "Không có tags"}
+                    </span>
+                  </Col>
+                </Row>
+              </div>
+            </Card>
+            <Card className="margin-top-20">
+              <div className="padding-20">
+                <span className="text-focus">Lịch sử thao tác đơn hàng</span>
               </div>
             </Card>
           </Col>
@@ -912,8 +1561,8 @@ const OrderDetail = () => {
             Lưu
           </Button>
         </Row>
-      </Form>
-    </div>
+      </div>
+    </ContentContainer>
   );
 };
 

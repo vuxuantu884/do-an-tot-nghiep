@@ -20,16 +20,16 @@ export interface OrderRequest {
   currency: string | null;
   delivery_service_provider_id: number | null;
   delivery_fee: number | null;
-  shipping_fee_informed_to_customer: number | null,
+  shipping_fee_informed_to_customer: number | null;
   shipping_fee_paid_to_3pls: number | null;
   dating_ship?: Moment;
-  requirements: string|null;
+  requirements: string | null;
   items: Array<OrderLineItemRequest>;
   discounts: Array<OrderDiscountRequest> | null;
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
   fulfillment: Array<FulFillmentRequest> | null;
-  pre_payments: Array<OrderPaymentRequest> | null;
+  payments: Array<OrderPaymentRequest> | null;
 }
 
 export interface FulFillmentRequest {
@@ -95,7 +95,7 @@ export interface ShipmentRequest {
   delivery_fee: number | null;
   shipping_fee_informed_to_customer: number | null;
   shipping_fee_paid_to_3pls: number | null;
-  expected_received_date?:string | null;
+  expected_received_date?: string | null;
   reference_status: string | null;
   reference_status_explanation: string | null;
   cancel_reason: string | null;
@@ -105,6 +105,32 @@ export interface ShipmentRequest {
   sender_address_id: number | null;
   note_to_shipper: string | null;
   requirements: string | null;
+}
+
+export interface UpdateShipmentRequest {
+  order_id: string | null;
+  code:string | null | undefined;
+  delivery_service_provider_id: number | null;
+  delivery_service_provider_type: string | null;
+  handover_id: number | null;
+  service: number | null;
+  fee_type: string | null;
+  fee_base_on: string | null;
+  delivery_fee: number | null;
+  shipping_fee_informed_to_customer: number | null;
+  shipping_fee_paid_to_3pls: number | null;
+  dating_ship?: Moment;
+  expected_received_date?: string | null;
+  reference_status: string | null;
+  reference_status_explanation: string | null;
+  cancel_reason: string | null;
+  tracking_code: string | null;
+  tracking_url: string | null;
+  received_date: string | null;
+  sender_address_id: number | null;
+  note_to_shipper: string | null;
+  requirements: string | null;
+  fulfillment_id:string | null | undefined;
 }
 
 export interface OrderPaymentRequest {
@@ -122,6 +148,28 @@ export interface OrderPaymentRequest {
   customer_id: number;
   type: string;
   note: string;
+}
+
+export interface UpdateOrderPaymentRequest {
+  order_id: string;
+  payment_method_id: number;
+  payment_method: string;
+  amount: number;
+  reference: string;
+  source: string;
+  paid_amount: number;
+  return_amount: number;
+  status: string;
+  name?: string;
+  code?: string;
+  point?: number;
+  customer_id: number;
+  type: string;
+  note: string;
+}
+
+export interface UpdatePaymentRequest{
+  payments: Array<UpdateOrderPaymentRequest>
 }
 
 export interface OrderLineItemRequest {
@@ -165,4 +213,10 @@ export interface OrderDiscountRequest {
   promotion_id: number | null;
   reason: string | null;
   source: string | null;
+}
+
+export interface UpdateFulFillmentStatusRequest {
+  order_id: string | null | undefined;
+  fulfillment_id: number | null | undefined;
+  status: string | null;
 }
