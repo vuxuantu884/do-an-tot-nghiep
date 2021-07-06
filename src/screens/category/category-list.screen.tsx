@@ -19,6 +19,10 @@ import CustomFilter from 'component/table/custom.filter';
 import {StarOutlined} from '@ant-design/icons';
 import ContentContainer from 'component/container/content.container';
 import ButtonCreate from 'component/header/ButtonCreate';
+import { showSuccess, showWarning } from 'utils/ToastUtils';
+import { hideLoading, showLoading } from 'domain/actions/loading.action';
+import ModalConfirm from 'component/modal/ModalConfirm';
+import {RiDeleteBin5Line} from 'react-icons/ri'
 
 const actions: Array<MenuAction> = [
   {
@@ -37,6 +41,7 @@ const actions: Array<MenuAction> = [
 
 const {Item} = Form;
 
+var idDelete = -1;
 const Category = () => {
   const history = useHistory();
   const dispatch = useDispatch();
@@ -48,6 +53,7 @@ const Category = () => {
   const [params, setPrams] = useState<CategoryQuery>(getParams);
   const [data, setData] = useState<Array<CategoryView>>([]);
   const [selected, setSelected] = useState<Array<CategoryView>>([]);
+  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
@@ -120,6 +126,8 @@ const Category = () => {
   }, []);
   const onDeleteSuccess = useCallback(() => {
     setSelected([]);
+    dispatch(hideLoading());
+    showSuccess('Xóa danh mục thành công');
     dispatch(getCategoryRequestAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params]);
   const onMenuClick = useCallback(
@@ -131,14 +139,19 @@ const Category = () => {
             history.push(`${UrlConfig.CATEGORIES}/${id}`);
             break;
           case 2:
-            dispatch(categoryDeleteAction(id, onDeleteSuccess));
+            idDelete = id;
+            setConfirmDelete(true);
             break;
           case 3:
             break;
         }
+      } else {
+        if(index !== 3) {
+          showWarning('Vui lòng chọn ít nhất 1 danh mục để thao tác')
+        }
       }
     },
-    [selected, history, dispatch, onDeleteSuccess]
+    [selected, history]
   );
 
   const menuFilter = useMemo(() => {
@@ -177,7 +190,7 @@ const Category = () => {
       <Card>
         <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
           <Form onFinish={onFinish} layout="inline" initialValues={params}>
-            <Item name="name">
+            <Item name="query">
               <Input
                 prefix={<img src={search} alt="" />}
                 style={{width: 200}}
@@ -218,6 +231,22 @@ const Category = () => {
           rowKey={(item: CategoryResponse) => item.id}
         />
       </Card>
+      <ModalConfirm 
+        cancelText="Không" 
+        okText="Có" 
+        onCancel={() => setConfirmDelete(false)} 
+        onOk={() => {
+          setConfirmDelete(false);
+          dispatch(showLoading());
+          dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+        }}
+        icon={<RiDeleteBin5Line />} 
+        title="Bạn chắc chắn xóa danh mục ?"
+        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+        visible={isConfirmDelete} 
+        colorIcon="#FFFFFF"
+        bgIcon="#EB5757"
+      />
     </ContentContainer>
   );
 };

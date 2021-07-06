@@ -32,6 +32,8 @@ import {
 } from 'model/product/category.model';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
+import { RegUtil } from 'utils/RegUtils';
+import { showSuccess } from 'utils/ToastUtils';
 
 const {TreeNode} = TreeSelect;
 
@@ -51,6 +53,9 @@ const CategoryUpdate: React.FC = () => {
   );
   const [categories, setCategories] = useState<Array<CategoryResponse>>([]);
   const [detail, setDetail] = useState<CategoryResponse | null>(null);
+  const [isError, setError] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingData, setLoadingData] = useState<boolean>(true);
   const isFirstLoad = useRef(true);
   const goods = useMemo(() => {
     if (bootstrapReducer.data && bootstrapReducer.data.goods) {
@@ -58,11 +63,14 @@ const CategoryUpdate: React.FC = () => {
     }
     return [];
   }, [bootstrapReducer]);
-  const onSuccess = useCallback(() => {
-    history.push('/categories');
-  }, [history]);
+  const onSuccess = useCallback((result: CategoryResponse) => {
+    setLoading(false);
+    setDetail(result);
+    showSuccess('Sửa danh mục thành công')
+  }, []);
   const onFinish = useCallback(
     (values: CategoryUpdateRequest) => {
+      setLoading(true);
       dispatch(categoryUpdateAction(idNumber, values, onSuccess));
     },
     [dispatch, idNumber, onSuccess]
@@ -70,17 +78,29 @@ const CategoryUpdate: React.FC = () => {
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
+  const onGetDetailSuccess = useCallback((data: false|CategoryResponse) => {
+    setLoadingData(false)
+    if(!data) {
+      setError(true);
+    } else {
+      setDetail(data);
+    }
+  }, []);
   useEffect(() => {
     if (isFirstLoad.current) {
       dispatch(getCategoryRequestAction({}, setCategories));
-      if (!Number.isNaN(idNumber)) {
-        dispatch(categoryDetailAction(idNumber, setDetail));
+      if (!isNaN(idNumber)) {
+        dispatch(categoryDetailAction(idNumber, onGetDetailSuccess));
+      } else {
+        setError(true);
       }
     }
     isFirstLoad.current = false;
-  }, [dispatch, idNumber]);
+  }, [dispatch, idNumber, onGetDetailSuccess]);
   return (
     <ContentContainer
+      isLoading={loadingData}
+      isError={isError}
       title="Sửa danh mục"
       breadcrumb={[
         {
@@ -96,15 +116,11 @@ const CategoryUpdate: React.FC = () => {
           path: `${UrlConfig.CATEGORIES}`,
         },
         {
-          name: 'Sửa danh mục',
+          name: detail!== null ? detail.name : 'Sửa danh mục',
         },
       ]}
     >
-      {detail === null ? (
-        <Card>
-          <div className="padding-20">Không tìm thấy danh mục</div>
-        </Card>
-      ) : (
+      {detail !== null && (
         <Form
           ref={formRef}
           onFinish={onFinish}
@@ -125,15 +141,13 @@ const CategoryUpdate: React.FC = () => {
                   <Form.Item
                     rules={[
                       {required: true, message: 'Vui lòng nhập tên danh mục'},
+                      {max: 255, message: 'Tên danh mục không quá 255 kí tự'},
+                      {pattern: RegUtil.NO_SPECICAL_CHARACTER, message: 'Tên danh mục không gồm kí tự đặc biệt'},
                     ]}
                     label="Tên danh mục"
                     name="name"
                   >
-                    <Input
-                      className="r-5"
-                      placeholder="Tên danh mục"
-                      size="large"
-                    />
+                    <Input maxLength={255} placeholder="VD: Áo phông nữ" />
                   </Form.Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
@@ -141,7 +155,7 @@ const CategoryUpdate: React.FC = () => {
                     rules={[
                       {
                         required: true,
-                        message: 'Vui lòng nhập thành phần chất liệu',
+                        message: 'Vui lòng nhập chọn ngành hàng',
                       },
                     ]}
                     name="goods"
@@ -165,29 +179,20 @@ const CategoryUpdate: React.FC = () => {
                       {required: true, message: 'Vui lòng nhập mã danh mục'},
                       {len: 3, message: 'Mã danh mục gồm 3 kí tự'},
                       {
-                        pattern: new RegExp("^\\S*$"),
-                        message: "Mã danh mục không được chứa khoảng trắng"
-                      },
-                      {
-                        pattern: new RegExp("/[^a-zA-Z0-9 ]/"),
-                        message: "Mã chất liệu không chứa ký tự đặc biệt"
+                        pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                        message: 'Mã danh mục không chứa ký tự đặc biệt',
                       },
                     ]}
                     name="code"
-                    labelAlign="right"
                     label="Mã danh mục"
-                    normalize={value => (value || '').toUpperCase()}
+                    normalize={(value) => (value || '').toUpperCase()}
                   >
-                    <Input
-                      className="r-5"
-                      placeholder="Mã danh mục"
-                      size="large"
-                    />
+                    <Input maxLength={3} placeholder="VD: APN" />
                   </Form.Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Form.Item name="parent_id" label="Danh mục cha">
-                    <TreeSelect treeDefaultExpandAll>
+                    <TreeSelect placeholder={categories.find((item) => item.id === detail.id)?.name} treeDefaultExpandAll>
                       <TreeNode value={-1} title="Danh mục cha" />
                       {categories.map((item, index) => (
                         <React.Fragment key={index}>
@@ -205,7 +210,7 @@ const CategoryUpdate: React.FC = () => {
               <Button type="default" onClick={onCancel}>
                 Hủy
               </Button>
-              <Button htmlType="submit" type="primary">
+              <Button loading={loading} htmlType="submit" type="primary">
                 Lưu
               </Button>
             </Space>

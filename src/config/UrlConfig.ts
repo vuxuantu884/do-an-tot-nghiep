@@ -3,6 +3,7 @@ const BASE_URL = '/admin';
 
 const UrlConfig = {
   HOME: `${BASE_URL}`,
+  LOGIN: `${BASE_URL}/login`,
   PRODUCT: `${BASE_URL}/products`,
   VARIANTS: `${BASE_URL}/products/variants`,
   CATEGORIES: `${BASE_URL}/categories`,  
