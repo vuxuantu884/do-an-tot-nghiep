@@ -38,13 +38,13 @@ function* loginSaga(action: YodyAction) {
 }
 
 function* logoutSaga() {
-  
+  yield put(showLoading());
   try {
     yield call(logoutApi); 
   } catch (error) {}
   yield removeToken();
   yield delay(1000);
-  
+  yield put(hideLoading());
   yield put(logoutSuccessAction())
 }
 

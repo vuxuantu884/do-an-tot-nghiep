@@ -13,7 +13,7 @@ import {
   Space,
   Collapse,
 } from "antd";
-import CustomEditor from "component/custom-editor";
+import CustomEditor from "component/custom/custom-editor";
 import UrlConfig from "config/UrlConfig";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
@@ -454,8 +454,8 @@ const ProductCreateScreen: React.FC = () => {
       title="Thêm mới sản phẩm"
       breadcrumb={[
         {
-          name: "Tổng quản",
-          path: "/",
+          name: 'Tổng quản',
+          path: UrlConfig.HOME,
         },
         {
           name: "Sản phẩm",

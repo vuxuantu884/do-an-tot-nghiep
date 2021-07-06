@@ -56,7 +56,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
-import CustomEditor from "component/custom-editor";
+import CustomEditor from "component/custom/custom-editor";
 import NumberInput from "component/custom/number-input.custom";
 import { useMemo } from "react";
 import { createRef } from "react";

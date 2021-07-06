@@ -37,7 +37,7 @@ const ColorCreateScreen: React.FC = () => {
   const [selector, setSelector] = useState<PageResponse<ColorResponse>>({
     metadata: {
       limit: 0,
-      page: 0,
+      page: 1,
       total: 0,
     },
     items: [],
@@ -73,7 +73,7 @@ const ColorCreateScreen: React.FC = () => {
       breadcrumb={[
         {
           name: 'Tổng quản',
-          path: '/',
+          path: UrlConfig.HOME,
         },
         {
           name: 'Sản phẩm',

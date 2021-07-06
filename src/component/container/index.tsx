@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import {saveSettingAction} from 'domain/actions/app.action';
 import {useMemo} from 'react';
 import SplashScreen from 'screens/splash.screen';
+import UrlConfig from 'config/UrlConfig';
 
 type ContainerProps = {
   title: string;
@@ -48,7 +49,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
     }
   }, [dispatch, isLoad, isLogin]);
   if (isLoadUser && !isLogin) {
-    return <Redirect to={`/login?returnUrl=${location.pathname}`} />;
+    return <Redirect to={`${UrlConfig.LOGIN}?returnUrl=${location.pathname}`} />;
   }
   if (!isLoad) {
     return <SplashScreen />;

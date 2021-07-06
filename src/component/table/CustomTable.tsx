@@ -22,6 +22,7 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   onShowColumnSetting?: () => void;
   onSelectedChange?: (selectedRows: any[]) => void;
   isLoading?: boolean;
+  showColumnSetting?: boolean;
 }
 
 export interface ICustomTableColumType<T> extends ColumnType<T> {
@@ -102,6 +103,7 @@ const CustomTable = (props: ICustomTableProps) => {
     columns,
     onSelectedChange,
     onShowColumnSetting,
+    showColumnSetting,
     isLoading,
   } = props;
 
@@ -143,7 +145,7 @@ const CustomTable = (props: ICustomTableProps) => {
           onSelect: onSelect,
           onSelectAll: onSelectAll,
         }}
-        columns={columns?.concat(configSettingColumns)}
+        columns={showColumnSetting ? columns?.concat(configSettingColumns) : columns}
         locale={locale}
         loading={
           isLoading

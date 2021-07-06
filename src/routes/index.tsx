@@ -1,8 +1,10 @@
 import AuthRoute from "component/auth.route";
+import UrlConfig from "config/UrlConfig";
 import { RouteMenu } from "model/other";
 import React from "react";
 import { Route, Switch } from "react-router-dom";
 import Login from "screens/login";
+import NotFoundScreen from "screens/notfound.screen";
 import menu from "./menu";
 
 // const  NotFoundScreen = React.lazy(() => import ('screens/notfound.screen'));
@@ -35,7 +37,8 @@ const MainRoute = () => {
           <AuthRoute type={item.type} object={item.object} key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
         ))
       }
-      <Route path="/login" exact={true} component={Login} />
+      <Route path={UrlConfig.LOGIN} exact={true} component={Login} />
+      <Route component={NotFoundScreen} />
     </Switch>
   )
 }
