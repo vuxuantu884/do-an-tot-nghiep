@@ -81,9 +81,39 @@ export interface VariantResponse extends BaseObject {
   weight_unit:string,
   length_unit:string,
   composites:string,
-  product_id:string,
+  product_id:number,
   product:ProductResponse,
   variant_prices:Array<VariantPricesResponse>,
+  variant_images:Array<VariantImagesResponse>
+}
+
+export interface VariantView extends BaseObject {
+  name: string,
+  inventory: number,
+  category: string,
+  supplier_id:number,
+  supplier:string,
+  color_id:number,
+  color:string,
+  size_id:number,
+  size:string,
+  barcode:string,
+  taxable:boolean,
+  saleable:boolean,
+  sku:string,
+  status:string,
+  status_name:string,
+  composite:boolean,
+  width:number|null,
+  length:number|null,
+  height:number|null,
+  weight:number,
+  weight_unit:string,
+  length_unit:string,
+  composites:string,
+  product_id:string,
+  product:ProductResponse,
+  variant_prices:Array<VariantPriceViewRequest>,
   variant_images:Array<VariantImagesResponse>
 }
 
@@ -141,6 +171,30 @@ export interface VariantRequest {
   variant_images: Array<VariantImageRequest>,
   inventory: 0,
   version?: null,
+}
+
+export interface VariantUpdateRequest {
+  id:number|null,
+  barcode: string|null,
+  color_id: number|null, 
+  composite:boolean,
+  height: number|null,
+  length: number|null,
+  length_unit: string|null,
+  name: string,
+  product_id:number|null,
+  saleable: boolean|null
+  size_id: number|null,
+  sku: string,
+  taxable: boolean|null,
+  status: string,
+  deleted: boolean,
+  supplier_id:number|null
+  width: number|null, 
+  weight: number|null,
+  weight_unit: string|null,
+  variant_prices: Array<VariantPriceRequest>,
+  variant_images: Array<VariantImageRequest>|null
 }
 
 export interface ProductRequest {
@@ -228,21 +282,25 @@ export interface ProductUpdateView {
 }
 
 export interface VariantUpdateView {
+  id:number|null,
   status: string,
   name: string,
-  color_id: number,
-  size_id: number,
+  color_id: number|null,
+  size_id: number|null,
   barcode: string|null,
   taxable: boolean|null,
   saleable: boolean|null
   deleted: boolean,
   sku: string,
-  width: string|null,
-  height: string|null,
-  length: string|null,
+  width: number|null,
+  height: number|null,
+  length: number|null,
   length_unit: string|null,
-  weight: string,
+  weight: number,
   weight_unit: string|null,
   variant_prices: Array<VariantPriceViewRequest>,
+  variant_image: Array<VariantImageRequest>|null,
   product: ProductUpdateView
+  product_id:number|null,
+  supplier_id:number|null
 }

@@ -163,6 +163,15 @@ const CategoryUpdate: React.FC = () => {
                   <Form.Item
                     rules={[
                       {required: true, message: 'Vui lòng nhập mã danh mục'},
+                      {len: 3, message: 'Mã danh mục gồm 3 kí tự'},
+                      {
+                        pattern: new RegExp("^\\S*$"),
+                        message: "Mã danh mục không được chứa khoảng trắng"
+                      },
+                      {
+                        pattern: new RegExp("/[^a-zA-Z0-9 ]/"),
+                        message: "Mã chất liệu không chứa ký tự đặc biệt"
+                      },
                     ]}
                     name="code"
                     labelAlign="right"

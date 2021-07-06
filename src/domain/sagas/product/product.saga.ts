@@ -14,6 +14,7 @@ import {
 import { showError } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { updateVariantApi } from "service/product/variant.service";
 
 function* searchVariantSaga(action: YodyAction) {
   const { query, setData } = action.payload;
@@ -133,6 +134,34 @@ function* uploadProductSaga(action: YodyAction) {
   }
 }
 
+function* variantUpdateSaga(action: YodyAction) {
+  const { id, request, onUpdateSuccess } = action.payload;
+  try {
+    
+    let response: BaseResponse<VariantResponse> = yield call(
+      updateVariantApi,
+      id,
+      request
+    );
+    
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onUpdateSuccess(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("Update Variant: "+error)
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
   yield takeLatest(
@@ -141,5 +170,7 @@ export function* productSaga() {
   );
   yield takeLatest(ProductType.CREATE_PRODUCT_REQEUST, createProductSaga);
   yield takeLatest(ProductType.VARIANT_DETAIL_REQUEST, variantDetailSaga);
+  yield takeLatest(ProductType.VARIANT_UPDATE_REQUEST, variantUpdateSaga);
   yield takeLatest(ProductType.UPLOAD_PRODUCT_REQUEST, uploadProductSaga);
 }
+
