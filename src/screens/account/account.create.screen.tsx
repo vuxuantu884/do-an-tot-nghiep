@@ -56,6 +56,7 @@ import { PositionResponse } from "model/account/position.model";
 import { showSuccess } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
+import UrlConfig from "config/UrlConfig";
 
 const { Item } = Form;
 const { Option, OptGroup } = Select;
@@ -309,11 +310,11 @@ const AccountCreateScreen: React.FC = () => {
       breadcrumb={[
         {
           name: "Tổng quản",
-          path: "/",
+         path: UrlConfig.HOME,
         },
         {
           name: "Quản lý người dùng",
-          path: "/accounts",
+          path: UrlConfig.ACCOUNTS
         },
         {
           name: "Thêm mới người dùng",
