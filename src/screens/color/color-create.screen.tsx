@@ -49,7 +49,7 @@ const ColorCreateScreen: React.FC = () => {
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const onSuccess = useCallback(() => {
-    history.push('/materials');
+    history.push(UrlConfig.COLORS);
   }, [history]);
   const onFinish = useCallback(
     (values: ColorCreateRequest) => {

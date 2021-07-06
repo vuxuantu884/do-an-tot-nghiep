@@ -56,6 +56,7 @@ import {
   ProductRequestView,
   VariantImageRequest,
   VariantRequestView,
+  VariantResponse,
 } from "model/product/product.model";
 import NumberInput from "component/custom/number-input.custom";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -68,6 +69,7 @@ import UploadImageModal from "./component/upload-image.modal";
 import ImageProduct from "./component/image-product.component";
 import ContentContainer from "component/container/content.container";
 import { RegUtil } from "utils/RegUtils";
+import { showSuccess } from "utils/ToastUtils";
 
 const { Option } = Select;
 const { Item, List } = Form;
@@ -148,6 +150,7 @@ const ProductCreateScreen: React.FC = () => {
   const [listSize, setListSize] = useState<Array<SizeResponse>>([]);
   const [listColor, setListColor] = useState<Array<ColorResponse>>([]);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
+  const [loadingSaveButton, setLoadingSaveButton] = useState(false);
   //End get master data
   //State
   const initialForm: ProductRequestView = {
@@ -196,11 +199,20 @@ const ProductCreateScreen: React.FC = () => {
     }
     return listCategory.filter((item) => item.goods === selectedGood);
   }, [listCategory, selectedGood]);
-  const onSuccess = useCallback(() => {
-    history.push(UrlConfig.PRODUCT);
-  }, [history]);
+  const onSuccess = useCallback(
+    (result: VariantResponse) => {
+      if (result) {
+        showSuccess("Thêm mới dữ liệu thành công");
+        history.push(UrlConfig.PRODUCT);
+      } else {
+        setLoadingSaveButton(false);
+      }
+    },
+    [history]
+  );
   const onFinish = useCallback(
     (values: ProductRequestView) => {
+      setLoadingSaveButton(true);
       let request = Products.convertProductViewToRequest(
         values,
         variants,
@@ -222,7 +234,6 @@ const ProductCreateScreen: React.FC = () => {
   );
   //callback data
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
-    debugger;
     let temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
   }, []);
@@ -321,27 +332,69 @@ const ProductCreateScreen: React.FC = () => {
       let code = formRef.current?.getFieldValue("code");
       if (name && code) {
         let newVariants: Array<VariantRequestView> = [];
-        colors.forEach((i1) => {
+
+        if (colors.length > 0 && sizes.length > 0) {
+          colors.forEach((i1) => {
+            sizes.forEach((i2) => {
+              let sku = `${code}-${i1.code}-${i2.code}`;
+              newVariants.push({
+                name: `${name} - ${i1.name} - ${i2.code}`,
+                color_id: i1.id,
+                color: i1.name,
+                size_id: i2.id,
+                size: i2.code,
+                sku: sku,
+                variant_images: [],
+                quantity: "",
+              });
+            });
+          });
+        } else if (colors.length === 0 && sizes.length > 0) {
           sizes.forEach((i2) => {
-            let sku = `${code}-${i1.code}-${i2.code}`;
             newVariants.push({
-              name: `${name} - ${i1.name} - ${i2.code}`,
-              color_id: i1.id,
-              color: i1.name,
+              name: `${name} - ${i2.code}`,
+              color_id: null,
+              color: null,
               size_id: i2.id,
               size: i2.code,
-              sku: sku,
+              sku: `${code}-${i2.code}`,
               variant_images: [],
               quantity: "",
             });
           });
-        });
+        } else if (colors.length >= 0 && sizes.length === 0) {
+          colors.forEach((i1) => {
+            newVariants.push({
+              name: `${name} - ${i1.name}`,
+              color_id: i1.id,
+              color: i1.name,
+              size_id: null,
+              size: null,
+              sku: `${code}-${i1.name}`,
+              variant_images: [],
+              quantity: "",
+            });
+          });
+        }
+        if (newVariants.length === 0) {
+          newVariants.push({
+            name: name,
+            color_id: null,
+            color: null,
+            size_id: null,
+            size: null,
+            sku: code,
+            quantity: "",
+            variant_images: [],
+          });
+        }
         console.log(newVariants);
         setVariants([...newVariants]);
       }
     },
     [formRef]
   );
+
   const onSizeChange = useCallback(
     (values: Array<number>) => {
       let filter = listSize.filter((item) => values.includes(item.id));
@@ -886,6 +939,12 @@ const ProductCreateScreen: React.FC = () => {
                                 title: "Tooltip",
                                 icon: <InfoCircleOutlined />,
                               }}
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Đơn vị tiền tệ không được để trống",
+                                },
+                              ]}
                               name={[name, "currency"]}
                               fieldKey={[fieldKey, "currency"]}
                             >
@@ -1097,7 +1156,11 @@ const ProductCreateScreen: React.FC = () => {
         <div className="margin-top-10" style={{ textAlign: "right" }}>
           <Space size={12}>
             <Button onClick={onCancel}>Huỷ</Button>
-            <Button type="primary" htmlType="submit">
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loadingSaveButton}
+            >
               Lưu
             </Button>
           </Space>

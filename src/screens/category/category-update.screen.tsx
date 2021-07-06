@@ -32,6 +32,7 @@ import {
 } from 'model/product/category.model';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
+import { RegUtil } from 'utils/RegUtils';
 
 const {TreeNode} = TreeSelect;
 
@@ -163,13 +164,13 @@ const CategoryUpdate: React.FC = () => {
                   <Form.Item
                     rules={[
                       {required: true, message: 'Vui lòng nhập mã danh mục'},
-                      {len: 3, message: 'Mã danh mục gồm 3 kí tự'},
+                    
                       {
-                        pattern: new RegExp("^\\S*$"),
+                        pattern: RegUtil.NO_SPACE,
                         message: "Mã danh mục không được chứa khoảng trắng"
                       },
                       {
-                        pattern: new RegExp("/[^a-zA-Z0-9 ]/"),
+                        pattern: RegUtil.NO_SPECICAL_CHARACTER,
                         message: "Mã chất liệu không chứa ký tự đặc biệt"
                       },
                     ]}
@@ -179,6 +180,7 @@ const CategoryUpdate: React.FC = () => {
                     normalize={value => (value || '').toUpperCase()}
                   >
                     <Input
+                    maxLength={3}
                       className="r-5"
                       placeholder="Mã danh mục"
                       size="large"
