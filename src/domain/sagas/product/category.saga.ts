@@ -3,7 +3,6 @@ import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { CategoryType } from "domain/types/product.type";
 import { CategoryResponse } from "model/product/category.model";
 import {

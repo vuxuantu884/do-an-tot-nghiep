@@ -175,17 +175,17 @@ const ListAccountScreen: React.FC = () => {
         let id = accountSelected[0].id;
         switch (index) {
           case 1:
-            // history.push(`${UrlConfig.CATEGORIES}/${id}`);
+            history.push(`${UrlConfig.ACCOUNTS}/${id}`);
             break;
           case 2:
-            // dispatch(categoryDeleteAction(id, onDeleteSuccess));
+            // dispatch(accountDel(id, onDeleteSuccess));
             break;
           case 3:
             break;
         }
       }
     },
-    [accountSelected]
+    [accountSelected, history]
   );
   useEffect(() => {
     if (isFirstLoad.current) {

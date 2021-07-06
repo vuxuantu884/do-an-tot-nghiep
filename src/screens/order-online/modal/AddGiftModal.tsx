@@ -33,7 +33,7 @@ type AddGiftModalProps = {
 
 const initQuery: VariantSearchQuery  = {
   limit: 10,
-  page: 0,
+  page: 1,
 };
 
 export interface AddGiftRef {
@@ -93,7 +93,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
   >({
     metadata: {
       limit: 0,
-      page: 0,
+      page: 1,
       total: 0,
     },
     items: [],

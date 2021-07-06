@@ -10,7 +10,6 @@ import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { MaterialType } from "domain/types/product.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MaterialResponse } from "model/product/material.model";

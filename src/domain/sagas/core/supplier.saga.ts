@@ -2,7 +2,6 @@ import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { SupplierType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse } from "model/core/supplier.model";
