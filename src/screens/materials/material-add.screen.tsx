@@ -101,6 +101,14 @@ const AddMaterial: React.FC = () => {
                 <Form.Item
                   rules={[
                     {required: true, message: 'Vui lòng nhập mã chất liệu'},
+                    {
+                      pattern: new RegExp("^\\S*$"),
+                      message: "Mã chất liệu không được chứa khoảng trắng"
+                    },
+                    {
+                      pattern: new RegExp("^[A-Za-z0-9 ]+$"),
+                      message: "Mã chất liệu không chứa ký tự đặc biệt"
+                    },
                   ]}
                   className="form-group form-group-with-search"
                   name="code"
@@ -111,6 +119,7 @@ const AddMaterial: React.FC = () => {
                     className="r-5"
                     placeholder="Mã chất liệu"
                     size="large"
+                    maxLength={5}
                   />
                 </Form.Item>
               </Col>

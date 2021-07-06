@@ -2,10 +2,11 @@ import {
   ProductRequest,
   VariantResponse,
   VariantSearchQuery,
-} from 'model/product/product.model';
-import BaseAction from 'base/BaseAction';
-import {ProductType} from 'domain/types/product.type';
-import {PageResponse} from 'model/base/base-metadata.response';
+  VariantUpdateRequest,
+} from "model/product/product.model";
+import BaseAction from "base/BaseAction";
+import { ProductType } from "domain/types/product.type";
+import { PageResponse } from "model/base/base-metadata.response";
 
 export const searchVariantsRequestAction = (
   query: VariantSearchQuery,
@@ -49,6 +50,21 @@ export const productCreateAction = (
   });
 };
 
-export const variantDetailAction = (id: number, setData: (data: VariantResponse|null) => void) => {
-  return BaseAction(ProductType.VARIANT_DETAIL_REQUEST, {id, setData});
-}
+export const variantDetailAction = (
+  id: number,
+  setData: (data: VariantResponse | null) => void
+) => {
+  return BaseAction(ProductType.VARIANT_DETAIL_REQUEST, { id, setData });
+};
+
+export const variantUpdateAction = (
+  id: number|null,
+  request: VariantUpdateRequest,
+  onUpdateSuccess: () => void
+) => {
+  return BaseAction(ProductType.VARIANT_UPDATE_REQUEST, {
+    id,
+    request,
+    onUpdateSuccess,
+  });
+};

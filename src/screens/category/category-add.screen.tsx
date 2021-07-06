@@ -144,6 +144,10 @@ const AddCategory: React.FC = () => {
                   rules={[
                     {required: true, message: 'Vui lòng nhập mã danh mục'},
                     {len: 3, message: 'Mã danh mục gồm 3 kí tự'},
+                    {
+                      pattern: new RegExp("^\\S*$"),
+                      message: "Mã danh mục không được chứa khoảng trắng"
+                    },
                   ]}
                   className="form-group form-group-with-search"
                   name="code"
