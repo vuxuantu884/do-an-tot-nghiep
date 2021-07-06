@@ -169,11 +169,12 @@ const ColorCreateScreen: React.FC = () => {
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Form.Item
                       rules={[
-                        {required: true, message: 'Vui lòng nhập mã chất liệu'},
+                        {required: true, message: 'Vui lòng nhập mã màu'},
                       ]}
                       name="code"
                       labelAlign="right"
                       label="Mã màu"
+                      normalize={value => (value || '').toUpperCase()}
                     >
                       <Input placeholder="Nhập mã màu" />
                     </Form.Item>
