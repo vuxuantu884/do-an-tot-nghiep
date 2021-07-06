@@ -202,11 +202,10 @@ const ListAccountScreen: React.FC = () => {
       breadcrumb={[
         {
           name: "Tổng quản",
-          path: "/",
+         path: UrlConfig.HOME,
         },
         {
           name: "Quản lý người dùng",
-          path: "/accounts",
         },
       ]}
       extra={<ButtonCreate path={`${UrlConfig.ACCOUNTS}/create`} />}

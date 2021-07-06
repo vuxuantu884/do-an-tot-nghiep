@@ -375,7 +375,7 @@ const AccountUpdateScreen: React.FC = () => {
       breadcrumb={[
         {
           name: "Tổng quản",
-          path: "/",
+         path: UrlConfig.HOME,
         },
         {
           name: "Quản lý người dùng",
