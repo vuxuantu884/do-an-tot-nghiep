@@ -154,8 +154,8 @@ export interface VariantImageRequest {
 export interface VariantRequest {
   status: string,
   name: string,
-  color_id: number,
-  size_id: number,
+  color_id: number|null,
+  size_id: number|null,
   barcode: string|null,
   taxable: boolean|null,
   saleable: boolean|null
@@ -219,10 +219,10 @@ export interface ProductRequest {
 
 export interface VariantRequestView {
   name: string,
-  color_id: number,
-  color: string,
-  size_id: number,
-  size: string,
+  color_id: number|null,
+  color: string|null,
+  size_id: number|null,
+  size: string|null,
   sku: string,
   quantity: string|null,
   variant_images: Array<VariantImageRequest>,

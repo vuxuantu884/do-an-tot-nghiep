@@ -76,16 +76,19 @@ function* createProductSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onCreateSuccess();
+        onCreateSuccess(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        onCreateSuccess(null);
         yield put(unauthorizedAction());
         break;
       default:
+        onCreateSuccess(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    onCreateSuccess(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -148,13 +151,16 @@ function* variantUpdateSaga(action: YodyAction) {
         onUpdateSuccess(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        onUpdateSuccess(null);
         yield put(unauthorizedAction());
         break;
       default:
+        onUpdateSuccess(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    onUpdateSuccess(null);
     console.log("Update Variant: "+error)
     showError("Có lỗi vui lòng thử lại sau");
   }

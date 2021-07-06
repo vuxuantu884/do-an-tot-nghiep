@@ -177,7 +177,7 @@ const CategoryUpdate: React.FC = () => {
                   <Form.Item
                     rules={[
                       {required: true, message: 'Vui lòng nhập mã danh mục'},
-                      {len: 3, message: 'Mã danh mục gồm 3 kí tự'},
+                    
                       {
                         pattern: RegUtil.NO_SPECICAL_CHARACTER,
                         message: 'Mã danh mục không chứa ký tự đặc biệt',
