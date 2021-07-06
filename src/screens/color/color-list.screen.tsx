@@ -152,7 +152,7 @@ const ColorListScreen: React.FC = () => {
     [onDelete]
   );
   useEffect(() => {
-    dispatch(getColorAction(params, setData));
+    dispatch(getColorAction({...params, is_main_color: 0,}, setData));
     dispatch(getColorAction({is_main_color: 1}, setSelector));
     return () => {};
   }, [dispatch, params]);
