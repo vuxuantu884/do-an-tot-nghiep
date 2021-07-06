@@ -62,6 +62,7 @@ import { useMemo } from "react";
 import { createRef } from "react";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
+import { showSuccess } from "utils/ToastUtils";
 
 type VariantUpdateParam = {
   id: string;
@@ -106,6 +107,7 @@ const VariantUpdateScreen: React.FC = () => {
   const productStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_status
   );
+  const [loadingSaveButton, setLoadingSaveButton] = useState(false);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
@@ -160,12 +162,21 @@ const VariantUpdateScreen: React.FC = () => {
     },
     [setData]
   );
-  const onSuccess = useCallback(() => {
-    history.push(UrlConfig.PRODUCT);
-  }, [history]);
+  const onSuccess = useCallback(
+    (result: VariantResponse) => {
+      if (result) {
+        history.push(UrlConfig.PRODUCT);
+        showSuccess("Cập nhật dữ liệu thành công");
+      } else {
+        setLoadingSaveButton(false);
+      }
+    },
+    [history]
+  );
   const onFinish = useCallback(
     (values: VariantUpdateView) => {
       debugger;
+      setLoadingSaveButton(true);
       // let request = Products.convertProductViewToRequest(
       //   values,
       //   variants,
@@ -941,7 +952,11 @@ const VariantUpdateScreen: React.FC = () => {
           <div className="margin-top-10" style={{ textAlign: "right" }}>
             <Space size={12}>
               <Button onClick={onCancel}>Huỷ</Button>
-              <Button type="primary" htmlType="submit">
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loadingSaveButton}
+              >
                 Lưu
               </Button>
             </Space>
