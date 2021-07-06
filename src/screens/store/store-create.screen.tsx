@@ -34,8 +34,8 @@ import {GroupResponse} from 'model/content/group.model';
 import CustomDatepicker from 'component/custom/date-picker.custom';
 import {RootReducerType} from 'model/reducers/RootReducerType';
 import UrlConfig from 'config/UrlConfig';
-import {Email} from 'utils/RegUtils';
 import ContentContainer from 'component/container/content.container';
+import { RegUtil } from 'utils/RegUtils';
 
 const {Item} = Form;
 const {Panel} = Collapse;
@@ -274,7 +274,7 @@ const StoreCreateScreen: React.FC = () => {
                 <Item
                   rules={[
                     {
-                      pattern: Email,
+                      pattern: RegUtil.EMAIL,
                       message: 'Vui lòng nhập đúng định dạng email',
                     },
                   ]}

@@ -1,6 +1,6 @@
 import {Input} from 'antd';
 import { CSSProperties, useCallback } from 'react';
-import { FLOATREG, NUMBERREG } from 'utils/RegUtils';
+import { RegUtil } from 'utils/RegUtils';
 
 type NumberInputProps = {
   value?: string,
@@ -24,12 +24,12 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       return;
     }
     if(isFloat) {
-      if(FLOATREG.test(value)) {
+      if(RegUtil.FLOATREG.test(value)) {
         onChange && onChange(value)
         return;
       }
     }
-    if(NUMBERREG.test(value)) {
+    if(RegUtil.NUMBERREG.test(value)) {
       onChange && onChange(value)
       return;
     }

@@ -25,9 +25,9 @@ import {
 } from "model/other/Order/order-model";
 import { orderCreateAction } from "domain/actions/order/order.action";
 import { showSuccess } from "utils/ToastUtils";
-import { Email } from "utils/RegUtils";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import 'assets/css/v2/_sale-order.scss'
+import { RegUtil } from "utils/RegUtils";
 
 
 const CreateBill = () => {
@@ -147,8 +147,7 @@ const CreateBill = () => {
   }, [history]);
 
   const validateEmail = (email: string) => {
-    const re = Email;
-    return re.test(email);
+    return RegUtil.EMAIL.test(email);
   };
 
   const finishOrder = () => {

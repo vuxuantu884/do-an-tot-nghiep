@@ -46,7 +46,7 @@ import imgdefault from "assets/icon/img-default.svg";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
-import { Email } from "utils/RegUtils";
+import { RegUtil } from "utils/RegUtils";
 //#endregion
 
 type CustomerCardProps = {
@@ -263,8 +263,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   };
 
   const ValidateEmail = (email: string) => {
-    const resquest = Email;
-    return resquest.test(email);
+    return RegUtil.EMAIL.test(email);
   };
 
   return (

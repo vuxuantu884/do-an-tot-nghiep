@@ -57,7 +57,6 @@ import {
   VariantImageRequest,
   VariantRequestView,
 } from 'model/product/product.model';
-import {CODE, STRINGUTF8} from 'utils/RegUtils';
 import NumberInput from 'component/custom/number-input.custom';
 import {AccountSearchAction} from 'domain/actions/account/account.action';
 import {AppConfig} from 'config/AppConfig';
@@ -68,6 +67,7 @@ import {productCreateAction} from 'domain/actions/product/products.action';
 import UploadImageModal from './component/upload-image.modal';
 import ImageProduct from './component/image-product.component';
 import ContentContainer from 'component/container/content.container';
+import { RegUtil } from 'utils/RegUtils';
 
 const {Option} = Select;
 const {Item, List} = Form;
@@ -560,7 +560,7 @@ const ProductCreateScreen: React.FC = () => {
                       message: 'Mã sản phẩm bao gồm 7 kí tự',
                     },
                     {
-                      pattern: CODE,
+                      pattern: RegUtil.NO_SPECICAL_CHARACTER,
                       message: 'Mã sản phẩm chỉ gồm chữ và số',
                     },
                   ]}
@@ -583,7 +583,7 @@ const ProductCreateScreen: React.FC = () => {
                       message: 'Vui lòng nhập tên sản phẩm',
                     },
                     {
-                      pattern: STRINGUTF8,
+                      pattern: RegUtil.STRINGUTF8,
                       message: 'Tên sản phẩm không báo gồm kí tự đặc biệt',
                     },
                   ]}

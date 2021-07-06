@@ -30,6 +30,7 @@ import {
 } from 'model/product/category.model';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
+import { RegUtil } from 'utils/RegUtils';
 
 let initialRequest: CategoryCreateRequest = {
   code: '',
@@ -101,7 +102,6 @@ const AddCategory: React.FC = () => {
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
-                  className="form-group form-group-with-search"
                   rules={[
                     {required: true, message: 'Vui lòng nhập tên danh mục'},
                   ]}
@@ -123,7 +123,6 @@ const AddCategory: React.FC = () => {
                       message: 'Vui lòng nhập thành phần chất liệu',
                     },
                   ]}
-                  className="form-group form-group-with-search"
                   name="goods"
                   label="Ngành hàng"
                 >
@@ -145,11 +144,10 @@ const AddCategory: React.FC = () => {
                     {required: true, message: 'Vui lòng nhập mã danh mục'},
                     {len: 3, message: 'Mã danh mục gồm 3 kí tự'},
                     {
-                      pattern: new RegExp("^\\S*$"),
-                      message: "Mã danh mục không được chứa khoảng trắng"
+                      pattern: RegUtil.NO_SPACE,
+                      message: 'Mã danh mục không được chứa khoảng trắng',
                     },
                   ]}
-                  className="form-group form-group-with-search"
                   name="code"
                   labelAlign="right"
                   label="Mã danh mục"
@@ -163,11 +161,7 @@ const AddCategory: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Form.Item
-                  className="form-group form-group-with-search"
-                  name="parent_id"
-                  label="Danh mục cha"
-                >
+                <Form.Item name="parent_id" label="Danh mục cha">
                   <TreeSelect treeDefaultExpandAll className="selector">
                     <TreeNode value={-1} title="Danh mục cha" />
                     {categories.map((item, index) => (
