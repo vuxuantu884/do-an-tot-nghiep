@@ -78,7 +78,7 @@ const initRequest: AccountView = {
 };
 
 const initRoleQuery: RoleSearchQuery = {
-  page: 0,
+  page: 1,
   size: 200,
 };
 

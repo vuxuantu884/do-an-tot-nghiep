@@ -32,6 +32,7 @@ import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
 import { RegUtil } from 'utils/RegUtils';
 
+
 let initialRequest: CategoryCreateRequest = {
   code: '',
   parent_id: -1,
@@ -56,7 +57,7 @@ const AddCategory: React.FC = () => {
     return [];
   }, [bootstrapReducer]);
   const onSuccess = useCallback(() => {
-    history.push('/categories');
+    history.push(UrlConfig.CATEGORIES);
   }, [history]);
   const onFinish = useCallback(
     (values: CategoryCreateRequest) => {
@@ -147,16 +148,22 @@ const AddCategory: React.FC = () => {
                       pattern: RegUtil.NO_SPACE,
                       message: 'Mã danh mục không được chứa khoảng trắng',
                     },
+                    {
+                      pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                      message: "Mã danh mục không chứa ký tự đặc biệt"
+                    },
                   ]}
                   name="code"
                   labelAlign="right"
                   label="Mã danh mục"
+                  normalize={value => (value || '').toUpperCase()}
                 >
                   <Input
                     maxLength={3}
                     className="r-5"
                     placeholder="Mã danh mục"
                     size="large"
+                    
                   />
                 </Form.Item>
               </Col>

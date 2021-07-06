@@ -46,7 +46,7 @@ const ColorUpdateScreen: React.FC = () => {
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const onSuccess = useCallback(() => {
-    history.push('/materials');
+    history.push(UrlConfig.COLORS);
   }, [history]);
   const onFinish = useCallback(
     (values: ColorCreateRequest) => {
@@ -177,12 +177,13 @@ const ColorUpdateScreen: React.FC = () => {
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Form.Item
                       rules={[
-                        {required: true, message: 'Vui lòng nhập mã chất liệu'},
+                        {required: true, message: 'Vui lòng nhập mã màu'},
                       ]}
                       className="form-group form-group-with-search"
                       name="code"
                       labelAlign="right"
                       label="Mã màu"
+                      normalize={value => (value || '').toUpperCase()}
                     >
                       <Input
                         className="r-5"
