@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootReducerType } from 'model/reducers/RootReducerType';
 import { loginRequestAction } from 'domain/actions/auth/auth.action';
 import { useQuery } from 'utils/useQuery';
+import UrlConfig from 'config/UrlConfig';
 
 
 
@@ -21,7 +22,7 @@ const Login = () => {
   }, [dispatch]);
   if(isLogin) {
     let url = query.get('returnUrl');
-    return <Redirect to={url !== null ? url: '/'} />
+    return <Redirect to={url !== null ? url: UrlConfig.HOME} />
   }
   return (
     <div className={'container-login'}>
