@@ -1,8 +1,8 @@
 
-const BASE_URL = '/admin';
+const BASE_URL = '';
 
 const UrlConfig = {
-  HOME: `${BASE_URL}`,
+  HOME: `/`,
   LOGIN: `${BASE_URL}/login`,
   PRODUCT: `${BASE_URL}/products`,
   VARIANTS: `${BASE_URL}/products/variants`,

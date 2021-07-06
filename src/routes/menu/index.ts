@@ -3,6 +3,7 @@ import { RouteMenu } from "model/other";
 import setting from './setting';
 import product from './product';
 import bill from './bill';
+import UrlConfig from 'config/UrlConfig';
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
@@ -11,7 +12,7 @@ const OrderOnline = React.lazy(() => import ("screens/order-online/order-online.
 
 const menu: Array<RouteMenu> = [
   {
-    path: "/admin",
+    path: UrlConfig.HOME,
     exact: true,
     title: "Tổng quan",
     icon: 'icon-dashboard',
@@ -24,7 +25,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/admin/products",
+    path: "/products",
     exact: true,
     title: "Sản phẩm",
     icon: 'icon-product',
@@ -37,7 +38,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/admin/inventory",
+    path: "/inventory",
     exact: true,
     title: "Kho hàng",
     icon: 'icon-inventory',
@@ -63,7 +64,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/admin/bill",
+    path: "/bill",
     exact: true,
     title: "Đơn hàng",
     icon: 'icon-order',
@@ -76,7 +77,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/admin/customer",
+    path: "/customer",
     exact: true,
     title: "Khách hàng",
     icon: 'icon-customer',
@@ -89,7 +90,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/admin/promotion",
+    path: "/promotion",
     exact: true,
     title: "Khuyến mại",
     icon: 'icon-promotion',
@@ -102,7 +103,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/admin/report",
+    path: "/report",
     exact: true,
     title: "Báo cáo",
     icon: 'icon-report',
@@ -115,7 +116,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/admin/setting",
+    path: "/setting",
     exact: true,
     title: "Cài đặt",
     icon: 'icon-setting',
