@@ -54,6 +54,7 @@ const Category = () => {
   const [data, setData] = useState<Array<CategoryView>>([]);
   const [selected, setSelected] = useState<Array<CategoryView>>([]);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
@@ -123,6 +124,7 @@ const Category = () => {
   const onGetSuccess = useCallback((results: Array<CategoryResponse>) => {
     let newData: Array<CategoryView> = convertCategory(results);
     setData(newData);
+    setLoading(false);
   }, []);
   const onDeleteSuccess = useCallback(() => {
     setSelected([]);
@@ -166,6 +168,7 @@ const Category = () => {
     setSelected(selectedRow);
   }, []);
   useEffect(() => {
+    setLoading(true);
     dispatch(getCategoryRequestAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params]);
   return (
@@ -224,6 +227,7 @@ const Category = () => {
           </Form>
         </CustomFilter>
         <CustomTable
+          isLoading={loading}
           onSelectedChange={onSelect}
           pagination={false}
           dataSource={data}
