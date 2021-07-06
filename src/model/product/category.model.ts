@@ -1,10 +1,9 @@
 import { BaseObject } from 'model/base/base.response';
 
 export interface CategoryQuery {
-  code?: string, 
+  query?: string, 
   created_name?: string, 
-  goods?: string, 
-  name?: string
+  goods?: string,
 }
 
 export interface CategoryCreateRequest {

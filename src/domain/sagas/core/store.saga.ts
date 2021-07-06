@@ -4,7 +4,6 @@ import { showError } from "utils/ToastUtils";
 import { StoreResponse } from "model/core/store.model";
 import { getListStore } from "service/core/store.service";
 import { call, put, takeLatest } from "@redux-saga/core/effects";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { HttpStatus } from "config/HttpStatus";
 import { StoreType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";

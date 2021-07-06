@@ -116,7 +116,7 @@ const setting: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/roles",
+    path: UrlConfig.ROLES,
     exact: true,
     title: "Quản lý nhóm quyền",
     icon: 'icon-dot',
