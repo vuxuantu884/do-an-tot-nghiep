@@ -59,19 +59,26 @@ const Category = () => {
   }, [bootstrapReducer]);
   const columns = [
     {
-      title: 'Ngành hàng',
-      dataIndex: 'goods_name',
+      title: "Mã danh mục",
+      dataIndex: "code",
+      render: (text: string, item: CategoryView) => {
+        return <Link to={`${UrlConfig.CATEGORIES}/${item.id}`}>{text}</Link>;
+      },
+    },
+    {
+      title: "Ngành hàng",
+      dataIndex: "goods_name",
     },
 
     {
-      title: 'Danh mục',
-      dataIndex: 'name',
+      title: "Danh mục",
+      dataIndex: "name",
       render: (value: string, item: CategoryView) => (
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            flexDirection: 'row',
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "row",
           }}
         >
           {item.level > 0 && (
@@ -80,7 +87,7 @@ const Category = () => {
                 borderRadius: 2,
                 width: 20 * item.level,
                 height: 3,
-                background: 'rgba(42, 42, 134, 0.2)',
+                background: "rgba(42, 42, 134, 0.2)",
                 marginRight: 8,
               }}
             />
@@ -90,26 +97,19 @@ const Category = () => {
       ),
     },
     {
-      title: 'Thuộc danh mục',
-      dataIndex: 'parent',
-      render: (item: CategoryParent) => (item != null ? item.name : ''),
+      title: "Thuộc danh mục",
+      dataIndex: "parent",
+      render: (item: CategoryParent) => (item != null ? item.name : ""),
     },
     {
-      title: 'Mã danh mục',
-      dataIndex: 'code',
-      render: (text: string, item: CategoryView) => {
-        return <Link to={`${UrlConfig.CATEGORIES}/${item.id}`}>{text}</Link>;
-      },
-    },
-    {
-      title: 'Người tạo',
-      dataIndex: 'created_name',
+      title: "Người tạo",
+      dataIndex: "created_name",
     },
   ];
   const onFinish = useCallback(
     (values: CategoryQuery) => {
       let query = generateQuery(values);
-      setPrams({...values});
+      setPrams({ ...values });
       return history.replace(`${UrlConfig.CATEGORIES}?${query}`);
     },
     [history]

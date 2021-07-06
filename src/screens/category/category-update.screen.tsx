@@ -176,6 +176,7 @@ const CategoryUpdate: React.FC = () => {
                     name="code"
                     labelAlign="right"
                     label="Mã danh mục"
+                    normalize={value => (value || '').toUpperCase()}
                   >
                     <Input
                       className="r-5"
