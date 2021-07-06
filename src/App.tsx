@@ -22,7 +22,7 @@ function App() {
   }, [dispatch, isLoad]);
   return (
     <Suspense fallback={<SplashScreen />}>
-      <BrowserRouter basename="/unicorn/admin">
+      <BrowserRouter basename="/unicorn">
         <MainRoute />
       </BrowserRouter>
     </Suspense>
