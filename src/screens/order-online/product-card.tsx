@@ -319,7 +319,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             replace={(a: string) => replaceFormatString(a)}
             placeholder="VD: 100,000"
             style={{ minWidth: 110, maxWidth: 130, textAlign: "right" }}
-            value={l.price.toString()}
+            value={l.price}
           />
         </div>
       );
