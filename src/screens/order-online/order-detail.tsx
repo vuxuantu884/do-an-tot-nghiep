@@ -19,7 +19,7 @@ import {
   DatePicker,
   Input,
   FormInstance,
-  Select
+  Select,
 } from "antd";
 import documentIcon from "../../assets/img/document.svg";
 import UpdatePaymentCard from "./update-payment-card";
@@ -91,7 +91,7 @@ import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
-import  CustomSelect  from "component/custom/select.custom";
+import CustomSelect from "component/custom/select.custom";
 
 const { Panel } = Collapse;
 //#endregion
@@ -115,6 +115,8 @@ const OrderDetail = () => {
   const [isVisibleShipping, setVisibleShipping] = useState(false);
   const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
   const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
+  const [isError, setError] = useState<boolean>(false);
+  const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [storeDetail, setStoreDetail] = useState<StoreResponse>();
@@ -181,10 +183,22 @@ const OrderDetail = () => {
     setVisibleBillingAddress(false);
   };
 
+  const onGetDetailSuccess = useCallback((data: false|OrderResponse) => {
+    setLoadingData(false)
+    if(!data) {
+      setError(true);
+    } else {
+      setOrderDetail(data);
+    }
+  }, []);
+
   useEffect(() => {
     if (isFirstLoad.current) {
       if (!Number.isNaN(OrderId)) {
-        dispatch(OrderDetailAction(OrderId, setOrderDetail));
+        dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
+      }
+      else{
+        setError(true);
       }
     }
     isFirstLoad.current = false;
@@ -461,6 +475,8 @@ const OrderDetail = () => {
   //#endregion
   return (
     <ContentContainer
+      isLoading={loadingData}
+      isError={isError}
       title="Đơn hàng"
       breadcrumb={[
         {
@@ -1161,6 +1177,7 @@ const OrderDetail = () => {
                               showArrow
                               style={{ width: "100%" }}
                               placeholder="Chọn yêu cầu"
+                              notFoundContent="Không có dữ liệu"
                               filterOption={(input, option) => {
                                 if (option) {
                                   return (
@@ -1197,6 +1214,7 @@ const OrderDetail = () => {
                                 className="select-with-search"
                                 showSearch
                                 style={{ width: "100%" }}
+                                notFoundContent="Không có dữ liệu"
                                 placeholder="Chọn đối tác giao hàng"
                                 suffix={
                                   <Button

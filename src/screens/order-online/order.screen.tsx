@@ -316,6 +316,7 @@ export default function Order() {
           layout="vertical"
           initialValues={initialForm}
           ref={formRef}
+          scrollToFirstError
           onFinish={onFinish}
         >
           <Form.Item noStyle hidden name="action">
@@ -383,6 +384,7 @@ export default function Order() {
                     <Select
                       className="select-with-search"
                       showSearch
+                      notFoundContent="Không có dữ liệu"
                       placeholder="Chọn nhân viên bán hàng"
                       filterOption={(input, option) => {
                         if (option) {

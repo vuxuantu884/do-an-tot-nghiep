@@ -655,6 +655,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Select
                 className="select-with-search"
                 showSearch
+                notFoundContent="Không có dữ liệu"
                 style={{ width: "100%" }}
                 placeholder="Chọn cửa hàng"
                 onChange={props.selectStore}

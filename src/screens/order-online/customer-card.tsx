@@ -253,6 +253,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           >
             <CustomSelect
               style={{ width: 300 }}
+              showSearch
               showArrow
               placeholder="Chọn nguồn đơn hàng"
               notFoundContent="Không có dữ liệu"

@@ -112,6 +112,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 className="select-with-search"
                 showSearch
                 showArrow
+                notFoundContent="Không có dữ liệu"
                 style={{ width: "100%" }}
                 placeholder="Chọn yêu cầu"
                 filterOption={(input, option) => {
@@ -148,6 +149,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               <CustomSelect
                 className="select-with-search"
                 showSearch
+                notFoundContent="Không có dữ liệu"
                 style={{ width: "100%" }}
                 placeholder="Chọn đối tác giao hàng"
                 suffix={
