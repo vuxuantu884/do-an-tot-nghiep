@@ -39,7 +39,7 @@ const ColorListScreen: React.FC = () => {
   const [data, setData] = useState<PageResponse<ColorResponse>>({
     metadata: {
       limit: 0,
-      page: 0,
+      page: 1,
       total: 0,
     },
     items: [],
@@ -47,7 +47,7 @@ const ColorListScreen: React.FC = () => {
   const [selector, setSelector] = useState<PageResponse<ColorResponse>>({
     metadata: {
       limit: 0,
-      page: 0,
+      page: 1,
       total: 0,
     },
     items: [],
@@ -124,20 +124,20 @@ const ColorListScreen: React.FC = () => {
   }, []);
   const onFinish = useCallback(
     (values) => {
-      let newPrams = {...params, ...values, page: 0};
+      let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`/colors?${queryParam}`);
+      history.push(`${UrlConfig.COLORS}?${queryParam}`);
     },
     [history, params]
   );
   const onPageChange = useCallback(
-    (size, page) => {
-      params.page = page - 1;
+    (page, size) => {
+      params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({...params});
-      history.replace(`/colors?${queryParam}`);
+      history.replace(`${UrlConfig.COLORS}?${queryParam}`);
     },
     [history, params]
   );
@@ -152,7 +152,7 @@ const ColorListScreen: React.FC = () => {
     [onDelete]
   );
   useEffect(() => {
-    dispatch(getColorAction(params, setData));
+    dispatch(getColorAction({...params, is_main_color: 0,}, setData));
     dispatch(getColorAction({is_main_color: 1}, setSelector));
     return () => {};
   }, [dispatch, params]);
@@ -162,7 +162,7 @@ const ColorListScreen: React.FC = () => {
       breadcrumb={[
         {
           name: 'Tổng quản',
-          path: '/',
+          path: UrlConfig.HOME,
         },
         {
           name: 'Sản phẩm',
@@ -220,7 +220,7 @@ const ColorListScreen: React.FC = () => {
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
-            current: data.metadata.page + 1,
+            current: data.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,

@@ -103,6 +103,11 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
             }
             return (
               <Menu.Item
+                onClick={() => {
+                  if(!route.isShow) {
+                    window.location.href = route.path
+                  }
+                }}
                 icon={
                   <i
                     className={route.icon}
@@ -111,7 +116,9 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
                 }
                 key={route.key}
               >
-                <Link to={route.path}>{route.title}</Link>
+                {
+                  route.isShow ? <Link to={route.path}>{route.title}</Link> : route.title
+                }
               </Menu.Item>
             );
           })}

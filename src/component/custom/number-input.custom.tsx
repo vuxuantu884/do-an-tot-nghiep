@@ -1,11 +1,11 @@
 import {Input} from 'antd';
 import { CSSProperties, useCallback } from 'react';
-import { FLOATREG, NUMBERREG } from 'utils/RegUtils';
+import { RegUtil } from 'utils/RegUtils';
 
 type NumberInputProps = {
-  value?: string,
+  value?: number,
   isFloat?: boolean,
-  onChange?: (v: string|null) => void,
+  onChange?: (v: number|null) => void,
   onBlur?: () => void,
   style?: CSSProperties,
   placeholder?: string,
@@ -24,30 +24,31 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       return;
     }
     if(isFloat) {
-      if(FLOATREG.test(value)) {
-        onChange && onChange(value)
+      if(RegUtil.FLOATREG.test(value)) {
+        onChange && onChange(parseFloat(value))
         return;
       }
     }
-    if(NUMBERREG.test(value)) {
-      onChange && onChange(value)
+    if(RegUtil.NUMBERREG.test(value)) {
+      onChange && onChange(parseInt(value))
       return;
     }
   }, [format, isFloat, onChange, replace])
   const onBlurEvent = useCallback((e) => {
-    let valueTemp = value;
-    if(value) {
-      if (value.charAt(value.length - 1) === '.' || value === '-') {
-        valueTemp = value.slice(0, -1);
+    let temp = value?.toString();
+    let valueTemp = temp;
+    if(temp) {
+      if (temp.charAt(temp.length - 1) === '.' || temp === '-') {
+        valueTemp = temp.slice(0, -1);
       }
-      (onChange && valueTemp) && onChange(valueTemp.replace(/0*(\d+)/, '$1'));
+      (onChange && valueTemp) && onChange(parseFloat(valueTemp.replace(/0*(\d+)/, '$1')));
     }
     onBlur && onBlur();
   }, [onBlur, onChange, value])
   return (
     <Input
       placeholder={placeholder}
-      value={value && format ? format(value) : value}
+      value={value && format ? format(value.toString()) : value}
       style={style}
       onBlur={onBlurEvent}
       onChange={onChangeText}

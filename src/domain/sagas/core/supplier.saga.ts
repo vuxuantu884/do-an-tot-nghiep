@@ -2,7 +2,6 @@ import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { SupplierType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse } from "model/core/supplier.model";
@@ -13,12 +12,10 @@ import { showError } from "utils/ToastUtils";
 function* supplierSearchSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    yield put(showLoading());
     let response: BaseResponse<PageResponse<SupplierResponse>> = yield call(
       supplierGetApi,
       query
     );
-    yield put(hideLoading());
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -31,7 +28,6 @@ function* supplierSearchSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -55,7 +51,7 @@ function* supplierGetAllSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     console.log("supplierGetAllSaga:" + error);
     showError("Có lỗi vui lòng thử lại sau");
   }
@@ -64,12 +60,12 @@ function* supplierGetAllSaga(action: YodyAction) {
 function* supplierCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<SupplierResponse> = yield call(
       supplierPostApi,
       request
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -82,7 +78,7 @@ function* supplierCreateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

@@ -93,7 +93,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
   >({
     metadata: {
       limit: 0,
-      page: 0,
+      page: 1,
       total: 0,
     },
     items: [],

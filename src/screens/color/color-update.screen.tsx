@@ -36,7 +36,7 @@ const ColorUpdateScreen: React.FC = () => {
   const [selector, setSelector] = useState<PageResponse<ColorResponse>>({
     metadata: {
       limit: 0,
-      page: 0,
+      page: 1,
       total: 0,
     },
     items: [],
@@ -46,7 +46,7 @@ const ColorUpdateScreen: React.FC = () => {
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const onSuccess = useCallback(() => {
-    history.push('/materials');
+    history.push(UrlConfig.COLORS);
   }, [history]);
   const onFinish = useCallback(
     (values: ColorCreateRequest) => {
@@ -81,7 +81,7 @@ const ColorUpdateScreen: React.FC = () => {
       breadcrumb={[
         {
           name: 'Tổng quản',
-          path: '/',
+          path: UrlConfig.HOME,
         },
         {
           name: 'Sản phẩm',
@@ -102,7 +102,7 @@ const ColorUpdateScreen: React.FC = () => {
         onFinish={onFinish}
         layout="vertical"
       >
-        <Card className="card-block card-block-normal" title="Thông tin cơ bản">
+        <Card title="Thông tin cơ bản">
           <div className="padding-20">
             <Row gutter={50}>
               <Col
@@ -177,12 +177,13 @@ const ColorUpdateScreen: React.FC = () => {
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Form.Item
                       rules={[
-                        {required: true, message: 'Vui lòng nhập mã chất liệu'},
+                        {required: true, message: 'Vui lòng nhập mã màu'},
                       ]}
                       className="form-group form-group-with-search"
                       name="code"
                       labelAlign="right"
                       label="Mã màu"
+                      normalize={value => (value || '').toUpperCase()}
                     >
                       <Input
                         className="r-5"

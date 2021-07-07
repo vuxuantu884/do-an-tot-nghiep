@@ -1,4 +1,5 @@
 import AuthRoute from "component/auth.route";
+import UrlConfig from "config/UrlConfig";
 import { RouteMenu } from "model/other";
 import React from "react";
 import { Route, Switch } from "react-router-dom";
@@ -21,7 +22,9 @@ const getAllRoute = (route: RouteMenu) => {
       temps = [...temps, ...menu]
     })
   }
-  temps.push(route);
+  if(route.isShow) {
+    temps.push(route);
+  }
   return temps;
 }
 
@@ -33,7 +36,7 @@ const MainRoute = () => {
           <AuthRoute type={item.type} object={item.object} key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
         ))
       }
-      <Route path="/login" component={Login} />
+      <Route path={UrlConfig.LOGIN} exact={true} component={Login} />
       <Route component={NotFoundScreen} />
     </Switch>
   )

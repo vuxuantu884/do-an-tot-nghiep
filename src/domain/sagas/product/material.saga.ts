@@ -10,7 +10,6 @@ import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { MaterialType } from "domain/types/product.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MaterialResponse } from "model/product/material.model";
@@ -20,12 +19,12 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 function* materialGetSaga(action: YodyAction) {
   const { query, setData, setMetadata } = action.payload;
   try {
-    yield put(showLoading());
+   
     let response: BaseResponse<PageResponse<MaterialResponse>> = yield call(
       getMaterialApi,
       query
     );
-    yield put(hideLoading());
+   
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setMetadata(response.data.metadata);
@@ -39,7 +38,7 @@ function* materialGetSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+   
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -47,12 +46,12 @@ function* materialGetSaga(action: YodyAction) {
 function* materialSearchAllSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    yield put(showLoading());
+   
     let response: BaseResponse<PageResponse<MaterialResponse>> = yield call(
       getMaterialApi,
       query
     );
-    yield put(hideLoading());
+  
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
@@ -65,7 +64,7 @@ function* materialSearchAllSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+   
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -73,9 +72,9 @@ function* materialSearchAllSaga(action: YodyAction) {
 function* materialDeleteOneSaga(action: YodyAction) {
   let { id, onDeleteSuccess } = action.payload;
   try {
-    yield put(showLoading());
+   
     let response: BaseResponse<string> = yield call(deleteOneMaterialApi, id);
-    yield put(hideLoading());
+   
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onDeleteSuccess();
@@ -88,7 +87,7 @@ function* materialDeleteOneSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+  
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -96,9 +95,9 @@ function* materialDeleteOneSaga(action: YodyAction) {
 function* materialDeleteManySaga(action: YodyAction) {
   let { ids, onDeleteSuccess } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<string> = yield call(deleteManyMaterialApi, ids);
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onDeleteSuccess();
@@ -111,7 +110,7 @@ function* materialDeleteManySaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -119,12 +118,12 @@ function* materialDeleteManySaga(action: YodyAction) {
 function* materialCreateSaga(action: YodyAction) {
   let { request, onCreateSuccess } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<MaterialResponse> = yield call(
       createMaterialApi,
       request
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess();
@@ -137,7 +136,7 @@ function* materialCreateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -145,12 +144,12 @@ function* materialCreateSaga(action: YodyAction) {
 function* materialDetailSaga(action: YodyAction) {
   let { id, setMaterial } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<MaterialResponse> = yield call(
       detailMaterialApi,
       id
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setMaterial(response.data);
@@ -163,7 +162,7 @@ function* materialDetailSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -171,13 +170,13 @@ function* materialDetailSaga(action: YodyAction) {
 function* materialUpdateSaga(action: YodyAction) {
   let { id, request, onUpdateSuccess } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<MaterialResponse> = yield call(
       updateMaterialApi,
       id,
       request
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onUpdateSuccess();
@@ -190,7 +189,7 @@ function* materialUpdateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

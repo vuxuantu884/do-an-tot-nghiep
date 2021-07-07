@@ -48,6 +48,7 @@ import imgdefault from "assets/icon/img-default.svg";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
+import { RegUtil } from "utils/RegUtils";
 //#endregion
 
 type CustomerCardProps = {

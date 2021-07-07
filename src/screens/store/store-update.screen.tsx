@@ -35,9 +35,9 @@ import {GroupResponse} from 'model/content/group.model';
 import CustomDatepicker from 'component/custom/date-picker.custom';
 import {useParams} from 'react-router-dom';
 import {RootReducerType} from 'model/reducers/RootReducerType';
-import {Email} from 'utils/RegUtils';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
+import { RegUtil } from 'utils/RegUtils';
 
 const {Item} = Form;
 const {Option, OptGroup} = Select;
@@ -93,7 +93,7 @@ const StoreUpdateScreen: React.FC = () => {
     [cityViews, dispatch, formRef]
   );
   const onUpdateSuccess = useCallback(() => {
-    history.push('/suppliers');
+    history.push(UrlConfig.STORE);
   }, [history]);
   const onCancel = useCallback(() => {
     history.goBack();
@@ -127,7 +127,7 @@ const StoreUpdateScreen: React.FC = () => {
       breadcrumb={[
         {
           name: 'Tổng quản',
-          path: '/',
+          path: UrlConfig.HOME,
         },
         {
           name: 'Cửa hàng',
@@ -146,7 +146,7 @@ const StoreUpdateScreen: React.FC = () => {
           onFinish={onFinish}
         >
           <Card
-            className="card-block card-block-normal"
+            
             title="Thông tin cơ bản"
             extra={
               <div className="v-extra d-flex align-items-center">
@@ -266,7 +266,7 @@ const StoreUpdateScreen: React.FC = () => {
                       },
                     ]}
                   >
-                    <Input placeholder="Nhập địa chỉ" size="large" />
+                    <Input placeholder="Nhập địa chỉ" />
                   </Item>
                 </Col>
               </Row>
@@ -280,7 +280,7 @@ const StoreUpdateScreen: React.FC = () => {
                   <Item
                     rules={[
                       {
-                        pattern: Email,
+                        pattern: RegUtil.EMAIL,
                         message: 'Vui lòng nhập đúng định dạng email',
                       },
                     ]}

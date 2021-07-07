@@ -87,8 +87,8 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { Select } from "component/common/select";
-
 const { Panel } = Collapse;
+
 //#endregion
 
 type OrderParam = {

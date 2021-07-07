@@ -6,6 +6,7 @@ import {MaterialCreateRequest} from 'model/product/material.model';
 import {createRef, useCallback} from 'react';
 import {useDispatch} from 'react-redux';
 import {useHistory} from 'react-router';
+import {RegUtil} from 'utils/RegUtils';
 
 let initialRequest: MaterialCreateRequest = {
   code: '',
@@ -36,7 +37,7 @@ const AddMaterial: React.FC = () => {
       breadcrumb={[
         {
           name: 'Tổng quản',
-          path: '/',
+          path: UrlConfig.HOME,
         },
         {
           name: 'Sản phẩm',
@@ -62,37 +63,28 @@ const AddMaterial: React.FC = () => {
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
-                  className="form-group form-group-with-search"
                   rules={[
-                    {required: true, message: 'Vui lòng nhập tên chất liệu'},
+                    {
+                      required: true,
+                      message: 'Vui lòng nhập tên chất liệu',
+                    },
+                    {
+                      max: 50,
+                      message: 'Tên chất liệu không vượt quá 50 ký tự',
+                    },
                   ]}
                   label="Tên chất liệu"
                   name="name"
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Tên danh mục"
-                    size="large"
-                  />
+                  <Input maxLength={50} placeholder="Cotton" />
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Vui lòng nhập thành phần chất liệu',
-                    },
-                  ]}
-                  className="form-group form-group-with-search"
                   name="component"
                   label="Thành phần"
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Thành phần"
-                    size="large"
-                  />
+                  <Input placeholder="Nhập thành phần" />
                 </Form.Item>
               </Col>
             </Row>
@@ -100,31 +92,28 @@ const AddMaterial: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
                   rules={[
-                    {required: true, message: 'Vui lòng nhập mã chất liệu'},
+                    {
+                      required: true,
+                      message: 'Vui lòng nhập mã chất liệu',
+                    },
+                    {
+                      pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                      message: 'Mã chất liệu không chứa ký tự đặc biệt',
+                    },
+                    {
+											max: 5,
+											message: 'Mã danh mục không quá 5 kí tự'
+										},
                   ]}
-                  className="form-group form-group-with-search"
                   name="code"
-                  labelAlign="right"
                   label="Mã chất liệu"
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Mã chất liệu"
-                    size="large"
-                  />
+                  <Input placeholder="CTN01" maxLength={5} />
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Form.Item
-                  className="form-group form-group-with-search"
-                  name="description"
-                  label="Ghi chú"
-                >
-                  <Input
-                    className="r-5"
-                    placeholder="Mã chất liệu"
-                    size="large"
-                  />
+                <Form.Item name="description" label="Ghi chú">
+                  <Input placeholder="Nhập ghi chú" />
                 </Form.Item>
               </Col>
             </Row>

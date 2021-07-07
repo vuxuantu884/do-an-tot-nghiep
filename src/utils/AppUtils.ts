@@ -156,7 +156,7 @@ export const getArrCategory = (
     version: i.version,
     code: i.code,
     goods_name: i.goods_name,
-    gooods: i.gooods,
+    goods: i.goods,
     level: level,
     parent: parentTemp,
     name: i.name,
@@ -340,6 +340,40 @@ export const ListUtil = {
 };
 
 export const Products = {
+  convertVariantPriceViewToRequest:(priceView:Array<VariantPriceViewRequest>)=>{
+    let variant_prices: Array<VariantPriceRequest> = [];
+    priceView.forEach((item) => {
+      let retail_price = parseInt(item.retail_price);
+      let import_price = parseInt(item.import_price);
+      let whole_sale_price = parseInt(item.whole_sale_price);
+      let tax_percent = parseInt(item.tax_percent);
+      if (!isNaN(retail_price)) {
+        variant_prices.push({
+          price: retail_price,
+          price_type: PriceConfig.RETAIL,
+          currency_code: item.currency,
+          tax_percent: tax_percent,
+        });
+      }
+      if (!isNaN(import_price)) {
+        variant_prices.push({
+          price: import_price,
+          price_type: PriceConfig.IMPORT,
+          currency_code: item.currency,
+          tax_percent: tax_percent,
+        });
+      }
+      if (!isNaN(whole_sale_price)) {
+        variant_prices.push({
+          price: whole_sale_price,
+          price_type: PriceConfig.WHOLE_SALE,
+          currency_code: item.currency,
+          tax_percent: tax_percent,
+        });
+      }
+    });
+    return variant_prices;
+  },
   convertProductViewToRequest: (
     pr: ProductRequestView,
     arrVariants: Array<VariantRequestView>,
@@ -430,10 +464,11 @@ export const Products = {
     return image;
   },
   convertVariantRequestToView: (variant: VariantResponse) => {
+    debugger;
     let variantPrices: Array<VariantPriceViewRequest> = [];
     variant.variant_prices.forEach((item) => {
       let index = variantPrices.findIndex(
-        (v) => (v.currency = item.currency_code)
+        (v) => (v.currency === item.currency_code)
       );
       let price = item.price;
       let type = item.price_type;
@@ -471,6 +506,9 @@ export const Products = {
       }
     });
     let variantUpdateView: VariantUpdateView = {
+      id:variant.id,
+      product_id:variant.product_id,
+      supplier_id:variant.supplier_id,
       status: variant.status,
       name: variant.name,
       color_id: variant.color_id,
@@ -480,11 +518,11 @@ export const Products = {
       saleable: variant.saleable,
       deleted: false,
       sku: variant.sku,
-      width: variant.width != null ? variant.width.toString() : "",
-      height: variant.height != null ? variant.height.toString() : "",
-      length: variant.length != null ? variant.length.toString() : "",
+      width: variant.width ,
+      height: variant.height ,
+      length:variant.length ,
       length_unit: variant.length_unit,
-      weight: variant.weight.toString(),
+      weight: variant.weight,
       weight_unit: variant.weight_unit,
       variant_prices: variantPrices,
       product: {
@@ -507,6 +545,7 @@ export const Products = {
         specifications: variant.product.specifications,
         material_id: variant.product.material_id,
       },
+      variant_image:null
     };
     return variantUpdateView;
   },

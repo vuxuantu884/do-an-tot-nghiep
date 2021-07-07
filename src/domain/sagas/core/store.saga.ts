@@ -4,7 +4,6 @@ import { YodyAction } from "base/BaseAction";
 import { showError } from "utils/ToastUtils";
 import { StoreResponse } from "model/core/store.model";
 import { call, put, takeLatest } from "@redux-saga/core/effects";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { HttpStatus } from "config/HttpStatus";
 import { StoreType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -34,7 +33,7 @@ function* storeGetAllSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -58,7 +57,7 @@ function* storeSearchSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -81,7 +80,7 @@ function* storeRanksaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -89,12 +88,12 @@ function* storeRanksaga(action: YodyAction) {
 function* storeCreateSaga(action: YodyAction) {
   const { request, onCreateSuccess } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<StoreResponse> = yield call(
       storesPostApi,
       request
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess(response.data);
@@ -107,7 +106,7 @@ function* storeCreateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -115,13 +114,13 @@ function* storeCreateSaga(action: YodyAction) {
 function* storeUpdateSaga(action: YodyAction) {
   const { id, request, onUpdateSuccess } = action.payload;
   try {
-    yield put(showLoading());
+    
     let response: BaseResponse<StoreResponse> = yield call(
       storesPutApi,
       id,
       request
     );
-    yield put(hideLoading());
+    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onUpdateSuccess(response.data);
@@ -134,7 +133,7 @@ function* storeUpdateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    yield put(hideLoading());
+    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

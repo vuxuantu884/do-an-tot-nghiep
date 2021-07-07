@@ -1,10 +1,9 @@
 import { BaseObject } from 'model/base/base.response';
 
 export interface CategoryQuery {
-  code?: string, 
+  query?: string, 
   created_name?: string, 
-  goods?: string, 
-  name?: string
+  goods?: string,
 }
 
 export interface CategoryCreateRequest {
@@ -20,7 +19,7 @@ export interface CategoryUpdateRequest extends CategoryCreateRequest {
 
 export interface CategoryResponse extends BaseObject {
   name: string,
-  gooods: string,
+  goods: string,
   parent_id: number,
   goods_name: string,
   children: Array<CategoryResponse>,
@@ -29,7 +28,7 @@ export interface CategoryResponse extends BaseObject {
 export interface CategoryView extends BaseObject {
   name: string,
   level: number,
-  gooods: string,
+  goods: string,
   goods_name: string,
   parent: CategoryParent|null
 }
