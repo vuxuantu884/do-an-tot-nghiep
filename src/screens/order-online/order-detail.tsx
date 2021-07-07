@@ -509,10 +509,9 @@ const OrderDetail = () => {
                     style={{
                       float: "left",
                       lineHeight: "40px",
-                      marginRight: "10px",
                     }}
                   >
-                    Nguồn:
+                    <span style={{marginRight: "10px"}}>Nguồn:</span>
                     <span className="text-error">
                       <span style={{ color: "red" }}>
                         {OrderDetail?.source}

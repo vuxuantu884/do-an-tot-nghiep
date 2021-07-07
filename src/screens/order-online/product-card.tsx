@@ -225,7 +225,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 <span style={{ color: '#0080FF' }}></span>
             </div>
         ),
-        width: 255,
+        width: "35%",
         className: 'yody-pos-name',
         render: (l: OrderItemModel, item: any, index: number) => {
             return (
@@ -306,7 +306,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             </div>
         ),
         className: 'yody-pos-quantity text-center',
-        width: 95,
+        width: "10%",
+        align: 'center',
         render: (l: OrderItemModel, item: any, index: number) => {
             return (
                 <div className="yody-pos-qtt">
@@ -326,7 +327,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     const PriceColumnt = {
         title: 'Đơn giá',
         className: 'yody-pos-price text-right',
-        width: 130,
+        width: "15%",
+        align: 'center',
         render: (l: OrderItemModel, item: any, index: number) => {
             return (
                 <div className="yody-pos-price">
@@ -349,7 +351,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     const DiscountColumnt = {
         title: 'Chiết khấu',
         align: 'center',
-        width: 185,
+        width: "25%",
         className: 'yody-table-discount text-right',
         render: (l: OrderItemModel, item: any, index: number) => {
             return (
@@ -370,8 +372,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
     const TotalPriceColumn = {
         title: 'Tổng tiền',
+        align: 'center',
         className: 'yody-table-total-money text-right',
-        // width: 100,
+        width: "15%",
         render: (l: OrderItemModel, item: any, index: number) => {
             return (
                 <div>{formatCurrency(l.line_amount_after_line_discount)}</div>
@@ -381,7 +384,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
     const ActionColumn = {
         title: 'Thao tác',
-        width: 85,
+        width: "10%",
         className: 'yody-table-action text-center',
         render: (l: OrderItemModel, item: any, index: number) => {
             const menu = (
@@ -425,6 +428,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             );
         },
     };
+
     const columns = [
         ProductColumn,
         AmountColumnt,
@@ -621,6 +625,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         }
         return newData;
     }, [listStores, userReducer.account]);
+
     const onUpdateData = useCallback(
         (items: Array<OrderItemModel>) => {
             let data = [...items];
@@ -628,9 +633,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         },
         [items]
     );
+
     const onCancleConfirm = useCallback(() => {
         setVisibleGift(false);
     }, []);
+    
     const onOkConfirm = useCallback(() => {
         setVisibleGift(false);
         let _items = [...items];
@@ -905,7 +912,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                                 Phí ship báo khách
                             </div>
                             <div className="font-weight-500 payment-row-money">
-                                20,000
+                                0
                             </div>
                         </Row>
                         <Divider className="margin-top-5 margin-bottom-5" />
