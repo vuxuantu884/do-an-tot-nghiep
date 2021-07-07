@@ -300,7 +300,7 @@ export default function Order() {
 
     return (
         <ContentContainer
-            title="Quản lý chất liệu"
+            title="Thêm mới đơn hàng online"
             breadcrumb={[
                 {
                     name: 'Tổng quan',
@@ -408,7 +408,7 @@ export default function Order() {
                                                     key={index.toString()}
                                                     value={item.code}
                                                 >
-                                                    {item.full_name}
+                                                    {`${item.full_name} - ${item.code}`}
                                                 </Select.Option>
                                             ))}
                                         </Select>
@@ -421,7 +421,10 @@ export default function Order() {
                                             icon: <InfoCircleOutlined />,
                                         }}
                                     >
-                                        <Input placeholder="Điền tham chiếu" />
+                                        <Input
+                                            placeholder="Điền tham chiếu"
+                                            maxLength={255}
+                                        />
                                     </Form.Item>
                                     <Form.Item
                                         label="Đường dẫn"
@@ -431,7 +434,10 @@ export default function Order() {
                                             icon: <InfoCircleOutlined />,
                                         }}
                                     >
-                                        <Input placeholder="Điền đường dẫn" />
+                                        <Input
+                                            placeholder="Điền đường dẫn"
+                                            maxLength={255}
+                                        />
                                     </Form.Item>
                                 </div>
                             </Card>
@@ -453,7 +459,10 @@ export default function Order() {
                                             icon: <InfoCircleOutlined />,
                                         }}
                                     >
-                                        <Input.TextArea placeholder="Điền Ghi chú" />
+                                        <Input.TextArea
+                                            placeholder="Điền Ghi chú"
+                                            maxLength={500}
+                                        />
                                     </Form.Item>
                                     <Form.Item
                                         label="Tag"

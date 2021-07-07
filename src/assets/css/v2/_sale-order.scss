@@ -545,15 +545,8 @@ input {
 }
 
 .update-shipping {
-    input {
-        height: 34px;
-    }
-    .select-with-search {
-        height: 34px;
-    }
 }
 .form-group-with-search {
-    margin-bottom: 10px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -562,5 +555,5 @@ input {
     }
 }
 .ant-modal-content {
-    width: 600px;
+    width: 700px;
 }

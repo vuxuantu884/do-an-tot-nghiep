@@ -32,10 +32,11 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
                         <div className="form-group form-group-with-search">
                             <Form.Item
                                 label="Tên người nhận"
+                                name="receiver"
                                 rules={[
                                     {
                                         required: true,
-                                        message: 'Please input your username!',
+                                        message: 'Vui lòng nhập tên người nhận',
                                     },
                                 ]}
                             >
@@ -51,11 +52,12 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
                     <Col xs={24} lg={12}>
                         <div className="form-group form-group-with-search">
                             <Form.Item
-                                label="Tên người nhận"
+                                label="Khu vực"
+                                name="location"
                                 rules={[
                                     {
                                         required: true,
-                                        message: 'Please input your username!',
+                                        message: 'Vui lòng chọn khu vực',
                                     },
                                 ]}
                             >
@@ -75,26 +77,28 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
                     <Col xs={24} lg={12}>
                         <div className="form-group form-group-with-search">
                             <Form.Item
-                                label="Tên người nhận"
+                                label="Địa chỉ"
+                                name="address"
                                 rules={[
                                     {
                                         required: true,
-                                        message: 'Please input your username!',
+                                        message: 'Vui lòng nhập địa chỉ',
                                     },
                                 ]}
                             >
-                                <Input placeholder="Địa chỉ" />
+                                <Input placeholder="Nhập địa chỉ" />
                             </Form.Item>
                         </div>
                     </Col>
                     <Col xs={24} lg={12}>
                         <div className="form-group form-group-with-search">
                             <Form.Item
-                                label="Tên người nhận"
+                                label="Phường xã"
+                                name="Phường xã"
                                 rules={[
                                     {
                                         required: true,
-                                        message: 'Please input your username!',
+                                        message: 'Vui lòng chọn phường xã',
                                     },
                                 ]}
                             >
@@ -114,28 +118,24 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
                     <Col xs={24} lg={12}>
                         <div className="form-group form-group-with-search mb-0">
                             <Form.Item
-                                label="Tên người nhận"
+                                label="Số điện thoại"
+                                name="phone number"
                                 rules={[
                                     {
                                         required: true,
-                                        message: 'Please input your username!',
+                                        message: 'Vui lòng nhập số điện thoại',
                                     },
                                 ]}
                             >
-                                <Input placeholder="Số điện thoại" />
+                                <Input placeholder="Nhập số điện thoại" />
                             </Form.Item>
                         </div>
                     </Col>
                     <Col xs={24} lg={12}>
                         <div className="form-group form-group-with-search mb-0">
                             <Form.Item
-                                label="Tên người nhận"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: 'Please input your username!',
-                                    },
-                                ]}
+                                label="Số điện thoại khác có thể gọi"
+                                name="other phone number"
                             >
                                 <Input placeholder="Nhập số điện thoại" />
                             </Form.Item>
