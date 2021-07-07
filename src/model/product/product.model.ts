@@ -224,7 +224,7 @@ export interface VariantRequestView {
   size_id: number|null,
   size: string|null,
   sku: string,
-  quantity: string|null,
+  quantity: number|null,
   variant_images: Array<VariantImageRequest>,
 }
 
