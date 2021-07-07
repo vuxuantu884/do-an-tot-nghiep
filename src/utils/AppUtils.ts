@@ -1,8 +1,9 @@
-import { ConvertDateToUtc } from './DateUtils';
-import { AccountStoreResponse } from 'model/account/account.model';
-import { DistrictResponse } from 'model/content/district.model';
-import { CityView } from 'model/content/district.model';
-import { AppConfig } from 'config/AppConfig';
+import { OrderRequest } from "model/request/order.request";
+import { ConvertDateToUtc } from "./DateUtils";
+import { AccountStoreResponse } from "model/account/account.model";
+import { DistrictResponse } from "model/content/district.model";
+import { CityView } from "model/content/district.model";
+import { AppConfig } from "config/AppConfig";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import moment from "moment";
@@ -77,6 +78,12 @@ const checkPath = (p1: string, p2: string, pathIgnore?: Array<string>) => {
     return urls1.join("/") === urls2.join("/");
   }
   return p1 === p2;
+};
+
+export const formatSuffixPoint = (point: number | string): string => {
+  let format = point.toString();
+  //return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")} điểm`;
+  return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")}`;
 };
 
 export const getListBreadcumb = (
@@ -525,7 +532,8 @@ export const Products = {
         collections: variant.product.product_collections.map(
           (i) => i.collection
         ),
-        tags: variant.product.tags !== null ? variant.product.tags.split(";") : [],
+        tags:
+          variant.product.tags !== null ? variant.product.tags.split(";") : [],
         product_unit: variant.product.unit,
         brand: variant.product.brand,
         content: variant.product.content,

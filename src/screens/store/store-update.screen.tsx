@@ -93,7 +93,7 @@ const StoreUpdateScreen: React.FC = () => {
     [cityViews, dispatch, formRef]
   );
   const onUpdateSuccess = useCallback(() => {
-    history.push('/suppliers');
+    history.push(UrlConfig.STORE);
   }, [history]);
   const onCancel = useCallback(() => {
     history.goBack();
@@ -266,7 +266,7 @@ const StoreUpdateScreen: React.FC = () => {
                       },
                     ]}
                   >
-                    <Input placeholder="Nhập địa chỉ" size="large" />
+                    <Input placeholder="Nhập địa chỉ" />
                   </Item>
                 </Col>
               </Row>

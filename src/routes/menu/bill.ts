@@ -1,18 +1,20 @@
 import { HEADER_TYPE } from "config/HeaderConfig";
+import UrlConfig from "config/UrlConfig";
 import { RouteMenu } from "model/other";
 import React from "react";
 
-const CreateBill = React.lazy(() => import ("screens/order-online/order-online.screen"))
 const ListOrder = React.lazy(() => import ("screens/order-online/index.screen"))
+const OrderDetail = React.lazy(() => import ("screens/order-online/order-detail"))
+const Order = React.lazy(() => import ("screens/order-online/order.screen"))
 
 const bill: Array<RouteMenu> = [
   {
-    path: "/order-online/create",
+    path: `${UrlConfig.ORDER}/create`,
     exact: true,
     title: "Tạo đơn Online",
     icon: 'icon-dot',
-    component: CreateBill,
-    key: "submenu51",
+    component: Order,
+    key: "submenu52",
     isShow: true,
     header: null,
     subMenu: [],
@@ -20,15 +22,29 @@ const bill: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/list-orders",
+    path: `${UrlConfig.ORDER}/list`,
     exact: true,
     title: "Danh sách đơn hàng",
     icon: 'icon-dot',
     component: ListOrder,
-    key: "submenu52",
+    key: "submenu54",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: [
+      {
+        path: `${UrlConfig.ORDER}/:id`,
+        exact: true,
+        title: "Chi tiết đơn hàng",
+        icon: 'icon-dot',
+        component: OrderDetail,
+        key: "submenu53",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+    ],
     type: 0,
     object: null,
   },
@@ -37,8 +53,8 @@ const bill: Array<RouteMenu> = [
     exact: true,
     title: "Trả hàng",
     icon: 'icon-dot',
-    component: CreateBill,
-    key: "submenu53",
+    component: Order,
+    key: "submenu55",
     isShow: true,
     header: null,
     subMenu: [],

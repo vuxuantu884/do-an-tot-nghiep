@@ -17,7 +17,7 @@ const StoreUpdateScreen = React.lazy(() => import("screens/store/store-update.sc
 
 const setting: Array<RouteMenu> = [
   {
-    path: `${UrlConfig.ACCOUNTS}`,
+    path: UrlConfig.ACCOUNTS,
     exact: true,
     title: "Quản lý người dùng",
     icon: 'icon-dot',

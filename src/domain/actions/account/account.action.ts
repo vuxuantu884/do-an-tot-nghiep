@@ -23,18 +23,31 @@ export const AccountGetListAction = (
   return BaseAction(AccountType.GET_LIST_ACCOUNT_REQUEST, { query, setData });
 };
 
+
+export const DepartmentGetListAction = (
+  setData: (data: Array<DepartmentResponse>) => void
+) => {
+  return BaseAction(AccountType.GET_LIST_DEPARTMENT_REQUEST, { setData });
+};
+
+export const PositionGetListAction = (
+  setData: (data: Array<PositionResponse>) => void
+) => {
+  return BaseAction(AccountType.GET_LIST_POSITION_REQUEST, { setData });
+};
+
+export const ShipperGetListAction = (
+  setData: (data: Array<AccountResponse>) => void
+) => {
+  return BaseAction(AccountType.GET_LIST_SHIPPER_REQUEST, { setData }); 
+};
+
 export const AccountGetByIdtAction = (
   id: number,
   setData: (data: AccountResponse) => void
 ) => {
   
   return BaseAction(AccountType.GET_ACCOUNT_DETAIL_REQUEST, { id, setData });
-};
-
-export const DepartmentGetListAction = (
-  setData: (data: Array<DepartmentResponse>) => void
-) => {
-  return BaseAction(AccountType.GET_LIST_DEPARTMENT_REQUEST, { setData });
 };
 
 export const AccountCreateAction = (

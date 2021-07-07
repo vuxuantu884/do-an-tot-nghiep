@@ -233,6 +233,7 @@ const StoreListScreen: React.FC = () => {
           groups={groups}
         />
         <CustomTable
+          showColumnSetting={true}
           isLoading={loading}
           pagination={{
             pageSize: data.metadata.limit,

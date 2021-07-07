@@ -318,11 +318,11 @@ const AccountCreateScreen: React.FC = () => {
       breadcrumb={[
         {
           name: "Tổng quản",
-          path: "/",
+         path: UrlConfig.HOME,
         },
         {
           name: "Quản lý người dùng",
-          path: "/accounts",
+          path: UrlConfig.ACCOUNTS
         },
         {
           name: "Thêm mới người dùng",

@@ -110,7 +110,7 @@ const AddCategory: React.FC = () => {
                   rules={[
                     {required: true, message: 'Vui lòng nhập tên danh mục'},
                     {max: 255, message: 'Tên danh mục không quá 255 kí tự'},
-                    {pattern: RegUtil.NO_SPECICAL_CHARACTER, message: 'Tên danh mục không gồm kí tự đặc biệt'},
+                    {pattern: RegUtil.STRINGUTF8, message: 'Tên danh mục không gồm kí tự đặc biệt'},
                   ]}
                   label="Tên danh mục"
                   name="name"
