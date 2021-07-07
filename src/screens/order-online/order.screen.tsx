@@ -32,6 +32,7 @@ import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
 import { OrderStatus, TaxTreatment } from "utils/Constants";
+import UrlConfig from "config/UrlConfig";
 //#endregion
 
 var typeButton = -1;
@@ -144,7 +145,6 @@ export default function Order() {
     billing_address: null,
     payments: [],
   };
-  
 
   //#region Order
 
@@ -162,7 +162,7 @@ export default function Order() {
       account_code: userReducer.account?.code,
       assignee_code: value.assignee_code,
       delivery_type: "",
-      stockLocation_id: null,
+      stock_location_id: null,
       payment_status: "",
       total: orderAmount,
       total_tax: null,
@@ -177,7 +177,12 @@ export default function Order() {
     };
 
     let listFullfillmentRequest = [];
-    if (paymentMethod !== 3) {
+    if (paymentMethod !== 3 || shipmentMethod === 2) {
+      listFullfillmentRequest.push(request);
+    }
+
+    if (paymentMethod === 3 && shipmentMethod === 4 && typeButton === 1) {
+      request.shipment = null;
       listFullfillmentRequest.push(request);
     }
     return listFullfillmentRequest;
@@ -244,7 +249,7 @@ export default function Order() {
   const onCreateSuccess = useCallback(
     (value: OrderResponse) => {
       showSuccess("Thêm đơn hàng thành công");
-      history.push(`/order-online/detail/${value.id}`);
+      history.push(`${UrlConfig.ORDER}/${value.id}`);
     },
     [history]
   );
@@ -258,8 +263,9 @@ export default function Order() {
       values.action = OrderStatus.DRAFT;
     } else {
       if (lstFulFillment != null) {
-        values.fulfillments = lstFulFillment;
+        
       }
+      values.fulfillments = lstFulFillment;
       values.action = "finalized";
       values.payments = payments;
     }
