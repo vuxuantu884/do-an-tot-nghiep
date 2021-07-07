@@ -1,4 +1,5 @@
 import {
+  Affix,
   Button,
   Card,
   Col,
@@ -674,7 +675,7 @@ const AccountUpdateScreen: React.FC = () => {
             </div>
           </Collapse.Panel>
         </Collapse>
-
+        <Affix offsetBottom={20}>
         <div className="margin-top-10" style={{ textAlign: "right" }}>
           <Space size={12}>
             <Button type="default" onClick={onCancel}>
@@ -685,6 +686,7 @@ const AccountUpdateScreen: React.FC = () => {
             </Button>
           </Space>
         </div>
+        </Affix>
       </Form>
     </ContentContainer>
   );

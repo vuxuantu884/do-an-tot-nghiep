@@ -1,4 +1,5 @@
 import {
+  Affix,
   Button,
   Card,
   Col,
@@ -102,6 +103,7 @@ const AccountCreateScreen: React.FC = () => {
       key: Number(moment().format("x")),
     },
   ]);
+  const [loadingSaveButton, setLoadingSaveButton] = useState(false);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
   const [status, setStatus] = useState<string>(initRequest.status);
@@ -168,14 +170,20 @@ const AccountCreateScreen: React.FC = () => {
     [cityViews, formRef]
   );
   const onCreateSuccess = useCallback(
-    (data: AccountResponse) => {
-      showSuccess("Thêm mới dữ liệu thành công");
-      history.push("/accounts");
+    (result: AccountResponse) => {
+      if(result){
+        history.push(UrlConfig.ACCOUNTS);
+        showSuccess("Thêm mới dữ liệu thành công");      
+      }else{
+        setLoadingSaveButton(false);
+      }
+      
     },
     [history]
   );
   const onFinish = useCallback(
     (values: AccountView) => {
+      setLoadingSaveButton(true);
       let accStores: Array<AccountStoreResponse> = [];
       let accRoles: Array<AccountRolesResponse> = [];
       let accJobs: Array<AccountJobResponse> = [];
@@ -651,16 +659,18 @@ const AccountCreateScreen: React.FC = () => {
             </div>
           </Collapse.Panel>
         </Collapse>
+        <Affix offsetBottom={20}>        
         <div className="margin-top-10" style={{ textAlign: "right" }}>
           <Space size={12}>
             <Button type="default" onClick={onCancel}>
               Hủy
             </Button>
-            <Button htmlType="submit" type="primary">
+            <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
               Lưu
             </Button>
           </Space>
         </div>
+        </Affix>
       </Form>
     </ContentContainer>
   );
