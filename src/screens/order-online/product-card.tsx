@@ -113,7 +113,12 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     const [discountRate, setDiscountRate] = useState<number>(0);
     const [changeMoney, setChangeMoney] = useState<number>(0);
     const [counpon, setCounpon] = useState<string>('');
+    //total order prices
+    const totalOrderPrice = items.reduce<number>((a,b)=>a+b.price*b.quantity, 0)
+    const totalOrderDiscount = items.reduce<number>((a,b)=>a+b.price*b.quantity*b.discount_items[0].rate/100, 0)
+    const totalOrderItem = items.reduce<number>((a,b)=>a+b.quantity, 0)
     //Function
+    console.log(discountValue)
     const showAddGiftModal = useCallback(
         (index: number) => {
             setIndexItem(index);
@@ -122,7 +127,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         },
         [items]
     );
-
+    
     const onChangeNote = (e: any, index: number) => {
         let value = e.target.value;
         let _items = [...items];
@@ -301,7 +306,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     const AmountColumnt = {
         title: () => (
             <div className="text-center">
-                <div>Số lượng</div>
+                <div>Số lượng
+                    {items.length > 0 && <span>({totalOrderItem})</span>}
+                </div>
                 <span style={{ color: '#0080FF' }}></span>
             </div>
         ),
@@ -317,7 +324,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                         min={1}
                         max={9999}
                         onFocus={(e) => e.target.select()}
-                        style={{ width: 60, textAlign: 'right' }}
+                        style={{ width: 60, textAlign: 'right',height: 38 }}
                     />
                 </div>
             );
@@ -796,6 +803,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 tableLayout="fixed"
                 pagination={false}
             />
+            {items.length > 0 && <div className="product-total-checkout">
+                <span>Tổng</span>
+                <div>
+                    <span>{formatCurrency(totalOrderPrice)}</span>
+                    <span>{formatCurrency(totalOrderDiscount)}</span>
+                    <span>{formatCurrency(totalOrderPrice-totalOrderDiscount)}</span>
+                </div>
+            </div>}
             <div className="padding-20" style={{ paddingTop: '30px' }}>
                 <Row className="sale-product-box-payment" gutter={24}>
                     <Col xs={24} lg={12}>
