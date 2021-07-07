@@ -33,7 +33,9 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import {
   OrderPaymentRequest,
+  UpdateFulFillmentRequest,
   UpdateFulFillmentStatusRequest,
+  UpdateLineFulFillment,
   UpdateShipmentRequest,
 } from "model/request/order.request";
 import { AccountResponse } from "model/account/account.model";
@@ -87,8 +89,10 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { Select } from "component/common/select";
-const { Panel } = Collapse;
+import { FulFillmentStatus, OrderStatus } from "utils/Constants";
+import UrlConfig from "config/UrlConfig";
 
+const { Panel } = Collapse;
 //#endregion
 
 type OrderParam = {
@@ -97,7 +101,7 @@ type OrderParam = {
 
 const OrderDetail = () => {
   const { id } = useParams<OrderParam>();
-  let OrderId = id;
+  let OrderId = parseInt(id);
   //#region state
   const dispatch = useDispatch();
   const history = useHistory();
@@ -176,17 +180,7 @@ const OrderDetail = () => {
     setVisibleBillingAddress(false);
   };
 
-  useEffect(() => {
-    if (OrderDetail?.store_id != null) {
-      dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
-    }
-  }, [dispatch, OrderDetail?.store_id]);
-
-  const shipping_requirements = useSelector(
-    (state: RootReducerType) =>
-      state.bootstrapReducer.data?.shipping_requirement
-  );
-
+  
   useEffect(() => {
     if (isFirstLoad.current) {
       if (!Number.isNaN(OrderId)) {
@@ -196,11 +190,34 @@ const OrderDetail = () => {
     isFirstLoad.current = false;
   }, [dispatch, OrderId]);
 
-  useEffect(() => {
-    if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail.customer_id, setCustomerDetail));
+  const shipping_requirements = useSelector(
+    (state: RootReducerType) =>
+      state.bootstrapReducer.data?.shipping_requirement
+  );
+
+  const stepsStatus = () => {
+    if (OrderDetail?.status === OrderStatus.DRAFT) {
+      return OrderStatus.DRAFT;
     }
-  }, [dispatch, OrderDetail]);
+    if (OrderDetail?.status === OrderStatus.FINALIZED) {
+      if (OrderDetail.fulfillment_status === null) {
+        return OrderStatus.FINALIZED;
+      } else {
+        if (OrderDetail.fulfillment_status === FulFillmentStatus.UNSHIPPED) {
+          return OrderStatus.FINALIZED;
+        }
+        if (OrderDetail.fulfillment_status === FulFillmentStatus.PACKED) {
+          return FulFillmentStatus.PACKED;
+        }
+        if (OrderDetail.fulfillment_status === FulFillmentStatus.SHIPPING) {
+          return FulFillmentStatus.SHIPPING;
+        }
+      }
+    }
+  };
+
+  let stepsStatusValue = stepsStatus();
+
 
   //#region Product
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
@@ -334,29 +351,33 @@ const OrderDetail = () => {
   const onUpdateSuccess = useCallback(
     (value: OrderResponse) => {
       showSuccess("Xuất kho thành công");
-      history.push(`/order-online/detail/${value.id}`);
+      window.location.reload();
     },
     [history]
   );
 
   const PackOrder = () => {
     let value: UpdateFulFillmentStatusRequest = {
-      order_id: "",
+      order_id: null,
       fulfillment_id: null,
       status: "",
     };
     value.order_id = OrderDetail?.id;
     let fulfillment_id =
-      OrderDetail?.fulfillments !== null && OrderDetail?.fulfillments !== undefined ? OrderDetail?.fulfillments[0].id : null;
+      OrderDetail?.fulfillments !== null &&
+      OrderDetail?.fulfillments !== undefined
+        ? OrderDetail?.fulfillments[0].id
+        : null;
     value.fulfillment_id = fulfillment_id;
     value.status = "shipping";
+
     dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
   };
   //#endregion
 
   //#region
   let initialFormUpdateShipment: UpdateShipmentRequest = {
-    order_id: "",
+    order_id: null,
     code: "",
     delivery_service_provider_id: null, //id người shipper
     delivery_service_provider_type: "", //shipper
@@ -380,25 +401,73 @@ const OrderDetail = () => {
     fulfillment_id: "",
   };
 
-  const onFinishUpdateShipment = (value: UpdateShipmentRequest) => {
+  let FulFillmentRequest: UpdateFulFillmentRequest = {
+    id: null,
+    order_id: null,
+    store_id: OrderDetail?.store_id,
+    account_code: OrderDetail?.account_code,
+    assignee_code: OrderDetail?.assignee_code,
+    delivery_type: "",
+    stock_location_id: null,
+    payment_status: "",
+    total: null,
+    total_tax: null,
+    total_discount: null,
+    total_quantity: null,
+    discount_rate: null,
+    discount_value: null,
+    discount_amount: null,
+    total_line_amount_after_line_discount: null,
+    shipment: null,
+    items: OrderDetail?.items,
+  };
+
+  const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
     value.expected_received_date = value.dating_ship?.utc().format();
     if (OrderDetail?.fulfillments !== undefined && OrderDetail?.fulfillments) {
-      value.code = OrderDetail.fulfillments[0].shipment?.code;
-      value.fulfillment_id =
-        OrderDetail.fulfillments[0].shipment?.fulfillment_id;
+      value.delivery_service_provider_type = "Shipper";
     }
+    if (OrderDetail != null) {
+      FulFillmentRequest.order_id = OrderDetail.id;
+      if (
+        OrderDetail.fulfillments !== null &&
+        OrderDetail.fulfillments !== undefined && OrderDetail.fulfillments.length !== 0
+      ) {
+        FulFillmentRequest.id = OrderDetail.fulfillments[0].id;
+      }
+    }
+    FulFillmentRequest.shipment = value;
 
-    dispatch(UpdateShipmentAction(value, onUpdateSuccess));
+    let UpdateLineFulFillment: UpdateLineFulFillment = {
+      order_id: FulFillmentRequest.order_id,
+      fulfillment: FulFillmentRequest,
+    };
+
+    dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
   };
+
+  
+
+  useEffect(() => {
+    if (OrderDetail != null) {
+      dispatch(CustomerDetail(OrderDetail.customer_id, setCustomerDetail));
+    }
+  }, [dispatch, OrderDetail]);
+
+  useEffect(() => {
+    if (OrderDetail?.store_id != null) {
+      dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
+    }
+  }, [dispatch, OrderDetail?.store_id]);
 
   //#endregion
   return (
     <ContentContainer
-      title="Quản lý chất liệu"
+      title="Đơn hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
-          path: "/",
+          path: `${UrlConfig.HOME}`,
         },
         {
           name: "Đơn hàng",
@@ -407,7 +476,7 @@ const OrderDetail = () => {
           name: "Đơn hàng " + id,
         },
       ]}
-      extra={<CreateBillStep status={OrderDetail?.status} />}
+      extra={<CreateBillStep status={stepsStatusValue} />}
     >
       <div className="orders">
         <Row gutter={24}>
@@ -851,7 +920,10 @@ const OrderDetail = () => {
             {/*--- end product ---*/}
 
             {/*--- shipment ---*/}
-            {(OrderDetail?.fulfillments?.length !== 0) ? (
+            {OrderDetail !== null &&
+            OrderDetail?.fulfillments !== null &&
+            OrderDetail?.fulfillments !== undefined &&
+            (OrderDetail?.fulfillments.length !== 0 && OrderDetail?.fulfillments[0].shipment !== null) ? (
               <Card
                 className="margin-top-20"
                 title={
@@ -1041,7 +1113,7 @@ const OrderDetail = () => {
               >
                 {isVisibleShipping === true && (
                   <div className="padding-20">
-                    <Row gutter={20}>
+                    <Row gutter={24}>
                       <Col md={12}>
                         <Form.Item
                           label={
@@ -1105,14 +1177,14 @@ const OrderDetail = () => {
                       </Col>
                     </Row>
                     <Divider />
-                    <Row gutter={20} hidden={shipmentMethod !== 2}>
-                      <Form
+                    <div hidden={shipmentMethod !== 2}>
+                    <Form
                         initialValues={initialFormUpdateShipment}
                         ref={formRef}
-                        onFinish={onFinishUpdateShipment}
+                        onFinish={onFinishUpdateFulFillment}
                         layout="vertical"
                       >
-                        <Row gutter={24} style={{padding:"10px"}}>
+                        <Row gutter={24} >
                           <Col md={12}>
                             <Form.Item
                               label="Đối tác giao hàng"
@@ -1166,7 +1238,6 @@ const OrderDetail = () => {
                               <Input placeholder="Phí ship báo khách" />
                             </Form.Item>
                           </Col>
-
                           <Col md={24}>
                             <div>
                               <Button
@@ -1181,7 +1252,7 @@ const OrderDetail = () => {
                           </Col>
                         </Row>
                       </Form>
-                    </Row>
+                    </div>
 
                     {/*--- Nhận tại cửa hàng ----*/}
                     <div
@@ -1413,6 +1484,7 @@ const OrderDetail = () => {
                   paymentMethod={paymentType}
                   amount={OrderDetail.total}
                   order_id={OrderDetail.id}
+                  orderDetail={OrderDetail}
                 />
               ))}
 

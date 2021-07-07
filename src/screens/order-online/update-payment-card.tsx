@@ -10,7 +10,10 @@ import {
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 // @ts-ignore
-import { PaymentMethodGetList, UpdatePaymentAction } from "domain/actions/order/order.action";
+import {
+  PaymentMethodGetList,
+  UpdatePaymentAction,
+} from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -21,17 +24,23 @@ import {
   formatSuffixPoint,
   replaceFormat,
 } from "utils/AppUtils";
-import { OrderPaymentRequest, UpdateOrderPaymentRequest, UpdatePaymentRequest } from "model/request/order.request";
+import {
+  UpdateFulFillmentRequest,
+  UpdateOrderPaymentRequest,
+  UpdatePaymentRequest,
+} from "model/request/order.request";
 import { showSuccess } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
 import { useHistory } from "react-router-dom";
+import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
   setPayments: (value: Array<UpdateOrderPaymentRequest>) => void;
+  orderDetail: OrderResponse;
   paymentMethod: number;
   amount: number;
-  order_id: string | null;
+  order_id: number | null;
 };
 
 const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
@@ -46,13 +55,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   };
 
   const dispatch = useDispatch();
+  const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
 
-  const [paymentData, setPaymentData] = useState<Array<UpdateOrderPaymentRequest>>(
-    []
-  );
+  const [paymentData, setPaymentData] = useState<
+    Array<UpdateOrderPaymentRequest>
+  >([]);
 
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
 
@@ -86,7 +96,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     let indexPayment = paymentData.findIndex((p) => p.code === code);
     if (indexPayment === -1) {
       paymentData.push({
-        order_id:"",
+        order_id: null,
         payment_method_id: paymentMaster.id,
         amount: 0,
         paid_amount: 0,
@@ -123,17 +133,53 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const onUpdateSuccess = useCallback(
     (value: OrderResponse) => {
       showSuccess("Thanh toán thành công");
-     window.location.reload();
+      window.location.reload();
     },
     [history]
   );
 
-  const UpdatePayment = () => {
-    let request : UpdatePaymentRequest ={
-      payments: paymentData
-    }
+  const ShowConfirmPayment = () => {
+    setVisibleConfirmPayment(true);
+  };
+
+  const CreateFulFillmentRequest = () => {
+    let request: UpdateFulFillmentRequest = {
+      id: null,
+      order_id: null,
+      store_id: props.orderDetail?.store_id,
+      account_code: props.orderDetail?.account_code,
+      assignee_code: props.orderDetail?.assignee_code,
+      delivery_type: "",
+      stock_location_id: null,
+      payment_status: "",
+      total: null,
+      total_tax: null,
+      total_discount: null,
+      total_quantity: null,
+      discount_rate: null,
+      discount_value: null,
+      discount_amount: null,
+      total_line_amount_after_line_discount: null,
+      shipment: null,
+      items: props.orderDetail?.items,
+    };
+    let listFullfillmentRequest = [];
+    listFullfillmentRequest.push(request);
+    return listFullfillmentRequest;
+  };
+
+  const onOkConfirm = () => {
+    let fulfillment = CreateFulFillmentRequest();
+    let request: UpdatePaymentRequest = {
+      payments: paymentData,
+      fulfillments: fulfillment,
+    };
     dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
   };
+
+  const onCancleConfirm = useCallback(() => {
+    setVisibleConfirmPayment(false);
+  }, []);
 
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
@@ -392,7 +438,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 </Col>
               </Row>
 
-              <Row gutter={24} style={{marginTop:"20px"}}>
+              <Row gutter={24} style={{ marginTop: "20px" }}>
                 <Col xs={24}>
                   <div>
                     <Button
@@ -400,7 +446,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       className="ant-btn-outline fixed-button text-right"
                       style={{ float: "right" }}
                       htmlType="submit"
-                      onClick={UpdatePayment}
+                      onClick={ShowConfirmPayment}
                     >
                       Tạo thanh toán trước
                     </Button>
@@ -437,6 +483,13 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
           </Button>
         </div>
       )}
+
+      <ConfirmPaymentModal
+        onCancel={onCancleConfirm}
+        onOk={onOkConfirm}
+        visible={isibleConfirmPayment}
+        order_id={props.order_id}
+      />
     </Card>
   );
 };

@@ -19,3 +19,15 @@ export const TaxTreatment = {
   INCLUSIVE: "inclusive",
   EXCLUSIVE: "exclusive"
 }
+
+export const FulFillmentStatus = {
+  UNSHIPPED: "unshipped",
+  PICKED: "picked",
+  PARTIAL: "partial",
+  PACKED: "packed",
+  SHIPPING: "shipping",
+  SHIPPED: "shipped",
+  CANCELLED: "cancelled",
+  RETURNING: "returning",
+  RETURNED: "returned",
+};

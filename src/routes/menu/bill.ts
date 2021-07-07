@@ -1,4 +1,5 @@
 import { HEADER_TYPE } from "config/HeaderConfig";
+import UrlConfig from "config/UrlConfig";
 import { RouteMenu } from "model/other";
 import React from "react";
 
@@ -8,7 +9,7 @@ const Order = React.lazy(() => import ("screens/order-online/order.screen"))
 
 const bill: Array<RouteMenu> = [
   {
-    path: '/order-online/create',
+    path: `${UrlConfig.ORDER}/create`,
     exact: true,
     title: "Tạo đơn Online",
     icon: 'icon-dot',
@@ -21,7 +22,7 @@ const bill: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/list-orders",
+    path: `${UrlConfig.ORDER}/list`,
     exact: true,
     title: "Danh sách đơn hàng",
     icon: 'icon-dot',
@@ -31,7 +32,7 @@ const bill: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: '/order-online/:id',
+        path: `${UrlConfig.ORDER}/:id`,
         exact: true,
         title: "Chi tiết đơn hàng",
         icon: 'icon-dot',

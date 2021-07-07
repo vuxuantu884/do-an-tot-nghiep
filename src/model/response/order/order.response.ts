@@ -1,7 +1,7 @@
 import { BaseObject } from "model/base/base.response";
 
 export interface OrderResponse {
-  id: string | null;
+  id: number | null;
   code: string | null;
   version: number | null;
   company_id: number | null;
@@ -84,14 +84,15 @@ export interface OrderLineItemResponse {
   gifts: Array<OrderLineItemResponse>;
 }
 
-export interface FulFillmentResponse extends BaseObject {
+export interface FulFillmentResponse {
+  id: number | null;
   store_id: number|null;
   account_code: string | null;
   assignee_code: string | null;
   delivery_type: string | null;
   status: string | null;
   partner_status: string | null;
-  stockLocation_id: number | null;
+  stock_location_id: number | null;
   payment_status: string | null;
   total: number | null;
   total_tax: number | null;
