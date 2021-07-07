@@ -83,8 +83,11 @@ const AddMaterial: React.FC = () => {
                 <Form.Item
                   name="component"
                   label="Thành phần"
+                  rules={[
+                    {max: 50, message: 'Thành phần không quá 50 kí tự'}
+                  ]}
                 >
-                  <Input placeholder="Nhập thành phần" />
+                  <Input maxLength={50} placeholder="Nhập thành phần" />
                 </Form.Item>
               </Col>
             </Row>
@@ -112,8 +115,10 @@ const AddMaterial: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Form.Item name="description" label="Ghi chú">
-                  <Input placeholder="Nhập ghi chú" />
+                <Form.Item rules={[
+                    {max: 50, message: 'Thành phần không quá 50 kí tự'}
+                  ]} name="description" label="Ghi chú">
+                  <Input maxLength={100} placeholder="Nhập ghi chú" />
                 </Form.Item>
               </Col>
             </Row>

@@ -1,4 +1,3 @@
-import { OrderRequest } from "model/request/order.request";
 import { ConvertDateToUtc } from "./DateUtils";
 import { AccountStoreResponse } from "model/account/account.model";
 import { DistrictResponse } from "model/content/district.model";
