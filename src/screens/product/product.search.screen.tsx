@@ -192,7 +192,7 @@ const ListProductScreen: React.FC = () => {
     }
     isFirstLoad.current = false;
     dispatch(searchVariantsRequestAction(params, setSearchResult));
-  }, [dispatch, params]);
+  }, [dispatch, params, setSearchResult]);
   return (
     <ContentContainer
       title="Quản lý chất liệu"
@@ -223,6 +223,7 @@ const ListProductScreen: React.FC = () => {
           listCountries={listCountry}
         />
         <CustomTable
+          showColumnSetting={true}
           scroll={{ x: 1080 }}
           pagination={{
             pageSize: data.metadata.limit,
