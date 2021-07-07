@@ -122,7 +122,31 @@
         }
     }
 }
+.change-shipping-address-content,
+.change-shipping-address-title {
+    width: 400px;
+    padding-left: 10px;
 
+    .shipping-address-name {
+        display: flex;
+        align-items: center;
+        height: 22px;
+        .p-0 {
+            border: none;
+            background-color: transparent;
+            margin-left: 8px;
+        }
+        p {
+            margin: 0;
+            align-items: flex-end;
+        }
+    }
+}
+.change-shipping-address-title {
+    button {
+        color: #42a0ff;
+    }
+}
 .padding-custom {
     padding: 15px 24px 0 24px;
 }
@@ -518,4 +542,25 @@ input {
 .row-info-title {
     min-width: 20px;
     margin-top: -7px;
+}
+
+.update-shipping {
+    input {
+        height: 34px;
+    }
+    .select-with-search {
+        height: 34px;
+    }
+}
+.form-group-with-search {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    label {
+        color: black;
+    }
+}
+.ant-modal-content {
+    width: 600px;
 }
