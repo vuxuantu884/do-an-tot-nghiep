@@ -15,9 +15,12 @@ import {
   Table,
   Tooltip,
   Typography,
+  Divider,
+  Tag,
+  Form,
 } from "antd";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { EditOutlined } from "@ant-design/icons";
+import NumberInput from "component/custom/number-input.custom";
 import PickDiscountModal from "./modal/PickDiscountModal";
 import arrowDownIcon from "../../assets/img/drow-down.svg";
 import giftIcon from "assets/icon/gift.svg";
@@ -28,9 +31,13 @@ import React, {
   useMemo,
   createRef,
 } from "react";
+import {
+  ArrowRightOutlined,
+  SearchOutlined,
+  ShopOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import productIcon from "../../assets/img/cube.svg";
-import storeBluecon from "../../assets/img/storeBlue.svg";
-import { SearchOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import DiscountGroup from "./discount-group";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -42,7 +49,7 @@ import {
   findPriceInVariant,
   findTaxInVariant,
   formatCurrency,
-  replaceFormat,
+  replaceFormatString,
 } from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
@@ -57,8 +64,12 @@ import {
 } from "model/other/Order/order-model";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import {
+  VariantResponse,
+  VariantSearchQuery,
+} from "model/product/product.model";
 import { StoreResponse } from "model/core/store.model";
+import { Link } from "react-router-dom";
 
 type ProductCardProps = {
   storeId: number | null;
@@ -69,11 +80,9 @@ type ProductCardProps = {
     discount_rate: number,
     discount_value: number
   ) => void;
-  selectPriceType: (priceType: string) => void;
-  isVisibleStore: boolean;
 };
 
-const initQuery: VariantSearchQuery = {
+const initQueryVariant: VariantSearchQuery = {
   limit: 10,
   page: 1,
 };
@@ -84,8 +93,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
-  const [keysearch, setKeysearch] = useState("");
-  const [resultSearch, setResultSearch] = useState<
+  const [keysearchVariant, setKeysearchVariant] = useState("");
+  const [resultSearchVariant, setResultSearchVariant] = useState<
     PageResponse<VariantResponse>
   >({
     metadata: {
@@ -139,7 +148,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const total = useCallback(() => {
     let _items = [...items];
     let _amount = 0;
-    _items.forEach( i => {
+    _items.forEach((i) => {
       let amountItem = (i.price - i.discount_items[0].value) * i.quantity;
       i.line_amount_after_line_discount = amountItem;
       i.amount = i.price * i.quantity;
@@ -152,11 +161,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   // render
 
-  const renderSearch = (item: VariantResponse) => {
+  const renderSearchVariant = (item: VariantResponse) => {
     let avatar = findAvatar(item.variant_images);
     return (
       <div className="row-search w-100">
-        <div className="rs-left w-100">
+        <div className="rs-left w-100" style={{ width: "100%" }}>
           <img
             src={avatar === "" ? imgdefault : avatar}
             alt="anh"
@@ -192,9 +201,29 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       </div>
     );
   };
+
+  const convertResultSearchVariant = useMemo(() => {
+    let options: any[] = [];
+    resultSearchVariant.items.forEach(
+      (item: VariantResponse, index: number) => {
+        options.push({
+          label: renderSearchVariant(item),
+          value: item.id ? item.id.toString() : "",
+        });
+      }
+    );
+    return options;
+  }, [resultSearchVariant]);
+
+
   const ProductColumn = {
-    title: "Sản phẩm",
-    width: 245,
+    title: () => (
+      <div className="text-center">
+        <div>Sản phẩm</div>
+        <span style={{ color: "#0080FF" }}></span>
+      </div>
+    ),
+    width: 255,
     className: "yody-pos-name",
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
@@ -202,14 +231,17 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           <div className="d-flex align-items-center">
             <Button
               type="text"
-              className="p-0 yody-pos-delete-free-form"
+              className="p-0 ant-btn-custom"
               onClick={() => onDeleteItem(index)}
+              style={{ float: "left", marginRight: "13px" }}
             >
               <img src={deleteIcon} alt="" />
             </Button>
-            <div style={{ width: "calc(100% - 32px)", marginLeft: "15px" }}>
+            <div style={{ width: "calc(100% - 32px)", float: "left" }}>
               <div className="yody-pos-sku">
-                <Typography.Link>{l.sku}</Typography.Link>
+                <Typography.Link style={{ color: "#2A2A86" }}>
+                  {l.sku}
+                </Typography.Link>
               </div>
               <div className="yody-pos-varian">
                 <Tooltip title={l.variant} className="yody-pos-varian-name">
@@ -258,7 +290,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       </div>
     ),
     className: "yody-pos-quantity text-center",
-    width: 85,
+    width: 95,
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
         <div className="yody-pos-qtt">
@@ -278,19 +310,16 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const PriceColumnt = {
     title: "Đơn giá",
     className: "yody-pos-price text-right",
-    //width: 100,
+    width: 130,
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
         <div className="yody-pos-price">
-          <InputNumber
-            className="hide-number-handle"
-            min={0}
+          <NumberInput
+            format={(a: string) => formatCurrency(a)}
+            replace={(a: string) => replaceFormatString(a)}
+            placeholder="VD: 100,000"
+            style={{ minWidth: 110, maxWidth: 130, textAlign: "right" }}
             value={l.price}
-            formatter={(value) => formatCurrency(value ? value : "0")}
-            parser={(value) => replaceFormat(value ? value : "0")}
-            onChange={(e) => console.log(1)}
-            onFocus={(e) => e.target.select()}
-            style={{ maxWidth: 100, textAlign: "right" }}
           />
         </div>
       );
@@ -300,7 +329,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const DiscountColumnt = {
     title: "Chiết khấu",
     align: "center",
-    width: 165,
+    width: 185,
     className: "yody-table-discount text-right",
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
@@ -339,7 +368,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <Button
               type="text"
               onClick={() => showAddGiftModal(index)}
-              className="p-0 m-0 w-100"
+              className="p-0 ant-btn-custom"
             >
               Thêm quà tặng
             </Button>
@@ -352,7 +381,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 _items[index].show_note = true;
                 setItems(_items);
               }}
-              className="p-0 m-0 w-100"
+              className="p-0 ant-btn-custom"
             >
               Thêm ghi chú
             </Button>
@@ -364,7 +393,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
             <Button
               type="text"
-              className="ant-dropdown-link circle-button yody-pos-action"
+              className="p-0 ant-btn-custom"
             >
               <img src={arrowDownIcon} alt="" />
             </Button>
@@ -382,9 +411,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     ActionColumn,
   ];
 
-  useLayoutEffect(() => {
-    dispatch(StoreGetListAction(setListStores));
-  }, [dispatch]);
 
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -446,21 +472,21 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const onSearchVariantSelect = useCallback(
     (v, o) => {
       let _items = [...items].reverse();
-      let indexSearch = resultSearch.items.findIndex((s) => s.id == v);
+      let indexSearch = resultSearchVariant.items.findIndex((s) => s.id == v);
       console.log(indexSearch);
       let index = _items.findIndex((i) => i.variant_id == v);
-      let r: VariantResponse = resultSearch.items[indexSearch];
+      let r: VariantResponse = resultSearchVariant.items[indexSearch];
       if (r.id == v) {
         if (splitLine || index === -1) {
           const item: OrderItemModel = createItem(r);
           _items.push(item);
+          setAmount(amount + item.price);
           calculateChangeMoney(
             _items,
             amount + item.price,
             discountRate,
             discountValue
           );
-          setAmount(amount + item.price);
           setSplitLine(false);
         } else {
           let lastIndex = index;
@@ -489,31 +515,25 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       }
       setItems(_items.reverse());
       autoCompleteRef.current?.blur();
-      setKeysearch("");
+      setKeysearchVariant("");
     },
-    [resultSearch, items, splitLine]
+    [resultSearchVariant, items, splitLine]
     // autoCompleteRef, dispatch, resultSearch
   );
 
   const onChangeProductSearch = useCallback(
     (value) => {
-      setKeysearch(value);
-      initQuery.info = value;
-      dispatch(searchVariantsOrderRequestAction(initQuery, setResultSearch));
+      setKeysearchVariant(value);
+      initQueryVariant.info = value;
+      dispatch(
+        searchVariantsOrderRequestAction(
+          initQueryVariant,
+          setResultSearchVariant
+        )
+      );
     },
     [dispatch]
   );
-
-  const convertResultSearch = useMemo(() => {
-    let options: any[] = [];
-    resultSearch.items.forEach((item: VariantResponse, index: number) => {
-      options.push({
-        label: renderSearch(item),
-        value: item.id ? item.id.toString() : "",
-      });
-    });
-    return options;
-  }, [resultSearch]);
 
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -585,124 +605,94 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
   }, [items, itemGifts, indexItem]);
 
-  const onSelectPriceType = useCallback(
-    (value: string) => {
-      props.selectPriceType(value);
-    },
-    [props]
-  );
+  useLayoutEffect(() => {
+    dispatch(StoreGetListAction(setListStores));
+  }, [dispatch]);
 
   return (
     <Card
       className="margin-top-20"
       title={
-        <div className="d-flex">
+        <Space>
           <img src={productIcon} alt="" /> Sản phẩm
-        </div>
+        </Space>
       }
       extra={
-        <Row>
-          <Space>
-            <div>
-              <Checkbox
-                checked={splitLine}
-                className="checkbox-style"
-                style={{ fontSize: 14 }}
-                onChange={() => setSplitLine(!splitLine)}
-              >
-                Tách dòng
-              </Checkbox>
-            </div>
-            <div className="price-policy">
-              <label htmlFor="" style={{ marginRight: 10 }}>
-                Chính sách giá
-              </label>
-              <Select
-                defaultValue="retail_price"
-                style={{ minWidth: 130 }}
-                onChange={onSelectPriceType}
-              >
-                <Select.Option value="retail_price">Giá bán lẻ</Select.Option>
-                <Select.Option value="whole_sale_price">
-                  Giá bán buôn
-                </Select.Option>
-              </Select>
-            </div>
-            <div className="view-inventory-box">
-              <Button type="link" className="p-0">
-                <Space>
-                  <img src={storeBluecon} alt="" />
-                  Xem tồn
-                  <ArrowRightOutlined />
-                </Space>
-              </Button>
-            </div>
-          </Space>
-        </Row>
+        <Space size={20}>
+          <Checkbox onChange={() => setSplitLine(!splitLine)}>
+            Tách dòng
+          </Checkbox>
+          <span>Chính sách giá</span>
+          <Form.Item name="price_type" style={{ margin: "0px" }}>
+            <Select style={{ minWidth: 150 }} placeholder="Chính sách giá">
+              <Select.Option value="retail_price">Giá bán lẻ</Select.Option>
+              <Select.Option value="whole_sale_price">
+                Giá bán buôn
+              </Select.Option>
+            </Select>
+          </Form.Item>
+          <Link className="text-focus" to="#">
+            <Space>
+              <ShopOutlined /> Xem tồn <ArrowRightOutlined />
+            </Space>
+          </Link>
+        </Space>
       }
     >
-
-<div className="padding-20">
-      <Row gutter={24}>
-        <Col xs={24} lg={8}>
-          <div className="form-group form-group-with-search">
-            <label htmlFor="" className="required-label">
-              Cửa hàng
-            </label>
-            <Select
-              className="select-with-search"
-              showSearch
-              style={{ width: "100%" }}
-              placeholder="Chọn cửa hàng"
-              onChange={props.selectStore}
-              filterOption={(input, option) => {
-                if (option) {
-                  return (
-                    option.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
-                  );
-                }
-                return false;
-              }}
+      <div className="padding-20">
+        <Row gutter={20}>
+          <Col md={8}>
+            <Form.Item
+              label="Cửa hàng"
+              name="store_id"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn cửa hàng",
+                },
+              ]}
             >
-              {dataCanAccess.map((item, index) => (
-                <Select.Option key={index.toString()} value={item.id}>
-                  {item.name}
-                </Select.Option>
-              ))}
-            </Select>
-
-            {props.isVisibleStore === true && (
-              <div>
-                <div
-                  className="ant-form-item-explain ant-form-item-explain-error"
-                  style={{ padding: "5px" }}
-                >
-                  <div role="alert">Vui lòng chọn cửa hàng</div>
-                </div>
-              </div>
-            )}
-          </div>
-        </Col>
-        <Col xs={24} lg={16}>
-          <div className="form-group form-group-with-search">
-            <label htmlFor="" className="">
-              Sản phẩm
-            </label>
-            <div>
+              <Select
+                className="select-with-search"
+                showSearch
+                style={{ width: "100%" }}
+                placeholder="Chọn cửa hàng"
+                onChange={props.selectStore}
+                filterOption={(input, option) => {
+                  if (option) {
+                    return (
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
+              >
+                {dataCanAccess.map((item, index) => (
+                  <Select.Option key={index.toString()} value={item.id}>
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col md={16}>
+            <Form.Item label="Sản phẩm">
               <AutoComplete
                 notFoundContent={
-                  keysearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
+                  keysearchVariant.length >= 3
+                    ? "Không tìm thấy sản phẩm"
+                    : undefined
                 }
-                value={keysearch}
+                value={keysearchVariant}
                 ref={autoCompleteRef}
                 onSelect={onSearchVariantSelect}
                 dropdownClassName="search-layout dropdown-search-header"
                 dropdownMatchSelectWidth={456}
                 className="w-100"
                 onSearch={onChangeProductSearch}
-                options={convertResultSearch}
+                options={convertResultSearchVariant}
               >
                 <Input
                   size="middle"
@@ -711,74 +701,160 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                   prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                 />
               </AutoComplete>
-            </div>
-          </div>
-        </Col>
-      </Row>
-
-      <Row className="sale-product-box">
-        <AddGiftModal
-          items={itemGifts}
-          onUpdateData={onUpdateData}
-          onCancel={onCancleConfirm}
-          onOk={onOkConfirm}
-          visible={isVisibleGift}
-        />
-        <Table
-          locale={{
-            emptyText: (
-              <Button
-                type="text"
-                className="font-weight-500"
-                style={{
-                  color: "#2A2A86",
-                  background: "rgba(42,42,134,0.05)",
-                  borderRadius: 5,
-                  padding: 8,
-                  height: "auto",
-                  marginTop: 15,
-                  marginBottom: 15,
-                }}
+            </Form.Item>
+          </Col>
+        </Row>
+      </div>
+      <AddGiftModal
+        items={itemGifts}
+        onUpdateData={onUpdateData}
+        onCancel={onCancleConfirm}
+        onOk={onOkConfirm}
+        visible={isVisibleGift}
+      />
+      <Table
+        locale={{
+          emptyText: (
+            <Button
+              type="text"
+              className="font-weight-500"
+              style={{
+                color: "#2A2A86",
+                background: "rgba(42,42,134,0.05)",
+                borderRadius: 5,
+                padding: 8,
+                height: "auto",
+                marginTop: 15,
+                marginBottom: 15,
+              }}
+              onClick={() => {
+                autoCompleteRef.current?.focus();
+              }}
+            >
+              Thêm sản phẩm ngay (F3)
+            </Button>
+          ),
+        }}
+        rowKey={(record) => record.id}
+        columns={columns}
+        dataSource={items}
+        className="sale-product-box-table w-100"
+        tableLayout="fixed"
+        pagination={false}
+      />
+      <div className="padding-20" style={{ paddingTop: "30px" }}>
+        <Row className="sale-product-box-payment" gutter={24}>
+          <Col xs={24} lg={12}>
+            <div className="payment-row">
+              <Checkbox
+                className="margin-bottom-15"
+                onChange={() => console.log(1)}
               >
-                Thêm sản phẩm ngay (F3)
-              </Button>
-            ),
-          }}
-          rowKey={(record) => record.id}
-          columns={columns}
-          dataSource={items}
-          className="sale-product-box-table w-100"
-          tableLayout="fixed"
-          pagination={false}
-          // summary={(pageData) => {
-          // let totalBorrow = 0;
-          // let totalRepayment = 0;
-          // // pageData.forEach(({ borrow, repayment }) => {
-          // //   totalBorrow += borrow;
-          // //   totalRepayment += repayment;
-          // // });
-          // return (
-          //   <Table.Summary.Row>
-          //     <Table.Summary.Cell index={1} colSpan={2}>
-          //       Tổng
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} className="text-right">
-          //       <Typography.Text>{formatCurrency(987000)}</Typography.Text>
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} className="text-right">
-          //       <Typography.Text type="danger">
-          //         {formatCurrency(296100)}
-          //       </Typography.Text>
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} className="text-right">
-          //       <Typography.Link>{formatCurrency(690900)}</Typography.Link>
-          //     </Table.Summary.Cell>
-          //     <Table.Summary.Cell index={1} />
-          //   </Table.Summary.Row>
-          // );
-          // }}
-        />
-      </Row>
+                Bỏ chiết khấu tự động
+              </Checkbox>
+            </div>
+            <div className="payment-row">
+              <Checkbox
+                className="margin-bottom-15"
+                onChange={() => console.log(1)}
+              >
+                Không tính thuế VAT
+              </Checkbox>
+            </div>
+            <div className="payment-row">
+              <Checkbox
+                className="margin-bottom-15"
+                onChange={() => console.log(1)}
+              >
+                Bỏ tích điểm tự động
+              </Checkbox>
+            </div>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Row className="payment-row" justify="space-between">
+              <strong className="font-size-text">Tổng tiền</strong>
+              <strong className="font-size-text">
+                {formatCurrency(amount)}
+              </strong>
+            </Row>
+
+            <Row
+              className="payment-row"
+              justify="space-between"
+              align="middle"
+              style={{ marginTop: "5px" }}
+            >
+              <Space align="center">
+                <Typography.Link
+                  className="font-weight-500"
+                  onClick={ShowDiscountModal}
+                  style={{ borderBottom: "1px dashed #0080FF" }}
+                >
+                  Chiết khấu
+                </Typography.Link>
+
+                {}
+                <Tag
+                  className="orders-tag orders-tag-danger"
+                  closable
+                  onClose={() => {
+                    setDiscountRate(0);
+                    setDiscountValue(0);
+                    calculateChangeMoney(items, amount, 0, 0);
+                  }}
+                >
+                  {discountRate !== 0 ? discountRate : 0}%{" "}
+                </Tag>
+              </Space>
+              <div className="font-weight-500 ">
+                {formatCurrency(discountValue)}
+              </div>
+            </Row>
+
+            <Row
+              className="payment-row"
+              justify="space-between"
+              align="middle"
+              style={{ marginTop: "5px" }}
+            >
+              <Space align="center">
+                <Typography.Link
+                  className="font-weight-500"
+                  onClick={ShowDiscountModal}
+                >
+                  Mã giảm giá
+                </Typography.Link>
+
+                {counpon !== "" && (
+                  <Tag
+                    className="orders-tag orders-tag-danger"
+                    closable
+                    onClose={() => {
+                      setDiscountRate(0);
+                      setDiscountValue(0);
+                    }}
+                  >
+                    {counpon}{" "}
+                  </Tag>
+                )}
+              </Space>
+              <div className="font-weight-500 ">0</div>
+            </Row>
+
+            <Row className="payment-row padding-top-10" justify="space-between">
+              <div className="font-weight-500">Phí ship báo khách</div>
+              <div className="font-weight-500 payment-row-money">20,000</div>
+            </Row>
+            <Divider className="margin-top-5 margin-bottom-5" />
+            <Row className="payment-row" justify="space-between">
+              <strong className="font-size-text">Khách cần trả</strong>
+              <strong className="text-success font-size-text">
+                {formatCurrency(changeMoney)}
+              </strong>
+            </Row>
+          </Col>
+        </Row>
+      </div>
 
       <PickDiscountModal
         amount={amount}
@@ -790,104 +866,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         onOk={onOkDiscountConfirm}
         visible={isVisiblePickDiscount}
       />
-
-      <Row className="sale-product-box-payment" gutter={24}>
-        <Col xs={24} lg={12}>
-          <div className="payment-row">
-            <Checkbox
-              className="checkbox-style"
-              onChange={() => console.log(1)}
-            >
-              Bỏ chiết khấu tự động
-            </Checkbox>
-          </div>
-          <div className="payment-row">
-            <Checkbox
-              className="checkbox-style"
-              onChange={() => console.log(1)}
-            >
-              Không tính thuế VAT
-            </Checkbox>
-          </div>
-          <div className="payment-row">
-            <Checkbox
-              className="checkbox-style"
-              onChange={() => console.log(1)}
-            >
-              Bỏ tích điểm tự động
-            </Checkbox>
-          </div>
-        </Col>
-        <Col xs={24} lg={12}>
-          <Row className="payment-row" justify="space-between">
-            <div className="font-weight-500">Tổng tiền</div>
-            <div className="font-weight-500 payment-row-money">
-              {formatCurrency(amount)}
-            </div>
-          </Row>
-
-          <Row className="payment-row" justify="space-between" align="middle">
-            <Space align="center">
-              <Typography.Link
-                className="font-weight-500"
-                onClick={ShowDiscountModal}
-              >
-                Chiết khấu
-              </Typography.Link>
-              <div className="badge-style badge-danger">
-                {discountRate !== null ? discountRate : 0}%{" "}
-                <Button
-                  type="text"
-                  className="p-0"
-                  onClick={() => {
-                    setDiscountRate(0);
-                    setDiscountValue(0);
-                    calculateChangeMoney(items, amount, 0, 0);
-                  }}
-                >
-                  x
-                </Button>
-              </div>
-            </Space>
-            <div className="font-weight-500 ">
-              {formatCurrency(discountValue)}
-            </div>
-          </Row>
-
-          <Row className="payment-row" justify="space-between" align="middle">
-            <Space align="center">
-              <Typography.Link
-                className="font-weight-500"
-                onClick={ShowDiscountModal}
-              >
-                Mã giảm giá
-              </Typography.Link>
-              <div className="badge-style badge-primary">
-                {counpon}{" "}
-                <Button type="text" className="p-0">
-                  x
-                </Button>
-              </div>
-            </Space>
-            <div className="font-weight-500 ">0</div>
-          </Row>
-
-          <Row className="payment-row" justify="space-between">
-            <div className="font-weight-500">Phí ship báo khách</div>
-            <div className="font-weight-500 payment-row-money">20,000</div>
-          </Row>
-
-          <Row className="payment-row" justify="space-between">
-            <div className="font-weight-500">Khách cần trả</div>
-            <div className="font-weight-500 payment-row-money">
-              {/* <Typography.Text type="success" className="font-weight-500"> */}
-              {formatCurrency(changeMoney)}
-              {/* </Typography.Text> */}
-            </div>
-          </Row>
-        </Col>
-      </Row>
-      </div>
     </Card>
   );
 };

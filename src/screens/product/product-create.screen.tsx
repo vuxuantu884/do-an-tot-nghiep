@@ -284,7 +284,7 @@ const ProductCreateScreen: React.FC = () => {
     key: "quantity",
     dataIndex: "quantity",
     width: 100,
-    render: (quantity: string, item: VariantRequestView) => (
+    render: (quantity: number, item: VariantRequestView) => (
       <NumberInput
         style={{ textAlign: "center" }}
         value={quantity}
@@ -345,7 +345,7 @@ const ProductCreateScreen: React.FC = () => {
                 size: i2.code,
                 sku: sku,
                 variant_images: [],
-                quantity: "",
+                quantity: 0,
               });
             });
           });
@@ -359,7 +359,7 @@ const ProductCreateScreen: React.FC = () => {
               size: i2.code,
               sku: `${code}-${i2.code}`,
               variant_images: [],
-              quantity: "",
+              quantity: 0,
             });
           });
         } else if (colors.length >= 0 && sizes.length === 0) {
@@ -372,7 +372,7 @@ const ProductCreateScreen: React.FC = () => {
               size: null,
               sku: `${code}-${i1.name}`,
               variant_images: [],
-              quantity: "",
+              quantity: 0,
             });
           });
         }
@@ -384,7 +384,7 @@ const ProductCreateScreen: React.FC = () => {
             size_id: null,
             size: null,
             sku: code,
-            quantity: "",
+            quantity: 0,
             variant_images: [],
           });
         }

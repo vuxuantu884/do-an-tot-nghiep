@@ -8,7 +8,7 @@ import UrlConfig from 'config/UrlConfig';
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
 const Inventory = React.lazy(() => import ("screens/inverory"));
-const OrderOnline = React.lazy(() => import ("screens/order-online/order-online.screen"));
+const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 
 const menu: Array<RouteMenu> = [
   {

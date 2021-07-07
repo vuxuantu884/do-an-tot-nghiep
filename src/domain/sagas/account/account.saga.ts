@@ -12,11 +12,13 @@ import {
   searchAccountApi,
   getDepartmentAllApi,
   getPositionAllApi,
+  searchShipperApi,
   AccountCreateService,
   AccountGetByIdService,
   AccountUpdateService,
 } from "service/accounts/account.service";
 import { showError } from "utils/ToastUtils";
+
 
 function* AccountSearchSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -150,6 +152,21 @@ function* PositionGetListSaga(action: YodyAction) {
   } catch (e) {}
 }
 
+function* ShipperSearchSaga(action: YodyAction) {
+  let { setData } = action.payload;
+  try {
+      let response: BaseResponse<PageResponse<AccountResponse>> = yield call(searchShipperApi);
+      switch (response.code) {
+          case HttpStatus.SUCCESS:
+            setData(response.data.items);
+              break;
+          default:
+              break;
+      }
+  } catch (error) {}
+}
+
+
 export function* accountSaga() {
   yield takeLatest(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);
   yield takeLatest(AccountType.GET_LIST_ACCOUNT_REQUEST, AccountGetListSaga);
@@ -158,6 +175,7 @@ export function* accountSaga() {
     DepartmentGetListSaga
   );
   yield takeLatest(AccountType.GET_LIST_POSITION_REQUEST, PositionGetListSaga);
+  yield takeLatest(AccountType.GET_LIST_SHIPPER_REQUEST, ShipperSearchSaga);
   yield takeLatest(AccountType.GET_ACCOUNT_DETAIL_REQUEST, AccountGetByIdSaga);
   yield takeEvery(AccountType.CREATE_ACCOUNT_REQUEST, AccountCreateSaga);
   yield takeEvery(AccountType.UPDATE_ACCOUNT_REQUEST, AccountUpdateSaga);
