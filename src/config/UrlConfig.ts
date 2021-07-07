@@ -1,20 +1,18 @@
 
-const BASE_URL = '';
-
 const UrlConfig = {
   HOME: `/`,
-  LOGIN: `${BASE_URL}/login`,
-  PRODUCT: `${BASE_URL}/products`,
-  VARIANTS: `${BASE_URL}/products/variants`,
-  CATEGORIES: `${BASE_URL}/categories`,  
-  PURCHASEORDER: `${BASE_URL}/pucharse-order`,  
-  MATERIALS: `${BASE_URL}/materials`,
-  SIZES: `${BASE_URL}/sizes`,
-  COLORS: `${BASE_URL}/colors`,
-  SUPPLIERS: `${BASE_URL}/suppliers`,
-  ACCOUNTS: `${BASE_URL}/accounts`,
-  STORE: `${BASE_URL}/stores`,
-  ROLES: `${BASE_URL}/roles`,
+  LOGIN: `/login`,
+  PRODUCT: `/products`,
+  VARIANTS: `/products/variants`,
+  CATEGORIES: `/categories`,  
+  PURCHASEORDER: `/pucharse-order`,  
+  MATERIALS: `/materials`,
+  SIZES: `/sizes`,
+  COLORS: `/colors`,
+  SUPPLIERS: `/suppliers`,
+  ACCOUNTS: `/accounts`,
+  STORE: `/stores`,
+  ROLES: `/roles`,
 }
 
 export default UrlConfig;
