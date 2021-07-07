@@ -1,8 +1,17 @@
 //#region Import
 import React, { createRef, useCallback, useEffect, useState } from "react";
-import { Card, Button, Form, Row, Col, Input, Space, FormInstance } from "antd";
+import {
+  Card,
+  Button,
+  Form,
+  Row,
+  Col,
+  Input,
+  Space,
+  FormInstance,
+  Select,
+} from "antd";
 import { InfoCircleOutlined, ProfileOutlined } from "@ant-design/icons";
-import { Select } from "component/common/select";
 import { useHistory } from "react-router-dom";
 import "assets/css/v2/_sale-order.scss";
 import { useDispatch, useSelector } from "react-redux";
@@ -123,13 +132,13 @@ export default function Order() {
     delivery_fee: null,
     shipping_fee_informed_to_customer: null,
     shipping_fee_paid_to_3pls: null,
-    requirements: "",
+    requirements: null,
     source_id: null,
     note: "",
     tags: "",
     customer_note: "",
     account_code: userReducer.account?.code,
-    assignee_code: "",
+    assignee_code: null,
     customer_id: null,
     reference: "",
     url: "",
@@ -263,7 +272,6 @@ export default function Order() {
       values.action = OrderStatus.DRAFT;
     } else {
       if (lstFulFillment != null) {
-        
       }
       values.fulfillments = lstFulFillment;
       values.action = "finalized";
@@ -375,7 +383,6 @@ export default function Order() {
                     <Select
                       className="select-with-search"
                       showSearch
-                      showArrow
                       placeholder="Chọn nhân viên bán hàng"
                       filterOption={(input, option) => {
                         if (option) {
@@ -434,16 +441,18 @@ export default function Order() {
                   </Form.Item>
                   <Form.Item
                     label="Tag"
+                    tooltip={{
+                      title: "Thẻ này giúp tìm kiếm các đơn hàng",
+                      icon: <InfoCircleOutlined />,
+                    }}
                     name="tags"
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
                   >
                     <Select
                       className="ant-select-hashtag"
                       dropdownClassName="ant-select-dropdown-hashtag"
                       mode="tags"
-                      placeholder="Nhập tags"
-                      tokenSeparators={[","]}
-                    ></Select>
+                      placeholder="Nhập từ khóa"
+                    />
                   </Form.Item>
                 </div>
               </Card>

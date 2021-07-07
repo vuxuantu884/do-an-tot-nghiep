@@ -23,7 +23,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Select } from "component/common/select";
+import  CustomSelect  from "component/custom/select.custom";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import peopleIcon2 from "assets/img/people.svg";
@@ -251,10 +251,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               },
             ]}
           >
-            <Select
+            <CustomSelect
               style={{ width: 300 }}
               showArrow
               placeholder="Chọn nguồn đơn hàng"
+              notFoundContent="Không có dữ liệu"
               filterOption={(input, option) => {
                 if (option) {
                   return (
@@ -273,15 +274,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               }
             >
               {listSources.map((item, index) => (
-                <Select.Option
+                <CustomSelect.Option
                   style={{ width: "100%" }}
                   key={index.toString()}
                   value={item.id}
                 >
                   {item.name}
-                </Select.Option>
+                </CustomSelect.Option>
               ))}
-            </Select>
+            </CustomSelect>
           </Form.Item>
         </div>
       }
