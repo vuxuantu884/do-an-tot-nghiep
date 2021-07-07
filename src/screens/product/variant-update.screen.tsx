@@ -506,7 +506,7 @@ const VariantUpdateScreen: React.FC = () => {
                                   title: (
                                     <div>
                                       <b>Giá bán lẻ</b> là giá mà bạn sẽ bán sản
-                                      phẩm này cho những khách hàng đơn lẻ..
+                                      phẩm này cho những khách hàng đơn lẻ.
                                     </div>
                                   ),
                                   icon: <InfoCircleOutlined />,
