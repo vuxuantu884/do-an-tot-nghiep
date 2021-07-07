@@ -17,7 +17,7 @@ const StoreUpdateScreen = React.lazy(() => import("screens/store/store-update.sc
 
 const setting: Array<RouteMenu> = [
   {
-    path: "/accounts",
+    path: UrlConfig.ACCOUNTS,
     exact: true,
     title: "Quản lý người dùng",
     icon: 'icon-dot',
@@ -76,7 +76,7 @@ const setting: Array<RouteMenu> = [
         icon: 'icon-dot',
         component: StoreCreateScreen,
         key: "submenu921",
-        isShow: false,
+        isShow: true,
         header: null,
         subMenu: [],
         type: 0,
@@ -89,7 +89,7 @@ const setting: Array<RouteMenu> = [
         icon: 'icon-dot',
         component: StoreUpdateScreen,
         key: "submenu922",
-        isShow: false,
+        isShow: true,
         header: null,
         subMenu: [],
         type: 0,
@@ -116,7 +116,7 @@ const setting: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/roles",
+    path: UrlConfig.ROLES,
     exact: true,
     title: "Quản lý nhóm quyền",
     icon: 'icon-dot',

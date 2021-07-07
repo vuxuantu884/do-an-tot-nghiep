@@ -10,7 +10,6 @@ import { HttpStatus } from "config/HttpStatus";
 import { YodyAction } from "../../../base/BaseAction";
 import { showError } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
-import { hideLoading, showLoading } from 'domain/actions/loading.action';
 
 function* orderCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;

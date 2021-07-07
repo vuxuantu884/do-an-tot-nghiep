@@ -50,7 +50,6 @@ deploy to dev:
   stage: deploy
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
   dependencies: []
-  when: manual
   only:
     - develop
     - feature/sprint-4-app-admin

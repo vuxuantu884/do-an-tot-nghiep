@@ -1,8 +1,17 @@
 //#region Import
 import React, { createRef, useCallback, useEffect, useState } from 'react';
-import { Card, Button, Form, Row, Col, Input, Space, FormInstance } from 'antd';
+import {
+    Card,
+    Button,
+    Form,
+    Row,
+    Col,
+    Input,
+    Space,
+    FormInstance,
+    Select,
+} from 'antd';
 import { InfoCircleOutlined, ProfileOutlined } from '@ant-design/icons';
-import { Select } from 'component/common/select';
 import { useHistory } from 'react-router-dom';
 import 'assets/css/v2/_sale-order.scss';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,6 +41,7 @@ import ContentContainer from 'component/container/content.container';
 import CreateBillStep from 'component/header/create-bill-step';
 import { OrderResponse } from 'model/response/order/order.response';
 import { OrderStatus, TaxTreatment } from 'utils/Constants';
+import UrlConfig from 'config/UrlConfig';
 //#endregion
 
 var typeButton = -1;
@@ -55,7 +65,7 @@ export default function Order() {
     const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
     const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
     //#endregion
-    console.log(accounts);
+
     //#region Customer
     const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
         setCustomer(_objCustomer);
@@ -122,13 +132,13 @@ export default function Order() {
         delivery_fee: null,
         shipping_fee_informed_to_customer: null,
         shipping_fee_paid_to_3pls: null,
-        requirements: '',
+        requirements: null,
         source_id: null,
         note: '',
         tags: '',
         customer_note: '',
         account_code: userReducer.account?.code,
-        assignee_code: '',
+        assignee_code: null,
         customer_id: null,
         reference: '',
         url: '',
@@ -161,7 +171,7 @@ export default function Order() {
             account_code: userReducer.account?.code,
             assignee_code: value.assignee_code,
             delivery_type: '',
-            stockLocation_id: null,
+            stock_location_id: null,
             payment_status: '',
             total: orderAmount,
             total_tax: null,
@@ -176,7 +186,12 @@ export default function Order() {
         };
 
         let listFullfillmentRequest = [];
-        if (paymentMethod !== 3) {
+        if (paymentMethod !== 3 || shipmentMethod === 2) {
+            listFullfillmentRequest.push(request);
+        }
+
+        if (paymentMethod === 3 && shipmentMethod === 4 && typeButton === 1) {
+            request.shipment = null;
             listFullfillmentRequest.push(request);
         }
         return listFullfillmentRequest;
@@ -244,7 +259,7 @@ export default function Order() {
     const onCreateSuccess = useCallback(
         (value: OrderResponse) => {
             showSuccess('Thêm đơn hàng thành công');
-            history.push(`/order-online/detail/${value.id}`);
+            history.push(`${UrlConfig.ORDER}/${value.id}`);
         },
         [history]
     );
@@ -258,8 +273,8 @@ export default function Order() {
             values.action = OrderStatus.DRAFT;
         } else {
             if (lstFulFillment != null) {
-                values.fulfillments = lstFulFillment;
             }
+            values.fulfillments = lstFulFillment;
             values.action = 'finalized';
             values.payments = payments;
         }
@@ -373,7 +388,6 @@ export default function Order() {
                                         <Select
                                             className="select-with-search"
                                             showSearch
-                                            showArrow
                                             placeholder="Chọn nhân viên bán hàng"
                                             filterOption={(input, option) => {
                                                 if (option) {
@@ -394,7 +408,7 @@ export default function Order() {
                                                     key={index.toString()}
                                                     value={item.code}
                                                 >
-                                                    {`${item.full_name} - ${item.code}`}
+                                                    {item.full_name}
                                                 </Select.Option>
                                             ))}
                                         </Select>
@@ -407,10 +421,7 @@ export default function Order() {
                                             icon: <InfoCircleOutlined />,
                                         }}
                                     >
-                                        <Input
-                                            placeholder="Điền tham chiếu"
-                                            maxLength={255}
-                                        />
+                                        <Input placeholder="Điền tham chiếu" />
                                     </Form.Item>
                                     <Form.Item
                                         label="Đường dẫn"
@@ -420,10 +431,7 @@ export default function Order() {
                                             icon: <InfoCircleOutlined />,
                                         }}
                                     >
-                                        <Input
-                                            placeholder="Điền đường dẫn"
-                                            maxLength={255}
-                                        />
+                                        <Input placeholder="Điền đường dẫn" />
                                     </Form.Item>
                                 </div>
                             </Card>
@@ -445,26 +453,22 @@ export default function Order() {
                                             icon: <InfoCircleOutlined />,
                                         }}
                                     >
-                                        <Input.TextArea
-                                            placeholder="Điền Ghi chú"
-                                            maxLength={500}
-                                        />
+                                        <Input.TextArea placeholder="Điền Ghi chú" />
                                     </Form.Item>
                                     <Form.Item
                                         label="Tag"
-                                        name="tags"
                                         tooltip={{
-                                            title: 'Tooltip',
+                                            title: 'Thẻ này giúp tìm kiếm các đơn hàng',
                                             icon: <InfoCircleOutlined />,
                                         }}
+                                        name="tags"
                                     >
                                         <Select
                                             className="ant-select-hashtag"
                                             dropdownClassName="ant-select-dropdown-hashtag"
                                             mode="tags"
-                                            placeholder="Nhập tags"
-                                            tokenSeparators={[',']}
-                                        ></Select>
+                                            placeholder="Nhập từ khóa"
+                                        />
                                     </Form.Item>
                                 </div>
                             </Card>

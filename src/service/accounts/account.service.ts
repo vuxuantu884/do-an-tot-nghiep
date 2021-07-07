@@ -38,6 +38,13 @@ export const AccountGetByIdService = (id: number): Promise<BaseResponse<AccountR
 }
 
 
+export const AccountDeleteService = (id: number): Promise<BaseResponse<AccountResponse>> => {
+  return BaseAxios.delete(`${ApiConfig.ACCOUNTS}/accounts/${id}`)
+}
+export const AccountManyDeleteService = (ids: number[]): Promise<BaseResponse<AccountResponse>> => {
+  return BaseAxios.delete(`${ApiConfig.ACCOUNTS}/accounts/${ids}`)
+}
+
 export const getDepartmentAllApi = (): Promise<BaseResponse<DepartmentResponse>> => {
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/departments`);
 }

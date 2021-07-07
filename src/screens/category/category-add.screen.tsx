@@ -30,6 +30,8 @@ import {
 } from 'model/product/category.model';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
+import {RegUtil} from 'utils/RegUtils';
+import { showSuccess } from 'utils/ToastUtils';
 
 let initialRequest: CategoryCreateRequest = {
   code: '',
@@ -48,17 +50,21 @@ const AddCategory: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer
   );
   const [categories, setCategories] = useState<Array<CategoryResponse>>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const goods = useMemo(() => {
     if (bootstrapReducer.data && bootstrapReducer.data.goods) {
       return bootstrapReducer.data.goods;
     }
     return [];
   }, [bootstrapReducer]);
-  const onSuccess = useCallback(() => {
-    history.push('/categories');
+  const onSuccess = useCallback((result: CategoryResponse) => {
+    setLoading(false);
+    showSuccess('Thêm danh mục thành công')
+    history.push(`${UrlConfig.CATEGORIES}/${result.id}`);
   }, [history]);
   const onFinish = useCallback(
     (values: CategoryCreateRequest) => {
+      setLoading(true);
       dispatch(createCategoryAction(values, onSuccess));
     },
     [dispatch, onSuccess]
@@ -75,7 +81,7 @@ const AddCategory: React.FC = () => {
       breadcrumb={[
         {
           name: 'Tổng quản',
-          path: '/',
+          path: UrlConfig.HOME,
         },
         {
           name: 'Sản phẩm',
@@ -96,23 +102,20 @@ const AddCategory: React.FC = () => {
         initialValues={initialRequest}
         layout="vertical"
       >
-        <Card className="card-block card-block-normal" title="Thông tin cơ bản">
+        <Card title="Thông tin cơ bản">
           <div className="padding-20">
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
-                  className="form-group form-group-with-search"
                   rules={[
                     {required: true, message: 'Vui lòng nhập tên danh mục'},
+                    {max: 255, message: 'Tên danh mục không quá 255 kí tự'},
+                    {pattern: RegUtil.STRINGUTF8, message: 'Tên danh mục không gồm kí tự đặc biệt'},
                   ]}
                   label="Tên danh mục"
                   name="name"
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Tên danh mục"
-                    size="large"
-                  />
+                  <Input placeholder="VD: Áo phông nữ" maxLength={255} />
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -120,14 +123,13 @@ const AddCategory: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: 'Vui lòng nhập thành phần chất liệu',
+                      message: 'Vui lòng nhập chọn ngành hàng',
                     },
                   ]}
-                  className="form-group form-group-with-search"
                   name="goods"
                   label="Ngành hàng"
                 >
-                  <Select className="selector">
+                  <Select>
                     <Select.Option value="">Ngành hàng</Select.Option>
                     {goods.map((item, index) => (
                       <Select.Option key={index} value={item.value}>
@@ -144,26 +146,20 @@ const AddCategory: React.FC = () => {
                   rules={[
                     {required: true, message: 'Vui lòng nhập mã danh mục'},
                     {len: 3, message: 'Mã danh mục gồm 3 kí tự'},
+                    {
+                      pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                      message: 'Mã danh mục không chứa ký tự đặc biệt',
+                    },
                   ]}
-                  className="form-group form-group-with-search"
                   name="code"
-                  labelAlign="right"
                   label="Mã danh mục"
+                  normalize={(value) => (value || '').toUpperCase()}
                 >
-                  <Input
-                    maxLength={3}
-                    className="r-5"
-                    placeholder="Mã danh mục"
-                    size="large"
-                  />
+                  <Input maxLength={3} placeholder="VD: APN" />
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Form.Item
-                  className="form-group form-group-with-search"
-                  name="parent_id"
-                  label="Danh mục cha"
-                >
+                <Form.Item name="parent_id" label="Danh mục cha">
                   <TreeSelect treeDefaultExpandAll className="selector">
                     <TreeNode value={-1} title="Danh mục cha" />
                     {categories.map((item, index) => (
@@ -182,7 +178,7 @@ const AddCategory: React.FC = () => {
             <Button type="default" onClick={onCancel}>
               Hủy
             </Button>
-            <Button htmlType="submit" type="primary">
+            <Button loading={loading} htmlType="submit" type="primary">
               Lưu
             </Button>
           </Space>

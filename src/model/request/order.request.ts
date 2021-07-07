@@ -1,3 +1,5 @@
+import { FulFillmentResponse } from './../response/order/order.response';
+import { OrderLineItemResponse } from "model/response/order/order.response";
 import { Moment } from "moment";
 export interface OrderRequest {
   action: string | null;
@@ -37,7 +39,7 @@ export interface FulFillmentRequest {
   account_code?: string | null;
   assignee_code: string | null;
   delivery_type: string | null;
-  stockLocation_id: number | null;
+  stock_location_id: number | null;
   payment_status: string | null;
   total: number | null;
   total_tax: number | null;
@@ -49,6 +51,32 @@ export interface FulFillmentRequest {
   total_line_amount_after_line_discount: number | null;
   shipment: ShipmentRequest | null | undefined;
   items: Array<OrderLineItemRequest>;
+}
+
+export interface UpdateFulFillmentRequest {
+  id: number | null;
+  order_id: number | null;
+  store_id: number | null | undefined;
+  account_code?: string | null | undefined;
+  assignee_code: string | null | undefined;
+  delivery_type: string | null | undefined;
+  stock_location_id: number | null | undefined;
+  payment_status: string | null;
+  total: number | null;
+  total_tax: number | null;
+  total_discount: number | null;
+  total_quantity: number | null;
+  discount_rate: number | null;
+  discount_value: number | null;
+  discount_amount: number | null;
+  total_line_amount_after_line_discount: number | null;
+  shipment: UpdateShipmentRequest | null | undefined;
+  items: Array<OrderLineItemResponse> | null | undefined;
+}
+
+export interface UpdateLineFulFillment {
+  order_id: number | null;
+  fulfillment: UpdateFulFillmentRequest;
 }
 
 export interface BillingAddress {
@@ -108,8 +136,8 @@ export interface ShipmentRequest {
 }
 
 export interface UpdateShipmentRequest {
-  order_id: string | null;
-  code:string | null | undefined;
+  order_id: number | null;
+  code: string | null | undefined;
   delivery_service_provider_id: number | null;
   delivery_service_provider_type: string | null;
   handover_id: number | null;
@@ -130,7 +158,7 @@ export interface UpdateShipmentRequest {
   sender_address_id: number | null;
   note_to_shipper: string | null;
   requirements: string | null;
-  fulfillment_id:string | null | undefined;
+  fulfillment_id: string | null | undefined;
 }
 
 export interface OrderPaymentRequest {
@@ -151,7 +179,7 @@ export interface OrderPaymentRequest {
 }
 
 export interface UpdateOrderPaymentRequest {
-  order_id: string;
+  order_id: number | null;
   payment_method_id: number;
   payment_method: string;
   amount: number;
@@ -168,8 +196,9 @@ export interface UpdateOrderPaymentRequest {
   note: string;
 }
 
-export interface UpdatePaymentRequest{
-  payments: Array<UpdateOrderPaymentRequest>
+export interface UpdatePaymentRequest {
+  payments: Array<UpdateOrderPaymentRequest>;
+  fulfillments: Array<UpdateFulFillmentRequest> | null | undefined;
 }
 
 export interface OrderLineItemRequest {
@@ -216,7 +245,7 @@ export interface OrderDiscountRequest {
 }
 
 export interface UpdateFulFillmentStatusRequest {
-  order_id: string | null | undefined;
-  fulfillment_id: number | null | undefined;
+  order_id: number | null | undefined;
+  fulfillment_id: number | null;
   status: string | null;
 }

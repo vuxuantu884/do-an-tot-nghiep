@@ -30,7 +30,6 @@ import React, {
     useState,
     useMemo,
     createRef,
-    useRef,
 } from 'react';
 import {
     ArrowRightOutlined,
@@ -100,7 +99,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     >({
         metadata: {
             limit: 0,
-            page: 0,
+            page: 1,
             total: 0,
         },
         items: [],
@@ -340,7 +339,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                             maxWidth: 130,
                             textAlign: 'right',
                         }}
-                        value={l.price.toString()}
+                        value={l.price}
                     />
                 </div>
             );
@@ -436,6 +435,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     ];
 
     const autoCompleteRef = createRef<RefSelectProps>();
+
     const createItem = (variant: VariantResponse) => {
         let price = findPriceInVariant(
             variant.variant_prices,
@@ -554,7 +554,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
     const onChangeProductSearch = useCallback(
         (value) => {
-            if (!/^.{0,255}$/.test(value)) return;
             setKeysearchVariant(value);
             initQueryVariant.info = value;
             dispatch(

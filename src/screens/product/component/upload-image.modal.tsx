@@ -25,6 +25,7 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
       className="ant-modal-header-nostyle"
       width={950}
       onCancel={onCancle}
+      onOk={() => onSave && onSave()}
       footer={
         <div
           className="display-flex"

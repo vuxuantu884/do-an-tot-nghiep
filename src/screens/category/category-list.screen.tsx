@@ -1,56 +1,60 @@
-import { Button, Card, Form, Input, Select, Tooltip } from "antd";
-import { Link, useHistory } from "react-router-dom";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import {Button, Card, Form, Input, Select, Tooltip} from 'antd';
+import {Link, useHistory} from 'react-router-dom';
+import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   categoryDeleteAction,
   getCategoryRequestAction,
-} from "domain/actions/product/category.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { getQueryParams, useQuery } from "utils/useQuery";
-import search from "assets/img/search.svg";
-import {
-  CategoryParent,
-  CategoryView,
-} from "model/product/category.model";
-import { MenuAction } from "component/table/ActionButton";
-import { CategoryResponse, CategoryQuery } from "model/product/category.model";
-import { convertCategory, generateQuery } from "utils/AppUtils";
-import CustomTable from "component/table/CustomTable";
-import UrlConfig from "config/UrlConfig";
-import CustomFilter from "component/table/custom.filter";
-import { StarOutlined } from "@ant-design/icons";
-import ContentContainer from "component/container/content.container";
-import ButtonCreate from "component/header/ButtonCreate";
+} from 'domain/actions/product/category.action';
+import {RootReducerType} from 'model/reducers/RootReducerType';
+import {getQueryParams, useQuery} from 'utils/useQuery';
+import search from 'assets/img/search.svg';
+import {CategoryParent, CategoryView} from 'model/product/category.model';
+import {MenuAction} from 'component/table/ActionButton';
+import {CategoryResponse, CategoryQuery} from 'model/product/category.model';
+import {convertCategory, generateQuery} from 'utils/AppUtils';
+import CustomTable from 'component/table/CustomTable';
+import UrlConfig from 'config/UrlConfig';
+import CustomFilter from 'component/table/custom.filter';
+import {StarOutlined} from '@ant-design/icons';
+import ContentContainer from 'component/container/content.container';
+import ButtonCreate from 'component/header/ButtonCreate';
+import { showSuccess, showWarning } from 'utils/ToastUtils';
+import { hideLoading, showLoading } from 'domain/actions/loading.action';
+import ModalConfirm from 'component/modal/ModalConfirm';
+import {RiDeleteBin5Line} from 'react-icons/ri'
 
 const actions: Array<MenuAction> = [
   {
     id: 1,
-    name: "Chỉnh sửa",
+    name: 'Chỉnh sửa',
   },
   {
     id: 2,
-    name: "Xóa",
+    name: 'Xóa',
   },
   {
     id: 3,
-    name: "Export",
+    name: 'Export',
   },
 ];
 
-const { Item } = Form;
+const {Item} = Form;
 
+var idDelete = -1;
 const Category = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const query = useQuery();
   let getParams: CategoryQuery = getQueryParams(query);
   if (!getParams.goods) {
-    getParams.goods = "";
+    getParams.goods = '';
   }
   const [params, setPrams] = useState<CategoryQuery>(getParams);
   const [data, setData] = useState<Array<CategoryView>>([]);
   const [selected, setSelected] = useState<Array<CategoryView>>([]);
+  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
@@ -68,6 +72,11 @@ const Category = () => {
         return <Link to={`${UrlConfig.CATEGORIES}/${item.id}`}>{text}</Link>;
       },
     },
+    {
+      title: "Ngành hàng",
+      dataIndex: "goods_name",
+    },
+
     {
       title: "Danh mục",
       dataIndex: "name",
@@ -100,13 +109,9 @@ const Category = () => {
       render: (item: CategoryParent) => (item != null ? item.name : ""),
     },
     {
-      title: "Ngành hàng",
-      dataIndex: "goods_name",
-    },
-    {
       title: "Người tạo",
       dataIndex: "created_name",
-    }
+    },
   ];
   const onFinish = useCallback(
     (values: CategoryQuery) => {
@@ -119,9 +124,12 @@ const Category = () => {
   const onGetSuccess = useCallback((results: Array<CategoryResponse>) => {
     let newData: Array<CategoryView> = convertCategory(results);
     setData(newData);
+    setLoading(false);
   }, []);
   const onDeleteSuccess = useCallback(() => {
     setSelected([]);
+    dispatch(hideLoading());
+    showSuccess('Xóa danh mục thành công');
     dispatch(getCategoryRequestAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params]);
   const onMenuClick = useCallback(
@@ -133,14 +141,19 @@ const Category = () => {
             history.push(`${UrlConfig.CATEGORIES}/${id}`);
             break;
           case 2:
-            dispatch(categoryDeleteAction(id, onDeleteSuccess));
+            idDelete = id;
+            setConfirmDelete(true);
             break;
           case 3:
             break;
         }
+      } else {
+        if(index !== 3) {
+          showWarning('Vui lòng chọn ít nhất 1 danh mục để thao tác')
+        }
       }
     },
-    [selected, history, dispatch, onDeleteSuccess]
+    [selected, history]
   );
 
   const menuFilter = useMemo(() => {
@@ -155,6 +168,7 @@ const Category = () => {
     setSelected(selectedRow);
   }, []);
   useEffect(() => {
+    setLoading(true);
     dispatch(getCategoryRequestAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params]);
   return (
@@ -163,7 +177,7 @@ const Category = () => {
       breadcrumb={[
         {
           name: 'Tổng quản',
-          path: '/',
+          path: UrlConfig.HOME,
         },
         {
           name: 'Sản phẩm',
@@ -174,52 +188,69 @@ const Category = () => {
           path: `${UrlConfig.CATEGORIES}`,
         },
       ]}
-      extra={
-        <ButtonCreate path={`${UrlConfig.CATEGORIES}/create`} />
-      }
+      extra={<ButtonCreate path={`${UrlConfig.CATEGORIES}/create`} />}
     >
-    <Card>
-      <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
-        <Form onFinish={onFinish} layout="inline" initialValues={params} >
-          <Item name="name">
-            <Input
-              prefix={<img src={search} alt="" />}
-              style={{ width: 200 }}
-              placeholder="Tên/Mã danh mục"
-            />
-          </Item>
-          <Item name="goods">
-            <Select
-              style={{
-                width: 200,
-              }}
-            >
-              <Select.Option value="">Ngành hàng</Select.Option>
-              {goods.map((item, index) => (
-                <Select.Option key={index} value={item.value}>
-                  {item.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Item>
-          <Item>
-            <Button htmlType="submit" type="primary">Lọc</Button>
-          </Item>
-          <Item>
-            <Tooltip overlay="Lưu bộ lọc" placement="top">
-              <Button icon={<StarOutlined />} />
-            </Tooltip>
-          </Item>
-        </Form>
-      </CustomFilter>
-      <CustomTable
-        onSelectedChange={onSelect}
-        pagination={false}
-        dataSource={data}
-        columns={columns}
-        rowKey={(item: CategoryResponse) => item.id}
+      <Card>
+        <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
+          <Form onFinish={onFinish} layout="inline" initialValues={params}>
+            <Item name="query">
+              <Input
+                prefix={<img src={search} alt="" />}
+                style={{width: 200}}
+                placeholder="Tên/Mã danh mục"
+              />
+            </Item>
+            <Item name="goods">
+              <Select
+                style={{
+                  width: 200,
+                }}
+              >
+                <Select.Option value="">Ngành hàng</Select.Option>
+                {goods.map((item, index) => (
+                  <Select.Option key={index} value={item.value}>
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Item>
+            <Item>
+              <Button htmlType="submit" type="primary">
+                Lọc
+              </Button>
+            </Item>
+            <Item>
+              <Tooltip overlay="Lưu bộ lọc" placement="top">
+                <Button icon={<StarOutlined />} />
+              </Tooltip>
+            </Item>
+          </Form>
+        </CustomFilter>
+        <CustomTable
+          isLoading={loading}
+          onSelectedChange={onSelect}
+          pagination={false}
+          dataSource={data}
+          columns={columns}
+          rowKey={(item: CategoryResponse) => item.id}
+        />
+      </Card>
+      <ModalConfirm 
+        cancelText="Không" 
+        okText="Có" 
+        onCancel={() => setConfirmDelete(false)} 
+        onOk={() => {
+          setConfirmDelete(false);
+          dispatch(showLoading());
+          dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+        }}
+        icon={<RiDeleteBin5Line />} 
+        title="Bạn chắc chắn xóa danh mục ?"
+        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+        visible={isConfirmDelete} 
+        colorIcon="#FFFFFF"
+        bgIcon="#EB5757"
       />
-    </Card>
     </ContentContainer>
   );
 };

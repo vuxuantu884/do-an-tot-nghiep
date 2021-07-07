@@ -3,11 +3,6 @@ import { ColorSearchQuery, ColorResponse, ColorCreateRequest } from 'model/produ
 import BaseAction from "base/BaseAction";
 import { PageResponse } from 'model/base/base-metadata.response';
 
-export const colorSearchAll = (setData: (data: Array<ColorResponse>) => void
-) => {
-  return BaseAction(ColorType.SEARCH_COLOR_REQUEST, {setData});
-}
-
 export const getColorAction = ( query: ColorSearchQuery,  setData: (data: PageResponse<ColorResponse>) => void) => {
   return BaseAction(ColorType.GET_COLOR_REQUEST, {query,  setData });
 }

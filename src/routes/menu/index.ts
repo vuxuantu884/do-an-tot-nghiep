@@ -3,6 +3,7 @@ import { RouteMenu } from "model/other";
 import setting from './setting';
 import product from './product';
 import bill from './bill';
+import UrlConfig from 'config/UrlConfig';
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
@@ -11,7 +12,7 @@ const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"
 
 const menu: Array<RouteMenu> = [
   {
-    path: "/",
+    path: UrlConfig.HOME,
     exact: true,
     title: "Tổng quan",
     icon: 'icon-dashboard',
@@ -50,13 +51,13 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/sale",
+    path: "/unicorn/pos",
     exact: true,
     title: "Bán hàng",
     icon: 'icon-sale',
     component: Inventory,
     key: "4",
-    isShow: true,
+    isShow: false,
     header: null,
     subMenu: [],
     type: 0,

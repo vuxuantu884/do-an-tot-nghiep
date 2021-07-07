@@ -19,6 +19,7 @@ import {
   DatePicker,
   Input,
   FormInstance,
+  Select
 } from "antd";
 import documentIcon from "../../assets/img/document.svg";
 import UpdatePaymentCard from "./update-payment-card";
@@ -33,7 +34,9 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import {
   OrderPaymentRequest,
+  UpdateFulFillmentRequest,
   UpdateFulFillmentStatusRequest,
+  UpdateLineFulFillment,
   UpdateShipmentRequest,
 } from "model/request/order.request";
 import { AccountResponse } from "model/account/account.model";
@@ -86,7 +89,9 @@ import { showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
-import { Select } from "component/common/select";
+import { FulFillmentStatus, OrderStatus } from "utils/Constants";
+import UrlConfig from "config/UrlConfig";
+import  CustomSelect  from "component/custom/select.custom";
 
 const { Panel } = Collapse;
 //#endregion
@@ -97,7 +102,7 @@ type OrderParam = {
 
 const OrderDetail = () => {
   const { id } = useParams<OrderParam>();
-  let OrderId = id;
+  let OrderId = parseInt(id);
   //#region state
   const dispatch = useDispatch();
   const history = useHistory();
@@ -177,17 +182,6 @@ const OrderDetail = () => {
   };
 
   useEffect(() => {
-    if (OrderDetail?.store_id != null) {
-      dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
-    }
-  }, [dispatch, OrderDetail?.store_id]);
-
-  const shipping_requirements = useSelector(
-    (state: RootReducerType) =>
-      state.bootstrapReducer.data?.shipping_requirement
-  );
-
-  useEffect(() => {
     if (isFirstLoad.current) {
       if (!Number.isNaN(OrderId)) {
         dispatch(OrderDetailAction(OrderId, setOrderDetail));
@@ -196,11 +190,33 @@ const OrderDetail = () => {
     isFirstLoad.current = false;
   }, [dispatch, OrderId]);
 
-  useEffect(() => {
-    if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail.customer_id, setCustomerDetail));
+  const shipping_requirements = useSelector(
+    (state: RootReducerType) =>
+      state.bootstrapReducer.data?.shipping_requirement
+  );
+
+  const stepsStatus = () => {
+    if (OrderDetail?.status === OrderStatus.DRAFT) {
+      return OrderStatus.DRAFT;
     }
-  }, [dispatch, OrderDetail]);
+    if (OrderDetail?.status === OrderStatus.FINALIZED) {
+      if (OrderDetail.fulfillment_status === null) {
+        return OrderStatus.FINALIZED;
+      } else {
+        if (OrderDetail.fulfillment_status === FulFillmentStatus.UNSHIPPED) {
+          return OrderStatus.FINALIZED;
+        }
+        if (OrderDetail.fulfillment_status === FulFillmentStatus.PACKED) {
+          return FulFillmentStatus.PACKED;
+        }
+        if (OrderDetail.fulfillment_status === FulFillmentStatus.SHIPPING) {
+          return FulFillmentStatus.SHIPPING;
+        }
+      }
+    }
+  };
+
+  let stepsStatusValue = stepsStatus();
 
   //#region Product
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
@@ -334,29 +350,33 @@ const OrderDetail = () => {
   const onUpdateSuccess = useCallback(
     (value: OrderResponse) => {
       showSuccess("Xuất kho thành công");
-      history.push(`/order-online/detail/${value.id}`);
+      window.location.reload();
     },
     [history]
   );
 
   const PackOrder = () => {
     let value: UpdateFulFillmentStatusRequest = {
-      order_id: "",
+      order_id: null,
       fulfillment_id: null,
       status: "",
     };
     value.order_id = OrderDetail?.id;
     let fulfillment_id =
-      OrderDetail?.fulfillments !== null && OrderDetail?.fulfillments !== undefined ? OrderDetail?.fulfillments[0].id : null;
+      OrderDetail?.fulfillments !== undefined &&
+      OrderDetail?.fulfillments !== null
+        ? OrderDetail?.fulfillments[0].id
+        : null;
     value.fulfillment_id = fulfillment_id;
     value.status = "shipping";
+
     dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
   };
   //#endregion
 
   //#region
   let initialFormUpdateShipment: UpdateShipmentRequest = {
-    order_id: "",
+    order_id: null,
     code: "",
     delivery_service_provider_id: null, //id người shipper
     delivery_service_provider_type: "", //shipper
@@ -380,25 +400,72 @@ const OrderDetail = () => {
     fulfillment_id: "",
   };
 
-  const onFinishUpdateShipment = (value: UpdateShipmentRequest) => {
+  let FulFillmentRequest: UpdateFulFillmentRequest = {
+    id: null,
+    order_id: null,
+    store_id: OrderDetail?.store_id,
+    account_code: OrderDetail?.account_code,
+    assignee_code: OrderDetail?.assignee_code,
+    delivery_type: "",
+    stock_location_id: null,
+    payment_status: "",
+    total: null,
+    total_tax: null,
+    total_discount: null,
+    total_quantity: null,
+    discount_rate: null,
+    discount_value: null,
+    discount_amount: null,
+    total_line_amount_after_line_discount: null,
+    shipment: null,
+    items: OrderDetail?.items,
+  };
+
+  const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
     value.expected_received_date = value.dating_ship?.utc().format();
     if (OrderDetail?.fulfillments !== undefined && OrderDetail?.fulfillments) {
-      value.code = OrderDetail.fulfillments[0].shipment?.code;
-      value.fulfillment_id =
-        OrderDetail.fulfillments[0].shipment?.fulfillment_id;
+      value.delivery_service_provider_type = "Shipper";
     }
+    if (OrderDetail != null) {
+      FulFillmentRequest.order_id = OrderDetail.id;
+      if (
+        OrderDetail.fulfillments !== undefined &&
+        OrderDetail.fulfillments !== null &&
+        OrderDetail.fulfillments.length !== 0
+      ) {
+        FulFillmentRequest.id = OrderDetail.fulfillments[0].id;
+      }
+    }
+    FulFillmentRequest.shipment = value;
 
-    dispatch(UpdateShipmentAction(value, onUpdateSuccess));
+    let UpdateLineFulFillment: UpdateLineFulFillment = {
+      order_id: FulFillmentRequest.order_id,
+      fulfillment: FulFillmentRequest,
+    };
+
+    dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
   };
+
+  useEffect(() => {
+    if (OrderDetail != null) {
+      dispatch(CustomerDetail(OrderDetail.customer_id, setCustomerDetail));
+    }
+  }, [dispatch, OrderDetail]);
+
+  useEffect(() => {
+    if (OrderDetail?.store_id != null) {
+      dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
+    }
+  }, [dispatch, OrderDetail?.store_id]);
 
   //#endregion
   return (
     <ContentContainer
-      title="Quản lý chất liệu"
+      title="Đơn hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
-          path: "/",
+          path: `${UrlConfig.HOME}`,
         },
         {
           name: "Đơn hàng",
@@ -407,7 +474,7 @@ const OrderDetail = () => {
           name: "Đơn hàng " + id,
         },
       ]}
-      extra={<CreateBillStep status={OrderDetail?.status} />}
+      extra={<CreateBillStep status={stepsStatusValue} />}
     >
       <div className="orders">
         <Row gutter={24}>
@@ -851,7 +918,11 @@ const OrderDetail = () => {
             {/*--- end product ---*/}
 
             {/*--- shipment ---*/}
-            {(OrderDetail?.fulfillments?.length !== 0) ? (
+            {OrderDetail !== null &&
+            OrderDetail?.fulfillments !== null &&
+            OrderDetail?.fulfillments !== undefined &&
+            OrderDetail?.fulfillments.length !== 0 &&
+            OrderDetail?.fulfillments[0].shipment !== null ? (
               <Card
                 className="margin-top-20"
                 title={
@@ -1041,84 +1112,88 @@ const OrderDetail = () => {
               >
                 {isVisibleShipping === true && (
                   <div className="padding-20">
-                    <Row gutter={20}>
-                      <Col md={12}>
-                        <Form.Item
-                          label={
-                            <i style={{ marginBottom: "15px" }}>
-                              Lựa chọn 1 trong hình thức giao hàng
-                            </i>
-                          }
-                          required
-                        >
-                          <Radio.Group
-                            value={shipmentMethod}
-                            onChange={(e) => ShipMethodOnChange(e.target.value)}
+                    <Form
+                      initialValues={initialFormUpdateShipment}
+                      ref={formRef}
+                      onFinish={onFinishUpdateFulFillment}
+                      layout="vertical"
+                    >
+                      <Row gutter={24}>
+                        <Col md={12}>
+                          <Form.Item
+                            label={
+                              <i style={{ marginBottom: "15px" }}>
+                                Lựa chọn 1 trong hình thức giao hàng
+                              </i>
+                            }
+                            required
                           >
-                            <Space direction="vertical" size={15}>
-                              <Radio value={1}>Chuyển đối tác giao hàng</Radio>
-                              <Radio value={2}>Tự giao hàng</Radio>
-                              <Radio value={3}>Nhận tại cửa hàng</Radio>
-                              <Radio value={4}>Giao hàng sau</Radio>
-                            </Space>
-                          </Radio.Group>
-                        </Form.Item>
-                      </Col>
-                      <Col md={12}>
-                        <Form.Item label="Hẹn giao" name="dating_ship">
-                          <DatePicker
-                            format="DD/MM/YYYY"
-                            style={{ width: "100%" }}
-                            className="r-5 w-100 ip-search"
-                            placeholder="Ngày hẹn giao"
-                          />
-                        </Form.Item>
-                        <Form.Item label="Yêu cầu" name="requirements">
-                          <Select
-                            className="select-with-search"
-                            showSearch
-                            showArrow
-                            style={{ width: "100%" }}
-                            placeholder="Chọn yêu cầu"
-                            filterOption={(input, option) => {
-                              if (option) {
-                                return (
-                                  option.children
-                                    .toLowerCase()
-                                    .indexOf(input.toLowerCase()) >= 0
-                                );
+                            <Radio.Group
+                              value={shipmentMethod}
+                              onChange={(e) =>
+                                ShipMethodOnChange(e.target.value)
                               }
-                              return false;
-                            }}
-                          >
-                            {shipping_requirements?.map((item, index) => (
-                              <Select.Option
-                                style={{ width: "100%" }}
-                                key={index.toString()}
-                                value={item.value}
-                              >
-                                {item.name}
-                              </Select.Option>
-                            ))}
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                    <Divider />
-                    <Row gutter={20} hidden={shipmentMethod !== 2}>
-                      <Form
-                        initialValues={initialFormUpdateShipment}
-                        ref={formRef}
-                        onFinish={onFinishUpdateShipment}
-                        layout="vertical"
-                      >
-                        <Row gutter={24} style={{padding:"10px"}}>
+                            >
+                              <Space direction="vertical" size={15}>
+                                <Radio value={1}>
+                                  Chuyển đối tác giao hàng
+                                </Radio>
+                                <Radio value={2}>Tự giao hàng</Radio>
+                                <Radio value={3}>Nhận tại cửa hàng</Radio>
+                                <Radio value={4}>Giao hàng sau</Radio>
+                              </Space>
+                            </Radio.Group>
+                          </Form.Item>
+                        </Col>
+                        <Col md={12}>
+                          <Form.Item label="Hẹn giao" name="dating_ship">
+                            <DatePicker
+                              format="DD/MM/YYYY"
+                              style={{ width: "100%" }}
+                              className="r-5 w-100 ip-search"
+                              placeholder="Ngày hẹn giao"
+                            />
+                          </Form.Item>
+                          <Form.Item label="Yêu cầu" name="requirements">
+                            <Select
+                              className="select-with-search"
+                              showSearch
+                              showArrow
+                              style={{ width: "100%" }}
+                              placeholder="Chọn yêu cầu"
+                              filterOption={(input, option) => {
+                                if (option) {
+                                  return (
+                                    option.children
+                                      .toLowerCase()
+                                      .indexOf(input.toLowerCase()) >= 0
+                                  );
+                                }
+                                return false;
+                              }}
+                            >
+                              {shipping_requirements?.map((item, index) => (
+                                <Select.Option
+                                  style={{ width: "100%" }}
+                                  key={index.toString()}
+                                  value={item.value}
+                                >
+                                  {item.name}
+                                </Select.Option>
+                              ))}
+                            </Select>
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Divider />
+                      <div hidden={shipmentMethod !== 2}>
+                        <Row gutter={24}>
                           <Col md={12}>
                             <Form.Item
                               label="Đối tác giao hàng"
                               name="delivery_service_provider_id"
                             >
-                              <Select
+                              <CustomSelect
                                 className="select-with-search"
                                 showSearch
                                 style={{ width: "100%" }}
@@ -1141,15 +1216,15 @@ const OrderDetail = () => {
                                 }}
                               >
                                 {shipper?.map((item, index) => (
-                                  <Select.Option
+                                  <CustomSelect.Option
                                     style={{ width: "100%" }}
                                     key={index.toString()}
                                     value={item.id}
                                   >
                                     {item.full_name}
-                                  </Select.Option>
+                                  </CustomSelect.Option>
                                 ))}
-                              </Select>
+                              </CustomSelect>
                             </Form.Item>
                             <Form.Item
                               name="shipping_fee_paid_to_3pls"
@@ -1166,7 +1241,6 @@ const OrderDetail = () => {
                               <Input placeholder="Phí ship báo khách" />
                             </Form.Item>
                           </Col>
-
                           <Col md={24}>
                             <div>
                               <Button
@@ -1180,9 +1254,8 @@ const OrderDetail = () => {
                             </div>
                           </Col>
                         </Row>
-                      </Form>
-                    </Row>
-
+                      </div>
+                    </Form>
                     {/*--- Nhận tại cửa hàng ----*/}
                     <div
                       className="receive-at-store"
@@ -1413,6 +1486,7 @@ const OrderDetail = () => {
                   paymentMethod={paymentType}
                   amount={OrderDetail.total}
                   order_id={OrderDetail.id}
+                  orderDetail={OrderDetail}
                 />
               ))}
 
