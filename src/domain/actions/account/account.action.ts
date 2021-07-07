@@ -39,9 +39,9 @@ export const DepartmentGetListAction = (
 
 export const AccountCreateAction = (
   request: AccountRequest,
-  setData: (data: AccountResponse) => void
+  onCreateSuccess: (data: AccountResponse) => void
 ) => {
-  return BaseAction(AccountType.CREATE_ACCOUNT_REQUEST, { request, setData });
+  return BaseAction(AccountType.CREATE_ACCOUNT_REQUEST, { request, onCreateSuccess });
 };
 export const AccountUpdateAction = (
   id: number,
@@ -52,6 +52,16 @@ export const AccountUpdateAction = (
     id,
     request,
     setData,
+  });
+};
+
+export const AccountDeleteAction = (
+  id: number,
+  deleteCallback: (result: boolean) => void
+) => {
+  return BaseAction(AccountType.DELETE_ACCOUNT_REQUEST, {
+    id,
+    deleteCallback,
   });
 };
 

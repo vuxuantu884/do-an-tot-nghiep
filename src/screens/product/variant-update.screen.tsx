@@ -44,6 +44,7 @@ import {
   Form,
   FormInstance,
   Input,
+  InputNumber,
   Row,
   Select,
   Space,
@@ -141,6 +142,7 @@ const VariantUpdateScreen: React.FC = () => {
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
     setAccounts(data.items);
   }, []);
+
   const setData = useCallback((data: VariantResponse) => {
     let temp: VariantUpdateView = Products.convertVariantRequestToView(data);
     setDetail(temp);
