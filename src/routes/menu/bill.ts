@@ -8,7 +8,7 @@ const Order = React.lazy(() => import ("screens/order-online/order.screen"))
 
 const bill: Array<RouteMenu> = [
   {
-    path: "/order-online/create-order",
+    path: '/order-online/create',
     exact: true,
     title: "Tạo đơn Online",
     icon: 'icon-dot',
@@ -21,19 +21,6 @@ const bill: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: `/order-online/detail/:id`,
-    exact: true,
-    title: "Chi tiết đơn hàng",
-    icon: 'icon-dot',
-    component: OrderDetail,
-    key: "submenu53",
-    isShow: false,
-    header: null,
-    subMenu: [],
-    type: 0,
-    object: null,
-  },
-  {
     path: "/list-orders",
     exact: true,
     title: "Danh sách đơn hàng",
@@ -42,7 +29,21 @@ const bill: Array<RouteMenu> = [
     key: "submenu54",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: [
+      {
+        path: '/order-online/:id',
+        exact: true,
+        title: "Chi tiết đơn hàng",
+        icon: 'icon-dot',
+        component: OrderDetail,
+        key: "submenu53",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+    ],
     type: 0,
     object: null,
   },
