@@ -77,9 +77,3 @@ export const AccountDeleteAction = (
     deleteCallback,
   });
 };
-
-export const PositionGetListAction = (
-  setData: (data: Array<PositionResponse>) => void
-) => {
-  return BaseAction(AccountType.GET_LIST_POSITION_REQUEST, { setData });
-};
