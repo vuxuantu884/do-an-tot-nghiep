@@ -23,17 +23,18 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import CustomSelect from "component/custom/select.custom";
-import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import peopleIcon2 from "assets/img/people.svg";
 import bithdayIcon from "assets/img/bithday.svg";
 import editBlueIcon from "assets/img/editBlue.svg";
 import deleteRedIcon from "assets/img/deleteRed.svg";
 import pointIcon from "assets/img/point.svg";
 import callIcon from "assets/img/call.svg";
+import imgdefault from "assets/icon/img-default.svg";
 import locationIcon from "assets/img/location.svg";
 import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
+import CustomSelect from "component/custom/select.custom";
+import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import AddAddressModal from "./modal/addAddressModal";
 import EditCustomerModal from "./modal/editCustomerModal";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -44,11 +45,9 @@ import {
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import { CustomerSearch } from "domain/actions/customer/customer.action";
-import imgdefault from "assets/icon/img-default.svg";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
-import { RegUtil } from "utils/RegUtils";
 //#endregion
 
 type CustomerCardProps = {
