@@ -18,12 +18,13 @@ import {
 import { SizeUpdateRequest } from "model/product/size.model";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
-import { createRef, useCallback, useEffect, useState } from "react";
+import React, {createRef, useCallback, useEffect, useRef, useState} from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { convertCategory, convertSizeResponeToDetail } from "utils/AppUtils";
 import ContentContainer from "component/container/content.container";
 import { RegUtil } from "utils/RegUtils";
+import {showSuccess} from "../../utils/ToastUtils";
 
 const { Option } = Select;
 
@@ -39,13 +40,20 @@ const SizeUpdateScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
+  const [isError, setError] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingData, setLoadingData] = useState<boolean>(true);
+  const isFirstLoad = useRef(true);
 
   //Function callback
   const onSuccess = useCallback(() => {
+    setLoading(false);
     history.push(UrlConfig.SIZES);
+    showSuccess('Sửa kích thước thành công');
   }, [history]);
   const onFinish = useCallback(
     (values: SizeUpdateRequest) => {
+      setLoading(true);
       dispatch(sizeUpdateAction(idNumber, values, onSuccess));
     },
     [dispatch, idNumber, onSuccess]
@@ -57,17 +65,25 @@ const SizeUpdateScreen: React.FC = () => {
     let newData = convertCategory(data);
     setCategories(newData);
   }, []);
-  const setSizeDetail = useCallback((data: SizeResponse) => {
-    let newData = convertSizeResponeToDetail(data);
-    setSize(newData);
+  const setSizeDetail = useCallback((data: SizeResponse|false) => {
+    setLoadingData(false);
+    if (!data) {
+      setError(true);
+    } else {
+      let newData = convertSizeResponeToDetail(data);
+      setSize(newData);
+    }
   }, []);
 
   useEffect(() => {
-    dispatch(getCategoryRequestAction({}, setCategory));
-    if (!Number.isNaN(idNumber)) {
-      dispatch(sizeDetailAction(idNumber, setSizeDetail));
+    if (isFirstLoad.current) {
+      dispatch(getCategoryRequestAction({}, setCategory));
+      if (!Number.isNaN(idNumber)) {
+        dispatch(sizeDetailAction(idNumber, setSizeDetail));
+      }
+      return () => {};
     }
-    return () => {};
+    isFirstLoad.current = false;
   }, [dispatch, idNumber, setCategory, setSizeDetail]);
   if (size == null) {
     return (
@@ -78,6 +94,8 @@ const SizeUpdateScreen: React.FC = () => {
   }
   return (
     <ContentContainer
+      isLoading={loadingData}
+      isError={isError}
       title="Sửa kích cỡ"
       breadcrumb={[
         {
@@ -161,7 +179,7 @@ const SizeUpdateScreen: React.FC = () => {
             <Button type="default" onClick={onCancel}>
               Hủy
             </Button>
-            <Button htmlType="submit" type="primary">
+            <Button loading={loading} htmlType="submit" type="primary">
               Lưu
             </Button>
           </Space>

@@ -17,7 +17,10 @@ export const SupplierCreateAction = (request: SupplierCreateRequest, setData: ()
   return BaseAction(SupplierType.CREATE_SUPPLIER_REQUEST, {request, setData});
 }
 
-export const SupplierUpdateAction = (request: SupplierUpdateRequest, setData: (response: SupplierResponse) => void) => {
-  return BaseAction(SupplierType.EDIT_SUPPLIER_REQUEST, {request, setData});
+export const SupplierUpdateAction = (id: number, request: SupplierUpdateRequest, setData: (response: SupplierResponse|false) => void) => {
+  return BaseAction(SupplierType.EDIT_SUPPLIER_REQUEST, {id, request, setData});
 }
 
+export const SupplierDetailAction = (id: number, setData: (response: SupplierResponse|false) => void) => {
+  return BaseAction(SupplierType.DETAIL_SUPPLIER_REQUEST, {id, setData});
+}

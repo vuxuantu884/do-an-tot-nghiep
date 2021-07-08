@@ -3,7 +3,7 @@ import {
   colorDeleteManyApi,
   colorDeleteOneApi,
   colorDetailApi,
-  colorSearchApi,
+  colorSearchApi, colorUpdateApi,
 } from "service/product/color.service";
 import { call, takeLatest, takeEvery } from "@redux-saga/core/effects";
 import { YodyAction } from "base/BaseAction";
@@ -150,6 +150,26 @@ export function* colorCreateSaga(action: YodyAction) {
   }
 }
 
+export function* colorUpdateSaga(action: YodyAction) {
+  const { id, request, onCreateSuccess } = action.payload;
+  try {
+    let response: BaseResponse<string> = yield call(colorUpdateApi, id, request);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onCreateSuccess();
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* colorDetailRequest(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
@@ -178,4 +198,5 @@ export function* colorSaga() {
   yield takeEvery(ColorType.LIST_COLOR_REQUEST, getListColorSaga);
   yield takeLatest(ColorType.CREATE_COLOR_REQUEST, colorCreateSaga);
   yield takeLatest(ColorType.DETAIL_COLOR_REQUEST, colorDetailRequest);
+  yield takeLatest(ColorType.UPDATE_COLOR_REQUEST, colorUpdateSaga);
 }
