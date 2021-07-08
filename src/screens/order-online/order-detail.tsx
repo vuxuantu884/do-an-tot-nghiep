@@ -21,7 +21,7 @@ import {
   FormInstance,
   Select,
 } from "antd";
-import documentIcon from "../../assets/img/document.svg";
+import documentIcon from "assets/img/document.svg";
 import UpdatePaymentCard from "./update-payment-card";
 import {
   useState,
@@ -71,8 +71,8 @@ import callIcon from "assets/img/call.svg";
 import locationIcon from "assets/img/location.svg";
 import deleteIcon from "assets/icon/delete.svg";
 import giftIcon from "assets/icon/gift.svg";
-import productIcon from "../../assets/img/cube.svg";
-import storeBluecon from "../../assets/img/storeBlue.svg";
+import productIcon from "assets/img/cube.svg";
+import storeBluecon from "assets/img/storeBlue.svg";
 import { useParams } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -166,15 +166,6 @@ const OrderDetail = () => {
     setVisibleBilling(!isVisibleBilling);
   };
   //#endregion
-
-  // const onChangeTag = (value: []) => {
-  //   let strTag = "";
-  //   value.forEach((element) => {
-  //     strTag = strTag + element + ",";
-  //   });
-
-  //   setTag(strTag);
-  // };
   
   const formRef = createRef<FormInstance>();
 
@@ -382,7 +373,7 @@ const OrderDetail = () => {
         ? OrderDetail?.fulfillments[0].id
         : null;
     value.fulfillment_id = fulfillment_id;
-    value.status = "shipping";
+    value.status = FulFillmentStatus.SHIPPING;
 
     dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
   };

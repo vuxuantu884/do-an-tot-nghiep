@@ -22,7 +22,6 @@ import locationIcon from "assets/img/location.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useDispatch, useSelector } from "react-redux";
-import { Moment } from "moment";
 import { useLayoutEffect, useState } from "react";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
