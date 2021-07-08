@@ -16,7 +16,7 @@ type ModalConfirmProps = {
 const ModalConfirm: React.FC<ModalConfirmProps> = (props: ModalConfirmProps) => {
   const {visible, onOk, onCancel, title, subTitle, icon, okText, cancelText, colorIcon, bgIcon} = props;
   return (
-    <Modal width="35%" className="modal-confirm" okText={okText} cancelText={cancelText} visible={visible} onOk={onOk} onCancel={onCancel}>
+    <Modal width="35%" className="modal-confirm" okText={okText?okText:"Có"} cancelText={cancelText?cancelText:"Không"} visible={visible} onOk={onOk} onCancel={onCancel}>
       <div className="modal-confirm-container">
         <div>
           {icon && (
