@@ -621,6 +621,10 @@ input {
     }
 }
 .ant-table-footer {
+    padding: 0;
+}
+
+.row-footer-custom{
     padding: 15px 20px 30px 20px;
     color: rgba(0, 0, 0, 0.85);
     background: #f4f4f7;

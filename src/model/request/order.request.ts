@@ -1,4 +1,3 @@
-import { FulFillmentResponse } from './../response/order/order.response';
 import { OrderLineItemResponse } from "model/response/order/order.response";
 import { Moment } from "moment";
 export interface OrderRequest {

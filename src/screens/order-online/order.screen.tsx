@@ -42,6 +42,7 @@ import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
 import { OrderStatus, TaxTreatment } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
+import moment from "moment";
 //#endregion
 
 var typeButton = -1;
@@ -64,6 +65,7 @@ export default function Order() {
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
+  const [tags, setTag] = useState<string>("");
   //#endregion
 
   //#region Customer
@@ -132,6 +134,7 @@ export default function Order() {
     delivery_fee: null,
     shipping_fee_informed_to_customer: null,
     shipping_fee_paid_to_3pls: null,
+    dating_ship: moment(),
     requirements: null,
     source_id: null,
     note: "",
@@ -161,6 +164,19 @@ export default function Order() {
     ...initialRequest,
     shipping_address: shippingAddress,
     billing_address: billingAddress,
+  };
+
+  const onChangeTag = (value: []) => {
+    let strTag = "";
+    value.forEach((element, i) => {
+      if (i < 1) {
+        strTag = strTag + element;
+      } else {
+        strTag = strTag + "," + element;
+      }
+    });
+
+    setTag(strTag);
   };
 
   //Fulfillment Request
@@ -277,7 +293,7 @@ export default function Order() {
       values.action = "finalized";
       values.payments = payments;
     }
-
+    values.tags = tags;
     values.items = items;
     values.discounts = lstDiscount;
     values.shipping_address = shippingAddress;
@@ -329,6 +345,9 @@ export default function Order() {
             <Input></Input>
           </Form.Item>
           <Form.Item noStyle hidden name="tax_treatment">
+            <Input></Input>
+          </Form.Item>
+          <Form.Item noStyle hidden name="tags">
             <Input></Input>
           </Form.Item>
           <Row gutter={20}>
@@ -412,7 +431,7 @@ export default function Order() {
                     label="Tham chiếu"
                     name="reference"
                     tooltip={{
-                      title: "Tooltip",
+                      title: "Tham chiếu đơn hàng",
                       icon: <InfoCircleOutlined />,
                     }}
                   >
@@ -422,7 +441,7 @@ export default function Order() {
                     label="Đường dẫn"
                     name="url"
                     tooltip={{
-                      title: "Tooltip",
+                      title: "Đường dẫn sản phẩm",
                       icon: <InfoCircleOutlined />,
                     }}
                   >
@@ -444,14 +463,14 @@ export default function Order() {
                     name="note"
                     label="Ghi chú"
                     tooltip={{
-                      title: "Tooltip",
+                      title: "Ghi chú đơn hàng",
                       icon: <InfoCircleOutlined />,
                     }}
                   >
                     <Input.TextArea
                       placeholder="Điền Ghi chú"
                       maxLength={500}
-                      style={{minHeight: "76px"}}
+                      style={{ minHeight: "76px" }}
                     />
                   </Form.Item>
                   <Form.Item
@@ -460,13 +479,14 @@ export default function Order() {
                       title: "Thẻ này giúp tìm kiếm các đơn hàng",
                       icon: <InfoCircleOutlined />,
                     }}
-                    name="tags"
+                    // name="tags"
                   >
                     <Select
                       className="ant-select-hashtag"
                       dropdownClassName="ant-select-dropdown-hashtag"
                       mode="tags"
                       placeholder="Thêm tag"
+                      onChange={onChangeTag}
                     />
                   </Form.Item>
                 </div>
