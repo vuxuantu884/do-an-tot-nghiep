@@ -12,7 +12,7 @@ export interface ColorSearchQuery extends BaseQuery {
 export interface  ColorCreateRequest {
   code: string,
   hex_code: string|null,
-  image: string|null
+  image_id: number|null
   name: string,
   parent_id:number|null
 }
@@ -22,5 +22,6 @@ export interface ColorResponse extends BaseObject {
   name:string,
   hex_code: string|null,
   parent_id: number|null
+  image_id: number|null
   image: string|null
 }

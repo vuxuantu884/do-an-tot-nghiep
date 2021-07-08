@@ -339,6 +339,8 @@ label {
     .ant-upload img {
         position: absolute;
         width: 150px;
+        height: 150px;
+        object-fit: contain;
     }
     .upload-view {
         background: rgba($primary-color, 0.01);
