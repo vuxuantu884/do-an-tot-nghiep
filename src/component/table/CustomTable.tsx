@@ -161,6 +161,9 @@ const CustomTable = (props: ICustomTableProps) => {
             : false
         }
         pagination={false}
+        // scroll={{ y: 700 }} 
+         size="middle"
+         bordered
       />
       {pagination && (
         <div className="custom-table-pagination">
@@ -169,7 +172,7 @@ const CustomTable = (props: ICustomTableProps) => {
               {showTotal(pagination)}
             </span>
           </div>
-          {totalPage > 1 && (
+          
             <div className="custom-table-pagination-right">
               {pagination.showSizeChanger && (
                 <div className="custom-table-pagination-size-change">
@@ -236,7 +239,6 @@ const CustomTable = (props: ICustomTableProps) => {
                 </li>
               </div>
             </div>
-          )}
         </div>
       )}
     </div>
