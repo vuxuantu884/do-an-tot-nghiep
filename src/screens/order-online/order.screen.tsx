@@ -90,7 +90,7 @@ export default function Order() {
   );
 
   const onChangeInfoProduct = (
-    _items: Array<OrderItemModel>,
+    _items: Array<OrderLineItemRequest>,
     amount: number,
     discount_rate: number,
     discount_value: number

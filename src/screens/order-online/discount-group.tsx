@@ -1,5 +1,5 @@
 import { Input, InputNumber, Select, Typography } from "antd";
-import { OrderItemModel } from "model/other/Order/order-model";
+import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useState } from "react";
 import { formatCurrency, replaceFormat } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
@@ -10,8 +10,8 @@ type DiscountGroupProps = {
   discountRate: number;
   discountValue: number;
   totalAmount: number;
-  items: Array<OrderItemModel>;
-  setItems: (_items: Array<OrderItemModel>) => void;
+  items: Array<OrderLineItemRequest>;
+  setItems: (_items: Array<OrderLineItemRequest>) => void;
 };
 
 const DiscountGroup: React.FC<DiscountGroupProps> = (
