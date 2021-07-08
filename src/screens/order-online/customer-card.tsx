@@ -23,7 +23,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import  CustomSelect  from "component/custom/select.custom";
+import CustomSelect from "component/custom/select.custom";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import peopleIcon2 from "assets/img/people.svg";
@@ -231,7 +231,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         </div>
       }
       extra={
-        <div className="d-flex align-items-center form-group-with-search">
+        <div>
           <span
             style={{
               float: "left",
@@ -254,8 +254,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             <CustomSelect
               style={{ width: 300 }}
               showArrow
+              showSearch
               placeholder="Chọn nguồn đơn hàng"
-              notFoundContent="Không có dữ liệu"
+              notFoundContent="Không tìm thấy kết quả"
               filterOption={(input, option) => {
                 if (option) {
                   return (
@@ -427,7 +428,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             align="middle"
                             className="change-shipping-address-title"
                           >
-                            <div style={{ color: "#4F687D" }}>
+                            <div
+                              style={{
+                                color: "#4F687D",
+                              }}
+                            >
                               Thay đổi địa chỉ
                             </div>
                             <Button
@@ -485,7 +490,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       name="customer_note"
                       label="Ghi chú của khách hàng"
                     >
-                      <Input.TextArea placeholder="Điền ghi chú" rows={4} />
+                      <Input.TextArea
+                        placeholder="Điền ghi chú"
+                        rows={4}
+                        maxLength={500}
+                      />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -537,7 +546,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                               align="middle"
                               className="change-shipping-address-title"
                             >
-                              <div style={{ color: "#4F687D" }}>
+                              <div
+                                style={{
+                                  color: "#4F687D",
+                                }}
+                              >
                                 Thay đổi địa chỉ
                               </div>
                               <Button type="link" onClick={ShowAddressModal}>

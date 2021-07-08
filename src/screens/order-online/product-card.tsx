@@ -50,6 +50,9 @@ import {
   findTaxInVariant,
   formatCurrency,
   replaceFormatString,
+  getTotalAmount,
+  getTotalDiscount,
+  getTotalAmountAfferDiscount,
 } from "../../utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
@@ -130,7 +133,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
   };
 
-  const onChangeQuantity = (value: number, index: number) => {
+  const onChangeQuantity = (value: number | null, index: number) => {
     let _items = [...items];
 
     _items[index].quantity = Number(
@@ -215,7 +218,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     return options;
   }, [resultSearchVariant]);
 
-
   const ProductColumn = {
     title: () => (
       <div className="text-center">
@@ -223,7 +225,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         <span style={{ color: "#0080FF" }}></span>
       </div>
     ),
-    width: 255,
+    width: "33%",
     className: "yody-pos-name",
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
@@ -237,7 +239,12 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             >
               <img src={deleteIcon} alt="" />
             </Button>
-            <div style={{ width: "calc(100% - 32px)", float: "left" }}>
+            <div
+              style={{
+                width: "calc(100% - 32px)",
+                float: "left",
+              }}
+            >
               <div className="yody-pos-sku">
                 <Typography.Link style={{ color: "#2A2A86" }}>
                   {l.sku}
@@ -290,17 +297,15 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       </div>
     ),
     className: "yody-pos-quantity text-center",
-    width: 95,
+    width: "12%",
+    align: "right",
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
         <div className="yody-pos-qtt">
-          <InputNumber
-            onChange={(value) => onChangeQuantity(value, index)}
+          <NumberInput
+            style={{ textAlign: "right" }}
             value={l.quantity}
-            min={1}
-            max={9999}
-            onFocus={(e) => e.target.select()}
-            style={{ width: 60, textAlign: "right" }}
+            onChange={(value) => onChangeQuantity(value, index)}
           />
         </div>
       );
@@ -310,7 +315,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const PriceColumnt = {
     title: "Đơn giá",
     className: "yody-pos-price text-right",
-    width: 130,
+    width: "17%",
+    align: "right",
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
         <div className="yody-pos-price">
@@ -318,7 +324,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             format={(a: string) => formatCurrency(a)}
             replace={(a: string) => replaceFormatString(a)}
             placeholder="VD: 100,000"
-            style={{ minWidth: 110, maxWidth: 130, textAlign: "right" }}
+            style={{
+              textAlign: "right",
+            }}
             value={l.price}
           />
         </div>
@@ -328,8 +336,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const DiscountColumnt = {
     title: "Chiết khấu",
-    align: "center",
-    width: 185,
+    align: "right",
+    width: "23%",
     className: "yody-table-discount text-right",
     render: (l: OrderItemModel, item: any, index: number) => {
       return (
@@ -350,8 +358,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const TotalPriceColumn = {
     title: "Tổng tiền",
+    align: "right",
     className: "yody-table-total-money text-right",
-    // width: 100,
+    width: "14%",
     render: (l: OrderItemModel, item: any, index: number) => {
       return <div>{formatCurrency(l.line_amount_after_line_discount)}</div>;
     },
@@ -359,7 +368,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const ActionColumn = {
     title: "Thao tác",
-    width: 85,
+    width: "11%",
     className: "yody-table-action text-center",
     render: (l: OrderItemModel, item: any, index: number) => {
       const menu = (
@@ -391,10 +400,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       return (
         <div className="site-input-group-wrapper">
           <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-            <Button
-              type="text"
-              className="p-0 ant-btn-custom"
-            >
+            <Button type="text" className="p-0 ant-btn-custom">
               <img src={arrowDownIcon} alt="" />
             </Button>
           </Dropdown>
@@ -402,6 +408,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       );
     },
   };
+
   const columns = [
     ProductColumn,
     AmountColumnt,
@@ -410,7 +417,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     TotalPriceColumn,
     ActionColumn,
   ];
-
 
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -588,6 +594,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     }
     return newData;
   }, [listStores, userReducer.account]);
+
   const onUpdateData = useCallback(
     (items: Array<OrderItemModel>) => {
       let data = [...items];
@@ -595,9 +602,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     },
     [items]
   );
+
   const onCancleConfirm = useCallback(() => {
     setVisibleGift(false);
   }, []);
+
   const onOkConfirm = useCallback(() => {
     setVisibleGift(false);
     let _items = [...items];
@@ -639,7 +648,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         </Space>
       }
     >
-      <div className="padding-20">
+      <div style={{ padding: "20px 20px 0 20px" }}>
         <Row gutter={20}>
           <Col md={8}>
             <Form.Item
@@ -657,6 +666,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 showSearch
                 style={{ width: "100%" }}
                 placeholder="Chọn cửa hàng"
+                notFoundContent="Không tìm thấy kết quả"
                 onChange={props.selectStore}
                 filterOption={(input, option) => {
                   if (option) {
@@ -741,6 +751,46 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         className="sale-product-box-table w-100"
         tableLayout="fixed"
         pagination={false}
+        scroll={{ y: 300 }}
+        sticky
+        footer={() =>
+          items.length > 0 && (
+            <div className="row-footer font-weight-500">
+              <div
+                className="yody-foot-total-text"
+                style={{ width: "37%", float: "left", textAlign: "center" }}
+              >
+                Tổng
+              </div>
+
+              <div style={{ width: "17%", float: "left", textAlign: "right" }}>
+                {formatCurrency(getTotalAmount(items))}
+              </div>
+
+              <div
+                style={{
+                  width: "20%",
+                  float: "left",
+                  textAlign: "right",
+                  color: "#E24343",
+                }}
+              >
+                {formatCurrency(getTotalDiscount(items))}
+              </div>
+
+              <div
+                style={{
+                  width: "15%",
+                  float: "left",
+                  textAlign: "right",
+                  color: "#0080FF",
+                }}
+              >
+                {formatCurrency(getTotalAmountAfferDiscount(items))}
+              </div>
+            </div>
+          )
+        }
       />
       <div className="padding-20" style={{ paddingTop: "30px" }}>
         <Row className="sale-product-box-payment" gutter={24}>
@@ -788,23 +838,26 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 <Typography.Link
                   className="font-weight-500"
                   onClick={ShowDiscountModal}
-                  style={{ borderBottom: "1px dashed #0080FF" }}
+                  style={{
+                    borderBottom: "1px dashed #0080FF",
+                  }}
                 >
                   Chiết khấu
                 </Typography.Link>
 
-                {}
-                <Tag
-                  className="orders-tag orders-tag-danger"
-                  closable
-                  onClose={() => {
-                    setDiscountRate(0);
-                    setDiscountValue(0);
-                    calculateChangeMoney(items, amount, 0, 0);
-                  }}
-                >
-                  {discountRate !== 0 ? discountRate : 0}%{" "}
-                </Tag>
+                {discountRate !== 0 && (
+                  <Tag
+                    className="orders-tag orders-tag-danger"
+                    closable
+                    onClose={() => {
+                      setDiscountRate(0);
+                      setDiscountValue(0);
+                      calculateChangeMoney(items, amount, 0, 0);
+                    }}
+                  >
+                    {discountRate !== 0 ? discountRate : 0}%{" "}
+                  </Tag>
+                )}
               </Space>
               <div className="font-weight-500 ">
                 {formatCurrency(discountValue)}
@@ -843,7 +896,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
             <Row className="payment-row padding-top-10" justify="space-between">
               <div className="font-weight-500">Phí ship báo khách</div>
-              <div className="font-weight-500 payment-row-money">20,000</div>
+              <div className="font-weight-500 payment-row-money">0</div>
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
