@@ -97,13 +97,16 @@ function* sizeDetailSaga(action: YodyAction) {
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        setData(false);
         yield put(unauthorizedAction());
         break;
       default:
+        setData(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    setData(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

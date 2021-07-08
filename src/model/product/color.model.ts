@@ -1,5 +1,6 @@
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from 'model/base/base.response';
+import {SupplierCreateRequest} from "../core/supplier.model";
 
 
 export interface ColorSearchQuery extends BaseQuery {
@@ -17,6 +18,9 @@ export interface  ColorCreateRequest {
   parent_id:number|null
 }
 
+export interface ColorUpdateRequest extends ColorCreateRequest {
+  version: number,
+}
 
 export interface ColorResponse extends BaseObject {
   name:string,
