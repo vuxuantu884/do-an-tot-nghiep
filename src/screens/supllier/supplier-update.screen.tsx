@@ -18,7 +18,7 @@ import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from 'domain/actions/content/content.action';
-import {SupplierDetailAction, SupplierUpdateAction} from 'domain/actions/core/supplier.action';
+import {SupplierDetailAction, SupplierUpdateAction, SupplierSearchAction} from 'domain/actions/core/supplier.action';
 import {CityView} from 'model/content/district.model';
 import {RootReducerType} from 'model/reducers/RootReducerType';
 import {SupplierDetail, SupplierResponse, SupplierUpdateRequest} from 'model/core/supplier.model';
@@ -26,13 +26,14 @@ import {AccountResponse} from 'model/account/account.model';
 import {PageResponse} from 'model/base/base-metadata.response';
 import {CountryResponse} from 'model/content/country.model';
 import {DistrictResponse} from 'model/content/district.model';
-import {createRef, useCallback, useEffect, useMemo, useState} from 'react';
+import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useHistory, useParams} from 'react-router';
 import {convertDistrict, convertSupplierResponseToDetail} from 'utils/AppUtils';
 import {AppConfig} from 'config/AppConfig';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
+import {showSuccess} from "../../utils/ToastUtils";
 
 const {Item} = Form;
 const {Option, OptGroup} = Select;
@@ -48,6 +49,10 @@ const UpdateSupplierScreen: React.FC = () => {
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const history = useHistory();
+  const [isError, setError] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingData, setLoadingData] = useState<boolean>(true);
+  const isFirstLoad = useRef(true);
   const supplier_type = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
   );
@@ -109,10 +114,13 @@ const UpdateSupplierScreen: React.FC = () => {
     [cityViews, formRef]
   );
   const onUpdateSuccess = useCallback(() => {
+    setLoading(false);
     history.push('/suppliers');
+    showSuccess('Sửa danh mục thành công')
   }, [history]);
   const onFinish = useCallback(
     (values: SupplierUpdateRequest) => {
+      setLoading(true);
       dispatch(SupplierUpdateAction(idNumber, values, onUpdateSuccess));
     },
     [dispatch, onUpdateSuccess]
@@ -132,26 +140,36 @@ const UpdateSupplierScreen: React.FC = () => {
   }, [status, supplier_status]);
 
   const setSupplierDetail = useCallback((data: SupplierResponse) => {
-    let detail = convertSupplierResponseToDetail(data);
-    setSupplier(detail);
+    setLoadingData(false)
+    if(!data) {
+      setError(true);
+    } else {
+      let detail = convertSupplierResponseToDetail(data);
+      setSupplier(detail);
+    }
   }, []);
 
       //end memo
   useEffect(() => {
-    dispatch(
-      AccountSearchAction(
-        {department_ids: [AppConfig.WIN_DEPARTMENT]},
-        setDataAccounts
-      )
-    );
-    dispatch(CountryGetAllAction(setCountries));
-    dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
-    if (!Number.isNaN(idNumber)) {
-      dispatch(SupplierDetailAction(idNumber, setSupplierDetail));
+    if (isFirstLoad.current) {
+      dispatch(
+          AccountSearchAction(
+              {department_ids: [AppConfig.WIN_DEPARTMENT]},
+              setDataAccounts
+          )
+      );
+      dispatch(CountryGetAllAction(setCountries));
+      dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
+      if (!Number.isNaN(idNumber)) {
+        dispatch(SupplierDetailAction(idNumber, setSupplierDetail));
+      }
     }
+    isFirstLoad.current = false;
   }, [dispatch, setDataAccounts, setDataDistrict]);
   return (
     <ContentContainer
+      isLoading={loadingData}
+      isError={isError}
       title="Quản lý nhà cung cấp"
       breadcrumb={[
         {
@@ -570,7 +588,7 @@ const UpdateSupplierScreen: React.FC = () => {
                   <Button type="default" onClick={onCancel}>
                     Hủy
                   </Button>
-                  <Button htmlType="submit" type="primary">
+                  <Button loading={loading} htmlType="submit" type="primary">
                     Lưu
                   </Button>
                 </Space>
