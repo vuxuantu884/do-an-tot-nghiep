@@ -703,6 +703,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 className="w-100"
                 onSearch={onChangeProductSearch}
                 options={convertResultSearchVariant}
+                maxLength={255}
               >
                 <Input
                   size="middle"

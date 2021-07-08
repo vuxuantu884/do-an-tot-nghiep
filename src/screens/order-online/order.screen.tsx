@@ -478,7 +478,7 @@ export default function Order() {
                                             className="ant-select-hashtag"
                                             dropdownClassName="ant-select-dropdown-hashtag"
                                             mode="tags"
-                                            placeholder="Nhập từ khóa"
+                                            placeholder="Thêm tag"
                                         />
                                     </Form.Item>
                                 </div>
