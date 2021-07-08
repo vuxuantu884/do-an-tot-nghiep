@@ -23,6 +23,7 @@ import {
 import { PriceConfig } from "config/PriceConfig";
 import { OrderLineItemResponse } from "model/response/order/order.response";
 import { OrderLineItemRequest } from "model/request/order.request";
+import { RegUtil } from "./RegUtils";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -84,7 +85,7 @@ const checkPath = (p1: string, p2: string, pathIgnore?: Array<string>) => {
 export const formatSuffixPoint = (point: number | string): string => {
   let format = point.toString();
   //return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")} điểm`;
-  return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")}`;
+  return `${format.replace(RegUtil.SUFIX_POINT, "$1,")}`;
 };
 
 export const getListBreadcumb = (

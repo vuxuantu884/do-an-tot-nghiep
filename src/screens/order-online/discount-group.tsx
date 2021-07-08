@@ -67,7 +67,6 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
           }
           max={selected === MoneyType.PERCENT ? 100 : props.price}
           onChange={ChangeValueDiscount}
-          parser={(value) => replaceFormat(value ? value : "0")}
           onFocus={(e) => {
             e.target.setSelectionRange(0, e.target.value.length);
           }}

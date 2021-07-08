@@ -6,6 +6,7 @@ import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import {
   getAllSizeApi,
+  getSearchSize,
   sizeCreateApi,
   sizeDeleteManyApi,
   sizeDeleteOneApi,
@@ -39,10 +40,11 @@ function* getAllSizeSaga(action: YodyAction) {
 }
 
 function* sizeSearchSaga(action: YodyAction) {
-  const { setData } = action.payload;
+  const { query, setData } = action.payload;
   try {
+    debugger;
     let response: BaseResponse<PageResponse<SizeResponse>> = yield call(
-      getAllSizeApi
+      getSearchSize,query
     );
 
     switch (response.code) {
