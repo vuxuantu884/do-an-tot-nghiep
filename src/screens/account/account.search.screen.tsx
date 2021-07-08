@@ -16,6 +16,7 @@ import {
 } from "model/account/account.model";
 import AccountFilter from "component/filter/account.filter";
 import {
+  AccountDeleteAction,
   AccountSearchAction,
   DepartmentGetListAction,
   PositionGetListAction,
@@ -29,6 +30,7 @@ import { PositionResponse } from "model/account/position.model";
 import UrlConfig from "config/UrlConfig";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
+import { showSuccess } from "utils/ToastUtils";
 const actions: Array<MenuAction> = [
   {
     id: 1,
@@ -136,7 +138,13 @@ const ListAccountScreen: React.FC = () => {
     },
   ];
   const onSelect = useCallback((selectedRow: Array<AccountResponse>) => {
-    setAccountSelected(selectedRow);
+    let selectData:Array<AccountResponse>=[];
+    selectedRow.forEach((x)=>{
+      if(x!==undefined){
+        selectData.push(x)
+      }
+    });
+    setAccountSelected(selectData);
   }, []);
   const onPageChange = useCallback(
     (page, size) => {
@@ -164,18 +172,28 @@ const ListAccountScreen: React.FC = () => {
     },
     []
   );
-  const onDeleteSuccess = useCallback(() => {
-    setAccountSelected([]);
-    dispatch(AccountSearchAction(params, setSearchResult));
-  }, [dispatch, params, setSearchResult]);
-  
+  const deleteCallback = useCallback(
+    (result: boolean) => {
+      if (result) {
+        setAccountSelected([]);
+        showSuccess("Xóa dữ liệu thành công");    
+        setTableLoading(true);
+        dispatch(AccountSearchAction(params, setSearchResult));
+      }
+    },
+    [dispatch, params, setSearchResult]
+  );
+
   const onMenuClick = useCallback(
+  
     (index: number) => {
       if (accountSelected.length > 0) {
+        debugger;
         let id = accountSelected[0].id;
         switch (index) {
           case 1:
-            history.push(`${UrlConfig.ACCOUNTS}/${id}`);
+            //history.push(`${UrlConfig.ACCOUNTS}/${id}`);
+            dispatch(AccountDeleteAction(id, deleteCallback));
             break;
           case 2:
             // dispatch(accountDel(id, onDeleteSuccess));
@@ -185,7 +203,7 @@ const ListAccountScreen: React.FC = () => {
         }
       }
     },
-    [accountSelected, history]
+    [accountSelected, deleteCallback, dispatch]
   );
   useEffect(() => {
     if (isFirstLoad.current) {

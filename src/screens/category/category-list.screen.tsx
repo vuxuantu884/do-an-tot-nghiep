@@ -21,8 +21,7 @@ import ContentContainer from 'component/container/content.container';
 import ButtonCreate from 'component/header/ButtonCreate';
 import { showSuccess, showWarning } from 'utils/ToastUtils';
 import { hideLoading, showLoading } from 'domain/actions/loading.action';
-import ModalConfirm from 'component/modal/ModalConfirm';
-import {RiDeleteBin5Line} from 'react-icons/ri'
+import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm';
 
 const actions: Array<MenuAction> = [
   {
@@ -235,21 +234,16 @@ const Category = () => {
           rowKey={(item: CategoryResponse) => item.id}
         />
       </Card>
-      <ModalConfirm 
-        cancelText="Không" 
-        okText="Có" 
+      <ModalDeleteConfirm 
         onCancel={() => setConfirmDelete(false)} 
         onOk={() => {
           setConfirmDelete(false);
           dispatch(showLoading());
           dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
         }}
-        icon={<RiDeleteBin5Line />} 
         title="Bạn chắc chắn xóa danh mục ?"
         subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
         visible={isConfirmDelete} 
-        colorIcon="#FFFFFF"
-        bgIcon="#EB5757"
       />
     </ContentContainer>
   );

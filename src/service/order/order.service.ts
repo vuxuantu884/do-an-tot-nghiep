@@ -2,9 +2,8 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import {
   OrderRequest,
   UpdateFulFillmentStatusRequest,
-  UpdateOrderPaymentRequest,
+  UpdateLineFulFillment,
   UpdatePaymentRequest,
-  UpdateShipmentRequest,
 } from "model/request/order.request";
 import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
@@ -43,15 +42,15 @@ export const updateFulFillmentStatus = (
 };
 
 export const updateShipment = (
-  request: UpdateShipmentRequest
+  request: UpdateLineFulFillment
 ): Promise<BaseResponse<OrderResponse>> => {
-  let link = `${ApiConfig.ORDER}/orders/${request.order_id}/fulfillment/${request.fulfillment_id}/shipment`;
+  let link = `${ApiConfig.ORDER}/orders/${request.order_id}/shipment`;
   return BaseAxios.put(link, request);
 };
 
 export const updatePayment = (
   request: UpdatePaymentRequest,
-  order_id: string
+  order_id: number
 ): Promise<BaseResponse<OrderResponse>> => {
   let link = `${ApiConfig.ORDER}/orders/${order_id}/payments`;
   return BaseAxios.put(link, request);

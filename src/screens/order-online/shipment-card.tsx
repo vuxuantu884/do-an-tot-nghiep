@@ -9,7 +9,7 @@ import {
   Radio,
   Form,
   Input,
-  InputNumber,
+  Select,
   DatePicker,
   Button,
 } from "antd";
@@ -28,7 +28,7 @@ import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
-import { Select } from "component/common/select";
+import  CustomSelect  from "component/custom/select.custom";
 
 type ShipmentCardProps = {
   shipmentMethod: number;
@@ -104,7 +104,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 format="DD/MM/YYYY"
                 style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
-                placeholder="Ngày hẹn giao"
+                placeholder="Chọn ngày giao"
               />
             </Form.Item>
             <Form.Item label="Yêu cầu" name="requirements">
@@ -112,6 +112,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 className="select-with-search"
                 showSearch
                 showArrow
+                notFoundContent="Không có dữ liệu"
                 style={{ width: "100%" }}
                 placeholder="Chọn yêu cầu"
                 filterOption={(input, option) => {
@@ -145,9 +146,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               label="Đối tác giao hàng"
               name="delivery_service_provider_id"
             >
-              <Select
+              <CustomSelect
                 className="select-with-search"
                 showSearch
+                notFoundContent="Không tìm thấy kết quả"
                 style={{ width: "100%" }}
                 placeholder="Chọn đối tác giao hàng"
                 suffix={
@@ -168,15 +170,15 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 }}
               >
                 {shipper?.map((item, index) => (
-                  <Select.Option
+                  <CustomSelect.Option
                     style={{ width: "100%" }}
                     key={index.toString()}
                     value={item.id}
                   >
                     {item.full_name}
-                  </Select.Option>
+                  </CustomSelect.Option>
                 ))}
-              </Select>
+              </CustomSelect>
             </Form.Item>
             <Form.Item
               name="shipping_fee_paid_to_3pls"

@@ -19,6 +19,7 @@ import {
   DatePicker,
   Input,
   FormInstance,
+  Select,
 } from "antd";
 import documentIcon from "../../assets/img/document.svg";
 import UpdatePaymentCard from "./update-payment-card";
@@ -83,14 +84,14 @@ import {
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
-import { Select } from "component/common/select";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
+import CustomSelect from "component/custom/select.custom";
 
 const { Panel } = Collapse;
 //#endregion
@@ -114,6 +115,8 @@ const OrderDetail = () => {
   const [isVisibleShipping, setVisibleShipping] = useState(false);
   const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
   const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
+  const [isError, setError] = useState<boolean>(false);
+  const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [storeDetail, setStoreDetail] = useState<StoreResponse>();
@@ -180,11 +183,21 @@ const OrderDetail = () => {
     setVisibleBillingAddress(false);
   };
 
-  
+  const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
+    setLoadingData(false);
+    if (!data) {
+      setError(true);
+    } else {
+      setOrderDetail(data);
+    }
+  }, []);
+
   useEffect(() => {
     if (isFirstLoad.current) {
       if (!Number.isNaN(OrderId)) {
-        dispatch(OrderDetailAction(OrderId, setOrderDetail));
+        dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
+      } else {
+        setError(true);
       }
     }
     isFirstLoad.current = false;
@@ -217,7 +230,6 @@ const OrderDetail = () => {
   };
 
   let stepsStatusValue = stepsStatus();
-
 
   //#region Product
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
@@ -291,7 +303,7 @@ const OrderDetail = () => {
     title: () => (
       <div className="text-center">
         <div>Số lượng</div>
-        <span style={{ color: "#0080FF" }}></span>
+        <span style={{ color: "#0080FF" }}>({OrderDetail?.items !== undefined && getTotalQuantity(OrderDetail?.items)})</span>
       </div>
     ),
     className: "yody-pos-quantity text-center",
@@ -305,6 +317,7 @@ const OrderDetail = () => {
     title: "Đơn giá",
     className: "yody-pos-price text-right",
     //width: 100,
+    align: "right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return <div className="yody-pos-price">{formatCurrency(l.price)}</div>;
     },
@@ -331,9 +344,8 @@ const OrderDetail = () => {
   const TotalPriceColumn = {
     title: "Tổng tiền",
     className: "yody-table-total-money text-right",
-    // width: 100,
     render: (l: OrderLineItemResponse, item: any, index: number) => {
-      return <div>{formatCurrency(l.amount)}</div>;
+      return <div style={{textAlign:"left"}}>{formatCurrency(l.amount)}</div>;
     },
   };
 
@@ -364,8 +376,8 @@ const OrderDetail = () => {
     };
     value.order_id = OrderDetail?.id;
     let fulfillment_id =
-      OrderDetail?.fulfillments !== null &&
-      OrderDetail?.fulfillments !== undefined
+      OrderDetail?.fulfillments !== undefined &&
+      OrderDetail?.fulfillments !== null
         ? OrderDetail?.fulfillments[0].id
         : null;
     value.fulfillment_id = fulfillment_id;
@@ -430,8 +442,9 @@ const OrderDetail = () => {
     if (OrderDetail != null) {
       FulFillmentRequest.order_id = OrderDetail.id;
       if (
+        OrderDetail.fulfillments !== undefined &&
         OrderDetail.fulfillments !== null &&
-        OrderDetail.fulfillments !== undefined && OrderDetail.fulfillments.length !== 0
+        OrderDetail.fulfillments.length !== 0
       ) {
         FulFillmentRequest.id = OrderDetail.fulfillments[0].id;
       }
@@ -445,8 +458,6 @@ const OrderDetail = () => {
 
     dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
   };
-
-  
 
   useEffect(() => {
     if (OrderDetail != null) {
@@ -463,6 +474,8 @@ const OrderDetail = () => {
   //#endregion
   return (
     <ContentContainer
+      isLoading={loadingData}
+      isError={isError}
       title="Đơn hàng"
       breadcrumb={[
         {
@@ -495,10 +508,9 @@ const OrderDetail = () => {
                     style={{
                       float: "left",
                       lineHeight: "40px",
-                      marginRight: "10px",
                     }}
                   >
-                    Nguồn:
+                    <span style={{ marginRight: "10px" }}>Nguồn:</span>
                     <span className="text-error">
                       <span style={{ color: "red" }}>
                         {OrderDetail?.source}
@@ -878,22 +890,25 @@ const OrderDetail = () => {
                         >
                           Chiết khấu
                         </Typography.Link>
-                        {OrderDetail?.order_discount_rate !== 0
-                          ? OrderDetail?.order_discount_rate
-                          : 0}
-                        %{" "}
+                        {OrderDetail?.order_discount_rate !== null && (
+                          <span>{OrderDetail?.order_discount_rate} %</span>
+                        )}
                       </Space>
                       <div className="font-weight-500 ">
-                        {OrderDetail?.order_discount_value}
+                        {OrderDetail?.order_discount_value !== null ? OrderDetail?.order_discount_value:0}
                       </div>
                     </Row>
-
                     <Row
                       className="payment-row"
                       justify="space-between"
                       align="middle"
                       style={{ marginTop: "5px" }}
                     >
+                      <Space align="center">
+                        <Typography.Link className="font-weight-500">
+                          Mã giảm giá
+                        </Typography.Link>
+                      </Space>
                       <div className="font-weight-500 ">0</div>
                     </Row>
 
@@ -923,7 +938,8 @@ const OrderDetail = () => {
             {OrderDetail !== null &&
             OrderDetail?.fulfillments !== null &&
             OrderDetail?.fulfillments !== undefined &&
-            (OrderDetail?.fulfillments.length !== 0 && OrderDetail?.fulfillments[0].shipment !== null) ? (
+            OrderDetail?.fulfillments.length !== 0 &&
+            OrderDetail?.fulfillments[0].shipment !== null ? (
               <Card
                 className="margin-top-20"
                 title={
@@ -1113,87 +1129,93 @@ const OrderDetail = () => {
               >
                 {isVisibleShipping === true && (
                   <div className="padding-20">
-                    <Row gutter={24}>
-                      <Col md={12}>
-                        <Form.Item
-                          label={
-                            <i style={{ marginBottom: "15px" }}>
-                              Lựa chọn 1 trong hình thức giao hàng
-                            </i>
-                          }
-                          required
-                        >
-                          <Radio.Group
-                            value={shipmentMethod}
-                            onChange={(e) => ShipMethodOnChange(e.target.value)}
-                          >
-                            <Space direction="vertical" size={15}>
-                              <Radio value={1}>Chuyển đối tác giao hàng</Radio>
-                              <Radio value={2}>Tự giao hàng</Radio>
-                              <Radio value={3}>Nhận tại cửa hàng</Radio>
-                              <Radio value={4}>Giao hàng sau</Radio>
-                            </Space>
-                          </Radio.Group>
-                        </Form.Item>
-                      </Col>
-                      <Col md={12}>
-                        <Form.Item label="Hẹn giao" name="dating_ship">
-                          <DatePicker
-                            format="DD/MM/YYYY"
-                            style={{ width: "100%" }}
-                            className="r-5 w-100 ip-search"
-                            placeholder="Ngày hẹn giao"
-                          />
-                        </Form.Item>
-                        <Form.Item label="Yêu cầu" name="requirements">
-                          <Select
-                            className="select-with-search"
-                            showSearch
-                            showArrow
-                            style={{ width: "100%" }}
-                            placeholder="Chọn yêu cầu"
-                            filterOption={(input, option) => {
-                              if (option) {
-                                return (
-                                  option.children
-                                    .toLowerCase()
-                                    .indexOf(input.toLowerCase()) >= 0
-                                );
-                              }
-                              return false;
-                            }}
-                          >
-                            {shipping_requirements?.map((item, index) => (
-                              <Select.Option
-                                style={{ width: "100%" }}
-                                key={index.toString()}
-                                value={item.value}
-                              >
-                                {item.name}
-                              </Select.Option>
-                            ))}
-                          </Select>
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                    <Divider />
-                    <div hidden={shipmentMethod !== 2}>
                     <Form
-                        initialValues={initialFormUpdateShipment}
-                        ref={formRef}
-                        onFinish={onFinishUpdateFulFillment}
-                        layout="vertical"
-                      >
-                        <Row gutter={24} >
+                      initialValues={initialFormUpdateShipment}
+                      ref={formRef}
+                      onFinish={onFinishUpdateFulFillment}
+                      layout="vertical"
+                    >
+                      <Row gutter={24}>
+                        <Col md={12}>
+                          <Form.Item
+                            label={
+                              <i style={{ marginBottom: "15px" }}>
+                                Lựa chọn 1 trong hình thức giao hàng
+                              </i>
+                            }
+                            required
+                          >
+                            <Radio.Group
+                              value={shipmentMethod}
+                              onChange={(e) =>
+                                ShipMethodOnChange(e.target.value)
+                              }
+                            >
+                              <Space direction="vertical" size={15}>
+                                <Radio value={1}>
+                                  Chuyển đối tác giao hàng
+                                </Radio>
+                                <Radio value={2}>Tự giao hàng</Radio>
+                                <Radio value={3}>Nhận tại cửa hàng</Radio>
+                                <Radio value={4}>Giao hàng sau</Radio>
+                              </Space>
+                            </Radio.Group>
+                          </Form.Item>
+                        </Col>
+                        <Col md={12}>
+                          <Form.Item label="Hẹn giao" name="dating_ship">
+                            <DatePicker
+                              format="DD/MM/YYYY"
+                              style={{ width: "100%" }}
+                              className="r-5 w-100 ip-search"
+                              placeholder="Chọn ngày giao"
+                            />
+                          </Form.Item>
+                          <Form.Item label="Yêu cầu" name="requirements">
+                            <Select
+                              className="select-with-search"
+                              showSearch
+                              showArrow
+                              style={{ width: "100%" }}
+                              placeholder="Chọn yêu cầu"
+                              notFoundContent="Không tìm thấy kết quả"
+                              filterOption={(input, option) => {
+                                if (option) {
+                                  return (
+                                    option.children
+                                      .toLowerCase()
+                                      .indexOf(input.toLowerCase()) >= 0
+                                  );
+                                }
+                                return false;
+                              }}
+                            >
+                              {shipping_requirements?.map((item, index) => (
+                                <Select.Option
+                                  style={{ width: "100%" }}
+                                  key={index.toString()}
+                                  value={item.value}
+                                >
+                                  {item.name}
+                                </Select.Option>
+                              ))}
+                            </Select>
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Divider />
+                      <div hidden={shipmentMethod !== 2}>
+                        <Row gutter={24}>
                           <Col md={12}>
                             <Form.Item
                               label="Đối tác giao hàng"
                               name="delivery_service_provider_id"
                             >
-                              <Select
+                              <CustomSelect
                                 className="select-with-search"
                                 showSearch
                                 style={{ width: "100%" }}
+                                notFoundContent="Không tìm thấy kết quả"
                                 placeholder="Chọn đối tác giao hàng"
                                 suffix={
                                   <Button
@@ -1213,15 +1235,15 @@ const OrderDetail = () => {
                                 }}
                               >
                                 {shipper?.map((item, index) => (
-                                  <Select.Option
+                                  <CustomSelect.Option
                                     style={{ width: "100%" }}
                                     key={index.toString()}
                                     value={item.id}
                                   >
                                     {item.full_name}
-                                  </Select.Option>
+                                  </CustomSelect.Option>
                                 ))}
-                              </Select>
+                              </CustomSelect>
                             </Form.Item>
                             <Form.Item
                               name="shipping_fee_paid_to_3pls"
@@ -1251,9 +1273,8 @@ const OrderDetail = () => {
                             </div>
                           </Col>
                         </Row>
-                      </Form>
-                    </div>
-
+                      </div>
+                    </Form>
                     {/*--- Nhận tại cửa hàng ----*/}
                     <div
                       className="receive-at-store"
