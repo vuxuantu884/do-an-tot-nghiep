@@ -1,7 +1,7 @@
 import BaseAction from "base/BaseAction"
 import { MaterialType } from "domain/types/product.type";
 import { MaterialQuery, MaterialCreateRequest, MaterialUpdateRequest, MaterialResponse } from "model/product/material.model";
-import { BaseMetadata } from "model/base/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 
 export const materialSearchAll = (
   setData: (data: Array<MaterialResponse>) => void,
@@ -13,13 +13,11 @@ export const materialSearchAll = (
 
 export const getMaterialAction = (
   query: MaterialQuery,
-  setData: (data: Array<MaterialResponse>) => void,
-  setMetadata: (metadata: BaseMetadata) => void
+  setData: (data: PageResponse<MaterialResponse>|false) => void,
 ) => {
   return BaseAction(MaterialType.GET_MATERIAL_REQUEST, {
     query,
     setData,
-    setMetadata
   });
 }
 
@@ -35,10 +33,10 @@ export const createMaterialAction = (request: MaterialCreateRequest, onCreateSuc
   return BaseAction(MaterialType.CREATE_MATERIAL_REQUEST, {request, onCreateSuccess});
 }
 
-export const detailMaterialAction = (id: number, setMaterial: (material: MaterialResponse) => void) => {
+export const detailMaterialAction = (id: number, setMaterial: (material: MaterialResponse|false) => void) => {
   return BaseAction(MaterialType.DETAIL_MATERIAL_REQUEST, {id, setMaterial});
 }
 
-export const updateMaterialAction = (id: number, request: MaterialUpdateRequest, onUpdateSuccess: () => void) => {
-  return BaseAction(MaterialType.UPDATE_MATERIAL_REQUEST, {id, request, onUpdateSuccess});
+export const updateMaterialAction = (id: number, request: MaterialUpdateRequest, onUpdate: (material: MaterialResponse|false) => void) => {
+  return BaseAction(MaterialType.UPDATE_MATERIAL_REQUEST, {id, request, onUpdate});
 }
