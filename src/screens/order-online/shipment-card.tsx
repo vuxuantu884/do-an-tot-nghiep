@@ -100,7 +100,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           <Col md={12}>
             <Form.Item label="Hẹn giao" name="dating_ship">
               <DatePicker
-                format="DD/MM/YYYY HH:mm a"
+                format="DD/MM/YYYY HH:mm A"
                 style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
                 placeholder="Chọn ngày giao"

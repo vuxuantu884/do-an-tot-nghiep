@@ -17,7 +17,6 @@ import "assets/css/v2/_sale-order.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { OrderItemModel } from "model/other/Order/order-model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { showSuccess } from "utils/ToastUtils";
 import { AccountResponse } from "model/account/account.model";
@@ -290,7 +289,7 @@ export default function Order() {
       if (lstFulFillment != null) {
       }
       values.fulfillments = lstFulFillment;
-      values.action = "finalized";
+      values.action = OrderStatus.FINALIZED;
       values.payments = payments;
     }
     values.tags = tags;
@@ -325,7 +324,7 @@ export default function Order() {
           name: "Thêm đơn hàng online",
         },
       ]}
-      extra={<CreateBillStep status="draff" />}
+      extra={<CreateBillStep status="draff" orderDetail={null}/>}
     >
       <div className="orders">
         <Form
