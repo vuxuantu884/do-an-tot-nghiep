@@ -22,7 +22,6 @@ import locationIcon from "assets/img/location.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useDispatch, useSelector } from "react-redux";
-import { Moment } from "moment";
 import { useLayoutEffect, useState } from "react";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
@@ -101,7 +100,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           <Col md={12}>
             <Form.Item label="Hẹn giao" name="dating_ship">
               <DatePicker
-                format="DD/MM/YYYY"
+                format="DD/MM/YYYY HH:mm a"
                 style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
                 placeholder="Chọn ngày giao"

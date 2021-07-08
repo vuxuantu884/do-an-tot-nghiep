@@ -3,6 +3,7 @@ import { RouteMenu } from "model/other";
 import { HEADER_TYPE } from 'config/HeaderConfig';
 import ColorUpdateScreen from 'screens/color/color-update.screen';
 import UrlConfig from 'config/UrlConfig';
+import UpdateSupplierScreen from "../../screens/supllier/supplier-update.screen";
 
 const Category = React.lazy(() => import ("screens/category/category-list.screen"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
@@ -292,9 +293,9 @@ const product: Array<RouteMenu> = [
       {
         path: `${UrlConfig.SUPPLIERS}/:id`,
         exact: true,
-        title: "Thêm mới nhà cung cấp",
+        title: "Sửa nhà cung cấp",
         icon: 'icon-dot',
-        component: SupplierCreateScreen,
+        component: UpdateSupplierScreen,
         key: "submenu261",
         isShow: true,
         header: null,
