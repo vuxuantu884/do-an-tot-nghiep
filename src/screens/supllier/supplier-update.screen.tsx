@@ -116,7 +116,7 @@ const UpdateSupplierScreen: React.FC = () => {
   const onUpdateSuccess = useCallback(() => {
     setLoading(false);
     history.push('/suppliers');
-    showSuccess('Sửa danh mục thành công')
+    showSuccess('Sửa nhà cung cấp thành công');
   }, [history]);
   const onFinish = useCallback(
     (values: SupplierUpdateRequest) => {
@@ -139,8 +139,8 @@ const UpdateSupplierScreen: React.FC = () => {
     return '';
   }, [status, supplier_status]);
 
-  const setSupplierDetail = useCallback((data: SupplierResponse) => {
-    setLoadingData(false)
+  const setSupplierDetail = useCallback((data: SupplierResponse|false) => {
+    setLoadingData(false);
     if(!data) {
       setError(true);
     } else {
