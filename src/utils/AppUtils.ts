@@ -22,6 +22,8 @@ import {
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
 import { OrderLineItemResponse } from "model/response/order/order.response";
+import { OrderLineItemRequest } from "model/request/order.request";
+import { RegUtil } from "./RegUtils";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -83,7 +85,7 @@ const checkPath = (p1: string, p2: string, pathIgnore?: Array<string>) => {
 export const formatSuffixPoint = (point: number | string): string => {
   let format = point.toString();
   //return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")} điểm`;
-  return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")}`;
+  return `${format.replace(RegUtil.SUFIX_POINT, "$1,")}`;
 };
 
 export const getListBreadcumb = (
@@ -555,8 +557,17 @@ export const Products = {
 };
 
 
+export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
+  let value = 0;
+  if (items.length > 0) {
+    if (items[0].amount !== null) {
+      value = items[0].amount;
+    }
+  }
+  return value;
+}
 
-export const getTotalAmount = (items: Array<OrderLineItemResponse>) => {
+export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
   items.forEach((a) => {
     if (a.product_type === 'normal') {
@@ -566,14 +577,14 @@ export const getTotalAmount = (items: Array<OrderLineItemResponse>) => {
   return total;
 }
 
-export const getTotalDiscount = (items: Array<OrderLineItemResponse>) => {
+export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
   items.forEach((a) => total = total + a.discount_amount);
   return total;
 }
 
 
-export const getTotalAmountAfferDiscount = (items: Array<OrderLineItemResponse>) => {
+export const getTotalAmountAfferDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
   items.forEach((a) => total = total + a.line_amount_after_line_discount);
   return total;
