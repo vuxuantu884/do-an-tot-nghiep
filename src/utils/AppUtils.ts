@@ -21,6 +21,7 @@ import {
   VariantUpdateView,
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
+import { OrderLineItemResponse } from "model/response/order/order.response";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -188,8 +189,11 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
 };
 
 export const formatCurrency = (currency: number | string): string => {
-  let format = currency.toString();
-  return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  try {let format = currency.toString();
+    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  } catch (e) {
+    return "";
+  }
 };
 
 export const generateQuery = (obj: any) => {
@@ -549,3 +553,34 @@ export const Products = {
     return variantUpdateView;
   },
 };
+
+
+
+export const getTotalAmount = (items: Array<OrderLineItemResponse>) => {
+  let total = 0;
+  items.forEach((a) => {
+    if (a.product_type === 'normal') {
+      total = total + a.amount;
+    }
+  });
+  return total;
+}
+
+export const getTotalDiscount = (items: Array<OrderLineItemResponse>) => {
+  let total = 0;
+  items.forEach((a) => total = total + a.discount_amount);
+  return total;
+}
+
+
+export const getTotalAmountAfferDiscount = (items: Array<OrderLineItemResponse>) => {
+  let total = 0;
+  items.forEach((a) => total = total + a.line_amount_after_line_discount);
+  return total;
+}
+
+export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
+  let total = 0;
+  items.forEach((a) => total = total + a.quantity);
+  return total;
+}
