@@ -256,7 +256,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               showArrow
               showSearch
               placeholder="Chọn nguồn đơn hàng"
-              notFoundContent="Không có dữ liệu"
+              notFoundContent="Không tìm thấy kết quả"
               filterOption={(input, option) => {
                 if (option) {
                   return (
