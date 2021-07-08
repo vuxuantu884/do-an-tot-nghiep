@@ -7,7 +7,6 @@ import {
   Input,
   Row,
   Select,
-  Upload,
   Space,
 } from 'antd';
 import {ColorResponse, ColorUpdateRequest} from 'model/product/color.model';
@@ -15,14 +14,13 @@ import {PageResponse} from 'model/base/base-metadata.response';
 import React, {createRef, useCallback, useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {useHistory, useParams} from 'react-router';
-import uploadIcon from 'assets/img/upload.svg';
-import imgDefIcon from 'assets/img/img-def.svg';
 import {
   colorDetailAction, colorUpdateAction,
   getColorAction,
 } from 'domain/actions/product/color.action';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
+import ColorUpload from './color-upload.component';
 
 const {Option} = Select;
 type ColorParams = {
@@ -41,7 +39,6 @@ const ColorUpdateScreen: React.FC = () => {
     },
     items: [],
   });
-  const [imageUrl, setImageUrl] = useState('');
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -50,12 +47,9 @@ const ColorUpdateScreen: React.FC = () => {
   }, [history]);
   const onFinish = useCallback(
     (values: ColorUpdateRequest) => {
-      if (imageUrl !== '') {
-        values.image = imageUrl;
-      }
       dispatch(colorUpdateAction(idNumber, values, onSuccess));
     },
-    [dispatch, imageUrl, onSuccess]
+    [dispatch, idNumber, onSuccess]
   );
   const onCancel = useCallback(() => {
     history.goBack();
@@ -119,39 +113,22 @@ const ColorUpdateScreen: React.FC = () => {
                 md={24}
                 lg={4}
               >
-                <Upload
-                  customRequest={(options) => {
-                    console.log(options);
-                  }}
-                  listType="picture"
-                  action=""
-                  maxCount={1}
-                  showUploadList={false}
-                  className="upload-v"
-                >
-                  <div className="upload-view">
-                    <img className="img-upload" src={uploadIcon} alt="" />
-                    <img className="img-default" src={imgDefIcon} alt="" />
-                  </div>
-                </Upload>
+                <Form.Item name="image_id" noStyle>
+                  <ColorUpload url={color.image} />
+                </Form.Item>
                 <div className="upload-bottom">Ảnh màu</div>
               </Col>
               <Col span={24} lg={20} sm={24} md={24}>
                 <Row gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Form.Item
-                      className="form-group form-group-with-search"
                       rules={[
                         {required: true, message: 'Vui lòng nhập tên màu'},
                       ]}
                       label="Tên màu"
                       name="name"
                     >
-                      <Input
-                        className="r-5"
-                        placeholder="Nhập tên màu"
-                        size="large"
-                      />
+                      <Input placeholder="Nhập tên màu" />
                     </Form.Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
@@ -159,7 +136,6 @@ const ColorUpdateScreen: React.FC = () => {
                       rules={[
                         {required: true, message: 'Vui lòng chọn màu chủ đạo'},
                       ]}
-                      className="form-group form-group-with-search"
                       name="parent_id"
                       label="Màu chủ đạo"
                     >
@@ -182,30 +158,17 @@ const ColorUpdateScreen: React.FC = () => {
                       rules={[
                         {required: true, message: 'Vui lòng nhập mã màu'},
                       ]}
-                      className="form-group form-group-with-search"
                       name="code"
                       labelAlign="right"
                       label="Mã màu"
-                      normalize={value => (value || '').toUpperCase()}
+                      normalize={(value) => (value || '').toUpperCase()}
                     >
-                      <Input
-                        className="r-5"
-                        placeholder="Nhập mã màu"
-                        size="large"
-                      />
+                      <Input placeholder="Nhập mã màu" />
                     </Form.Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <Form.Item
-                      className="form-group form-group-with-search"
-                      name="hex_code"
-                      label="Mã hex"
-                    >
-                      <Input
-                        className="r-5"
-                        placeholder="Nhập mã hex"
-                        size="large"
-                      />
+                    <Form.Item name="hex_code" label="Mã hex">
+                      <Input placeholder="Nhập mã hex" />
                     </Form.Item>
                   </Col>
                 </Row>
