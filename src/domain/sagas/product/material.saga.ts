@@ -17,20 +17,18 @@ import { showError } from "utils/ToastUtils";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 
 function* materialGetSaga(action: YodyAction) {
-  const { query, setData, setMetadata } = action.payload;
+  const { query, setData } = action.payload;
   try {
-   
     let response: BaseResponse<PageResponse<MaterialResponse>> = yield call(
       getMaterialApi,
       query
     );
-   
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setMetadata(response.data.metadata);
-        setData(response.data.items);
+        setData(response.data)
         break;
       case HttpStatus.UNAUTHORIZED:
+        setData(false);
         yield put(unauthorizedAction());
         break;
       default:
@@ -38,7 +36,7 @@ function* materialGetSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-   
+    setData(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -155,20 +153,22 @@ function* materialDetailSaga(action: YodyAction) {
         setMaterial(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        setMaterial(false);
         yield put(unauthorizedAction());
         break;
       default:
+        setMaterial(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    
+    setMaterial(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* materialUpdateSaga(action: YodyAction) {
-  let { id, request, onUpdateSuccess } = action.payload;
+  let { id, request, onUpdate } = action.payload;
   try {
     
     let response: BaseResponse<MaterialResponse> = yield call(
@@ -176,20 +176,21 @@ function* materialUpdateSaga(action: YodyAction) {
       id,
       request
     );
-    
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onUpdateSuccess();
+        onUpdate(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        onUpdate(false);
         yield put(unauthorizedAction());
         break;
       default:
+        onUpdate(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    
+    onUpdate(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
