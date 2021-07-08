@@ -310,7 +310,7 @@ export default function Order() {
                     name: 'Đơn hàng',
                 },
                 {
-                    name: 'Tạo mới đơn hàng',
+                    name: 'Thêm đơn hàng online',
                 },
             ]}
             extra={<CreateBillStep status="draff" />}
@@ -389,7 +389,7 @@ export default function Order() {
                                         <Select
                                             className="select-with-search"
                                             showSearch
-                                            notFoundContent="Không có dữ liệu"
+                                            notFoundContent="Không tìm thấy kết quả"
                                             placeholder="Chọn nhân viên bán hàng"
                                             filterOption={(input, option) => {
                                                 if (option) {

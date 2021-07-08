@@ -104,7 +104,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 format="DD/MM/YYYY"
                 style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
-                placeholder="Ngày hẹn giao"
+                placeholder="Chọn ngày giao"
               />
             </Form.Item>
             <Form.Item label="Yêu cầu" name="requirements">
@@ -149,7 +149,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               <CustomSelect
                 className="select-with-search"
                 showSearch
-                notFoundContent="Không có dữ liệu"
+                notFoundContent="Không tìm thấy kết quả"
                 style={{ width: "100%" }}
                 placeholder="Chọn đối tác giao hàng"
                 suffix={

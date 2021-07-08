@@ -84,7 +84,7 @@ import {
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreDetailAction } from "domain/actions/core/store.action";
@@ -183,9 +183,9 @@ const OrderDetail = () => {
     setVisibleBillingAddress(false);
   };
 
-  const onGetDetailSuccess = useCallback((data: false|OrderResponse) => {
-    setLoadingData(false)
-    if(!data) {
+  const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
+    setLoadingData(false);
+    if (!data) {
       setError(true);
     } else {
       setOrderDetail(data);
@@ -196,8 +196,7 @@ const OrderDetail = () => {
     if (isFirstLoad.current) {
       if (!Number.isNaN(OrderId)) {
         dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
-      }
-      else{
+      } else {
         setError(true);
       }
     }
@@ -304,7 +303,7 @@ const OrderDetail = () => {
     title: () => (
       <div className="text-center">
         <div>Số lượng</div>
-        <span style={{ color: "#0080FF" }}></span>
+        <span style={{ color: "#0080FF" }}>({OrderDetail?.items !== undefined && getTotalQuantity(OrderDetail?.items)})</span>
       </div>
     ),
     className: "yody-pos-quantity text-center",
@@ -318,6 +317,7 @@ const OrderDetail = () => {
     title: "Đơn giá",
     className: "yody-pos-price text-right",
     //width: 100,
+    align: "right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return <div className="yody-pos-price">{formatCurrency(l.price)}</div>;
     },
@@ -344,9 +344,8 @@ const OrderDetail = () => {
   const TotalPriceColumn = {
     title: "Tổng tiền",
     className: "yody-table-total-money text-right",
-    // width: 100,
     render: (l: OrderLineItemResponse, item: any, index: number) => {
-      return <div>{formatCurrency(l.amount)}</div>;
+      return <div style={{textAlign:"left"}}>{formatCurrency(l.amount)}</div>;
     },
   };
 
@@ -511,7 +510,7 @@ const OrderDetail = () => {
                       lineHeight: "40px",
                     }}
                   >
-                    <span style={{marginRight: "10px"}}>Nguồn:</span>
+                    <span style={{ marginRight: "10px" }}>Nguồn:</span>
                     <span className="text-error">
                       <span style={{ color: "red" }}>
                         {OrderDetail?.source}
@@ -891,22 +890,25 @@ const OrderDetail = () => {
                         >
                           Chiết khấu
                         </Typography.Link>
-                        {OrderDetail?.order_discount_rate !== 0
-                          ? OrderDetail?.order_discount_rate
-                          : 0}
-                        %{" "}
+                        {OrderDetail?.order_discount_rate !== null && (
+                          <span>{OrderDetail?.order_discount_rate} %</span>
+                        )}
                       </Space>
                       <div className="font-weight-500 ">
-                        {OrderDetail?.order_discount_value}
+                        {OrderDetail?.order_discount_value !== null ? OrderDetail?.order_discount_value:0}
                       </div>
                     </Row>
-
                     <Row
                       className="payment-row"
                       justify="space-between"
                       align="middle"
                       style={{ marginTop: "5px" }}
                     >
+                      <Space align="center">
+                        <Typography.Link className="font-weight-500">
+                          Mã giảm giá
+                        </Typography.Link>
+                      </Space>
                       <div className="font-weight-500 ">0</div>
                     </Row>
 
@@ -1166,7 +1168,7 @@ const OrderDetail = () => {
                               format="DD/MM/YYYY"
                               style={{ width: "100%" }}
                               className="r-5 w-100 ip-search"
-                              placeholder="Ngày hẹn giao"
+                              placeholder="Chọn ngày giao"
                             />
                           </Form.Item>
                           <Form.Item label="Yêu cầu" name="requirements">
@@ -1176,7 +1178,7 @@ const OrderDetail = () => {
                               showArrow
                               style={{ width: "100%" }}
                               placeholder="Chọn yêu cầu"
-                              notFoundContent="Không có dữ liệu"
+                              notFoundContent="Không tìm thấy kết quả"
                               filterOption={(input, option) => {
                                 if (option) {
                                   return (
@@ -1213,7 +1215,7 @@ const OrderDetail = () => {
                                 className="select-with-search"
                                 showSearch
                                 style={{ width: "100%" }}
-                                notFoundContent="Không có dữ liệu"
+                                notFoundContent="Không tìm thấy kết quả"
                                 placeholder="Chọn đối tác giao hàng"
                                 suffix={
                                   <Button
