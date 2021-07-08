@@ -7,7 +7,6 @@ import {
   Col,
   Dropdown,
   Input,
-  InputNumber,
   Menu,
   Row,
   Select,
@@ -19,11 +18,10 @@ import {
   Tag,
   Form,
 } from "antd";
-import { showError, showSuccess } from "utils/ToastUtils";
-import NumberInput from "component/custom/number-input.custom";
-import PickDiscountModal from "./modal/PickDiscountModal";
-import arrowDownIcon from "../../assets/img/drow-down.svg";
+
+import arrowDownIcon from "assets/img/drow-down.svg";
 import giftIcon from "assets/icon/gift.svg";
+import productIcon from "assets/img/cube.svg";
 import React, {
   useCallback,
   useLayoutEffect,
@@ -37,11 +35,13 @@ import {
   ShopOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import productIcon from "../../assets/img/cube.svg";
 import DiscountGroup from "./discount-group";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { showError, showSuccess } from "utils/ToastUtils";
+import NumberInput from "component/custom/number-input.custom";
+import PickDiscountModal from "./modal/PickDiscountModal";
 import {
   haveAccess,
   findPrice,
@@ -53,12 +53,12 @@ import {
   getTotalAmount,
   getTotalDiscount,
   getTotalAmountAfferDiscount,
-} from "../../utils/AppUtils";
+} from "utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
-import { Type } from "../../config/TypeConfig";
-import "../../assets/css/v1/container.scss";
+import { Type } from "config/TypeConfig";
+import "assets/css/v1/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "./modal/AddGiftModal";
 import {
@@ -73,6 +73,7 @@ import {
 } from "model/product/product.model";
 import { StoreResponse } from "model/core/store.model";
 import { Link } from "react-router-dom";
+import { MoneyType } from "utils/Constants";
 
 type ProductCardProps = {
   storeId: number | null;
@@ -111,7 +112,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
-  const [discountType, setDiscountType] = useState<string>("money");
+  const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [changeMoney, setChangeMoney] = useState<number>(0);

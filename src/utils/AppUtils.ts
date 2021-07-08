@@ -554,8 +554,6 @@ export const Products = {
   },
 };
 
-
-
 export const getTotalAmount = (items: Array<OrderLineItemResponse>) => {
   let total = 0;
   items.forEach((a) => {

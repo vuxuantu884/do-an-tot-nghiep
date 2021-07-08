@@ -17,8 +17,8 @@ export const OrderStatus = {
 
 export const TaxTreatment = {
   INCLUSIVE: "inclusive",
-  EXCLUSIVE: "exclusive"
-}
+  EXCLUSIVE: "exclusive",
+};
 
 export const FulFillmentStatus = {
   UNSHIPPED: "unshipped",
@@ -30,4 +30,9 @@ export const FulFillmentStatus = {
   CANCELLED: "cancelled",
   RETURNING: "returning",
   RETURNED: "returned",
+};
+
+export const MoneyType = {
+  MONEY: "money",
+  PERCENT: "percent",
 };
