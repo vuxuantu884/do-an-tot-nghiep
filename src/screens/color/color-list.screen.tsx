@@ -1,5 +1,5 @@
 import {Button, Card, Form, Input, Image, Select} from 'antd';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Link, useHistory} from 'react-router-dom';
 import search from 'assets/img/search.svg';
 import {getQueryParams, useQuery} from 'utils/useQuery';
@@ -8,7 +8,7 @@ import {useDispatch} from 'react-redux';
 import {PageResponse} from 'model/base/base-metadata.response';
 import {MenuAction} from 'component/table/ActionButton';
 import {showWarning} from 'utils/ToastUtils';
-import CustomTable from 'component/table/CustomTable';
+import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
 import {ColorResponse, ColorSearchQuery} from 'model/product/color.model';
 import imgDefault from 'assets/icon/img-default.svg';
 import {
@@ -21,6 +21,7 @@ import CustomFilter from 'component/table/custom.filter';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
 import ButtonCreate from 'component/header/ButtonCreate';
+import ModalSettingColumn from 'component/table/ModalSettingColumn';
 
 const action: Array<MenuAction> = [
   {
@@ -55,27 +56,32 @@ const ColorListScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const query = useQuery();
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
   let [params, setPrams] = useState<ColorSearchQuery>(getQueryParams(query));
-  const columns = [
+  const  [columns, setColumn] = useState<Array<ICustomTableColumType<ColorResponse>>>([
     {
       title: 'Mã màu',
       dataIndex: 'code',
       render: (value: string, item: ColorResponse) => {
         return <Link to={`colors/${item.id}`}>{value}</Link>;
       },
+      visible: true
     },
     {
       title: 'Tên màu',
       dataIndex: 'name',
+      visible: true
     },
     {
       title: 'Màu chủ đạo',
       dataIndex: 'parent_id',
+      visible: true
     },
     {
-      title: 'Màu hex',
+      title: 'Mã hex',
       dataIndex: 'hex_code',
       render: (value: string) => (value !== null ? `#${value}` : ''),
+      visible: true
     },
     {
       title: 'Ảnh màu',
@@ -91,16 +97,20 @@ const ColorListScreen: React.FC = () => {
           ''
         );
       },
+      visible: true
     },
     {
       title: 'Người tạo',
       dataIndex: 'created_name',
+      visible: true
     },
     {
       title: 'Ghi chú',
       dataIndex: 'description',
+      visible: false
     },
-  ];
+  ]);
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
     dispatch(getColorAction(params, setData));
@@ -226,9 +236,20 @@ const ColorListScreen: React.FC = () => {
             onShowSizeChange: onPageChange,
           }}
           dataSource={data.items}
-          columns={columns}
+          showColumnSetting={true}
+          onShowColumnSetting={() => setShowSettingColumn(true)}
+          columns={columnFinal}
           onSelectedChange={onSelect}
           rowKey={(item: ColorResponse) => item.id}
+        />
+          <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data)
+          }}
+          data={columns}
         />
       </Card>
     </ContentContainer>
