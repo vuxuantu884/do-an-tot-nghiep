@@ -64,7 +64,7 @@ const ListSupplierScreen: React.FC = () => {
       title: 'Mã NCC',
       dataIndex: 'code',
       render: (value: string, item: SupplierResponse) => {
-        return <Link to={`suppliers/${item.id}`}>{value}</Link>;
+        return <Link to={`${UrlConfig.SUPPLIERS}/${item.id}`}>{value}</Link>;
       },
     },
     {

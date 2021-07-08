@@ -21,6 +21,7 @@ import {
   VariantUpdateView,
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
+import {SupplierDetail, SupplierResponse} from "../model/core/supplier.model";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -179,6 +180,16 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
     category_ids: ids,
   };
   return sizeConvert;
+};
+
+export const convertSupplierResponseToDetail = (supplier: SupplierResponse) => {
+  let goods: Array<string> = [];
+  supplier.goods.forEach((good) => goods.push(good.value));
+  let supplierConverted: SupplierDetail = {
+    ...supplier,
+    goods: goods,
+  }
+  return supplierConverted;
 };
 
 export const formatCurrency = (currency: number | string): string => {

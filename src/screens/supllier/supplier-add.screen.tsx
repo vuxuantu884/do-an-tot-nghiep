@@ -133,6 +133,7 @@ const CreateSupplierScreen: React.FC = () => {
   }, [history]);
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
+      console.log(values);
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]
