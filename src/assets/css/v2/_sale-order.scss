@@ -557,12 +557,58 @@ input {
     width: 700px;
 }
 
-.ant-table-footer {
-    padding: 15px 20px 30px 20px;
-    color: rgba(0,0,0,.85);
-    background:#F4F4F7;;
+.margin-top-20 .product-total-checkout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 60px 10px 120px;
+    background-color: #f9f9fa;
+    & > span {
+        display: block;
+        color: #2f485d;
+        font-size: 16px;
+    }
+    & > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 60%;
+        & > span {
+            padding: 0 40px 0 0px;
+            display: block;
+            &:nth-child(1) {
+                color: black;
+            }
+            &:nth-child(2) {
+                color: red;
+            }
+            &:nth-child(3) {
+                color: #1389ff;
+                padding-right: 50px;
+            }
+        }
+    }
+}
+.text-center {
+    div {
+        & > span {
+            color: #1389ff;
+            display: block;
+        }
+    }
 }
 
-.ant-table-thead{
-    background-color: #F4F4F7;
+.ant-input-number-input-wrap {
+    & > input {
+        height: 36px;
+    }
+}
+.ant-table-footer {
+    padding: 15px 20px 30px 20px;
+    color: rgba(0, 0, 0, 0.85);
+    background: #f4f4f7;
+}
+
+.ant-table-thead {
+    background-color: #f4f4f7;
 }
