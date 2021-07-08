@@ -470,6 +470,7 @@ const ProductCreateScreen: React.FC = () => {
         initialValues={initialForm}
         ref={formRef}
         onFinish={onFinish}
+        scrollToFirstError
         layout="vertical"
       >
         <Card

@@ -11,7 +11,7 @@ import {
   deleteOneMaterialAction,
   getMaterialAction,
 } from "domain/actions/product/material.action";
-import { BaseMetadata } from "model/base/base-metadata.response";
+import {  PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
 import { showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
@@ -37,17 +37,20 @@ const actions: Array<MenuAction> = [
 ];
 const { Item } = Form;
 const ListMaterial: React.FC = () => {
-  const [data, setData] = useState<Array<MaterialResponse>>([]);
   const [selected, setSelected] = useState<Array<MaterialResponse>>([]);
   const history = useHistory();
   const dispatch = useDispatch();
   const query = useQuery();
   let [params, setPrams] = useState<MaterialQuery>(getQueryParams(query));
-  const [metadata, setMetadata] = useState<BaseMetadata>({
-    limit: params.limit ? params.limit : 30,
-    page: params.page ? params.page : 0,
-    total: 0,
+  const [data, setData] = useState<PageResponse<MaterialResponse>>({
+    items: [], 
+    metadata: {
+      limit: 0,
+      page: 1,
+      total: 0,
+    },
   });
+  const [loading, setLoading] = useState<boolean>(true);
   const columns = [
     {
       title: "Mã chất liệu",
@@ -82,11 +85,17 @@ const ListMaterial: React.FC = () => {
       key: 'description',
     },
   ];
+  const onGetSuccess = useCallback((data: PageResponse<MaterialResponse>|false) => {
+    setLoading(false);
+    if(!!data){
+      setData(data);
+    }
+  }, [])
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
     setSelected([...selected]);
-    dispatch(getMaterialAction(params, setData, setMetadata));
-  }, [dispatch, params, selected]);
+    dispatch(getMaterialAction(params, onGetSuccess));
+  }, [dispatch, onGetSuccess, params, selected]);
 
   const onDelete = useCallback(() => {
     if (selected.length === 0) {
@@ -163,8 +172,9 @@ const ListMaterial: React.FC = () => {
     });
   }, [selected]);
   useEffect(() => {
-    dispatch(getMaterialAction(params, setData, setMetadata));
-  }, [dispatch, params]);
+    setLoading(true);
+    dispatch(getMaterialAction(params, onGetSuccess));
+  }, [dispatch, onGetSuccess, params]);
   console.log(menuFilter);
   return (
     <ContentContainer
@@ -230,15 +240,16 @@ const ListMaterial: React.FC = () => {
           </Form>
         </CustomFilter>
         <CustomTable
+          isLoading={loading}
           pagination={{
-            pageSize: metadata.limit,
-            total: metadata.total,
-            current: metadata.page,
+            pageSize: data.metadata.limit,
+            total: data.metadata.total,
+            current: data.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
-          dataSource={data}
+          dataSource={data.items}
           columns={columns}
           onSelectedChange={onSelect}
           rowKey={(item: MaterialResponse) => item.id}
