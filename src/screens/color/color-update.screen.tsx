@@ -10,16 +10,15 @@ import {
   Upload,
   Space,
 } from 'antd';
-import {ColorCreateRequest, ColorResponse} from 'model/product/color.model';
+import {ColorResponse, ColorUpdateRequest} from 'model/product/color.model';
 import {PageResponse} from 'model/base/base-metadata.response';
-import {createRef, useCallback, useEffect, useState} from 'react';
+import React, {createRef, useCallback, useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {useHistory, useParams} from 'react-router';
 import uploadIcon from 'assets/img/upload.svg';
 import imgDefIcon from 'assets/img/img-def.svg';
 import {
-  colorCreateAction,
-  colorDetailAction,
+  colorDetailAction, colorUpdateAction,
   getColorAction,
 } from 'domain/actions/product/color.action';
 import ContentContainer from 'component/container/content.container';
@@ -32,6 +31,7 @@ type ColorParams = {
 
 const ColorUpdateScreen: React.FC = () => {
   const {id} = useParams<ColorParams>();
+  let idNumber = parseInt(id);
   const [color, setColor] = useState<ColorResponse | null>(null);
   const [selector, setSelector] = useState<PageResponse<ColorResponse>>({
     metadata: {
@@ -49,11 +49,11 @@ const ColorUpdateScreen: React.FC = () => {
     history.push(UrlConfig.COLORS);
   }, [history]);
   const onFinish = useCallback(
-    (values: ColorCreateRequest) => {
+    (values: ColorUpdateRequest) => {
       if (imageUrl !== '') {
         values.image = imageUrl;
       }
-      dispatch(colorCreateAction(values, onSuccess));
+      dispatch(colorUpdateAction(idNumber, values, onSuccess));
     },
     [dispatch, imageUrl, onSuccess]
   );
@@ -102,6 +102,9 @@ const ColorUpdateScreen: React.FC = () => {
         onFinish={onFinish}
         layout="vertical"
       >
+        <Form.Item hidden noStyle name="version">
+          <Input />
+        </Form.Item>
         <Card title="Thông tin cơ bản">
           <div className="padding-20">
             <Row gutter={50}>
