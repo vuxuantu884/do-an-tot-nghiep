@@ -54,7 +54,7 @@ const ListSupplierScreen: React.FC = () => {
   const [data, setData] = useState<PageResponse<SupplierResponse>>({
     metadata: {
       limit: 0,
-      page: 0,
+      page: 1,
       total: 0,
     },
     items: [],
@@ -124,7 +124,7 @@ const ListSupplierScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      let newPrams = {...params, ...values, page: 0};
+      let newPrams = {...params, ...values, page: 1};
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`/suppliers?${queryParam}`);
@@ -141,7 +141,7 @@ const ListSupplierScreen: React.FC = () => {
       breadcrumb={[
         {
           name: 'Tổng quản',
-          path: '/',
+          path: UrlConfig.HOME,
         },
         {
           name: 'Sản phẩm',

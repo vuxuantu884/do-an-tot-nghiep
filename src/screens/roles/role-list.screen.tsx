@@ -103,7 +103,7 @@ const ManageRoleScreen = () => {
     <ContentContainer title="Quản lý phân quyền" breadcrumb={[
       {
         name: 'Tổng quản',
-        path: '/',
+        path: UrlConfig.HOME,
       },
       {
         name: 'Phân quyền',

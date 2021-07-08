@@ -76,6 +76,7 @@ const ListProductScreen: React.FC = () => {
   const listStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.variant_status;
   });
+  const [tableLoading, setTableLoading] = useState(true);
   const isFirstLoad = useRef(true);
   const [listCountry, setCountry] = useState<Array<CountryResponse>>();
   const [listMainColor, setMainColor] = useState<Array<ColorResponse>>();
@@ -125,10 +126,6 @@ const ListProductScreen: React.FC = () => {
       dataIndex: "size",
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "phone",
-    },
-    {
       title: "Nhà thiết kế",
       render: (value: VariantResponse) => <div> {value.product.designer}</div>,
     },
@@ -175,6 +172,15 @@ const ListProductScreen: React.FC = () => {
     [history, params]
   );
   const onMenuClick = useCallback((index: number) => {}, []);
+
+  const setSearchResult = useCallback(
+    (listResult: PageResponse<VariantResponse>) => {
+      setTableLoading(false);
+      setData(listResult);
+    },
+    []
+  );
+
   useEffect(() => {
     if (isFirstLoad.current) {
       dispatch(CountryGetAllAction(setCountry));
@@ -185,15 +191,15 @@ const ListProductScreen: React.FC = () => {
       dispatch(AccountGetListAction(initAccountQuery, setMarchandiser));
     }
     isFirstLoad.current = false;
-    dispatch(searchVariantsRequestAction(params, setData));
-  }, [dispatch, params]);
+    dispatch(searchVariantsRequestAction(params, setSearchResult));
+  }, [dispatch, params, setSearchResult]);
   return (
     <ContentContainer
       title="Quản lý chất liệu"
       breadcrumb={[
         {
           name: "Tổng quản",
-          path: "/",
+         path: UrlConfig.HOME,
         },
         {
           name: "Sản phẩm",
@@ -217,6 +223,7 @@ const ListProductScreen: React.FC = () => {
           listCountries={listCountry}
         />
         <CustomTable
+          showColumnSetting={true}
           scroll={{ x: 1080 }}
           pagination={{
             pageSize: data.metadata.limit,
@@ -226,6 +233,7 @@ const ListProductScreen: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          loading={tableLoading}
           dataSource={data.items}
           columns={columns}
           rowKey={(item: VariantResponse) => item.id}

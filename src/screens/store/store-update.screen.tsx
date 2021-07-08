@@ -93,7 +93,7 @@ const StoreUpdateScreen: React.FC = () => {
     [cityViews, dispatch, formRef]
   );
   const onUpdateSuccess = useCallback(() => {
-    history.push('/suppliers');
+    history.push(UrlConfig.STORE);
   }, [history]);
   const onCancel = useCallback(() => {
     history.goBack();
@@ -127,7 +127,7 @@ const StoreUpdateScreen: React.FC = () => {
       breadcrumb={[
         {
           name: 'Tổng quản',
-          path: '/',
+          path: UrlConfig.HOME,
         },
         {
           name: 'Cửa hàng',
@@ -146,7 +146,7 @@ const StoreUpdateScreen: React.FC = () => {
           onFinish={onFinish}
         >
           <Card
-            className="card-block card-block-normal"
+            
             title="Thông tin cơ bản"
             extra={
               <div className="v-extra d-flex align-items-center">
@@ -266,7 +266,7 @@ const StoreUpdateScreen: React.FC = () => {
                       },
                     ]}
                   >
-                    <Input placeholder="Nhập địa chỉ" size="large" />
+                    <Input placeholder="Nhập địa chỉ" />
                   </Item>
                 </Col>
               </Row>

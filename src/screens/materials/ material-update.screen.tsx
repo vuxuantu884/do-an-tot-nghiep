@@ -12,6 +12,7 @@ import {
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
+import { RegUtil } from "utils/RegUtils";
 
 type MaterialPamram = {
   id: string;
@@ -51,7 +52,7 @@ const UpdateMaterial: React.FC = () => {
       breadcrumb={[
         {
           name: "Tổng quản",
-          path: "/",
+         path: UrlConfig.HOME,
         },
         {
           name: "Sản phẩm",
@@ -78,21 +79,26 @@ const UpdateMaterial: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
                   rules={[
-                    { required: true, message: "Vui lòng nhập tên chất liệu" },
+                    {
+                      required: true,
+                      message: 'Vui lòng nhập tên chất liệu',
+                    },
+                    {
+                      max: 50,
+                      message: 'Tên chất liệu không vượt quá 50 ký tự',
+                    },
                   ]}
                   label="Tên chất liệu"
                   name="name"
                 >
-                  <Input placeholder="Tên danh mục" />
+                  <Input maxLength={50} placeholder="Tên danh mục" />
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
                   rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập thành phần chất liệu",
-                    },
+                    {max: 50, message: 'Thành phần không quá 50 kí tự'},
+                    {max: 50, }
                   ]}
                   name="component"
                   label="Thành phần"
@@ -107,11 +113,7 @@ const UpdateMaterial: React.FC = () => {
                   rules={[
                     { required: true, message: "Vui lòng nhập mã chất liệu" },
                     {
-                      pattern: new RegExp("^\\S*$"),
-                      message: "Mã chất liệu không được chứa khoảng trắng",
-                    },
-                    {
-                      pattern: new RegExp("^[A-Za-z0-9 ]+$"),
+                      pattern: RegUtil.NO_SPECICAL_CHARACTER,
                       message: "Mã chất liệu không chứa ký tự đặc biệt"
                     },
                   ]}
@@ -128,10 +130,10 @@ const UpdateMaterial: React.FC = () => {
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item name="description" label="Ghi chú">
-                  <Input placeholder="Mã chất liệu" size="large" />
+                  <Input placeholder="Nhập ghi chú" size="large" />
                 </Form.Item>
-                <Form.Item hidden name="version" label="Ghi chú">
-                  <Input placeholder="Mã chất liệu" size="large" />
+                <Form.Item noStyle hidden name="version">
+                  <Input />
                 </Form.Item>
               </Col>
             </Row>

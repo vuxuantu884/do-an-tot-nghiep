@@ -1,4 +1,5 @@
 import {
+  Affix,
   Button,
   Card,
   Col,
@@ -68,7 +69,7 @@ const { Option, OptGroup } = Select;
 const DefaultCountry = 233;
 
 const initRoleQuery: RoleSearchQuery = {
-  page: 0,
+  page: 1,
   size: 200,
 };
 type AccountParam = {
@@ -375,7 +376,7 @@ const AccountUpdateScreen: React.FC = () => {
       breadcrumb={[
         {
           name: "Tổng quản",
-          path: "/",
+         path: UrlConfig.HOME,
         },
         {
           name: "Quản lý người dùng",
@@ -674,7 +675,7 @@ const AccountUpdateScreen: React.FC = () => {
             </div>
           </Collapse.Panel>
         </Collapse>
-
+        <Affix offsetBottom={20}>
         <div className="margin-top-10" style={{ textAlign: "right" }}>
           <Space size={12}>
             <Button type="default" onClick={onCancel}>
@@ -685,6 +686,7 @@ const AccountUpdateScreen: React.FC = () => {
             </Button>
           </Space>
         </div>
+        </Affix>
       </Form>
     </ContentContainer>
   );

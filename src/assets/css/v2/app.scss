@@ -2,13 +2,13 @@
 @import "variable";
 @import "overwrite";
 #root {
-  width: 100%;
-  height: 100%;
-  font-family: 'Inter', sans-serif;
+    width: 100%;
+    height: 100%;
+    font-family: 'Inter', sans-serif;
 }
 
-*{
-  font-family: 'Inter', sans-serif;
+* {
+    font-family: 'Inter', sans-serif;
 }
 
 .ant-layout-sider-collapsed {
@@ -28,6 +28,8 @@
 
 .ant-tag {
     margin-top: 4px;
+    font-size: 14px;
+    padding: 2px 4px;
 }
 
 .logo {
@@ -191,6 +193,7 @@ label {
 @import "select";
 @import "editor";
 @import "product";
+@import "modal-confirm";
 .display {
     &-block {
         display: block;

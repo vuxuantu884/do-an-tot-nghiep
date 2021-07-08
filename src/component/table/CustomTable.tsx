@@ -22,6 +22,7 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   onShowColumnSetting?: () => void;
   onSelectedChange?: (selectedRows: any[]) => void;
   isLoading?: boolean;
+  showColumnSetting?: boolean;
 }
 
 export interface ICustomTableColumType<T> extends ColumnType<T> {
@@ -102,6 +103,7 @@ const CustomTable = (props: ICustomTableProps) => {
     columns,
     onSelectedChange,
     onShowColumnSetting,
+    showColumnSetting,
     isLoading,
   } = props;
 
@@ -143,7 +145,7 @@ const CustomTable = (props: ICustomTableProps) => {
           onSelect: onSelect,
           onSelectAll: onSelectAll,
         }}
-        columns={columns?.concat(configSettingColumns)}
+        columns={showColumnSetting ? columns?.concat(configSettingColumns) : columns}
         locale={locale}
         loading={
           isLoading
@@ -159,6 +161,9 @@ const CustomTable = (props: ICustomTableProps) => {
             : false
         }
         pagination={false}
+        // scroll={{ y: 700 }} 
+         size="middle"
+         bordered
       />
       {pagination && (
         <div className="custom-table-pagination">
@@ -167,7 +172,7 @@ const CustomTable = (props: ICustomTableProps) => {
               {showTotal(pagination)}
             </span>
           </div>
-          {totalPage > 1 && (
+          
             <div className="custom-table-pagination-right">
               {pagination.showSizeChanger && (
                 <div className="custom-table-pagination-size-change">
@@ -234,7 +239,6 @@ const CustomTable = (props: ICustomTableProps) => {
                 </li>
               </div>
             </div>
-          )}
         </div>
       )}
     </div>

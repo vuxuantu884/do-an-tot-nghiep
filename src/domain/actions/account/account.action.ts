@@ -23,6 +23,25 @@ export const AccountGetListAction = (
   return BaseAction(AccountType.GET_LIST_ACCOUNT_REQUEST, { query, setData });
 };
 
+
+export const DepartmentGetListAction = (
+  setData: (data: Array<DepartmentResponse>) => void
+) => {
+  return BaseAction(AccountType.GET_LIST_DEPARTMENT_REQUEST, { setData });
+};
+
+export const PositionGetListAction = (
+  setData: (data: Array<PositionResponse>) => void
+) => {
+  return BaseAction(AccountType.GET_LIST_POSITION_REQUEST, { setData });
+};
+
+export const ShipperGetListAction = (
+  setData: (data: Array<AccountResponse>) => void
+) => {
+  return BaseAction(AccountType.GET_LIST_SHIPPER_REQUEST, { setData }); 
+};
+
 export const AccountGetByIdtAction = (
   id: number,
   setData: (data: AccountResponse) => void
@@ -31,17 +50,11 @@ export const AccountGetByIdtAction = (
   return BaseAction(AccountType.GET_ACCOUNT_DETAIL_REQUEST, { id, setData });
 };
 
-export const DepartmentGetListAction = (
-  setData: (data: Array<DepartmentResponse>) => void
-) => {
-  return BaseAction(AccountType.GET_LIST_DEPARTMENT_REQUEST, { setData });
-};
-
 export const AccountCreateAction = (
   request: AccountRequest,
-  setData: (data: AccountResponse) => void
+  onCreateSuccess: (data: AccountResponse) => void
 ) => {
-  return BaseAction(AccountType.CREATE_ACCOUNT_REQUEST, { request, setData });
+  return BaseAction(AccountType.CREATE_ACCOUNT_REQUEST, { request, onCreateSuccess });
 };
 export const AccountUpdateAction = (
   id: number,
@@ -55,8 +68,12 @@ export const AccountUpdateAction = (
   });
 };
 
-export const PositionGetListAction = (
-  setData: (data: Array<PositionResponse>) => void
+export const AccountDeleteAction = (
+  id: number,
+  deleteCallback: (result: boolean) => void
 ) => {
-  return BaseAction(AccountType.GET_LIST_POSITION_REQUEST, { setData });
+  return BaseAction(AccountType.DELETE_ACCOUNT_REQUEST, {
+    id,
+    deleteCallback,
+  });
 };

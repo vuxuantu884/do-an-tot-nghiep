@@ -3,7 +3,6 @@ import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { ProductType } from "domain/types/product.type";
 import {
   createProductApi,
@@ -77,16 +76,19 @@ function* createProductSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onCreateSuccess();
+        onCreateSuccess(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        onCreateSuccess(null);
         yield put(unauthorizedAction());
         break;
       default:
+        onCreateSuccess(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    onCreateSuccess(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -116,7 +118,11 @@ function* variantDetailSaga(action: YodyAction) {
 function* uploadProductSaga(action: YodyAction) {
   const { files, folder, } = action.payload;
   try {
-    let response: BaseResponse<VariantResponse> = yield call(productUploadApi, files, folder,);
+    let response: BaseResponse<VariantResponse> = yield call(
+      productUploadApi,
+      files,
+      folder
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response);
@@ -149,13 +155,16 @@ function* variantUpdateSaga(action: YodyAction) {
         onUpdateSuccess(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        onUpdateSuccess(null);
         yield put(unauthorizedAction());
         break;
       default:
+        onUpdateSuccess(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    onUpdateSuccess(null);
     console.log("Update Variant: "+error)
     showError("Có lỗi vui lòng thử lại sau");
   }

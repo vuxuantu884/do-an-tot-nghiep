@@ -1,8 +1,8 @@
-import { ConvertDateToUtc } from './DateUtils';
-import { AccountStoreResponse } from 'model/account/account.model';
-import { DistrictResponse } from 'model/content/district.model';
-import { CityView } from 'model/content/district.model';
-import { AppConfig } from 'config/AppConfig';
+import { ConvertDateToUtc } from "./DateUtils";
+import { AccountStoreResponse } from "model/account/account.model";
+import { DistrictResponse } from "model/content/district.model";
+import { CityView } from "model/content/district.model";
+import { AppConfig } from "config/AppConfig";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import moment from "moment";
@@ -21,6 +21,9 @@ import {
   VariantUpdateView,
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
+import { OrderLineItemResponse } from "model/response/order/order.response";
+import { OrderLineItemRequest } from "model/request/order.request";
+import { RegUtil } from "./RegUtils";
 import {SupplierDetail, SupplierResponse} from "../model/core/supplier.model";
 
 export const isUndefinedOrNull = (variable: any) => {
@@ -78,6 +81,12 @@ const checkPath = (p1: string, p2: string, pathIgnore?: Array<string>) => {
     return urls1.join("/") === urls2.join("/");
   }
   return p1 === p2;
+};
+
+export const formatSuffixPoint = (point: number | string): string => {
+  let format = point.toString();
+  //return `${format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")} điểm`;
+  return `${format.replace(RegUtil.SUFIX_POINT, "$1,")}`;
 };
 
 export const getListBreadcumb = (
@@ -193,8 +202,11 @@ export const convertSupplierResponseToDetail = (supplier: SupplierResponse) => {
 };
 
 export const formatCurrency = (currency: number | string): string => {
-  let format = currency.toString();
-  return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  try {let format = currency.toString();
+    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  } catch (e) {
+    return "";
+  }
 };
 
 export const generateQuery = (obj: any) => {
@@ -536,7 +548,8 @@ export const Products = {
         collections: variant.product.product_collections.map(
           (i) => i.collection
         ),
-        tags: variant.product.tags !== null ? variant.product.tags.split(";") : [],
+        tags:
+          variant.product.tags !== null ? variant.product.tags.split(";") : [],
         product_unit: variant.product.unit,
         brand: variant.product.brand,
         content: variant.product.content,
@@ -553,3 +566,43 @@ export const Products = {
     return variantUpdateView;
   },
 };
+
+
+export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
+  let value = 0;
+  if (items.length > 0) {
+    if (items[0].amount !== null) {
+      value = items[0].amount;
+    }
+  }
+  return value;
+}
+
+export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
+  let total = 0;
+  items.forEach((a) => {
+    if (a.product_type === 'normal') {
+      total = total + a.amount;
+    }
+  });
+  return total;
+}
+
+export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
+  let total = 0;
+  items.forEach((a) => total = total + a.discount_amount);
+  return total;
+}
+
+
+export const getTotalAmountAfferDiscount = (items: Array<OrderLineItemRequest>) => {
+  let total = 0;
+  items.forEach((a) => total = total + a.line_amount_after_line_discount);
+  return total;
+}
+
+export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
+  let total = 0;
+  items.forEach((a) => total = total + a.quantity);
+  return total;
+}

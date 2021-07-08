@@ -1,10 +1,9 @@
+import { getListStore } from 'service/core/store.service';
 import BaseResponse from "base/BaseResponse";
 import { YodyAction } from "base/BaseAction";
 import { showError } from "utils/ToastUtils";
 import { StoreResponse } from "model/core/store.model";
-import { getListStore } from "service/core/store.service";
 import { call, put, takeLatest } from "@redux-saga/core/effects";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { HttpStatus } from "config/HttpStatus";
 import { StoreType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -142,12 +141,10 @@ function* storeUpdateSaga(action: YodyAction) {
 export function* storeDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
-    
     let response: BaseResponse<StoreResponse> = yield call(
       storesDetailApi,
       id
     );
-    
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -160,12 +157,11 @@ export function* storeDetailSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
-export function* StoreSaga() {
+export function* storeSaga() {
   yield takeLatest(StoreType.GET_LIST_STORE_REQUEST, storeGetAllSaga);
   yield takeLatest(StoreType.STORE_SEARCH, storeSearchSaga);
   yield takeLatest(StoreType.STORE_RANK, storeRanksaga);

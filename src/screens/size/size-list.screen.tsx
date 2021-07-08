@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, Select, Tooltip } from "antd";
+import { Button, Card, Form, Input, Select, Tag, Tooltip } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import search from "assets/img/search.svg";
 import CustomTable from "component/table/CustomTable";
@@ -8,7 +8,7 @@ import {
   SizeQuery,
 } from "model/product/size.model";
 import { Link, useHistory } from "react-router-dom";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PageResponse } from "model/base/base-metadata.response";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { convertCategory, generateQuery } from "utils/AppUtils";
@@ -78,15 +78,17 @@ const SizeListScreen: React.FC = () => {
       title: "Danh mục",
       dataIndex: "categories",
       render: (value: Array<SizeCategory>) => {
-        if(value.length === 1) {
-          return <div>{value[0].category_name}</div>
-        }
         return (
-          <Tooltip placement="bottomLeft" title={value.map((item) => <div>{item.category_name}</div>)}>
-            <div>{`${value.length} danh mục`}</div>
-          </Tooltip>
-        )
-      }
+          // <Tooltip placement="bottomLeft" title={value.map((item) => <div>{item.category_name}</div>)}>
+          //   <div>{`${value.length} danh mục`}</div>
+          // </Tooltip>
+          <span>
+            {value.map((stores) => {
+              return <Tag color="blue">{stores.category_name}</Tag>;
+            })}
+          </span>
+        );
+      },
     },
     {
       title: "Người tạo",
@@ -175,8 +177,12 @@ const SizeListScreen: React.FC = () => {
     },
     [onDelete, onUpdate]
   );
+  const isFirstLoad = useRef(true);
   useEffect(() => {
-    dispatch(getCategoryRequestAction({}, setCategory));
+    if (isFirstLoad.current) {
+      dispatch(getCategoryRequestAction({}, setCategory));
+    }
+    isFirstLoad.current = false;
     dispatch(sizeSearchAction(params, setData));
   }, [dispatch, params, setCategory]);
   return (
@@ -184,21 +190,19 @@ const SizeListScreen: React.FC = () => {
       title="Quản lý kích cỡ"
       breadcrumb={[
         {
-          name: 'Tổng quản',
-          path: '/',
+          name: "Tổng quản",
+          path: UrlConfig.HOME,
         },
         {
-          name: 'Sản phẩm',
+          name: "Sản phẩm",
           path: `${UrlConfig.PRODUCT}`,
         },
         {
-          name: 'Kích cỡ',
+          name: "Kích cỡ",
           path: `${UrlConfig.SIZES}`,
         },
       ]}
-      extra={
-        <ButtonCreate path={`${UrlConfig.SIZES}/create`} />
-      }
+      extra={<ButtonCreate path={`${UrlConfig.SIZES}/create`} />}
     >
       <Card>
         <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
@@ -207,7 +211,7 @@ const SizeListScreen: React.FC = () => {
               <Input
                 prefix={<img src={search} alt="" />}
                 style={{ width: 200 }}
-                placeholder="Tên/Mã kích cỡ"
+                placeholder="Kích cỡ"
               />
             </Form.Item>
             <Form.Item name="category_id">

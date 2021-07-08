@@ -1,55 +1,51 @@
 // @ts-ignore
 import {
-  Button,
   Card,
   Divider,
-  Input,
   Row,
   Col,
-  AutoComplete,
   Space,
   Typography,
   Radio,
-  InputNumber,
+  Form,
+  Input,
   Select,
   DatePicker,
+  Button,
 } from "antd";
 
-// @ts-ignore
-import plusBlueIcon from "assets/img/plus-blue.svg";
-// @ts-ignore
-import arrowDownIcon from "assets/img/drow-down.svg";
-// @ts-ignore
+import { PlusOutlined, ProfileOutlined } from "@ant-design/icons";
+
 import callIcon from "assets/img/call.svg";
 // @ts-ignore
 import locationIcon from "assets/img/location.svg";
-
-import { SearchOutlined } from "@ant-design/icons";
-import truckIcon from "../../assets/img/truck.svg";
-import dhlIcon from "../../assets/img/dhl.svg";
-import { formatCurrency } from "../../utils/AppUtils";
-import ghtkIcon from "../../assets/img/ghtk.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useSelector } from "react-redux";
-import { Moment } from "moment";
+import { useDispatch, useSelector } from "react-redux";
+import { useLayoutEffect, useState } from "react";
+import { StoreDetailAction } from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
+import { AccountResponse } from "model/account/account.model";
+import { ShipperGetListAction } from "domain/actions/account/account.action";
+import  CustomSelect  from "component/custom/select.custom";
 
 type ShipmentCardProps = {
   shipmentMethod: number;
-  setSelectedShipmentType: (paymentType: number) => void;
-  //setDatingShip: (item: Moment | null,dateString: string) => void;
+  setShipmentMethodProps: (value: number) => void;
+  storeId: number | null;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
   props: ShipmentCardProps
 ) => {
-  const ShipMethodOnChange = (value: number) => {
-    props.setSelectedShipmentType(value);
-  };
+  const dispatch = useDispatch();
+  const [storeDetail, setStoreDetail] = useState<StoreResponse>();
+  const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
+  const [shipmentMethodState, setshipmentMethod] = useState<number>(4);
 
-  const DatingShipOnChange = (value: Moment | null, dateString: string) => {
-    console.log("datetime", value);
-    //props.setDatingShip(value, dateString);
+  const ShipMethodOnChange = (value: number) => {
+    setshipmentMethod(value);
+    props.setShipmentMethodProps(value);
   };
 
   const shipping_requirements = useSelector(
@@ -57,64 +53,67 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       state.bootstrapReducer.data?.shipping_requirement
   );
 
-  const ChangeShippingRequirement = () => {};
+  useLayoutEffect(() => {
+    if (props.storeId != null) {
+      dispatch(StoreDetailAction(props.storeId, setStoreDetail));
+    }
+  }, [dispatch, props.storeId]);
+
+  useLayoutEffect(() => {
+    dispatch(ShipperGetListAction(setShipper));
+  }, [dispatch]);
 
   return (
     <Card
       className="margin-top-20"
       title={
-        <div className="d-flex">
-          <img src={truckIcon} alt="" /> Đóng gói và giao hàng
-        </div>
+        <Space>
+          <ProfileOutlined />
+          Đóng gói và giao hàng
+        </Space>
       }
     >
       <div className="padding-20">
-        <Row gutter={24} className="">
-          <Col xs={24} lg={12}>
-            <div>
-              <label htmlFor="" className="required-label">
-                <i>Lựa chọn 1 trong hình thức giao hàng</i>
-              </label>
-            </div>
-            <div style={{ marginTop: 15 }}>
+        <Row gutter={20}>
+          <Col md={12}>
+            <Form.Item
+              label={
+                <i style={{ marginBottom: "15px" }}>
+                  Lựa chọn 1 trong hình thức giao hàng
+                </i>
+              }
+              required
+            >
               <Radio.Group
                 value={props.shipmentMethod}
                 onChange={(e) => ShipMethodOnChange(e.target.value)}
               >
-                <Space direction="vertical">
+                <Space direction="vertical" size={15}>
                   <Radio value={1}>Chuyển đối tác giao hàng</Radio>
                   <Radio value={2}>Tự giao hàng</Radio>
                   <Radio value={3}>Nhận tại cửa hàng</Radio>
                   <Radio value={4}>Giao hàng sau</Radio>
                 </Space>
               </Radio.Group>
-            </div>
+            </Form.Item>
           </Col>
-
-          <Col xs={24} lg={12}>
-            <div className="form-group form-group-with-search">
-              <label htmlFor="" className="">
-                Hẹn giao
-              </label>
-
+          <Col md={12}>
+            <Form.Item label="Hẹn giao" name="dating_ship">
               <DatePicker
+                format="DD/MM/YYYY HH:mm a"
+                style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
-                placeholder="Ngày tạo từ"
-                onChange={DatingShipOnChange}
+                placeholder="Chọn ngày giao"
               />
-            </div>
-            <div className="form-group form-group-with-search">
-              <div>
-                <label htmlFor="" className="">
-                  Yêu cầu
-                </label>
-              </div>
+            </Form.Item>
+            <Form.Item label="Yêu cầu" name="requirements">
               <Select
                 className="select-with-search"
                 showSearch
+                showArrow
+                notFoundContent="Không có dữ liệu"
                 style={{ width: "100%" }}
-                placeholder="Chọn nguồn đơn hàng"
-                onChange={ChangeShippingRequirement}
+                placeholder="Chọn yêu cầu"
                 filterOption={(input, option) => {
                   if (option) {
                     return (
@@ -136,185 +135,109 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                   </Select.Option>
                 ))}
               </Select>
-            </div>
+            </Form.Item>
+          </Col>
+        </Row>
+        <Divider />
+        <Row gutter={20} hidden={shipmentMethodState !== 2}>
+          <Col md={12}>
+            <Form.Item
+              label="Đối tác giao hàng"
+              name="delivery_service_provider_id"
+            >
+              <CustomSelect
+                className="select-with-search"
+                showSearch
+                notFoundContent="Không tìm thấy kết quả"
+                style={{ width: "100%" }}
+                placeholder="Chọn đối tác giao hàng"
+                suffix={
+                  <Button
+                    style={{ width: 36, height: 36 }}
+                    icon={<PlusOutlined />}
+                  />
+                }
+                filterOption={(input, option) => {
+                  if (option) {
+                    return (
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
+              >
+                {shipper?.map((item, index) => (
+                  <CustomSelect.Option
+                    style={{ width: "100%" }}
+                    key={index.toString()}
+                    value={item.id}
+                  >
+                    {item.full_name}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
+            </Form.Item>
+            <Form.Item
+              name="shipping_fee_paid_to_3pls"
+              label="Phí ship trả đối tác giao hàng"
+            >
+              <Input placeholder="Phí ship trả đối tác giao hàng" />
+            </Form.Item>
+          </Col>
+          <Col md={12}>
+            <Form.Item
+              name="shipping_fee_informed_to_customer"
+              label="Phí ship báo khách"
+            >
+              <Input placeholder="Phí ship báo khách" />
+            </Form.Item>
           </Col>
         </Row>
 
-        <Divider />
-
-        <div>
-          {/*--- đối tác ----*/}
-          <Row
-            gutter={24}
-            className="ship-box"
-            hidden={props.shipmentMethod !== 1}
-          >
-            <Col xs={24} lg={12}>
-              <div className="form-group form-group-with-search">
-                <label htmlFor="" className="">
-                  Phí ship báo khách
-                </label>
-                <InputNumber
-                  placeholder=""
-                  className="text-right hide-handler-wrap w-100"
-                />
+        {/*--- Nhận tại cửa hàng ----*/}
+        <div className="receive-at-store" hidden={shipmentMethodState !== 3}>
+          <Row style={{ marginBottom: "10px" }}>Nhận tại cửa hàng</Row>
+          <Row className="row-info">
+            <Space>
+              <div className="row-info-icon">
+                <img src={storeBluecon} alt="" width="20px" />
               </div>
-            </Col>
-
-            <Col span={24}>
-              <div className="table-ship w-100">
-                <div className="custom-table">
-                  <table className="w-100">
-                    <thead>
-                      <tr>
-                        <th>Hãng vận chuyển</th>
-                        <th>Dịch vụ chuyển phát</th>
-                        <th>Cước phí</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <img src={dhlIcon} alt="" />
-                        </td>
-                        <td>
-                          <Radio value={1}>Chuyển phát nhanh PDE</Radio>
-                        </td>
-                        <td>
-                          <Typography.Text type="success">
-                            {formatCurrency(18000)}
-                          </Typography.Text>
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td style={{ borderBottom: 0 }}>
-                          <img src={ghtkIcon} alt="" />
-                        </td>
-                        <td>
-                          <Radio value={2}>Đường bộ</Radio>
-                        </td>
-                        <td>{formatCurrency(30000)}</td>
-                      </tr>
-
-                      <tr>
-                        <td style={{ borderTop: 0 }} />
-                        <td>
-                          <Radio value={3}>Đường bay</Radio>
-                        </td>
-                        <td>{formatCurrency(50000)}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+              <div className="row-info-title">Cửa hàng</div>
+              <div className="row-info-content">
+                <Typography.Link>{storeDetail?.name}</Typography.Link>
               </div>
-            </Col>
+            </Space>
           </Row>
-
-          {/*--- Tự giao hàng ----*/}
-          <Row
-            gutter={24}
-            className="ship-cod"
-            hidden={props.shipmentMethod !== 2}
-          >
-            <Col xs={24} lg={12}>
-              <div className="form-group form-group-with-search form-search-customer">
-                <label htmlFor="" className="">
-                  Đối tác giao hàng
-                </label>
-                <div>
-                  <AutoComplete>
-                    <Input.Search
-                      placeholder="Chọn đối tác giao hàng"
-                      enterButton={
-                        <Button type="text">
-                          <img src={plusBlueIcon} alt="" />
-                        </Button>
-                      }
-                      prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                      onSearch={() => console.log(1)}
-                      suffix={<img src={arrowDownIcon} alt="down" />}
-                    />
-                  </AutoComplete>
-                </div>
+          <Row className="row-info">
+            <Space>
+              <div className="row-info-icon">
+                <img src={callIcon} alt="" width="18px" />
               </div>
-            </Col>
-
-            <Col xs={24} lg={12}>
-              <div className="form-group form-group-with-search form-search-customer">
-                <label htmlFor="" className="">
-                  Phí ship báo khách
-                </label>
-                <div>
-                  <InputNumber
-                    placeholder="Nhập số tiền"
-                    className="text-right hide-handler-wrap w-100"
-                  />
-                </div>
-              </div>
-            </Col>
-
-            <Col xs={24} lg={12}>
-              <div className="form-group form-group-with-search form-search-customer">
-                <label htmlFor="" className="">
-                  Phí ship trả đối tác giao hàng
-                </label>
-                <div>
-                  <InputNumber
-                    placeholder="Nhập số tiền"
-                    className="text-right hide-handler-wrap w-100"
-                  />
-                </div>
-              </div>
-            </Col>
+              <div className="row-info-title">Điện thoại</div>
+              <div className="row-info-content">{storeDetail?.hotline}</div>
+            </Space>
           </Row>
-
-          {/*--- Nhận tại cửa hàng ----*/}
-          <div className="receive-at-store" hidden={props.shipmentMethod !== 3}>
-            <Row>Nhận tại cửa hàng</Row>
-            <Row className="row-info">
-              <Space>
-                <div className="row-info-icon">
-                  <img src={storeBluecon} alt="" />
-                </div>
-                <div className="row-info-title">Cửa hàng</div>
-                <div className="row-info-content">
-                  <Typography.Link>YODY Kho Online</Typography.Link>
-                </div>
-              </Space>
-            </Row>
-            <Row className="row-info">
-              <Space>
-                <div className="row-info-icon">
-                  <img src={callIcon} alt="" />
-                </div>
-                <div className="row-info-title">Điện thoại</div>
-                <div className="row-info-content">0968563666</div>
-              </Space>
-            </Row>
-            <Row className="row-info">
-              <Space>
-                <div className="row-info-icon">
-                  <img src={locationIcon} alt="" />
-                </div>
-                <div className="row-info-title">Địa chỉ</div>
-                <div className="row-info-content">
-                  Khu Tiểu Thủ CN Gia Xuyên - Phố ĐInh Lễ - Xã Gia Xuyên - TP
-                  Hải Dương
-                </div>
-              </Space>
-            </Row>
-          </div>
-
-          {/*--- Giao hàng sau ----*/}
-          <Row className="ship-later-box" hidden={props.shipmentMethod !== 4}>
-            <div className="form-group m-0">
-              <label htmlFor="">
-                <i>Bạn có thể xử lý giao hàng sau khi tạo và duyệt đơn hàng.</i>
-              </label>
-            </div>
+          <Row className="row-info">
+            <Space>
+              <div className="row-info-icon">
+                <img src={locationIcon} alt="" width="18px" />
+              </div>
+              <div className="row-info-title">Địa chỉ</div>
+              <div className="row-info-content">{storeDetail?.address}</div>
+            </Space>
           </Row>
         </div>
+
+        {/*--- Giao hàng sau ----*/}
+        <Row className="ship-later-box" hidden={shipmentMethodState !== 4}>
+          <div className="form-group m-0">
+            <label htmlFor="">
+              <i>Bạn có thể xử lý giao hàng sau khi tạo và duyệt đơn hàng.</i>
+            </label>
+          </div>
+        </Row>
       </div>
     </Card>
   );

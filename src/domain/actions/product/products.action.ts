@@ -42,7 +42,7 @@ export const productUploadAction = (
 
 export const productCreateAction = (
   request: ProductRequest,
-  onCreateSuccess: () => void
+  onCreateSuccess: (result:VariantResponse) => void
 ) => {
   return BaseAction(ProductType.CREATE_PRODUCT_REQEUST, {
     request,
@@ -60,7 +60,7 @@ export const variantDetailAction = (
 export const variantUpdateAction = (
   id: number|null,
   request: VariantUpdateRequest,
-  onUpdateSuccess: () => void
+  onUpdateSuccess: (result:VariantResponse) => void
 ) => {
   return BaseAction(ProductType.VARIANT_UPDATE_REQUEST, {
     id,

@@ -22,22 +22,23 @@ import {
 import { VariantResponse, VariantSearchQuery} from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { OrderLineItemRequest } from "model/request/order.request";
 
 type AddGiftModalProps = {
   visible: boolean;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: () => void;
-  items: Array<OrderItemModel>;
-  onUpdateData: (items: Array<OrderItemModel>) => void;
+  items: Array<OrderLineItemRequest>;
+  onUpdateData: (items: Array<OrderLineItemRequest>) => void;
 };
 
 const initQuery: VariantSearchQuery  = {
   limit: 10,
-  page: 0,
+  page: 1,
 };
 
 export interface AddGiftRef {
-  setGifts: (items: Array<OrderItemModel>) => void;
+  setGifts: (items: Array<OrderLineItemRequest>) => void;
 }
 
 const renderSearch = (item: VariantResponse) => {
@@ -93,7 +94,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
   >({
     metadata: {
       limit: 0,
-      page: 0,
+      page: 1,
       total: 0,
     },
     items: [],
@@ -195,7 +196,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
     const discountItem: OrderItemDiscountModel = createNewDiscountItem();
-    let orderLine: OrderItemModel = {
+    let orderLine: OrderLineItemRequest = {
       id: new Date().getTime(),
       sku: variant.sku,
       variant_id: variant.id,
@@ -214,6 +215,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       discount_items: [discountItem],
       discount_amount: 0,
       discount_rate: 0,
+      composite: variant.composite,
       is_composite: variant.composite,
       discount_value: 0,
       line_amount_after_line_discount: price,
@@ -235,7 +237,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       let r: VariantResponse = resultSearch.items[indexSearch];
       if (r.id === v) {
         if (index === -1) {
-          const item: OrderItemModel = createItem(r);
+          const item: OrderLineItemRequest = createItem(r);
           _items.push(item);
         } else {
           let lastIndex = index;
@@ -308,7 +310,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
         pagination={false}
         dataSource={props.items}
         columns={columns}
-        rowKey={(record) => record.id}
+        // rowKey={(record) => record.id}
       />
     </Modal>
   );

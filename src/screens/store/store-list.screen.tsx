@@ -212,7 +212,7 @@ const StoreListScreen: React.FC = () => {
       breadcrumb={[
         {
           name: 'Tổng quản',
-          path: '/',
+          path: UrlConfig.HOME,
         },
         {
           name: 'Cửa hàng',
@@ -233,6 +233,7 @@ const StoreListScreen: React.FC = () => {
           groups={groups}
         />
         <CustomTable
+          showColumnSetting={true}
           isLoading={loading}
           pagination={{
             pageSize: data.metadata.limit,

@@ -1,4 +1,3 @@
-
 import { PositionResponse } from "model/account/position.model";
 import { DepartmentResponse } from "model/account/department.model";
 import { call, takeEvery, takeLatest } from "@redux-saga/core/effects";
@@ -12,11 +11,14 @@ import {
   searchAccountApi,
   getDepartmentAllApi,
   getPositionAllApi,
+  searchShipperApi,
   AccountCreateService,
   AccountGetByIdService,
   AccountUpdateService,
+  AccountDeleteService,
 } from "service/accounts/account.service";
 import { showError } from "utils/ToastUtils";
+
 
 function* AccountSearchSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -53,7 +55,7 @@ function* AccountGetListSaga(action: YodyAction) {
 }
 
 function* AccountCreateSaga(action: YodyAction) {
-  const { request, setData } = action.payload;
+  const { request, onCreateSuccess } = action.payload;
   try {
     let response: BaseResponse<AccountResponse> = yield call(
       AccountCreateService,
@@ -61,13 +63,15 @@ function* AccountCreateSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        onCreateSuccess(response.data);
         break;
       default:
+        onCreateSuccess(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    onCreateSuccess(null);
     console.log("AccountCreateSaga:" + error);
     showError("Có lỗi vui lòng thử lại sau");
   }
@@ -95,11 +99,33 @@ function* AccountUpdateSaga(action: YodyAction) {
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
+function* AccountDeleteSaga(action: YodyAction) {
+  const { id, deleteCallback} = action.payload;
+  try {
+    debugger;
+    let response: BaseResponse<any|null> = yield call(
+      AccountDeleteService,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        deleteCallback(true);
+        break;
+      default:
+        deleteCallback(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    deleteCallback(false);
+    console.log("AccountUpdateSaga:" + error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
 
 function* AccountGetByIdSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
-    
     let response: BaseResponse<AccountResponse> = yield call(
       AccountGetByIdService,
       id
@@ -150,6 +176,21 @@ function* PositionGetListSaga(action: YodyAction) {
   } catch (e) {}
 }
 
+function* ShipperSearchSaga(action: YodyAction) {
+  let { setData } = action.payload;
+  try {
+      let response: BaseResponse<PageResponse<AccountResponse>> = yield call(searchShipperApi);
+      switch (response.code) {
+          case HttpStatus.SUCCESS:
+            setData(response.data.items);
+              break;
+          default:
+              break;
+      }
+  } catch (error) {}
+}
+
+
 export function* accountSaga() {
   yield takeLatest(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);
   yield takeLatest(AccountType.GET_LIST_ACCOUNT_REQUEST, AccountGetListSaga);
@@ -158,7 +199,9 @@ export function* accountSaga() {
     DepartmentGetListSaga
   );
   yield takeLatest(AccountType.GET_LIST_POSITION_REQUEST, PositionGetListSaga);
+  yield takeLatest(AccountType.GET_LIST_SHIPPER_REQUEST, ShipperSearchSaga);
   yield takeLatest(AccountType.GET_ACCOUNT_DETAIL_REQUEST, AccountGetByIdSaga);
   yield takeEvery(AccountType.CREATE_ACCOUNT_REQUEST, AccountCreateSaga);
   yield takeEvery(AccountType.UPDATE_ACCOUNT_REQUEST, AccountUpdateSaga);
+  yield takeEvery(AccountType.DELETE_ACCOUNT_REQUEST, AccountDeleteSaga);
 }
