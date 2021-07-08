@@ -469,6 +469,7 @@ input {
 }
 .site-input-group-wrapper {
     padding: 0 10px;
+    min-height: 37px;
     > div {
         position: relative;
     }
@@ -493,13 +494,31 @@ input {
     .currency-option {
         color: black;
         font-size: 16px;
+        .ant-select-customize-input{
+            height: 37px;
+            
+        }
         .ant-select-selector {
             padding-left: 10px;
+            border-radius: $border-radius 0 0 $border-radius;
+            min-height: 37px;
         }
         .ant-select-selection-item {
             padding: 0;
+            height: 37px;
         }
+        .ant-select-customize-input{
+            height:37px;
+        }
+        .ant-select-customize-input{
+            height:37px;
+        }
+        
     }
+    .hide-number-handle{
+        height: 37px;
+    }
+    
 }
 .ant-modal-footer {
     box-shadow: none;
@@ -513,7 +532,7 @@ input {
     }
     .ant-input-number-input-wrap {
         & > input {
-            height: 36px;
+            height: 37px;
             text-align: end;
         }
     }
@@ -552,9 +571,6 @@ input {
     label {
         color: black;
     }
-}
-.ant-modal-content {
-    width: 644px;
 }
 
 .margin-top-20 .product-total-checkout {
@@ -618,4 +634,18 @@ input {
     input{
         border-radius: 5px;
     }
+}
+
+
+.ant-input-number.hide-number-handle{
+    border-radius: 0 $border-radius $border-radius 0
+}
+
+.modal-hide-header{
+    max-width: 398px;
+    height: 258px;
+    input{
+        height: 37px;
+    }
+
 }

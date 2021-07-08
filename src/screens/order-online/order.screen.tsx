@@ -451,6 +451,7 @@ export default function Order() {
                     <Input.TextArea
                       placeholder="Điền Ghi chú"
                       maxLength={500}
+                      style={{minHeight: "76px"}}
                     />
                   </Form.Item>
                   <Form.Item
@@ -465,7 +466,7 @@ export default function Order() {
                       className="ant-select-hashtag"
                       dropdownClassName="ant-select-dropdown-hashtag"
                       mode="tags"
-                      placeholder="Nhập từ khóa"
+                      placeholder="Thêm tag"
                     />
                   </Form.Item>
                 </div>
