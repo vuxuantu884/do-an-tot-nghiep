@@ -53,7 +53,6 @@ import {
   getTotalAmount,
   getTotalDiscount,
   getTotalAmountAfferDiscount,
-  getAmountDiscount,
 } from "utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
@@ -72,7 +71,6 @@ import {
 import { StoreResponse } from "model/core/store.model";
 import { Link } from "react-router-dom";
 import { MoneyType } from "utils/Constants";
-import { OrderLineItemResponse } from "model/response/order/order.response";
 import { OrderLineItemRequest } from "model/request/order.request";
 
 type ProductCardProps = {
@@ -140,6 +138,15 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     _items[index].quantity = Number(
       value == null ? "0" : value.toString().replace(".", "")
     );
+    setItems(_items);
+    total();
+  };
+
+  const onChangePrice = (value: number | null, index: number) => {
+    let _items = [...items];
+    if (value !== null) {
+      _items[index].price = value;
+    }
     setItems(_items);
     total();
   };
@@ -327,15 +334,17 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     align: "right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
-        <div className="yody-pos-price">
+        <div>
           <NumberInput
             format={(a: string) => formatCurrency(a)}
             replace={(a: string) => replaceFormatString(a)}
             placeholder="VD: 100,000"
             style={{
               textAlign: "right",
+              width:"100%",
             }}
             value={l.price}
+            onChange={(value) => onChangePrice(value, index)}
           />
         </div>
       );
@@ -764,11 +773,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         scroll={{ y: 300 }}
         sticky
         footer={() =>
-          items.length > 0 && (
-            <div className="row-footer font-weight-500">
+          items.length > 0 ? (
+            <div className="row-footer-custom">
               <div
                 className="yody-foot-total-text"
-                style={{ width: "37%", float: "left", textAlign: "center" }}
+                style={{ width: "37%", float: "left", textAlign: "center", fontWeight:500 }}
               >
                 Tổng
               </div>
@@ -799,7 +808,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 {formatCurrency(getTotalAmountAfferDiscount(items))}
               </div>
             </div>
-          )
+          ) : <div />
         }
       />
       <div className="padding-20" style={{ paddingTop: "30px" }}>
