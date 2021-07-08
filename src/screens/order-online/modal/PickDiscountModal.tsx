@@ -91,9 +91,6 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
                                 formatter={(value) =>
                                     formatCurrency(value ? value : '0')
                                 }
-                                parser={(value) =>
-                                    replaceFormat(value ? value : 0)
-                                }
                                 onChange={onchangeDiscount}
                             />
                         </Input.Group>
