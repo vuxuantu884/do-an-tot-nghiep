@@ -21,6 +21,8 @@ import {
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
 import ColorUpload from './color-upload.component';
+import { showSuccess } from 'utils/ToastUtils';
+import { RegUtil } from 'utils/RegUtils';
 
 let initialRequest: ColorCreateRequest = {
   code: "",
@@ -59,7 +61,7 @@ const ColorCreateScreen: React.FC = () => {
       setLoadingSaveButton(true);
       dispatch(colorCreateAction(values, createCallback));
     },
-    [dispatch, imageUrl, createCallback]
+    [dispatch, createCallback]
   );
   const onCancel = useCallback(() => {
     history.goBack();
