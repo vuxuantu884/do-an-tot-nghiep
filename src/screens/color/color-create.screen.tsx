@@ -21,15 +21,17 @@ import {
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
 import ColorUpload from './color-upload.component';
+import { showSuccess } from 'utils/ToastUtils';
+import { RegUtil } from 'utils/RegUtils';
 
 let initialRequest: ColorCreateRequest = {
-  code: '',
+  code: "",
   parent_id: null,
-  name: '',
+  name: "",
   hex_code: null,
   image_id: null,
 };
-const {Option} = Select;
+const { Option } = Select;
 const ColorCreateScreen: React.FC = () => {
   const [selector, setSelector] = useState<PageResponse<ColorResponse>>({
     metadata: {
@@ -42,20 +44,30 @@ const ColorCreateScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
-  const onSuccess = useCallback(() => {
-    history.push(UrlConfig.COLORS);
-  }, [history]);
+  const [loadingSaveButton, setLoadingSaveButton] = useState(false);
+  const createCallback = useCallback(
+    (result: ColorResponse) => {
+      if (result) {
+        history.push(UrlConfig.COLORS);
+        showSuccess("Thêm mới dữ liệu thành công");
+      }
+      setLoadingSaveButton(false);
+    },
+    [history]
+  );
   const onFinish = useCallback(
     (values: ColorCreateRequest) => {
-      dispatch(colorCreateAction(values, onSuccess));
+      
+      setLoadingSaveButton(true);
+      dispatch(colorCreateAction(values, createCallback));
     },
-    [dispatch, onSuccess]
+    [dispatch, createCallback]
   );
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
   useEffect(() => {
-    dispatch(getColorAction({is_main_color: 1}, setSelector));
+    dispatch(getColorAction({ is_main_color: 1 }, setSelector));
     return () => {};
   }, [dispatch]);
   return (
@@ -63,19 +75,19 @@ const ColorCreateScreen: React.FC = () => {
       title="Thêm mới màu sắc"
       breadcrumb={[
         {
-          name: 'Tổng quản',
+          name: "Tổng quản",
           path: UrlConfig.HOME,
         },
         {
-          name: 'Sản phẩm',
+          name: "Sản phẩm",
           path: `${UrlConfig.PRODUCT}`,
         },
         {
-          name: 'Màu sắc',
+          name: "Màu sắc",
           path: `${UrlConfig.COLORS}`,
         },
         {
-          name: 'Thêm Màu sắc',
+          name: "Thêm Màu sắc",
         },
       ]}
     >
@@ -90,9 +102,9 @@ const ColorCreateScreen: React.FC = () => {
             <Row gutter={50}>
               <Col
                 style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  flexDirection: 'column',
+                  display: "flex",
+                  justifyContent: "center",
+                  flexDirection: "column",
                 }}
                 span={24}
                 sm={24}
@@ -109,7 +121,7 @@ const ColorCreateScreen: React.FC = () => {
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Form.Item
                       rules={[
-                        {required: true, message: 'Vui lòng nhập tên màu'},
+                        { required: true, message: "Vui lòng nhập tên màu" },
                       ]}
                       label="Tên màu"
                       name="name"
@@ -120,7 +132,10 @@ const ColorCreateScreen: React.FC = () => {
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Form.Item
                       rules={[
-                        {required: true, message: 'Vui lòng chọn màu chủ đạo'},
+                        {
+                          required: true,
+                          message: "Vui lòng chọn màu chủ đạo",
+                        },
                       ]}
                       name="parent_id"
                       label="Màu chủ đạo"
@@ -139,19 +154,33 @@ const ColorCreateScreen: React.FC = () => {
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Form.Item
                       rules={[
-                        {required: true, message: 'Vui lòng nhập mã màu'},
+                        { required: true, message: "Vui lòng nhập mã màu" },
                       ]}
                       name="code"
                       labelAlign="right"
                       label="Mã màu"
-                      normalize={value => (value || '').toUpperCase()}
+                      normalize={(value) => (value || "").toUpperCase()}
                     >
                       <Input placeholder="Nhập mã màu" />
                     </Form.Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <Form.Item name="hex_code" label="Mã hex">
-                      <Input placeholder="Nhập mã hex" />
+                    <Form.Item
+                      name="hex_code"
+                      label="Mã hex"
+                      rules={[
+                        {
+                          pattern: RegUtil.HEX_COLOR,
+                          message:
+                            "Kích cỡ không chứa ký tự đặc biệt và có 6 ký tự",
+                        },
+                      ]}
+                    >
+                      <Input
+                        placeholder="Nhập mã hex"
+                        prefix="#"
+                        maxLength={6}
+                      />
                     </Form.Item>
                   </Col>
                 </Row>
@@ -159,12 +188,12 @@ const ColorCreateScreen: React.FC = () => {
             </Row>
           </div>
         </Card>
-        <div className="margin-top-10" style={{textAlign: 'right'}}>
+        <div className="margin-top-10" style={{ textAlign: "right" }}>
           <Space size={12}>
             <Button type="default" onClick={onCancel}>
               Hủy
             </Button>
-            <Button htmlType="submit" type="primary">
+            <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
               Lưu
             </Button>
           </Space>
