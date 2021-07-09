@@ -5,8 +5,8 @@ import { SupplierCreateRequest, SupplierUpdateRequest } from "model/core/supplie
 import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse } from "model/core/supplier.model";
 
-export const SupplierSearchAction = (query: SupplierQuery, setData: (response: PageResponse<SupplierResponse>) => void) => {
-  return BaseAction(SupplierType.SEARCH_SUPPLIER_REQUEST, {query, setData});
+export const SupplierSearchAction = (query: SupplierQuery, searchSupplierCallback: (response: PageResponse<SupplierResponse>) => void) => {
+  return BaseAction(SupplierType.SEARCH_SUPPLIER_REQUEST, {query, searchSupplierCallback});
 }
 
 export const SupplierGetAllAction = (setData: (response: Array<SupplierResponse>) => void) => {

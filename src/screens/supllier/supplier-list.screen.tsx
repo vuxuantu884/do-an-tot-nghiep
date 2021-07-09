@@ -1,45 +1,50 @@
-import {Card} from 'antd';
-import {MenuAction} from 'component/table/ActionButton';
-import {PageResponse} from 'model/base/base-metadata.response';
+import { Card } from "antd";
+import { MenuAction } from "component/table/ActionButton";
+import { PageResponse } from "model/base/base-metadata.response";
 import {
   SupplierResponse,
   GoodsObj,
   SupplierQuery,
-} from 'model/core/supplier.model';
-import {useCallback, useEffect, useState} from 'react';
-import {Link, useHistory} from 'react-router-dom';
-import {generateQuery} from 'utils/AppUtils';
-import {getQueryParams, useQuery} from 'utils/useQuery';
-import {useDispatch, useSelector, shallowEqual} from 'react-redux';
-import SupplierFilter from 'component/filter/supplier.filter';
-import {RootReducerType} from 'model/reducers/RootReducerType';
-import CustomTable from 'component/table/CustomTable';
-import ContentContainer from 'component/container/content.container';
-import UrlConfig from 'config/UrlConfig';
-import ButtonCreate from 'component/header/ButtonCreate';
-import {SupplierSearchAction} from 'domain/actions/core/supplier.action'
+} from "model/core/supplier.model";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useHistory } from "react-router-dom";
+import { generateQuery } from "utils/AppUtils";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
+import SupplierFilter from "component/filter/supplier.filter";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
+import ContentContainer from "component/container/content.container";
+import UrlConfig from "config/UrlConfig";
+import ButtonCreate from "component/header/ButtonCreate";
+import { SupplierSearchAction } from "domain/actions/core/supplier.action";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
 
 const actions: Array<MenuAction> = [
   {
     id: 1,
-    name: 'Xóa',
+    name: "Xóa",
   },
   {
     id: 2,
-    name: 'Export',
+    name: "Export",
   },
 ];
 
 const initQuery: SupplierQuery = {
-  goods: '',
-  status: '',
-  scorecard: '',
+  goods: "",
+  status: "",
+  scorecard: "",
 };
 
 const ListSupplierScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
+  const [tableLoading, setTableLoading] = useState(false);
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
   const supplierStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.supplier_status;
   }, shallowEqual);
@@ -49,7 +54,7 @@ const ListSupplierScreen: React.FC = () => {
   const scorecard = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.scorecard
   );
-  let dataQuery: SupplierQuery = {...initQuery, ...getQueryParams(query)};
+  let dataQuery: SupplierQuery = { ...initQuery, ...getQueryParams(query) };
   let [params, setPrams] = useState<SupplierQuery>(dataQuery);
   const [data, setData] = useState<PageResponse<SupplierResponse>>({
     metadata: {
@@ -59,25 +64,30 @@ const ListSupplierScreen: React.FC = () => {
     },
     items: [],
   });
-  const columns = [
+  const [columns, setColumn] = useState<
+    Array<ICustomTableColumType<SupplierResponse>>
+  >([
     {
-      title: 'Mã NCC',
-      dataIndex: 'code',
+      title: "Mã",
+      dataIndex: "code",
       render: (value: string, item: SupplierResponse) => {
         return <Link to={`${UrlConfig.SUPPLIERS}/${item.id}`}>{value}</Link>;
       },
+      visible: true,
     },
     {
-      title: 'Tên NCC',
-      dataIndex: 'name',
+      title: "Tên nhà cung cấp",
+      dataIndex: "name",
+      visible: true,
     },
     {
-      title: 'Loại NCC',
-      dataIndex: 'type_name',
+      title: "Loại",
+      dataIndex: "type_name",
+      visible: true,
     },
     {
-      title: 'Ngành hàng',
-      dataIndex: 'goods',
+      title: "Ngành hàng",
+      dataIndex: "goods",
       render: (values: Array<GoodsObj>) => {
         return (
           <div>
@@ -87,73 +97,89 @@ const ListSupplierScreen: React.FC = () => {
           </div>
         );
       },
+      visible: true,
     },
     {
-      title: 'Người liên hệ',
-      dataIndex: 'contact_name',
+      title: "Người liên hệ",
+      dataIndex: "contact_name",
+      visible: true,
     },
     {
-      title: 'Số điện thoại',
-      dataIndex: 'phone',
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      visible: true,
     },
     {
-      title: 'Phân cấp',
-      dataIndex: 'scorecard',
+      title: "Phân cấp",
+      dataIndex: "scorecard",
+      align: "center",
+      visible: true,
     },
     {
-      title: 'Trạng thái',
-      dataIndex: 'status_name',
+      title: "Trạng thái",
+      dataIndex: "status_name",
       render: (value: string, item: SupplierResponse) => (
         <div
-          className={item.status === 'active' ? 'text-success' : 'text-error'}
+          className={item.status === "active" ? "text-success" : "text-error"}
         >
           {value}
         </div>
       ),
+      visible: true,
     },
-  ];
+  ]);
+  const columnFinal = useMemo(
+    () => columns.filter((item) => item.visible === true),
+    [columns]
+  );
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({...params});
-      history.replace(`/suppliers?${queryParam}`);
+      setPrams({ ...params });
+      history.replace(`${UrlConfig.SUPPLIERS}?${queryParam}`);
     },
     [history, params]
   );
   const onFilter = useCallback(
     (values) => {
-      let newPrams = {...params, ...values, page: 1};
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`/suppliers?${queryParam}`);
+      history.replace(`${UrlConfig.SUPPLIERS}?${queryParam}`);
     },
     [history, params]
   );
   const onMenuClick = useCallback((index: number) => {}, []);
+  const searchSupplierCallback = useCallback(
+    (listResult: PageResponse<SupplierResponse>) => {
+      setTableLoading(false);
+      setData(listResult);
+    },
+    []
+  );
   useEffect(() => {
-    dispatch(SupplierSearchAction(params, setData));
-  }, [dispatch, params]);
+    setTableLoading(true);
+    dispatch(SupplierSearchAction(params, searchSupplierCallback));
+  }, [dispatch, params, searchSupplierCallback]);
   return (
     <ContentContainer
       title="Quản lý nhà cung cấp"
       breadcrumb={[
         {
-          name: 'Tổng quản',
+          name: "Tổng quản",
           path: UrlConfig.HOME,
         },
         {
-          name: 'Sản phẩm',
+          name: "Sản phẩm",
           path: `${UrlConfig.PRODUCT}`,
         },
         {
-          name: 'Nhà cung cấp',
+          name: "Nhà cung cấp",
         },
       ]}
-      extra={
-        <ButtonCreate path={`${UrlConfig.SUPPLIERS}/create`} />
-      }
+      extra={<ButtonCreate path={`${UrlConfig.SUPPLIERS}/create`} />}
     >
       <Card>
         <SupplierFilter
@@ -174,9 +200,21 @@ const ListSupplierScreen: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isLoading={tableLoading}
+          showColumnSetting={true}
+          onShowColumnSetting={() => setShowSettingColumn(true)}
+          columns={columnFinal}
           dataSource={data.items}
-          columns={columns}
           rowKey={(item: SupplierResponse) => item.id}
+        />
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data);
+          }}
+          data={columns}
         />
       </Card>
     </ContentContainer>

@@ -27,6 +27,6 @@ export const colorUpdateAction = ( id: number, request: ColorCreateRequest,  onC
   return BaseAction(ColorType.UPDATE_COLOR_REQUEST, {id, request,  onCreateSuccess });
 }
 
-export const colorDetailAction = (id: number, setData: (data: ColorResponse) => void) => {
-  return BaseAction(ColorType.DETAIL_COLOR_REQUEST, {id,  setData});
+export const colorDetailAction = (id: number, getColorCallback: (result: ColorResponse) => void) => {
+  return BaseAction(ColorType.DETAIL_COLOR_REQUEST, {id,  getColorCallback});
 }
