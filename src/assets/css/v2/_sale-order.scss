@@ -1,5 +1,4 @@
 @import 'variable';
-
 .padding-bottom-5 {
     padding-bottom: 5px;
 }
@@ -8,6 +7,7 @@
     margin-bottom: 15px;
     font-size: 14px;
 }
+
 .ant-btn-outline {
     background-color: transparent;
     color: #2a2a86;
@@ -26,25 +26,20 @@
     padding: 0;
     box-shadow: 0px 0px 6px rgba(118, 133, 146, 0.6);
     border-radius: 3px;
-
     .ant-select-item {
         padding: 0;
         border-bottom: 1px solid #d9d9e4;
-
         .row-search {
             display: flex;
             align-items: flex-end;
             padding: 8px 12px 12px 12px;
-
             .rs-right {
                 display: flex;
                 flex-direction: column;
             }
-
             .rs-left {
                 flex-direction: row;
                 display: flex;
-
                 .rs-info {
                     margin-left: 18px;
                     display: flex;
@@ -52,7 +47,6 @@
                 }
             }
         }
-
         .text {
             font-family: Inter;
             font-style: normal;
@@ -61,11 +55,9 @@
             line-height: 30px;
             font-weight: 400;
         }
-
         .t-right {
             text-align: right;
         }
-
         .p-4 {
             margin-top: 4px;
         }
@@ -76,25 +68,20 @@
     padding: 0;
     box-shadow: 0px 0px 6px rgba(118, 133, 146, 0.6);
     border-radius: 3px;
-
     .ant-select-item {
         padding: 0;
         border-bottom: 1px solid #d9d9e4;
-
         .row-search {
             display: flex;
             align-items: flex-end;
             padding: 8px 12px 12px 12px;
-
             .rs-right {
                 display: flex;
                 flex-direction: column;
             }
-
             .rs-left {
                 flex-direction: row;
                 display: flex;
-
                 .rs-info {
                     margin-left: 18px;
                     display: flex;
@@ -102,7 +89,6 @@
                 }
             }
         }
-
         .text {
             font-family: Inter;
             font-style: normal;
@@ -112,21 +98,19 @@
             font-weight: 400;
             margin-top: 5px;
         }
-
         .t-right {
             text-align: right;
         }
-
         .p-4 {
             margin-top: 4px;
         }
     }
 }
+
 .change-shipping-address-content,
 .change-shipping-address-title {
     width: 400px;
     padding-left: 10px;
-
     .shipping-address-name {
         display: flex;
         align-items: center;
@@ -142,11 +126,13 @@
         }
     }
 }
+
 .change-shipping-address-title {
     button {
         color: #42a0ff;
     }
 }
+
 .padding-custom {
     padding: 15px 24px 0 24px;
 }
@@ -216,58 +202,47 @@
                 height: 24px !important;
                 margin-left: 57px !important;
             }
-
             &-description {
                 color: $placeholder-color !important;
             }
-
             &-wait {
                 .ant-steps-item-tail {
                     top: 11px !important;
-
                     &::after {
                         background-color: #d9d9e4 !important;
                         margin-left: 10px !important;
                     }
                 }
-
                 .ant-steps-icon-dot {
                     background-color: #d9d9e4 !important;
                 }
             }
-
             &-process {
                 .ant-steps-item-tail {
                     top: 11px !important;
-
                     &::after {
                         background-color: #d9d9e4 !important;
                         margin-left: 10px !important;
                     }
                 }
-
                 .ant-steps-icon-dot {
                     background-color: #0080ff !important;
                 }
             }
-
             &-finish {
                 .ant-steps-item-tail {
                     top: 11px !important;
-
                     &::after {
                         background-color: #0080ff !important;
                         margin-left: 10px !important;
                     }
                 }
-
                 .ant-steps-icon-dot {
                     color: $white;
                     background-color: #0080ff !important;
                 }
             }
         }
-
         &-icon {
             &-dot {
                 display: flex;
@@ -303,33 +278,27 @@
             background-color: rgba($primary-color, 0.1);
         }
     }
-
     &-tag {
         border-radius: 15px;
         padding-left: 15px;
         padding-right: 15px;
-
         &-vip {
             background-color: rgba(#5d5fef, 0.1);
             color: #5d5fef;
         }
-
         &-danger {
             background-color: rgba($red, 0.1);
             color: $red;
         }
-
         &-warning {
             background-color: rgba($secondary-color, 0.1);
             color: $secondary-color;
         }
-
         &-focus {
             background-color: rgba($focus-border-color, 0.1);
             color: $focus-border-color;
         }
     }
-
     &-input {
         &-discount {
             .ant-input-prefix {
@@ -342,7 +311,6 @@
                     background-color: #f4f4f760;
                 }
             }
-
             &.text-right {
                 .ant-input {
                     text-align: right;
@@ -350,17 +318,14 @@
             }
         }
     }
-
     &-timeline {
         .ant-collapse-item:first-child:nth-last-child(1):not(.ant-collapse-item-active) {
             &::before {
                 content: unset !important;
             }
         }
-
         .ant-collapse-item {
             position: relative;
-
             &::after {
                 content: '';
                 position: absolute;
@@ -371,7 +336,6 @@
                 background-color: #6cb4f1;
                 border-radius: 50%;
             }
-
             &::before {
                 content: '';
                 position: absolute;
@@ -381,19 +345,16 @@
                 left: -2px;
                 top: -16px;
             }
-
             &:first-child {
                 &::before {
                     top: 0;
                 }
             }
-
             .ant-collapse-content-box {
                 padding-top: 0 !important;
                 padding-bottom: 0 !important;
             }
         }
-
         &-custom {
             .ant-collapse-header {
                 position: unset !important;
@@ -402,29 +363,24 @@
                 align-items: center;
                 width: auto;
                 color: $primary-color !important;
-
                 .fixed-button {
                     position: absolute;
                     right: 0;
                     bottom: 0;
                 }
-
                 .fixed-total {
                     position: absolute;
                     left: 50%;
                 }
-
                 .fixed-time {
                     position: absolute;
                     right: 0;
                 }
-
                 .ant-collapse-arrow {
                     margin-left: 10px;
                 }
             }
         }
-
         .ant-collapse-header {
             display: inline-block;
             width: auto;
@@ -440,7 +396,6 @@
 .ant-btn-custom {
     background-color: #fff;
     border-color: #fff;
-
     &:hover {
         background-color: #fff;
         border-color: #fff;
@@ -467,9 +422,10 @@ input {
     border-left: 0;
     padding: 4px 8px;
 }
+
 .site-input-group-wrapper {
     padding: 0 10px;
-    > div {
+    >div {
         position: relative;
     }
     .ant-input-group {
@@ -501,6 +457,7 @@ input {
         }
     }
 }
+
 .ant-modal-footer {
     box-shadow: none;
     border: none;
@@ -512,12 +469,13 @@ input {
         display: none;
     }
     .ant-input-number-input-wrap {
-        & > input {
+        &>input {
             height: 36px;
             text-align: end;
         }
     }
 }
+
 .badge-style {
     border-radius: 15px;
     padding-left: 15px;
@@ -543,8 +501,8 @@ input {
     margin-top: -7px;
 }
 
-.update-shipping {
-}
+.update-shipping {}
+
 .form-group-with-search {
     display: flex;
     flex-direction: column;
@@ -553,16 +511,18 @@ input {
         color: black;
     }
 }
+
 .ant-modal-content {
     width: 700px;
 }
 
 .ant-table-footer {
     padding: 15px 20px 30px 20px;
-    color: rgba(0,0,0,.85);
-    background:#F4F4F7;;
+    color: rgba(0, 0, 0, 1);
+    background: #F4F4F7;
+    ;
 }
 
-.ant-table-thead{
+.ant-table-thead {
     background-color: #F4F4F7;
 }

@@ -24,6 +24,7 @@ import {
 } from 'domain/actions/product/color.action';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
+import { RegUtil } from 'utils/RegUtils';
 
 const {Option} = Select;
 type ColorParams = {
@@ -193,15 +194,20 @@ const ColorUpdateScreen: React.FC = () => {
                     </Form.Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <Form.Item
-                      className="form-group form-group-with-search"
+                  <Form.Item
                       name="hex_code"
                       label="Mã hex"
+                      rules={[
+                        {
+                          pattern: RegUtil.HEX_COLOR,
+                          message: "Kích cỡ không chứa ký tự đặc biệt và có 6 ký tự",
+                        }
+                      ]}
                     >
                       <Input
-                        className="r-5"
                         placeholder="Nhập mã hex"
-                        size="large"
+                        prefix="#"
+                        maxLength={6}
                       />
                     </Form.Item>
                   </Col>

@@ -131,21 +131,27 @@ function* deleteManyColorSaga(action: YodyAction) {
 }
 
 export function* colorCreateSaga(action: YodyAction) {
-  const { request, onCreateSuccess } = action.payload;
+  const { request, createCallback } = action.payload;
   try {
-    let response: BaseResponse<string> = yield call(colorCreateApi, request);
+    let response: BaseResponse<ColorResponse> = yield call(
+      colorCreateApi,
+      request
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onCreateSuccess();
+        createCallback(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
+        createCallback(null);
         break;
       default:
+        createCallback(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    createCallback(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

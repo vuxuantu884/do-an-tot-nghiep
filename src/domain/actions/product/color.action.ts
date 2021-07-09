@@ -19,8 +19,8 @@ export const colorDeleteManyAction = ( ids: Array<number>,  onDeleteSuccess: () 
   return BaseAction(ColorType.DELETE_MANY_COLOR_REQUEST, {ids,  onDeleteSuccess });
 }
 
-export const colorCreateAction = ( request: ColorCreateRequest,  onCreateSuccess: () => void) => {
-  return BaseAction(ColorType.CREATE_COLOR_REQUEST, {request,  onCreateSuccess });
+export const colorCreateAction = ( request: ColorCreateRequest,  createCallback: (result:ColorResponse) => void) => {
+  return BaseAction(ColorType.CREATE_COLOR_REQUEST, {request,  createCallback });
 }
 
 export const colorDetailAction = (id: number, setData: (data: ColorResponse) => void) => {
