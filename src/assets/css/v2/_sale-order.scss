@@ -26,6 +26,8 @@
     padding: 0;
     box-shadow: 0px 0px 6px rgba(118, 133, 146, 0.6);
     border-radius: 3px;
+    border-radius: 5px;
+
     .ant-select-item {
         padding: 0;
         border-bottom: 1px solid #d9d9e4;
@@ -425,7 +427,8 @@ input {
 
 .site-input-group-wrapper {
     padding: 0 10px;
-    >div {
+    min-height: 37px;
+    > div {
         position: relative;
     }
     .ant-input-group {
@@ -449,15 +452,32 @@ input {
     .currency-option {
         color: black;
         font-size: 16px;
+        .ant-select-customize-input{
+            height: 37px;
+            
+        }
         .ant-select-selector {
             padding-left: 10px;
+            border-radius: $border-radius 0 0 $border-radius;
+            min-height: 37px;
         }
         .ant-select-selection-item {
             padding: 0;
+            height: 37px;
         }
+        .ant-select-customize-input{
+            height:37px;
+        }
+        .ant-select-customize-input{
+            height:37px;
+        }
+        
     }
+    .hide-number-handle{
+        height: 37px;
+    }
+    
 }
-
 .ant-modal-footer {
     box-shadow: none;
     border: none;
@@ -469,8 +489,8 @@ input {
         display: none;
     }
     .ant-input-number-input-wrap {
-        &>input {
-            height: 36px;
+        & > input {
+            height: 37px;
             text-align: end;
         }
     }
@@ -512,17 +532,91 @@ input {
     }
 }
 
-.ant-modal-content {
-    width: 700px;
+.margin-top-20 .product-total-checkout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 60px 10px 120px;
+    background-color: #f9f9fa;
+    & > span {
+        display: block;
+        color: #2f485d;
+        font-size: 16px;
+    }
+    & > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 60%;
+        & > span {
+            padding: 0 40px 0 0px;
+            display: block;
+            &:nth-child(1) {
+                color: black;
+            }
+            &:nth-child(2) {
+                color: red;
+            }
+            &:nth-child(3) {
+                color: #1389ff;
+                padding-right: 50px;
+            }
+        }
+    }
+}
+.text-center {
+    div {
+        & > span {
+            color: #1389ff;
+            display: block;
+        }
+    }
 }
 
+.ant-input-number-input-wrap {
+    border-radius: 5px;
+    & > input {
+        height: 36px;
+    }
+}
 .ant-table-footer {
+    padding: 0;
+}
+
+.row-footer-custom{
     padding: 15px 20px 30px 20px;
-    color: rgba(0, 0, 0, 1);
-    background: #F4F4F7;
-    ;
+    color: rgba(0, 0, 0, 0.85);
+    background: #f4f4f7;
 }
 
 .ant-table-thead {
-    background-color: #F4F4F7;
+    background-color: #f4f4f7;
+}
+
+.ant-col .ant-form-item-control{
+    input{
+        border-radius: 5px;
+    }
+}
+
+
+.ant-input-number.hide-number-handle{
+    border-radius: 0 $border-radius $border-radius 0
+}
+
+.modal-hide-header{
+    max-width: 398px;
+    height: 258px;
+    input{
+        height: 37px;
+    }
+
+}
+
+.yody-table-discount{
+    .ant-select{
+        .ant-select-selector{
+            min-height: 37px;
+        }
+    }
 }

@@ -7,7 +7,6 @@ import {
   Col,
   Dropdown,
   Input,
-  InputNumber,
   Menu,
   Row,
   Select,
@@ -19,11 +18,10 @@ import {
   Tag,
   Form,
 } from "antd";
-import { showError, showSuccess } from "utils/ToastUtils";
-import NumberInput from "component/custom/number-input.custom";
-import PickDiscountModal from "./modal/PickDiscountModal";
-import arrowDownIcon from "../../assets/img/drow-down.svg";
+
+import arrowDownIcon from "assets/img/drow-down.svg";
 import giftIcon from "assets/icon/gift.svg";
+import productIcon from "assets/img/cube.svg";
 import React, {
   useCallback,
   useLayoutEffect,
@@ -37,11 +35,13 @@ import {
   ShopOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import productIcon from "../../assets/img/cube.svg";
 import DiscountGroup from "./discount-group";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { showError, showSuccess } from "utils/ToastUtils";
+import NumberInput from "component/custom/number-input.custom";
+import PickDiscountModal from "./modal/PickDiscountModal";
 import {
   haveAccess,
   findPrice,
@@ -53,18 +53,15 @@ import {
   getTotalAmount,
   getTotalDiscount,
   getTotalAmountAfferDiscount,
-} from "../../utils/AppUtils";
+} from "utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
-import { Type } from "../../config/TypeConfig";
-import "../../assets/css/v1/container.scss";
+import { Type } from "config/TypeConfig";
+import "assets/css/v1/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "./modal/AddGiftModal";
-import {
-  OrderItemDiscountModel,
-  OrderItemModel,
-} from "model/other/Order/order-model";
+import { OrderItemDiscountModel } from "model/other/Order/order-model";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
@@ -73,12 +70,14 @@ import {
 } from "model/product/product.model";
 import { StoreResponse } from "model/core/store.model";
 import { Link } from "react-router-dom";
+import { MoneyType } from "utils/Constants";
+import { OrderLineItemRequest } from "model/request/order.request";
 
 type ProductCardProps = {
   storeId: number | null;
   selectStore: (item: number) => void;
   changeInfo: (
-    items: Array<OrderItemModel>,
+    items: Array<OrderLineItemRequest>,
     amount: number,
     discount_rate: number,
     discount_value: number
@@ -92,9 +91,9 @@ const initQueryVariant: VariantSearchQuery = {
 
 const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const dispatch = useDispatch();
-  const [items, setItems] = useState<Array<OrderItemModel>>([]);
+  const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [splitLine, setSplitLine] = useState<boolean>(false);
-  const [itemGifts, setItemGift] = useState<Array<OrderItemModel>>([]);
+  const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
   const [keysearchVariant, setKeysearchVariant] = useState("");
   const [resultSearchVariant, setResultSearchVariant] = useState<
@@ -111,7 +110,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
-  const [discountType, setDiscountType] = useState<string>("money");
+  const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [changeMoney, setChangeMoney] = useState<number>(0);
@@ -143,7 +142,16 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     total();
   };
 
-  const onDiscountItem = (_items: Array<OrderItemModel>) => {
+  const onChangePrice = (value: number | null, index: number) => {
+    let _items = [...items];
+    if (value !== null) {
+      _items[index].price = value;
+    }
+    setItems(_items);
+    total();
+  };
+
+  const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
     setItems(_items);
     total();
   };
@@ -151,11 +159,18 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const total = useCallback(() => {
     let _items = [...items];
     let _amount = 0;
-    _items.forEach((i) => {
-      let amountItem = (i.price - i.discount_items[0].value) * i.quantity;
+    _items.forEach((i, index) => {
+      let amountItem = (i.price - i.discount_items[index].value) * i.quantity;
       i.line_amount_after_line_discount = amountItem;
       i.amount = i.price * i.quantity;
       _amount += amountItem;
+      if (i.amount !== null) {
+        let totalDiscount = 0;
+        i.discount_items.forEach((a) => {
+          totalDiscount = totalDiscount + a.amount;
+        });
+        i.discount_amount = totalDiscount;
+      }
     });
     setItems(_items);
     setAmount(_amount);
@@ -227,7 +242,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     ),
     width: "33%",
     className: "yody-pos-name",
-    render: (l: OrderItemModel, item: any, index: number) => {
+    render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
         <div className="w-100" style={{ overflow: "hidden" }}>
           <div className="d-flex align-items-center">
@@ -299,7 +314,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     className: "yody-pos-quantity text-center",
     width: "12%",
     align: "right",
-    render: (l: OrderItemModel, item: any, index: number) => {
+    render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
         <div className="yody-pos-qtt">
           <NumberInput
@@ -317,17 +332,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     className: "yody-pos-price text-right",
     width: "17%",
     align: "right",
-    render: (l: OrderItemModel, item: any, index: number) => {
+    render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
-        <div className="yody-pos-price">
+        <div>
           <NumberInput
             format={(a: string) => formatCurrency(a)}
             replace={(a: string) => replaceFormatString(a)}
             placeholder="VD: 100,000"
             style={{
               textAlign: "right",
+              width:"100%",
             }}
             value={l.price}
+            onChange={(value) => onChangePrice(value, index)}
           />
         </div>
       );
@@ -339,7 +356,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     align: "right",
     width: "23%",
     className: "yody-table-discount text-right",
-    render: (l: OrderItemModel, item: any, index: number) => {
+    render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
         <div className="site-input-group-wrapper">
           <DiscountGroup
@@ -361,7 +378,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     align: "right",
     className: "yody-table-total-money text-right",
     width: "14%",
-    render: (l: OrderItemModel, item: any, index: number) => {
+    render: (l: OrderLineItemRequest, item: any, index: number) => {
       return <div>{formatCurrency(l.line_amount_after_line_discount)}</div>;
     },
   };
@@ -370,7 +387,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     title: "Thao tác",
     width: "11%",
     className: "yody-table-action text-center",
-    render: (l: OrderItemModel, item: any, index: number) => {
+    render: (l: OrderLineItemRequest, item: any, index: number) => {
       const menu = (
         <Menu className="yody-line-item-action-menu">
           <Menu.Item key="0">
@@ -425,7 +442,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
     const discountItem: OrderItemDiscountModel = createNewDiscountItem();
-    let orderLine: OrderItemModel = {
+    let orderLine: OrderLineItemRequest = {
       id: new Date().getTime(),
       sku: variant.sku,
       variant_id: variant.id,
@@ -444,6 +461,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       discount_items: [discountItem],
       discount_amount: 0,
       discount_rate: 0,
+      composite: variant.composite,
       is_composite: variant.composite,
       discount_value: 0,
       line_amount_after_line_discount: price,
@@ -484,7 +502,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
       if (r.id == v) {
         if (splitLine || index === -1) {
-          const item: OrderItemModel = createItem(r);
+          const item: OrderLineItemRequest = createItem(r);
           _items.push(item);
           setAmount(amount + item.price);
           calculateChangeMoney(
@@ -573,7 +591,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   };
 
   const calculateChangeMoney = (
-    _items: Array<OrderItemModel>,
+    _items: Array<OrderLineItemRequest>,
     _amount: number,
     _discountRate: number,
     _discountValue: number
@@ -596,7 +614,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   }, [listStores, userReducer.account]);
 
   const onUpdateData = useCallback(
-    (items: Array<OrderItemModel>) => {
+    (items: Array<OrderLineItemRequest>) => {
       let data = [...items];
       setItemGift(data);
     },
@@ -703,6 +721,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 className="w-100"
                 onSearch={onChangeProductSearch}
                 options={convertResultSearchVariant}
+                maxLength={255}
               >
                 <Input
                   size="middle"
@@ -754,11 +773,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         scroll={{ y: 300 }}
         sticky
         footer={() =>
-          items.length > 0 && (
-            <div className="row-footer font-weight-500">
+          items.length > 0 ? (
+            <div className="row-footer-custom">
               <div
                 className="yody-foot-total-text"
-                style={{ width: "37%", float: "left", textAlign: "center" }}
+                style={{ width: "37%", float: "left", textAlign: "center", fontWeight:500 }}
               >
                 Tổng
               </div>
@@ -789,7 +808,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 {formatCurrency(getTotalAmountAfferDiscount(items))}
               </div>
             </div>
-          )
+          ) : <div />
         }
       />
       <div className="padding-20" style={{ paddingTop: "30px" }}>

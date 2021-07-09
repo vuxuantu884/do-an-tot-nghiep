@@ -7,6 +7,7 @@ import {
 import BaseAction from "base/BaseAction";
 import { ProductType } from "domain/types/product.type";
 import { PageResponse } from "model/base/base-metadata.response";
+import { ProductUploadModel } from "model/product/product-upload.model";
 
 export const searchVariantsRequestAction = (
   query: VariantSearchQuery,
@@ -31,7 +32,7 @@ export const searchVariantsOrderRequestAction = (
 export const productUploadAction = (
   files: Array<File>,
   folder: string,
-  setData: (data: any) => void
+  setData: (data: Array<ProductUploadModel>|false) => void
 ) => {
   return BaseAction(ProductType.UPLOAD_PRODUCT_REQUEST, {
     files,

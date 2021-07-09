@@ -34,7 +34,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
-      handlePickPaymentMethod("cash");
+      handlePickPaymentMethod(PaymentMethodCode.CASH);
     }
   };
 
@@ -48,7 +48,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   );
 
   const ListMaymentMethods = useMemo(() => {
-    return listPaymentMethod.filter((item) => item.code !== "card");
+    return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
   }, [dispatch, listPaymentMethod]);
 
   const handleInputPoint = (index: number, point: number) => {

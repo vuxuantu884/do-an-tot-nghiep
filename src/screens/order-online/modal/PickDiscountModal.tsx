@@ -61,7 +61,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
             centered
             visible={visible}
             className="modal-hide-header modal-pick-discount"
-            style={{ maxWidth: 398 }}
+            
             footer={[
                 <Button key="submit" type="primary" onClick={onSubmit}>
                     Áp dụng
@@ -73,7 +73,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
                     <Form.Item label="Chiết khấu đơn hàng">
                         <Input.Group size="large">
                             <Select
-                                style={{ width: '17%' }}
+                                style={{ width: '17%', height: "37px"}}
                                 defaultValue={_type}
                                 onChange={handleChangeSelect}
                                 className="currency-option"
@@ -90,9 +90,6 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
                                 max={_type === 'money' ? props.amount : 100}
                                 formatter={(value) =>
                                     formatCurrency(value ? value : '0')
-                                }
-                                parser={(value) =>
-                                    replaceFormat(value ? value : 0)
                                 }
                                 onChange={onchangeDiscount}
                             />

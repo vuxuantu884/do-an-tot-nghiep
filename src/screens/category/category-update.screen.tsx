@@ -116,7 +116,7 @@ const CategoryUpdate: React.FC = () => {
           path: `${UrlConfig.CATEGORIES}`,
         },
         {
-          name: detail!== null ? detail.name : 'Sửa danh mục',
+          name: detail!== null ? detail.name : '',
         },
       ]}
     >

@@ -4,6 +4,7 @@ import { ApiConfig } from "config/ApiConfig"
 import { generateQuery } from "utils/AppUtils";
 import { PageResponse } from 'model/base/base-metadata.response';
 import { ProductRequest, VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import { ProductUploadModel } from "model/product/product-upload.model";
 
 
 
@@ -17,7 +18,7 @@ export const getVariantApi = (id: string): Promise<BaseResponse<VariantResponse>
   return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/${id}`);
 }
 
-export const productUploadApi = (files: Array<File>, folder: string) => {
+export const productUploadApi = (files: Array<File>, folder: string): Promise<BaseResponse<Array<ProductUploadModel>>> => {
   let body = new FormData();
   body.append('folder', folder);
   files.forEach((item) => {

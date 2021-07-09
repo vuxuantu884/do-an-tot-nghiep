@@ -3,7 +3,7 @@ import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { PageResponse } from "model/base/base-metadata.response";
 import { generateQuery } from "utils/AppUtils";
-import { ColorResponse, ColorCreateRequest, ColorSearchQuery } from "model/product/color.model";
+import {ColorResponse, ColorCreateRequest, ColorSearchQuery, ColorUpdateRequest} from "model/product/color.model";
 
 export const colorSearchApi = (query: ColorSearchQuery): Promise<BaseResponse<PageResponse<ColorResponse>>> => {
   const queryString = generateQuery(query);
@@ -23,7 +23,7 @@ export const colorCreateApi = (request: ColorCreateRequest): Promise<BaseRespons
   return BaseAxios.post(`${ApiConfig.PRODUCT}/colors`, request);
 }
 
-export const colorUpdateApi = (id: number, request: ColorCreateRequest): Promise<BaseResponse<ColorResponse>> => {
+export const colorUpdateApi = (id: number, request: ColorUpdateRequest): Promise<BaseResponse<ColorResponse>> => {
   return BaseAxios.put(`${ApiConfig.PRODUCT}/colors/${id}`, request);
 }
 

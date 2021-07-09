@@ -7,24 +7,21 @@ import {
   Input,
   Row,
   Select,
-  Upload,
   Space,
 } from 'antd';
-import {ColorCreateRequest, ColorResponse} from 'model/product/color.model';
+import {ColorResponse, ColorUpdateRequest} from 'model/product/color.model';
 import {PageResponse} from 'model/base/base-metadata.response';
-import {createRef, useCallback, useEffect, useState} from 'react';
+import React, {createRef, useCallback, useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {useHistory, useParams} from 'react-router';
-import uploadIcon from 'assets/img/upload.svg';
-import imgDefIcon from 'assets/img/img-def.svg';
 import {
-  colorCreateAction,
-  colorDetailAction,
+  colorDetailAction, colorUpdateAction,
   getColorAction,
 } from 'domain/actions/product/color.action';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
 import { RegUtil } from 'utils/RegUtils';
+import ColorUpload from './color-upload.component';
 
 const {Option} = Select;
 type ColorParams = {
@@ -33,6 +30,7 @@ type ColorParams = {
 
 const ColorUpdateScreen: React.FC = () => {
   const {id} = useParams<ColorParams>();
+  let idNumber = parseInt(id);
   const [color, setColor] = useState<ColorResponse | null>(null);
   const [selector, setSelector] = useState<PageResponse<ColorResponse>>({
     metadata: {
@@ -42,7 +40,6 @@ const ColorUpdateScreen: React.FC = () => {
     },
     items: [],
   });
-  const [imageUrl, setImageUrl] = useState('');
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -50,13 +47,10 @@ const ColorUpdateScreen: React.FC = () => {
     history.push(UrlConfig.COLORS);
   }, [history]);
   const onFinish = useCallback(
-    (values: ColorCreateRequest) => {
-      if (imageUrl !== '') {
-        values.image = imageUrl;
-      }
-      dispatch(colorCreateAction(values, onSuccess));
+    (values: ColorUpdateRequest) => {
+      dispatch(colorUpdateAction(idNumber, values, onSuccess));
     },
-    [dispatch, imageUrl, onSuccess]
+    [dispatch, idNumber, onSuccess]
   );
   const onCancel = useCallback(() => {
     history.goBack();
@@ -103,6 +97,9 @@ const ColorUpdateScreen: React.FC = () => {
         onFinish={onFinish}
         layout="vertical"
       >
+        <Form.Item hidden noStyle name="version">
+          <Input />
+        </Form.Item>
         <Card title="Thông tin cơ bản">
           <div className="padding-20">
             <Row gutter={50}>
@@ -117,39 +114,22 @@ const ColorUpdateScreen: React.FC = () => {
                 md={24}
                 lg={4}
               >
-                <Upload
-                  customRequest={(options) => {
-                    console.log(options);
-                  }}
-                  listType="picture"
-                  action=""
-                  maxCount={1}
-                  showUploadList={false}
-                  className="upload-v"
-                >
-                  <div className="upload-view">
-                    <img className="img-upload" src={uploadIcon} alt="" />
-                    <img className="img-default" src={imgDefIcon} alt="" />
-                  </div>
-                </Upload>
+                <Form.Item name="image_id" noStyle>
+                  <ColorUpload url={color.image} />
+                </Form.Item>
                 <div className="upload-bottom">Ảnh màu</div>
               </Col>
               <Col span={24} lg={20} sm={24} md={24}>
                 <Row gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Form.Item
-                      className="form-group form-group-with-search"
                       rules={[
                         {required: true, message: 'Vui lòng nhập tên màu'},
                       ]}
                       label="Tên màu"
                       name="name"
                     >
-                      <Input
-                        className="r-5"
-                        placeholder="Nhập tên màu"
-                        size="large"
-                      />
+                      <Input placeholder="Nhập tên màu" />
                     </Form.Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
@@ -157,7 +137,6 @@ const ColorUpdateScreen: React.FC = () => {
                       rules={[
                         {required: true, message: 'Vui lòng chọn màu chủ đạo'},
                       ]}
-                      className="form-group form-group-with-search"
                       name="parent_id"
                       label="Màu chủ đạo"
                     >
@@ -180,35 +159,17 @@ const ColorUpdateScreen: React.FC = () => {
                       rules={[
                         {required: true, message: 'Vui lòng nhập mã màu'},
                       ]}
-                      className="form-group form-group-with-search"
                       name="code"
                       labelAlign="right"
                       label="Mã màu"
-                      normalize={value => (value || '').toUpperCase()}
+                      normalize={(value) => (value || '').toUpperCase()}
                     >
-                      <Input
-                        className="r-5"
-                        placeholder="Nhập mã màu"
-                        size="large"
-                      />
+                      <Input placeholder="Nhập mã màu" />
                     </Form.Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
-                  <Form.Item
-                      name="hex_code"
-                      label="Mã hex"
-                      rules={[
-                        {
-                          pattern: RegUtil.HEX_COLOR,
-                          message: "Kích cỡ không chứa ký tự đặc biệt và có 6 ký tự",
-                        }
-                      ]}
-                    >
-                      <Input
-                        placeholder="Nhập mã hex"
-                        prefix="#"
-                        maxLength={6}
-                      />
+                    <Form.Item name="hex_code" label="Mã hex">
+                      <Input placeholder="Nhập mã hex" />
                     </Form.Item>
                   </Col>
                 </Row>

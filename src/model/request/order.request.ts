@@ -1,4 +1,3 @@
-import { FulFillmentResponse } from './../response/order/order.response';
 import { OrderLineItemResponse } from "model/response/order/order.response";
 import { Moment } from "moment";
 export interface OrderRequest {
@@ -202,11 +201,13 @@ export interface UpdatePaymentRequest {
 }
 
 export interface OrderLineItemRequest {
+  id:number;
   sku: string;
   variant_id: number;
   variant: string;
   show_note: boolean;
   variant_barcode: string;
+  product_id: number;
   product_type: string;
   quantity: number;
   price: number;
@@ -218,6 +219,9 @@ export interface OrderLineItemRequest {
   warranty: string;
   tax_rate: number;
   tax_include: boolean;
+  composite:boolean;
+  product:string;
+  is_composite:boolean;
   line_amount_after_line_discount: number;
   discount_items: Array<OrderItemDiscountRequest>;
   discount_rate: number;

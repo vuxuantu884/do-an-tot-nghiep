@@ -14,6 +14,7 @@ import { showError } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { updateVariantApi } from "service/product/variant.service";
+import { ProductUploadModel } from "model/product/product-upload.model";
 
 function* searchVariantSaga(action: YodyAction) {
   const { query, setData } = action.payload;
@@ -116,26 +117,28 @@ function* variantDetailSaga(action: YodyAction) {
 }
 
 function* uploadProductSaga(action: YodyAction) {
-  const { files, folder, } = action.payload;
+  const { files, folder, setData} = action.payload;
   try {
-    let response: BaseResponse<VariantResponse> = yield call(
+    let response: BaseResponse<Array<ProductUploadModel>> = yield call(
       productUploadApi,
       files,
       folder
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response);
+        setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        setData(false);
         yield put(unauthorizedAction());
         break;
       default:
+        setData(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    console.log("error ", error);
+    setData(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }

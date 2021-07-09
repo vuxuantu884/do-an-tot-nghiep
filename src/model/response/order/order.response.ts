@@ -63,6 +63,7 @@ export interface OrderLineItemResponse {
   variant: string;
   product_id: number;
   product: string;
+  show_note: boolean;
   variant_barcode: string;
   product_type: string;
   quantity: number;
@@ -129,7 +130,7 @@ export interface OrderDiscountResponse {
 
 export interface OrderItemDiscountResponse {
   rate: number|null;
-  value: number|null;
+  value: number;
   amount: number|null;
   promotion_id?: number | null;
   reason: string | null;
