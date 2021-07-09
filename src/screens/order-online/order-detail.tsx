@@ -166,7 +166,7 @@ const OrderDetail = () => {
     setVisibleBilling(!isVisibleBilling);
   };
   //#endregion
-  
+
   const formRef = createRef<FormInstance>();
 
   const ShowAddressModal = () => {
@@ -205,17 +205,29 @@ const OrderDetail = () => {
       return OrderStatus.DRAFT;
     }
     if (OrderDetail?.status === OrderStatus.FINALIZED) {
-      if (OrderDetail.fulfillment_status === null) {
+      if (
+        OrderDetail.fulfillments === undefined ||
+        OrderDetail.fulfillments === null
+      ) {
         return OrderStatus.FINALIZED;
       } else {
-        if (OrderDetail.fulfillment_status === FulFillmentStatus.UNSHIPPED) {
-          return OrderStatus.FINALIZED;
-        }
-        if (OrderDetail.fulfillment_status === FulFillmentStatus.PACKED) {
-          return FulFillmentStatus.PACKED;
-        }
-        if (OrderDetail.fulfillment_status === FulFillmentStatus.SHIPPING) {
-          return FulFillmentStatus.SHIPPING;
+        if (
+          OrderDetail.fulfillments !== undefined &&
+          OrderDetail.fulfillments !== null
+        ) {
+          if (
+            OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+          ) {
+            return OrderStatus.FINALIZED;
+          }
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PACKED) {
+            return FulFillmentStatus.PACKED;
+          }
+          if (
+            OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPING
+          ) {
+            return FulFillmentStatus.SHIPPING;
+          }
         }
       }
     }
@@ -295,7 +307,12 @@ const OrderDetail = () => {
     title: () => (
       <div className="text-center">
         <div>Số lượng</div>
-        <span style={{ color: "#0080FF" }}>({OrderDetail?.items !== undefined && getTotalQuantity(OrderDetail?.items)})</span>
+        <span style={{ color: "#0080FF" }}>
+          (
+          {OrderDetail?.items !== undefined &&
+            getTotalQuantity(OrderDetail?.items)}
+          )
+        </span>
       </div>
     ),
     className: "yody-pos-quantity text-center",
@@ -337,7 +354,9 @@ const OrderDetail = () => {
     title: "Tổng tiền",
     className: "yody-table-total-money text-right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
-      return <div style={{textAlign:"left"}}>{formatCurrency(l.amount)}</div>;
+      return (
+        <div style={{ textAlign: "left" }}>{formatCurrency(l.amount)}</div>
+      );
     },
   };
 
@@ -354,7 +373,7 @@ const OrderDetail = () => {
   //#region Update Fulfillment Status
   const onUpdateSuccess = useCallback(
     (value: OrderResponse) => {
-      showSuccess("Xuất kho thành công");
+      showSuccess("Tạo đơn giao hàng thành công");
       window.location.reload();
     },
     [history]
@@ -373,7 +392,7 @@ const OrderDetail = () => {
         ? OrderDetail?.fulfillments[0].id
         : null;
     value.fulfillment_id = fulfillment_id;
-    value.status = FulFillmentStatus.SHIPPING;
+    value.status = FulFillmentStatus.PACKED;
 
     dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
   };
@@ -401,7 +420,7 @@ const OrderDetail = () => {
     received_date: "",
     sender_address_id: null,
     note_to_shipper: "",
-    requirements: "",
+    requirements: null,
     fulfillment_id: "",
   };
 
@@ -481,7 +500,9 @@ const OrderDetail = () => {
           name: "Đơn hàng " + id,
         },
       ]}
-      extra={<CreateBillStep status={stepsStatusValue} />}
+      extra={
+        <CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail} />
+      }
     >
       <div className="orders">
         <Row gutter={24}>
@@ -887,7 +908,9 @@ const OrderDetail = () => {
                         )}
                       </Space>
                       <div className="font-weight-500 ">
-                        {OrderDetail?.order_discount_value !== null ? OrderDetail?.order_discount_value:0}
+                        {OrderDetail?.order_discount_value !== null
+                          ? OrderDetail?.order_discount_value
+                          : 0}
                       </div>
                     </Row>
                     <Row
@@ -1057,8 +1080,8 @@ const OrderDetail = () => {
                         </Col>
                         <Col span={5}>
                           <p className="text-field">
-                            {OrderDetail?.fulfillments !== null &&
-                              OrderDetail?.fulfillments !== undefined &&
+                            {OrderDetail?.fulfillments !== undefined &&
+                              OrderDetail?.fulfillments !== null &&
                               OrderDetail?.fulfillments.map((item, index) =>
                                 item.shipment?.shipping_fee_paid_to_3pls !==
                                   undefined &&
@@ -1087,20 +1110,21 @@ const OrderDetail = () => {
                 </div>
                 <Divider style={{ margin: "0px" }} />
                 <div className="padding-20 text-right">
-                  <Button
+                  
+                  {/* <Button
                     type="default"
                     className="ant-btn-outline fixed-button"
                     style={{ color: "#737373", border: "1px solid #E5E5E5" }}
                   >
                     Hủy đơn giao
-                  </Button>
+                  </Button> */}
                   <Button
                     type="primary"
                     className="ant-btn-outline fixed-button"
                     style={{ marginLeft: "10px" }}
                     onClick={PackOrder}
                   >
-                    Xuất kho
+                    Đóng gói
                   </Button>
                 </div>
               </Card>

@@ -17,7 +17,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { PaymentMethodCode } from "utils/Constants";
+import { OrderStatus, PaymentMethodCode } from "utils/Constants";
 import deleteIcon from "assets/icon/delete.svg";
 import {
   formatCurrency,
@@ -33,6 +33,7 @@ import { showSuccess } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
 import { useHistory } from "react-router-dom";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
+import OrderDetail from "./order-detail";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
@@ -56,6 +57,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
 
   const dispatch = useDispatch();
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
+  const [textValue, settextValue] = useState<string>("")
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
@@ -139,6 +141,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   );
 
   const ShowConfirmPayment = () => {
+    if (props.orderDetail.status === OrderStatus.FINALIZED) {
+      settextValue("Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?");
+    }
+    else{
+      if (props.orderDetail.status === OrderStatus.DRAFT) {
+        settextValue("Đơn hàng sẽ được duyệt khi xác nhận thanh toán. Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?");
+      }
+    }
     setVisibleConfirmPayment(true);
   };
 
@@ -489,6 +499,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         onOk={onOkConfirm}
         visible={isibleConfirmPayment}
         order_id={props.order_id}
+        text={textValue}
       />
     </Card>
   );

@@ -2,13 +2,14 @@ import { Steps } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useEffect, useState } from "react";
+import { OrderResponse } from "model/response/order/order.response";
 
 type StepStatusProps = {
   status?: string | null | undefined;
+  orderDetail:OrderResponse | null;
 };
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
-  let now = moment().format("DD/MM/YYYY HH:MM");
   const [state, setstate] = useState<number>(0);
   const point = () => {
     switch (props.status) {
@@ -42,8 +43,8 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
 
   return (
     <Steps progressDot={progressDot} size="small" current={state}>
-      <Steps.Step title="Đặt hàng" description={now} />
-      <Steps.Step title="Xác nhận" />
+      <Steps.Step title="Đặt hàng" description={moment(props.orderDetail?.created_date).format("DD/MM/YYYY HH:MM")} />
+      <Steps.Step title="Xác nhận"/>
       <Steps.Step title="Đóng gói" />
       <Steps.Step title="Xuất kho" />
       <Steps.Step title="Hoàn thành" />
