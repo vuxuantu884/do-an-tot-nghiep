@@ -22,6 +22,7 @@ import {
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import ColorUpload from "./color-upload.component";
+import { RegUtil } from "utils/RegUtils";
 
 const { Option } = Select;
 type ColorParams = {
@@ -56,13 +57,12 @@ const ColorUpdateScreen: React.FC = () => {
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
-  const getColorCallback = useCallback((result: ColorResponse|false) => {
+  const getColorCallback = useCallback((result: ColorResponse | false) => {
     // setLoadingData(false);
     debugger;
-    if(!result) {
+    if (!result) {
       setError(true);
     } else {
-    
       setColor(result);
     }
   }, []);
@@ -132,11 +132,15 @@ const ColorUpdateScreen: React.FC = () => {
                       <Form.Item
                         rules={[
                           { required: true, message: "Vui lòng nhập tên màu" },
+                          {
+                            pattern: RegUtil.NO_ALL_SPACE,
+                            message: "Tên màu sắc chưa đúng định dạng",
+                          },
                         ]}
                         label="Tên màu"
                         name="name"
                       >
-                        <Input placeholder="Nhập tên màu" />
+                        <Input placeholder="Nhập tên màu" maxLength={50} />
                       </Form.Item>
                     </Col>
                     <Col span={24} lg={8} md={12} sm={24}>
