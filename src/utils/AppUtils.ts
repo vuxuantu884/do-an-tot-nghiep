@@ -567,7 +567,6 @@ export const Products = {
   },
 };
 
-
 export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
   let value = 0;
   if (items.length > 0) {

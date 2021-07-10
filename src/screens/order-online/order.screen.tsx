@@ -13,7 +13,6 @@ import {
 } from "antd";
 import { InfoCircleOutlined, ProfileOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
-import "assets/css/v2/_sale-order.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -430,7 +429,7 @@ export default function Order() {
                     label="Tham chiếu"
                     name="reference"
                     tooltip={{
-                      title: "Tham chiếu đơn hàng",
+                      title: "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",
                       icon: <InfoCircleOutlined />,
                     }}
                   >
@@ -440,7 +439,7 @@ export default function Order() {
                     label="Đường dẫn"
                     name="url"
                     tooltip={{
-                      title: "Đường dẫn sản phẩm",
+                      title: "Thêm đường dẫn đơn hàng gốc trên kênh bán hàng",
                       icon: <InfoCircleOutlined />,
                     }}
                   >
@@ -462,12 +461,12 @@ export default function Order() {
                     name="note"
                     label="Ghi chú"
                     tooltip={{
-                      title: "Ghi chú đơn hàng",
+                      title: "Thêm thông tin ghi chú chăm sóc khách hàng",
                       icon: <InfoCircleOutlined />,
                     }}
                   >
                     <Input.TextArea
-                      placeholder="Điền Ghi chú"
+                      placeholder="Thêm từ khóa để tiện lọc đơn hàng"
                       maxLength={500}
                       style={{ minHeight: "76px" }}
                     />
