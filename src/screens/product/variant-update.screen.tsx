@@ -44,7 +44,6 @@ import {
   Form,
   FormInstance,
   Input,
-  InputNumber,
   Row,
   Select,
   Space,
@@ -212,7 +211,7 @@ const VariantUpdateScreen: React.FC = () => {
       };
       dispatch(variantUpdateAction(values.id, dataRequest, onSuccess));
     },
-    [dispatch, onSuccess]
+    [dispatch, onSuccess, status]
   );
 
   //end functional

@@ -20,7 +20,6 @@ import {
 } from 'domain/actions/product/color.action';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/UrlConfig';
-import { RegUtil } from 'utils/RegUtils';
 import ColorUpload from './color-upload.component';
 
 const {Option} = Select;

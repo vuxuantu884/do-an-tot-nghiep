@@ -10,14 +10,14 @@ import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
   ProductRequest,
   ProductRequestView,
-  VariantImageRequest,
-  VariantImagesResponse,
+  VariantImage,
   VariantPriceRequest,
   VariantPricesResponse,
   VariantPriceViewRequest,
   VariantRequest,
   VariantRequestView,
   VariantResponse,
+  VariantUpdateRequest,
   VariantUpdateView,
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
@@ -324,10 +324,10 @@ export const replaceFormatString = (currency: number | string): string => {
 };
 
 export const findAvatar = (
-  variantImages: Array<VariantImagesResponse>
+  VariantImage: Array<VariantImage>
 ): string => {
   let avatar: string = "";
-  variantImages.forEach((v) => {
+  VariantImage.forEach((v) => {
     if (v.variant_avatar) {
       avatar = v.url;
     }
@@ -470,8 +470,8 @@ export const Products = {
     };
     return productRequest;
   },
-  findAvatar: (images: Array<VariantImageRequest>) => {
-    let image: VariantImageRequest | null = null;
+  findAvatar: (images: Array<VariantImage>) => {
+    let image: VariantImage | null = null;
     images.forEach((imagerRequest) => {
       if (imagerRequest.variant_avatar) {
         image = imagerRequest;
@@ -565,6 +565,33 @@ export const Products = {
     };
     return variantUpdateView;
   },
+  converVariantResponseToRequest: (variant: VariantResponse) => {
+    let variantUpadteRequest: VariantUpdateRequest = {
+      id: variant.id,
+      composite: variant.composite,
+      product_id: variant.product_id,
+      supplier_id: variant.supplier_id,
+      status: variant.status,
+      name: variant.name,
+      color_id: variant.color_id,
+      size_id: variant.size_id,
+      barcode: variant.barcode,
+      taxable: variant.taxable,
+      saleable: variant.saleable,
+      deleted: false,
+      sku: variant.sku,
+      width: variant.width,
+      height: variant.height,
+      length: variant.length,
+      length_unit: variant.length_unit,
+      weight: variant.weight,
+      weight_unit: variant.weight_unit,
+      variant_prices: variant.variant_prices,
+      variant_images: variant.variant_images,
+    }
+    console.log(variant.variant_prices);
+    return variantUpadteRequest;
+  }
 };
 
 
