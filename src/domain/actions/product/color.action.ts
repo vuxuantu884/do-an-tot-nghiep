@@ -19,14 +19,14 @@ export const colorDeleteManyAction = ( ids: Array<number>,  onDeleteSuccess: () 
   return BaseAction(ColorType.DELETE_MANY_COLOR_REQUEST, {ids,  onDeleteSuccess });
 }
 
-export const colorCreateAction = ( request: ColorCreateRequest,  onCreateSuccess: () => void) => {
-  return BaseAction(ColorType.CREATE_COLOR_REQUEST, {request,  onCreateSuccess });
+export const colorCreateAction = ( request: ColorCreateRequest,  createCallback: (result:ColorResponse) => void) => {
+  return BaseAction(ColorType.CREATE_COLOR_REQUEST, {request,  createCallback });
 }
 
 export const colorUpdateAction = ( id: number, request: ColorCreateRequest,  onCreateSuccess: () => void) => {
   return BaseAction(ColorType.UPDATE_COLOR_REQUEST, {id, request,  onCreateSuccess });
 }
 
-export const colorDetailAction = (id: number, setData: (data: ColorResponse) => void) => {
-  return BaseAction(ColorType.DETAIL_COLOR_REQUEST, {id,  setData});
+export const colorDetailAction = (id: number, getColorCallback: (result: ColorResponse) => void) => {
+  return BaseAction(ColorType.DETAIL_COLOR_REQUEST, {id,  getColorCallback});
 }

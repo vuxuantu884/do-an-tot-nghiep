@@ -1,42 +1,46 @@
-import {Button, Card, Form, Input, Image, Select} from 'antd';
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {Link, useHistory} from 'react-router-dom';
-import search from 'assets/img/search.svg';
-import {getQueryParams, useQuery} from 'utils/useQuery';
-import {generateQuery} from 'utils/AppUtils';
-import {useDispatch} from 'react-redux';
-import {PageResponse} from 'model/base/base-metadata.response';
-import {MenuAction} from 'component/table/ActionButton';
-import {showWarning} from 'utils/ToastUtils';
-import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
-import {ColorResponse, ColorSearchQuery} from 'model/product/color.model';
-import imgDefault from 'assets/icon/img-default.svg';
+import { Button, Card, Form, Input, Image, Select } from "antd";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useHistory } from "react-router-dom";
+import search from "assets/img/search.svg";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import { generateQuery } from "utils/AppUtils";
+import { useDispatch } from "react-redux";
+import { PageResponse } from "model/base/base-metadata.response";
+import { MenuAction } from "component/table/ActionButton";
+import { showSuccess, showWarning } from "utils/ToastUtils";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
+import { ColorResponse, ColorSearchQuery } from "model/product/color.model";
+import imgDefault from "assets/icon/img-default.svg";
 import {
   colorDeleteAction,
   colorDeleteManyAction,
   getColorAction,
-} from 'domain/actions/product/color.action';
-import {isUndefinedOrNull} from 'utils/AppUtils';
-import CustomFilter from 'component/table/custom.filter';
-import ContentContainer from 'component/container/content.container';
-import UrlConfig from 'config/UrlConfig';
-import ButtonCreate from 'component/header/ButtonCreate';
-import ModalSettingColumn from 'component/table/ModalSettingColumn';
+} from "domain/actions/product/color.action";
+import { isUndefinedOrNull } from "utils/AppUtils";
+import CustomFilter from "component/table/custom.filter";
+import ContentContainer from "component/container/content.container";
+import UrlConfig from "config/UrlConfig";
+import ButtonCreate from "component/header/ButtonCreate";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 const action: Array<MenuAction> = [
   {
-    id: 1,
-    name: 'Xóa',
+    id: 0,
+    name: "Xóa",
   },
   {
     id: 1,
-    name: 'Export',
+    name: "Export",
   },
 ];
 
-const {Option} = Select;
+const { Option } = Select;
 const ColorListScreen: React.FC = () => {
   const [selected, setSelected] = useState<Array<ColorResponse>>([]);
+
   const [data, setData] = useState<PageResponse<ColorResponse>>({
     metadata: {
       limit: 0,
@@ -45,7 +49,9 @@ const ColorListScreen: React.FC = () => {
     },
     items: [],
   });
-  const [selector, setSelector] = useState<PageResponse<ColorResponse>>({
+  const [listMainColor, setListMainColor] = useState<
+    PageResponse<ColorResponse>
+  >({
     metadata: {
       limit: 0,
       page: 1,
@@ -56,70 +62,90 @@ const ColorListScreen: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const query = useQuery();
+  const [tableLoading, setTableLoading] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   let [params, setPrams] = useState<ColorSearchQuery>(getQueryParams(query));
-  const  [columns, setColumn] = useState<Array<ICustomTableColumType<ColorResponse>>>([
+  const [columns, setColumn] = useState<
+    Array<ICustomTableColumType<ColorResponse>>
+  >([
     {
-      title: 'Mã màu',
-      dataIndex: 'code',
+      title: "Mã màu",
+      dataIndex: "code",
       render: (value: string, item: ColorResponse) => {
         return <Link to={`colors/${item.id}`}>{value}</Link>;
       },
-      visible: true
+      visible: true,
     },
     {
-      title: 'Tên màu',
-      dataIndex: 'name',
-      visible: true
+      title: "Tên màu",
+      dataIndex: "name",
+      visible: true,
     },
     {
-      title: 'Màu chủ đạo',
-      dataIndex: 'parent_id',
-      visible: true
+      title: "Màu chủ đạo",
+      dataIndex: "parent_id",
+      visible: true,
     },
     {
-      title: 'Mã hex',
-      dataIndex: 'hex_code',
-      render: (value: string) => (value !== null ? `#${value}` : ''),
-      visible: true
+      title: "Mã hex",
+      dataIndex: "hex_code",
+      render: (value: string) => (value !== null ? `#${value}` : ""),
+      visible: true,
     },
     {
-      title: 'Ảnh màu',
-      dataIndex: 'image',
+      title: "Ảnh màu",
+      dataIndex: "image",
       render: (value: string) => {
-        return !isUndefinedOrNull(value) && value !== '' ? (
+        return !isUndefinedOrNull(value) && value !== "" ? (
           <Image
             width={40}
             src={value}
             placeholder={<img alt="" src={imgDefault} />}
           />
         ) : (
-          ''
+          ""
         );
       },
-      visible: true
+      visible: true,
     },
     {
-      title: 'Người tạo',
-      dataIndex: 'created_name',
-      visible: true
+      title: "Người tạo",
+      dataIndex: "created_name",
+      visible: true,
     },
     {
-      title: 'Ghi chú',
-      dataIndex: 'description',
-      visible: false
+      title: "Ghi chú",
+      dataIndex: "description",
+      visible: false,
     },
   ]);
-  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
+  const columnFinal = useMemo(
+    () => columns.filter((item) => item.visible === true),
+    [columns]
+  );
+  const searchColorCallback = useCallback(
+    (listResult: PageResponse<ColorResponse>) => {
+      setTableLoading(false);
+      setData(listResult);
+    },
+    []
+  );
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
-    dispatch(getColorAction(params, setData));
-  }, [dispatch, params, selected]);
+    showSuccess("Xóa màu sắc thành công");
+    setTableLoading(true);
+    dispatch(
+      getColorAction({ ...params, is_main_color: 0 }, searchColorCallback)
+    );
+  }, [dispatch, params, searchColorCallback, selected]);
+
   const onDelete = useCallback(() => {
     if (selected.length === 0) {
-      showWarning('Vui lòng chọn phần từ cần xóa');
+      showWarning("Vui lòng chọn phần từ cần xóa");
       return;
     }
+
     if (selected.length === 1) {
       let id = selected[0].id;
       dispatch(colorDeleteAction(id, onDeleteSuccess));
@@ -127,14 +153,20 @@ const ColorListScreen: React.FC = () => {
     }
     let ids: Array<number> = [];
     selected.forEach((a) => ids.push(a.id));
+
     dispatch(colorDeleteManyAction(ids, onDeleteSuccess));
   }, [dispatch, onDeleteSuccess, selected]);
+
   const onSelect = useCallback((selectedRow: Array<ColorResponse>) => {
-    setSelected(selectedRow);
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
   }, []);
   const onFinish = useCallback(
     (values) => {
-      let newPrams = {...params, ...values, page: 1};
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.COLORS}?${queryParam}`);
@@ -146,45 +178,45 @@ const ColorListScreen: React.FC = () => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({...params});
+      setPrams({ ...params });
       history.replace(`${UrlConfig.COLORS}?${queryParam}`);
     },
     [history, params]
   );
-  const onMenuClick = useCallback(
-    (index: number) => {
-      switch (index) {
-        case 0:
-          onDelete();
-          break;
-      }
-    },
-    [onDelete]
-  );
+  const onMenuClick = useCallback((index: number) => {
+    switch (index) {
+      case 0:
+        setConfirmDelete(true);
+        // onDelete();
+        break;
+    }
+  }, []);
+
   useEffect(() => {
-    dispatch(getColorAction({...params, is_main_color: 0,}, setData));
-    dispatch(getColorAction({is_main_color: 1}, setSelector));
+    dispatch(
+      getColorAction({ ...params, is_main_color: 0 }, searchColorCallback)
+    );
+    setTableLoading(true);
+    dispatch(getColorAction({ is_main_color: 1 }, setListMainColor));
     return () => {};
-  }, [dispatch, params]);
+  }, [dispatch, params, searchColorCallback]);
   return (
     <ContentContainer
       title="Quản lý màu sắc"
       breadcrumb={[
         {
-          name: 'Tổng quản',
+          name: "Tổng quản",
           path: UrlConfig.HOME,
         },
         {
-          name: 'Sản phẩm',
+          name: "Sản phẩm",
           path: `${UrlConfig.PRODUCT}`,
         },
         {
-          name: 'Màu sắc',
+          name: "Màu sắc",
         },
       ]}
-      extra={
-        <ButtonCreate path={`${UrlConfig.COLORS}/create`} />
-      }
+      extra={<ButtonCreate path={`${UrlConfig.COLORS}/create`} />}
     >
       <Card>
         <CustomFilter menu={action} onMenuClick={onMenuClick}>
@@ -198,14 +230,14 @@ const ColorListScreen: React.FC = () => {
             <Form.Item name="info">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{width: 200}}
+                style={{ width: 200 }}
                 placeholder="Tên/Mã màu sắc"
               />
             </Form.Item>
             <Form.Item name="parent_id">
-              <Select placeholder="Chọn màu chủ đạo" style={{width: 200}}>
+              <Select placeholder="Chọn màu chủ đạo" style={{ width: 200 }}>
                 <Option value="">Chọn màu chủ đạo</Option>
-                {selector.items.map((item) => (
+                {listMainColor.items.map((item) => (
                   <Option key={item.id} value={item.id}>
                     {item.name}
                   </Option>
@@ -215,7 +247,7 @@ const ColorListScreen: React.FC = () => {
             <Form.Item name="hex_code">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{width: 200}}
+                style={{ width: 200 }}
                 placeholder="Mã hex"
               />
             </Form.Item>
@@ -235,6 +267,7 @@ const ColorListScreen: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isLoading={tableLoading}
           dataSource={data.items}
           showColumnSetting={true}
           onShowColumnSetting={() => setShowSettingColumn(true)}
@@ -242,14 +275,25 @@ const ColorListScreen: React.FC = () => {
           onSelectedChange={onSelect}
           rowKey={(item: ColorResponse) => item.id}
         />
-          <ModalSettingColumn
+        <ModalSettingColumn
           visible={showSettingColumn}
           onCancel={() => setShowSettingColumn(false)}
           onOk={(data) => {
             setShowSettingColumn(false);
-            setColumn(data)
+            setColumn(data);
           }}
           data={columns}
+        />
+        <ModalDeleteConfirm
+          onCancel={() => setConfirmDelete(false)}
+          onOk={() => {
+            setConfirmDelete(false);
+            // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+            onDelete();
+          }}
+          title="Bạn chắc chắn xóa màu sắc ?"
+          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+          visible={isConfirmDelete}
         />
       </Card>
     </ContentContainer>

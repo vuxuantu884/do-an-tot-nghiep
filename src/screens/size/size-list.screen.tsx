@@ -21,11 +21,12 @@ import {
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import UrlConfig from "config/UrlConfig";
-import { showWarning } from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined } from "@ant-design/icons";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 const actions: Array<MenuAction> = [
   {
@@ -52,12 +53,15 @@ const SizeListScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const [selected, setSelected] = useState<Array<SizeResponse>>([]);
+  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [loadingTable, setLoadingTable] = useState<boolean>(true);
   const dispatch = useDispatch();
 
   let [params, setPrams] = useState<SizeQuery>({
     ...initialQuery,
     ...getQueryParams(query),
   });
+
   const [data, setData] = useState<PageResponse<SizeResponse>>({
     metadata: {
       limit: 30,
@@ -66,6 +70,7 @@ const SizeListScreen: React.FC = () => {
     },
     items: [],
   });
+
   const columns = [
     {
       title: "Kích cỡ",
@@ -84,7 +89,11 @@ const SizeListScreen: React.FC = () => {
           // </Tooltip>
           <span>
             {value.map((stores) => {
-              return <Tag color="blue">{stores.category_name}</Tag>;
+              return (
+                <Tag color="blue" key={stores.category_id}>
+                  {stores.category_name}
+                </Tag>
+              );
             })}
           </span>
         );
@@ -95,6 +104,7 @@ const SizeListScreen: React.FC = () => {
       dataIndex: "created_name",
     },
   ];
+
   const onPageChange = useCallback(
     (size, page) => {
       params.page = page - 1;
@@ -105,13 +115,20 @@ const SizeListScreen: React.FC = () => {
     },
     [history, params]
   );
+
   const onSelectedChange = useCallback((selectedRow: Array<SizeResponse>) => {
-    setSelected(selectedRow);
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
   }, []);
+
   const setCategory = useCallback((data: Array<CategoryResponse>) => {
     let newData = convertCategory(data);
     setCategories(newData);
   }, []);
+
   const onFinish = useCallback(
     (values: SizeQuery) => {
       let query = generateQuery(values);
@@ -120,6 +137,7 @@ const SizeListScreen: React.FC = () => {
     },
     [history]
   );
+
   const menuFilter = useMemo(() => {
     return actions.filter((item) => {
       if (selected.length === 0) {
@@ -132,17 +150,28 @@ const SizeListScreen: React.FC = () => {
       return true;
     });
   }, [selected]);
+  const searchSizeCallback = useCallback(
+    (listResult: PageResponse<SizeResponse>) => {
+      setLoadingTable(false);
+      setData(listResult);
+    },
+    []
+  );
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
+    showSuccess("Xóa kích cỡ thành công");    
     setSelected([...selected]);
-    dispatch(sizeSearchAction(params, setData));
-  }, [dispatch, params, selected]);
+    setLoadingTable(true);
+    dispatch(sizeSearchAction(params, searchSizeCallback));
+  }, [dispatch, params, searchSizeCallback, selected]);
 
   const onDelete = useCallback(() => {
     if (selected.length === 0) {
       showWarning("Vui lòng chọn phần từ cần xóa");
       return;
     }
+
+    debugger;
     if (selected.length === 1) {
       let id = selected[0].id;
       dispatch(sizeDeleteOneAction(id, onDeleteSuccess));
@@ -164,6 +193,7 @@ const SizeListScreen: React.FC = () => {
       return;
     }
   }, [history, selected]);
+
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
@@ -171,20 +201,24 @@ const SizeListScreen: React.FC = () => {
           onUpdate();
           break;
         case 2:
-          onDelete();
+          setConfirmDelete(true);
           break;
       }
     },
-    [onDelete, onUpdate]
+    [onUpdate]
   );
+
   const isFirstLoad = useRef(true);
+
   useEffect(() => {
+    setLoadingTable(true);
     if (isFirstLoad.current) {
       dispatch(getCategoryRequestAction({}, setCategory));
     }
     isFirstLoad.current = false;
-    dispatch(sizeSearchAction(params, setData));
-  }, [dispatch, params, setCategory]);
+    dispatch(sizeSearchAction(params, searchSizeCallback));
+  }, [dispatch, params, searchSizeCallback, setCategory]);
+
   return (
     <ContentContainer
       title="Quản lý kích cỡ"
@@ -245,10 +279,22 @@ const SizeListScreen: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isLoading={loadingTable}
           dataSource={data.items}
           columns={columns}
           onSelectedChange={onSelectedChange}
           rowKey={(item: SizeResponse) => item.id}
+        />
+        <ModalDeleteConfirm
+          onCancel={() => setConfirmDelete(false)}
+          onOk={() => {
+            setConfirmDelete(false);
+            // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+            onDelete();
+          }}
+          title="Bạn chắc chắn xóa kích cỡ ?"
+          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+          visible={isConfirmDelete}
         />
       </Card>
     </ContentContainer>

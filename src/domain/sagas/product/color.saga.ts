@@ -3,7 +3,8 @@ import {
   colorDeleteManyApi,
   colorDeleteOneApi,
   colorDetailApi,
-  colorSearchApi, colorUpdateApi,
+  colorSearchApi,
+  colorUpdateApi,
 } from "service/product/color.service";
 import { call, takeLatest, takeEvery } from "@redux-saga/core/effects";
 import { YodyAction } from "base/BaseAction";
@@ -131,21 +132,27 @@ function* deleteManyColorSaga(action: YodyAction) {
 }
 
 export function* colorCreateSaga(action: YodyAction) {
-  const { request, onCreateSuccess } = action.payload;
+  const { request, createCallback } = action.payload;
   try {
-    let response: BaseResponse<string> = yield call(colorCreateApi, request);
+    let response: BaseResponse<ColorResponse> = yield call(
+      colorCreateApi,
+      request
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onCreateSuccess();
+        createCallback(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
+        createCallback(null);
         break;
       default:
+        createCallback(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
+    createCallback(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -153,7 +160,11 @@ export function* colorCreateSaga(action: YodyAction) {
 export function* colorUpdateSaga(action: YodyAction) {
   const { id, request, onCreateSuccess } = action.payload;
   try {
-    let response: BaseResponse<string> = yield call(colorUpdateApi, id, request);
+    let response: BaseResponse<string> = yield call(
+      colorUpdateApi,
+      id,
+      request
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess();
@@ -171,21 +182,24 @@ export function* colorUpdateSaga(action: YodyAction) {
 }
 
 export function* colorDetailRequest(action: YodyAction) {
-  const { id, setData } = action.payload;
+  const { id, getColorCallback } = action.payload;
   try {
     let response: BaseResponse<ColorResponse> = yield call(colorDetailApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        getColorCallback(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
+
         break;
       default:
         response.errors.forEach((e) => showError(e));
+        getColorCallback(false);
         break;
     }
   } catch (error) {
+    getColorCallback(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
