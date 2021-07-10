@@ -11,11 +11,13 @@ type NumberInputProps = {
   placeholder?: string,
   format?: (a: string) => string,
   replace?: (a: string) => string,
-  suffix?: React.ReactNode
+  suffix?: React.ReactNode,
+  maxLength?: number,
+  minLength?:number
 }
 
 const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
-  const {replace, value, isFloat, onChange, placeholder, style, format, onBlur, suffix} = props;
+  const {replace, value, isFloat, onChange, placeholder, style, format, onBlur, suffix, maxLength,minLength} = props;
   const onChangeText = useCallback((e) => {
     let newValue: string = e.target.value;
     let value = format ? (replace ? replace(newValue) : newValue) : newValue;
@@ -53,6 +55,11 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       onBlur={onBlurEvent}
       onChange={onChangeText}
       suffix={suffix}
+      maxLength={maxLength}
+      minLength={minLength}
+      onFocus={(e) => {
+        e.target.setSelectionRange(0, e.target.value.length);
+      }}
     />
   )
 }

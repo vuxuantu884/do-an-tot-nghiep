@@ -195,6 +195,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 return (
                   <Col key={method.code} className="btn-payment-method">
                     <Button
+                      style={{display: "flex"}}
                       type={
                         paymentData.some((p) => p.code === method.code)
                           ? "primary"
@@ -249,11 +250,11 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                   style={{ padding: "5px 0" }}
                   key={index}
                 >
-                  <Col xs={24} lg={15}>
+                  <Col xs={24} lg={15} style={{display: "flex"}}>
                     <Row align="middle">
                       {method.name}
                       {method.code === PaymentMethodCode.POINT ? (
-                        <div>
+                        <div className="point-spending">
                           <span
                             style={{
                               fontSize: 14,
@@ -268,9 +269,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                             style={{
                               width: 100,
                               marginLeft: 7,
-                              fontSize: 17,
-                              paddingTop: 4,
-                              paddingBottom: 4,
+                              borderRadius: 5
                             }}
                             className="hide-number-handle"
                             onFocus={(e) => e.target.select()}
@@ -300,7 +299,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       className="yody-payment-input hide-number-handle"
                       formatter={(value) => formatCurrency(value ? value : "0")}
                       placeholder="Nhập tiền mặt"
-                      style={{ textAlign: "right", width: "100%" }}
+                      style={{ textAlign: "right", width: "100%", borderRadius: 5 }}
                       onChange={(value) => handleInputMoney(index, value)}
                       onFocus={(e) => e.target.select()}
                     />

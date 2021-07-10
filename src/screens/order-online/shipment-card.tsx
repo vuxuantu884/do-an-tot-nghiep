@@ -27,7 +27,9 @@ import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
-import  CustomSelect  from "component/custom/select.custom";
+import CustomSelect from "component/custom/select.custom";
+import NumberInput from "component/custom/number-input.custom";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 
 type ShipmentCardProps = {
   shipmentMethod: number;
@@ -183,7 +185,18 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               name="shipping_fee_paid_to_3pls"
               label="Phí ship trả đối tác giao hàng"
             >
-              <Input placeholder="Phí ship trả đối tác giao hàng" />
+              <NumberInput
+                format={(a: string) => formatCurrency(a)}
+                replace={(a: string) => replaceFormatString(a)}
+                placeholder="0"
+                style={{
+                  textAlign: "right",
+                  width: "100%",
+                  color: "#222222",
+                }}
+                maxLength={14}
+                minLength={0}
+              />
             </Form.Item>
           </Col>
           <Col md={12}>
@@ -191,7 +204,18 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               name="shipping_fee_informed_to_customer"
               label="Phí ship báo khách"
             >
-              <Input placeholder="Phí ship báo khách" />
+              <NumberInput
+                format={(a: string) => formatCurrency(a)} 
+                replace={(a: string) => replaceFormatString(a)}
+                placeholder="0"
+                style={{
+                  textAlign: "right",
+                  width: "100%",
+                  color: "#222222",
+                }}
+                maxLength={14}
+                minLength={0}
+              />
             </Form.Item>
           </Col>
         </Row>
