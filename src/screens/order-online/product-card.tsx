@@ -188,6 +188,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             src={avatar === "" ? imgdefault : avatar}
             alt="anh"
             placeholder={imgdefault}
+            style={{width: "55px", height: "55px"}}
           />
           <div className="rs-info w-100">
             <span style={{ color: "#37394D" }} className="text">
