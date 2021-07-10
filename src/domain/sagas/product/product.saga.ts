@@ -1,5 +1,5 @@
 import { VariantResponse } from "model/product/product.model";
-import { call, put, takeLatest } from "@redux-saga/core/effects";
+import { call, put, takeEvery, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
@@ -183,6 +183,6 @@ export function* productSaga() {
   yield takeLatest(ProductType.CREATE_PRODUCT_REQEUST, createProductSaga);
   yield takeLatest(ProductType.VARIANT_DETAIL_REQUEST, variantDetailSaga);
   yield takeLatest(ProductType.VARIANT_UPDATE_REQUEST, variantUpdateSaga);
-  yield takeLatest(ProductType.UPLOAD_PRODUCT_REQUEST, uploadProductSaga);
+  yield takeEvery(ProductType.UPLOAD_PRODUCT_REQUEST, uploadProductSaga);
 }
 

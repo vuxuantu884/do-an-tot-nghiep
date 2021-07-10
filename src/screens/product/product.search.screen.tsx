@@ -3,16 +3,19 @@ import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
+import { generateQuery, Products } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch, useSelector } from "react-redux";
 import ProductFilter from "component/filter/product.filter";
-import { searchVariantsRequestAction } from "domain/actions/product/products.action";
+import { searchVariantsRequestAction, variantUpdateAction } from "domain/actions/product/products.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable from "component/table/CustomTable";
 import {
+  VariantImage,
+  VariantRequest,
   VariantResponse,
   VariantSearchQuery,
+  VariantUpdateRequest,
 } from "model/product/product.model";
 import { CountryResponse } from "model/content/country.model";
 import { ColorResponse } from "model/product/color.model";
@@ -32,6 +35,9 @@ import UrlConfig from "config/UrlConfig";
 import ImageProduct from "./component/image-product.component";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
+import UploadImageModal, { VariantImageModel } from "./component/upload-image.modal";
+import { UploadFile } from "antd/lib/upload/interface";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 const actions: Array<MenuAction> = [
   {
@@ -66,6 +72,9 @@ const initMainColorQuery: ColorSearchQuery = {
 const initColorQuery: ColorSearchQuery = {
   is_main_color: 0,
 };
+
+var variantResponse: VariantResponse|null = null;
+
 const ListProductScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
@@ -83,6 +92,8 @@ const ListProductScreen: React.FC = () => {
   const [listColor, setColor] = useState<Array<ColorResponse>>();
   const [listSize, setSize] = useState<Array<SizeResponse>>();
   const [listSupplier, setSupplier] = useState<Array<SupplierResponse>>();
+  const [uploadVisible, setUploadVisible] = useState<boolean>(false);
+  const [variant, setVariant] = useState<VariantImageModel | null>(null);
   const [listMerchandiser, setMarchandiser] =
     useState<Array<AccountResponse>>();
   let dataQuery: VariantSearchQuery = {
@@ -98,11 +109,20 @@ const ListProductScreen: React.FC = () => {
     },
     items: [],
   });
+
   const columns = [
     {
       title: "Ảnh",
       render: (value: VariantResponse) => {
-        return <ImageProduct onClick={() => {}} />;
+        return <ImageProduct onClick={() => {
+          setVariant({
+            name: value.name,
+            sku: value.sku,
+            variant_images: value.variant_images
+          })
+          variantResponse = value;
+          setUploadVisible(true);
+        }} />;
       },
     },
     {
@@ -181,6 +201,19 @@ const ListProductScreen: React.FC = () => {
     []
   );
 
+  const onSave = useCallback((variant_images: Array<VariantImage>) => {
+    setUploadVisible(false);
+    if(variantResponse !== null) {
+      dispatch(showLoading());
+      let variantRequet: VariantUpdateRequest = Products.converVariantResponseToRequest(variantResponse);
+      variantRequet.variant_images = variant_images;
+      dispatch(variantUpdateAction(variantResponse.id, variantRequet, (result) => {
+        console.log(result);
+        dispatch(hideLoading());
+      }))
+    }
+  }, [dispatch]);
+
   useEffect(() => {
     if (isFirstLoad.current) {
       dispatch(CountryGetAllAction(setCountry));
@@ -193,6 +226,7 @@ const ListProductScreen: React.FC = () => {
     isFirstLoad.current = false;
     dispatch(searchVariantsRequestAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
+  console.log(variant);
   return (
     <ContentContainer
       title="Quản lý chất liệu"
@@ -239,6 +273,12 @@ const ListProductScreen: React.FC = () => {
           rowKey={(item: VariantResponse) => item.id}
         />
       </Card>
+      <UploadImageModal
+        onCancle={() => setUploadVisible(false)} 
+        variant={variant} 
+        visible={uploadVisible} 
+        onSave={onSave}
+      />
     </ContentContainer>
   );
 };
