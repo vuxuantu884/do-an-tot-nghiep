@@ -21,7 +21,6 @@ import {
 import {
   SupplierDetailAction,
   SupplierUpdateAction,
-  SupplierSearchAction,
 } from "domain/actions/core/supplier.action";
 import { CityView } from "model/content/district.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -142,7 +141,7 @@ const UpdateSupplierScreen: React.FC = () => {
       setLoading(true);
       dispatch(SupplierUpdateAction(idNumber, values, onUpdateSuccess));
     },
-    [dispatch, onUpdateSuccess]
+    [dispatch, idNumber, onUpdateSuccess]
   );
   const onCancel = useCallback(() => history.goBack(), [history]);
   //End callback
@@ -184,7 +183,7 @@ const UpdateSupplierScreen: React.FC = () => {
       }
     }
     isFirstLoad.current = false;
-  }, [dispatch, setDataAccounts, setDataDistrict]);
+  }, [dispatch, idNumber, setDataAccounts, setDataDistrict, setSupplierDetail]);
   return (
     <ContentContainer
       isLoading={loadingData}

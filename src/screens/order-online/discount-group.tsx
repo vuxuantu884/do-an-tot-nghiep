@@ -59,7 +59,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
         <InputNumber
           className="hide-number-handle "
           formatter={(value) => formatCurrency(value ? value : "0")}
-          style={{ width: "100%", textAlign: "right", minHeight:"38px" }}
+          style={{ width: "100%", textAlign: "right", minHeight:"38px", color:"#222222", fontWeight:500 }}
           value={
             selected === MoneyType.PERCENT
               ? props.discountRate

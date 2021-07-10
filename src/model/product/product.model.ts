@@ -8,10 +8,10 @@ export interface ProductCollectionsResponse  {
   product_id:number
 }
 
-export interface VariantImagesResponse  {
-  id:number,
-  variant_id:number,
-  position:string,
+export interface VariantImage  {
+  id? :number,
+  variant_id?:number,
+  position: number|null,
   image_id:number,
   url: string,
   variant_avatar:boolean,
@@ -84,7 +84,7 @@ export interface VariantResponse extends BaseObject {
   product_id:number,
   product:ProductResponse,
   variant_prices:Array<VariantPricesResponse>,
-  variant_images:Array<VariantImagesResponse>
+  variant_images:Array<VariantImage>
 }
 
 export interface VariantView extends BaseObject {
@@ -114,7 +114,7 @@ export interface VariantView extends BaseObject {
   product_id:string,
   product:ProductResponse,
   variant_prices:Array<VariantPriceViewRequest>,
-  variant_images:Array<VariantImagesResponse>
+  variant_images:Array<VariantImage>
 }
 
 
@@ -142,15 +142,6 @@ export interface VariantPriceRequest {
   tax_percent: number,
 }
 
-export interface VariantImageRequest {
-  id?: number,
-  position: number|null,
-  image_id: number,
-  url: string,
-  variant_avatar: boolean,
-  product_avatar: boolean,
-}
-
 export interface VariantRequest {
   status: string,
   name: string,
@@ -168,9 +159,9 @@ export interface VariantRequest {
   weight: number|null,
   weight_unit: string|null,
   variant_prices: Array<VariantPriceRequest>
-  variant_images: Array<VariantImageRequest>,
+  variant_images: Array<VariantImage>,
   inventory: 0,
-  version?: null,
+  version?: number,
 }
 
 export interface VariantUpdateRequest {
@@ -194,7 +185,7 @@ export interface VariantUpdateRequest {
   weight: number|null,
   weight_unit: string|null,
   variant_prices: Array<VariantPriceRequest>,
-  variant_images: Array<VariantImageRequest>|null
+  variant_images: Array<VariantImage>|null
 }
 
 export interface ProductRequest {
@@ -225,7 +216,7 @@ export interface VariantRequestView {
   size: string|null,
   sku: string,
   quantity: number|null,
-  variant_images: Array<VariantImageRequest>,
+  variant_images: Array<VariantImage>,
 }
 
 export interface VariantPriceViewRequest {
@@ -299,7 +290,7 @@ export interface VariantUpdateView {
   weight: number,
   weight_unit: string|null,
   variant_prices: Array<VariantPriceViewRequest>,
-  variant_image: Array<VariantImageRequest>|null,
+  variant_image: Array<VariantImage>|null,
   product: ProductUpdateView
   product_id:number|null,
   supplier_id:number|null
