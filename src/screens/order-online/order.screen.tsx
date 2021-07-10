@@ -466,7 +466,7 @@ export default function Order() {
                     }}
                   >
                     <Input.TextArea
-                      placeholder="Thêm từ khóa để tiện lọc đơn hàng"
+                      placeholder="Điền ghi chú"
                       maxLength={500}
                       style={{ minHeight: "76px" }}
                     />
@@ -474,7 +474,7 @@ export default function Order() {
                   <Form.Item
                     label="Tag"
                     tooltip={{
-                      title: "Thẻ này giúp tìm kiếm các đơn hàng",
+                      title: "Thêm từ khóa để tiện lọc đơn hàng",
                       icon: <InfoCircleOutlined />,
                     }}
                     // name="tags"
