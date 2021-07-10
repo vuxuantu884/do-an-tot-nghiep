@@ -318,7 +318,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       return (
         <div className="yody-pos-qtt">
           <NumberInput
-            style={{ textAlign: "right" }}
+            style={{ textAlign: "right", fontWeight:500, color:"#222222" }}
             value={l.quantity}
             onChange={(value) => onChangeQuantity(value, index)}
           />
@@ -342,6 +342,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             style={{
               textAlign: "right",
               width:"100%",
+              fontWeight:500,
+              color:"#222222"
             }}
             value={l.price}
             onChange={(value) => onChangePrice(value, index)}
@@ -379,7 +381,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     className: "yody-table-total-money text-right",
     width: "14%",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
-      return <div>{formatCurrency(l.line_amount_after_line_discount)}</div>;
+      return <div className="yody-pos-varian-name">{formatCurrency(l.line_amount_after_line_discount)}</div>;
     },
   };
 
@@ -782,7 +784,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 Tổng
               </div>
 
-              <div style={{ width: "17%", float: "left", textAlign: "right" }}>
+              <div style={{ width: "17%", float: "left", textAlign: "right", fontWeight:500 }}>
                 {formatCurrency(getTotalAmount(items))}
               </div>
 
@@ -792,6 +794,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                   float: "left",
                   textAlign: "right",
                   color: "#E24343",
+                  fontWeight:500
                 }}
               >
                 {formatCurrency(getTotalDiscount(items))}
@@ -803,6 +806,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                   float: "left",
                   textAlign: "right",
                   color: "#0080FF",
+                  fontWeight:500
                 }}
               >
                 {formatCurrency(getTotalAmountAfferDiscount(items))}
@@ -841,10 +845,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           </Col>
           <Col xs={24} lg={12}>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Tổng tiền</strong>
-              <strong className="font-size-text">
+              <div className="font-weight-500">Tổng tiền</div>
+              <div className="font-weight-500 ">
                 {formatCurrency(amount)}
-              </strong>
+              </div>
             </Row>
 
             <Row

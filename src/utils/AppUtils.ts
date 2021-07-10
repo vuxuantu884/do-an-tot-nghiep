@@ -580,7 +580,7 @@ export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
 export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
   items.forEach((a) => {
-    if (a.product_type === 'normal') {
+    if (a.product_type === 'normal' || "combo") {
       total = total + a.amount;
     }
   });
