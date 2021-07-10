@@ -8,7 +8,6 @@ import {
   Divider,
   Tag,
 } from "antd";
-import "assets/css/v2/_sale-order.scss";
 
 const PurchaseItem = () => {
   //#region state

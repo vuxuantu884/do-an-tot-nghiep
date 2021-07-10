@@ -53,12 +53,12 @@ import {
   getTotalAmount,
   getTotalDiscount,
   getTotalAmountAfferDiscount,
+  getTotalQuantity,
 } from "utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "config/TypeConfig";
-import "assets/css/v1/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "./modal/AddGiftModal";
 import { OrderItemDiscountModel } from "model/other/Order/order-model";
@@ -308,7 +308,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     title: () => (
       <div className="text-center">
         <div>Số lượng</div>
-        <span style={{ color: "#0080FF" }}></span>
+        <span style={{ color: "#0080FF" }}>({getTotalQuantity(items)})</span>
       </div>
     ),
     className: "yody-pos-quantity text-center",
@@ -354,7 +354,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const DiscountColumnt = {
     title: "Chiết khấu",
     align: "right",
-    width: "23%",
+    width: "22%",
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -385,7 +385,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const ActionColumn = {
     title: "Thao tác",
-    width: "11%",
+    width: "12%",
     className: "yody-table-action text-center",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const menu = (

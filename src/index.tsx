@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'antd/dist/antd.min.css';
 import 'assets/font/iconmon/font.css';
-import "assets/css/v2/app.scss";
+import "assets/css/app.scss";
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';

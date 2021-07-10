@@ -60,7 +60,6 @@ import {
   ShopOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import "assets/css/v2/_sale-order.scss";
 import AddAddressModal from "./modal/addAddressModal";
 import EditCustomerModal from "./modal/editCustomerModal";
 import peopleIcon2 from "assets/img/people.svg";
