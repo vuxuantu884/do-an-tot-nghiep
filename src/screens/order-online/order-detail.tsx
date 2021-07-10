@@ -806,10 +806,10 @@ const OrderDetail = () => {
                 <Row>
                   <Space>
                     <div className="view-inventory-box">
-                      <Button type="link" className="p-0">
-                        <Space>
+                      <Button type="link" className="p-0" style={{color: "#0080ff"}}>
+                        <Space >
                           <img src={storeBluecon} alt="" />
-                          Xem tồn
+                          YODY Kho Online
                         </Space>
                       </Button>
                     </div>
@@ -898,7 +898,7 @@ const OrderDetail = () => {
                       <Space align="center">
                         <Typography.Link
                           className="font-weight-500"
-                          style={{ borderBottom: "1px dashed #0080FF" }}
+                          style={{ borderBottom: "1px dashed #1890ff" }}
                         >
                           Chiết khấu
                         </Typography.Link>
