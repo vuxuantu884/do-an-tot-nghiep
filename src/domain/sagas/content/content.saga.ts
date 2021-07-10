@@ -43,6 +43,7 @@ function* districtGetSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        console.log(response.data);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
