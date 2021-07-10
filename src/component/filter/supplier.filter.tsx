@@ -8,6 +8,7 @@ import {
   Input,
   Row,
   Select,
+  Tooltip,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { SupplierQuery } from "model/core/supplier.model";
@@ -16,6 +17,7 @@ import { createRef, useCallback, useEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import CustomFilter from "component/table/custom.filter";
+import { StarOutlined } from "@ant-design/icons";
 
 type SupplierFilterProps = {
   params: SupplierQuery;
@@ -101,17 +103,17 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
             </Select>
           </Form.Item>
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-            >
+            <Button type="primary" htmlType="submit">
               Lọc
             </Button>
           </Form.Item>
           <Form.Item>
-            <Button onClick={openFilter}>
-              Thêm bộ lọc
-            </Button>
+            <Tooltip overlay="Lưu bộ lọc" placement="top">
+              <Button icon={<StarOutlined />} />
+            </Tooltip>
+          </Form.Item>
+          <Form.Item>
+            <Button onClick={openFilter}>Thêm bộ lọc</Button>
           </Form.Item>
         </Form>
       </CustomFilter>
@@ -127,10 +129,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
           initialValues={params}
           layout="vertical"
         >
-          <Item
-            name="goods"
-            label="Ngành hàng"
-          >
+          <Item name="goods" label="Ngành hàng">
             <Select className="selector">
               <Option value="">Ngành hàng</Option>
               {goods?.map((item) => (
@@ -140,28 +139,15 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
               ))}
             </Select>
           </Item>
-          <Item
-            name="contact"
-            label="Tên / SDT người liên hệ"
-          >
-            <Input
-              placeholder="Tên/SDT người liên hệ"
-            />
+          <Item name="contact" label="Tên / SDT người liên hệ">
+            <Input placeholder="Tên/SDT người liên hệ" />
           </Item>
-          <Item
-            name="pic"
-            label="Tên / Mã người phục trách"
-          >
-            <Input
-              placeholder="Tên/Mã người phụ trách"
-            />
+          <Item name="pic" label="Tên / Mã người phục trách">
+            <Input placeholder="Tên/Mã người phụ trách" />
           </Item>
           <Row gutter={50}>
             <Col span={12}>
-              <Item
-                name="status"
-                label="Trạng thái"
-              >
+              <Item name="status" label="Trạng thái">
                 <Select className="selector">
                   <Option value="">Chọn trạng thái</Option>
                   {supplierStatus?.map((item) => (
@@ -173,10 +159,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
               </Item>
             </Col>
             <Col span={12}>
-              <Item
-                name="scorecard"
-                label="Phân cấp NCC"
-              >
+              <Item name="scorecard" label="Phân cấp NCC">
                 <Select className="selector">
                   <Option value="">Chọn phân cấp</Option>
                   {scorecard?.map((item) => (
@@ -193,10 +176,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
           </Item>
           <Row gutter={50}>
             <Col span={12}>
-              <Item
-                name="from_created_date"
-                label="Ngày tạo từ"
-              >
+              <Item name="from_created_date" label="Ngày tạo từ">
                 <DatePicker
                   className="r-5 w-100 ip-search"
                   placeholder="Ngày tạo từ"
@@ -204,9 +184,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
               </Item>
             </Col>
             <Col span={12}>
-              <Item
-                label="Đến"
-              >
+              <Item label="Đến">
                 <DatePicker
                   className="r-5 w-100 ip-search"
                   placeholder="Ngày tạo đến"
@@ -214,10 +192,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Item
-            name="note"
-            label="Ghi chú"
-          >
+          <Item name="note" label="Ghi chú">
             <Input className="r-5 ip-search" placeholder="Ghi chú" />
           </Item>
         </Form>

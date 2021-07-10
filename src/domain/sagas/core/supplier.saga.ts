@@ -10,7 +10,7 @@ import {supplierDetailApi, supplierGetApi, supplierPostApi, supplierPutApi} from
 import { showError } from "utils/ToastUtils";
 
 function* supplierSearchSaga(action: YodyAction) {
-  const { query, setData } = action.payload;
+  const { query, searchSupplierCallback } = action.payload;
   try {
     let response: BaseResponse<PageResponse<SupplierResponse>> = yield call(
       supplierGetApi,
@@ -18,7 +18,7 @@ function* supplierSearchSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        searchSupplierCallback(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
