@@ -322,6 +322,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             style={{ textAlign: "right", fontWeight:500, color:"#222222" }}
             value={l.quantity}
             onChange={(value) => onChangeQuantity(value, index)}
+            maxLength={4}
+            minLength={0}
           />
         </div>
       );
@@ -346,8 +348,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               fontWeight:500,
               color:"#222222"
             }}
+            maxLength={14}
+            minLength={0}
             value={l.price}
             onChange={(value) => onChangePrice(value, index)}
+            
           />
         </div>
       );
