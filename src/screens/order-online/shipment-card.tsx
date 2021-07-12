@@ -176,7 +176,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                     key={index.toString()}
                     value={item.id}
                   >
-                    {item.full_name} -  {item.mobile}
+                    {`${item.full_name} - ${item.mobile}`}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
