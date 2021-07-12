@@ -19,8 +19,13 @@ import CustomTable, {
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import ButtonCreate from "component/header/ButtonCreate";
-import { SupplierSearchAction } from "domain/actions/core/supplier.action";
+import {
+  SupplierDeleteAction,
+  SupplierSearchAction,
+} from "domain/actions/core/supplier.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 
 const actions: Array<MenuAction> = [
   {
@@ -45,6 +50,7 @@ const ListSupplierScreen: React.FC = () => {
   const dispatch = useDispatch();
   const [tableLoading, setTableLoading] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const supplierStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.supplier_status;
   }, shallowEqual);
@@ -56,6 +62,7 @@ const ListSupplierScreen: React.FC = () => {
   );
   let dataQuery: SupplierQuery = { ...initQuery, ...getQueryParams(query) };
   let [params, setPrams] = useState<SupplierQuery>(dataQuery);
+  const [selected, setSelected] = useState<Array<SupplierResponse>>([]);
   const [data, setData] = useState<PageResponse<SupplierResponse>>({
     metadata: {
       limit: 0,
@@ -132,6 +139,15 @@ const ListSupplierScreen: React.FC = () => {
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
+
+  const onSelect = useCallback((selectedRow: Array<SupplierResponse>) => {
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
+  }, []);
+
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
@@ -142,6 +158,34 @@ const ListSupplierScreen: React.FC = () => {
     },
     [history, params]
   );
+
+  const searchSupplierCallback = useCallback(
+    (listResult: PageResponse<SupplierResponse>) => {
+      setTableLoading(false);
+      setData(listResult);
+    },
+    []
+  );
+
+  const deleteCallback = useCallback(() => {
+    selected.splice(0, selected.length);
+    showSuccess("Xóa nhà cung cấp thành công");
+    setTableLoading(true);
+    dispatch(SupplierSearchAction(params, searchSupplierCallback));
+  }, [dispatch, params, searchSupplierCallback, selected]);
+
+  const onDelete = useCallback(() => {
+    if (selected.length === 0) {
+      showWarning("Vui lòng chọn phần tử cần xóa");
+      return;
+    }
+
+    if (selected.length === 1) {
+      let id = selected[0].id;
+      dispatch(SupplierDeleteAction(id, deleteCallback));
+      return;
+    }
+  }, [deleteCallback, dispatch, selected]);
   const onFilter = useCallback(
     (values) => {
       let newPrams = { ...params, ...values, page: 1 };
@@ -151,14 +195,15 @@ const ListSupplierScreen: React.FC = () => {
     },
     [history, params]
   );
-  const onMenuClick = useCallback((index: number) => {}, []);
-  const searchSupplierCallback = useCallback(
-    (listResult: PageResponse<SupplierResponse>) => {
-      setTableLoading(false);
-      setData(listResult);
-    },
-    []
-  );
+  const onMenuClick = useCallback((index: number) => {
+    switch (index) {
+      case 1:
+        setConfirmDelete(true);
+        // onDelete();
+        break;
+    }
+  }, []);
+
   useEffect(() => {
     setTableLoading(true);
     dispatch(SupplierSearchAction(params, searchSupplierCallback));
@@ -204,6 +249,7 @@ const ListSupplierScreen: React.FC = () => {
           showColumnSetting={true}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           columns={columnFinal}
+          onSelectedChange={onSelect}
           dataSource={data.items}
           rowKey={(item: SupplierResponse) => item.id}
         />
@@ -215,6 +261,17 @@ const ListSupplierScreen: React.FC = () => {
             setColumn(data);
           }}
           data={columns}
+        />
+        <ModalDeleteConfirm
+          onCancel={() => setConfirmDelete(false)}
+          onOk={() => {
+            setConfirmDelete(false);
+            // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+            onDelete();
+          }}
+          title="Bạn chắc chắn xóa màu sắc ?"
+          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+          visible={isConfirmDelete}
         />
       </Card>
     </ContentContainer>
