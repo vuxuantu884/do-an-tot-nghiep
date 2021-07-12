@@ -1256,7 +1256,7 @@ const OrderDetail = () => {
                                     key={index.toString()}
                                     value={item.id}
                                   >
-                                    {item.full_name}
+                                    {`${item.full_name} - ${item.mobile}`}
                                   </CustomSelect.Option>
                                 ))}
                               </CustomSelect>

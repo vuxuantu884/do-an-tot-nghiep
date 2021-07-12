@@ -62,6 +62,7 @@ export default function Order() {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
+  const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
@@ -102,6 +103,10 @@ export default function Order() {
   ) => {
     setBillingAddress(_objBillingAddress);
   };
+
+  const ChangeShippingFeeCustomer =  (value:number | null) =>{
+    setShippingFeeCustomer(value);
+  }
   //#endregion
 
   //#region Product
@@ -391,6 +396,7 @@ export default function Order() {
                 changeInfo={onChangeInfoProduct}
                 selectStore={onStoreSelect}
                 storeId={storeId}
+                shippingFeeCustomer={shippingFeeCustomer}
               />
               {/*--- end product ---*/}
               {/*--- shipment ---*/}
@@ -398,12 +404,13 @@ export default function Order() {
                 setShipmentMethodProps={onShipmentSelect}
                 shipmentMethod={shipmentMethod}
                 storeId={storeId}
+                setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
                 setPayments={onPayments}
                 paymentMethod={paymentMethod}
-                amount={orderAmount}
+                amount={shippingFeeCustomer? orderAmount + shippingFeeCustomer : orderAmount}
               />
             </Col>
             {/* Right Side */}

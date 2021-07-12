@@ -33,6 +33,7 @@ import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
+  setShippingFeeInformedCustomer: (value: number | null) => void;
   storeId: number | null;
 };
 
@@ -175,7 +176,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                     key={index.toString()}
                     value={item.id}
                   >
-                    {item.full_name}
+                    {`${item.full_name} - ${item.mobile}`}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
@@ -214,6 +215,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 }}
                 maxLength={15}
                 minLength={0}
+                onChange={props.setShippingFeeInformedCustomer}
               />
             </Form.Item>
           </Col>

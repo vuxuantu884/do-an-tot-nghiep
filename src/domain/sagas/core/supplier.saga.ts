@@ -6,7 +6,7 @@ import { SupplierType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse } from "model/core/supplier.model";
 import { call, put, takeLatest } from "redux-saga/effects";
-import {supplierDetailApi, supplierGetApi, supplierPostApi, supplierPutApi} from "service/core/supplier.service";
+import {supplierDeleteApi, supplierDetailApi, supplierGetApi, supplierPostApi, supplierPutApi} from "service/core/supplier.service";
 import { showError } from "utils/ToastUtils";
 
 function* supplierSearchSaga(action: YodyAction) {
@@ -138,10 +138,33 @@ function* supplierCreateSaga(action: YodyAction) {
   }
 }
 
+function* supplierDeleteSaga(action: YodyAction) {
+  const { id, deleteCallback } = action.payload;
+  try {
+    let response: BaseResponse<any|null> = yield call(supplierDeleteApi, id);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        deleteCallback(true);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        deleteCallback(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    deleteCallback(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* supplierSagas() {
   yield takeLatest(SupplierType.SEARCH_SUPPLIER_REQUEST, supplierSearchSaga);
   yield takeLatest(SupplierType.CREATE_SUPPLIER_REQUEST, supplierCreateSaga);
   yield takeLatest(SupplierType.GET_ALL_SUPPLIER_REQUEST, supplierGetAllSaga);
   yield takeLatest(SupplierType.EDIT_SUPPLIER_REQUEST, supplierUpdateSaga);
   yield takeLatest(SupplierType.DETAIL_SUPPLIER_REQUEST, supplierDetailSaga);
+  yield takeLatest(SupplierType.DELETE_SUPPLIER_REQUEST, supplierDeleteSaga);
 }

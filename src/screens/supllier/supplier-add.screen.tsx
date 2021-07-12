@@ -32,6 +32,7 @@ import { AppConfig } from "config/AppConfig";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import { RegUtil } from "utils/RegUtils";
+import NumberInput from "component/custom/number-input.custom";
 
 const { Item } = Form;
 const { Option, OptGroup } = Select;
@@ -86,6 +87,10 @@ const CreateSupplierScreen: React.FC = () => {
   const supplier_status = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_status
   );
+  const currentUserId = useSelector(
+    (state: RootReducerType) => state.userReducer?.account?.id
+  );
+
   //State
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
@@ -94,7 +99,24 @@ const CreateSupplierScreen: React.FC = () => {
   //EndState
   //Callback
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
-    setAccounts(data.items);
+    let listWinAccount = data.items;
+
+    setAccounts(listWinAccount);
+    // let checkUser= listWinAccount.findIndex((val)=> val.id===currentUserId);
+    // console.log(checkUser);
+    // debugger;
+    // if(checkUser!==-1 && currentUserId!== undefined){
+
+    // console.log(formRef);
+    // // setPersonInCharge(currentUserId);
+    // setTimeout(() => {
+    //   debugger;
+    //   formRef.current?.setFieldsValue({
+    //     person_in_charge: currentUserId,
+    //   });
+    // }, 10000);
+
+    //}
   }, []);
 
   const onChangeStatus = useCallback(
@@ -106,19 +128,23 @@ const CreateSupplierScreen: React.FC = () => {
     },
     [formRef]
   );
-  const onSelectDistrict = useCallback((value: number) => {
-    let cityId = -1;
-    listDistrict.forEach((item) => {
-      if (item.id === value) {
-        cityId = item.city_id;
-      }
-    });
-    if (cityId !== -1) {
-      formRef.current?.setFieldsValue({
-        city_id: cityId,
+
+  const onSelectDistrict = useCallback(
+    (value: number) => {
+      let cityId = -1;
+      listDistrict.forEach((item) => {
+        if (item.id === value) {
+          cityId = item.city_id;
+        }
       });
-    }
-  }, [formRef, listDistrict]);
+      if (cityId !== -1) {
+        formRef.current?.setFieldsValue({
+          city_id: cityId,
+        });
+      }
+    },
+    [formRef, listDistrict]
+  );
   const onCreateSuccess = useCallback(() => {
     history.push(`${UrlConfig.SUPPLIERS}`);
   }, [history]);
@@ -179,10 +205,12 @@ const CreateSupplierScreen: React.FC = () => {
         layout="vertical"
         onFinish={onFinish}
         initialValues={initRequest}
+        scrollToFirstError
       >
         <Card
           title="Thông tin cơ bản"
-          extra={[
+          key="info"
+          extra={
             <Space size={15}>
               <label className="text-default">Trạng thái</label>
               <Switch
@@ -198,8 +226,8 @@ const CreateSupplierScreen: React.FC = () => {
               <Item noStyle name="status" hidden>
                 <Input value={status} />
               </Item>
-            </Space>,
-          ]}
+            </Space>
+          }
         >
           <div className="padding-20">
             <Row>
@@ -270,6 +298,8 @@ const CreateSupplierScreen: React.FC = () => {
                     mode="multiple"
                     className="selector"
                     placeholder="Chọn ngành hàng"
+                    showArrow
+                    defaultValue="fashion"
                   >
                     {goods?.map((item) => (
                       <Option key={item.value} value={item.value}>
@@ -293,6 +323,7 @@ const CreateSupplierScreen: React.FC = () => {
                   <Select
                     placeholder="Chọn nhân viên phụ trách"
                     className="selector"
+                    // defaultValue={personInCharge}
                   >
                     {accounts.map((item) => (
                       <Option key={item.code} value={item.code}>
@@ -310,7 +341,7 @@ const CreateSupplierScreen: React.FC = () => {
                   <Select
                     disabled
                     className="selector"
-                    placeholder="Chọn ngành hàng"
+                    placeholder="Chọn quốc gia"
                   >
                     {countries?.map((item) => (
                       <Option key={item.id} value={item.id}>
@@ -391,7 +422,7 @@ const CreateSupplierScreen: React.FC = () => {
                   rules={[
                     {
                       pattern: RegUtil.EMAIL,
-                      message: "Nhập email chưa đúng định dạng",
+                      message: "Email chưa đúng định dạng",
                     },
                   ]}
                 >
@@ -405,7 +436,16 @@ const CreateSupplierScreen: React.FC = () => {
             </Row>
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Item label="Website" name="website">
+                <Item
+                  label="Website"
+                  name="website"
+                  rules={[
+                    {
+                      pattern: RegUtil.WEBSITE_URL,
+                      message: "Website chưa đúng định dạng",
+                    },
+                  ]}
+                >
                   <Input
                     className="r-5"
                     placeholder="Nhập website"
@@ -415,12 +455,21 @@ const CreateSupplierScreen: React.FC = () => {
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Item name="tax_code" label="Mã số thuế">
+                <Item
+                  name="tax_code"
+                  label="Mã số thuế"
+                  rules={[
+                    {
+                      pattern: RegUtil.NUMBERREG,
+                      message: "Mã số thuế chỉ được phép nhập số",
+                    },
+                  ]}
+                >
                   <Input
                     className="r-5"
                     placeholder="Nhập mã số thuế"
                     size="large"
-                    maxLength={255}
+                    maxLength={13}
                   />
                 </Item>
               </Col>
@@ -453,11 +502,16 @@ const CreateSupplierScreen: React.FC = () => {
                   <Item label="Thời gian công nợ">
                     <Input.Group className="ip-group" size="large" compact>
                       <Item name="debt_time" noStyle>
-                        <Input
+                        {/* <Input
                           placeholder="Nhập thời gian công nợ"
                           style={{ width: "70%" }}
                           className="ip-text-group"
                           onFocus={(e) => e.target.select()}
+                        /> */}
+                        <NumberInput
+                          isFloat
+                          style={{ width: "70%" }}
+                          placeholder="Nhập thời gian công nợ"
                         />
                       </Item>
                       <Item name="debt_time_unit" noStyle>
@@ -498,14 +552,19 @@ const CreateSupplierScreen: React.FC = () => {
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item label="Thời gian công nợ">
+                  <Item label="Số lượng đặt hàng tối thiểu">
                     <Input.Group className="ip-group" size="large" compact>
                       <Item name="moq" noStyle>
-                        <Input
+                        {/* <Input
                           placeholder="Nhập số lượng"
                           style={{ width: "70%" }}
                           className="ip-text-group"
                           onFocus={(e) => e.target.select()}
+                        /> */}
+                        <NumberInput
+                          placeholder="Nhập số lượng"
+                          isFloat
+                          style={{ width: "70%" }}
                         />
                       </Item>
                       <Item name="moq_unit" noStyle>
