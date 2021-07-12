@@ -8,7 +8,6 @@ import {
   Typography,
   Radio,
   Form,
-  Input,
   Select,
   DatePicker,
   Button,
@@ -194,7 +193,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                   width: "100%",
                   color: "#222222",
                 }}
-                maxLength={14}
+                maxLength={15}
                 minLength={0}
               />
             </Form.Item>
@@ -213,7 +212,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                   width: "100%",
                   color: "#222222",
                 }}
-                maxLength={14}
+                maxLength={15}
                 minLength={0}
               />
             </Form.Item>
