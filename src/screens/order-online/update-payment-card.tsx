@@ -33,7 +33,6 @@ import { showSuccess } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
 import { useHistory } from "react-router-dom";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
-import OrderDetail from "./order-detail";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
