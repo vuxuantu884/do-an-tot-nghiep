@@ -47,8 +47,9 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
     onMenuClick,
   } = props;
   const [visible, setVisible] = useState(false);
-
+  const [formAdvance] = Form.useForm();
   const formRef = createRef<FormInstance>();
+  
   const onFinish = useCallback(
     (values: SupplierQuery) => {
       onFilter && onFilter(values);
@@ -59,6 +60,11 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
     setVisible(false);
     formRef.current?.submit();
   }, [formRef]);
+  const onClearFilterAdvanceClick = useCallback(() => {
+    formAdvance.resetFields();
+    setVisible(false);
+    formRef.current?.submit();
+  }, [formAdvance, formRef]);
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
@@ -118,12 +124,13 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
         </Form>
       </CustomFilter>
       <BaseFilter
-        onClearFilter={onClearFilter}
+        onClearFilter={onClearFilterAdvanceClick}
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visible}
       >
         <Form
+          form={formAdvance}
           onFinish={onFinish}
           ref={formRef}
           initialValues={params}

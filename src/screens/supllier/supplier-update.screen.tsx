@@ -52,6 +52,7 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import { showSuccess } from "../../utils/ToastUtils";
 import { RegUtil } from "utils/RegUtils";
+import NumberInput from "component/custom/number-input.custom";
 
 const { Item } = Form;
 const { Option, OptGroup } = Select;
@@ -92,7 +93,7 @@ const UpdateSupplierScreen: React.FC = () => {
   //State
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
-  const [cityViews, setCityView] = useState<Array<CityView>>([]);
+  const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [status, setStatus] = useState<string>();
   const [supplier, setSupplier] = useState<SupplierDetail | null>(null);
   //EndState
@@ -100,10 +101,7 @@ const UpdateSupplierScreen: React.FC = () => {
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
     setAccounts(data.items);
   }, []);
-  const setDataDistrict = useCallback((data: Array<DistrictResponse>) => {
-    let cityViews: Array<CityView> = convertDistrict(data);
-    setCityView(cityViews);
-  }, []);
+
   const onChangeStatus = useCallback(
     (checked: boolean) => {
       setStatus(checked ? "active" : "inactive");
@@ -116,12 +114,10 @@ const UpdateSupplierScreen: React.FC = () => {
   const onSelectDistrict = useCallback(
     (value: number) => {
       let cityId = -1;
-      cityViews.forEach((item) => {
-        item.districts.forEach((item1) => {
-          if (item1.id === value) {
-            cityId = item.city_id;
-          }
-        });
+      listDistrict.forEach((item) => {
+        if (item.id === value) {
+          cityId = item.city_id;
+        }
       });
       if (cityId !== -1) {
         formRef.current?.setFieldsValue({
@@ -129,7 +125,7 @@ const UpdateSupplierScreen: React.FC = () => {
         });
       }
     },
-    [cityViews, formRef]
+    [formRef, listDistrict]
   );
   const onUpdateSuccess = useCallback(() => {
     setLoading(false);
@@ -177,13 +173,13 @@ const UpdateSupplierScreen: React.FC = () => {
         )
       );
       dispatch(CountryGetAllAction(setCountries));
-      dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
+      dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
       if (!Number.isNaN(idNumber)) {
         dispatch(SupplierDetailAction(idNumber, setSupplierDetail));
       }
     }
     isFirstLoad.current = false;
-  }, [dispatch, idNumber, setDataAccounts, setDataDistrict, setSupplierDetail]);
+  }, [dispatch, idNumber, setDataAccounts, setListDistrict, setSupplierDetail]);
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -213,6 +209,7 @@ const UpdateSupplierScreen: React.FC = () => {
           layout="vertical"
           onFinish={onFinish}
           initialValues={supplier}
+          scrollToFirstError
         >
           <Form.Item hidden noStyle name="version">
             <Input />
@@ -309,6 +306,8 @@ const UpdateSupplierScreen: React.FC = () => {
                       mode="multiple"
                       className="selector"
                       placeholder="Chọn ngành hàng"
+                      showArrow
+                      defaultValue="fashion"
                     >
                       {goods?.map((item) => (
                         <Option key={item.value} value={item.value}>
@@ -387,15 +386,12 @@ const UpdateSupplierScreen: React.FC = () => {
                       onSelect={onSelectDistrict}
                       className="selector"
                       placeholder="Chọn khu vực"
+                      optionFilterProp="children"
                     >
-                      {cityViews?.map((item) => (
-                        <OptGroup key={item.city_id} label={item.city_name}>
-                          {item.districts.map((item1) => (
-                            <Option key={item1.id} value={item1.id}>
-                              {item1.name}
-                            </Option>
-                          ))}
-                        </OptGroup>
+                      {listDistrict?.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.city_name} - {item.name}
+                        </Option>
                       ))}
                     </Select>
                   </Item>
@@ -440,7 +436,7 @@ const UpdateSupplierScreen: React.FC = () => {
                     rules={[
                       {
                         pattern: RegUtil.EMAIL,
-                        message: "Nhập email chưa đúng định dạng",
+                        message: "Email chưa đúng định dạng",
                       },
                     ]}
                   >
@@ -454,7 +450,16 @@ const UpdateSupplierScreen: React.FC = () => {
               </Row>
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item label="Website" name="website">
+                  <Item
+                    label="Website"
+                    name="website"
+                    rules={[
+                      {
+                        pattern: RegUtil.WEBSITE_URL,
+                        message: "Website chưa đúng định dạng",
+                      },
+                    ]}
+                  >
                     <Input
                       className="r-5"
                       placeholder="Nhập website"
@@ -464,12 +469,21 @@ const UpdateSupplierScreen: React.FC = () => {
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item name="tax_code" label="Mã số thuế">
+                  <Item
+                    name="tax_code"
+                    label="Mã số thuế"
+                    rules={[
+                      {
+                        pattern: RegUtil.NUMBERREG,
+                        message: "Mã số thuế chỉ được phép nhập số",
+                      },
+                    ]}
+                  >
                     <Input
                       className="r-5"
                       placeholder="Nhập mã số thuế"
                       size="large"
-                      maxLength={255}
+                      maxLength={13}
                     />
                   </Item>
                 </Col>
@@ -502,11 +516,16 @@ const UpdateSupplierScreen: React.FC = () => {
                     <Item label="Thời gian công nợ">
                       <Input.Group className="ip-group" size="large" compact>
                         <Item name="debt_time" noStyle>
-                          <Input
+                          {/* <Input
                             placeholder="Nhập thời gian công nợ"
                             style={{ width: "70%" }}
                             className="ip-text-group"
                             onFocus={(e) => e.target.select()}
+                          /> */}
+                          <NumberInput
+                            placeholder="Nhập thời gian công nợ"
+                            isFloat
+                            style={{ width: "70%" }}
                           />
                         </Item>
                         <Item name="debt_time_unit" noStyle>
@@ -550,11 +569,16 @@ const UpdateSupplierScreen: React.FC = () => {
                     <Item label="Số lượng đặt hàng tối thiểu">
                       <Input.Group className="ip-group" size="large" compact>
                         <Item name="moq" noStyle>
-                          <Input
+                          {/* <Input
                             placeholder="Nhập số lượng"
                             style={{ width: "70%" }}
                             className="ip-text-group"
                             onFocus={(e) => e.target.select()}
+                          /> */}
+                          <NumberInput
+                            placeholder="Nhập số lượng"
+                            isFloat
+                            style={{ width: "70%" }}
                           />
                         </Item>
                         <Item name="moq_unit" noStyle>
