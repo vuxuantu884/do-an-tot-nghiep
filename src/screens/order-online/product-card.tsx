@@ -828,6 +828,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Checkbox
                 className="margin-bottom-15"
                 onChange={() => console.log(1)}
+                style={{fontWeight: 500}}
               >
                 Bỏ chiết khấu tự động
               </Checkbox>
@@ -836,6 +837,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Checkbox
                 className="margin-bottom-15"
                 onChange={() => console.log(1)}
+                style={{fontWeight: 500}}
               >
                 Không tính thuế VAT
               </Checkbox>
@@ -844,6 +846,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Checkbox
                 className="margin-bottom-15"
                 onChange={() => console.log(1)}
+                style={{fontWeight: 500}}
               >
                 Bỏ tích điểm tự động
               </Checkbox>

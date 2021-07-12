@@ -93,6 +93,8 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
                                 }
                                 onChange={onchangeDiscount}
                             />
+
+                            
                         </Input.Group>
                     </Form.Item>
                 </div>
