@@ -200,6 +200,7 @@ const OrderDetail = () => {
   );
 
   const stepsStatus = () => {
+    console.log(OrderDetail, FulFillmentStatus)
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
     }

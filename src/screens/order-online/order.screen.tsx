@@ -41,6 +41,7 @@ import { OrderResponse } from "model/response/order/order.response";
 import { OrderStatus, TaxTreatment } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
+import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
 //#endregion
 
 var typeButton = -1;
@@ -64,8 +65,27 @@ export default function Order() {
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
+  const formRef = createRef<FormInstance>();
+  const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] = useState<boolean>(false)
   //#endregion
 
+  //show modal save and confirm order ?
+  const onCancelSaveAndConfirm = () => {
+    setIsvibleSaveAndConfirm(false)
+  }
+  const onOkSaveAndConfirm = () => {
+    typeButton = 1;
+    formRef.current?.submit();
+    setIsvibleSaveAndConfirm(false)
+  }
+  const showSaveAndConfirmModal = () => {
+    if(shipmentMethod === 2 || paymentMethod === 1){
+      setIsvibleSaveAndConfirm(true)
+    }else{
+      typeButton = 0;
+      formRef.current?.submit();
+    }
+  }
   //#region Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
@@ -117,7 +137,7 @@ export default function Order() {
   };
 
   //#endregion
-  const formRef = createRef<FormInstance>();
+  
 
   const onShipmentSelect = (value: number) => {
     setShipmentMethod(value);
@@ -503,12 +523,9 @@ export default function Order() {
           </Row>
           <div className="margin-top-10" style={{ textAlign: "right" }}>
             <Space size={12}>
-              <Button>Huỷ</Button>
+              <Button onClick={() => history.push(`${UrlConfig.ORDER}/list`)}>Huỷ</Button>
               <Button
-                onClick={() => {
-                  typeButton = 0;
-                  formRef.current?.submit();
-                }}
+                onClick={showSaveAndConfirmModal}
               >
                 Lưu nháp
               </Button>
@@ -525,6 +542,13 @@ export default function Order() {
           </div>
         </Form>
       </div>
+      <SaveAndConfirmOrder 
+       onCancel={onCancelSaveAndConfirm}
+       onOk={onOkSaveAndConfirm}
+       visible={isvibleSaveAndConfirm}
+       title="Xác nhận đơn hàng"
+       text="Đơn hàng này có Giao hàng và Thanh toán, vì vậy đơn sẽ được duyệt tự động. Bạn có chắc Lưu và Duyệt đơn này không?"
+     />
     </ContentContainer>
   );
 }
