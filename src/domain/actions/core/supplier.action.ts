@@ -24,3 +24,6 @@ export const SupplierUpdateAction = (id: number, request: SupplierUpdateRequest,
 export const SupplierDetailAction = (id: number, setData: (response: SupplierResponse|false) => void) => {
   return BaseAction(SupplierType.DETAIL_SUPPLIER_REQUEST, {id, setData});
 }
+export const SupplierDeleteAction = (id: number, deleteCallback: (result: any|null) => void) => {
+  return BaseAction(SupplierType.DELETE_SUPPLIER_REQUEST, {id, deleteCallback});
+}
