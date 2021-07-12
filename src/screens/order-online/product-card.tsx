@@ -76,6 +76,7 @@ import { OrderLineItemRequest } from "model/request/order.request";
 type ProductCardProps = {
   storeId: number | null;
   selectStore: (item: number) => void;
+  shippingFeeCustomer: number|null;
   changeInfo: (
     items: Array<OrderLineItemRequest>,
     amount: number,
@@ -828,6 +829,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Checkbox
                 className="margin-bottom-15"
                 onChange={() => console.log(1)}
+                style={{fontWeight: 500}}
               >
                 Bỏ chiết khấu tự động
               </Checkbox>
@@ -836,6 +838,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Checkbox
                 className="margin-bottom-15"
                 onChange={() => console.log(1)}
+                style={{fontWeight: 500}}
               >
                 Không tính thuế VAT
               </Checkbox>
@@ -844,6 +847,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Checkbox
                 className="margin-bottom-15"
                 onChange={() => console.log(1)}
+                style={{fontWeight: 500}}
               >
                 Bỏ tích điểm tự động
               </Checkbox>
@@ -925,13 +929,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
             <Row className="payment-row padding-top-10" justify="space-between">
               <div className="font-weight-500">Phí ship báo khách</div>
-              <div className="font-weight-500 payment-row-money">0</div>
+              <div className="font-weight-500 payment-row-money">{props.shippingFeeCustomer !== null ? formatCurrency(props.shippingFeeCustomer) : 0}</div>
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Khách cần trả</strong>
               <strong className="text-success font-size-text">
-                {formatCurrency(changeMoney)}
+                {props.shippingFeeCustomer !== null ? formatCurrency(changeMoney + props.shippingFeeCustomer): formatCurrency(changeMoney)}
               </strong>
             </Row>
           </Col>

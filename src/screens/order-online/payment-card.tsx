@@ -217,7 +217,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
             </Row>
           </Col>
 
-          <Col span={12}>
+          <Col span={14}>
             <Row
               gutter={24}
               className="row-price"
@@ -307,7 +307,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                   <Col span={2} style={{ paddingLeft: 0 }}>
                     <Button
                       type="text"
-                      className="p-0 m-0"
+                      className="p-0 m-0 ant-btn-custom"
                       onClick={() => {
                         handlePickPaymentMethod(method.code);
                       }}
@@ -321,7 +321,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
             <Row
               gutter={24}
               className="row-price total-customer-pay"
-              style={{ marginLeft: 0, marginRight: 0 }}
+              style={{ margin: "10px 0"}}
             >
               <Col
                 xs={13}
