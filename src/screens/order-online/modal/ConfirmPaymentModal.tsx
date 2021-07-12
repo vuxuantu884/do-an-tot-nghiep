@@ -5,6 +5,7 @@ type ConfirmPaymentModalProps = {
   order_id: number | null;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (e: React.MouseEvent<HTMLElement>) => void;
+  text: string;
 }
 
 const ConfirmPaymentModal: React.FC<ConfirmPaymentModalProps> = (props: ConfirmPaymentModalProps) => {
@@ -17,13 +18,10 @@ const ConfirmPaymentModal: React.FC<ConfirmPaymentModalProps> = (props: ConfirmP
             centered
             okText="Đồng ý"
             cancelText="Thoát"
-            title="Xác nhận thanh toán cho đơn hàng"
+            title="Bạn muốn xác nhận thanh toán cho đơn hàng này?"
         >
-            <span>Bạn muốn xác nhận thanh toán cho đơn hàng này?</span> <br/>
-
             <span>
-                Đơn hàng sẽ được duyệt khi xác nhận thanh toán. Bạn không thay
-                đổi được thông tin thanh toán của đơn sau khi xác nhận?
+                {props.text}
             </span>
         </Modal>
   )

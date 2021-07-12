@@ -13,13 +13,11 @@ import {
 } from "antd";
 import { InfoCircleOutlined, ProfileOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
-import "assets/css/v2/_sale-order.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { OrderItemModel } from "model/other/Order/order-model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
@@ -290,7 +288,7 @@ export default function Order() {
       if (lstFulFillment != null) {
       }
       values.fulfillments = lstFulFillment;
-      values.action = "finalized";
+      values.action = OrderStatus.FINALIZED;
       values.payments = payments;
     }
     values.tags = tags;
@@ -299,7 +297,16 @@ export default function Order() {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
-    dispatch(orderCreateAction(values, onCreateSuccess));
+
+    if (values.customer_id === undefined || values.customer_id === null) {
+      showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
+    } else {
+      if (items.length === 0) {
+        showError("Vui lòng chọn ít nhất 1 sản phẩm");
+      } else {
+        dispatch(orderCreateAction(values, onCreateSuccess));
+      }
+    }
   };
   //#endregion
 
@@ -325,7 +332,7 @@ export default function Order() {
           name: "Thêm đơn hàng online",
         },
       ]}
-      extra={<CreateBillStep status="draff" />}
+      extra={<CreateBillStep status="draff" orderDetail={null} />}
     >
       <div className="orders">
         <Form
@@ -431,7 +438,8 @@ export default function Order() {
                     label="Tham chiếu"
                     name="reference"
                     tooltip={{
-                      title: "Tham chiếu đơn hàng",
+                      title:
+                        "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",
                       icon: <InfoCircleOutlined />,
                     }}
                   >
@@ -441,7 +449,7 @@ export default function Order() {
                     label="Đường dẫn"
                     name="url"
                     tooltip={{
-                      title: "Đường dẫn sản phẩm",
+                      title: "Thêm đường dẫn đơn hàng gốc trên kênh bán hàng",
                       icon: <InfoCircleOutlined />,
                     }}
                   >
@@ -463,12 +471,12 @@ export default function Order() {
                     name="note"
                     label="Ghi chú"
                     tooltip={{
-                      title: "Ghi chú đơn hàng",
+                      title: "Thêm thông tin ghi chú chăm sóc khách hàng",
                       icon: <InfoCircleOutlined />,
                     }}
                   >
                     <Input.TextArea
-                      placeholder="Điền Ghi chú"
+                      placeholder="Điền ghi chú"
                       maxLength={500}
                       style={{ minHeight: "76px" }}
                     />
@@ -476,7 +484,7 @@ export default function Order() {
                   <Form.Item
                     label="Tag"
                     tooltip={{
-                      title: "Thẻ này giúp tìm kiếm các đơn hàng",
+                      title: "Thêm từ khóa để tiện lọc đơn hàng",
                       icon: <InfoCircleOutlined />,
                     }}
                     // name="tags"

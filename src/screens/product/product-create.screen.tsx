@@ -54,7 +54,7 @@ import {
 import CustomSelect from "component/custom/select.custom";
 import {
   ProductRequestView,
-  VariantImageRequest,
+  VariantImage,
   VariantRequestView,
   VariantResponse,
 } from "model/product/product.model";
@@ -65,7 +65,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { AccountResponse } from "model/account/account.model";
 import { productCreateAction } from "domain/actions/product/products.action";
 
-import UploadImageModal from "./component/upload-image.modal";
+import UploadImageModal, { VariantImageModel } from "./component/upload-image.modal";
 import ImageProduct from "./component/image-product.component";
 import ContentContainer from "component/container/content.container";
 import { RegUtil } from "utils/RegUtils";
@@ -177,7 +177,7 @@ const ProductCreateScreen: React.FC = () => {
   const [status, setStatus] = useState<string>(initialRequest.status);
   const [isCombo, setCombo] = useState<boolean>(false);
   const [isVisibleUpload, setVisibleUpload] = useState<boolean>(false);
-  const [variant, setVariant] = useState<VariantRequestView | null>(null);
+  const [variant, setVariant] = useState<VariantImageModel | null>(null);
   const [selectedGood, setSelectedGood] = useState<string | null>(
     initialForm.goods
   );
@@ -227,7 +227,11 @@ const ProductCreateScreen: React.FC = () => {
   }, [history]);
   const onClickUpload = useCallback(
     (item: VariantRequestView, index: number) => {
-      setVariant(item);
+      setVariant({
+        name: item.name,
+        sku: item.sku,
+        variant_images: item.variant_images
+      });
       setVisibleUpload(true);
     },
     []
@@ -265,7 +269,7 @@ const ProductCreateScreen: React.FC = () => {
     title: "Ảnh",
     dataIndex: "image",
     render: (
-      images: Array<VariantImageRequest>,
+      images: Array<VariantImage>,
       item: VariantRequestView,
       index: number
     ) => {

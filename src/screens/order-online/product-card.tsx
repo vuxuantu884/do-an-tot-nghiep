@@ -53,12 +53,12 @@ import {
   getTotalAmount,
   getTotalDiscount,
   getTotalAmountAfferDiscount,
+  getTotalQuantity,
 } from "utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "config/TypeConfig";
-import "assets/css/v1/container.scss";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "./modal/AddGiftModal";
 import { OrderItemDiscountModel } from "model/other/Order/order-model";
@@ -188,6 +188,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             src={avatar === "" ? imgdefault : avatar}
             alt="anh"
             placeholder={imgdefault}
+            style={{width: "55px", height: "55px"}}
           />
           <div className="rs-info w-100">
             <span style={{ color: "#37394D" }} className="text">
@@ -308,7 +309,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     title: () => (
       <div className="text-center">
         <div>Số lượng</div>
-        <span style={{ color: "#0080FF" }}></span>
+       {getTotalQuantity(items) > 0 && <span style={{ color: "#0080FF" }}>({getTotalQuantity(items)})</span>}
       </div>
     ),
     className: "yody-pos-quantity text-center",
@@ -318,9 +319,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       return (
         <div className="yody-pos-qtt">
           <NumberInput
-            style={{ textAlign: "right" }}
+            style={{ textAlign: "right", fontWeight:500, color:"#222222" }}
             value={l.quantity}
             onChange={(value) => onChangeQuantity(value, index)}
+            maxLength={4}
+            minLength={0}
           />
         </div>
       );
@@ -342,9 +345,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             style={{
               textAlign: "right",
               width:"100%",
+              fontWeight:500,
+              color:"#222222"
             }}
+            maxLength={14}
+            minLength={0}
             value={l.price}
             onChange={(value) => onChangePrice(value, index)}
+            
           />
         </div>
       );
@@ -354,7 +362,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const DiscountColumnt = {
     title: "Chiết khấu",
     align: "right",
-    width: "23%",
+    width: "22%",
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
@@ -379,13 +387,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     className: "yody-table-total-money text-right",
     width: "14%",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
-      return <div>{formatCurrency(l.line_amount_after_line_discount)}</div>;
+      return <div className="yody-pos-varian-name">{formatCurrency(l.line_amount_after_line_discount)}</div>;
     },
   };
 
   const ActionColumn = {
     title: "Thao tác",
-    width: "11%",
+    width: "12%",
     className: "yody-table-action text-center",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const menu = (
@@ -646,21 +654,21 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       }
       extra={
         <Space size={20}>
-          <Checkbox onChange={() => setSplitLine(!splitLine)}>
+          <Checkbox onChange={() => setSplitLine(!splitLine)} style={{color: "#222222", fontWeight: 500, fontSize:14}}>
             Tách dòng
           </Checkbox>
-          <span>Chính sách giá</span>
-          <Form.Item name="price_type" style={{ margin: "0px" }}>
-            <Select style={{ minWidth: 150 }} placeholder="Chính sách giá">
-              <Select.Option value="retail_price">Giá bán lẻ</Select.Option>
+          <span style={{color: "#4F687D", fontSize: 13}}>Chính sách giá</span>
+          <Form.Item name="price_type" style={{ margin: "0px"}}>
+            <Select style={{ minWidth: 145, height: 38}} placeholder="Chính sách giá">
+              <Select.Option value="retail_price" color="#222222">Giá bán lẻ</Select.Option>
               <Select.Option value="whole_sale_price">
                 Giá bán buôn
               </Select.Option>
             </Select>
           </Form.Item>
-          <Link className="text-focus" to="#">
-            <Space>
-              <ShopOutlined /> Xem tồn <ArrowRightOutlined />
+          <Link className="text-focus" to="#" style={{color: "#0080ff"}}>
+            <Space style={{height: "17"}}>
+              <ShopOutlined style={{color: "#0080ff"}}/> Xem tồn <ArrowRightOutlined style={{color: "#0080ff"}}/>
             </Space>
           </Link>
         </Space>
@@ -782,7 +790,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 Tổng
               </div>
 
-              <div style={{ width: "17%", float: "left", textAlign: "right" }}>
+              <div style={{ width: "17%", float: "left", textAlign: "right", fontWeight:500 }}>
                 {formatCurrency(getTotalAmount(items))}
               </div>
 
@@ -792,6 +800,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                   float: "left",
                   textAlign: "right",
                   color: "#E24343",
+                  fontWeight:500
                 }}
               >
                 {formatCurrency(getTotalDiscount(items))}
@@ -803,6 +812,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                   float: "left",
                   textAlign: "right",
                   color: "#0080FF",
+                  fontWeight:500
                 }}
               >
                 {formatCurrency(getTotalAmountAfferDiscount(items))}
@@ -841,10 +851,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           </Col>
           <Col xs={24} lg={12}>
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Tổng tiền</strong>
-              <strong className="font-size-text">
+              <div className="font-weight-500">Tổng tiền</div>
+              <div className="font-weight-500 ">
                 {formatCurrency(amount)}
-              </strong>
+              </div>
             </Row>
 
             <Row

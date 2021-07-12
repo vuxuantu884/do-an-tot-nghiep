@@ -13,15 +13,12 @@ type CustomDatepickerProps = {
 
 const CustomDatepicker: React.FC<CustomDatepickerProps> = (props: CustomDatepickerProps) => {
   const {value,  onChange, placeholder, style} = props;
-  console.log('value', value);
   return (
     <DatePicker
       style={style}
       value={!isUndefinedOrNull(value) ? moment(value) : undefined}
       placeholder={placeholder}
       onChange={(v, dateSring) => {
-        console.log(v);
-        console.log(dateSring);
         onChange && onChange(v?.utc().format())
       }}
       format={DATE_FORMAT.DDMMYYY}

@@ -1,9 +1,6 @@
 import { BaseObject } from "model/base/base.response";
 
-export interface OrderResponse {
-  id: number | null;
-  code: string | null;
-  version: number | null;
+export interface OrderResponse extends BaseObject {
   company_id: number | null;
   company: string | null;
   store_id: number | null;

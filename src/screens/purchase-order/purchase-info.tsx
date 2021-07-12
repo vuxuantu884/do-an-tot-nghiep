@@ -6,7 +6,6 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { InfoCircleOutlined, ProfileOutlined } from "@ant-design/icons";
 import { AccountResponse } from "model/account/account.model";
-import "assets/css/v2/_sale-order.scss";
 import { StoreResponse } from "model/core/store.model";
 
 type PurchaseInfoProps = {
