@@ -44,7 +44,7 @@ import moment from "moment";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
 //#endregion
 
-var typeButton = -1;
+var typeButton = "";
 export default function Order() {
   //#region State
   const dispatch = useDispatch();
@@ -62,31 +62,17 @@ export default function Order() {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
-  const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(null);
+  const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
+    null
+  );
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
-  const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] = useState<boolean>(false)
+  const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] =
+    useState<boolean>(false);
   //#endregion
 
-  //show modal save and confirm order ?
-  const onCancelSaveAndConfirm = () => {
-    setIsvibleSaveAndConfirm(false)
-  }
-  const onOkSaveAndConfirm = () => {
-    typeButton = 1;
-    formRef.current?.submit();
-    setIsvibleSaveAndConfirm(false)
-  }
-  const showSaveAndConfirmModal = () => {
-    if(shipmentMethod === 2 || paymentMethod === 1){
-      setIsvibleSaveAndConfirm(true)
-    }else{
-      typeButton = 0;
-      formRef.current?.submit();
-    }
-  }
   //#region Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
@@ -104,9 +90,9 @@ export default function Order() {
     setBillingAddress(_objBillingAddress);
   };
 
-  const ChangeShippingFeeCustomer =  (value:number | null) =>{
+  const ChangeShippingFeeCustomer = (value: number | null) => {
     setShippingFeeCustomer(value);
-  }
+  };
   //#endregion
 
   //#region Product
@@ -142,7 +128,6 @@ export default function Order() {
   };
 
   //#endregion
-  
 
   const onShipmentSelect = (value: number) => {
     setShipmentMethod(value);
@@ -229,7 +214,11 @@ export default function Order() {
       listFullfillmentRequest.push(request);
     }
 
-    if (paymentMethod === 3 && shipmentMethod === 4 && typeButton === 1) {
+    if (
+      paymentMethod === 3 &&
+      shipmentMethod === 4 &&
+      typeButton === OrderStatus.FINALIZED
+    ) {
       request.shipment = null;
       listFullfillmentRequest.push(request);
     }
@@ -302,16 +291,34 @@ export default function Order() {
     [history]
   );
 
+  //show modal save and confirm order ?
+  const onCancelSaveAndConfirm = () => {
+    setIsvibleSaveAndConfirm(false);
+  };
+
+  const onOkSaveAndConfirm = () => {
+    typeButton = OrderStatus.FINALIZED;
+    formRef.current?.submit();
+    setIsvibleSaveAndConfirm(false);
+  };
+
+  const showSaveAndConfirmModal = () => {
+    if (shipmentMethod !== 4 || paymentMethod !== 3) {
+      setIsvibleSaveAndConfirm(true);
+    } else {
+      typeButton = OrderStatus.DRAFT;
+      formRef.current?.submit();
+    }
+  };
+
   const onFinish = (values: OrderRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    if (typeButton === 0) {
+    if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
       values.payments = [];
       values.action = OrderStatus.DRAFT;
     } else {
-      if (lstFulFillment != null) {
-      }
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments;
@@ -410,7 +417,11 @@ export default function Order() {
                 setSelectedPaymentMethod={changePaymentMethod}
                 setPayments={onPayments}
                 paymentMethod={paymentMethod}
-                amount={shippingFeeCustomer? orderAmount + shippingFeeCustomer : orderAmount}
+                amount={
+                  shippingFeeCustomer
+                    ? orderAmount + shippingFeeCustomer
+                    : orderAmount
+                }
               />
             </Col>
             {/* Right Side */}
@@ -530,16 +541,14 @@ export default function Order() {
           </Row>
           <div className="margin-top-10" style={{ textAlign: "right" }}>
             <Space size={12}>
-              <Button onClick={() => history.push(`${UrlConfig.ORDER}/list`)}>Huỷ</Button>
-              <Button
-                onClick={showSaveAndConfirmModal}
-              >
-                Lưu nháp
+              <Button onClick={() => history.push(`${UrlConfig.ORDER}/list`)}>
+                Huỷ
               </Button>
+              <Button onClick={showSaveAndConfirmModal}>Lưu nháp</Button>
               <Button
                 type="primary"
                 onClick={() => {
-                  typeButton = 1;
+                  typeButton = OrderStatus.FINALIZED;
                   formRef.current?.submit();
                 }}
               >
@@ -547,15 +556,15 @@ export default function Order() {
               </Button>
             </Space>
           </div>
+          <SaveAndConfirmOrder
+            onCancel={onCancelSaveAndConfirm}
+            onOk={onOkSaveAndConfirm}
+            visible={isvibleSaveAndConfirm}
+            title="Xác nhận đơn hàng"
+            text="Đơn hàng này có Giao hàng và Thanh toán, vì vậy đơn sẽ được duyệt tự động. Bạn có chắc Lưu và Duyệt đơn này không?"
+          />
         </Form>
       </div>
-      <SaveAndConfirmOrder 
-       onCancel={onCancelSaveAndConfirm}
-       onOk={onOkSaveAndConfirm}
-       visible={isvibleSaveAndConfirm}
-       title="Xác nhận đơn hàng"
-       text="Đơn hàng này có Giao hàng và Thanh toán, vì vậy đơn sẽ được duyệt tự động. Bạn có chắc Lưu và Duyệt đơn này không?"
-     />
     </ContentContainer>
   );
 }
