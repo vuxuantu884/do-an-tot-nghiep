@@ -34,10 +34,12 @@ import { PaymentMethodOption } from "utils/Constants";
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
+  setTakeMoneyHelper: (value: number | null) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
   storeId: number | null;
   amount: number
   paymentMethod: number
+  takeMoneyHelper: number
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
@@ -222,18 +224,19 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               />
             </Form.Item>
             {props.paymentMethod === PaymentMethodOption.COD && <Form.Item label="Tiền thu hộ">
-              <InputNumber
-                placeholder="Nhập số tiền"
-                className="form-control text-right hide-handler-wrap w-100"
+            <NumberInput
+                format={(a: string) => formatCurrency(a)} 
+                replace={(a: string) => replaceFormatString(a)}
+                placeholder="0"
+                value={props.takeMoneyHelper || props.amount}
+                onChange={(value: any)=> props.setTakeMoneyHelper(value)}
                 style={{
-                  textAlign: "left",
+                  textAlign: "right",
                   width: "100%",
                   color: "#222222",
                 }}
-                min={0}
-                max={999999999999}
-                value={props.amount}
-                formatter={(value) => formatCurrency(value ? value : "0")}
+                maxLength={999999999999}
+                minLength={0}
               />
             </Form.Item>}
             </Col>

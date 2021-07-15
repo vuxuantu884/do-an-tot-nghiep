@@ -73,6 +73,7 @@ export default function Order() {
   const formRef = createRef<FormInstance>();
   const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] =
     useState<boolean>(false);
+  const [takeMoneyHelper, setTakeMoneyHelper] = useState<any>(0)
   //#endregion
 
   //#region Customer
@@ -441,6 +442,8 @@ export default function Order() {
                 shipmentMethod={shipmentMethod}
                 storeId={storeId}
                 setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
+                setTakeMoneyHelper={setTakeMoneyHelper}
+                takeMoneyHelper={takeMoneyHelper}
                 amount={
                   shippingFeeCustomer
                     ? orderAmount + shippingFeeCustomer
