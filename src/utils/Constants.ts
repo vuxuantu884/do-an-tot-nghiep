@@ -37,3 +37,9 @@ export const MoneyType = {
   MONEY: "money",
   PERCENT: "percent",
 };
+
+export const PaymentMethodOption = {
+  COD: 1,
+  PREPAYMENT: 2,
+  POSTPAYMENT: 3
+}

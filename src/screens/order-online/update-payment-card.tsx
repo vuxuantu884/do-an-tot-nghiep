@@ -86,7 +86,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     paymentData.forEach((p) => (total = total + p.amount));
     return total;
   }, [paymentData]);
-
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);

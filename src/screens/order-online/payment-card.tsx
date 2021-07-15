@@ -144,19 +144,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
           className="payment-cod-box"
           hidden={props.paymentMethod !== 1}
         >
-          <Col xs={24} lg={6}>
-            <Form.Item label="Tiền thu hộ">
-              <InputNumber
-                placeholder="Nhập số tiền"
-                className="form-control text-right hide-handler-wrap w-100"
-                style={{ width: "100%" }}
-                min={0}
-                max={999999999999}
-                value={props.amount}
-                formatter={(value) => formatCurrency(value ? value : "0")}
-              />
-            </Form.Item>
-          </Col>
+
         </Row>
 
         <Row gutter={24} hidden={props.paymentMethod !== 2}>
