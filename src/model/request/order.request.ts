@@ -125,6 +125,7 @@ export interface ShipmentRequest {
   expected_received_date?: string | null;
   reference_status: string | null;
   reference_status_explanation: string | null;
+  cod: number | null;
   cancel_reason: string | null;
   tracking_code: string | null;
   tracking_url: string | null;

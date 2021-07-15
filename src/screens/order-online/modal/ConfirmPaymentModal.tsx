@@ -2,7 +2,7 @@ import { Modal} from 'antd';
 
 type ConfirmPaymentModalProps = {
   visible: boolean;
-  order_id: number | null;
+  order_id?: number | null;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (e: React.MouseEvent<HTMLElement>) => void;
   text: string;

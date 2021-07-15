@@ -42,6 +42,8 @@ import { OrderStatus, TaxTreatment } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
+import { getAmountPayment } from "utils/AppUtils";
+import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 //#endregion
 
 var typeButton = "";
@@ -186,6 +188,21 @@ export default function Order() {
 
     setTag(strTag);
   };
+  const [textValue, settextValue] = useState<string>("");
+  const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
+
+  const ShowConfirmPayment = () => {
+    settextValue("Đơn hàng sẽ được duyệt khi xác nhận thanh toán. Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?");
+    setVisibleConfirmPayment(true);
+  };
+
+  const onOkConfirmPayment = () => {
+    
+  };
+
+  const onCancleConfirmPayment = useCallback(() => {
+    setVisibleConfirmPayment(false);
+  }, []);
 
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
@@ -239,6 +256,7 @@ export default function Order() {
       reference_status: "",
       shipping_fee_informed_to_customer: null,
       reference_status_explanation: "",
+      cod: null,
       cancel_reason: "",
       tracking_code: "",
       tracking_url: "",
@@ -314,6 +332,7 @@ export default function Order() {
   const onFinish = (values: OrderRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
+    let totalPaid = getAmountPayment(payments);
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
       values.payments = [];
@@ -329,6 +348,11 @@ export default function Order() {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
+    if (shippingFeeCustomer !== null) {
+      values.total = orderAmount + shippingFeeCustomer;
+    } else {
+      values.total = orderAmount;
+    }
 
     if (values.customer_id === undefined || values.customer_id === null) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
@@ -336,7 +360,11 @@ export default function Order() {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
       } else {
-        dispatch(orderCreateAction(values, createOrderCallback));
+        if (values.total > totalPaid) {
+          ShowConfirmPayment();
+        } else {
+          dispatch(orderCreateAction(values, createOrderCallback));
+        }
       }
     }
   };
@@ -562,6 +590,13 @@ export default function Order() {
             visible={isvibleSaveAndConfirm}
             title="Xác nhận đơn hàng"
             text="Đơn hàng này có Giao hàng và Thanh toán, vì vậy đơn sẽ được duyệt tự động. Bạn có chắc Lưu và Duyệt đơn này không?"
+          />
+
+          <ConfirmPaymentModal
+            onCancel={onCancleConfirmPayment}
+            onOk={onOkConfirmPayment}
+            visible={isibleConfirmPayment}
+            text={textValue}
           />
         </Form>
       </div>
