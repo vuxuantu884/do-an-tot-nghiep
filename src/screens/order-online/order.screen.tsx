@@ -283,7 +283,7 @@ export default function Order() {
     return listDiscountRequest;
   };
 
-  const onCreateSuccess = useCallback(
+  const createOrderCallback = useCallback(
     (value: OrderResponse) => {
       showSuccess("Thêm đơn hàng thành công");
       history.push(`${UrlConfig.ORDER}/${value.id}`);
@@ -297,7 +297,7 @@ export default function Order() {
   };
 
   const onOkSaveAndConfirm = () => {
-    typeButton = OrderStatus.FINALIZED;
+    typeButton = OrderStatus.DRAFT;
     formRef.current?.submit();
     setIsvibleSaveAndConfirm(false);
   };
@@ -336,7 +336,7 @@ export default function Order() {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
       } else {
-        dispatch(orderCreateAction(values, onCreateSuccess));
+        dispatch(orderCreateAction(values, createOrderCallback));
       }
     }
   };
