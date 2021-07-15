@@ -91,6 +91,7 @@ import { StoreResponse } from "model/core/store.model";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import CustomSelect from "component/custom/select.custom";
+import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
 
 const { Panel } = Collapse;
 //#endregion
@@ -127,7 +128,6 @@ const OrderDetail = () => {
   //#endregion
 
   const isFirstLoad = useRef(true);
-
   //#region Orther
   const handleVisibleBillingAddressChange = (value: boolean) => {
     setVisibleBillingAddress(value);
@@ -234,7 +234,6 @@ const OrderDetail = () => {
   };
 
   let stepsStatusValue = stepsStatus();
-
   //#region Product
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
     setAccounts(data.items);
@@ -393,6 +392,29 @@ const OrderDetail = () => {
         : null;
     value.fulfillment_id = fulfillment_id;
     value.status = FulFillmentStatus.PACKED;
+
+    dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
+  };
+// shipping confirm 
+const [isvibleShippingConfirm, setIsvibleShippingConfirm] = useState<boolean>(false)
+
+const onOkShippingConfirm = ()=>{
+  ShippingOrder()
+}
+  const ShippingOrder = () => {
+    let value: UpdateFulFillmentStatusRequest = {
+      order_id: null,
+      fulfillment_id: null,
+      status: "",
+    };
+    value.order_id = OrderDetail?.id;
+    let fulfillment_id =
+      OrderDetail?.fulfillments !== undefined &&
+      OrderDetail?.fulfillments !== null
+        ? OrderDetail?.fulfillments[0].id
+        : null;
+    value.fulfillment_id = fulfillment_id;
+    value.status = FulFillmentStatus.SHIPPING;
 
     dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
   };
@@ -1133,14 +1155,22 @@ const OrderDetail = () => {
                   >
                     Hủy đơn giao
                   </Button> */}
-                  <Button
+                  {stepsStatusValue === OrderStatus.FINALIZED && <Button
                     type="primary"
                     className="ant-btn-outline fixed-button"
                     style={{ marginLeft: "10px" }}
                     onClick={PackOrder}
                   >
                     Đóng gói
-                  </Button>
+                  </Button>}
+                  {stepsStatusValue === FulFillmentStatus.PACKED &&  <Button
+                    type="primary"
+                    className="ant-btn-outline fixed-button"
+                    style={{ marginLeft: "10px" }}
+                    onClick={()=> setIsvibleShippingConfirm(true)}
+                  >
+                    Xuất kho
+                  </Button>}
                 </div>
               </Card>
             ) : (
@@ -1686,6 +1716,13 @@ const OrderDetail = () => {
           </Button>
         </Row>
       </div>
+      <SaveAndConfirmOrder
+            onCancel={() => setIsvibleShippingConfirm(false)}
+            onOk={onOkShippingConfirm}
+            visible={isvibleShippingConfirm}
+            title="Xác nhận xuất kho"
+            text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${OrderDetail?.items[0].amount} không?`}
+          />
     </ContentContainer>
   );
 };

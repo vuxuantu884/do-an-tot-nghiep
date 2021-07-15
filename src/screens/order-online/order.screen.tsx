@@ -73,6 +73,7 @@ export default function Order() {
   const formRef = createRef<FormInstance>();
   const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] =
     useState<boolean>(false);
+  const [takeMoneyHelper, setTakeMoneyHelper] = useState<any>(0)
   //#endregion
 
   //#region Customer
@@ -362,6 +363,11 @@ export default function Order() {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
       } else {
+        // if (values.total > totalPaid) {
+        //   ShowConfirmPayment();
+        // } else {
+          
+        // }
         dispatch(orderCreateAction(values, createOrderCallback));
       }
     }
@@ -438,6 +444,14 @@ export default function Order() {
                 shipmentMethod={shipmentMethod}
                 storeId={storeId}
                 setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
+                setTakeMoneyHelper={setTakeMoneyHelper}
+                takeMoneyHelper={takeMoneyHelper}
+                amount={
+                  shippingFeeCustomer
+                    ? orderAmount + shippingFeeCustomer
+                    : orderAmount
+                }
+                paymentMethod= {paymentMethod}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
@@ -587,7 +601,7 @@ export default function Order() {
             onOk={onOkSaveAndConfirm}
             visible={isvibleSaveAndConfirm}
             title="Xác nhận đơn hàng"
-            text="Đơn hàng này có Giao hàng và Thanh toán, vì vậy đơn sẽ được duyệt tự động. Bạn có chắc Lưu và Duyệt đơn này không?"
+            text="Khi lưu nháp hệ thống sẽ tự xóa thông tin Giao hàng và Thanh toán. Bạn có chắc Lưu nháp đơn hàng này không?"
           />
 
           <ConfirmPaymentModal

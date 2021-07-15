@@ -1,3 +1,4 @@
+export const VietNamId=233;
 export const PaymentMethodCode = {
   CASH: "cash",
   CARD: "card",
@@ -36,3 +37,9 @@ export const MoneyType = {
   MONEY: "money",
   PERCENT: "percent",
 };
+
+export const PaymentMethodOption = {
+  COD: 1,
+  PREPAYMENT: 2,
+  POSTPAYMENT: 3
+}

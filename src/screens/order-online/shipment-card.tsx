@@ -10,7 +10,7 @@ import {
   Form,
   Select,
   DatePicker,
-  Button,
+  Button, InputNumber
 } from "antd";
 
 import { PlusOutlined, ProfileOutlined } from "@ant-design/icons";
@@ -29,12 +29,17 @@ import { ShipperGetListAction } from "domain/actions/account/account.action";
 import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { PaymentMethodOption } from "utils/Constants";
 
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
+  setTakeMoneyHelper: (value: number | null) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
   storeId: number | null;
+  amount: number
+  paymentMethod: number
+  takeMoneyHelper: number
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
@@ -218,7 +223,23 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 onChange={props.setShippingFeeInformedCustomer}
               />
             </Form.Item>
-          </Col>
+            {props.paymentMethod === PaymentMethodOption.COD && <Form.Item label="Tiền thu hộ">
+            <NumberInput
+                format={(a: string) => formatCurrency(a)} 
+                replace={(a: string) => replaceFormatString(a)}
+                placeholder="0"
+                value={props.takeMoneyHelper || props.amount}
+                onChange={(value: any)=> props.setTakeMoneyHelper(value)}
+                style={{
+                  textAlign: "right",
+                  width: "100%",
+                  color: "#222222",
+                }}
+                maxLength={999999999999}
+                minLength={0}
+              />
+            </Form.Item>}
+            </Col>
         </Row>
 
         {/*--- Nhận tại cửa hàng ----*/}
