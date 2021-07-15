@@ -49,7 +49,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
 
   const formRef = createRef<FormInstance>();
   const onFinish = useCallback(
-    (values: SupplierQuery) => {
+    (values: StoreQuery) => {
       onFilter && onFilter(values);
     },
     [onFilter]

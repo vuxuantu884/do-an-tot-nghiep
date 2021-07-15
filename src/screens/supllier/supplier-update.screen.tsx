@@ -406,6 +406,10 @@ const UpdateSupplierScreen: React.FC = () => {
                         required: true,
                         message: "Vui lòng nhập số điện thoại",
                       },
+                      {
+                        pattern: RegUtil.PHONE,
+                        message: "Số điện thoại chưa đúng định dạng",
+                      },
                     ]}
                     name="phone"
                     label="Số điện thoại"
