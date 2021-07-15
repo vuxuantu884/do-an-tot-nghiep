@@ -68,6 +68,7 @@ const initRequest: SupplierCreateRequest = {
 const CreateSupplierScreen: React.FC = () => {
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
+  const [formSupplier] = Form.useForm();
   const history = useHistory();
   const supplier_type = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
@@ -87,9 +88,10 @@ const CreateSupplierScreen: React.FC = () => {
   const supplier_status = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_status
   );
-  const currentUserId = useSelector(
-    (state: RootReducerType) => state.userReducer?.account?.id
+  const currentUserCode = useSelector(
+    (state: RootReducerType) => state.userReducer?.account?.code
   );
+   
 
   //State
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
@@ -100,24 +102,22 @@ const CreateSupplierScreen: React.FC = () => {
   //Callback
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
     let listWinAccount = data.items;
-
+    console.log(listWinAccount);
     setAccounts(listWinAccount);
-    // let checkUser= listWinAccount.findIndex((val)=> val.id===currentUserId);
-    // console.log(checkUser);
-    // debugger;
-    // if(checkUser!==-1 && currentUserId!== undefined){
+    let checkUser= listWinAccount.findIndex((val)=> val.code===currentUserCode);
+    console.log(checkUser);
+    debugger;
+    if(checkUser!==-1 && currentUserCode!== undefined){
 
-    // console.log(formRef);
-    // // setPersonInCharge(currentUserId);
-    // setTimeout(() => {
-    //   debugger;
-    //   formRef.current?.setFieldsValue({
-    //     person_in_charge: currentUserId,
-    //   });
-    // }, 10000);
-
-    //}
-  }, []);
+    console.log(formRef);
+    // setPersonInCharge(currentUserId);
+    
+      formSupplier.setFieldsValue({
+        person_in_charge: [currentUserCode],
+      });
+   
+    }
+  }, [currentUserCode, formRef, formSupplier]);
 
   const onChangeStatus = useCallback(
     (checked: boolean) => {
@@ -201,7 +201,8 @@ const CreateSupplierScreen: React.FC = () => {
       ]}
     >
       <Form
-        ref={formRef}
+        // ref={formRef}
+        form={formSupplier}
         layout="vertical"
         onFinish={onFinish}
         initialValues={initRequest}
@@ -299,7 +300,7 @@ const CreateSupplierScreen: React.FC = () => {
                     className="selector"
                     placeholder="Chọn ngành hàng"
                     showArrow
-                    defaultValue="fashion"
+                    // defaultValue="fashion"
                   >
                     {goods?.map((item) => (
                       <Option key={item.value} value={item.value}>
@@ -376,6 +377,7 @@ const CreateSupplierScreen: React.FC = () => {
                     onSelect={onSelectDistrict}
                     className="selector"
                     placeholder="Chọn khu vực"
+                    optionFilterProp="children"
                   >
                     {listDistrict?.map((item) => (
                       <Option key={item.id} value={item.id}>
@@ -392,6 +394,10 @@ const CreateSupplierScreen: React.FC = () => {
                 <Item
                   rules={[
                     { required: true, message: "Vui lòng nhập số điện thoại" },
+                    {
+                      pattern: RegUtil.PHONE,
+                      message: "Số điện thoại chưa đúng định dạng",
+                    },
                   ]}
                   name="phone"
                   label="Số điện thoại"
