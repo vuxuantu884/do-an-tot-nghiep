@@ -1,3 +1,4 @@
+export const VietNamId=233;
 export const PaymentMethodCode = {
   CASH: "cash",
   CARD: "card",

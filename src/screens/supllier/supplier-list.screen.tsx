@@ -6,7 +6,7 @@ import {
   GoodsObj,
   SupplierQuery,
 } from "model/core/supplier.model";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -26,6 +26,9 @@ import {
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { showSuccess, showWarning } from "utils/ToastUtils";
+import { DistrictResponse } from "model/content/district.model";
+import { DistrictGetByCountryAction } from "domain/actions/content/content.action";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 const actions: Array<MenuAction> = [
   {
@@ -37,11 +40,18 @@ const actions: Array<MenuAction> = [
     name: "Export",
   },
 ];
-
+const DefaultCountry = 233;
 const initQuery: SupplierQuery = {
   goods: "",
   status: "",
+  district_id:"",
   scorecard: "",
+  note: "",
+  type: "",
+  contact: "",
+  pic:"",
+  from_created_date:"",
+  to_created_date:""
 };
 
 const ListSupplierScreen: React.FC = () => {
@@ -51,6 +61,7 @@ const ListSupplierScreen: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const supplierStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.supplier_status;
   }, shallowEqual);
@@ -59,6 +70,9 @@ const ListSupplierScreen: React.FC = () => {
   );
   const scorecard = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.scorecard
+  );
+  const listSupplierType = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
   );
   let dataQuery: SupplierQuery = { ...initQuery, ...getQueryParams(query) };
   let [params, setPrams] = useState<SupplierQuery>(dataQuery);
@@ -107,6 +121,21 @@ const ListSupplierScreen: React.FC = () => {
       visible: true,
     },
     {
+      title: "Quốc gia",
+      dataIndex: "country_name",
+      visible: false,
+    },
+    {
+      title: "Thành phố",
+      dataIndex: "city_name",
+      visible: false,
+    },
+    {
+      title: "Quận huyện",
+      dataIndex: "district_name",
+      visible: false,
+    },
+    {
       title: "Người liên hệ",
       dataIndex: "contact_name",
       visible: true,
@@ -121,6 +150,21 @@ const ListSupplierScreen: React.FC = () => {
       dataIndex: "scorecard",
       align: "center",
       visible: true,
+    },
+    {
+      title: "Người tạo",
+      dataIndex: "created_name",
+      visible: false,
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "created_date",
+      visible: false,
+      render: (value: string) => (
+        <div>
+          {ConvertUtcToLocalDate(value)}
+        </div>
+      )
     },
     {
       title: "Trạng thái",
@@ -206,6 +250,7 @@ const ListSupplierScreen: React.FC = () => {
 
   useEffect(() => {
     setTableLoading(true);
+     dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
     dispatch(SupplierSearchAction(params, searchSupplierCallback));
   }, [dispatch, params, searchSupplierCallback]);
   return (
@@ -229,12 +274,16 @@ const ListSupplierScreen: React.FC = () => {
       <Card>
         <SupplierFilter
           onMenuClick={onMenuClick}
+          listDistrict={listDistrict}
           actions={actions}
           onFilter={onFilter}
           goods={goods}
           supplierStatus={supplierStatus}
           scorecard={scorecard}
           params={params}
+          initValue={initQuery}
+          listSupplierType={listSupplierType}
+          
         />
         <CustomTable
           pagination={{
