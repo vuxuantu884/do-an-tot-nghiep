@@ -42,7 +42,7 @@ import { OrderStatus, TaxTreatment } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
-import { getAmountPayment } from "utils/AppUtils";
+import { formatCurrency, getAmountPayment, getTotalAmountAfferDiscount } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 //#endregion
 
@@ -192,13 +192,13 @@ export default function Order() {
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
 
   const ShowConfirmPayment = () => {
-    settextValue("Đơn hàng sẽ được duyệt khi xác nhận thanh toán. Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?");
+    settextValue(
+      "Đơn hàng có tiền thu hộ không đúng với tiền khách còn phải trả. Bạn có muốn xác nhận thanh toán và giao hàng cho đơn hàng này không?"
+    );
     setVisibleConfirmPayment(true);
   };
 
-  const onOkConfirmPayment = () => {
-    
-  };
+  const onOkConfirmPayment = () => {};
 
   const onCancleConfirmPayment = useCallback(() => {
     setVisibleConfirmPayment(false);
@@ -333,6 +333,7 @@ export default function Order() {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let totalPaid = getAmountPayment(payments);
+    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
       values.payments = [];
@@ -348,6 +349,7 @@ export default function Order() {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
+    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     if (shippingFeeCustomer !== null) {
       values.total = orderAmount + shippingFeeCustomer;
     } else {
@@ -360,11 +362,7 @@ export default function Order() {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
       } else {
-        if (values.total > totalPaid) {
-          ShowConfirmPayment();
-        } else {
-          dispatch(orderCreateAction(values, createOrderCallback));
-        }
+        dispatch(orderCreateAction(values, createOrderCallback));
       }
     }
   };

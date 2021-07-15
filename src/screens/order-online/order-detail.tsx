@@ -200,7 +200,7 @@ const OrderDetail = () => {
   );
 
   const stepsStatus = () => {
-    console.log(OrderDetail, FulFillmentStatus)
+    console.log(OrderDetail, FulFillmentStatus);
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
     }
@@ -807,8 +807,12 @@ const OrderDetail = () => {
                 <Row>
                   <Space>
                     <div className="view-inventory-box">
-                      <Button type="link" className="p-0" style={{color: "#0080ff"}}>
-                        <Space >
+                      <Button
+                        type="link"
+                        className="p-0"
+                        style={{ color: "#0080ff" }}
+                      >
+                        <Space>
                           <img src={storeBluecon} alt="" />
                           YODY Kho Online
                         </Space>
@@ -884,9 +888,13 @@ const OrderDetail = () => {
                     <Row className="payment-row" justify="space-between">
                       <strong className="font-size-text">Tổng tiền</strong>
                       <strong className="font-size-text">
-                        {OrderDetail?.total !== undefined &&
-                          OrderDetail?.total !== null &&
-                          formatCurrency(OrderDetail?.total)}
+                        {OrderDetail?.total_line_amount_after_line_discount !==
+                          undefined &&
+                          OrderDetail?.total_line_amount_after_line_discount !==
+                            null &&
+                          formatCurrency(
+                            OrderDetail?.total_line_amount_after_line_discount
+                          )}
                       </strong>
                     </Row>
 
@@ -932,7 +940,15 @@ const OrderDetail = () => {
                       justify="space-between"
                     >
                       <div className="font-weight-500">Phí ship báo khách</div>
-                      <div className="font-weight-500 payment-row-money">0</div>
+                      <div className="font-weight-500 payment-row-money">
+                        {OrderDetail?.shipping_fee_informed_to_customer !==
+                          undefined &&
+                          OrderDetail?.shipping_fee_informed_to_customer !==
+                            null ?
+                          formatCurrency(
+                            OrderDetail?.shipping_fee_informed_to_customer
+                          ) : 0}
+                      </div>
                     </Row>
                     <Divider className="margin-top-5 margin-bottom-5" />
                     <Row className="payment-row" justify="space-between">
@@ -976,7 +992,7 @@ const OrderDetail = () => {
                         {OrderDetail?.fulfillments !== null &&
                           OrderDetail?.fulfillments !== undefined &&
                           OrderDetail?.fulfillments.map(
-                            (item, index) => item.shipment?.requirements
+                            (item, index) => item.shipment?.requirements_name
                           )}
                       </span>
                     </div>
@@ -1110,7 +1126,6 @@ const OrderDetail = () => {
                 </div>
                 <Divider style={{ margin: "0px" }} />
                 <div className="padding-20 text-right">
-                  
                   {/* <Button
                     type="default"
                     className="ant-btn-outline fixed-button"
