@@ -125,6 +125,7 @@ export interface ShipmentRequest {
   expected_received_date?: string | null;
   reference_status: string | null;
   reference_status_explanation: string | null;
+  cod: number | null;
   cancel_reason: string | null;
   tracking_code: string | null;
   tracking_url: string | null;
@@ -172,7 +173,7 @@ export interface OrderPaymentRequest {
   name?: string;
   code?: string;
   point?: number;
-  customer_id: number;
+  customer_id: number | null;
   type: string;
   note: string;
 }
@@ -190,7 +191,7 @@ export interface UpdateOrderPaymentRequest {
   name?: string;
   code?: string;
   point?: number;
-  customer_id: number;
+  customer_id: number | null;
   type: string;
   note: string;
 }
