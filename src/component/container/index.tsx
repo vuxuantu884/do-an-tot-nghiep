@@ -11,6 +11,7 @@ import {saveSettingAction} from 'domain/actions/app.action';
 import {useMemo} from 'react';
 import SplashScreen from 'screens/splash.screen';
 import UrlConfig from 'config/UrlConfig';
+import HeaderContainer from './header.container';
 
 type ContainerProps = {
   title: string;
@@ -25,6 +26,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const {location} = history;
+  
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
@@ -35,13 +37,13 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
     (state: RootReducerType) => state.appSettingReducer.collapse
   );
   const collapsed = useMemo(() => (collapse ? collapse : false), [collapse]);
-  const {isLogin, isLoad: isLoadUser} = userReducer;
+  const {isLogin, isLoad: isLoadUser, account} = userReducer;
   const {isLoad} = bootstrapReducer;
   const onCollapsed = useCallback(
-    (b: boolean) => {
-      dispatch(saveSettingAction({collapse: b}));
+    () => {
+      dispatch(saveSettingAction({collapse: !collapsed}));
     },
-    [dispatch]
+    [collapsed, dispatch]
   );
   useEffect(() => {
     if (!isLoad && isLogin) {
@@ -49,7 +51,9 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
     }
   }, [dispatch, isLoad, isLogin]);
   if (isLoadUser && !isLogin) {
-    return <Redirect to={`${UrlConfig.LOGIN}?returnUrl=${location.pathname}`} />;
+    return (
+      <Redirect to={`${UrlConfig.LOGIN}?returnUrl=${location.pathname}`} />
+    );
   }
   if (!isLoad) {
     return <SplashScreen />;
@@ -57,13 +61,15 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
   return (
     <Layout>
       <LoadingScreen />
-      <SlidebarContainer
-        collapsed={collapsed}
-        setCollapsed={onCollapsed}
-        path={location.pathname}
-      />
-      <Layout className={classNames('container', collapsed && 'collapsed')}>
-        {children}
+      <HeaderContainer account={account} onCollapse={onCollapsed} />
+      <Layout>
+        <SlidebarContainer
+          collapsed={collapsed}
+          path={location.pathname}
+        />
+        <Layout.Content className={classNames('container', collapsed && 'collapsed')}>
+          {children}
+        </Layout.Content>
       </Layout>
     </Layout>
   );

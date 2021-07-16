@@ -1,14 +1,11 @@
 .page-header{
-  position: fixed;
   height: 90px;
   top: 0;
   right: 0;
   left: 255px;
   background: $background-color;
   padding: 18px 0px;
-  margin: 0 20px;
-  z-index: 1000;
-  transition: all .2s;
+  transition: all .1s;
   
   &-heading{
     display: flex;
