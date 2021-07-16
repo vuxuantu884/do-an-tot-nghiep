@@ -1,47 +1,67 @@
-import React, { ReactNode } from "react";
-import { Link } from "react-router-dom";
-import { Breadcrumb } from "antd";
+import {Layout, Button, Badge, Avatar, Dropdown, Menu, Space} from 'antd';
+import logo from 'assets/img/logo.svg';
+import UrlConfig from 'config/UrlConfig';
+import {Link} from 'react-router-dom';
+import {FiMenu} from 'react-icons/fi';
+import {AccountResponse} from 'model/account/account.model';
+import {RiNotification2Line, RiArrowDropDownLine} from 'react-icons/ri';
 
-interface IProps {
-  title: string;
-  extra?: ReactNode;
-  breadcrumb?: BreadcrumbProps[];
-}
+type HeaderContainerProps = {
+  onCollapse: () => void;
+  account?: AccountResponse | null;
+};
 
-export interface BreadcrumbProps {
-  name: string;
-  path?: string;
-}
-const HeaderContainer = (props: IProps) => {
-  const { title, extra, breadcrumb } = props;
-
+const HeaderContainer: React.FC<HeaderContainerProps> = (
+  props: HeaderContainerProps
+) => {
+  const userMenu = (
+    <Menu>
+      <Menu.Item key="logout">
+        <Link to="#" type="text">
+          <span>Thông tin cá nhân</span>
+        </Link>
+      </Menu.Item>
+      <Menu.Item key="logout">
+        <Link to="#" type="text">
+          <span>Đăng xuất</span>
+        </Link>
+      </Menu.Item>
+    </Menu>
+  );
   return (
-    <div className="page-header">
-      <div className="page-header-heading">
-        <div className="page-header-heading-left">
-          <h1 className="page-header-heading-title">{title}</h1>
-          {breadcrumb && (
-            <Breadcrumb>
-              {breadcrumb.map((item, index) => {
-                const { name, path } = item;
-                if (!path)
-                  return (
-                    <Breadcrumb.Item key={`breadcrumb_item_${index}`}>
-                      {name}
-                    </Breadcrumb.Item>
-                  );
-                return (
-                  <Breadcrumb.Item key={`breadcrumb_item_${index}`}>
-                    <Link to={path}>{name}</Link>
-                  </Breadcrumb.Item>
-                );
-              })}
-            </Breadcrumb>
-          )}
+    <Layout.Header>
+      <div className="ant-layout-header-left">
+        <Link to={UrlConfig.HOME}>
+          <img src={logo} alt="" />
+        </Link>
+        <div className="header-right">
+          <Button
+            onClick={props.onCollapse}
+            className="button-menu-collapse"
+            icon={<FiMenu color={'black'} size={20} />}
+          />
         </div>
-        {extra && <div className="page-header-heading-extra">{extra}</div>}
       </div>
-    </div>
+      <div className="ant-layout-header-right">
+        <Space size={15}>
+          <Badge count={0}>
+            <Button color={"#222222"} className="button-notify" icon={<RiNotification2Line />} />
+          </Badge>
+          <Dropdown
+            className="layout-user"
+            trigger={['click']}
+            placement="bottomRight"
+            overlay={userMenu}
+          >
+            <div className="ant-layout-sider-user">
+              <Avatar src="" size={36} />
+              <div className="sider-user-info">{props.account?.full_name}</div>
+              <RiArrowDropDownLine size={25} color="#737373" />
+            </div>
+          </Dropdown>
+        </Space>
+      </div>
+    </Layout.Header>
   );
 };
 
