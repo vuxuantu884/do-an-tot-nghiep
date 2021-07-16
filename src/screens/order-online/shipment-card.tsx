@@ -29,7 +29,7 @@ import { ShipperGetListAction } from "domain/actions/account/account.action";
 import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
-import { PaymentMethodOption } from "utils/Constants";
+import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 
 type ShipmentCardProps = {
   shipmentMethod: number;
@@ -96,10 +96,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 onChange={(e) => ShipMethodOnChange(e.target.value)}
               >
                 <Space direction="vertical" size={15}>
-                  <Radio value={1}>Chuyển đối tác giao hàng</Radio>
-                  <Radio value={2}>Tự giao hàng</Radio>
-                  <Radio value={3}>Nhận tại cửa hàng</Radio>
-                  <Radio value={4}>Giao hàng sau</Radio>
+                  <Radio value={ShipmentMethodOption.DELIVERPARNER}>Chuyển đối tác giao hàng</Radio>
+                  <Radio value={ShipmentMethodOption.SELFDELIVER}>Tự giao hàng</Radio>
+                  <Radio value={ShipmentMethodOption.PICKATSTORE}>Nhận tại cửa hàng</Radio>
+                  <Radio value={ShipmentMethodOption.DELIVERLATER}>Giao hàng sau</Radio>
                 </Space>
               </Radio.Group>
             </Form.Item>
@@ -146,7 +146,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           </Col>
         </Row>
         <Divider />
-        <Row gutter={20} hidden={shipmentMethodState !== 2}>
+        <Row gutter={20} hidden={shipmentMethodState !== ShipmentMethodOption.SELFDELIVER}>
           <Col md={12}>
             <Form.Item
               label="Đối tác giao hàng"

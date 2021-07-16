@@ -173,7 +173,7 @@ export interface OrderPaymentRequest {
   name?: string;
   code?: string;
   point?: number;
-  customer_id: number;
+  customer_id: number | null;
   type: string;
   note: string;
 }
@@ -191,7 +191,7 @@ export interface UpdateOrderPaymentRequest {
   name?: string;
   code?: string;
   point?: number;
-  customer_id: number;
+  customer_id: number | null;
   type: string;
   note: string;
 }
