@@ -264,7 +264,7 @@ const OrderDetail = () => {
 
   const ProductColumn = {
     title: "Sản phẩm",
-    width: 245,
+    width: "35%",
     className: "yody-pos-name",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
@@ -315,7 +315,7 @@ const OrderDetail = () => {
       </div>
     ),
     className: "yody-pos-quantity text-center",
-    width: 125,
+    width: "10%",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return <div className="yody-pos-qtt">{l.quantity}</div>;
     },
@@ -324,7 +324,7 @@ const OrderDetail = () => {
   const PriceColumnt = {
     title: "Đơn giá",
     className: "yody-pos-price text-right",
-    //width: 100,
+    width: "15%",
     align: "right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return <div className="yody-pos-price">{formatCurrency(l.price)}</div>;
@@ -334,7 +334,7 @@ const OrderDetail = () => {
   const DiscountColumnt = {
     title: "Chiết khấu",
     align: "center",
-    width: 165,
+    width: "20%",
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
@@ -351,6 +351,7 @@ const OrderDetail = () => {
 
   const TotalPriceColumn = {
     title: "Tổng tiền",
+    width: "20%",
     className: "yody-table-total-money text-right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
@@ -395,12 +396,13 @@ const OrderDetail = () => {
 
     dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
   };
-// shipping confirm 
-const [isvibleShippingConfirm, setIsvibleShippingConfirm] = useState<boolean>(false)
+  // shipping confirm
+  const [isvibleShippingConfirm, setIsvibleShippingConfirm] =
+    useState<boolean>(false);
 
-const onOkShippingConfirm = ()=>{
-  ShippingOrder()
-}
+  const onOkShippingConfirm = () => {
+    ShippingOrder();
+  };
   const ShippingOrder = () => {
     let value: UpdateFulFillmentStatusRequest = {
       order_id: null,
@@ -966,11 +968,11 @@ const onOkShippingConfirm = ()=>{
                       <div className="font-weight-500 payment-row-money">
                         {OrderDetail?.shipping_fee_informed_to_customer !==
                           undefined &&
-                          OrderDetail?.shipping_fee_informed_to_customer !==
-                            null ?
-                          formatCurrency(
-                            OrderDetail?.shipping_fee_informed_to_customer
-                          ) : 0}
+                        OrderDetail?.shipping_fee_informed_to_customer !== null
+                          ? formatCurrency(
+                              OrderDetail?.shipping_fee_informed_to_customer
+                            )
+                          : 0}
                       </div>
                     </Row>
                     <Divider className="margin-top-5 margin-bottom-5" />
@@ -1156,22 +1158,26 @@ const onOkShippingConfirm = ()=>{
                   >
                     Hủy đơn giao
                   </Button> */}
-                  {stepsStatusValue === OrderStatus.FINALIZED && <Button
-                    type="primary"
-                    className="ant-btn-outline fixed-button"
-                    style={{ marginLeft: "10px" }}
-                    onClick={PackOrder}
-                  >
-                    Đóng gói
-                  </Button>}
-                  {stepsStatusValue === FulFillmentStatus.PACKED &&  <Button
-                    type="primary"
-                    className="ant-btn-outline fixed-button"
-                    style={{ marginLeft: "10px" }}
-                    onClick={()=> setIsvibleShippingConfirm(true)}
-                  >
-                    Xuất kho
-                  </Button>}
+                  {stepsStatusValue === OrderStatus.FINALIZED && (
+                    <Button
+                      type="primary"
+                      className="ant-btn-outline fixed-button"
+                      style={{ marginLeft: "10px" }}
+                      onClick={PackOrder}
+                    >
+                      Đóng gói
+                    </Button>
+                  )}
+                  {stepsStatusValue === FulFillmentStatus.PACKED && (
+                    <Button
+                      type="primary"
+                      className="ant-btn-outline fixed-button"
+                      style={{ marginLeft: "10px" }}
+                      onClick={() => setIsvibleShippingConfirm(true)}
+                    >
+                      Xuất kho
+                    </Button>
+                  )}
                 </div>
               </Card>
             ) : (
@@ -1725,12 +1731,12 @@ const onOkShippingConfirm = ()=>{
         </Row>
       </div>
       <SaveAndConfirmOrder
-            onCancel={() => setIsvibleShippingConfirm(false)}
-            onOk={onOkShippingConfirm}
-            visible={isvibleShippingConfirm}
-            title="Xác nhận xuất kho"
-            text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${OrderDetail?.items[0].amount} không?`}
-          />
+        onCancel={() => setIsvibleShippingConfirm(false)}
+        onOk={onOkShippingConfirm}
+        visible={isvibleShippingConfirm}
+        title="Xác nhận xuất kho"
+        text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${OrderDetail?.items[0].amount} không?`}
+      />
     </ContentContainer>
   );
 };

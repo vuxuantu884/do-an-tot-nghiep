@@ -342,6 +342,7 @@ export default function Order() {
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
       values.payments = [];
+      values.shipping_fee_informed_to_customer = 0;
       values.action = OrderStatus.DRAFT;
     } else {
       values.fulfillments = lstFulFillment;
