@@ -91,6 +91,7 @@ import { StoreResponse } from "model/core/store.model";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import CustomSelect from "component/custom/select.custom";
+import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
 
 const { Panel } = Collapse;
 //#endregion
@@ -127,7 +128,6 @@ const OrderDetail = () => {
   //#endregion
 
   const isFirstLoad = useRef(true);
-
   //#region Orther
   const handleVisibleBillingAddressChange = (value: boolean) => {
     setVisibleBillingAddress(value);
@@ -200,6 +200,7 @@ const OrderDetail = () => {
   );
 
   const stepsStatus = () => {
+    console.log(OrderDetail, FulFillmentStatus);
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
     }
@@ -233,7 +234,6 @@ const OrderDetail = () => {
   };
 
   let stepsStatusValue = stepsStatus();
-
   //#region Product
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
     setAccounts(data.items);
@@ -392,6 +392,29 @@ const OrderDetail = () => {
         : null;
     value.fulfillment_id = fulfillment_id;
     value.status = FulFillmentStatus.PACKED;
+
+    dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
+  };
+// shipping confirm 
+const [isvibleShippingConfirm, setIsvibleShippingConfirm] = useState<boolean>(false)
+
+const onOkShippingConfirm = ()=>{
+  ShippingOrder()
+}
+  const ShippingOrder = () => {
+    let value: UpdateFulFillmentStatusRequest = {
+      order_id: null,
+      fulfillment_id: null,
+      status: "",
+    };
+    value.order_id = OrderDetail?.id;
+    let fulfillment_id =
+      OrderDetail?.fulfillments !== undefined &&
+      OrderDetail?.fulfillments !== null
+        ? OrderDetail?.fulfillments[0].id
+        : null;
+    value.fulfillment_id = fulfillment_id;
+    value.status = FulFillmentStatus.SHIPPING;
 
     dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
   };
@@ -806,8 +829,12 @@ const OrderDetail = () => {
                 <Row>
                   <Space>
                     <div className="view-inventory-box">
-                      <Button type="link" className="p-0" style={{color: "#0080ff"}}>
-                        <Space >
+                      <Button
+                        type="link"
+                        className="p-0"
+                        style={{ color: "#0080ff" }}
+                      >
+                        <Space>
                           <img src={storeBluecon} alt="" />
                           YODY Kho Online
                         </Space>
@@ -883,9 +910,13 @@ const OrderDetail = () => {
                     <Row className="payment-row" justify="space-between">
                       <strong className="font-size-text">Tổng tiền</strong>
                       <strong className="font-size-text">
-                        {OrderDetail?.total !== undefined &&
-                          OrderDetail?.total !== null &&
-                          formatCurrency(OrderDetail?.total)}
+                        {OrderDetail?.total_line_amount_after_line_discount !==
+                          undefined &&
+                          OrderDetail?.total_line_amount_after_line_discount !==
+                            null &&
+                          formatCurrency(
+                            OrderDetail?.total_line_amount_after_line_discount
+                          )}
                       </strong>
                     </Row>
 
@@ -931,7 +962,15 @@ const OrderDetail = () => {
                       justify="space-between"
                     >
                       <div className="font-weight-500">Phí ship báo khách</div>
-                      <div className="font-weight-500 payment-row-money">0</div>
+                      <div className="font-weight-500 payment-row-money">
+                        {OrderDetail?.shipping_fee_informed_to_customer !==
+                          undefined &&
+                          OrderDetail?.shipping_fee_informed_to_customer !==
+                            null ?
+                          formatCurrency(
+                            OrderDetail?.shipping_fee_informed_to_customer
+                          ) : 0}
+                      </div>
                     </Row>
                     <Divider className="margin-top-5 margin-bottom-5" />
                     <Row className="payment-row" justify="space-between">
@@ -975,7 +1014,7 @@ const OrderDetail = () => {
                         {OrderDetail?.fulfillments !== null &&
                           OrderDetail?.fulfillments !== undefined &&
                           OrderDetail?.fulfillments.map(
-                            (item, index) => item.shipment?.requirements
+                            (item, index) => item.shipment?.requirements_name
                           )}
                       </span>
                     </div>
@@ -1109,7 +1148,6 @@ const OrderDetail = () => {
                 </div>
                 <Divider style={{ margin: "0px" }} />
                 <div className="padding-20 text-right">
-                  
                   {/* <Button
                     type="default"
                     className="ant-btn-outline fixed-button"
@@ -1117,14 +1155,22 @@ const OrderDetail = () => {
                   >
                     Hủy đơn giao
                   </Button> */}
-                  <Button
+                  {stepsStatusValue === OrderStatus.FINALIZED && <Button
                     type="primary"
                     className="ant-btn-outline fixed-button"
                     style={{ marginLeft: "10px" }}
                     onClick={PackOrder}
                   >
                     Đóng gói
-                  </Button>
+                  </Button>}
+                  {stepsStatusValue === FulFillmentStatus.PACKED &&  <Button
+                    type="primary"
+                    className="ant-btn-outline fixed-button"
+                    style={{ marginLeft: "10px" }}
+                    onClick={()=> setIsvibleShippingConfirm(true)}
+                  >
+                    Xuất kho
+                  </Button>}
                 </div>
               </Card>
             ) : (
@@ -1255,7 +1301,7 @@ const OrderDetail = () => {
                                     key={index.toString()}
                                     value={item.id}
                                   >
-                                    {item.full_name} - {item.mobile}
+                                    {`${item.full_name} - ${item.mobile}`}
                                   </CustomSelect.Option>
                                 ))}
                               </CustomSelect>
@@ -1670,6 +1716,13 @@ const OrderDetail = () => {
           </Button>
         </Row>
       </div>
+      <SaveAndConfirmOrder
+            onCancel={() => setIsvibleShippingConfirm(false)}
+            onOk={onOkShippingConfirm}
+            visible={isvibleShippingConfirm}
+            title="Xác nhận xuất kho"
+            text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${OrderDetail?.items[0].amount} không?`}
+          />
     </ContentContainer>
   );
 };

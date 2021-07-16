@@ -10,7 +10,7 @@ import {
   Form,
   Select,
   DatePicker,
-  Button,
+  Button, InputNumber
 } from "antd";
 
 import { PlusOutlined, ProfileOutlined } from "@ant-design/icons";
@@ -29,12 +29,17 @@ import { ShipperGetListAction } from "domain/actions/account/account.action";
 import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
+  setTakeMoneyHelper: (value: number | null) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
   storeId: number | null;
+  amount: number
+  paymentMethod: number
+  takeMoneyHelper: number
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
@@ -91,10 +96,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 onChange={(e) => ShipMethodOnChange(e.target.value)}
               >
                 <Space direction="vertical" size={15}>
-                  <Radio value={1}>Chuyển đối tác giao hàng</Radio>
-                  <Radio value={2}>Tự giao hàng</Radio>
-                  <Radio value={3}>Nhận tại cửa hàng</Radio>
-                  <Radio value={4}>Giao hàng sau</Radio>
+                  <Radio value={ShipmentMethodOption.DELIVERPARNER}>Chuyển đối tác giao hàng</Radio>
+                  <Radio value={ShipmentMethodOption.SELFDELIVER}>Tự giao hàng</Radio>
+                  <Radio value={ShipmentMethodOption.PICKATSTORE}>Nhận tại cửa hàng</Radio>
+                  <Radio value={ShipmentMethodOption.DELIVERLATER}>Giao hàng sau</Radio>
                 </Space>
               </Radio.Group>
             </Form.Item>
@@ -141,7 +146,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           </Col>
         </Row>
         <Divider />
-        <Row gutter={20} hidden={shipmentMethodState !== 2}>
+        <Row gutter={20} hidden={shipmentMethodState !== ShipmentMethodOption.SELFDELIVER}>
           <Col md={12}>
             <Form.Item
               label="Đối tác giao hàng"
@@ -176,7 +181,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                     key={index.toString()}
                     value={item.id}
                   >
-                    {item.full_name} -  {item.mobile}
+                    {`${item.full_name} - ${item.mobile}`}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
@@ -218,7 +223,23 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 onChange={props.setShippingFeeInformedCustomer}
               />
             </Form.Item>
-          </Col>
+            {props.paymentMethod === PaymentMethodOption.COD && <Form.Item label="Tiền thu hộ">
+            <NumberInput
+                format={(a: string) => formatCurrency(a)} 
+                replace={(a: string) => replaceFormatString(a)}
+                placeholder="0"
+                value={props.takeMoneyHelper || props.amount}
+                onChange={(value: any)=> props.setTakeMoneyHelper(value)}
+                style={{
+                  textAlign: "right",
+                  width: "100%",
+                  color: "#222222",
+                }}
+                maxLength={999999999999}
+                minLength={0}
+              />
+            </Form.Item>}
+            </Col>
         </Row>
 
         {/*--- Nhận tại cửa hàng ----*/}

@@ -32,6 +32,7 @@ export interface OrderResponse extends BaseObject {
   reference: string | null;
   url: string | null;
   total_line_amount_after_line_discount: number | null;
+  shipping_fee_informed_to_customer: number | null;
   total: number;
   order_discount_rate: number | null;
   order_discount_value: number | null;
@@ -204,6 +205,7 @@ export interface ShipmentResponse extends BaseObject {
   sender_address_id: number | null;
   note_to_shipper: string | null;
   requirements: string | null;
+  requirements_name: string | null;
   shipping_address: ShippingAddress | null;
   fulfillment_id:string|null;
 }
