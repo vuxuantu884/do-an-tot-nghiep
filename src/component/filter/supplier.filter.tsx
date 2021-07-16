@@ -18,14 +18,19 @@ import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined } from "@ant-design/icons";
+import CustomDatepicker from "component/custom/date-picker.custom";
+import { DistrictResponse } from "model/content/district.model";
+import { VietNamId } from "utils/Constants";
 
 type SupplierFilterProps = {
+  initValue: SupplierQuery;
   params: SupplierQuery;
   onFilter?: (values: SupplierQuery) => void;
-  onClearFilter?: () => void;
   supplierStatus?: Array<BaseBootstrapResponse>;
   goods?: Array<BaseBootstrapResponse>;
+  listSupplierType?: Array<BaseBootstrapResponse>;
   scorecard?: Array<BaseBootstrapResponse>;
+  listDistrict?: Array<DistrictResponse>;
   onMenuClick?: (index: number) => void;
   actions: Array<MenuAction>;
 };
@@ -37,34 +42,38 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
   props: SupplierFilterProps
 ) => {
   const {
-    onClearFilter,
     onFilter,
     params,
+    initValue,
     goods,
+    listSupplierType,
     supplierStatus,
     scorecard,
+    listDistrict,
     actions,
     onMenuClick,
   } = props;
   const [visible, setVisible] = useState(false);
   const [formAdvance] = Form.useForm();
-  const formRef = createRef<FormInstance>();
-  
+  // const formRef = createRef<FormInstance>();
+
   const onFinish = useCallback(
     (values: SupplierQuery) => {
+      debugger;
       onFilter && onFilter(values);
     },
     [onFilter]
   );
+
   const onFilterClick = useCallback(() => {
     setVisible(false);
-    formRef.current?.submit();
-  }, [formRef]);
+    formAdvance.submit();
+  }, [formAdvance]);
   const onClearFilterAdvanceClick = useCallback(() => {
-    formAdvance.resetFields();
+    formAdvance.setFieldsValue(initValue);
     setVisible(false);
-    formRef.current?.submit();
-  }, [formAdvance, formRef]);
+    formAdvance.submit();
+  }, [formAdvance, initValue]);
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
@@ -78,10 +87,15 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
     [onMenuClick]
   );
   useEffect(() => {
+    debugger;
     if (visible) {
-      formRef.current?.resetFields();
+      formAdvance.resetFields();
     }
-  }, [formRef, visible]);
+
+    formAdvance.setFieldsValue({
+      district_id: params.district_id,
+    });
+  }, [formAdvance, listDistrict, params.district_id, visible]);
 
   return (
     <Card bordered={false}>
@@ -108,6 +122,23 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
               ))}
             </Select>
           </Form.Item>
+          <Form.Item name="type">
+            <Select
+              style={{
+                width: 200,
+              }}
+            >
+              <Select.Option value="">Loại nhà cung cấp</Select.Option>
+              {listSupplierType?.map((item) => (
+                <Select.Option key={item.value} value={item.value}>
+                  {item.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item name="contact">
+            <Input style={{ width: 200 }} placeholder="Tên/SDT người liên hệ" />
+          </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Lọc
@@ -132,23 +163,10 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
         <Form
           form={formAdvance}
           onFinish={onFinish}
-          ref={formRef}
+          //ref={formRef}
           initialValues={params}
           layout="vertical"
         >
-          <Item name="goods" label="Ngành hàng">
-            <Select className="selector">
-              <Option value="">Ngành hàng</Option>
-              {goods?.map((item) => (
-                <Option key={item.value} value={item.value}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
-          </Item>
-          <Item name="contact" label="Tên / SDT người liên hệ">
-            <Input placeholder="Tên/SDT người liên hệ" />
-          </Item>
           <Item name="pic" label="Tên / Mã người phục trách">
             <Input placeholder="Tên/Mã người phụ trách" />
           </Item>
@@ -178,24 +196,40 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
               </Item>
             </Col>
           </Row>
-          <Item label="Địa chỉ">
-            <Input className="r-5 ip-search" placeholder="Địa chỉ" />
+
+          <Item label="Tỉnh/ Thành phố" name="district_id">
+            <Select
+              showSearch
+              className="selector"
+              placeholder="Chọn khu vực"
+              optionFilterProp="children"
+            >
+              <Option value="">Chọn khu vực</Option>
+              {listDistrict?.map((item) => (
+                <Option key={item.id} value={item.id.toString()}>
+                  {item.city_name} - {item.name}
+                </Option>
+              ))}
+            </Select>
           </Item>
+
           <Row gutter={50}>
             <Col span={12}>
               <Item name="from_created_date" label="Ngày tạo từ">
-                <DatePicker
+                {/* <DatePicker
                   className="r-5 w-100 ip-search"
                   placeholder="Ngày tạo từ"
-                />
+                /> */}
+                <CustomDatepicker placeholder="Ngày tạo từ" />
               </Item>
             </Col>
             <Col span={12}>
-              <Item label="Đến">
-                <DatePicker
+              <Item label="Đến" name="to_created_date">
+                {/* <DatePicker
                   className="r-5 w-100 ip-search"
                   placeholder="Ngày tạo đến"
-                />
+                /> */}
+                <CustomDatepicker placeholder="Ngày tạo đến" />
               </Item>
             </Col>
           </Row>

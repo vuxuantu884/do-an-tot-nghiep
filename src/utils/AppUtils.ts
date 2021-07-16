@@ -22,7 +22,7 @@ import {
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
 import { OrderLineItemResponse } from "model/response/order/order.response";
-import { OrderLineItemRequest } from "model/request/order.request";
+import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
 import { RegUtil } from "./RegUtils";
 import {SupplierDetail, SupplierResponse} from "../model/core/supplier.model";
 
@@ -599,6 +599,16 @@ export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
   if (items.length > 0) {
     if (items[0].amount !== null) {
       value = items[0].amount;
+    }
+  }
+  return value;
+}
+
+export const getAmountPayment = (items: Array<OrderPaymentRequest>) => {
+  let value = 0;
+  if (items.length > 0) {
+    if (items[0].paid_amount !== null) {
+      value = items[0].paid_amount;
     }
   }
   return value;

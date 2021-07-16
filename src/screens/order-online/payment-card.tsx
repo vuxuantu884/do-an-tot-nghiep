@@ -14,7 +14,7 @@ import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { PaymentMethodCode } from "utils/Constants";
+import { PaymentMethodCode, PaymentMethodOption } from "utils/Constants";
 import deleteIcon from "assets/icon/delete.svg";
 import {
   formatCurrency,
@@ -132,34 +132,14 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
             onChange={(e) => changePaymentMethod(e.target.value)}
           >
             <Space size={20}>
-              <Radio value={1}>COD</Radio>
-              <Radio value={2}>Thanh toán trước</Radio>
-              <Radio value={3}>Thanh toán sau</Radio>
+              <Radio value={PaymentMethodOption.COD}>COD</Radio>
+              <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
+              <Radio value={PaymentMethodOption.POSTPAYMENT}>Thanh toán sau</Radio>
             </Space>
           </Radio.Group>
         </Form.Item>
 
-        <Row
-          gutter={24}
-          className="payment-cod-box"
-          hidden={props.paymentMethod !== 1}
-        >
-          <Col xs={24} lg={6}>
-            <Form.Item label="Tiền thu hộ">
-              <InputNumber
-                placeholder="Nhập số tiền"
-                className="form-control text-right hide-handler-wrap w-100"
-                style={{ width: "100%" }}
-                min={0}
-                max={999999999999}
-                value={props.amount}
-                formatter={(value) => formatCurrency(value ? value : "0")}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={24} hidden={props.paymentMethod !== 2}>
+        <Row gutter={24} hidden={props.paymentMethod !== PaymentMethodOption.PREPAYMENT}>
           <Col xs={24} lg={24}>
             <div className="form-group form-group-with-search">
               <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
@@ -217,7 +197,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
             </Row>
           </Col>
 
-          <Col span={12}>
+          <Col span={14}>
             <Row
               gutter={24}
               className="row-price"
@@ -307,7 +287,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                   <Col span={2} style={{ paddingLeft: 0 }}>
                     <Button
                       type="text"
-                      className="p-0 m-0"
+                      className="p-0 m-0 ant-btn-custom"
                       onClick={() => {
                         handlePickPaymentMethod(method.code);
                       }}
@@ -321,7 +301,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
             <Row
               gutter={24}
               className="row-price total-customer-pay"
-              style={{ marginLeft: 0, marginRight: 0 }}
+              style={{ margin: "10px 0"}}
             >
               <Col
                 xs={13}

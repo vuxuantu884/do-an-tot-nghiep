@@ -17,7 +17,7 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { OrderStatus, PaymentMethodCode } from "utils/Constants";
+import { OrderStatus, PaymentMethodCode, PaymentMethodOption } from "utils/Constants";
 import deleteIcon from "assets/icon/delete.svg";
 import {
   formatCurrency,
@@ -33,7 +33,6 @@ import { showSuccess } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
 import { useHistory } from "react-router-dom";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
-import OrderDetail from "./order-detail";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
@@ -50,8 +49,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const history = useHistory();
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
-    if (value === 2) {
-      handlePickPaymentMethod("cash");
+    if (value === PaymentMethodOption.PREPAYMENT) {
+      handlePickPaymentMethod(PaymentMethodCode.CASH);
     }
   };
 
@@ -73,7 +72,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   };
 
   const ListMaymentMethods = useMemo(() => {
-    return listPaymentMethod.filter((item) => item.code !== "card");
+    return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
   }, [dispatch, listPaymentMethod]);
 
   const handleInputPoint = (index: number, point: number) => {
@@ -87,7 +86,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     paymentData.forEach((p) => (total = total + p.amount));
     return total;
   }, [paymentData]);
-
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);
@@ -109,7 +107,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         payment_method: paymentMaster.name,
         reference: "",
         source: "",
-        customer_id: 1,
+        customer_id: props.orderDetail.customer_id,
         note: "",
         type: "",
       });
@@ -214,9 +212,9 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
             style={{ margin: "20px 0 20px 0" }}
           >
             <Space size={24}>
-              <Radio value={1}>COD</Radio>
-              <Radio value={2}>Thanh toán trước</Radio>
-              <Radio value={3}>Thanh toán sau</Radio>
+              <Radio value={PaymentMethodOption.COD}>COD</Radio>
+              <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
+              <Radio value={PaymentMethodOption.POSTPAYMENT}>Thanh toán sau</Radio>
             </Space>
           </Radio.Group>
           <Row

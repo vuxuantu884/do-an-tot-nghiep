@@ -41,9 +41,12 @@ import { OrderResponse } from "model/response/order/order.response";
 import { OrderStatus, TaxTreatment } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
+import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
+import { formatCurrency, getAmountPayment, getTotalAmountAfferDiscount } from "utils/AppUtils";
+import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 //#endregion
 
-var typeButton = -1;
+var typeButton = "";
 export default function Order() {
   //#region State
   const dispatch = useDispatch();
@@ -61,9 +64,16 @@ export default function Order() {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
+  const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
+    null
+  );
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
+  const formRef = createRef<FormInstance>();
+  const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] =
+    useState<boolean>(false);
+  const [takeMoneyHelper, setTakeMoneyHelper] = useState<any>(0)
   //#endregion
 
   //#region Customer
@@ -81,6 +91,10 @@ export default function Order() {
     _objBillingAddress: BillingAddress | null
   ) => {
     setBillingAddress(_objBillingAddress);
+  };
+
+  const ChangeShippingFeeCustomer = (value: number | null) => {
+    setShippingFeeCustomer(value);
   };
   //#endregion
 
@@ -117,7 +131,6 @@ export default function Order() {
   };
 
   //#endregion
-  const formRef = createRef<FormInstance>();
 
   const onShipmentSelect = (value: number) => {
     setShipmentMethod(value);
@@ -176,6 +189,21 @@ export default function Order() {
 
     setTag(strTag);
   };
+  const [textValue, settextValue] = useState<string>("");
+  const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
+
+  const ShowConfirmPayment = () => {
+    settextValue(
+      "Đơn hàng có tiền thu hộ không đúng với tiền khách còn phải trả. Bạn có muốn xác nhận thanh toán và giao hàng cho đơn hàng này không?"
+    );
+    setVisibleConfirmPayment(true);
+  };
+
+  const onOkConfirmPayment = () => {};
+
+  const onCancleConfirmPayment = useCallback(() => {
+    setVisibleConfirmPayment(false);
+  }, []);
 
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
@@ -204,7 +232,11 @@ export default function Order() {
       listFullfillmentRequest.push(request);
     }
 
-    if (paymentMethod === 3 && shipmentMethod === 4 && typeButton === 1) {
+    if (
+      paymentMethod === 3 &&
+      shipmentMethod === 4 &&
+      typeButton === OrderStatus.FINALIZED
+    ) {
       request.shipment = null;
       listFullfillmentRequest.push(request);
     }
@@ -225,6 +257,7 @@ export default function Order() {
       reference_status: "",
       shipping_fee_informed_to_customer: null,
       reference_status_explanation: "",
+      cod: null,
       cancel_reason: "",
       tracking_code: "",
       tracking_url: "",
@@ -269,7 +302,7 @@ export default function Order() {
     return listDiscountRequest;
   };
 
-  const onCreateSuccess = useCallback(
+  const createOrderCallback = useCallback(
     (value: OrderResponse) => {
       showSuccess("Thêm đơn hàng thành công");
       history.push(`${UrlConfig.ORDER}/${value.id}`);
@@ -277,16 +310,36 @@ export default function Order() {
     [history]
   );
 
+  //show modal save and confirm order ?
+  const onCancelSaveAndConfirm = () => {
+    setIsvibleSaveAndConfirm(false);
+  };
+
+  const onOkSaveAndConfirm = () => {
+    typeButton = OrderStatus.DRAFT;
+    formRef.current?.submit();
+    setIsvibleSaveAndConfirm(false);
+  };
+
+  const showSaveAndConfirmModal = () => {
+    if (shipmentMethod !== 4 || paymentMethod !== 3) {
+      setIsvibleSaveAndConfirm(true);
+    } else {
+      typeButton = OrderStatus.DRAFT;
+      formRef.current?.submit();
+    }
+  };
+
   const onFinish = (values: OrderRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    if (typeButton === 0) {
+    let totalPaid = getAmountPayment(payments);
+    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
+    if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
       values.payments = [];
       values.action = OrderStatus.DRAFT;
     } else {
-      if (lstFulFillment != null) {
-      }
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments;
@@ -297,6 +350,12 @@ export default function Order() {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
+    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+    if (shippingFeeCustomer !== null) {
+      values.total = orderAmount + shippingFeeCustomer;
+    } else {
+      values.total = orderAmount;
+    }
 
     if (values.customer_id === undefined || values.customer_id === null) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
@@ -304,7 +363,12 @@ export default function Order() {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
       } else {
-        dispatch(orderCreateAction(values, onCreateSuccess));
+        // if (values.total > totalPaid) {
+        //   ShowConfirmPayment();
+        // } else {
+          
+        // }
+        dispatch(orderCreateAction(values, createOrderCallback));
       }
     }
   };
@@ -371,6 +435,7 @@ export default function Order() {
                 changeInfo={onChangeInfoProduct}
                 selectStore={onStoreSelect}
                 storeId={storeId}
+                shippingFeeCustomer={shippingFeeCustomer}
               />
               {/*--- end product ---*/}
               {/*--- shipment ---*/}
@@ -378,12 +443,25 @@ export default function Order() {
                 setShipmentMethodProps={onShipmentSelect}
                 shipmentMethod={shipmentMethod}
                 storeId={storeId}
+                setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
+                setTakeMoneyHelper={setTakeMoneyHelper}
+                takeMoneyHelper={takeMoneyHelper}
+                amount={
+                  shippingFeeCustomer
+                    ? orderAmount + shippingFeeCustomer
+                    : orderAmount
+                }
+                paymentMethod= {paymentMethod}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
                 setPayments={onPayments}
                 paymentMethod={paymentMethod}
-                amount={orderAmount}
+                amount={
+                  shippingFeeCustomer
+                    ? orderAmount + shippingFeeCustomer
+                    : orderAmount
+                }
               />
             </Col>
             {/* Right Side */}
@@ -503,19 +581,14 @@ export default function Order() {
           </Row>
           <div className="margin-top-10" style={{ textAlign: "right" }}>
             <Space size={12}>
-              <Button>Huỷ</Button>
-              <Button
-                onClick={() => {
-                  typeButton = 0;
-                  formRef.current?.submit();
-                }}
-              >
-                Lưu nháp
+              <Button onClick={() => history.push(`${UrlConfig.ORDER}/list`)}>
+                Huỷ
               </Button>
+              <Button onClick={showSaveAndConfirmModal}>Lưu nháp</Button>
               <Button
                 type="primary"
                 onClick={() => {
-                  typeButton = 1;
+                  typeButton = OrderStatus.FINALIZED;
                   formRef.current?.submit();
                 }}
               >
@@ -523,6 +596,20 @@ export default function Order() {
               </Button>
             </Space>
           </div>
+          <SaveAndConfirmOrder
+            onCancel={onCancelSaveAndConfirm}
+            onOk={onOkSaveAndConfirm}
+            visible={isvibleSaveAndConfirm}
+            title="Xác nhận đơn hàng"
+            text="Khi lưu nháp hệ thống sẽ tự xóa thông tin Giao hàng và Thanh toán. Bạn có chắc Lưu nháp đơn hàng này không?"
+          />
+
+          <ConfirmPaymentModal
+            onCancel={onCancleConfirmPayment}
+            onOk={onOkConfirmPayment}
+            visible={isibleConfirmPayment}
+            text={textValue}
+          />
         </Form>
       </div>
     </ContentContainer>
