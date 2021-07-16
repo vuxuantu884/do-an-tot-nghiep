@@ -61,7 +61,7 @@ export interface UpdateFulFillmentRequest {
   delivery_type: string | null | undefined;
   stock_location_id: number | null | undefined;
   payment_status: string | null;
-  total: number | null;
+  total: number | null | undefined;
   total_tax: number | null;
   total_discount: number | null;
   total_quantity: number | null;
@@ -71,6 +71,7 @@ export interface UpdateFulFillmentRequest {
   total_line_amount_after_line_discount: number | null;
   shipment: UpdateShipmentRequest | null | undefined;
   items: Array<OrderLineItemResponse> | null | undefined;
+  shipping_fee_informed_to_customer: number | null;
 }
 
 export interface UpdateLineFulFillment {
@@ -147,7 +148,7 @@ export interface UpdateShipmentRequest {
   delivery_fee: number | null;
   shipping_fee_informed_to_customer: number | null;
   shipping_fee_paid_to_3pls: number | null;
-  cod: number|null;
+  cod: number | null | undefined;
   dating_ship?: Moment;
   expected_received_date?: string | null;
   reference_status: string | null;

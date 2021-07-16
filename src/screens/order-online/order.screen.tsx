@@ -276,7 +276,9 @@ export default function Order() {
       objShipment.shipping_fee_paid_to_3pls = value.shipping_fee_paid_to_3pls;
 
       if (takeMoneyHelper !== null) {
-        objShipment.cod = takeMoneyHelper;
+        objShipment.cod = takeMoneyHelper 
+      }else{
+        objShipment.cod = orderAmount
       }
       return objShipment;
     }
@@ -343,10 +345,17 @@ export default function Order() {
       values.fulfillments = [];
       values.payments = [];
       values.action = OrderStatus.DRAFT;
+      values.total = orderAmount;
+      values.shipping_fee_informed_to_customer = 0
     } else {
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments;
+      if (shippingFeeCustomer !== null ) {
+        values.total = orderAmount + shippingFeeCustomer;
+      } else  {
+        values.total = orderAmount;
+      }
     }
     values.tags = tags;
     values.items = items;
@@ -355,12 +364,6 @@ export default function Order() {
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
-    if (shippingFeeCustomer !== null) {
-      values.total = orderAmount + shippingFeeCustomer;
-    } else {
-      values.total = orderAmount;
-    }
-
     if (values.customer_id === undefined || values.customer_id === null) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
     } else {
@@ -448,13 +451,9 @@ export default function Order() {
                 shipmentMethod={shipmentMethod}
                 storeId={storeId}
                 setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
-                setTakeMoneyHelper={setTakeMoneyHelper}
-                amount={
-                  shippingFeeCustomer
-                    ? orderAmount + shippingFeeCustomer
-                    : orderAmount
-                }
-                paymentMethod= {paymentMethod}
+                amount={orderAmount}
+                setPaymentMethod={setPaymentMethod}
+                paymentMethod={paymentMethod}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
