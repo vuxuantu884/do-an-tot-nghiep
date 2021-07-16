@@ -147,6 +147,7 @@ export interface UpdateShipmentRequest {
   delivery_fee: number | null;
   shipping_fee_informed_to_customer: number | null;
   shipping_fee_paid_to_3pls: number | null;
+  cod: number|null;
   dating_ship?: Moment;
   expected_received_date?: string | null;
   reference_status: string | null;

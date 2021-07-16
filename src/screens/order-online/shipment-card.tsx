@@ -39,7 +39,6 @@ type ShipmentCardProps = {
   storeId: number | null;
   amount: number
   paymentMethod: number
-  takeMoneyHelper: number
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
@@ -49,6 +48,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   const [storeDetail, setStoreDetail] = useState<StoreResponse>();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [shipmentMethodState, setshipmentMethod] = useState<number>(4);
+  const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
 
   const ShipMethodOnChange = (value: number) => {
     setshipmentMethod(value);
@@ -228,7 +228,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 format={(a: string) => formatCurrency(a)} 
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
-                value={props.takeMoneyHelper || props.amount}
+                value={takeMoneyHelper || props.amount}
                 onChange={(value: any)=> props.setTakeMoneyHelper(value)}
                 style={{
                   textAlign: "right",

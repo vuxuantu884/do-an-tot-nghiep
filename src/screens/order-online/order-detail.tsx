@@ -432,6 +432,7 @@ const onOkShippingConfirm = ()=>{
     fee_base_on: "",
     delivery_fee: null,
     shipping_fee_paid_to_3pls: null,
+    cod: null,
     expected_received_date: "",
     reference_status: "",
     shipping_fee_informed_to_customer: null,
@@ -1319,6 +1320,13 @@ const onOkShippingConfirm = ()=>{
                               label="Phí ship báo khách"
                             >
                               <Input placeholder="Phí ship báo khách" />
+                            </Form.Item>
+
+                            <Form.Item
+                              name="shipping_fee_informed_to_customer"
+                              label="Tiền thu hộ"
+                            >
+                              <Input placeholder="Tiền thu hộ" />
                             </Form.Item>
                           </Col>
                           <Col md={24}>

@@ -38,7 +38,7 @@ import CustomerCard from "./customer-card";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
-import { OrderStatus, TaxTreatment } from "utils/Constants";
+import { OrderStatus, ShipmentMethodOption, TaxTreatment } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
@@ -73,7 +73,7 @@ export default function Order() {
   const formRef = createRef<FormInstance>();
   const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] =
     useState<boolean>(false);
-  const [takeMoneyHelper, setTakeMoneyHelper] = useState<any>(0)
+  const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   //#endregion
 
   //#region Customer
@@ -267,13 +267,17 @@ export default function Order() {
       requirements: value.requirements,
     };
 
-    if (shipmentMethod === 2) {
+    if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
       objShipment.delivery_service_provider_type = "Shipper";
       objShipment.delivery_service_provider_id =
         value.delivery_service_provider_id;
       objShipment.shipping_fee_informed_to_customer =
         value.shipping_fee_informed_to_customer;
       objShipment.shipping_fee_paid_to_3pls = value.shipping_fee_paid_to_3pls;
+
+      if (takeMoneyHelper !== null) {
+        objShipment.cod = takeMoneyHelper;
+      }
       return objShipment;
     }
     if (shipmentMethod === 3) {
@@ -445,7 +449,6 @@ export default function Order() {
                 storeId={storeId}
                 setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
                 setTakeMoneyHelper={setTakeMoneyHelper}
-                takeMoneyHelper={takeMoneyHelper}
                 amount={
                   shippingFeeCustomer
                     ? orderAmount + shippingFeeCustomer
