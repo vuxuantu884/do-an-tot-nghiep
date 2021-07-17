@@ -58,6 +58,7 @@ import {
 import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
+import emptyProduct from "assets/icon/empty_products.svg";
 import { Type } from "config/TypeConfig";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "./modal/AddGiftModal";
@@ -753,24 +754,23 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       <Table
         locale={{
           emptyText: (
-            <Button
+            <div className="sale_order_empty_product">
+              <img src={emptyProduct} alt="empty product"></img>
+                <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
+                <Button
               type="text"
               className="font-weight-500"
               style={{
-                color: "#2A2A86",
                 background: "rgba(42,42,134,0.05)",
-                borderRadius: 5,
-                padding: 8,
-                height: "auto",
-                marginTop: 15,
-                marginBottom: 15,
               }}
               onClick={() => {
                 autoCompleteRef.current?.focus();
               }}
             >
               Thêm sản phẩm ngay (F3)
-            </Button>
+              </Button>
+            </div>
+           
           ),
         }}
         rowKey={(record) => record.id}
@@ -827,7 +827,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           <Col xs={24} lg={12}>
             <div className="payment-row">
               <Checkbox
-                className="margin-bottom-15"
+                className=""
                 onChange={() => console.log(1)}
                 style={{fontWeight: 500}}
               >
@@ -836,7 +836,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             </div>
             <div className="payment-row">
               <Checkbox
-                className="margin-bottom-15"
+                className=""
                 onChange={() => console.log(1)}
                 style={{fontWeight: 500}}
               >
@@ -845,7 +845,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             </div>
             <div className="payment-row">
               <Checkbox
-                className="margin-bottom-15"
+                className=""
                 onChange={() => console.log(1)}
                 style={{fontWeight: 500}}
               >
@@ -865,18 +865,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               className="payment-row"
               justify="space-between"
               align="middle"
-              style={{ marginTop: "5px" }}
             >
               <Space align="center">
-                <Typography.Link
+                {items.length > 0 ? <Typography.Link
                   className="font-weight-500"
                   onClick={ShowDiscountModal}
                   style={{
-                    borderBottom: "1px dashed #0080FF",
+                    borderBottom: "1px solid #5D5D8A",
+                    color: "#5D5D8A"
                   }}
                 >
                   Chiết khấu
-                </Typography.Link>
+                </Typography.Link> : <div>Chiết khấu</div>}
+                
 
                 {discountRate !== 0 && (
                   <Tag
@@ -901,15 +902,18 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               className="payment-row"
               justify="space-between"
               align="middle"
-              style={{ marginTop: "5px" }}
             >
               <Space align="center">
-                <Typography.Link
+               {items.length > 0 ?  <Typography.Link
                   className="font-weight-500"
                   onClick={ShowDiscountModal}
+                  style={{
+                    borderBottom: "1px solid #5D5D8A",
+                    color: "#5D5D8A"
+                  }}
                 >
                   Mã giảm giá
-                </Typography.Link>
+                </Typography.Link> : <div>Mã giảm giá</div>}
 
                 {counpon !== "" && (
                   <Tag
@@ -932,8 +936,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <div className="font-weight-500 payment-row-money">{props.shippingFeeCustomer !== null ? formatCurrency(props.shippingFeeCustomer) : 0}</div>
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
-            <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Khách cần trả</strong>
+            <Row className="payment-row" justify="space-between"> 
+              <strong className="font-size-text">Khách cần phải trả:</strong>
               <strong className="text-success font-size-text">
                 {props.shippingFeeCustomer !== null ? formatCurrency(changeMoney + props.shippingFeeCustomer): formatCurrency(changeMoney)}
               </strong>
