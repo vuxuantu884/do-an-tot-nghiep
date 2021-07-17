@@ -233,7 +233,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleShippingAddress(value);
   };
 
-
   return (
     <Card
       title={
@@ -556,7 +555,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         placeholder="Điền ghi chú"
                         rows={4}
                         maxLength={500}
-                        style={{marginTop: "10px"}}
+                        style={{ marginTop: "10px" }}
                       />
                     </Form.Item>
                   </Col>
@@ -569,6 +568,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   <Checkbox
                     className="checkbox-style"
                     onChange={ShowBillingAddress}
+                    style={{marginLeft: "3px" }}
                   >
                     Gửi hoá đơn
                   </Checkbox>
@@ -577,127 +577,129 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 {customer.billing_addresses !== undefined && (
                   <Row gutter={24} hidden={isVisibleBilling}>
                     <Col
-                    xs={24}
-                    lg={12}
-                    style={{
-                      borderRight: "1px solid #E5E5E5",
-                      paddingTop: "14px",
-                    }}
-                    className="font-weight-500 customer-info-left"
-                  >
-                    <div className="title-address">
-                      <img
-                        src={addressIcon}
-                        alt=""
-                        style={{
-                          width: "24px",
-                          height: "24px",
-                          marginRight: "10px",
-                        }}
-                      />
-                      Địa chỉ nhận hóa đơn:
-                    </div>
-                    <Row className="customer-row-info">
-                      <span>{shippingAddress?.name}</span>
-                    </Row>
-                    <Row className="customer-row-info">
-                      <span>{shippingAddress?.phone}</span>
-                    </Row>
-                    <Row className="customer-row-info">
-                      <span>{shippingAddress?.full_address}</span>
-                    </Row>
-                    <Row>
-                      <Popover
-                        placement="bottomLeft"
-                        title={
-                          <Row
-                            justify="space-between"
-                            align="middle"
-                            className="change-shipping-address-title"
-                          >
-                            <div
-                              style={{
-                                color: "#4F687D",
-                              }}
-                            >
-                              Thay đổi địa chỉ
-                            </div>
-                            <Button
-                              type="link"
-                              // onClick={ShowAddressModal}
-                            >
-                              Thêm địa chỉ mới
-                            </Button>
-                          </Row>
-                        }
-                        content={
-                          <div className="change-shipping-address-content">
-                            {customer.shipping_addresses.map((item, index) => (
-                              <div
-                                className="shipping-address-row"
-                                // onClick={(e) =>
-                                //   SelectShippingAddress(item)
-                                // }
-                              >
-                                <div className="shipping-address-name">
-                                  Địa chỉ 1{" "}
-                                  <Button
-                                    type="text"
-                                    onClick={ShowAddressModal}
-                                    className="p-0"
-                                  >
-                                    <img src={editBlueIcon} alt="" />
-                                  </Button>
-                                </div>
-                                <div className="shipping-customer-name">
-                                  {item.name}
-                                </div>
-                                <div className="shipping-customer-mobile">
-                                  {item.phone}
-                                </div>
-                                <div className="shipping-customer-address">
-                                  {item.full_address}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        }
-                        trigger="click"
-                        onVisibleChange={handleVisibleShippingAddressChange}
-                        className="change-shipping-address"
-                      >
-                        <Button type="link" className="btn-style">
-                          Thay đổi địa chỉ giao hàng
-                        </Button>
-                      </Popover>
-                    </Row>
-                  </Col>
-                  <Col
-                    xs={24}
-                    lg={12}
-                    className="font-weight-500"
-                    style={{ paddingLeft: "34px", marginTop: "14px" }}
-                  >
-                    <Form.Item name="customer_note">
-                      <label className="title-address">
+                      xs={24}
+                      lg={12}
+                      style={{
+                        borderRight: "1px solid #E5E5E5",
+                        paddingTop: "14px",
+                      }}
+                      className="font-weight-500 customer-info-left"
+                    >
+                      <div className="title-address">
                         <img
-                          src={noteCustomer}
+                          src={addressIcon}
                           alt=""
                           style={{
-                            width: "20px",
-                            height: "20px",
+                            width: "24px",
+                            height: "24px",
                             marginRight: "10px",
                           }}
                         />
-                        Email gửi hóa đơn:
-                      </label>
-                      <Input
-                        placeholder="Điền email"
-                        maxLength={500}
-                        style={{marginTop: "10px"}}
-                      />
-                    </Form.Item>
-                  </Col>
+                        Địa chỉ nhận hóa đơn:
+                      </div>
+                      <Row className="customer-row-info">
+                        <span>{shippingAddress?.name}</span>
+                      </Row>
+                      <Row className="customer-row-info">
+                        <span>{shippingAddress?.phone}</span>
+                      </Row>
+                      <Row className="customer-row-info">
+                        <span>{shippingAddress?.full_address}</span>
+                      </Row>
+                      <Row>
+                        <Popover
+                          placement="bottomLeft"
+                          title={
+                            <Row
+                              justify="space-between"
+                              align="middle"
+                              className="change-shipping-address-title"
+                            >
+                              <div
+                                style={{
+                                  color: "#4F687D",
+                                }}
+                              >
+                                Thay đổi địa chỉ
+                              </div>
+                              <Button
+                                type="link"
+                                // onClick={ShowAddressModal}
+                              >
+                                Thêm địa chỉ mới
+                              </Button>
+                            </Row>
+                          }
+                          content={
+                            <div className="change-shipping-address-content">
+                              {customer.shipping_addresses.map(
+                                (item, index) => (
+                                  <div
+                                    className="shipping-address-row"
+                                    // onClick={(e) =>
+                                    //   SelectShippingAddress(item)
+                                    // }
+                                  >
+                                    <div className="shipping-address-name">
+                                      Địa chỉ 1{" "}
+                                      <Button
+                                        type="text"
+                                        onClick={ShowAddressModal}
+                                        className="p-0"
+                                      >
+                                        <img src={editBlueIcon} alt="" />
+                                      </Button>
+                                    </div>
+                                    <div className="shipping-customer-name">
+                                      {item.name}
+                                    </div>
+                                    <div className="shipping-customer-mobile">
+                                      {item.phone}
+                                    </div>
+                                    <div className="shipping-customer-address">
+                                      {item.full_address}
+                                    </div>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          }
+                          trigger="click"
+                          onVisibleChange={handleVisibleShippingAddressChange}
+                          className="change-shipping-address"
+                        >
+                          <Button type="link" className="btn-style">
+                            Thay đổi địa chỉ giao hàng
+                          </Button>
+                        </Popover>
+                      </Row>
+                    </Col>
+                    <Col
+                      xs={24}
+                      lg={12}
+                      className="font-weight-500"
+                      style={{ paddingLeft: "34px", marginTop: "14px" }}
+                    >
+                      <Form.Item name="customer_note">
+                        <label className="title-address">
+                          <img
+                            src={noteCustomer}
+                            alt=""
+                            style={{
+                              width: "20px",
+                              height: "20px",
+                              marginRight: "10px",
+                            }}
+                          />
+                          Email gửi hóa đơn:
+                        </label>
+                        <Input
+                          placeholder="Điền email"
+                          maxLength={500}
+                          style={{ marginTop: "10px" }}
+                        />
+                      </Form.Item>
+                    </Col>
                   </Row>
                 )}
               </div>

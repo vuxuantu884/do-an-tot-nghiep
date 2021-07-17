@@ -11,7 +11,7 @@ import {
   FormInstance,
   Select,
 } from "antd";
-import { InfoCircleOutlined, ProfileOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { CustomerResponse } from "model/response/customer/customer.response";
@@ -486,7 +486,7 @@ export default function Order() {
                   </div>
                 }
               >
-                <div className="padding-20">
+                <div className="padding-24">
                   <Form.Item
                     label="Nhân viên bán hàng"
                     name="assignee_code"
@@ -555,7 +555,7 @@ export default function Order() {
                   </div>
                 }
               >
-                <div className="padding-20">
+                <div className="padding-24">
                   <Form.Item
                     name="note"
                     label="Ghi chú nội bộ"
@@ -567,7 +567,7 @@ export default function Order() {
                     <Input.TextArea
                       placeholder="Điền ghi chú"
                       maxLength={500}
-                      style={{ minHeight: "76px" }}
+                      style={{ minHeight: "130px" }}
                     />
                   </Form.Item>
                   <Form.Item

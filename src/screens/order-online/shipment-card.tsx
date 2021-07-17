@@ -102,6 +102,12 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               />
             </Form.Item>
           </Col>
+
+          <Col md={6}>
+            <Form.Item>
+              <Checkbox style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
+            </Form.Item>
+          </Col>
           <Col md={9}>
             <span
               style={{
@@ -143,15 +149,9 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               </Select>
             </Form.Item>
           </Col>
-
-          <Col>
-            <Form.Item>
-              <Checkbox>Giờ hành chính</Checkbox>
-            </Form.Item>
-          </Col>
         </Row>
 
-{/* 
+        {/* 
         <Tabs type="card">
           <TabPane tab="Tab 1" key="1">
             Content of Tab Pane 1

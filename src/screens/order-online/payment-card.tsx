@@ -284,7 +284,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       onFocus={(e) => e.target.select()}
                     />
                   </Col>
-                  <Col span={2} style={{ paddingLeft: 0 }}>
+                  {/* <Col span={2} style={{ paddingLeft: 0 }}>
                     <Button
                       type="text"
                       className="p-0 m-0 ant-btn-custom"
@@ -294,7 +294,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                     >
                       <img src={deleteIcon} alt="" />
                     </Button>
-                  </Col>
+                  </Col> */}
                 </Row>
               );
             })}

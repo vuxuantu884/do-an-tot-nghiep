@@ -21,7 +21,6 @@ import {
 
 import arrowDownIcon from "assets/img/drow-down.svg";
 import giftIcon from "assets/icon/gift.svg";
-import productIcon from "assets/img/cube.svg";
 import React, {
   useCallback,
   useLayoutEffect,
@@ -30,9 +29,7 @@ import React, {
   createRef,
 } from "react";
 import {
-  ArrowRightOutlined,
   SearchOutlined,
-  ShopOutlined,
   EditOutlined,
 } from "@ant-design/icons";
 import DiscountGroup from "./discount-group";
@@ -70,7 +67,6 @@ import {
   VariantSearchQuery,
 } from "model/product/product.model";
 import { StoreResponse } from "model/core/store.model";
-import { Link } from "react-router-dom";
 import { MoneyType } from "utils/Constants";
 import { OrderLineItemRequest } from "model/request/order.request";
 
@@ -676,8 +672,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         </Space>
       }
     >
-      <div style={{ padding: "20px 20px 0 20px" }}>
-        <Row gutter={20}>
+      <div style={{ padding: "24px 24px 0 24px" }}>
+        <Row gutter={24}>
           <Col md={8}>
             <Form.Item
               label="Cửa hàng"
@@ -822,7 +818,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           ) : <div />
         }
       />
-      <div className="padding-20" style={{ paddingTop: "30px" }}>
+      <div className="padding-24" style={{ paddingTop: "30px" }}>
         <Row className="sale-product-box-payment" gutter={24}>
           <Col xs={24} lg={12}>
             <div className="payment-row">

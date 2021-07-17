@@ -17,11 +17,9 @@ import {
   Collapse,
   Radio,
   DatePicker,
-  Input,
   FormInstance,
   Select,
 } from "antd";
-import documentIcon from "assets/img/document.svg";
 import UpdatePaymentCard from "./update-payment-card";
 import {
   useState,
@@ -57,12 +55,10 @@ import {
   EyeOutlined,
   CalendarOutlined,
   CaretRightOutlined,
-  ShopOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import AddAddressModal from "./modal/addAddressModal";
 import EditCustomerModal from "./modal/editCustomerModal";
-import peopleIcon2 from "assets/img/people.svg";
 import bithdayIcon from "assets/img/bithday.svg";
 import editBlueIcon from "assets/img/editBlue.svg";
 import pointIcon from "assets/img/point.svg";
@@ -70,8 +66,9 @@ import callIcon from "assets/img/call.svg";
 import locationIcon from "assets/img/location.svg";
 import deleteIcon from "assets/icon/delete.svg";
 import giftIcon from "assets/icon/gift.svg";
-import productIcon from "assets/img/cube.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
+import addressIcon from "assets/img/user-pin.svg";
+import noteCustomer from "assets/img/note-customer.svg";
 import { useParams } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -83,12 +80,21 @@ import {
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
-import { formatCurrency, getTotalQuantity, replaceFormatString } from "utils/AppUtils";
+import {
+  formatCurrency,
+  getTotalQuantity,
+  replaceFormatString,
+} from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
-import { FulFillmentStatus, OrderStatus, ShipmentMethodOption, PaymentMethodOption } from "utils/Constants";
+import {
+  FulFillmentStatus,
+  OrderStatus,
+  ShipmentMethodOption,
+  PaymentMethodOption,
+} from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import CustomSelect from "component/custom/select.custom";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
@@ -125,13 +131,15 @@ const OrderDetail = () => {
     null
   );
   const [amount, setAmount] = useState<number>(0);
-  const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] = useState<number | null>(0)
-  const [isvibleUpdateFulfilmentConfirm, setIsvibleUpdateFulfilmentConfirm] = useState<boolean>(false)
+  const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
+    useState<number | null>(0);
+  const [isvibleUpdateFulfilmentConfirm, setIsvibleUpdateFulfilmentConfirm] =
+    useState<boolean>(false);
   //#endregion
-  const onOkUpdateFulfilmentConfirm = () =>{
-    setIsvibleUpdateFulfilmentConfirm(false)
-    formRef.current?.submit()
-  }
+  const onOkUpdateFulfilmentConfirm = () => {
+    setIsvibleUpdateFulfilmentConfirm(false);
+    formRef.current?.submit();
+  };
 
   const isFirstLoad = useRef(true);
   //#region Orther
@@ -247,7 +255,8 @@ const OrderDetail = () => {
 
   const ShipMethodOnChange = (value: number) => {
     setShipmentMethod(value);
-    if(value === ShipmentMethodOption.SELFDELIVER) setPaymentType(PaymentMethodOption.COD)
+    if (value === ShipmentMethodOption.SELFDELIVER)
+      setPaymentType(PaymentMethodOption.COD);
   };
 
   const onDeleteItem = (index: number) => {
@@ -270,7 +279,12 @@ const OrderDetail = () => {
   }, [dispatch, setDataAccounts]);
 
   const ProductColumn = {
-    title: "Sản phẩm",
+    title: () => (
+      <div className="text-center">
+        <div>Sản phẩm</div>
+        <span style={{ color: "#0080FF" }}></span>
+      </div>
+    ),
     width: "35%",
     className: "yody-pos-name",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
@@ -322,7 +336,7 @@ const OrderDetail = () => {
       </div>
     ),
     className: "yody-pos-quantity text-center",
-    width: "10%",
+    width: "15%",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return <div className="yody-pos-qtt">{l.quantity}</div>;
     },
@@ -493,19 +507,24 @@ const OrderDetail = () => {
         FulFillmentRequest.id = OrderDetail.fulfillments[0].id;
       }
     }
-    if(paymentType === 1) {
-        value.cod = OrderDetail?.total_line_amount_after_line_discount
+    if (paymentType === 1) {
+      value.cod = OrderDetail?.total_line_amount_after_line_discount;
     }
     FulFillmentRequest.shipment = value;
-    if(shippingFeeInformedCustomer !== null){
-        FulFillmentRequest.shipping_fee_informed_to_customer = shippingFeeInformedCustomer
+    if (shippingFeeInformedCustomer !== null) {
+      FulFillmentRequest.shipping_fee_informed_to_customer =
+        shippingFeeInformedCustomer;
     }
-    if(shippingFeeInformedCustomer !== null){
-        FulFillmentRequest.total = OrderDetail?.total_line_amount_after_line_discount && OrderDetail?.total_line_amount_after_line_discount + shippingFeeInformedCustomer
-    }else {
-        FulFillmentRequest.total = OrderDetail?.total_line_amount_after_line_discount
+    if (shippingFeeInformedCustomer !== null) {
+      FulFillmentRequest.total =
+        OrderDetail?.total_line_amount_after_line_discount &&
+        OrderDetail?.total_line_amount_after_line_discount +
+          shippingFeeInformedCustomer;
+    } else {
+      FulFillmentRequest.total =
+        OrderDetail?.total_line_amount_after_line_discount;
     }
-    
+
     let UpdateLineFulFillment: UpdateLineFulFillment = {
       order_id: FulFillmentRequest.order_id,
       fulfillment: FulFillmentRequest,
@@ -556,7 +575,7 @@ const OrderDetail = () => {
               className="card-block card-block-customer"
               title={
                 <div className="d-flex">
-                  <img src={peopleIcon2} alt="" /> Khách hàng
+                  <span className="title-card">THÔNG TIN KHÁCH HÀNG</span>
                 </div>
               }
               extra={
@@ -592,7 +611,11 @@ const OrderDetail = () => {
                   </Space>
                   <Space className="customer-detail-phone">
                     <span className="customer-detail-icon">
-                      <img src={callIcon} alt="" />
+                      <img
+                        src={callIcon}
+                        alt=""
+                        className="icon-customer-info"
+                      />
                     </span>
                     <span className="customer-detail-text">
                       {customerDetail?.phone}
@@ -626,30 +649,41 @@ const OrderDetail = () => {
                     </span>
                   </Space>
                 </Row>
-                <Divider />
-                <div className="customer-info padding-custom">
+                <Divider
+                  className="margin-0"
+                  style={{ padding: 0, marginBottom: 0 }}
+                />
+                <div className="padding-lef-right">
                   <Row gutter={24}>
                     <Col
                       xs={24}
                       lg={12}
+                      style={{
+                        borderRight: "1px solid #E5E5E5",
+                        paddingTop: "14px",
+                      }}
                       className="font-weight-500 customer-info-left"
                     >
-                      <div className="title-address">Địa chỉ giao hàng</div>
+                      <div className="title-address">
+                        <img
+                          src={addressIcon}
+                          alt=""
+                          style={{
+                            width: "24px",
+                            height: "24px",
+                            marginRight: "10px",
+                          }}
+                        />
+                        Địa chỉ giao hàng:
+                      </div>
                       <Row className="customer-row-info">
-                        <img src={peopleIcon2} alt="" style={{ width: 19 }} />{" "}
-                        <span style={{ marginLeft: 9 }}>
-                          {OrderDetail?.shipping_address?.name}
-                        </span>
+                        <span>{OrderDetail?.shipping_address?.name}</span>
                       </Row>
                       <Row className="customer-row-info">
-                        <img src={callIcon} alt="" style={{ width: 19 }} />{" "}
-                        <span style={{ marginLeft: 9 }}>
-                          {OrderDetail?.shipping_address?.phone}
-                        </span>
+                        <span>{OrderDetail?.shipping_address?.phone}</span>
                       </Row>
                       <Row className="customer-row-info">
-                        <img src={locationIcon} alt="" style={{ width: 19 }} />{" "}
-                        <span style={{ marginLeft: 9 }}>
+                        <span>
                           {OrderDetail?.shipping_address?.full_address}
                         </span>
                       </Row>
@@ -706,24 +740,42 @@ const OrderDetail = () => {
                         </Popover>
                       </Row>
                     </Col>
-                    <Col xs={24} lg={12} className="font-weight-500">
+                    <Col
+                      xs={24}
+                      lg={12}
+                      style={{ paddingLeft: "34px", marginTop: "14px" }}
+                    >
                       <div className="form-group form-group-with-search">
                         <div>
-                          <label htmlFor="" className="">
-                            Ghi chú của khách hàng
+                          <label className="title-address">
+                            <img
+                              src={noteCustomer}
+                              alt=""
+                              style={{
+                                width: "20px",
+                                height: "20px",
+                                marginRight: "10px",
+                              }}
+                            />
+                            Ghi chú của khách:
                           </label>
                         </div>
-                        <span>{OrderDetail?.customer_note}</span>
+                        <span style={{ marginTop: "10px" }}>
+                          {OrderDetail?.customer_note !== ""
+                            ? OrderDetail?.customer_note
+                            : "Không có ghi chú"}
+                        </span>
                       </div>
                     </Col>
                   </Row>
-                  <Divider />
+                  <Divider style={{ padding: 0, margin: 0 }} />
 
                   <div className="send-order-box">
-                    <Row style={{ marginBottom: 15 }}>
+                    <Row style={{ marginTop: 15 }}>
                       <Checkbox
                         className="checkbox-style"
                         onChange={ShowBillingAddress}
+                        style={{ marginLeft: "3px" }}
                       >
                         Gửi hoá đơn
                       </Checkbox>
@@ -733,28 +785,32 @@ const OrderDetail = () => {
                       <Col
                         xs={24}
                         lg={12}
+                        style={{
+                          borderRight: "1px solid #E5E5E5",
+                          paddingTop: "14px",
+                        }}
                         className="font-weight-500 customer-info-left"
                       >
-                        <div className="title-address">Địa chỉ giao hàng</div>
-                        <Row className="customer-row-info">
-                          <img src={peopleIcon2} alt="" style={{ width: 19 }} />
-                          <span style={{ marginLeft: 9 }}>
-                            {OrderDetail?.billing_address?.name}
-                          </span>
-                        </Row>
-                        <Row className="customer-row-info">
-                          <img src={callIcon} alt="" style={{ width: 19 }} />{" "}
-                          <span style={{ marginLeft: 9 }}>
-                            {OrderDetail?.billing_address?.phone}
-                          </span>
-                        </Row>
-                        <Row className="customer-row-info">
+                        <div className="title-address">
                           <img
-                            src={locationIcon}
+                            src={addressIcon}
                             alt=""
-                            style={{ width: 19 }}
-                          />{" "}
-                          <span style={{ marginLeft: 9 }}>
+                            style={{
+                              width: "24px",
+                              height: "24px",
+                              marginRight: "10px",
+                            }}
+                          />
+                          Địa chỉ nhận hóa đơn:
+                        </div>
+                        <Row className="customer-row-info">
+                          <span>{OrderDetail?.billing_address?.name}</span>
+                        </Row>
+                        <Row className="customer-row-info">
+                          <span>{OrderDetail?.billing_address?.phone}</span>
+                        </Row>
+                        <Row className="customer-row-info">
+                          <span>
                             {OrderDetail?.billing_address?.full_address}
                           </span>
                         </Row>
@@ -844,7 +900,7 @@ const OrderDetail = () => {
               className="margin-top-20"
               title={
                 <div className="d-flex">
-                  <img src={productIcon} alt="" /> Sản phẩm
+                  <span className="title-card">SẢN PHẨM</span>
                 </div>
               }
               extra={
@@ -866,8 +922,8 @@ const OrderDetail = () => {
                 </Row>
               }
             >
-              <div className="padding-20">
-                <Row className="sale-product-box">
+              <div style={{ padding: "10px 0 24px 0" }}>
+                <Row className="sale-product-box" justify="space-between">
                   <Table
                     locale={{
                       emptyText: (
@@ -898,7 +954,7 @@ const OrderDetail = () => {
                 </Row>
 
                 <Row
-                  className="sale-product-box-payment"
+                  className="sale-product-box-payment padding-24"
                   gutter={24}
                   style={{ paddingTop: "30px" }}
                 >
@@ -951,7 +1007,10 @@ const OrderDetail = () => {
                       <Space align="center">
                         <Typography.Link
                           className="font-weight-500"
-                          style={{ borderBottom: "1px dashed #1890ff" }}
+                          style={{
+                            borderBottom: "1px solid #5D5D8A",
+                            color: "#5D5D8A",
+                          }}
                         >
                           Chiết khấu
                         </Typography.Link>
@@ -972,7 +1031,13 @@ const OrderDetail = () => {
                       style={{ marginTop: "5px" }}
                     >
                       <Space align="center">
-                        <Typography.Link className="font-weight-500">
+                        <Typography.Link
+                          className="font-weight-500"
+                          style={{
+                            borderBottom: "1px solid #5D5D8A",
+                            color: "#5D5D8A",
+                          }}
+                        >
                           Mã giảm giá
                         </Typography.Link>
                       </Space>
@@ -985,45 +1050,71 @@ const OrderDetail = () => {
                     >
                       <div className="font-weight-500">Phí ship báo khách</div>
                       <div className="font-weight-500 payment-row-money">
-                        {OrderDetail != null && OrderDetail != undefined &&
-                         OrderDetail?.fulfillments !== null && OrderDetail?.fulfillments !== undefined &&
-                         OrderDetail?.fulfillments.length > 0 && 
-                         OrderDetail?.fulfillments[0].shipment !== undefined &&
-                         OrderDetail?.fulfillments[0].shipment !== null &&
-                         OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer !== undefined &&
-                         OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer !== null &&
-                        formatCurrency(OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer) ||
-
-                        shippingFeeInformedCustomer !== null && formatCurrency(shippingFeeInformedCustomer) || 
-
-                        OrderDetail?.shipping_fee_informed_to_customer !== null && 
-                        OrderDetail?.shipping_fee_informed_to_customer !== undefined &&
-                        formatCurrency(OrderDetail?.shipping_fee_informed_to_customer) || 0
-                        }
+                        {(OrderDetail !== null &&
+                          OrderDetail !== undefined &&
+                          OrderDetail?.fulfillments !== null &&
+                          OrderDetail?.fulfillments !== undefined &&
+                          OrderDetail?.fulfillments.length > 0 &&
+                          OrderDetail?.fulfillments[0].shipment !== undefined &&
+                          OrderDetail?.fulfillments[0].shipment !== null &&
+                          OrderDetail?.fulfillments[0].shipment
+                            .shipping_fee_informed_to_customer !== undefined &&
+                          OrderDetail?.fulfillments[0].shipment
+                            .shipping_fee_informed_to_customer !== null &&
+                          formatCurrency(
+                            OrderDetail?.fulfillments[0].shipment
+                              .shipping_fee_informed_to_customer
+                          )) ||
+                          (shippingFeeInformedCustomer !== null &&
+                            formatCurrency(shippingFeeInformedCustomer)) ||
+                          (OrderDetail?.shipping_fee_informed_to_customer !==
+                            null &&
+                            OrderDetail?.shipping_fee_informed_to_customer !==
+                              undefined &&
+                            formatCurrency(
+                              OrderDetail?.shipping_fee_informed_to_customer
+                            )) ||
+                          0}
                       </div>
                     </Row>
                     <Divider className="margin-top-5 margin-bottom-5" />
                     <Row className="payment-row" justify="space-between">
                       <strong className="font-size-text">Khách cần trả</strong>
                       <strong className="text-success font-size-text">
-                        {OrderDetail?.total_line_amount_after_line_discount !== null &&
-                        OrderDetail?.shipping_fee_informed_to_customer !== null &&
-                        OrderDetail?.total_line_amount_after_line_discount !== undefined &&
-                        OrderDetail?.shipping_fee_informed_to_customer !== undefined &&
-
-                        OrderDetail != null && OrderDetail != undefined &&
-                         OrderDetail?.fulfillments !== null && OrderDetail?.fulfillments !== undefined &&
-                         OrderDetail?.fulfillments.length > 0 && 
-                         OrderDetail?.fulfillments[0].shipment !== undefined &&
-                         OrderDetail?.fulfillments[0].shipment !== null &&
-                         OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer !== undefined &&
-                         OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer !== null &&
-
-                        formatCurrency(OrderDetail?.total_line_amount_after_line_discount + OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer) ||
-                        
-                        OrderDetail?.total_line_amount_after_line_discount !== null && OrderDetail?.total_line_amount_after_line_discount !== undefined &&
-                        formatCurrency(OrderDetail?.total_line_amount_after_line_discount + (shippingFeeInformedCustomer !== null ? shippingFeeInformedCustomer : 0))
-                        }
+                        {(OrderDetail?.total_line_amount_after_line_discount !==
+                          null &&
+                          OrderDetail?.shipping_fee_informed_to_customer !==
+                            null &&
+                          OrderDetail?.total_line_amount_after_line_discount !==
+                            undefined &&
+                          OrderDetail?.shipping_fee_informed_to_customer !==
+                            undefined &&
+                          OrderDetail !== null &&
+                          OrderDetail !== undefined &&
+                          OrderDetail?.fulfillments !== null &&
+                          OrderDetail?.fulfillments !== undefined &&
+                          OrderDetail?.fulfillments.length > 0 &&
+                          OrderDetail?.fulfillments[0].shipment !== undefined &&
+                          OrderDetail?.fulfillments[0].shipment !== null &&
+                          OrderDetail?.fulfillments[0].shipment
+                            .shipping_fee_informed_to_customer !== undefined &&
+                          OrderDetail?.fulfillments[0].shipment
+                            .shipping_fee_informed_to_customer !== null &&
+                          formatCurrency(
+                            OrderDetail?.total_line_amount_after_line_discount +
+                              OrderDetail?.fulfillments[0].shipment
+                                .shipping_fee_informed_to_customer
+                          )) ||
+                          (OrderDetail?.total_line_amount_after_line_discount !==
+                            null &&
+                            OrderDetail?.total_line_amount_after_line_discount !==
+                              undefined &&
+                            formatCurrency(
+                              OrderDetail?.total_line_amount_after_line_discount +
+                                (shippingFeeInformedCustomer !== null
+                                  ? shippingFeeInformedCustomer
+                                  : 0)
+                            ))}
                       </strong>
                     </Row>
                   </Col>
@@ -1078,7 +1169,7 @@ const OrderDetail = () => {
                   </Space>
                 }
               >
-                <div className="padding-20">
+                <div className="padding-24">
                   <Collapse
                     className="orders-timeline"
                     defaultActiveKey={["1"]}
@@ -1192,7 +1283,7 @@ const OrderDetail = () => {
                   </Collapse>
                 </div>
                 <Divider style={{ margin: "0px" }} />
-                <div className="padding-20 text-right">
+                <div className="padding-24 text-right">
                   {/* <Button
                     type="default"
                     className="ant-btn-outline fixed-button"
@@ -1238,7 +1329,7 @@ const OrderDetail = () => {
                 }
               >
                 {isVisibleShipping === true && (
-                  <div className="padding-20">
+                  <div className="padding-24">
                     <Form
                       initialValues={initialFormUpdateShipment}
                       ref={formRef}
@@ -1356,62 +1447,68 @@ const OrderDetail = () => {
                               </CustomSelect>
                             </Form.Item>
                             <Form.Item
-                                name="shipping_fee_paid_to_3pls"
-                                label="Phí ship trả đối tác giao hàng"
-                                >
-                                <NumberInput
-                                    format={(a: string) => formatCurrency(a)} 
-                                    replace={(a: string) => replaceFormatString(a)}
-                                    placeholder="0"
-                                    style={{
-                                    textAlign: "right",
-                                    width: "100%",
-                                    color: "#222222",
-                                    }}
-                                    maxLength={15}
-                                    minLength={0}
-                                    onChange={()=>{}}
-                                />
+                              name="shipping_fee_paid_to_3pls"
+                              label="Phí ship trả đối tác giao hàng"
+                            >
+                              <NumberInput
+                                format={(a: string) => formatCurrency(a)}
+                                replace={(a: string) => replaceFormatString(a)}
+                                placeholder="0"
+                                style={{
+                                  textAlign: "right",
+                                  width: "100%",
+                                  color: "#222222",
+                                }}
+                                maxLength={15}
+                                minLength={0}
+                                onChange={() => {}}
+                              />
                             </Form.Item>
                           </Col>
                           <Col md={12}>
-                                <Form.Item
-                                name="shipping_fee_informed_to_customer"
-                                label="Phí ship báo khách"
-                                >
-                                <NumberInput
-                                    format={(a: string) => formatCurrency(a)} 
-                                    replace={(a: string) => replaceFormatString(a)}
-                                    placeholder="0"
-                                    style={{
-                                    textAlign: "right",
-                                    width: "100%",
-                                    color: "#222222",
-                                    }}
-                                    maxLength={15}
-                                    minLength={0}
-                                    onChange={(e)=> setShippingFeeInformedCustomer(e)}
-                                />
-                             </Form.Item>
+                            <Form.Item
+                              name="shipping_fee_informed_to_customer"
+                              label="Phí ship báo khách"
+                            >
+                              <NumberInput
+                                format={(a: string) => formatCurrency(a)}
+                                replace={(a: string) => replaceFormatString(a)}
+                                placeholder="0"
+                                style={{
+                                  textAlign: "right",
+                                  width: "100%",
+                                  color: "#222222",
+                                }}
+                                maxLength={15}
+                                minLength={0}
+                                onChange={(e) =>
+                                  setShippingFeeInformedCustomer(e)
+                                }
+                              />
+                            </Form.Item>
 
-                                {paymentType === 1 && <Form.Item
-                                label="Tiền thu hộ"
-                                >
+                            {paymentType === 1 && (
+                              <Form.Item label="Tiền thu hộ">
                                 <NumberInput
-                                    format={(a: string) => formatCurrency(a)} 
-                                    replace={(a: string) => replaceFormatString(a)}
-                                    placeholder="0"
-                                    style={{
+                                  format={(a: string) => formatCurrency(a)}
+                                  replace={(a: string) =>
+                                    replaceFormatString(a)
+                                  }
+                                  placeholder="0"
+                                  style={{
                                     textAlign: "right",
                                     width: "100%",
                                     color: "#222222",
-                                    }}
-                                    maxLength={15}
-                                    minLength={0}
-                                    onChange={()=>{}}
-                                    value = {OrderDetail?.total_line_amount_after_line_discount}
+                                  }}
+                                  maxLength={15}
+                                  minLength={0}
+                                  onChange={() => {}}
+                                  value={
+                                    OrderDetail?.total_line_amount_after_line_discount
+                                  }
                                 />
-                                </Form.Item>}
+                              </Form.Item>
+                            )}
                           </Col>
                           <Col md={24}>
                             <div>
@@ -1544,7 +1641,7 @@ const OrderDetail = () => {
                     </Space>
                   }
                 >
-                  <div className="padding-20">
+                  <div className="padding-24">
                     <Row>
                       <Col span={12}>
                         <span className="text-field margin-right-40">
@@ -1578,7 +1675,7 @@ const OrderDetail = () => {
                   </div>
                   <Divider style={{ margin: "0px" }} />
                   {OrderDetail?.payments !== null && (
-                    <div className="padding-20">
+                    <div className="padding-24">
                       <Collapse
                         className="orders-timeline"
                         defaultActiveKey={["1"]}
@@ -1634,7 +1731,7 @@ const OrderDetail = () => {
                     </div>
                   )}
 
-                  <div className="padding-20 text-right">
+                  <div className="padding-24 text-right">
                     {OrderDetail?.payments !== null
                       ? OrderDetail?.payments.map(
                           (item, index) =>
@@ -1670,14 +1767,14 @@ const OrderDetail = () => {
               className="card-block card-block-normal"
               title={
                 <div className="d-flex">
-                  <img src={documentIcon} alt="" /> Thông tin đơn hàng
+                  <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
                 </div>
               }
             >
-              <div className="padding-20">
+              <div className="padding-24">
                 <Row className="" gutter={5}>
                   <Col span={9}>
-                    <ShopOutlined /> Cửa hàng
+                    Cửa hàng
                   </Col>
                   <Col span={15}>
                     <span className="text-focus">{OrderDetail?.store}</span>
@@ -1685,7 +1782,7 @@ const OrderDetail = () => {
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>
-                    <ShopOutlined /> Điện thoại
+                    Điện thoại
                   </Col>
                   <Col span={15}>
                     <span>{OrderDetail?.customer_phone_number}</span>
@@ -1693,7 +1790,7 @@ const OrderDetail = () => {
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>
-                    <ShopOutlined /> Địa chỉ
+                    Địa chỉ
                   </Col>
                   <Col span={15}>
                     <span>{OrderDetail?.shipping_address?.full_address}</span>
@@ -1701,7 +1798,7 @@ const OrderDetail = () => {
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>
-                    <ShopOutlined /> NVBH
+                    NVBH
                   </Col>
                   <Col span={15}>
                     <span className="text-focus">{OrderDetail?.assignee}</span>
@@ -1709,7 +1806,7 @@ const OrderDetail = () => {
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>
-                    <ShopOutlined /> Người tạo
+                    Người tạo
                   </Col>
                   <Col span={15}>
                     <span className="text-focus">{OrderDetail?.account}</span>
@@ -1717,7 +1814,7 @@ const OrderDetail = () => {
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>
-                    <ShopOutlined /> Thời gian
+                    Thời gian
                   </Col>
                   <Col span={15}>
                     <span>
@@ -1733,7 +1830,7 @@ const OrderDetail = () => {
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>
-                    <ShopOutlined /> Đường dẫn
+                    Đường dẫn
                   </Col>
                   <Col span={15}>
                     <span className="text-focus">
@@ -1749,16 +1846,15 @@ const OrderDetail = () => {
             <Card
               className="margin-top-20"
               title={
-                <Space>
-                  <ProfileOutlined />
-                  Thông tin bổ sung
-                </Space>
+                <div className="d-flex">
+                  <span className="title-card">THÔNG TIN BỔ SUNG</span>
+                </div>
               }
             >
-              <div className="padding-20">
+              <div className="padding-24">
                 <Row className="" gutter={5}>
                   <Col span={9}>
-                    <ShopOutlined /> Ghi chú
+                    Ghi chú
                   </Col>
                   <Col span={15}>
                     <span className="text-focus">
@@ -1771,7 +1867,7 @@ const OrderDetail = () => {
 
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>
-                    <ShopOutlined /> Tags
+                    Tags
                   </Col>
                   <Col span={15}>
                     <span className="text-focus">
@@ -1784,7 +1880,7 @@ const OrderDetail = () => {
               </div>
             </Card>
             <Card className="margin-top-20">
-              <div className="padding-20">
+              <div className="padding-24">
                 <span className="text-focus">Lịch sử thao tác đơn hàng</span>
               </div>
             </Card>
@@ -1805,29 +1901,28 @@ const OrderDetail = () => {
             style={{ color: "white" }}
             // form="order_update"
             // htmlType="submit"
-            onClick={() => setIsvibleUpdateFulfilmentConfirm(true) }
+            onClick={() => setIsvibleUpdateFulfilmentConfirm(true)}
           >
             Lưu
           </Button>
         </Row>
       </div>
       <SaveAndConfirmOrder
-            onCancel={() => setIsvibleShippingConfirm(false)}
-            onOk={onOkShippingConfirm}
-            visible={isvibleShippingConfirm}
-            title="Xác nhận xuất kho"
-            text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${OrderDetail?.items[0].amount} không?`}
-          />
-        <SaveAndConfirmOrder
-            onCancel={() => setIsvibleUpdateFulfilmentConfirm(false)}
-            onOk={onOkUpdateFulfilmentConfirm}
-            visible={isvibleUpdateFulfilmentConfirm}
-            title="Xác nhận cập nhật đơn hàng"
-            text={`Đơn hàng này có Giao hàng, vì vậy đơn sẽ được duyệt tự động. Bạn có chắc Lưu và Duyệt đơn này không?`}
-          />
+        onCancel={() => setIsvibleShippingConfirm(false)}
+        onOk={onOkShippingConfirm}
+        visible={isvibleShippingConfirm}
+        title="Xác nhận xuất kho"
+        text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${OrderDetail?.items[0].amount} không?`}
+      />
+      <SaveAndConfirmOrder
+        onCancel={() => setIsvibleUpdateFulfilmentConfirm(false)}
+        onOk={onOkUpdateFulfilmentConfirm}
+        visible={isvibleUpdateFulfilmentConfirm}
+        title="Xác nhận cập nhật đơn hàng"
+        text={`Đơn hàng này có Giao hàng, vì vậy đơn sẽ được duyệt tự động. Bạn có chắc Lưu và Duyệt đơn này không?`}
+      />
     </ContentContainer>
   );
 };
 
 export default OrderDetail;
-
