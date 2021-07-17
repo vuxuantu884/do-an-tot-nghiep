@@ -642,11 +642,11 @@ input {
 
 .title-card {
   font-weight: 500;
-    font-size: 14px;
-    line-height: 16px;
-    text-transform: uppercase;
-    position: relative;
-    padding-left: 25px;
+  font-size: 14px;
+  line-height: 16px;
+  text-transform: uppercase;
+  position: relative;
+  padding-left: 25px;
 }
 .title-card::before {
   content: "";
@@ -696,81 +696,79 @@ input {
   height: 16px;
 }
 
-.padding-24{
+.padding-24 {
   padding: 24px;
 }
 //màn hình tạo đơn online
-.sale_order_empty_product{
+.sale_order_empty_product {
   height: 147px;
-  &>img{
-    width: 74px
+  & > img {
+    width: 74px;
   }
-  &>p{
+  & > p {
     margin: 0 0;
     height: 18px;
     font-size: 12px;
     line-height: 18px;
-    letter-spacing:  0.2px;
-    color: #737373
+    letter-spacing: 0.2px;
+    color: #737373;
   }
-  &>button{
+  & > button {
     width: 208px;
     height: 38px;
     margin: 7px 0 15px 0;
-    &>span{
-      text-align:center;
+    & > span {
+      text-align: center;
       color: #222222;
       font-size: 14px;
       line-height: 18px;
-      letter-spacing:  0.2px;
+      letter-spacing: 0.2px;
       font-weight: 400;
     }
   }
 }
-.sale-product-box-table{
+.sale-product-box-table {
   padding: 0 20px;
-
 }
-.sale-product-box-payment{
-  &>div{
-    &:first-child{
-      div{
-        label{
+.sale-product-box-payment {
+  & > div {
+    &:first-child {
+      div {
+        label {
           margin: 6px 0;
-          span{
-            
-            &:first-child{
+          span {
+            &:first-child {
               width: 18px;
               // left: -3px;
               // input{
               //   // left: 3px
               // }
-              span{
+              span {
                 width: 18px;
                 height: 18px;
                 margin-left: 0;
-                &::after{
+                &::after {
                   top: 48%;
                 }
               }
-              &::after{
+              &::after {
                 width: 18px;
                 // left: 3px;
               }
             }
-            &:last-child{
-              color:#222222;
+            &:last-child {
+              color: #222222;
               font-size: 14px;
               line-height: 16px;
               margin-left: 3px;
               font-weight: normal;
             }
-            }
           }
+        }
       }
     }
-    &:last-child{
-      div{
+    &:last-child {
+      div {
         height: 30px;
         font-size: 14px;
         padding: 0;
@@ -779,29 +777,26 @@ input {
         font-weight: normal;
         color: #222222;
         margin: 0 0 0px 0;
-        &:nth-child(5){
-          height: 10px
+        &:nth-child(5) {
+          height: 10px;
         }
-        &:nth-child(6){
-          
-          strong{
-            &:nth-child(1){
+        &:nth-child(6) {
+          strong {
+            &:nth-child(1) {
               display: flex;
               align-items: center;
               font-weight: bold;
               font-size: 14px;
               line-height: 16px;
-
             }
-            &:nth-child(2){
+            &:nth-child(2) {
               display: flex;
               align-items: center;
-              color: #2A2A86
+              color: #2a2a86;
             }
           }
         }
       }
-
     }
   }
 }
