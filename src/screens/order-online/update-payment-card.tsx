@@ -39,7 +39,7 @@ type PaymentCardUpdateProps = {
   setPayments: (value: Array<UpdateOrderPaymentRequest>) => void;
   orderDetail: OrderResponse;
   paymentMethod: number;
-  amount: number;
+  amount: any;
   order_id: number | null;
 };
 
@@ -170,6 +170,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       total_line_amount_after_line_discount: null,
       shipment: null,
       items: props.orderDetail?.items,
+      shipping_fee_informed_to_customer: null, 
     };
     let listFullfillmentRequest = [];
     listFullfillmentRequest.push(request);
@@ -217,25 +218,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
               <Radio value={PaymentMethodOption.POSTPAYMENT}>Thanh toán sau</Radio>
             </Space>
           </Radio.Group>
-          <Row
-            gutter={24}
-            className="payment-cod-box"
-            hidden={props.paymentMethod !== 1}
-          >
-            <Col xs={24} lg={6}>
-              <Form.Item label="Tiền thu hộ">
-                <InputNumber
-                  placeholder="Nhập số tiền"
-                  className="form-control text-right hide-handler-wrap w-100"
-                  style={{ width: "100%" }}
-                  min={0}
-                  max={999999999999}
-                  value={props.amount}
-                  formatter={(value) => formatCurrency(value ? value : "0")}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
+
           <Row gutter={24} hidden={props.paymentMethod !== 2}>
             <Col xs={24} lg={24}>
               <div className="form-group form-group-with-search">

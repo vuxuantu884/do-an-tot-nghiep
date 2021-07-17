@@ -83,16 +83,16 @@ import {
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
-import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
+import { formatCurrency, getTotalQuantity, replaceFormatString } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
-import { FulFillmentStatus, OrderStatus } from "utils/Constants";
+import { FulFillmentStatus, OrderStatus, ShipmentMethodOption, PaymentMethodOption } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import CustomSelect from "component/custom/select.custom";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
-
+import NumberInput from "component/custom/number-input.custom";
 const { Panel } = Collapse;
 //#endregion
 
@@ -125,7 +125,13 @@ const OrderDetail = () => {
     null
   );
   const [amount, setAmount] = useState<number>(0);
+  const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] = useState<number | null>(0)
+  const [isvibleUpdateFulfilmentConfirm, setIsvibleUpdateFulfilmentConfirm] = useState<boolean>(false)
   //#endregion
+  const onOkUpdateFulfilmentConfirm = () =>{
+    setIsvibleUpdateFulfilmentConfirm(false)
+    formRef.current?.submit()
+  }
 
   const isFirstLoad = useRef(true);
   //#region Orther
@@ -241,6 +247,7 @@ const OrderDetail = () => {
 
   const ShipMethodOnChange = (value: number) => {
     setShipmentMethod(value);
+    if(value === ShipmentMethodOption.SELFDELIVER) setPaymentType(PaymentMethodOption.COD)
   };
 
   const onDeleteItem = (index: number) => {
@@ -468,6 +475,7 @@ const OrderDetail = () => {
     total_line_amount_after_line_discount: null,
     shipment: null,
     items: OrderDetail?.items,
+    shipping_fee_informed_to_customer: null,
   };
 
   const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
@@ -485,8 +493,19 @@ const OrderDetail = () => {
         FulFillmentRequest.id = OrderDetail.fulfillments[0].id;
       }
     }
+    if(paymentType === 1) {
+        value.cod = OrderDetail?.total_line_amount_after_line_discount
+    }
     FulFillmentRequest.shipment = value;
-
+    if(shippingFeeInformedCustomer !== null){
+        FulFillmentRequest.shipping_fee_informed_to_customer = shippingFeeInformedCustomer
+    }
+    if(shippingFeeInformedCustomer !== null){
+        FulFillmentRequest.total = OrderDetail?.total_line_amount_after_line_discount && OrderDetail?.total_line_amount_after_line_discount + shippingFeeInformedCustomer
+    }else {
+        FulFillmentRequest.total = OrderDetail?.total_line_amount_after_line_discount
+    }
+    
     let UpdateLineFulFillment: UpdateLineFulFillment = {
       order_id: FulFillmentRequest.order_id,
       fulfillment: FulFillmentRequest,
@@ -966,22 +985,45 @@ const OrderDetail = () => {
                     >
                       <div className="font-weight-500">Phí ship báo khách</div>
                       <div className="font-weight-500 payment-row-money">
-                        {OrderDetail?.shipping_fee_informed_to_customer !==
-                          undefined &&
-                        OrderDetail?.shipping_fee_informed_to_customer !== null
-                          ? formatCurrency(
-                              OrderDetail?.shipping_fee_informed_to_customer
-                            )
-                          : 0}
+                        {OrderDetail != null && OrderDetail != undefined &&
+                         OrderDetail?.fulfillments !== null && OrderDetail?.fulfillments !== undefined &&
+                         OrderDetail?.fulfillments.length > 0 && 
+                         OrderDetail?.fulfillments[0].shipment !== undefined &&
+                         OrderDetail?.fulfillments[0].shipment !== null &&
+                         OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer !== undefined &&
+                         OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer !== null &&
+                        formatCurrency(OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer) ||
+
+                        shippingFeeInformedCustomer !== null && formatCurrency(shippingFeeInformedCustomer) || 
+
+                        OrderDetail?.shipping_fee_informed_to_customer !== null && 
+                        OrderDetail?.shipping_fee_informed_to_customer !== undefined &&
+                        formatCurrency(OrderDetail?.shipping_fee_informed_to_customer) || 0
+                        }
                       </div>
                     </Row>
                     <Divider className="margin-top-5 margin-bottom-5" />
                     <Row className="payment-row" justify="space-between">
                       <strong className="font-size-text">Khách cần trả</strong>
                       <strong className="text-success font-size-text">
-                        {OrderDetail?.total !== undefined &&
-                          OrderDetail?.total !== null &&
-                          formatCurrency(OrderDetail?.total)}
+                        {OrderDetail?.total_line_amount_after_line_discount !== null &&
+                        OrderDetail?.shipping_fee_informed_to_customer !== null &&
+                        OrderDetail?.total_line_amount_after_line_discount !== undefined &&
+                        OrderDetail?.shipping_fee_informed_to_customer !== undefined &&
+
+                        OrderDetail != null && OrderDetail != undefined &&
+                         OrderDetail?.fulfillments !== null && OrderDetail?.fulfillments !== undefined &&
+                         OrderDetail?.fulfillments.length > 0 && 
+                         OrderDetail?.fulfillments[0].shipment !== undefined &&
+                         OrderDetail?.fulfillments[0].shipment !== null &&
+                         OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer !== undefined &&
+                         OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer !== null &&
+
+                        formatCurrency(OrderDetail?.total_line_amount_after_line_discount + OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer) ||
+                        
+                        OrderDetail?.total_line_amount_after_line_discount !== null && OrderDetail?.total_line_amount_after_line_discount !== undefined &&
+                        formatCurrency(OrderDetail?.total_line_amount_after_line_discount + (shippingFeeInformedCustomer !== null ? shippingFeeInformedCustomer : 0))
+                        }
                       </strong>
                     </Row>
                   </Col>
@@ -1314,26 +1356,62 @@ const OrderDetail = () => {
                               </CustomSelect>
                             </Form.Item>
                             <Form.Item
-                              name="shipping_fee_paid_to_3pls"
-                              label="Phí ship trả đối tác giao hàng"
-                            >
-                              <Input placeholder="Phí ship trả đối tác giao hàng" />
+                                name="shipping_fee_paid_to_3pls"
+                                label="Phí ship trả đối tác giao hàng"
+                                >
+                                <NumberInput
+                                    format={(a: string) => formatCurrency(a)} 
+                                    replace={(a: string) => replaceFormatString(a)}
+                                    placeholder="0"
+                                    style={{
+                                    textAlign: "right",
+                                    width: "100%",
+                                    color: "#222222",
+                                    }}
+                                    maxLength={15}
+                                    minLength={0}
+                                    onChange={()=>{}}
+                                />
                             </Form.Item>
                           </Col>
                           <Col md={12}>
-                            <Form.Item
-                              name="shipping_fee_informed_to_customer"
-                              label="Phí ship báo khách"
-                            >
-                              <Input placeholder="Phí ship báo khách" />
-                            </Form.Item>
+                                <Form.Item
+                                name="shipping_fee_informed_to_customer"
+                                label="Phí ship báo khách"
+                                >
+                                <NumberInput
+                                    format={(a: string) => formatCurrency(a)} 
+                                    replace={(a: string) => replaceFormatString(a)}
+                                    placeholder="0"
+                                    style={{
+                                    textAlign: "right",
+                                    width: "100%",
+                                    color: "#222222",
+                                    }}
+                                    maxLength={15}
+                                    minLength={0}
+                                    onChange={(e)=> setShippingFeeInformedCustomer(e)}
+                                />
+                             </Form.Item>
 
-                            <Form.Item
-                              name="shipping_fee_informed_to_customer"
-                              label="Tiền thu hộ"
-                            >
-                              <Input placeholder="Tiền thu hộ" />
-                            </Form.Item>
+                                {paymentType === 1 && <Form.Item
+                                label="Tiền thu hộ"
+                                >
+                                <NumberInput
+                                    format={(a: string) => formatCurrency(a)} 
+                                    replace={(a: string) => replaceFormatString(a)}
+                                    placeholder="0"
+                                    style={{
+                                    textAlign: "right",
+                                    width: "100%",
+                                    color: "#222222",
+                                    }}
+                                    maxLength={15}
+                                    minLength={0}
+                                    onChange={()=>{}}
+                                    value = {OrderDetail?.total_line_amount_after_line_discount}
+                                />
+                                </Form.Item>}
                           </Col>
                           <Col md={24}>
                             <div>
@@ -1725,20 +1803,31 @@ const OrderDetail = () => {
             type="primary"
             className="btn-style btn-save"
             style={{ color: "white" }}
+            // form="order_update"
+            // htmlType="submit"
+            onClick={() => setIsvibleUpdateFulfilmentConfirm(true) }
           >
             Lưu
           </Button>
         </Row>
       </div>
       <SaveAndConfirmOrder
-        onCancel={() => setIsvibleShippingConfirm(false)}
-        onOk={onOkShippingConfirm}
-        visible={isvibleShippingConfirm}
-        title="Xác nhận xuất kho"
-        text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${OrderDetail?.items[0].amount} không?`}
-      />
+            onCancel={() => setIsvibleShippingConfirm(false)}
+            onOk={onOkShippingConfirm}
+            visible={isvibleShippingConfirm}
+            title="Xác nhận xuất kho"
+            text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${OrderDetail?.items[0].amount} không?`}
+          />
+        <SaveAndConfirmOrder
+            onCancel={() => setIsvibleUpdateFulfilmentConfirm(false)}
+            onOk={onOkUpdateFulfilmentConfirm}
+            visible={isvibleUpdateFulfilmentConfirm}
+            title="Xác nhận cập nhật đơn hàng"
+            text={`Đơn hàng này có Giao hàng, vì vậy đơn sẽ được duyệt tự động. Bạn có chắc Lưu và Duyệt đơn này không?`}
+          />
     </ContentContainer>
   );
 };
 
 export default OrderDetail;
+

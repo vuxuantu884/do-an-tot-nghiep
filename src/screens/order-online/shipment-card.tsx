@@ -34,8 +34,8 @@ import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
-  setTakeMoneyHelper: (value: number | null) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
+  setPaymentMethod: (value: number) => void;
   storeId: number | null;
   amount: number
   paymentMethod: number
@@ -53,6 +53,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   const ShipMethodOnChange = (value: number) => {
     setshipmentMethod(value);
     props.setShipmentMethodProps(value);
+    if(value === ShipmentMethodOption.SELFDELIVER) props.setPaymentMethod(PaymentMethodOption.COD)
   };
 
   const shipping_requirements = useSelector(
@@ -229,7 +230,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 value={takeMoneyHelper || props.amount}
-                onChange={(value: any)=> props.setTakeMoneyHelper(value)}
+                onChange={(value: any)=> setTakeMoneyHelper(value)}
                 style={{
                   textAlign: "right",
                   width: "100%",
