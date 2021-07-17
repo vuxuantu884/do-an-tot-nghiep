@@ -420,7 +420,7 @@ input {
   border-left: 0;
   padding: 4px 8px;
 }
-
+// checking
 .site-input-group-wrapper {
   padding: 0;
   min-height: 37px;
@@ -439,12 +439,7 @@ input {
     right: 1px;
     top: calc(100% + 2px);
   }
-  [title="Chiết khấu đơn hàng"] {
-    color: black;
-  }
-  [title="Mã giảm giá"] {
-    color: black;
-  }
+
   .currency-option {
     color: black;
     font-size: 16px;
@@ -563,7 +558,7 @@ input {
     }
   }
 }
-
+// checking
 .ant-input-number-input-wrap {
   border-radius: 5px;
   & > input {
@@ -583,7 +578,7 @@ input {
 .ant-table-thead {
   background-color: #f4f4f7;
 }
-
+//checking
 .ant-col .ant-form-item-control {
   input {
     border-radius: 5px;
@@ -656,4 +651,115 @@ input {
 
 .padding-left-right-30{
   padding: 0 30px;
+}
+
+//màn hình tạo đơn online
+.sale_order_empty_product{
+  height: 147px;
+  &>img{
+    width: 74px
+  }
+  &>p{
+    margin: 0 0;
+    height: 18px;
+    font-size: 12px;
+    line-height: 18px;
+    letter-spacing:  0.2px;
+    color: #737373
+  }
+  &>button{
+    width: 208px;
+    height: 38px;
+    margin: 7px 0 15px 0;
+    &>span{
+      text-align:center;
+      color: #222222;
+      font-size: 14px;
+      line-height: 18px;
+      letter-spacing:  0.2px;
+      font-weight: 400;
+    }
+  }
+}
+.sale-product-box-table{
+  padding: 0 20px;
+
+}
+.sale-product-box-payment{
+  &>div{
+    &:first-child{
+      div{
+        label{
+          margin: 6px 0;
+          span{
+            
+            &:first-child{
+              width: 18px;
+              // left: -3px;
+              // input{
+              //   // left: 3px
+              // }
+              span{
+                width: 18px;
+                height: 18px;
+                margin-left: 0;
+                &::after{
+                  top: 48%;
+                }
+              }
+              &::after{
+                width: 18px;
+                // left: 3px;
+              }
+            }
+            &:last-child{
+              color:#222222;
+              font-size: 14px;
+              line-height: 16px;
+              margin-left: 3px;
+              font-weight: normal;
+            }
+            }
+          }
+      }
+    }
+    &:last-child{
+      div{
+        height: 30px;
+        font-size: 14px;
+        padding: 0;
+        font-family: Roboto;
+        font-style: normal;
+        font-weight: normal;
+        color: #222222;
+        margin: 0 0 0px 0;
+        &:nth-child(5){
+          height: 10px
+        }
+        &:nth-child(6){
+          
+          strong{
+            &:nth-child(1){
+              display: flex;
+              align-items: center;
+              font-weight: bold;
+              font-size: 14px;
+              line-height: 16px;
+
+            }
+            &:nth-child(2){
+              display: flex;
+              align-items: center;
+              color: #2A2A86
+            }
+          }
+        }
+        &:nth-child(3){
+          
+        }
+
+      }
+
+    }
+  }
 }
