@@ -551,14 +551,14 @@ export default function Order() {
                 className="margin-top-20"
                 title={
                   <div className="d-flex">
-                  <span className="title-card">THÔNG TIN BỔ SUNG</span>
-                </div>
+                    <span className="title-card">THÔNG TIN BỔ SUNG</span>
+                  </div>
                 }
               >
                 <div className="padding-20">
                   <Form.Item
                     name="note"
-                    label="Ghi chú"
+                    label="Ghi chú nội bộ"
                     tooltip={{
                       title: "Thêm thông tin ghi chú chăm sóc khách hàng",
                       icon: <InfoCircleOutlined />,
