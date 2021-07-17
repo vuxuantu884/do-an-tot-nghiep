@@ -59,6 +59,7 @@ import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import emptyProduct from "assets/icon/empty_products.svg";
+import addIcon from "assets/img/plus_1.svg";
 import { Type } from "config/TypeConfig";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "./modal/AddGiftModal";
@@ -184,15 +185,15 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const renderSearchVariant = (item: VariantResponse) => {
     let avatar = findAvatar(item.variant_images);
     return (
-      <div className="row-search w-100">
-        <div className="rs-left w-100" style={{ width: "100%" }}>
+      <div className="row-search w-100" style={{padding: "6px 20px 0 20px"}}>
+        <div className="rs-left w-100" style={{ width: "100%"}}>
           <img
             src={avatar === "" ? imgdefault : avatar}
             alt="anh"
             placeholder={imgdefault}
-            style={{width: "55px", height: "55px"}}
+            style={{width: "55px", height: "55px", objectFit: "cover"}}
           />
-          <div className="rs-info w-100">
+          <div className="rs-info w-100" >
             <span style={{ color: "#37394D" }} className="text">
               {item.name}
             </span>
@@ -202,11 +203,12 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           </div>
         </div>
         <div className="rs-right">
-          <span style={{ color: "#37394D" }} className="text t-right">
+          <span style={{ color: "#222222" }} className="text t-right">
             {findPrice(item.variant_prices, AppConfig.currency)}
+            <span style={{ color: "#95A1AC"}}> đ</span>
           </span>
-          <span style={{ color: "#95A1AC" }} className="text t-right p-4">
-            Có thể bán{" "}
+          <span style={{ color: "#737373" }} className="text t-right p-4">
+            Có thể bán:
             <span
               style={{
                 color:
@@ -732,6 +734,30 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 onSearch={onChangeProductSearch}
                 options={convertResultSearchVariant}
                 maxLength={255}
+                dropdownRender={(menu) => (
+                  <div>
+                    <div
+                      className="row-search w-100"
+                      style={{ minHeight: "42px", lineHeight: "50px", cursor: "pointer"}}
+                    >
+                      <div className="rs-left w-100">
+                        <div style={{ float: "left", marginLeft: "20px" }}>
+                          <img src={addIcon} alt="" />
+                        </div>
+                        <div className="rs-info w-100">
+                          <span
+                            className="text"
+                            style={{ marginLeft: "23px", lineHeight: "18px" }}
+                          >
+                            Thêm mới sản phẩm
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <Divider style={{ margin: "4px 0" }} />
+                    {menu}
+                  </div>
+                )}
               >
                 <Input
                   size="middle"
@@ -881,6 +907,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
                 {discountRate !== 0 && (
                   <Tag
+                    style={{marginTop: 0}}
                     className="orders-tag orders-tag-danger"
                     closable
                     onClose={() => {
@@ -894,7 +921,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 )}
               </Space>
               <div className="font-weight-500 ">
-                {formatCurrency(discountValue)}
+                {discountValue ? formatCurrency(discountValue) : "-"}
               </div>
             </Row>
 
@@ -928,18 +955,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                   </Tag>
                 )}
               </Space>
-              <div className="font-weight-500 ">0</div>
+              <div className="font-weight-500 ">-</div>
             </Row>
 
             <Row className="payment-row padding-top-10" justify="space-between">
               <div className="font-weight-500">Phí ship báo khách</div>
-              <div className="font-weight-500 payment-row-money">{props.shippingFeeCustomer !== null ? formatCurrency(props.shippingFeeCustomer) : 0}</div>
+              <div className="font-weight-500 payment-row-money">{props.shippingFeeCustomer !== null ? formatCurrency(props.shippingFeeCustomer) : "-"}</div>
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between"> 
               <strong className="font-size-text">Khách cần phải trả:</strong>
               <strong className="text-success font-size-text">
-                {props.shippingFeeCustomer !== null ? formatCurrency(changeMoney + props.shippingFeeCustomer): formatCurrency(changeMoney)}
+                {changeMoney !== null || props.shippingFeeCustomer !== null ?
+                (props.shippingFeeCustomer !== null ? formatCurrency(changeMoney + props.shippingFeeCustomer) : formatCurrency(changeMoney)) : "-"}
               </strong>
             </Row>
           </Col>
