@@ -185,15 +185,16 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const renderSearchVariant = (item: VariantResponse) => {
     let avatar = findAvatar(item.variant_images);
     return (
-      <div className="row-search w-100" style={{padding: "6px 20px 0 20px"}}>
+      <div className="row-search w-100" style={{padding: 0, paddingRight: 20, paddingLeft: 20}}>
         <div className="rs-left w-100" style={{ width: "100%"}}>
-          <img
+         <div style={{marginTop: 10}}> 
+           <img
             src={avatar === "" ? imgdefault : avatar}
             alt="anh"
             placeholder={imgdefault}
-            style={{width: "55px", height: "55px", objectFit: "cover"}}
-          />
-          <div className="rs-info w-100" >
+            style={{width: "40px", height: "40px", borderRadius: 5}}
+          /></div>
+          <div className="rs-info w-100">
             <span style={{ color: "#37394D" }} className="text">
               {item.name}
             </span>
@@ -204,8 +205,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         </div>
         <div className="rs-right">
           <span style={{ color: "#222222" }} className="text t-right">
-            {findPrice(item.variant_prices, AppConfig.currency)}
-            <span style={{ color: "#95A1AC"}}> đ</span>
+            {`${findPrice(item.variant_prices, AppConfig.currency)} `}
+            <span style={{ color: "#737373", textDecoration: "underline", textDecorationColor: "#737373"}}>đ</span>
           </span>
           <span style={{ color: "#737373" }} className="text t-right p-4">
             Có thể bán:
@@ -217,7 +218,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                     : "rgba(226, 67, 67, 1)",
               }}
             >
-              {item.inventory}
+             {` ${item.inventory}`}
             </span>
           </span>
         </div>
@@ -897,7 +898,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                   className="font-weight-500"
                   onClick={ShowDiscountModal}
                   style={{
-                    borderBottom: "1px solid #5D5D8A",
+                    textDecoration: "underline",
+                    textDecorationColor: "#5D5D8A",
                     color: "#5D5D8A"
                   }}
                 >
@@ -907,7 +909,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
                 {discountRate !== 0 && (
                   <Tag
-                    style={{marginTop: 0}}
+                    style={{marginTop: 0, color: "#E24343", backgroundColor: "#F5F5F5"}}
                     className="orders-tag orders-tag-danger"
                     closable
                     onClose={() => {
@@ -935,7 +937,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                   className="font-weight-500"
                   onClick={ShowDiscountModal}
                   style={{
-                    borderBottom: "1px solid #5D5D8A",
+                    textDecoration: "underline",
+                    textDecorationColor: "#5D5D8A",
                     color: "#5D5D8A"
                   }}
                 >
@@ -944,6 +947,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
                 {counpon !== "" && (
                   <Tag
+                    style={{margin: 0, color: "#E24343", backgroundColor: "#F5F5F5"}}
                     className="orders-tag orders-tag-danger"
                     closable
                     onClose={() => {

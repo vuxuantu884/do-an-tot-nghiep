@@ -777,6 +777,8 @@ input {
         font-weight: normal;
         color: #222222;
         margin: 0 0 0px 0;
+        display: flex;
+        align-items: center;
         &:nth-child(5) {
           height: 10px;
         }
@@ -799,4 +801,10 @@ input {
       }
     }
   }
+}
+
+.saleorder_product_dropdown_img{
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
