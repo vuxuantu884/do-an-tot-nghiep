@@ -649,16 +649,17 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     <Card
       className="margin-top-20"
       title={
-        <Space>
-          <img src={productIcon} alt="" /> Sản phẩm
-        </Space>
+        <div className="d-flex">
+          <i className="icon-dot custom-icon-dot"></i>
+          <span className="title-card">SẢN PHẨM</span>
+        </div>
       }
       extra={
         <Space size={20}>
-          <Checkbox onChange={() => setSplitLine(!splitLine)} style={{color: "#222222", fontWeight: 500, fontSize:14}}>
+          <Checkbox onChange={() => setSplitLine(!splitLine)} >
             Tách dòng
           </Checkbox>
-          <span style={{color: "#4F687D", fontSize: 13}}>Chính sách giá</span>
+          <span>Chính sách giá:</span>
           <Form.Item name="price_type" style={{ margin: "0px"}}>
             <Select style={{ minWidth: 145, height: 38}} placeholder="Chính sách giá">
               <Select.Option value="retail_price" color="#222222">Giá bán lẻ</Select.Option>
@@ -667,11 +668,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               </Select.Option>
             </Select>
           </Form.Item>
-          <Link className="text-focus" to="#" style={{color: "#0080ff"}}>
+          {/* <Link className="text-focus" to="#" style={{color: "#0080ff"}}>
             <Space style={{height: "17"}}>
               <ShopOutlined style={{color: "#0080ff"}}/> Xem tồn <ArrowRightOutlined style={{color: "#0080ff"}}/>
             </Space>
-          </Link>
+          </Link> */}
         </Space>
       }
     >

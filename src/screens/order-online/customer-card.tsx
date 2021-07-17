@@ -23,6 +23,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { DotChartOutlined } from "@ant-design/icons";
 import peopleIcon2 from "assets/img/people.svg";
 import bithdayIcon from "assets/img/bithday.svg";
 import editBlueIcon from "assets/img/editBlue.svg";
@@ -223,14 +224,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   };
 
   return (
-    <Card
-      title={
-        <div className="d-flex">
-          <img src={peopleIcon2} alt="" /> Khách hàng
-        </div>
-      }
-      extra={
-        <div>
+    <Card className="padding-left-right-30">
+      <Row gutter={24}>
+        <Col lg={12} className="title-header">
+          <i className="icon-dot custom-icon-dot"></i>
+          <span className="title-card">THÔNG TIN KHÁCH HÀNG</span>
+        </Col>
+
+        <Col lg={12} className="title-header">
           <span
             style={{
               float: "left",
@@ -242,7 +243,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           </span>
           <Form.Item
             name="source_id"
-            style={{ margin: "10px 0px" }}
             rules={[
               {
                 required: true,
@@ -266,12 +266,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 }
                 return false;
               }}
-              suffix={
-                <Button
-                  style={{ width: 36, height: 36 }}
-                  icon={<PlusOutlined />}
-                />
-              }
+              // suffix={
+              //   <Button
+              //     style={{ width: 36, height: 36 }}
+              //     icon={<PlusOutlined />}
+              //   />
+              // }
             >
               {listSources.map((item, index) => (
                 <CustomSelect.Option
@@ -284,45 +284,40 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               ))}
             </CustomSelect>
           </Form.Item>
+        </Col>
+      </Row>
+
+      {customer === null && (
+        <div>
+          <AutoComplete
+            notFoundContent={
+              keysearchCustomer.length >= 3
+                ? "Không tìm thấy khách hàng"
+                : undefined
+            }
+            value={keysearchCustomer}
+            ref={autoCompleteRef}
+            onSelect={SearchCustomerSelect}
+            dropdownClassName="search-layout-customer dropdown-search-header"
+            dropdownMatchSelectWidth={456}
+            style={{ width: "100%" }}
+            onSearch={CustomerChangeSearch}
+            options={CustomerConvertResultSearch}
+          >
+            <Input
+              placeholder="Tìm hoặc thêm khách hàng"
+              // enterButton={
+              //   <Button
+              //     style={{ width: 40, height: 36 }}
+              //     icon={<PlusOutlined />}
+              //   ></Button>
+              // }
+              prefix={<SearchOutlined style={{ color: "#737373" }} />}
+            />
+          </AutoComplete>
+          {/* <Divider className="margin-0" /> */}
         </div>
-      }
-    >
-      <div className="padding-lef-right" style={{ paddingTop: "15px" }}>
-        {customer === null && (
-          <div>
-            <div className="padding-bottom-5">
-              <label htmlFor="">Tên khách hàng</label>
-            </div>
-            <AutoComplete
-              notFoundContent={
-                keysearchCustomer.length >= 3
-                  ? "Không tìm thấy khách hàng"
-                  : undefined
-              }
-              value={keysearchCustomer}
-              ref={autoCompleteRef}
-              onSelect={SearchCustomerSelect}
-              dropdownClassName="search-layout-customer dropdown-search-header"
-              dropdownMatchSelectWidth={456}
-              style={{ width: "100%" }}
-              onSearch={CustomerChangeSearch}
-              options={CustomerConvertResultSearch}
-            >
-              <Input.Search
-                placeholder="Tìm hoặc thêm khách hàng"
-                enterButton={
-                  <Button
-                    style={{ width: 40, height: 36 }}
-                    icon={<PlusOutlined />}
-                  ></Button>
-                }
-                prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-              />
-            </AutoComplete>
-            <Divider className="margin-0" />
-          </div>
-        )}
-      </div>
+      )}
       <div>
         {customer !== null && (
           <div>

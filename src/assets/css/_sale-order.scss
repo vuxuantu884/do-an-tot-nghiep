@@ -391,10 +391,6 @@
   }
 }
 
-.padding-lef-right {
-  padding: 0 20px 0 20px;
-}
-
 .ant-btn-custom {
   background-color: #fff;
   border-color: #fff;
@@ -623,4 +619,41 @@ input {
 
 .yody-pos-varian-name {
   font-weight: 500;
+}
+
+.padding-lef-right {
+  padding: 0 24px 30px 24px;
+}
+
+.custom-icon-dot {
+  color: #fcaf17;
+  font-size: 8px;
+  position: relative;
+  margin-right: 11px;
+}
+
+.title-card {
+  margin-top: 40px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+}
+
+.ant-form-item-label label {
+  color: #222222;
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+}
+
+.title-header {
+  padding: 16px 0 16px 30px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.padding-left-right-30{
+  padding: 0 30px;
 }

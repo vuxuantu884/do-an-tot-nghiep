@@ -388,7 +388,7 @@ export default function Order() {
 
   return (
     <ContentContainer
-      title="Thêm mới đơn hàng online"
+      title="Tạo mới đơn hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -398,7 +398,7 @@ export default function Order() {
           name: "Đơn hàng",
         },
         {
-          name: "Thêm đơn hàng online",
+          name: "Tạo mới đơn hàng",
         },
       ]}
       extra={<CreateBillStep status="draff" orderDetail={null} />}
