@@ -650,7 +650,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       className="margin-top-20"
       title={
         <div className="d-flex">
-          <i className="icon-dot custom-icon-dot"></i>
           <span className="title-card">SẢN PHẨM</span>
         </div>
       }

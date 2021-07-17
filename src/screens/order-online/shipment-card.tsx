@@ -10,13 +10,13 @@ import {
   Form,
   Select,
   DatePicker,
-  Button, InputNumber
+  Button,
+  Tabs,
+  Checkbox,
 } from "antd";
 
-import { PlusOutlined, ProfileOutlined } from "@ant-design/icons";
-
+import { PlusOutlined } from "@ant-design/icons";
 import callIcon from "assets/img/call.svg";
-// @ts-ignore
 import locationIcon from "assets/img/location.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -30,15 +30,15 @@ import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
-
+const { TabPane } = Tabs;
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
   setPaymentMethod: (value: number) => void;
   storeId: number | null;
-  amount: number
-  paymentMethod: number
+  amount: number;
+  paymentMethod: number;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
@@ -53,7 +53,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   const ShipMethodOnChange = (value: number) => {
     setshipmentMethod(value);
     props.setShipmentMethodProps(value);
-    if(value === ShipmentMethodOption.SELFDELIVER) props.setPaymentMethod(PaymentMethodOption.COD)
+    if (value === ShipmentMethodOption.SELFDELIVER)
+      props.setPaymentMethod(PaymentMethodOption.COD);
   };
 
   const shipping_requirements = useSelector(
@@ -75,38 +76,24 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     <Card
       className="margin-top-20"
       title={
-        <Space>
-          <ProfileOutlined />
-          Đóng gói và giao hàng
-        </Space>
+        <div className="d-flex">
+          <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
+        </div>
       }
     >
-      <div className="padding-20">
-        <Row gutter={20}>
-          <Col md={12}>
-            <Form.Item
-              label={
-                <i style={{ marginBottom: "15px" }}>
-                  Lựa chọn 1 trong hình thức giao hàng
-                </i>
-              }
-              required
+      <div className="padding-24">
+        <Row gutter={24}>
+          <Col md={9}>
+            <span
+              style={{
+                float: "left",
+                lineHeight: "40px",
+                marginRight: "10px",
+              }}
             >
-              <Radio.Group
-                value={props.shipmentMethod}
-                onChange={(e) => ShipMethodOnChange(e.target.value)}
-              >
-                <Space direction="vertical" size={15}>
-                  <Radio value={ShipmentMethodOption.DELIVERPARNER}>Chuyển đối tác giao hàng</Radio>
-                  <Radio value={ShipmentMethodOption.SELFDELIVER}>Tự giao hàng</Radio>
-                  <Radio value={ShipmentMethodOption.PICKATSTORE}>Nhận tại cửa hàng</Radio>
-                  <Radio value={ShipmentMethodOption.DELIVERLATER}>Giao hàng sau</Radio>
-                </Space>
-              </Radio.Group>
-            </Form.Item>
-          </Col>
-          <Col md={12}>
-            <Form.Item label="Hẹn giao" name="dating_ship">
+              Hẹn giao:
+            </span>
+            <Form.Item name="dating_ship">
               <DatePicker
                 format="DD/MM/YYYY HH:mm A"
                 style={{ width: "100%" }}
@@ -114,7 +101,18 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 placeholder="Chọn ngày giao"
               />
             </Form.Item>
-            <Form.Item label="Yêu cầu" name="requirements">
+          </Col>
+          <Col md={9}>
+            <span
+              style={{
+                float: "left",
+                lineHeight: "40px",
+                marginRight: "10px",
+              }}
+            >
+              Yêu cầu:
+            </span>
+            <Form.Item name="requirements">
               <Select
                 className="select-with-search"
                 showSearch
@@ -145,9 +143,67 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               </Select>
             </Form.Item>
           </Col>
+
+          <Col>
+            <Form.Item>
+              <Checkbox>Giờ hành chính</Checkbox>
+            </Form.Item>
+          </Col>
+        </Row>
+
+{/* 
+        <Tabs type="card">
+          <TabPane tab="Tab 1" key="1">
+            Content of Tab Pane 1
+          </TabPane>
+          <TabPane tab="Tab 2" key="2">
+            Content of Tab Pane 2
+          </TabPane>
+          <TabPane tab="Tab 3" key="3">
+            Content of Tab Pane 3
+          </TabPane>
+          <TabPane tab="Tab 4" key="4">
+            Content of Tab Pane 3
+          </TabPane>
+        </Tabs> */}
+
+        <Row gutter={20}>
+          <Col md={12}>
+            <Form.Item
+              label={
+                <i style={{ marginBottom: "15px" }}>
+                  Lựa chọn 1 trong hình thức giao hàng
+                </i>
+              }
+              required
+            >
+              <Radio.Group
+                value={props.shipmentMethod}
+                onChange={(e) => ShipMethodOnChange(e.target.value)}
+              >
+                <Space direction="vertical" size={15}>
+                  <Radio value={ShipmentMethodOption.DELIVERPARNER}>
+                    Chuyển đối tác giao hàng
+                  </Radio>
+                  <Radio value={ShipmentMethodOption.SELFDELIVER}>
+                    Tự giao hàng
+                  </Radio>
+                  <Radio value={ShipmentMethodOption.PICKATSTORE}>
+                    Nhận tại cửa hàng
+                  </Radio>
+                  <Radio value={ShipmentMethodOption.DELIVERLATER}>
+                    Giao hàng sau
+                  </Radio>
+                </Space>
+              </Radio.Group>
+            </Form.Item>
+          </Col>
         </Row>
         <Divider />
-        <Row gutter={20} hidden={shipmentMethodState !== ShipmentMethodOption.SELFDELIVER}>
+        <Row
+          gutter={20}
+          hidden={shipmentMethodState !== ShipmentMethodOption.SELFDELIVER}
+        >
           <Col md={12}>
             <Form.Item
               label="Đối tác giao hàng"
@@ -211,7 +267,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               label="Phí ship báo khách"
             >
               <NumberInput
-                format={(a: string) => formatCurrency(a)} 
+                format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
                 style={{
@@ -224,23 +280,25 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 onChange={props.setShippingFeeInformedCustomer}
               />
             </Form.Item>
-            {props.paymentMethod === PaymentMethodOption.COD && <Form.Item label="Tiền thu hộ">
-            <NumberInput
-                format={(a: string) => formatCurrency(a)} 
-                replace={(a: string) => replaceFormatString(a)}
-                placeholder="0"
-                value={takeMoneyHelper || props.amount}
-                onChange={(value: any)=> setTakeMoneyHelper(value)}
-                style={{
-                  textAlign: "right",
-                  width: "100%",
-                  color: "#222222",
-                }}
-                maxLength={999999999999}
-                minLength={0}
-              />
-            </Form.Item>}
-            </Col>
+            {props.paymentMethod === PaymentMethodOption.COD && (
+              <Form.Item label="Tiền thu hộ">
+                <NumberInput
+                  format={(a: string) => formatCurrency(a)}
+                  replace={(a: string) => replaceFormatString(a)}
+                  placeholder="0"
+                  value={takeMoneyHelper || props.amount}
+                  onChange={(value: any) => setTakeMoneyHelper(value)}
+                  style={{
+                    textAlign: "right",
+                    width: "100%",
+                    color: "#222222",
+                  }}
+                  maxLength={999999999999}
+                  minLength={0}
+                />
+              </Form.Item>
+            )}
+          </Col>
         </Row>
 
         {/*--- Nhận tại cửa hàng ----*/}

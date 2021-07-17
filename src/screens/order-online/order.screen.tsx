@@ -38,11 +38,19 @@ import CustomerCard from "./customer-card";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
-import { OrderStatus, ShipmentMethodOption, TaxTreatment } from "utils/Constants";
+import {
+  OrderStatus,
+  ShipmentMethodOption,
+  TaxTreatment,
+} from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
-import { formatCurrency, getAmountPayment, getTotalAmountAfferDiscount } from "utils/AppUtils";
+import {
+  formatCurrency,
+  getAmountPayment,
+  getTotalAmountAfferDiscount,
+} from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 //#endregion
 
@@ -276,9 +284,9 @@ export default function Order() {
       objShipment.shipping_fee_paid_to_3pls = value.shipping_fee_paid_to_3pls;
 
       if (takeMoneyHelper !== null) {
-        objShipment.cod = takeMoneyHelper 
-      }else{
-        objShipment.cod = orderAmount
+        objShipment.cod = takeMoneyHelper;
+      } else {
+        objShipment.cod = orderAmount;
       }
       return objShipment;
     }
@@ -340,21 +348,22 @@ export default function Order() {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let totalPaid = getAmountPayment(payments);
-    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
+    let total_line_amount_after_line_discount =
+      getTotalAmountAfferDiscount(items);
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
       values.payments = [];
       values.shipping_fee_informed_to_customer = 0;
       values.action = OrderStatus.DRAFT;
       values.total = orderAmount;
-      values.shipping_fee_informed_to_customer = 0
+      values.shipping_fee_informed_to_customer = 0;
     } else {
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments;
-      if (shippingFeeCustomer !== null ) {
+      if (shippingFeeCustomer !== null) {
         values.total = orderAmount + shippingFeeCustomer;
-      } else  {
+      } else {
         values.total = orderAmount;
       }
     }
@@ -364,7 +373,8 @@ export default function Order() {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
-    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
+    values.total_line_amount_after_line_discount =
+      total_line_amount_after_line_discount;
     if (values.customer_id === undefined || values.customer_id === null) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
     } else {
@@ -374,7 +384,7 @@ export default function Order() {
         // if (values.total > totalPaid) {
         //   ShowConfirmPayment();
         // } else {
-          
+
         // }
         dispatch(orderCreateAction(values, createOrderCallback));
       }
@@ -471,10 +481,9 @@ export default function Order() {
             <Col md={6}>
               <Card
                 title={
-                  <Space>
-                    <ProfileOutlined />
-                    Thông tin đơn hàng
-                  </Space>
+                  <div className="d-flex">
+                    <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
+                  </div>
                 }
               >
                 <div className="padding-20">
@@ -541,10 +550,9 @@ export default function Order() {
               <Card
                 className="margin-top-20"
                 title={
-                  <Space>
-                    <ProfileOutlined />
-                    Thông tin bổ sung
-                  </Space>
+                  <div className="d-flex">
+                  <span className="title-card">THÔNG TIN BỔ SUNG</span>
+                </div>
                 }
               >
                 <div className="padding-20">
