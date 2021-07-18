@@ -64,7 +64,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/bill",
+    path: UrlConfig.ORDER,
     exact: true,
     title: "Đơn hàng",
     icon: 'icon-order',

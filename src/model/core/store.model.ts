@@ -1,6 +1,5 @@
 import { BaseQuery } from 'model/base/base.query';
 import {BaseObject} from 'model/base/base.response'
-import { Moment } from "moment";
 
 export interface StoreResponse extends BaseObject {
   name: string,
@@ -34,25 +33,24 @@ export interface StoreResponse extends BaseObject {
 
 export interface StoreQuery extends BaseQuery {
     city_id?: number
-    code?: string,
+    info?: string,
     country_id?: number,
     district_id?: number,
     zip_code?: string,
     ward_id?: string,
     vm_code?: string,
     finder_code?: string,
-    from_begin_date?: Moment
-    from_square?: number,
-    group_id?: number,
-    hotline?: number,
+    from_begin_date?: Date|'',
+    from_square?: number|'',
+    group_id?: string,
+    hotline?: number|'',
     simple?: boolean,
     mail?: string,
     manager_code?: string,
-    name?: string,
     rank?: string,
     status?: string,
-    to_begin_date?: Moment,
-    to_square?: number,
+    to_begin_date?: Date|'',
+    to_square?: number|'',
   }
 
   export interface BaseStoreRequest {
