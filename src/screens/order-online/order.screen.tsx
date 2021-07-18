@@ -465,6 +465,7 @@ export default function Order() {
                 amount={orderAmount}
                 setPaymentMethod={setPaymentMethod}
                 paymentMethod={paymentMethod}
+                shippingFeeCustomer={shippingFeeCustomer}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
