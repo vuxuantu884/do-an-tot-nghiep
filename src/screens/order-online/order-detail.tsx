@@ -69,6 +69,12 @@ import giftIcon from "assets/icon/gift.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import addressIcon from "assets/img/user-pin.svg";
 import noteCustomer from "assets/img/note-customer.svg";
+import deliveryIcon from "assets/icon/delivery.svg";
+import selfdeliver from "assets/icon/self_shipping.svg";
+import shoppingBag from "assets/icon/shopping_bag.svg";
+import wallClock from "assets/icon/wall_clock.svg";
+import eyeOutline from "assets/icon/eye_outline.svg";
+
 import { useParams } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -135,6 +141,8 @@ const OrderDetail = () => {
     useState<number | null>(0);
   const [isvibleUpdateFulfilmentConfirm, setIsvibleUpdateFulfilmentConfirm] =
     useState<boolean>(false);
+  const [requirementName,setRequirementName] = useState<string | null>(null)
+  const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   //#endregion
   const onOkUpdateFulfilmentConfirm = () => {
     setIsvibleUpdateFulfilmentConfirm(false);
@@ -212,7 +220,6 @@ const OrderDetail = () => {
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
   );
-
   const stepsStatus = () => {
     console.log(OrderDetail, FulFillmentStatus);
     if (OrderDetail?.status === OrderStatus.DRAFT) {
@@ -467,6 +474,7 @@ const OrderDetail = () => {
     sender_address_id: null,
     note_to_shipper: "",
     requirements: null,
+    requirements_name: null,
     fulfillment_id: "",
   };
 
@@ -510,6 +518,7 @@ const OrderDetail = () => {
     if (paymentType === 1) {
       value.cod = OrderDetail?.total_line_amount_after_line_discount;
     }
+    value.requirements_name = requirementName
     FulFillmentRequest.shipment = value;
     if (shippingFeeInformedCustomer !== null) {
       FulFillmentRequest.shipping_fee_informed_to_customer =
@@ -544,6 +553,36 @@ const OrderDetail = () => {
       dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
     }
   }, [dispatch, OrderDetail?.store_id]);
+  // shipment button action
+interface ShipmentButtonModel {
+  name: string | null
+  value: number ;
+  icon: string | undefined;
+}
+
+const [shipmentButton, setShipmentButton] = useState<Array<ShipmentButtonModel>>([{
+  name: "Chuyển đối tác giao hàng",
+  value: 1,
+  icon: deliveryIcon
+},{
+  name: "Tự giao hàng",
+  value: 2,
+  icon: selfdeliver
+},{
+  name: "Nhận tại cửa hàng",
+  value: 3,
+  icon: shoppingBag
+},{
+  name: "Giao hàng sau",
+  value: 4,
+  icon: wallClock
+}])
+
+const setRequirementNameCallback = useCallback((value) => {
+  const reqObj = shipping_requirements?.find(r => r.value === value)
+  setRequirementName(reqObj ? reqObj?.name : "")
+  console.log(reqObj)
+},[setRequirementName, requirementName])
 
   //#endregion
   return (
@@ -1145,24 +1184,25 @@ const OrderDetail = () => {
                 extra={
                   <Space size={26}>
                     <div className="text-menu">
-                      <EyeOutlined />
-                      <span>
-                        {OrderDetail?.fulfillments !== null &&
-                          OrderDetail?.fulfillments !== undefined &&
-                          OrderDetail?.fulfillments.map(
-                            (item, index) => item.shipment?.requirements_name
-                          )}
-                      </span>
-                    </div>
-                    <div className="text-menu">
                       <CalendarOutlined />{" "}
                       <span>
                         {OrderDetail?.fulfillments !== null &&
                           OrderDetail?.fulfillments !== undefined &&
                           OrderDetail?.fulfillments.map((item, index) =>
                             moment(item.shipment?.created_date).format(
-                              "DD/MM/YYYY HH:MM a"
+                              "DD/MM/YYYY"
                             )
+                          )}
+                      </span>
+                      <span> (Giờ hành chính)</span>
+                    </div>
+                    <div className="text-menu">
+                      <img src={eyeOutline} alt="eye"></img>
+                      <span>
+                        {OrderDetail?.fulfillments !== null &&
+                          OrderDetail?.fulfillments !== undefined &&
+                          OrderDetail?.fulfillments.map(
+                            (item, index) => item.shipment?.requirements_name
                           )}
                       </span>
                     </div>
@@ -1336,75 +1376,91 @@ const OrderDetail = () => {
                       onFinish={onFinishUpdateFulFillment}
                       layout="vertical"
                     >
-                      <Row gutter={24}>
-                        <Col md={12}>
-                          <Form.Item
-                            label={
-                              <i style={{ marginBottom: "15px" }}>
-                                Lựa chọn 1 trong hình thức giao hàng
-                              </i>
-                            }
-                            required
-                          >
-                            <Radio.Group
-                              value={shipmentMethod}
-                              onChange={(e) =>
-                                ShipMethodOnChange(e.target.value)
-                              }
-                            >
-                              <Space direction="vertical" size={15}>
-                                <Radio value={1}>
-                                  Chuyển đối tác giao hàng
-                                </Radio>
-                                <Radio value={2}>Tự giao hàng</Radio>
-                                <Radio value={3}>Nhận tại cửa hàng</Radio>
-                                <Radio value={4}>Giao hàng sau</Radio>
-                              </Space>
-                            </Radio.Group>
-                          </Form.Item>
-                        </Col>
-                        <Col md={12}>
-                          <Form.Item label="Hẹn giao" name="dating_ship">
-                            <DatePicker
-                              format="DD/MM/YYYY"
-                              style={{ width: "100%" }}
-                              className="r-5 w-100 ip-search"
-                              placeholder="Chọn ngày giao"
-                            />
-                          </Form.Item>
-                          <Form.Item label="Yêu cầu" name="requirements">
-                            <Select
-                              className="select-with-search"
-                              showSearch
-                              showArrow
-                              style={{ width: "100%" }}
-                              placeholder="Chọn yêu cầu"
-                              notFoundContent="Không tìm thấy kết quả"
-                              filterOption={(input, option) => {
-                                if (option) {
-                                  return (
-                                    option.children
-                                      .toLowerCase()
-                                      .indexOf(input.toLowerCase()) >= 0
-                                  );
-                                }
-                                return false;
-                              }}
-                            >
-                              {shipping_requirements?.map((item, index) => (
-                                <Select.Option
-                                  style={{ width: "100%" }}
-                                  key={index.toString()}
-                                  value={item.value}
-                                >
-                                  {item.name}
-                                </Select.Option>
-                              ))}
-                            </Select>
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                      <Divider />
+                      <Row gutter={24} style={{justifyContent: "space-between"}}>
+          <Col md={9}>
+            <span
+              style={{
+                float: "left",
+                lineHeight: "40px",
+                marginRight: "10px",
+              }}
+            >
+              Hẹn giao:
+            </span>
+            <Form.Item name="dating_ship">
+              <DatePicker
+                format="DD/MM/YYYY HH:mm A"
+                style={{ width: "100%" }}
+                className="r-5 w-100 ip-search"
+                placeholder="Chọn ngày giao"
+              />
+            </Form.Item>
+          </Col>
+
+          <Col md={6}>
+            <Form.Item>
+              <Checkbox style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
+            </Form.Item>
+          </Col>
+          <Col md={9}>
+            <span
+              style={{
+                float: "left",
+                lineHeight: "40px",
+                marginRight: "10px",
+              }}
+            >
+              Yêu cầu:
+            </span>
+            <Form.Item name="requirements">
+              <Select
+                onChange={(value) => setRequirementNameCallback(value)}
+                className="select-with-search"
+                showSearch
+                showArrow
+                notFoundContent="Không có dữ liệu"
+                style={{ width: "100%" }}
+                placeholder="Chọn yêu cầu"
+                filterOption={(input, option) => {
+                  if (option) {
+                    return (
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
+              >
+                {shipping_requirements?.map((item, index) => (
+                  <Select.Option
+                    style={{ width: "100%" }}
+                    key={index.toString()}
+                    value={item.value}
+                  >
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+                      <Row >
+        <div className="saleorder_shipment_method_btn" style={shipmentMethod === ShipmentMethodOption.DELIVERLATER ? {border: "none"} : {borderBottom: "1px solid #2A2A86"}}>
+          {shipmentButton.map(button => 
+              <Space>{shipmentMethod !== button.value ? 
+                <div className="saleorder_shipment_button" key={button.value} onClick={()=>ShipMethodOnChange(button.value)}>
+                  <img src={button.icon} alt="icon"></img>
+                  <span>{button.name}</span>
+                </div> 
+                : 
+                <div className={shipmentMethod === ShipmentMethodOption.DELIVERLATER ? "saleorder_shipment_button saleorder_shipment_button_border" : "saleorder_shipment_button_active"} key={button.value}>
+                  <img src={button.icon} alt="icon"></img>
+                  <span>{button.name}</span>  
+                </div>}</Space>
+          )}
+        </div>
+        </Row> 
                       <div hidden={shipmentMethod !== 2}>
                         <Row gutter={24}>
                           <Col md={12}>
@@ -1446,6 +1502,29 @@ const OrderDetail = () => {
                                 ))}
                               </CustomSelect>
                             </Form.Item>
+                            {paymentType === 1 && (
+                              <Form.Item label="Tiền thu hộ">
+                                <NumberInput
+                                  format={(a: string) => formatCurrency(a)}
+                                  replace={(a: string) =>
+                                    replaceFormatString(a)
+                                  }
+                                  placeholder="0"
+                                  style={{
+                                    textAlign: "right",
+                                    width: "100%",
+                                    color: "#222222",
+                                  }}
+                                  maxLength={15}
+                                  minLength={0}
+                                  value={takeMoneyHelper || OrderDetail?.total_line_amount_after_line_discount }
+                                  onChange={(value) => setTakeMoneyHelper(value)}
+                                />
+                              </Form.Item>
+                            )}
+                          </Col>
+                          <Col md={12}>
+                            
                             <Form.Item
                               name="shipping_fee_paid_to_3pls"
                               label="Phí ship trả đối tác giao hàng"
@@ -1464,8 +1543,6 @@ const OrderDetail = () => {
                                 onChange={() => {}}
                               />
                             </Form.Item>
-                          </Col>
-                          <Col md={12}>
                             <Form.Item
                               name="shipping_fee_informed_to_customer"
                               label="Phí ship báo khách"
@@ -1486,29 +1563,6 @@ const OrderDetail = () => {
                                 }
                               />
                             </Form.Item>
-
-                            {paymentType === 1 && (
-                              <Form.Item label="Tiền thu hộ">
-                                <NumberInput
-                                  format={(a: string) => formatCurrency(a)}
-                                  replace={(a: string) =>
-                                    replaceFormatString(a)
-                                  }
-                                  placeholder="0"
-                                  style={{
-                                    textAlign: "right",
-                                    width: "100%",
-                                    color: "#222222",
-                                  }}
-                                  maxLength={15}
-                                  minLength={0}
-                                  onChange={() => {}}
-                                  value={
-                                    OrderDetail?.total_line_amount_after_line_discount
-                                  }
-                                />
-                              </Form.Item>
-                            )}
                           </Col>
                           <Col md={24}>
                             <div>
