@@ -6,7 +6,7 @@ import {
   GoodsObj,
   SupplierQuery,
 } from "model/core/supplier.model";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";

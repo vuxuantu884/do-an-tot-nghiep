@@ -377,10 +377,9 @@ const AccountCreateScreen: React.FC = () => {
                   name="gender"
                   label="Giới tính"
                 >
-                  <Radio.Group className="ip-radio">
+                  <Radio.Group>
                     {listGender?.map((item) => (
                       <Radio
-                        className="ip-radio-item"
                         value={item.value}
                         key={item.value}
                       >

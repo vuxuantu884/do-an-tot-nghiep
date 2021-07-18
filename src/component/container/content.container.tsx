@@ -1,9 +1,7 @@
-import {Button, Card, Layout, Result, Skeleton} from 'antd';
+import {Button, Card,  Result, Skeleton} from 'antd';
 import React from 'react';
 import {useHistory} from 'react-router-dom';
 import HeaderContainer, {BreadcrumbProps} from './breadcrumb.container';
-
-const {Content} = Layout;
 
 type ContentContainerProps = {
   children: React.ReactNode;

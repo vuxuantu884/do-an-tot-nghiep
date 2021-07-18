@@ -22,7 +22,6 @@ import {
   SupplierDetailAction,
   SupplierUpdateAction,
 } from "domain/actions/core/supplier.action";
-import { CityView } from "model/content/district.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   SupplierDetail,
@@ -43,10 +42,7 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
-import {
-  convertDistrict,
-  convertSupplierResponseToDetail,
-} from "utils/AppUtils";
+import { convertSupplierResponseToDetail } from "utils/AppUtils";
 import { AppConfig } from "config/AppConfig";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
@@ -55,7 +51,7 @@ import { RegUtil } from "utils/RegUtils";
 import NumberInput from "component/custom/number-input.custom";
 
 const { Item } = Form;
-const { Option, OptGroup } = Select;
+const { Option } = Select;
 type SupplierParam = {
   id: string;
 };
@@ -216,7 +212,7 @@ const UpdateSupplierScreen: React.FC = () => {
           </Form.Item>
           <Card
             title="Thông tin cơ bản"
-            extra={[
+            extra={
               <Space size={15}>
                 <label className="text-default">Trạng thái</label>
                 <Switch
@@ -234,8 +230,8 @@ const UpdateSupplierScreen: React.FC = () => {
                 <Item noStyle name="status" hidden>
                   <Input value={status} />
                 </Item>
-              </Space>,
-            ]}
+              </Space>
+            }
           >
             <div className="padding-20">
               <Row>
@@ -265,12 +261,7 @@ const UpdateSupplierScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item label="Mã nhà cung cấp" name="code">
-                    <Input
-                      disabled
-                      className="r-5"
-                      placeholder="Mã nhà cung cấp"
-                      size="large"
-                    />
+                    <Input disabled placeholder="Mã nhà cung cấp" />
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
@@ -285,9 +276,7 @@ const UpdateSupplierScreen: React.FC = () => {
                     label="Tên nhà cung cấp"
                   >
                     <Input
-                      className="r-5"
                       placeholder="Nhập tên nhà cung cấp"
-                      size="large"
                       maxLength={255}
                     />
                   </Item>
@@ -369,12 +358,7 @@ const UpdateSupplierScreen: React.FC = () => {
                     name="contact_name"
                     label="Người liên hệ"
                   >
-                    <Input
-                      className="r-5"
-                      placeholder="Nhập người liên hệ"
-                      size="large"
-                      maxLength={255}
-                    />
+                    <Input placeholder="Nhập người liên hệ" maxLength={255} />
                   </Item>
                 </Col>
               </Row>
@@ -414,23 +398,14 @@ const UpdateSupplierScreen: React.FC = () => {
                     name="phone"
                     label="Số điện thoại"
                   >
-                    <Input
-                      className="r-5"
-                      placeholder="Nhập số điện thoại"
-                      size="large"
-                    />
+                    <Input placeholder="Nhập số điện thoại" />
                   </Item>
                 </Col>
               </Row>
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item label="Địa chỉ" name="address">
-                    <Input
-                      className="r-5"
-                      placeholder="Nhập địa chỉ"
-                      size="large"
-                      maxLength={100}
-                    />
+                    <Input placeholder="Nhập địa chỉ" maxLength={100} />
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
@@ -444,11 +419,7 @@ const UpdateSupplierScreen: React.FC = () => {
                       },
                     ]}
                   >
-                    <Input
-                      className="r-5"
-                      placeholder="Nhập email"
-                      size="large"
-                    />
+                    <Input placeholder="Nhập email" />
                   </Item>
                 </Col>
               </Row>
@@ -464,12 +435,7 @@ const UpdateSupplierScreen: React.FC = () => {
                       },
                     ]}
                   >
-                    <Input
-                      className="r-5"
-                      placeholder="Nhập website"
-                      size="large"
-                      maxLength={255}
-                    />
+                    <Input placeholder="Nhập website" maxLength={255} />
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
@@ -483,12 +449,7 @@ const UpdateSupplierScreen: React.FC = () => {
                       },
                     ]}
                   >
-                    <Input
-                      className="r-5"
-                      placeholder="Nhập mã số thuế"
-                      size="large"
-                      maxLength={13}
-                    />
+                    <Input placeholder="Nhập mã số thuế" maxLength={13} />
                   </Item>
                 </Col>
               </Row>
@@ -518,7 +479,7 @@ const UpdateSupplierScreen: React.FC = () => {
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Item label="Thời gian công nợ">
-                      <Input.Group className="ip-group" size="large" compact>
+                      <Input.Group className="ip-group" compact>
                         <Item name="debt_time" noStyle>
                           {/* <Input
                             placeholder="Nhập thời gian công nợ"
@@ -571,7 +532,7 @@ const UpdateSupplierScreen: React.FC = () => {
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Item label="Số lượng đặt hàng tối thiểu">
-                      <Input.Group className="ip-group" size="large" compact>
+                      <Input.Group compact>
                         <Item name="moq" noStyle>
                           {/* <Input
                             placeholder="Nhập số lượng"
@@ -587,7 +548,6 @@ const UpdateSupplierScreen: React.FC = () => {
                         </Item>
                         <Item name="moq_unit" noStyle>
                           <Select
-                            className="selector-group"
                             style={{ width: "30%" }}
                           >
                             {moq_unit?.map((item) => (
@@ -605,8 +565,6 @@ const UpdateSupplierScreen: React.FC = () => {
                   <Col span={24} lg={16} md={24} sm={24}>
                     <Item label="Ghi chú" name="note">
                       <Input
-                        className="r-5 ip-upload"
-                        size="large"
                         placeholder="Nhập ghi chú"
                         maxLength={255}
                       />
@@ -626,22 +584,12 @@ const UpdateSupplierScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Item label="Ngân hàng" name="bank_name">
-                      <Input
-                        className="r-5"
-                        placeholder="Nhập ngân hàng"
-                        size="large"
-                        maxLength={255}
-                      />
+                      <Input placeholder="Nhập ngân hàng" maxLength={255} />
                     </Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Item name="bank_brand" label="Chi nhánh">
-                      <Input
-                        className="r-5"
-                        placeholder="Nhập chi nhánh"
-                        size="large"
-                        maxLength={255}
-                      />
+                      <Input placeholder="Nhập chi nhánh" maxLength={255} />
                     </Item>
                   </Col>
                 </Row>
@@ -657,22 +605,12 @@ const UpdateSupplierScreen: React.FC = () => {
                         },
                       ]}
                     >
-                      <Input
-                        className="r-5"
-                        placeholder="Nhập số tài khoản"
-                        size="large"
-                        maxLength={20}
-                      />
+                      <Input placeholder="Nhập số tài khoản" maxLength={20} />
                     </Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Item name="beneficiary_name" label="Chủ tài khoản">
-                      <Input
-                        className="r-5"
-                        placeholder="Nhập chủ tài khoản"
-                        size="large"
-                        maxLength={255}
-                      />
+                      <Input placeholder="Nhập chủ tài khoản" maxLength={255} />
                     </Item>
                   </Col>
                 </Row>

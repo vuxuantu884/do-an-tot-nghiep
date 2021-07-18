@@ -26,7 +26,17 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 
-const initQuery: StoreQuery = {};
+const initQuery: StoreQuery = {
+  info: '',
+  status: '',
+  rank: '',
+  hotline: '',
+  group_id: '',
+  from_begin_date: '',
+  to_begin_date: '',
+  from_square: '',
+  to_square: '',
+};
 
 const actions: Array<MenuAction> = [
   {
@@ -224,6 +234,7 @@ const StoreListScreen: React.FC = () => {
     >
       <Card>
         <StoreFilter
+          initValue={initQuery}
           storeStatusList={storeStatusList}
           onMenuClick={onMenuClick}
           actions={actions}
