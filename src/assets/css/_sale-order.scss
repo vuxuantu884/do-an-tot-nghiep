@@ -177,7 +177,6 @@
 }
 
 .btn-payment-method {
-  padding: 0 8px !important;
   button {
     font-size: 17px;
   }
@@ -195,9 +194,7 @@
 }
 
 .btn-list-method {
-  border-bottom: 1px solid #d9d9d9;
-  padding: 10px 0 25px;
-  margin-bottom: 15px;
+  padding: 10px 0 25px 0;
 }
 
 .ant {
@@ -354,7 +351,7 @@
         height: 14px;
         top: 16px;
         left: -8px;
-        background-color: #6cb4f1;
+        background-color: #E5E5E5;
         border-radius: 50%;
       }
       &::before {
@@ -894,4 +891,8 @@ input {
   span{
     color: #2A2A86
   }
+}
+
+.margin-top-bottom-10{
+  margin: 10px 0;
 }

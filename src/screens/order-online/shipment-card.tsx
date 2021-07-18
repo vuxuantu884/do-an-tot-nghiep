@@ -1,12 +1,10 @@
 // @ts-ignore
 import {
   Card,
-  Divider,
   Row,
   Col,
   Space,
   Typography,
-  Radio,
   Form,
   Select,
   DatePicker,
@@ -76,30 +74,37 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   useLayoutEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
   }, [dispatch]);
-// shipment button action
-interface ShipmentButtonModel {
-  name: string | null
-  value: number ;
-  icon: string | undefined;
-}
+  // shipment button action
+  interface ShipmentButtonModel {
+    name: string | null;
+    value: number;
+    icon: string | undefined;
+  }
 
-const [shipmentButton, setShipmentButton] = useState<Array<ShipmentButtonModel>>([{
-  name: "Chuyển đối tác giao hàng",
-  value: 1,
-  icon: deliveryIcon
-},{
-  name: "Tự giao hàng",
-  value: 2,
-  icon: selfdeliver
-},{
-  name: "Nhận tại cửa hàng",
-  value: 3,
-  icon: shoppingBag
-},{
-  name: "Giao hàng sau",
-  value: 4,
-  icon: wallClock
-}])
+  const [shipmentButton, setShipmentButton] = useState<
+    Array<ShipmentButtonModel>
+  >([
+    {
+      name: "Chuyển hãng vận chuyển",
+      value: 1,
+      icon: deliveryIcon,
+    },
+    {
+      name: "Tự giao hàng",
+      value: 2,
+      icon: selfdeliver,
+    },
+    {
+      name: "Nhận tại cửa hàng",
+      value: 3,
+      icon: shoppingBag,
+    },
+    {
+      name: "Giao hàng sau",
+      value: 4,
+      icon: wallClock,
+    },
+  ]);
 
   return (
     <Card
@@ -111,7 +116,7 @@ const [shipmentButton, setShipmentButton] = useState<Array<ShipmentButtonModel>>
       }
     >
       <div className="padding-24">
-        <Row gutter={24} style={{justifyContent: "space-between"}}>
+        <Row gutter={24} style={{ justifyContent: "space-between" }}>
           <Col md={9}>
             <span
               style={{
@@ -134,7 +139,7 @@ const [shipmentButton, setShipmentButton] = useState<Array<ShipmentButtonModel>>
 
           <Col md={6}>
             <Form.Item>
-              <Checkbox style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
+              <Checkbox style={{ marginTop: "8px" }}>Giờ hành chính</Checkbox>
             </Form.Item>
           </Col>
           <Col md={9}>
@@ -180,40 +185,43 @@ const [shipmentButton, setShipmentButton] = useState<Array<ShipmentButtonModel>>
           </Col>
         </Row>
 
-        {/* 
-        <Tabs type="card">
-          <TabPane tab="Tab 1" key="1">
-            Content of Tab Pane 1
-          </TabPane>
-          <TabPane tab="Tab 2" key="2">
-            Content of Tab Pane 2
-          </TabPane>
-          <TabPane tab="Tab 3" key="3">
-            Content of Tab Pane 3
-          </TabPane>
-          <TabPane tab="Tab 4" key="4">
-            Content of Tab Pane 3
-          </TabPane>
-        </Tabs> */}
-
-        <Row gutter={20}>
+        <Row>
+          <div
+            className="saleorder_shipment_method_btn"
+            style={
+              props.shipmentMethod === ShipmentMethodOption.DELIVERLATER
+                ? { border: "none" }
+                : { borderBottom: "1px solid #2A2A86" }
+            }
+          >
+            {shipmentButton.map((button) => (
+              <Space>
+                {props.shipmentMethod !== button.value ? (
+                  <div
+                    className="saleorder_shipment_button"
+                    key={button.value}
+                    onClick={() => ShipMethodOnChange(button.value)}
+                  >
+                    <img src={button.icon} alt="icon"></img>
+                    <span>{button.name}</span>
+                  </div>
+                ) : (
+                  <div
+                    className={
+                      props.shipmentMethod === ShipmentMethodOption.DELIVERLATER
+                        ? "saleorder_shipment_button saleorder_shipment_button_border"
+                        : "saleorder_shipment_button_active"
+                    }
+                    key={button.value}
+                  >
+                    <img src={button.icon} alt="icon"></img>
+                    <span>{button.name}</span>
+                  </div>
+                )}
+              </Space>
+            ))}
+          </div>
         </Row>
-        <Row >
-        <div className="saleorder_shipment_method_btn" style={props.shipmentMethod === ShipmentMethodOption.DELIVERLATER ? {border: "none"} : {borderBottom: "1px solid #2A2A86"}}>
-          {shipmentButton.map(button => 
-              <Space>{props.shipmentMethod !== button.value ? 
-                <div className="saleorder_shipment_button" key={button.value} onClick={()=>ShipMethodOnChange(button.value)}>
-                  <img src={button.icon} alt="icon"></img>
-                  <span>{button.name}</span>
-                </div> 
-                : 
-                <div className={props.shipmentMethod === ShipmentMethodOption.DELIVERLATER ? "saleorder_shipment_button saleorder_shipment_button_border" : "saleorder_shipment_button_active"} key={button.value}>
-                  <img src={button.icon} alt="icon"></img>
-                  <span>{button.name}</span>  
-                </div>}</Space>
-          )}
-        </div>
-        </Row>  
         <Row
           gutter={20}
           hidden={shipmentMethodState !== ShipmentMethodOption.SELFDELIVER}
@@ -245,7 +253,6 @@ const [shipmentButton, setShipmentButton] = useState<Array<ShipmentButtonModel>>
                   }
                   return false;
                 }}
-                
               >
                 {shipper?.map((item, index) => (
                   <CustomSelect.Option
@@ -258,14 +265,20 @@ const [shipmentButton, setShipmentButton] = useState<Array<ShipmentButtonModel>>
                 ))}
               </CustomSelect>
             </Form.Item>
-            
+
             {props.paymentMethod === PaymentMethodOption.COD && (
               <Form.Item label="Tiền thu hộ">
                 <NumberInput
                   format={(a: string) => formatCurrency(a)}
                   replace={(a: string) => replaceFormatString(a)}
                   placeholder="0"
-                  value={takeMoneyHelper || props.amount + (props.shippingFeeCustomer ? props.shippingFeeCustomer : 0)}
+                  value={
+                    takeMoneyHelper ||
+                    props.amount +
+                      (props.shippingFeeCustomer
+                        ? props.shippingFeeCustomer
+                        : 0)
+                  }
                   onChange={(value: any) => setTakeMoneyHelper(value)}
                   style={{
                     textAlign: "right",
@@ -277,10 +290,8 @@ const [shipmentButton, setShipmentButton] = useState<Array<ShipmentButtonModel>>
                 />
               </Form.Item>
             )}
-            
           </Col>
           <Col md={12}>
-            
             <Form.Item
               name="shipping_fee_paid_to_3pls"
               label="Phí ship trả đối tác giao hàng"
