@@ -41,6 +41,8 @@ export const findCurrentRoute = (
     current: "",
     subMenu: "",
   };
+  console.log('routes', routes);
+  console.log('path', path);
   routes.forEach((route) => {
     if (path.includes(route.path)) {
       obj.current = route.key;

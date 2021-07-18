@@ -10,8 +10,7 @@ import {
   Select,
 } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import { SupplierQuery } from "model/core/supplier.model";
-import { createRef, useCallback, useLayoutEffect, useState } from "react";
+import { createRef, useCallback, useEffect,  useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { StoreQuery } from "model/core/store.model";
@@ -22,6 +21,7 @@ import { GroupResponse } from "model/content/group.model";
 import NumberInput from "component/custom/number-input.custom";
 
 type StoreFilterProps = {
+  initValue: StoreQuery;
   params: StoreQuery;
   onFilter?: (values: StoreQuery) => void;
   onClearFilter?: () => void;
@@ -36,7 +36,6 @@ const { Item } = Form;
 const { Option } = Select;
 const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   const {
-    onClearFilter,
     onFilter,
     params,
     actions,
@@ -44,6 +43,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     storeStatusList,
     storeRanks,
     groups,
+    initValue
   } = props;
   const [visible, setVisible] = useState(false);
 
@@ -70,7 +70,12 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     },
     [onMenuClick]
   );
-  useLayoutEffect(() => {
+  const onClearFilterAdvanceClick = useCallback(() => {
+    formRef.current?.setFieldsValue(initValue);
+    setVisible(false);
+    formRef.current?.submit();
+  }, [formRef, initValue]);
+  useEffect(() => {
     if (visible) {
       formRef.current?.resetFields();
     }
@@ -113,7 +118,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
         </Form>
       </CustomFilter>
       <BaseFilter
-        onClearFilter={onClearFilter}
+        onClearFilter={onClearFilterAdvanceClick}
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visible}
@@ -150,12 +155,12 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           <Row gutter={24}>
             <Col span={12}>
               <Item name="from_begin_date" label="Ngày mở cừa từ">
-                <DatePicker placeholder="Ngày mở cửa từ" />
+                <DatePicker style={{width: '100%'}} placeholder="Ngày mở cửa từ" />
               </Item>
             </Col>
             <Col span={12}>
               <Item name="to_begin_date" label="Đến">
-                <DatePicker placeholder="Đến" />
+                <DatePicker style={{width: '100%'}} placeholder="Đến" />
               </Item>
             </Col>
           </Row>

@@ -1,6 +1,9 @@
 import { Card } from "antd";
 import ContentContainer from "component/container/content.container";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/UrlConfig";
 import { RoleSearchAction } from "domain/actions/auth/role.action";
 import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
@@ -24,13 +27,16 @@ const ManageRoleScreen = () => {
       total: 0,
     },
     items: [],
-  })
+  });
   let dataQuery: RoleSearchQuery = {
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<RoleSearchQuery>(dataQuery);
   const [loading, setLoading] = useState(false);
-  const [columns, setColumn] = useState<Array<ICustomTableColumType<RoleResponse>>>([
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
+  const [columns, setColumn] = useState<
+    Array<ICustomTableColumType<RoleResponse>>
+  >([
     {
       title: "Tên nhóm quyền",
       width: 250,
@@ -43,12 +49,12 @@ const ManageRoleScreen = () => {
     {
       title: "Vai trò",
       dataIndex: "name",
-      visible: true
+      visible: true,
     },
     {
       title: "Ngày cập nhật lần cuối",
       dataIndex: "updated_date",
-      align: 'center',
+      align: "center",
       width: 250,
       visible: true,
       render: (value: string) => {
@@ -58,14 +64,14 @@ const ManageRoleScreen = () => {
     {
       title: "Người tạo",
       dataIndex: "created_name",
-      align: 'center',
+      align: "center",
       width: 250,
-      visible: true
+      visible: true,
     },
     {
       title: "Ngày tạo",
       dataIndex: "created_date",
-      align: 'left',
+      align: "left",
       width: 130,
       visible: false,
       render: (value: string) => {
@@ -75,9 +81,9 @@ const ManageRoleScreen = () => {
     {
       title: "Người sửa",
       dataIndex: "updated_name",
-      align: 'center',
+      align: "center",
       width: 150,
-      visible: false
+      visible: false,
     },
   ]);
   const onPageChange = useCallback(
@@ -92,24 +98,30 @@ const ManageRoleScreen = () => {
   );
   const onSuccess = useCallback((data: PageResponse<RoleResponse>) => {
     setLoading(false);
-    setData(data);  
-  }, []);  
-  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
+    setData(data);
+  }, []);
+  const columnFinal = useMemo(
+    () => columns.filter((item) => item.visible === true),
+    [columns]
+  );
   useEffect(() => {
     setLoading(true);
     dispatch(RoleSearchAction(params, onSuccess));
   }, [dispatch, onSuccess, params]);
   return (
-    <ContentContainer title="Quản lý phân quyền" breadcrumb={[
-      {
-        name: 'Tổng quản',
-        path: UrlConfig.HOME,
-      },
-      {
-        name: 'Phân quyền',
-        path: `${UrlConfig.ROLES}`
-      },
-    ]}>
+    <ContentContainer
+      title="Quản lý phân quyền"
+      breadcrumb={[
+        {
+          name: "Tổng quản",
+          path: UrlConfig.HOME,
+        },
+        {
+          name: "Phân quyền",
+          path: `${UrlConfig.ROLES}`,
+        },
+      ]}
+    >
       <Card>
         <CustomTable
           isLoading={loading}
@@ -121,15 +133,25 @@ const ManageRoleScreen = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          showColumnSetting
           scroll={{ x: 1080 }}
-          // onShowColumnSetting={() => setShowSettingColumn(true)}
+          onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
           columns={columnFinal}
           rowKey={(item: RoleResponse) => item.id}
         />
       </Card>
+      <ModalSettingColumn
+        visible={showSettingColumn}
+        onCancel={() => setShowSettingColumn(false)}
+        onOk={(data) => {
+          setShowSettingColumn(false);
+          setColumn(data);
+        }}
+        data={columns}
+      />
     </ContentContainer>
-  )
-}
+  );
+};
 
 export default ManageRoleScreen;
