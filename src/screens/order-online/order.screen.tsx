@@ -46,11 +46,7 @@ import {
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
-import {
-  formatCurrency,
-  getAmountPayment,
-  getTotalAmountAfferDiscount,
-} from "utils/AppUtils";
+import { getAmountPayment, getTotalAmountAfferDiscount } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 //#endregion
 
@@ -439,7 +435,7 @@ export default function Order() {
           <Form.Item noStyle hidden name="tags">
             <Input></Input>
           </Form.Item>
-          <Row gutter={20}>
+          <Row gutter={20} style={{ marginBottom: "70px" }}>
             {/* Left Side */}
             <Col md={18}>
               {/*--- customer ---*/}
@@ -590,14 +586,42 @@ export default function Order() {
               </Card>
             </Col>
           </Row>
-          <div className="margin-top-10" style={{ textAlign: "right" }}>
-            <Space size={12}>
-              <Button onClick={() => history.push(`${UrlConfig.ORDER}/list`)}>
+          <Row
+            gutter={24}
+            className="margin-top-10"
+            style={{
+              position: "fixed",
+              textAlign: "right",
+              width: "100%",
+              height: "55px",
+              bottom: "0%",
+              backgroundColor: "#FFFFFF",
+              marginLeft: "-31px",
+            }}
+          >
+            <Col
+              md={12}
+              style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px" }}
+            >
+              <CreateBillStep status="draff" orderDetail={null} />
+            </Col>
+
+            <Col md={7} style={{ marginTop: "8px" }}>
+              <Button
+                className="ant-btn-outline fixed-button cancle-button"
+                onClick={() => history.push(`${UrlConfig.ORDER}/list`)}
+              >
                 Huỷ
               </Button>
-              <Button onClick={showSaveAndConfirmModal}>Lưu nháp</Button>
+              <Button
+                className="create-button-custom ant-btn-outline fixed-button" type="primary"
+                onClick={showSaveAndConfirmModal}
+              >
+                Lưu nháp
+              </Button>
               <Button
                 type="primary"
+                className="create-button-custom"
                 onClick={() => {
                   typeButton = OrderStatus.FINALIZED;
                   formRef.current?.submit();
@@ -605,8 +629,8 @@ export default function Order() {
               >
                 Lưu và duyệt
               </Button>
-            </Space>
-          </div>
+            </Col>
+          </Row>
           <SaveAndConfirmOrder
             onCancel={onCancelSaveAndConfirm}
             onOk={onOkSaveAndConfirm}

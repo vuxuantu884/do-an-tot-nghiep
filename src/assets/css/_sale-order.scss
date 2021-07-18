@@ -239,14 +239,20 @@
           }
         }
         .ant-steps-icon-dot {
-          background-color: #0080ff !important;
+          background-color: #2a2a86 !important;
+        }
+        .ant-steps-item-title,
+        .ant-steps-item-description {
+          font-weight: 500;
+          color: #2a2a86;
+          font-family: Roboto;
         }
       }
       &-finish {
         .ant-steps-item-tail {
           top: 11px !important;
           &::after {
-            background-color: #0080ff !important;
+            background-color: #2a2a86 !important;
             margin-left: 10px !important;
           }
         }
@@ -803,8 +809,26 @@ input {
   }
 }
 
-.saleorder_product_dropdown_img{
+.saleorder_product_dropdown_img {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+.create-button-custom {
+  margin-left: 14px;
+  font-weight: 400;
+  border-radius: 3px;
+}
+
+.ant-steps-item-process
+  .ant-steps-item-icon
+  > .ant-steps-icon
+  .ant-steps-icon-dot {
+  background-color: #2a2a86;
+}
+
+.cancle-button {
+  color: "#222222";
+  border: "1px solid #E5E5E5";
 }
