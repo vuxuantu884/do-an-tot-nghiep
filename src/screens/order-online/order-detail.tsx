@@ -74,6 +74,9 @@ import selfdeliver from "assets/icon/self_shipping.svg";
 import shoppingBag from "assets/icon/shopping_bag.svg";
 import wallClock from "assets/icon/wall_clock.svg";
 import eyeOutline from "assets/icon/eye_outline.svg";
+import calendarOutlined from "assets/icon/calendar_outline.svg";
+import doubleArrow from "assets/icon/double_arrow.svg";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
 
 import { useParams } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
@@ -241,6 +244,9 @@ const OrderDetail = () => {
           ) {
             return OrderStatus.FINALIZED;
           }
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PICKED) {
+            return FulFillmentStatus.PICKED;
+          }
           if (OrderDetail.fulfillments[0].status === FulFillmentStatus.PACKED) {
             return FulFillmentStatus.PACKED;
           }
@@ -407,7 +413,8 @@ const OrderDetail = () => {
     [history]
   );
 
-  const PackOrder = () => {
+//fulfillmentTypeOrderRequest
+  const fulfillmentTypeOrderRequest = (type: number) => {
     let value: UpdateFulFillmentStatusRequest = {
       order_id: null,
       fulfillment_id: null,
@@ -420,8 +427,23 @@ const OrderDetail = () => {
         ? OrderDetail?.fulfillments[0].id
         : null;
     value.fulfillment_id = fulfillment_id;
-    value.status = FulFillmentStatus.PACKED;
 
+    switch (type){
+      case 1:
+        value.status = FulFillmentStatus.PICKED;
+        break ;
+      case 2:
+        value.status = FulFillmentStatus.PACKED;
+        break;
+      case 3:
+        value.status = FulFillmentStatus.SHIPPING;
+        break ;
+      case 4:
+        value.status = FulFillmentStatus.SHIPPED;
+        break;
+      default:
+        return 
+    }
     dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
   };
   // shipping confirm
@@ -429,25 +451,21 @@ const OrderDetail = () => {
     useState<boolean>(false);
 
   const onOkShippingConfirm = () => {
-    ShippingOrder();
+    if(
+      OrderDetail?.fulfillments && OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment && 
+      OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED){
+      fulfillmentTypeOrderRequest(1);
+    }else if(stepsStatusValue === FulFillmentStatus.PICKED){
+      fulfillmentTypeOrderRequest(2);
+    }else if(stepsStatusValue === FulFillmentStatus.PACKED){
+      fulfillmentTypeOrderRequest(3);
+    }else if(stepsStatusValue === FulFillmentStatus.SHIPPING){
+      fulfillmentTypeOrderRequest(4);
+    }
   };
-  const ShippingOrder = () => {
-    let value: UpdateFulFillmentStatusRequest = {
-      order_id: null,
-      fulfillment_id: null,
-      status: "",
-    };
-    value.order_id = OrderDetail?.id;
-    let fulfillment_id =
-      OrderDetail?.fulfillments !== undefined &&
-      OrderDetail?.fulfillments !== null
-        ? OrderDetail?.fulfillments[0].id
-        : null;
-    value.fulfillment_id = fulfillment_id;
-    value.status = FulFillmentStatus.SHIPPING;
 
-    dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
-  };
   //#endregion
 
   //#region
@@ -502,6 +520,7 @@ const OrderDetail = () => {
 
   const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
     value.expected_received_date = value.dating_ship?.utc().format();
+    value.requirements_name = requirementName
     if (OrderDetail?.fulfillments !== undefined && OrderDetail?.fulfillments) {
       value.delivery_service_provider_type = "Shipper";
     }
@@ -518,7 +537,6 @@ const OrderDetail = () => {
     if (paymentType === 1) {
       value.cod = OrderDetail?.total_line_amount_after_line_discount;
     }
-    value.requirements_name = requirementName
     FulFillmentRequest.shipment = value;
     if (shippingFeeInformedCustomer !== null) {
       FulFillmentRequest.shipping_fee_informed_to_customer =
@@ -581,7 +599,6 @@ const [shipmentButton, setShipmentButton] = useState<Array<ShipmentButtonModel>>
 const setRequirementNameCallback = useCallback((value) => {
   const reqObj = shipping_requirements?.find(r => r.value === value)
   setRequirementName(reqObj ? reqObj?.name : "")
-  console.log(reqObj)
 },[setRequirementName, requirementName])
 
   //#endregion
@@ -1174,7 +1191,7 @@ const setRequirementNameCallback = useCallback((value) => {
                   <Space>
                     <ProfileOutlined />
                     Đóng gói và giao hàng
-                    <Tag className="orders-tag text-menu">
+                    <Tag className="orders-tag text-menu" style={{color: "#FCAF17", backgroundColor: "rgba(252, 175, 23, 0.1)"}}>
                       {OrderDetail?.fulfillment_status !== null
                         ? OrderDetail?.fulfillment_status
                         : "Chưa giao hàng"}
@@ -1184,8 +1201,8 @@ const setRequirementNameCallback = useCallback((value) => {
                 extra={
                   <Space size={26}>
                     <div className="text-menu">
-                      <CalendarOutlined />{" "}
-                      <span>
+                      <img src={calendarOutlined} style={{marginRight: 9.5}}></img>
+                      <span style={{color: "#222222", lineHeight: "16px"}}>
                         {OrderDetail?.fulfillments !== null &&
                           OrderDetail?.fulfillments !== undefined &&
                           OrderDetail?.fulfillments.map((item, index) =>
@@ -1194,7 +1211,7 @@ const setRequirementNameCallback = useCallback((value) => {
                             )
                           )}
                       </span>
-                      <span> (Giờ hành chính)</span>
+                      <span style={{marginLeft: 6, color: "#737373", fontSize: "14px"}}> (Giờ hành chính)</span>
                     </div>
                     <div className="text-menu">
                       <img src={eyeOutline} alt="eye"></img>
@@ -1205,23 +1222,17 @@ const setRequirementNameCallback = useCallback((value) => {
                             (item, index) => item.shipment?.requirements_name
                           )}
                       </span>
+                      <span style={{marginLeft: 9}}>Test test test</span>
                     </div>
                   </Space>
                 }
               >
-                <div className="padding-24">
+                <div className="padding-24" style={{paddingTop: 6}}>
                   <Collapse
-                    className="orders-timeline"
+                    className="saleorder_shipment_order_colapse"
                     defaultActiveKey={["1"]}
                     expandIcon={({ isActive }) => (
-                      <CaretRightOutlined
-                        style={{
-                          float: "right",
-                          paddingTop: "5px",
-                          marginLeft: "120px",
-                        }}
-                        rotate={isActive ? 90 : 0}
-                      />
+                      <img src={doubleArrow} style={{transform: isActive ?  "rotate(0deg)" : "rotate(270deg)"}}/>
                     )}
                     ghost
                   >
@@ -1229,10 +1240,7 @@ const setRequirementNameCallback = useCallback((value) => {
                       className="orders-timeline-custom"
                       header={
                         <Row gutter={24}>
-                          <Col span={18}>
-                            <p className="text-field">Mã vận đơn</p>
-                          </Col>
-                          <Col span={6}>
+                          <Col style={{padding: 0}} >
                             <p
                               className="text-field"
                               style={{ color: "#2A2A86", fontWeight: 500 }}
@@ -1242,7 +1250,11 @@ const setRequirementNameCallback = useCallback((value) => {
                                 OrderDetail?.fulfillments.map(
                                   (item, index) => item.id
                                 )}
+                             NVSTestTest
                             </p>
+                          </Col>
+                          <Col style={{padding: 0, marginLeft: 6, marginBottom: 8}}>
+                            <img src={copyFileBtn} />
                           </Col>
                         </Row>
                       }
@@ -1324,19 +1336,31 @@ const setRequirementNameCallback = useCallback((value) => {
                 </div>
                 <Divider style={{ margin: "0px" }} />
                 <div className="padding-24 text-right">
-                  {/* <Button
+                  <Button
                     type="default"
-                    className="ant-btn-outline fixed-button"
+                    className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                     style={{ color: "#737373", border: "1px solid #E5E5E5" }}
                   >
-                    Hủy đơn giao
-                  </Button> */}
-                  {stepsStatusValue === OrderStatus.FINALIZED && (
+                    Hủy
+                  </Button>
+
+                  { stepsStatusValue === OrderStatus.FINALIZED && (
                     <Button
                       type="primary"
-                      className="ant-btn-outline fixed-button"
                       style={{ marginLeft: "10px" }}
-                      onClick={PackOrder}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={onOkShippingConfirm}
+                    >
+                      Nhặt hàng
+                    </Button>
+                  )}
+
+                  {stepsStatusValue === FulFillmentStatus.PICKED && (
+                    <Button
+                      type="primary"
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      style={{ marginLeft: "10px" }}
+                      onClick={onOkShippingConfirm}
                     >
                       Đóng gói
                     </Button>
@@ -1344,13 +1368,24 @@ const setRequirementNameCallback = useCallback((value) => {
                   {stepsStatusValue === FulFillmentStatus.PACKED && (
                     <Button
                       type="primary"
-                      className="ant-btn-outline fixed-button"
                       style={{ marginLeft: "10px" }}
-                      onClick={() => setIsvibleShippingConfirm(true)}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={onOkShippingConfirm}
                     >
                       Xuất kho
                     </Button>
                   )}
+                  {stepsStatusValue === FulFillmentStatus.SHIPPING && (
+                    <Button
+                      type="primary"
+                      style={{ marginLeft: "10px" }}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={onOkShippingConfirm}
+                    >
+                      Đã hoàn thành
+                    </Button>
+                  )}
+
                 </div>
               </Card>
             ) : (
@@ -1360,7 +1395,7 @@ const setRequirementNameCallback = useCallback((value) => {
                   <Space>
                     <ProfileOutlined />
                     Đóng gói và giao hàng
-                    <Tag className="orders-tag text-menu">
+                    <Tag className="orders-tag text-menu" style={{color: "#FCAF17", backgroundColor: "rgba(252, 175, 23, 0.1)"}}>
                       {OrderDetail?.fulfillment_status !== null
                         ? OrderDetail?.fulfillment_status
                         : "Chưa giao hàng"}

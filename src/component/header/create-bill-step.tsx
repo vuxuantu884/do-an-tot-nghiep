@@ -25,6 +25,9 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       case "shipping":
         setstate(3);
         break;
+      case "shipped":
+        setstate(4);
+        break;
       default:
         return 0;
     }
