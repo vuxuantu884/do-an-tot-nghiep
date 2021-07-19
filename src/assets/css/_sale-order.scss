@@ -230,8 +230,9 @@
       &-process {
         .ant-steps-item-tail {
           top: 11px !important;
+          background-color: #2a2a86 !important;
           &::after {
-            background-color: #d9d9e4 !important;
+            background-color: #2a2a86 !important;
             margin-left: 10px !important;
           }
         }
@@ -244,6 +245,9 @@
           color: #2a2a86;
           font-family: Roboto;
         }
+        .ant-steps-item-icon> .ant-steps-icon .ant-steps-icon-dot{
+          background-color: #2a2a86 !important;
+        }
       }
       &-finish {
         .ant-steps-item-tail {
@@ -255,7 +259,7 @@
         }
         .ant-steps-icon-dot {
           color: $white;
-          background-color: #0080ff !important;
+          background-color: #2a2a86 !important;
         }
       }
     }

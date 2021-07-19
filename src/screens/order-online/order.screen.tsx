@@ -377,12 +377,15 @@ export default function Order() {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
       } else {
-        // if (values.total > totalPaid) {
-        //   ShowConfirmPayment();
-        // } else {
-
-        // }
-        dispatch(orderCreateAction(values, createOrderCallback));
+        if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
+          if (values.delivery_service_provider_id === null) {
+            showError("Vui lòng chọn đối tác giao hàng");
+          } else {
+            dispatch(orderCreateAction(values, createOrderCallback));
+          }
+        } else {
+          dispatch(orderCreateAction(values, createOrderCallback));
+        }
       }
     }
   };
@@ -615,7 +618,8 @@ export default function Order() {
                 Huỷ
               </Button>
               <Button
-                className="create-button-custom ant-btn-outline fixed-button" type="primary"
+                className="create-button-custom ant-btn-outline fixed-button"
+                type="primary"
                 onClick={showSaveAndConfirmModal}
               >
                 Lưu nháp
