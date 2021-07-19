@@ -11,4 +11,8 @@ export const AuthType = {
     GET_LIST_ROLE_REQUEST:'GET_LIST_ROLE_REQUEST',
     SEARCH_LIST_ROLE_REQUEST:'SEARCH_LIST_ROLE_REQUEST'
   }
+
+  export const PermissionType = {
+    GET_LIST_PERMISSION: 'GET_LIST_PERMISSION',
+  }
   
