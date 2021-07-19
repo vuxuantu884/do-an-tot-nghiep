@@ -1,5 +1,6 @@
 import { Card } from "antd";
 import ContentContainer from "component/container/content.container";
+import ButtonCreate from "component/header/ButtonCreate";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
@@ -15,7 +16,7 @@ import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 
-const ManageRoleScreen = () => {
+const RoleListScreen = () => {
   const dispatch = useDispatch();
   //state
   const query = useQuery();
@@ -110,17 +111,20 @@ const ManageRoleScreen = () => {
   }, [dispatch, onSuccess, params]);
   return (
     <ContentContainer
-      title="Quản lý phân quyền"
+      title="Quản lý nhóm quyền"
       breadcrumb={[
         {
           name: "Tổng quản",
           path: UrlConfig.HOME,
         },
         {
-          name: "Phân quyền",
+          name: "Quản lý nhóm quyền",
           path: `${UrlConfig.ROLES}`,
         },
       ]}
+      extra={
+        <ButtonCreate path={`${UrlConfig.ROLES}/create`} />
+      }
     >
       <Card>
         <CustomTable
@@ -154,4 +158,4 @@ const ManageRoleScreen = () => {
   );
 };
 
-export default ManageRoleScreen;
+export default RoleListScreen;

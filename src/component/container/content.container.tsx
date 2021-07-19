@@ -43,7 +43,7 @@ const ContentContainer: React.FC<ContentContainerProps> = (
           {props.isLoading ? (
             <Card>
               <div className="padding-20">
-                <Skeleton />
+                <Skeleton loading={true} />
               </div>
             </Card>
           ) : (
