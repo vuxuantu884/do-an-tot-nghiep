@@ -287,7 +287,7 @@ export const findTaxInVariant = (
   variantPrices: Array<VariantPricesResponse>,
   currency_code: string
 ): number => {
-  let tax: number = 0;
+  let tax: number|null = 0;
   variantPrices.forEach((v) => {
     if (
       v.currency_code === currency_code &&
@@ -364,7 +364,7 @@ export const Products = {
       let retail_price = parseInt(item.retail_price);
       let import_price = parseInt(item.import_price);
       let whole_sale_price = parseInt(item.whole_sale_price);
-      let tax_percent = parseInt(item.tax_percent);
+      let tax_percent = parseInt(item.tax_percent?item.tax_percent:"0");
       if (!isNaN(retail_price)) {
         variant_prices.push({
           price: retail_price,
@@ -400,10 +400,11 @@ export const Products = {
     let variants: Array<VariantRequest> = [];
     let variant_prices: Array<VariantPriceRequest> = [];
     pr.variant_prices.forEach((item) => {
+      debugger;
       let retail_price = parseInt(item.retail_price);
       let import_price = parseInt(item.import_price);
       let whole_sale_price = parseInt(item.whole_sale_price);
-      let tax_percent = parseInt(item.tax_percent);
+      let tax_percent = parseInt(item.tax_percent?item.tax_percent:"0");
       if (!isNaN(retail_price)) {
         variant_prices.push({
           price: retail_price,
@@ -449,6 +450,7 @@ export const Products = {
         variant_prices: variant_prices,
         variant_images: [],
         inventory: 0,
+        supplier_id:pr.supplier_id
       });
     });
     let productRequest: ProductRequest = {
@@ -459,6 +461,7 @@ export const Products = {
       description: pr.description,
       designer_code: pr.designer_code,
       goods: pr.goods,
+    
       made_in_id: pr.made_in_id,
       merchandiser_code: pr.merchandiser_code,
       name: pr.name,
@@ -468,7 +471,10 @@ export const Products = {
       status: status,
       tags: pr.tags.join(","),
       variants: variants,
-      product_unit: pr.product_unit,
+      unit: pr.unit,
+      supplier_id:pr.supplier_id,
+      material_id:pr.material_id,
+      collections:pr.collections
     };
     return productRequest;
   },
@@ -497,7 +503,7 @@ export const Products = {
           currency: item.currency_code,
           retail_price: "",
           import_price: "",
-          tax_percent: tax_percent.toString(),
+          tax_percent: tax_percent?tax_percent.toString():"0",
           whole_sale_price: "",
         };
         if (type === PriceConfig.RETAIL) {
