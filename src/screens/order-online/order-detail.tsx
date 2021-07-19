@@ -1422,6 +1422,7 @@ const OrderDetail = () => {
                     type="default"
                     className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                     style={{ color: "#737373", border: "1px solid #E5E5E5" }}
+                    hidden={stepsStatusValue===FulFillmentStatus.SHIPPED}
                   >
                     Hủy
                   </Button>
@@ -1464,7 +1465,17 @@ const OrderDetail = () => {
                       className="create-button-custom ant-btn-outline fixed-button"
                       onClick={onOkShippingConfirm}
                     >
-                      Đã hoàn thành
+                      Đã giao hàng
+                    </Button>
+                  )}
+                  {stepsStatusValue === FulFillmentStatus.SHIPPED && (
+                    <Button
+                      type="primary"
+                      style={{ marginLeft: "10px" }}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={onOkShippingConfirm}
+                    >
+                      Đổi trả hang
                     </Button>
                   )}
                 </div>
