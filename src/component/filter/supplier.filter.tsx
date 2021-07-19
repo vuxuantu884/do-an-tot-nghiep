@@ -2,9 +2,7 @@ import {
   Button,
   Card,
   Col,
-  DatePicker,
   Form,
-  FormInstance,
   Input,
   Row,
   Select,
@@ -13,14 +11,13 @@ import {
 import { MenuAction } from "component/table/ActionButton";
 import { SupplierQuery } from "model/core/supplier.model";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import { createRef, useCallback, useEffect, useState } from "react";
+import {  useCallback, useEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined } from "@ant-design/icons";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { DistrictResponse } from "model/content/district.model";
-import { VietNamId } from "utils/Constants";
 
 type SupplierFilterProps = {
   initValue: SupplierQuery;
@@ -216,25 +213,17 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
           <Row gutter={50}>
             <Col span={12}>
               <Item name="from_created_date" label="Ngày tạo từ">
-                {/* <DatePicker
-                  className="r-5 w-100 ip-search"
-                  placeholder="Ngày tạo từ"
-                /> */}
                 <CustomDatepicker placeholder="Ngày tạo từ" />
               </Item>
             </Col>
             <Col span={12}>
               <Item label="Đến" name="to_created_date">
-                {/* <DatePicker
-                  className="r-5 w-100 ip-search"
-                  placeholder="Ngày tạo đến"
-                /> */}
                 <CustomDatepicker placeholder="Ngày tạo đến" />
               </Item>
             </Col>
           </Row>
           <Item name="note" label="Ghi chú">
-            <Input className="r-5 ip-search" placeholder="Ghi chú" />
+            <Input placeholder="Ghi chú" />
           </Item>
         </Form>
       </BaseFilter>

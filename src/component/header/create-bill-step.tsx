@@ -1,7 +1,7 @@
 import { Steps } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { OrderResponse } from "model/response/order/order.response";
 
 type StepStatusProps = {
@@ -11,7 +11,7 @@ type StepStatusProps = {
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   const [state, setstate] = useState<number>(0);
-  const point = () => {
+  const point = useCallback(() => {
     switch (props.status) {
       case "draff":
         setstate(0);
@@ -25,13 +25,16 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       case "shipping":
         setstate(3);
         break;
+      case "shipped":
+        setstate(4);
+        break;
       default:
         return 0;
     }
-  };
+  }, [props.status]);
   useEffect(() => {
     point();
-  }, [props.status]);
+  }, [point, props.status]);
   
 
 

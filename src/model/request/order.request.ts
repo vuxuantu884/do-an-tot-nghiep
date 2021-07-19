@@ -160,6 +160,7 @@ export interface UpdateShipmentRequest {
   sender_address_id: number | null;
   note_to_shipper: string | null;
   requirements: string | null;
+  requirements_name: string | null;
   fulfillment_id: string | null | undefined;
 }
 

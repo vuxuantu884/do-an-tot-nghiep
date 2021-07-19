@@ -896,6 +896,33 @@ input {
     color: #2A2A86
   }
 }
+// shipment đơn hàng
+
+.saleorder_shipment_order_colapse{
+  &>div{
+    &>div{
+      &:first-child{
+          &>div{
+            width: 220px;
+            display: flex;
+            align-items: center;
+            &>div{
+              &>p{
+                margin: 0;
+                font-family: Inter;
+                font-style: normal;
+                font-weight: 500;
+                font-size: 18px;
+                line-height: 22px;
+            }
+
+          }
+        
+      }
+    }
+  }
+}}
+
 
 .margin-top-bottom-10{
   margin: 10px 0;

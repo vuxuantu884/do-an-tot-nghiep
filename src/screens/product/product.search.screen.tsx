@@ -1,7 +1,7 @@
 import { Card } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery, Products } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -9,10 +9,9 @@ import { useDispatch, useSelector } from "react-redux";
 import ProductFilter from "component/filter/product.filter";
 import { searchVariantsRequestAction, variantUpdateAction } from "domain/actions/product/products.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import CustomTable from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import {
   VariantImage,
-  VariantRequest,
   VariantResponse,
   VariantSearchQuery,
   VariantUpdateRequest,
@@ -36,8 +35,8 @@ import ImageProduct from "./component/image-product.component";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import UploadImageModal, { VariantImageModel } from "./component/upload-image.modal";
-import { UploadFile } from "antd/lib/upload/interface";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
 
 const actions: Array<MenuAction> = [
   {
@@ -87,6 +86,7 @@ const ListProductScreen: React.FC = () => {
   });
   const [tableLoading, setTableLoading] = useState(true);
   const isFirstLoad = useRef(true);
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [listCountry, setCountry] = useState<Array<CountryResponse>>();
   const [listMainColor, setMainColor] = useState<Array<ColorResponse>>();
   const [listColor, setColor] = useState<Array<ColorResponse>>();
@@ -110,7 +110,7 @@ const ListProductScreen: React.FC = () => {
     items: [],
   });
 
-  const columns = [
+  const [columns, setColumn]  = useState<Array<ICustomTableColumType<VariantResponse>>>([
     {
       title: "Ảnh",
       render: (value: VariantResponse) => {
@@ -124,6 +124,7 @@ const ListProductScreen: React.FC = () => {
           setUploadVisible(true);
         }} />;
       },
+      visible: true,
     },
     {
       title: "Mã sản phẩm",
@@ -131,33 +132,40 @@ const ListProductScreen: React.FC = () => {
       render: (value: string, i: VariantResponse) => (
         <Link to={`${UrlConfig.VARIANTS}/${i.id}`}>{value}</Link>
       ),
+      visible: true,
     },
     {
       title: "Tên sản phẩm",
       dataIndex: "name",
       sorter: true,
+      visible: true,
     },
     {
       title: "Màu sắc",
       dataIndex: "color",
+      visible: true,
     },
     {
       title: "Size",
       dataIndex: "size",
+      visible: true,
     },
     {
       title: "Nhà thiết kế",
       render: (value: VariantResponse) => <div> {value.product.designer}</div>,
+      visible: true,
     },
     {
       title: "Merchandiser",
       render: (value: VariantResponse) => (
         <div> {value.product.merchandiser}</div>
       ),
+      visible: true,
     },
     {
       title: "Tồn có thể bán",
       dataIndex: "inventory",
+      visible: true,
     },
     {
       title: "Trạng thái",
@@ -169,8 +177,9 @@ const ListProductScreen: React.FC = () => {
           {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
         </div>
       ),
+      visible: true,
     },
-  ];
+  ]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -213,7 +222,7 @@ const ListProductScreen: React.FC = () => {
       }))
     }
   }, [dispatch]);
-
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
   useEffect(() => {
     if (isFirstLoad.current) {
       dispatch(CountryGetAllAction(setCountry));
@@ -222,11 +231,11 @@ const ListProductScreen: React.FC = () => {
       dispatch(sizeGetAll(setSize));
       dispatch(SupplierGetAllAction(setSupplier));
       dispatch(AccountGetListAction(initAccountQuery, setMarchandiser));
+      setTableLoading(true);
     }
     isFirstLoad.current = false;
     dispatch(searchVariantsRequestAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
-  console.log(variant);
   return (
     <ContentContainer
       title="Quản lý chất liệu"
@@ -257,6 +266,7 @@ const ListProductScreen: React.FC = () => {
           listCountries={listCountry}
         />
         <CustomTable
+          isLoading={tableLoading}
           showColumnSetting={true}
           scroll={{ x: 1080 }}
           pagination={{
@@ -267,9 +277,9 @@ const ListProductScreen: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
-          loading={tableLoading}
+          onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
-          columns={columns}
+          columns={columnFinal}
           rowKey={(item: VariantResponse) => item.id}
         />
       </Card>
@@ -279,6 +289,15 @@ const ListProductScreen: React.FC = () => {
         visible={uploadVisible} 
         onSave={onSave}
       />
+      <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            setShowSettingColumn(false);
+            setColumn(data)
+          }}
+          data={columns}
+        />
     </ContentContainer>
   );
 };

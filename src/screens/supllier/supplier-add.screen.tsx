@@ -35,7 +35,7 @@ import { RegUtil } from "utils/RegUtils";
 import NumberInput from "component/custom/number-input.custom";
 
 const { Item } = Form;
-const { Option, OptGroup } = Select;
+const { Option } = Select;
 
 const DefaultCountry = 233;
 const initRequest: SupplierCreateRequest = {
@@ -91,7 +91,6 @@ const CreateSupplierScreen: React.FC = () => {
   const currentUserCode = useSelector(
     (state: RootReducerType) => state.userReducer?.account?.code
   );
-   
 
   //State
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
@@ -100,24 +99,27 @@ const CreateSupplierScreen: React.FC = () => {
   const [status, setStatus] = useState<string>(initRequest.status);
   //EndState
   //Callback
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
-    let listWinAccount = data.items;
-    console.log(listWinAccount);
-    setAccounts(listWinAccount);
-    let checkUser= listWinAccount.findIndex((val)=> val.code===currentUserCode);
-    console.log(checkUser);
-    debugger;
-    if(checkUser!==-1 && currentUserCode!== undefined){
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse>) => {
+      let listWinAccount = data.items;
+      console.log(listWinAccount);
+      setAccounts(listWinAccount);
+      let checkUser = listWinAccount.findIndex(
+        (val) => val.code === currentUserCode
+      );
+      console.log(checkUser);
+      debugger;
+      if (checkUser !== -1 && currentUserCode !== undefined) {
+        console.log(formRef);
+        // setPersonInCharge(currentUserId);
 
-    console.log(formRef);
-    // setPersonInCharge(currentUserId);
-    
-      formSupplier.setFieldsValue({
-        person_in_charge: [currentUserCode],
-      });
-   
-    }
-  }, [currentUserCode, formRef, formSupplier]);
+        formSupplier.setFieldsValue({
+          person_in_charge: [currentUserCode],
+        });
+      }
+    },
+    [currentUserCode, formRef, formSupplier]
+  );
 
   const onChangeStatus = useCallback(
     (checked: boolean) => {
@@ -201,7 +203,6 @@ const CreateSupplierScreen: React.FC = () => {
       ]}
     >
       <Form
-        // ref={formRef}
         form={formSupplier}
         layout="vertical"
         onFinish={onFinish}
@@ -242,10 +243,9 @@ const CreateSupplierScreen: React.FC = () => {
                 label="Loại nhà cung cấp"
                 name="type"
               >
-                <Radio.Group className="ip-radio">
+                <Radio.Group>
                   {supplier_type?.map((item) => (
                     <Radio
-                      className="ip-radio-item"
                       value={item.value}
                       key={item.value}
                     >
@@ -258,12 +258,7 @@ const CreateSupplierScreen: React.FC = () => {
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Mã nhà cung cấp" name="code">
-                  <Input
-                    disabled
-                    className="r-5"
-                    placeholder="Mã nhà cung cấp"
-                    size="large"
-                  />
+                  <Input disabled placeholder="Mã nhà cung cấp" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -277,12 +272,7 @@ const CreateSupplierScreen: React.FC = () => {
                   name="name"
                   label="Tên nhà cung cấp"
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập tên nhà cung cấp"
-                    size="large"
-                    maxLength={255}
-                  />
+                  <Input placeholder="Nhập tên nhà cung cấp" maxLength={255} />
                 </Item>
               </Col>
             </Row>
@@ -354,18 +344,10 @@ const CreateSupplierScreen: React.FC = () => {
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  // rules={[
-                  //   { required: true, message: "Vui lòng nhập người liên hệ" },
-                  // ]}
                   name="contact_name"
                   label="Người liên hệ"
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập người liên hệ"
-                    size="large"
-                    maxLength={255}
-                  />
+                  <Input placeholder="Nhập người liên hệ" maxLength={255} />
                 </Item>
               </Col>
             </Row>
@@ -402,23 +384,14 @@ const CreateSupplierScreen: React.FC = () => {
                   name="phone"
                   label="Số điện thoại"
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập số điện thoại"
-                    size="large"
-                  />
+                  <Input placeholder="Nhập số điện thoại" />
                 </Item>
               </Col>
             </Row>
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item label="Địa chỉ" name="address">
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập địa chỉ"
-                    size="large"
-                    maxLength={100}
-                  />
+                  <Input placeholder="Nhập địa chỉ" maxLength={100} />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -432,11 +405,7 @@ const CreateSupplierScreen: React.FC = () => {
                     },
                   ]}
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập email"
-                    size="large"
-                  />
+                  <Input placeholder="Nhập email" />
                 </Item>
               </Col>
             </Row>
@@ -452,12 +421,7 @@ const CreateSupplierScreen: React.FC = () => {
                     },
                   ]}
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập website"
-                    size="large"
-                    maxLength={255}
-                  />
+                  <Input placeholder="Nhập website" maxLength={255} />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -471,12 +435,7 @@ const CreateSupplierScreen: React.FC = () => {
                     },
                   ]}
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập mã số thuế"
-                    size="large"
-                    maxLength={13}
-                  />
+                  <Input placeholder="Nhập mã số thuế" maxLength={13} />
                 </Item>
               </Col>
             </Row>
@@ -506,7 +465,7 @@ const CreateSupplierScreen: React.FC = () => {
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item label="Thời gian công nợ">
-                    <Input.Group className="ip-group" size="large" compact>
+                    <Input.Group className="ip-group" compact>
                       <Item name="debt_time" noStyle>
                         {/* <Input
                           placeholder="Nhập thời gian công nợ"
@@ -549,17 +508,12 @@ const CreateSupplierScreen: React.FC = () => {
                       </div>
                     }
                   >
-                    <Input
-                      className="r-5 ip-upload"
-                      multiple
-                      type="file"
-                      placeholder="Tên danh mục"
-                    />
+                    <Input multiple type="file" placeholder="Tên danh mục" />
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item label="Số lượng đặt hàng tối thiểu">
-                    <Input.Group className="ip-group" size="large" compact>
+                    <Input.Group className="ip-group" compact>
                       <Item name="moq" noStyle>
                         {/* <Input
                           placeholder="Nhập số lượng"
@@ -592,12 +546,7 @@ const CreateSupplierScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col span={24} lg={16} md={24} sm={24}>
                   <Item label="Ghi chú" name="note">
-                    <Input
-                      className="r-5 ip-upload"
-                      size="large"
-                      placeholder="Nhập ghi chú"
-                      maxLength={255}
-                    />
+                    <Input placeholder="Nhập ghi chú" maxLength={255} />
                   </Item>
                 </Col>
               </Row>
@@ -614,22 +563,12 @@ const CreateSupplierScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item label="Ngân hàng" name="bank_name">
-                    <Input
-                      className="r-5"
-                      placeholder="Nhập ngân hàng"
-                      size="large"
-                      maxLength={255}
-                    />
+                    <Input placeholder="Nhập ngân hàng" maxLength={255} />
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item name="bank_brand" label="Chi nhánh">
-                    <Input
-                      className="r-5"
-                      placeholder="Nhập chi nhánh"
-                      size="large"
-                      maxLength={255}
-                    />
+                    <Input placeholder="Nhập chi nhánh" maxLength={255} />
                   </Item>
                 </Col>
               </Row>
@@ -645,22 +584,12 @@ const CreateSupplierScreen: React.FC = () => {
                       },
                     ]}
                   >
-                    <Input
-                      className="r-5"
-                      placeholder="Nhập số tài khoản"
-                      size="large"
-                      maxLength={20}
-                    />
+                    <Input placeholder="Nhập số tài khoản" maxLength={20} />
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item name="beneficiary_name" label="Chủ tài khoản">
-                    <Input
-                      className="r-5"
-                      placeholder="Nhập chủ tài khoản"
-                      size="large"
-                      maxLength={255}
-                    />
+                    <Input placeholder="Nhập chủ tài khoản" maxLength={255} />
                   </Item>
                 </Col>
               </Row>
