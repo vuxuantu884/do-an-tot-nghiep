@@ -1370,7 +1370,7 @@ const setRequirementNameCallback = useCallback((value) => {
                       type="primary"
                       style={{ marginLeft: "10px" }}
                       className="create-button-custom ant-btn-outline fixed-button"
-                      onClick={onOkShippingConfirm}
+                      onClick={()=> setIsvibleShippingConfirm(true)}
                     >
                       Xuất kho
                     </Button>
@@ -2001,7 +2001,7 @@ const setRequirementNameCallback = useCallback((value) => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
         title="Xác nhận xuất kho"
-        text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${OrderDetail?.items[0].amount} không?`}
+        text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${takeMoneyHelper || (OrderDetail?.total && OrderDetail?.total + (shippingFeeInformedCustomer !== null ? shippingFeeInformedCustomer : 0)) || OrderDetail?.total} không?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleUpdateFulfilmentConfirm(false)}
