@@ -19,12 +19,11 @@ import { ProductUploadModel } from "model/product/product-upload.model";
 function* searchVariantSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       searchVariantsApi,
       query
     );
-    
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response);
@@ -38,7 +37,6 @@ function* searchVariantSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -69,7 +67,7 @@ function* searchVariantOrderSaga(action: YodyAction) {
 }
 
 function* createProductSaga(action: YodyAction) {
-  const { request, onCreateSuccess } = action.payload;
+  const { request, createCallback } = action.payload;
   try {
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       createProductApi,
@@ -77,19 +75,19 @@ function* createProductSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onCreateSuccess(response.data);
+        createCallback(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        onCreateSuccess(null);
+        createCallback(null);
         yield put(unauthorizedAction());
         break;
       default:
-        onCreateSuccess(null);
+        createCallback(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
-    onCreateSuccess(null);
+    createCallback(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -100,6 +98,7 @@ function* variantDetailSaga(action: YodyAction) {
     let response: BaseResponse<VariantResponse> = yield call(getVariantApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        console.log(response.data);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -117,7 +116,7 @@ function* variantDetailSaga(action: YodyAction) {
 }
 
 function* uploadProductSaga(action: YodyAction) {
-  const { files, folder, setData} = action.payload;
+  const { files, folder, setData } = action.payload;
   try {
     let response: BaseResponse<Array<ProductUploadModel>> = yield call(
       productUploadApi,
@@ -146,13 +145,12 @@ function* uploadProductSaga(action: YodyAction) {
 function* variantUpdateSaga(action: YodyAction) {
   const { id, request, onUpdateSuccess } = action.payload;
   try {
-    
     let response: BaseResponse<VariantResponse> = yield call(
       updateVariantApi,
       id,
       request
     );
-    
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onUpdateSuccess(response.data);
@@ -168,11 +166,10 @@ function* variantUpdateSaga(action: YodyAction) {
     }
   } catch (error) {
     onUpdateSuccess(null);
-    console.log("Update Variant: "+error)
+    console.log("Update Variant: " + error);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
-
 
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
@@ -185,4 +182,3 @@ export function* productSaga() {
   yield takeLatest(ProductType.VARIANT_UPDATE_REQUEST, variantUpdateSaga);
   yield takeEvery(ProductType.UPLOAD_PRODUCT_REQUEST, uploadProductSaga);
 }
-

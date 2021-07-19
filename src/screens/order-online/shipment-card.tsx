@@ -56,8 +56,11 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   const ShipMethodOnChange = (value: number) => {
     setshipmentMethod(value);
     props.setShipmentMethodProps(value);
-    if (value === ShipmentMethodOption.SELFDELIVER)
-      props.setPaymentMethod(PaymentMethodOption.COD);
+    if (props.paymentMethod !== PaymentMethodOption.PREPAYMENT) {
+      if (value === ShipmentMethodOption.SELFDELIVER) {
+        props.setPaymentMethod(PaymentMethodOption.COD);
+      }
+    }
   };
 
   const shipping_requirements = useSelector(
@@ -81,9 +84,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     icon: string | undefined;
   }
 
-  const [shipmentButton, setShipmentButton] = useState<
-    Array<ShipmentButtonModel>
-  >([
+  const shipmentButton: Array<ShipmentButtonModel> = [
     {
       name: "Chuyển hãng vận chuyển",
       value: 1,
@@ -104,7 +105,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       value: 4,
       icon: wallClock,
     },
-  ]);
+  ];
 
   return (
     <Card
@@ -223,9 +224,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           </div>
         </Row>
         {shipmentMethodState === ShipmentMethodOption.SELFDELIVER && (
-          <Row
-            gutter={20}
-          >
+          <Row gutter={20}>
             <Col md={12}>
               <Form.Item
                 label="Đối tác giao hàng"

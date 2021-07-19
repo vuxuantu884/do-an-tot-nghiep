@@ -42,12 +42,12 @@ export const productUploadAction = (
 };
 
 export const productCreateAction = (
-  request: ProductRequest,
-  onCreateSuccess: (result:VariantResponse) => void
+  request: ProductRequest|null,
+  createCallback: (result:VariantResponse) => void
 ) => {
   return BaseAction(ProductType.CREATE_PRODUCT_REQEUST, {
     request,
-    onCreateSuccess,
+    createCallback,
   });
 };
 
