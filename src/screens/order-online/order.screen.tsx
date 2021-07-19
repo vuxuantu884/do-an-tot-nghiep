@@ -78,6 +78,7 @@ export default function Order() {
   const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] =
     useState<boolean>(false);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
+  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false)
   //#endregion
 
   //#region Customer
@@ -400,7 +401,14 @@ export default function Order() {
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
-
+//windows offset
+  window.addEventListener("scroll", () => { 
+    if(window.pageYOffset > 100){
+      setIsShowBillStep(true)
+    }else{
+      setIsShowBillStep(false)
+    }
+  })
   return (
     <ContentContainer
       title="Tạo mới đơn hàng"
@@ -595,7 +603,7 @@ export default function Order() {
           </Row>
           <Row
             gutter={24}
-            className="margin-top-10"
+            className="margin-top-10 "
             style={{
               position: "fixed",
               textAlign: "right",
@@ -604,6 +612,7 @@ export default function Order() {
               bottom: "0%",
               backgroundColor: "#FFFFFF",
               marginLeft: "-30px",
+              display: `${isShowBillStep ? "" : "none"}`
             }}
           >
             <Col
