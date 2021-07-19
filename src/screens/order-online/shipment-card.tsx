@@ -222,116 +222,126 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             ))}
           </div>
         </Row>
-        <Row
-          gutter={20}
-          hidden={shipmentMethodState !== ShipmentMethodOption.SELFDELIVER}
-        >
-          <Col md={12}>
-            <Form.Item
-              label="Đối tác giao hàng"
-              name="delivery_service_provider_id"
-            >
-              <CustomSelect
-                className="select-with-search"
-                showSearch
-                notFoundContent="Không tìm thấy kết quả"
-                style={{ width: "100%" }}
-                placeholder="Chọn đối tác giao hàng"
-                suffix={
-                  <Button
-                    style={{ width: 36, height: 36 }}
-                    icon={<PlusOutlined />}
-                  />
-                }
-                filterOption={(input, option) => {
-                  if (option) {
-                    return (
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    );
-                  }
-                  return false;
-                }}
+        {shipmentMethodState === ShipmentMethodOption.SELFDELIVER && (
+          <Row
+            gutter={20}
+          >
+            <Col md={12}>
+              <Form.Item
+                label="Đối tác giao hàng"
+                name="delivery_service_provider_id"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn đối tác giao hàng",
+                  },
+                ]}
               >
-                {shipper?.map((item, index) => (
-                  <CustomSelect.Option
-                    style={{ width: "100%" }}
-                    key={index.toString()}
-                    value={item.id}
-                  >
-                    {`${item.full_name} - ${item.mobile}`}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            </Form.Item>
+                <CustomSelect
+                  className="select-with-search"
+                  showSearch
+                  notFoundContent="Không tìm thấy kết quả"
+                  style={{ width: "100%" }}
+                  placeholder="Chọn đối tác giao hàng"
+                  // suffix={
+                  //   <Button
+                  //     style={{ width: 36, height: 36 }}
+                  //     icon={<PlusOutlined />}
+                  //   />
+                  // }
+                  filterOption={(input, option) => {
+                    if (option) {
+                      return (
+                        option.children
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      );
+                    }
+                    return false;
+                  }}
+                >
+                  {shipper?.map((item, index) => (
+                    <CustomSelect.Option
+                      style={{ width: "100%" }}
+                      key={index.toString()}
+                      value={item.id}
+                    >
+                      {`${item.full_name} - ${item.mobile}`}
+                    </CustomSelect.Option>
+                  ))}
+                </CustomSelect>
+              </Form.Item>
 
-            {props.paymentMethod === PaymentMethodOption.COD && (
-              <Form.Item label="Tiền thu hộ">
+              {props.paymentMethod === PaymentMethodOption.COD && (
+                <Form.Item label="Tiền thu hộ">
+                  <NumberInput
+                    format={(a: string) => formatCurrency(a)}
+                    replace={(a: string) => replaceFormatString(a)}
+                    placeholder="0"
+                    value={
+                      takeMoneyHelper ||
+                      props.amount +
+                        (props.shippingFeeCustomer
+                          ? props.shippingFeeCustomer
+                          : 0)
+                    }
+                    onChange={(value: any) => setTakeMoneyHelper(value)}
+                    style={{
+                      textAlign: "right",
+                      width: "100%",
+                      color: "#222222",
+                    }}
+                    maxLength={999999999999}
+                    minLength={0}
+                  />
+                </Form.Item>
+              )}
+            </Col>
+            <Col md={12}>
+              <Form.Item
+                name="shipping_fee_paid_to_3pls"
+                label="Phí ship trả đối tác giao hàng"
+              >
                 <NumberInput
                   format={(a: string) => formatCurrency(a)}
                   replace={(a: string) => replaceFormatString(a)}
                   placeholder="0"
-                  value={
-                    takeMoneyHelper ||
-                    props.amount +
-                      (props.shippingFeeCustomer
-                        ? props.shippingFeeCustomer
-                        : 0)
-                  }
-                  onChange={(value: any) => setTakeMoneyHelper(value)}
                   style={{
                     textAlign: "right",
                     width: "100%",
                     color: "#222222",
                   }}
-                  maxLength={999999999999}
+                  maxLength={15}
                   minLength={0}
                 />
               </Form.Item>
-            )}
-          </Col>
-          <Col md={12}>
-            <Form.Item
-              name="shipping_fee_paid_to_3pls"
-              label="Phí ship trả đối tác giao hàng"
-            >
-              <NumberInput
-                format={(a: string) => formatCurrency(a)}
-                replace={(a: string) => replaceFormatString(a)}
-                placeholder="0"
-                style={{
-                  textAlign: "right",
-                  width: "100%",
-                  color: "#222222",
-                }}
-                maxLength={15}
-                minLength={0}
-              />
-            </Form.Item>
-            <Form.Item
-              name="shipping_fee_informed_to_customer"
-              label="Phí ship báo khách"
-            >
-              <NumberInput
-                format={(a: string) => formatCurrency(a)}
-                replace={(a: string) => replaceFormatString(a)}
-                placeholder="0"
-                style={{
-                  textAlign: "right",
-                  width: "100%",
-                  color: "#222222",
-                }}
-                maxLength={15}
-                minLength={0}
-                onChange={props.setShippingFeeInformedCustomer}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+              <Form.Item
+                name="shipping_fee_informed_to_customer"
+                label="Phí ship báo khách"
+              >
+                <NumberInput
+                  format={(a: string) => formatCurrency(a)}
+                  replace={(a: string) => replaceFormatString(a)}
+                  placeholder="0"
+                  style={{
+                    textAlign: "right",
+                    width: "100%",
+                    color: "#222222",
+                  }}
+                  maxLength={15}
+                  minLength={0}
+                  onChange={props.setShippingFeeInformedCustomer}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        )}
 
         {/*--- Nhận tại cửa hàng ----*/}
-        <div className="receive-at-store" hidden={shipmentMethodState !== 3}>
+        <div
+          className="receive-at-store"
+          hidden={shipmentMethodState !== ShipmentMethodOption.PICKATSTORE}
+        >
           <Row style={{ marginBottom: "10px" }}>Nhận tại cửa hàng</Row>
           <Row className="row-info">
             <Space>
