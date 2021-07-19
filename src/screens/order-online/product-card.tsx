@@ -21,7 +21,6 @@ import {
 
 import arrowDownIcon from "assets/img/drow-down.svg";
 import giftIcon from "assets/icon/gift.svg";
-import productIcon from "assets/img/cube.svg";
 import React, {
   useCallback,
   useLayoutEffect,
@@ -30,9 +29,7 @@ import React, {
   createRef,
 } from "react";
 import {
-  ArrowRightOutlined,
   SearchOutlined,
-  ShopOutlined,
   EditOutlined,
 } from "@ant-design/icons";
 import DiscountGroup from "./discount-group";
@@ -58,6 +55,8 @@ import {
 import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
+import emptyProduct from "assets/icon/empty_products.svg";
+import addIcon from "assets/img/plus_1.svg";
 import { Type } from "config/TypeConfig";
 import deleteIcon from "assets/icon/delete.svg";
 import AddGiftModal from "./modal/AddGiftModal";
@@ -69,7 +68,6 @@ import {
   VariantSearchQuery,
 } from "model/product/product.model";
 import { StoreResponse } from "model/core/store.model";
-import { Link } from "react-router-dom";
 import { MoneyType } from "utils/Constants";
 import { OrderLineItemRequest } from "model/request/order.request";
 
@@ -183,14 +181,15 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const renderSearchVariant = (item: VariantResponse) => {
     let avatar = findAvatar(item.variant_images);
     return (
-      <div className="row-search w-100">
-        <div className="rs-left w-100" style={{ width: "100%" }}>
-          <img
+      <div className="row-search w-100" style={{padding: 0, paddingRight: 20, paddingLeft: 20}}>
+        <div className="rs-left w-100" style={{ width: "100%"}}>
+         <div style={{marginTop: 10}}> 
+           <img
             src={avatar === "" ? imgdefault : avatar}
             alt="anh"
             placeholder={imgdefault}
-            style={{width: "55px", height: "55px"}}
-          />
+            style={{width: "40px", height: "40px", borderRadius: 5}}
+          /></div>
           <div className="rs-info w-100">
             <span style={{ color: "#37394D" }} className="text">
               {item.name}
@@ -201,11 +200,12 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           </div>
         </div>
         <div className="rs-right">
-          <span style={{ color: "#37394D" }} className="text t-right">
-            {findPrice(item.variant_prices, AppConfig.currency)}
+          <span style={{ color: "#222222" }} className="text t-right">
+            {`${findPrice(item.variant_prices, AppConfig.currency)} `}
+            <span style={{ color: "#737373", textDecoration: "underline", textDecorationColor: "#737373"}}>đ</span>
           </span>
-          <span style={{ color: "#95A1AC" }} className="text t-right p-4">
-            Có thể bán{" "}
+          <span style={{ color: "#737373" }} className="text t-right p-4">
+            Có thể bán:
             <span
               style={{
                 color:
@@ -214,7 +214,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                     : "rgba(226, 67, 67, 1)",
               }}
             >
-              {item.inventory}
+             {` ${item.inventory}`}
             </span>
           </span>
         </div>
@@ -649,16 +649,16 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     <Card
       className="margin-top-20"
       title={
-        <Space>
-          <img src={productIcon} alt="" /> Sản phẩm
-        </Space>
+        <div className="d-flex">
+          <span className="title-card">SẢN PHẨM</span>
+        </div>
       }
       extra={
         <Space size={20}>
-          <Checkbox onChange={() => setSplitLine(!splitLine)} style={{color: "#222222", fontWeight: 500, fontSize:14}}>
+          <Checkbox onChange={() => setSplitLine(!splitLine)} >
             Tách dòng
           </Checkbox>
-          <span style={{color: "#4F687D", fontSize: 13}}>Chính sách giá</span>
+          <span>Chính sách giá:</span>
           <Form.Item name="price_type" style={{ margin: "0px"}}>
             <Select style={{ minWidth: 145, height: 38}} placeholder="Chính sách giá">
               <Select.Option value="retail_price" color="#222222">Giá bán lẻ</Select.Option>
@@ -667,16 +667,16 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               </Select.Option>
             </Select>
           </Form.Item>
-          <Link className="text-focus" to="#" style={{color: "#0080ff"}}>
+          {/* <Link className="text-focus" to="#" style={{color: "#0080ff"}}>
             <Space style={{height: "17"}}>
               <ShopOutlined style={{color: "#0080ff"}}/> Xem tồn <ArrowRightOutlined style={{color: "#0080ff"}}/>
             </Space>
-          </Link>
+          </Link> */}
         </Space>
       }
     >
-      <div style={{ padding: "20px 20px 0 20px" }}>
-        <Row gutter={20}>
+      <div style={{ padding: "24px 24px 0 24px" }}>
+        <Row gutter={24}>
           <Col md={8}>
             <Form.Item
               label="Cửa hàng"
@@ -731,6 +731,30 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 onSearch={onChangeProductSearch}
                 options={convertResultSearchVariant}
                 maxLength={255}
+                dropdownRender={(menu) => (
+                  <div>
+                    <div
+                      className="row-search w-100"
+                      style={{ minHeight: "42px", lineHeight: "50px", cursor: "pointer"}}
+                    >
+                      <div className="rs-left w-100">
+                        <div style={{ float: "left", marginLeft: "20px" }}>
+                          <img src={addIcon} alt="" />
+                        </div>
+                        <div className="rs-info w-100">
+                          <span
+                            className="text"
+                            style={{ marginLeft: "23px", lineHeight: "18px" }}
+                          >
+                            Thêm mới sản phẩm
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <Divider style={{ margin: "4px 0" }} />
+                    {menu}
+                  </div>
+                )}
               >
                 <Input
                   size="middle"
@@ -753,24 +777,23 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       <Table
         locale={{
           emptyText: (
-            <Button
+            <div className="sale_order_empty_product">
+              <img src={emptyProduct} alt="empty product"></img>
+                <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
+                <Button
               type="text"
               className="font-weight-500"
               style={{
-                color: "#2A2A86",
                 background: "rgba(42,42,134,0.05)",
-                borderRadius: 5,
-                padding: 8,
-                height: "auto",
-                marginTop: 15,
-                marginBottom: 15,
               }}
               onClick={() => {
                 autoCompleteRef.current?.focus();
               }}
             >
               Thêm sản phẩm ngay (F3)
-            </Button>
+              </Button>
+            </div>
+           
           ),
         }}
         rowKey={(record) => record.id}
@@ -822,12 +845,12 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           ) : <div />
         }
       />
-      <div className="padding-20" style={{ paddingTop: "30px" }}>
+      <div className="padding-24" style={{ paddingTop: "30px" }}>
         <Row className="sale-product-box-payment" gutter={24}>
           <Col xs={24} lg={12}>
             <div className="payment-row">
               <Checkbox
-                className="margin-bottom-15"
+                className=""
                 onChange={() => console.log(1)}
                 style={{fontWeight: 500}}
               >
@@ -836,7 +859,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             </div>
             <div className="payment-row">
               <Checkbox
-                className="margin-bottom-15"
+                className=""
                 onChange={() => console.log(1)}
                 style={{fontWeight: 500}}
               >
@@ -845,7 +868,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             </div>
             <div className="payment-row">
               <Checkbox
-                className="margin-bottom-15"
+                className=""
                 onChange={() => console.log(1)}
                 style={{fontWeight: 500}}
               >
@@ -865,21 +888,24 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               className="payment-row"
               justify="space-between"
               align="middle"
-              style={{ marginTop: "5px" }}
             >
               <Space align="center">
-                <Typography.Link
+                {items.length > 0 ? <Typography.Link
                   className="font-weight-500"
                   onClick={ShowDiscountModal}
                   style={{
-                    borderBottom: "1px dashed #0080FF",
+                    textDecoration: "underline",
+                    textDecorationColor: "#5D5D8A",
+                    color: "#5D5D8A"
                   }}
                 >
                   Chiết khấu
-                </Typography.Link>
+                </Typography.Link> : <div>Chiết khấu</div>}
+                
 
                 {discountRate !== 0 && (
                   <Tag
+                    style={{marginTop: 0, color: "#E24343", backgroundColor: "#F5F5F5"}}
                     className="orders-tag orders-tag-danger"
                     closable
                     onClose={() => {
@@ -893,7 +919,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 )}
               </Space>
               <div className="font-weight-500 ">
-                {formatCurrency(discountValue)}
+                {discountValue ? formatCurrency(discountValue) : "-"}
               </div>
             </Row>
 
@@ -901,18 +927,23 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               className="payment-row"
               justify="space-between"
               align="middle"
-              style={{ marginTop: "5px" }}
             >
               <Space align="center">
-                <Typography.Link
+               {items.length > 0 ?  <Typography.Link
                   className="font-weight-500"
                   onClick={ShowDiscountModal}
+                  style={{
+                    textDecoration: "underline",
+                    textDecorationColor: "#5D5D8A",
+                    color: "#5D5D8A"
+                  }}
                 >
                   Mã giảm giá
-                </Typography.Link>
+                </Typography.Link> : <div>Mã giảm giá</div>}
 
                 {counpon !== "" && (
                   <Tag
+                    style={{margin: 0, color: "#E24343", backgroundColor: "#F5F5F5"}}
                     className="orders-tag orders-tag-danger"
                     closable
                     onClose={() => {
@@ -924,18 +955,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                   </Tag>
                 )}
               </Space>
-              <div className="font-weight-500 ">0</div>
+              <div className="font-weight-500 ">-</div>
             </Row>
 
             <Row className="payment-row padding-top-10" justify="space-between">
               <div className="font-weight-500">Phí ship báo khách</div>
-              <div className="font-weight-500 payment-row-money">{props.shippingFeeCustomer !== null ? formatCurrency(props.shippingFeeCustomer) : 0}</div>
+              <div className="font-weight-500 payment-row-money">{props.shippingFeeCustomer !== null ? formatCurrency(props.shippingFeeCustomer) : "-"}</div>
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
-            <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Khách cần trả</strong>
+            <Row className="payment-row" justify="space-between"> 
+              <strong className="font-size-text">Khách cần phải trả:</strong>
               <strong className="text-success font-size-text">
-                {props.shippingFeeCustomer !== null ? formatCurrency(changeMoney + props.shippingFeeCustomer): formatCurrency(changeMoney)}
+                {changeMoney !== null || props.shippingFeeCustomer !== null ?
+                (props.shippingFeeCustomer !== null ? formatCurrency(changeMoney + props.shippingFeeCustomer) : formatCurrency(changeMoney)) : "-"}
               </strong>
             </Row>
           </Col>

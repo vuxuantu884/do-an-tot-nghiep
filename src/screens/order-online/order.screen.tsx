@@ -11,7 +11,7 @@ import {
   FormInstance,
   Select,
 } from "antd";
-import { InfoCircleOutlined, ProfileOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { CustomerResponse } from "model/response/customer/customer.response";
@@ -38,11 +38,15 @@ import CustomerCard from "./customer-card";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
-import { OrderStatus, TaxTreatment } from "utils/Constants";
+import {
+  OrderStatus,
+  ShipmentMethodOption,
+  TaxTreatment,
+} from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
-import { formatCurrency, getAmountPayment, getTotalAmountAfferDiscount } from "utils/AppUtils";
+import { getAmountPayment, getTotalAmountAfferDiscount } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 //#endregion
 
@@ -73,7 +77,7 @@ export default function Order() {
   const formRef = createRef<FormInstance>();
   const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] =
     useState<boolean>(false);
-  const [takeMoneyHelper, setTakeMoneyHelper] = useState<any>(0)
+  const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   //#endregion
 
   //#region Customer
@@ -267,13 +271,19 @@ export default function Order() {
       requirements: value.requirements,
     };
 
-    if (shipmentMethod === 2) {
+    if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
       objShipment.delivery_service_provider_type = "Shipper";
       objShipment.delivery_service_provider_id =
         value.delivery_service_provider_id;
       objShipment.shipping_fee_informed_to_customer =
         value.shipping_fee_informed_to_customer;
       objShipment.shipping_fee_paid_to_3pls = value.shipping_fee_paid_to_3pls;
+
+      if (takeMoneyHelper !== null) {
+        objShipment.cod = takeMoneyHelper;
+      } else {
+        objShipment.cod = orderAmount;
+      }
       return objShipment;
     }
     if (shipmentMethod === 3) {
@@ -334,15 +344,24 @@ export default function Order() {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let totalPaid = getAmountPayment(payments);
-    let total_line_amount_after_line_discount = getTotalAmountAfferDiscount(items);
+    let total_line_amount_after_line_discount =
+      getTotalAmountAfferDiscount(items);
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
       values.payments = [];
+      values.shipping_fee_informed_to_customer = 0;
       values.action = OrderStatus.DRAFT;
+      values.total = orderAmount;
+      values.shipping_fee_informed_to_customer = 0;
     } else {
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments;
+      if (shippingFeeCustomer !== null) {
+        values.total = orderAmount + shippingFeeCustomer;
+      } else {
+        values.total = orderAmount;
+      }
     }
     values.tags = tags;
     values.items = items;
@@ -350,25 +369,23 @@ export default function Order() {
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
     values.customer_id = customer?.id;
-    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
-    if (shippingFeeCustomer !== null) {
-      values.total = orderAmount + shippingFeeCustomer;
-    } else {
-      values.total = orderAmount;
-    }
-
+    values.total_line_amount_after_line_discount =
+      total_line_amount_after_line_discount;
     if (values.customer_id === undefined || values.customer_id === null) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
     } else {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
       } else {
-        // if (values.total > totalPaid) {
-        //   ShowConfirmPayment();
-        // } else {
-          
-        // }
-        dispatch(orderCreateAction(values, createOrderCallback));
+        if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
+          if (values.delivery_service_provider_id === null) {
+            showError("Vui lòng chọn đối tác giao hàng");
+          } else {
+            dispatch(orderCreateAction(values, createOrderCallback));
+          }
+        } else {
+          dispatch(orderCreateAction(values, createOrderCallback));
+        }
       }
     }
   };
@@ -383,7 +400,7 @@ export default function Order() {
 
   return (
     <ContentContainer
-      title="Thêm mới đơn hàng online"
+      title="Tạo mới đơn hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -393,7 +410,7 @@ export default function Order() {
           name: "Đơn hàng",
         },
         {
-          name: "Thêm đơn hàng online",
+          name: "Tạo mới đơn hàng",
         },
       ]}
       extra={<CreateBillStep status="draff" orderDetail={null} />}
@@ -421,7 +438,7 @@ export default function Order() {
           <Form.Item noStyle hidden name="tags">
             <Input></Input>
           </Form.Item>
-          <Row gutter={20}>
+          <Row gutter={20} style={{ marginBottom: "70px" }}>
             {/* Left Side */}
             <Col md={18}>
               {/*--- customer ---*/}
@@ -444,14 +461,10 @@ export default function Order() {
                 shipmentMethod={shipmentMethod}
                 storeId={storeId}
                 setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
-                setTakeMoneyHelper={setTakeMoneyHelper}
-                takeMoneyHelper={takeMoneyHelper}
-                amount={
-                  shippingFeeCustomer
-                    ? orderAmount + shippingFeeCustomer
-                    : orderAmount
-                }
-                paymentMethod= {paymentMethod}
+                amount={orderAmount}
+                setPaymentMethod={setPaymentMethod}
+                paymentMethod={paymentMethod}
+                shippingFeeCustomer={shippingFeeCustomer}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
@@ -468,13 +481,12 @@ export default function Order() {
             <Col md={6}>
               <Card
                 title={
-                  <Space>
-                    <ProfileOutlined />
-                    Thông tin đơn hàng
-                  </Space>
+                  <div className="d-flex">
+                    <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
+                  </div>
                 }
               >
-                <div className="padding-20">
+                <div className="padding-24">
                   <Form.Item
                     label="Nhân viên bán hàng"
                     name="assignee_code"
@@ -538,16 +550,15 @@ export default function Order() {
               <Card
                 className="margin-top-20"
                 title={
-                  <Space>
-                    <ProfileOutlined />
-                    Thông tin bổ sung
-                  </Space>
+                  <div className="d-flex">
+                    <span className="title-card">THÔNG TIN BỔ SUNG</span>
+                  </div>
                 }
               >
-                <div className="padding-20">
+                <div className="padding-24">
                   <Form.Item
                     name="note"
-                    label="Ghi chú"
+                    label="Ghi chú nội bộ"
                     tooltip={{
                       title: "Thêm thông tin ghi chú chăm sóc khách hàng",
                       icon: <InfoCircleOutlined />,
@@ -556,7 +567,7 @@ export default function Order() {
                     <Input.TextArea
                       placeholder="Điền ghi chú"
                       maxLength={500}
-                      style={{ minHeight: "76px" }}
+                      style={{ minHeight: "130px" }}
                     />
                   </Form.Item>
                   <Form.Item
@@ -579,14 +590,43 @@ export default function Order() {
               </Card>
             </Col>
           </Row>
-          <div className="margin-top-10" style={{ textAlign: "right" }}>
-            <Space size={12}>
-              <Button onClick={() => history.push(`${UrlConfig.ORDER}/list`)}>
+          <Row
+            gutter={24}
+            className="margin-top-10"
+            style={{
+              position: "fixed",
+              textAlign: "right",
+              width: "100%",
+              height: "55px",
+              bottom: "0%",
+              backgroundColor: "#FFFFFF",
+              marginLeft: "-31px",
+            }}
+          >
+            <Col
+              md={12}
+              style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px" }}
+            >
+              <CreateBillStep status="draff" orderDetail={null} />
+            </Col>
+
+            <Col md={7} style={{ marginTop: "8px" }}>
+              <Button
+                className="ant-btn-outline fixed-button cancle-button"
+                onClick={() => history.push(`${UrlConfig.ORDER}/list`)}
+              >
                 Huỷ
               </Button>
-              <Button onClick={showSaveAndConfirmModal}>Lưu nháp</Button>
+              <Button
+                className="create-button-custom ant-btn-outline fixed-button"
+                type="primary"
+                onClick={showSaveAndConfirmModal}
+              >
+                Lưu nháp
+              </Button>
               <Button
                 type="primary"
+                className="create-button-custom"
                 onClick={() => {
                   typeButton = OrderStatus.FINALIZED;
                   formRef.current?.submit();
@@ -594,8 +634,8 @@ export default function Order() {
               >
                 Lưu và duyệt
               </Button>
-            </Space>
-          </div>
+            </Col>
+          </Row>
           <SaveAndConfirmOrder
             onCancel={onCancelSaveAndConfirm}
             onOk={onOkSaveAndConfirm}
