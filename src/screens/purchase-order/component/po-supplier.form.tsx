@@ -12,7 +12,7 @@ import SupplierItem from "./supplier-item";
 import avatarDefault from "assets/icon/user.svg";
 
 
-const SupplierInfo = () => {
+const POSupplierForm = () => {
   const [data, setData] = useState<Array<SupplierResponse>>([]);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -91,7 +91,7 @@ const SupplierInfo = () => {
                         className="dropdown-add-new"
                         type="link"
                       >
-                        Thêm mới đơn hàng
+                        Thêm mới nhà cung cấp
                       </Button>
                       {menu}
                     </div>
@@ -157,4 +157,4 @@ const SupplierInfo = () => {
   );
 };
 
-export default SupplierInfo;
+export default POSupplierForm;
