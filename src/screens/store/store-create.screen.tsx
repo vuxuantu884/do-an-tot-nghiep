@@ -9,51 +9,50 @@ import {
   Row,
   Select,
   Space,
-} from 'antd';
+} from "antd";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
   GroupGetAction,
   WardGetByDistrictAction,
-} from 'domain/actions/content/content.action';
+} from "domain/actions/content/content.action";
 import {
   StoreCreateAction,
   StoreRankAction,
-} from 'domain/actions/core/store.action';
-import {StoreCreateRequest} from 'model/core/store.model';
-import {CityView} from 'model/content/district.model';
-import {CountryResponse} from 'model/content/country.model';
-import {DistrictResponse} from 'model/content/district.model';
-import {createRef, useCallback, useEffect, useRef, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {useHistory} from 'react-router';
-import {convertDistrict} from 'utils/AppUtils';
-import {StoreRankResponse} from 'model/core/store-rank.model';
-import {WardResponse} from 'model/content/ward.model';
-import {GroupResponse} from 'model/content/group.model';
-import CustomDatepicker from 'component/custom/date-picker.custom';
-import {RootReducerType} from 'model/reducers/RootReducerType';
-import UrlConfig from 'config/UrlConfig';
-import ContentContainer from 'component/container/content.container';
-import { RegUtil } from 'utils/RegUtils';
+} from "domain/actions/core/store.action";
+import { StoreCreateRequest } from "model/core/store.model";
+import { CountryResponse } from "model/content/country.model";
+import { DistrictResponse } from "model/content/district.model";
+import { createRef, useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
+import { StoreRankResponse } from "model/core/store-rank.model";
+import { WardResponse } from "model/content/ward.model";
+import { GroupResponse } from "model/content/group.model";
+import CustomDatepicker from "component/custom/date-picker.custom";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import UrlConfig from "config/UrlConfig";
+import ContentContainer from "component/container/content.container";
+import { RegUtil } from "utils/RegUtils";
+import NumberInput from "component/custom/number-input.custom";
 
-const {Item} = Form;
-const {Panel} = Collapse;
-const {OptGroup, Option} = Select;
+const { Item } = Form;
+const { Panel } = Collapse;
+const { Option } = Select;
 const DefaultCountry = 233;
 const initRequest: StoreCreateRequest = {
-  name: '',
-  hotline: '',
+  name: "",
+  hotline: "",
   country_id: DefaultCountry,
   city_id: null,
   district_id: null,
-  ward_id: '',
-  address: '',
+  ward_id: "",
+  address: "",
   zip_code: null,
   email: null,
   square: null,
-  rank: '',
-  status: 'active',
+  rank: "",
+  status: "active",
   begin_date: null,
   latitude: null,
   longtitude: null,
@@ -67,7 +66,7 @@ const StoreCreateScreen: React.FC = () => {
   //end hook
   //State
   const [countries, setCountries] = useState<Array<CountryResponse>>([]);
-  const [cityViews, setCityView] = useState<Array<CityView>>([]);
+  const [cityViews, setCityView] = useState<Array<DistrictResponse>>([]);
   const [wards, setWards] = useState<Array<WardResponse>>([]);
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
   const [groups, setGroups] = useState<Array<GroupResponse>>([]);
@@ -77,19 +76,13 @@ const StoreCreateScreen: React.FC = () => {
   const formRef = createRef<FormInstance>();
   const firstload = useRef(true);
   //EndState
-  const setDataDistrict = useCallback((data: Array<DistrictResponse>) => {
-    let cityViews: Array<CityView> = convertDistrict(data);
-    setCityView(cityViews);
-  }, []);
   const onSelectDistrict = useCallback(
     (value: number) => {
       let cityId = -1;
       cityViews.forEach((item) => {
-        item.districts.forEach((item1) => {
-          if (item1.id === value) {
-            cityId = item.city_id;
-          }
-        });
+        if (item.id === value) {
+          cityId = item.city_id;
+        }
       });
       if (cityId !== -1) {
         formRef.current?.setFieldsValue({
@@ -115,26 +108,26 @@ const StoreCreateScreen: React.FC = () => {
   useEffect(() => {
     if (firstload.current) {
       dispatch(CountryGetAllAction(setCountries));
-      dispatch(DistrictGetByCountryAction(DefaultCountry, setDataDistrict));
+      dispatch(DistrictGetByCountryAction(DefaultCountry, setCityView));
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
     }
     firstload.current = true;
-  }, [dispatch, setDataDistrict]);
+  }, [dispatch]);
   return (
     <ContentContainer
       title="Thêm mới cửa hàng"
       breadcrumb={[
         {
-          name: 'Tổng quản',
+          name: "Tổng quản",
           path: UrlConfig.HOME,
         },
         {
-          name: 'Cửa hàng',
-          path: `${UrlConfig.STORE}`
+          name: "Cửa hàng",
+          path: `${UrlConfig.STORE}`,
         },
         {
-          name: 'Thêm mới',
+          name: "Thêm mới",
         },
       ]}
     >
@@ -145,13 +138,13 @@ const StoreCreateScreen: React.FC = () => {
         initialValues={initRequest}
       >
         <Card
-          title="Thông tin cơ bản"
+          title="Thông tin cửa hàng"
           extra={
             <div className="v-extra d-flex align-items-center">
               <Space key="a" size={15}>
                 <label className="text-default">Trạng thái</label>
                 <Item name="status" noStyle>
-                  <Select style={{width: 180}}>
+                  <Select style={{ width: 180 }}>
                     {storeStatusList?.map((item) => (
                       <Option key={item.value} value={item.value}>
                         {item.name}
@@ -168,19 +161,27 @@ const StoreCreateScreen: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   rules={[
-                    {required: true, message: 'Vui lòng nhập tên cửa hàng'},
+                    {required: true, message: 'Vui lòng nhập tên danh mục'},
+                    {max: 255, message: 'Tên danh mục không quá 255 kí tự'},
+                    {pattern: RegUtil.STRINGUTF8, message: 'Tên danh mục không gồm kí tự đặc biệt'},
                   ]}
                   label="Tên cửa hàng"
                   name="name"
                 >
-                  <Input placeholder="Nhập tên cửa hàng" />
+                  <Input maxLength={255} placeholder="Nhập tên cửa hàng" />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   rules={[
-                    {required: true, message: 'Vui lòng nhập số điện thoại'},
-                    {min: 10, max: 15, message: 'Số điện thoại 10-15 kí tự '},
+                    {
+                      required: true,
+                      message: "Vui lòng nhập số điện thoại",
+                    },
+                    {
+                      pattern: RegUtil.PHONE,
+                      message: "Số điện thoại chưa đúng định dạng",
+                    },
                   ]}
                   name="hotline"
                   label="Số điện thoại"
@@ -192,7 +193,7 @@ const StoreCreateScreen: React.FC = () => {
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[{required: true}]}
+                  rules={[{ required: true }]}
                   label="Quốc gia"
                   name="country_id"
                 >
@@ -207,23 +208,21 @@ const StoreCreateScreen: React.FC = () => {
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[{required: true, message: 'Vui lòng chọn khu vực'}]}
+                  rules={[{ required: true, message: "Vui lòng chọn khu vực" }]}
                   label="Khu vực"
                   name="district_id"
                 >
                   <Select
                     showSearch
+                    showArrow
+                    optionFilterProp="children"
                     onSelect={onSelectDistrict}
                     placeholder="Chọn khu vực"
                   >
                     {cityViews?.map((item) => (
-                      <OptGroup key={item.city_id} label={item.city_name}>
-                        {item.districts.map((item1) => (
-                          <Option key={item1.id} value={item1.id}>
-                            {item1.name}
-                          </Option>
-                        ))}
-                      </OptGroup>
+                      <Option key={item.id} value={item.id}>
+                        {item.city_name} - {item.name}
+                      </Option>
                     ))}
                   </Select>
                 </Item>
@@ -237,7 +236,9 @@ const StoreCreateScreen: React.FC = () => {
                 <Item
                   label="Phường/xã"
                   name="ward_id"
-                  rules={[{required: true, message: 'Vui lòng chọn phường/xã'}]}
+                  rules={[
+                    { required: true, message: "Vui lòng chọn phường/xã" },
+                  ]}
                 >
                   <Select showSearch>
                     <Option value="">Chọn phường xã</Option>
@@ -256,11 +257,11 @@ const StoreCreateScreen: React.FC = () => {
                   rules={[
                     {
                       required: true,
-                      message: 'Vui lòng nhập địa chỉ',
+                      message: "Vui lòng nhập địa chỉ",
                     },
                   ]}
                 >
-                  <Input placeholder="Nhập địa chỉ" size="large" />
+                  <Input placeholder="Nhập địa chỉ" />
                 </Item>
               </Col>
             </Row>
@@ -275,7 +276,7 @@ const StoreCreateScreen: React.FC = () => {
                   rules={[
                     {
                       pattern: RegUtil.EMAIL,
-                      message: 'Vui lòng nhập đúng định dạng email',
+                      message: "Vui lòng nhập đúng định dạng email",
                     },
                   ]}
                   name="mail"
@@ -287,25 +288,17 @@ const StoreCreateScreen: React.FC = () => {
             </Row>
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Item label="Diện tích cửa hàng" name="square">
-                  <Input placeholder="Nhập diện tích cửa hàng" />
-                </Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
                 <Item
                   rules={[
-                    {required: true, message: 'Vui lòng chọn trực thuộc'},
+                    {
+                      required: true,
+                      message: "Vui lòng nhập diện tích cửa hàng",
+                    },
                   ]}
-                  label="Trực thuộc"
-                  name="group_id"
+                  label="Diện tích cửa hàng (m²)"
+                  name="square"
                 >
-                  <Select placeholder="Chọn trực thuộc">
-                    {groups.map((i, index) => (
-                      <Option key={i.id} value={i.id}>
-                        {i.name}
-                      </Option>
-                    ))}
-                  </Select>
+                  <NumberInput placeholder="Nhập diện tích cửa hàng" />
                 </Item>
               </Col>
             </Row>
@@ -320,9 +313,18 @@ const StoreCreateScreen: React.FC = () => {
             <div className="padding-20">
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item label="Phân cấp" name="rank">
+                  <Item
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn phân cấp cửa hàng",
+                      },
+                    ]}
+                    label="Phân cấp"
+                    name="rank"
+                  >
                     <Select>
-                      <Option value={''}>Chọn phân cấp</Option>
+                      <Option value={""}>Chọn phân cấp</Option>
                       {storeRanks.map((i, index) => (
                         <Option key={i.id} value={i.id}>
                           {i.code}
@@ -332,9 +334,34 @@ const StoreCreateScreen: React.FC = () => {
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item label="Ngày mở cửa" name="begin_date">
+                  <Item
+                    rules={[
+                      { required: true, message: "Vui lòng chọn trực thuộc" },
+                    ]}
+                    label="Trực thuộc"
+                    name="group_id"
+                  >
+                    <Select placeholder="Chọn trực thuộc">
+                      {groups.map((i, index) => (
+                        <Option key={i.id} value={i.id}>
+                          {i.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Item>
+                </Col>
+              </Row>
+              <Row gutter={50}>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Item
+                    label="Ngày mở cửa"
+                    tooltip={{
+                      title: "Ngày mở cửa là ngày đưa hàng vào hoạt động",
+                    }}
+                    name="begin_date"
+                  >
                     <CustomDatepicker
-                      style={{width: '100%'}}
+                      style={{ width: "100%" }}
                       placeholder="Chọn ngày mở cửa"
                     />
                   </Item>
@@ -343,7 +370,7 @@ const StoreCreateScreen: React.FC = () => {
             </div>
           </Panel>
         </Collapse>
-        <div className="margin-top-20" style={{textAlign: 'right'}}>
+        <div className="margin-top-20" style={{ textAlign: "right" }}>
           <Space size={12}>
             <Button type="default" onClick={onCancel}>
               Hủy

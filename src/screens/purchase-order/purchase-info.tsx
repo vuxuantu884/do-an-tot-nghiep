@@ -1,24 +1,9 @@
 //#region Import
-import { Card, Input, Row, Col, Select, Form, Space } from "antd";
-import documentIcon from "assets/img/document.svg";
+import { Card, Input, Select, Form, Space } from "antd";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
-import { InfoCircleOutlined, ProfileOutlined } from "@ant-design/icons";
-import { AccountResponse } from "model/account/account.model";
-import { StoreResponse } from "model/core/store.model";
-
-type PurchaseInfoProps = {
-  listAccount?: Array<AccountResponse>;
-  code: string;
-  listStore?: Array<StoreResponse>;
-  storeId?: number;
-};
+import { InfoCircleOutlined, ProfileOutlined } from "@ant-design/icons";;
 
 const PurchaseInfo = () => {
-  //#region state
-  const dispatch = useDispatch();
-  const history = useHistory();
 
   useEffect(() => {}, []);
 

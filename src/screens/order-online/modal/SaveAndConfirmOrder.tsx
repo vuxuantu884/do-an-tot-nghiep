@@ -1,30 +1,31 @@
 import { Modal} from 'antd';
 
-type ConfirmPaymentModalProps = {
+type SaveAndConfirmOrderModalProps = {
   visible: boolean;
   order_id?: number | null;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (e: React.MouseEvent<HTMLElement>) => void;
   text: string;
+  title: string
 }
 
-const ConfirmPaymentModal: React.FC<ConfirmPaymentModalProps> = (props: ConfirmPaymentModalProps) => {
-  const {visible, onCancel, onOk} = props
+const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (props: SaveAndConfirmOrderModalProps) => {
+  const {visible, onCancel, onOk, text, title} = props
   return (
     <Modal
             onCancel={onCancel}
             onOk={onOk}
             visible={visible}
             centered
-            okText="Đồng ý"
-            cancelText="Thoát"
-            title="Bạn muốn xác nhận thanh toán cho đơn hàng này?"
+            okText="Có"
+            cancelText="Không"
+            title={title}
         >
             <span>
-                {props.text}
+            {text}
             </span>
         </Modal>
   )
 }
 
-export default ConfirmPaymentModal;
+export default SaveAndConfirmOrder;

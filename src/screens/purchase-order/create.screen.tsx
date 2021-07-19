@@ -17,7 +17,6 @@ import {
 } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
 import SupplierInfo from "./supplier-info";
 import PurchaseItem from "./purchase-item";
 import PurchaseInfo from "./purchase-info";
@@ -33,9 +32,7 @@ const initSupplierQuery: SupplierQuery = {
 const CreatePO = () => {
   //#region state
   const dispatch = useDispatch();
-  const history = useHistory();
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
-  const [searchValue, setSearchValue] = useState("");
 
   const setDataSupplier = useCallback(
     (data: PageResponse<SupplierResponse>) => {
@@ -66,7 +63,7 @@ const CreatePO = () => {
       });
     });
     return options;
-  }, [dispatch, listSupplier]);
+  }, [listSupplier]);
 
   const onChangeSearchSupplier = (val: string) => {
     initSupplierQuery.info = val;
@@ -92,7 +89,6 @@ const CreatePO = () => {
               <div className="padding-20">
                 <AutoComplete
                   notFoundContent={"Không tìm thấy thông tin nhà cung cấp"}
-                  value={searchValue}
                   dropdownClassName="search-layout dropdown-search-header"
                   className="w-100"
                   style={{ width: "100%" }}
