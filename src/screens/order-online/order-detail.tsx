@@ -27,7 +27,6 @@ import {
   useRef,
   useEffect,
   createRef,
-  useMemo,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -246,6 +245,9 @@ const OrderDetail = () => {
           ) {
             return FulFillmentStatus.SHIPPING;
           }
+          if (OrderDetail.fulfillments[0].status === FulFillmentStatus.SHIPPED) {
+            return FulFillmentStatus.SHIPPED;
+          }
         }
       }
     }
@@ -396,10 +398,41 @@ const OrderDetail = () => {
   let customerBirthday = moment(customerDetail?.birthday).format("DD/MM/YYYY");
 
   //#region Update Fulfillment Status
-  const onUpdateSuccess = useCallback((value: OrderResponse) => {
+  let timeout = 1000;
+  const onUpdateSuccess = (value: OrderResponse) => {
     showSuccess("Tạo đơn giao hàng thành công");
-    window.location.reload();
-  }, []);
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
+  };
+
+  const onPickSuccess = (value: OrderResponse) => {
+    showSuccess("Nhặt hàng thành công");
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
+  };
+
+  const onPackSuccess = (value: OrderResponse) => {
+    showSuccess("Đóng gói thành công");
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
+  };
+
+  const onShippingSuccess = (value: OrderResponse) => {
+    showSuccess("Xuất kho thành công");
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
+  };
+
+  const onShipedSuccess = (value: OrderResponse) => {
+    showSuccess("Hoàn tất đơn hàng");
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
+  };
 
   //fulfillmentTypeOrderRequest
   const fulfillmentTypeOrderRequest = (type: number) => {
@@ -419,20 +452,23 @@ const OrderDetail = () => {
     switch (type) {
       case 1:
         value.status = FulFillmentStatus.PICKED;
+        dispatch(UpdateFulFillmentStatusAction(value, onPickSuccess));
         break;
       case 2:
         value.status = FulFillmentStatus.PACKED;
+        dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess));
         break;
       case 3:
         value.status = FulFillmentStatus.SHIPPING;
+        dispatch(UpdateFulFillmentStatusAction(value, onShippingSuccess));
         break;
       case 4:
         value.status = FulFillmentStatus.SHIPPED;
+        dispatch(UpdateFulFillmentStatusAction(value, onShipedSuccess));
         break;
       default:
         return;
     }
-    dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
   };
   // shipping confirm
   const [isvibleShippingConfirm, setIsvibleShippingConfirm] =
@@ -550,14 +586,14 @@ const OrderDetail = () => {
     dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
   };
 
-  
   const getRequirementName = () => {
     if (
       OrderDetail !== null &&
       OrderDetail?.fulfillments &&
       OrderDetail?.fulfillments.length > 0
     ) {
-      let requirement = OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
+      let requirement =
+        OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
       const reqObj = shipping_requirements?.find(
         (r) => r.value === requirement
       );
@@ -615,7 +651,6 @@ const OrderDetail = () => {
     },
     [setRequirementName, shipping_requirements]
   );
-
 
   //#endregion
   return (
@@ -1197,9 +1232,9 @@ const OrderDetail = () => {
 
             {/*--- shipment ---*/}
             {OrderDetail !== null &&
-            OrderDetail?.fulfillments !== null &&
             OrderDetail?.fulfillments !== undefined &&
-            OrderDetail?.fulfillments.length !== 0 &&
+            OrderDetail?.fulfillments !== null &&
+            OrderDetail?.fulfillments.length > 0 &&
             OrderDetail?.fulfillments[0].shipment !== null ? (
               <Card
                 className="margin-top-20"
@@ -1250,7 +1285,9 @@ const OrderDetail = () => {
                     </div>
                     <div className="text-menu">
                       <img src={eyeOutline} alt="eye"></img>
-                      <span style={{marginLeft: "5px"}}>{requirementName}</span>
+                      <span style={{ marginLeft: "5px" }}>
+                        {requirementName}
+                      </span>
                     </div>
                   </Space>
                 }
