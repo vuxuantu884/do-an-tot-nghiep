@@ -155,6 +155,7 @@ const ProductCreateScreen: React.FC = () => {
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
   const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
   const [listSize, setListSize] = useState<Array<SizeResponse>>([]);
+  const [listSizeByCategory, setListSizeByCategory] = useState<Array<SizeResponse>>([]);
   const [listColor, setListColor] = useState<Array<ColorResponse>>([]);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
@@ -461,8 +462,14 @@ const ProductCreateScreen: React.FC = () => {
           code: listCategory[categoryIndex].code,
         });
       }
+      debugger;
+      formRef.current?.setFieldsValue({
+        size: [],
+      })
+      let listSizeFilter=listSize.filter((item)=> item.categories.findIndex(c=>c.category_id===value)>-1);
+      setListSizeByCategory(listSizeFilter);
     },
-    [formRef, listCategory]
+    [formRef, listCategory, listSize]
   );
   const onGoodsChange = useCallback((value: string) => {
     setSelectedGood(value);
@@ -677,7 +684,11 @@ const ProductCreateScreen: React.FC = () => {
                   name="code"
                   label="Mã sản phẩm"
                 >
-                  <Input maxLength={7} placeholder="Nhập mã sản phẩm"   onChange={onNameChange} />
+                  <Input
+                    maxLength={7}
+                    placeholder="Nhập mã sản phẩm"
+                    onChange={onNameChange}
+                  />
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -1198,8 +1209,8 @@ const ProductCreateScreen: React.FC = () => {
                         />
                       }
                     >
-                      {listSize?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.id}>
+                      {listSizeByCategory?.map((item) => (
+                        <CustomSelect.Option key={item.code} value={item.id}>
                           {item.code}
                         </CustomSelect.Option>
                       ))}
