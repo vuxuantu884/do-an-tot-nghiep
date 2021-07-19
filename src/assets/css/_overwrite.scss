@@ -366,7 +366,7 @@
         &-inner {
             min-height: 25px;
             border-radius: $border-radius/2;
-            padding: 3px 20px;
+            padding: 3px 10px;
             a {
                 color: $white;
             }
@@ -743,6 +743,12 @@
                     }
                 }
             }
+        }
+        .custom-header>.ant-collapse-header {
+            padding-left: 0px;
+            color: #2A2A86;
+            font-weight: 500;
+            font-size: 14px;
         }
     }
 }
