@@ -15,7 +15,6 @@ import {
   Avatar,
   Tag,
   Collapse,
-  Radio,
   DatePicker,
   FormInstance,
   Select,
@@ -28,6 +27,7 @@ import {
   useRef,
   useEffect,
   createRef,
+  useMemo,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -38,7 +38,6 @@ import {
   UpdateShipmentRequest,
 } from "model/request/order.request";
 import { AccountResponse } from "model/account/account.model";
-import { useHistory } from "react-router";
 import {
   AccountSearchAction,
   ShipperGetListAction,
@@ -49,14 +48,7 @@ import {
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
-import {
-  CreditCardOutlined,
-  ProfileOutlined,
-  EyeOutlined,
-  CalendarOutlined,
-  CaretRightOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import AddAddressModal from "./modal/addAddressModal";
 import EditCustomerModal from "./modal/editCustomerModal";
 import bithdayIcon from "assets/img/bithday.svg";
@@ -120,7 +112,6 @@ const OrderDetail = () => {
   let OrderId = parseInt(id);
   //#region state
   const dispatch = useDispatch();
-  const history = useHistory();
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [paymentType, setPaymentType] = useState<number>(3);
@@ -144,7 +135,7 @@ const OrderDetail = () => {
     useState<number | null>(0);
   const [isvibleUpdateFulfilmentConfirm, setIsvibleUpdateFulfilmentConfirm] =
     useState<boolean>(false);
-  const [requirementName,setRequirementName] = useState<string | null>(null)
+  const [requirementName, setRequirementName] = useState<string | null>(null);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   //#endregion
   const onOkUpdateFulfilmentConfirm = () => {
@@ -405,15 +396,12 @@ const OrderDetail = () => {
   let customerBirthday = moment(customerDetail?.birthday).format("DD/MM/YYYY");
 
   //#region Update Fulfillment Status
-  const onUpdateSuccess = useCallback(
-    (value: OrderResponse) => {
-      showSuccess("Tạo đơn giao hàng thành công");
-      window.location.reload();
-    },
-    [history]
-  );
+  const onUpdateSuccess = useCallback((value: OrderResponse) => {
+    showSuccess("Tạo đơn giao hàng thành công");
+    window.location.reload();
+  }, []);
 
-//fulfillmentTypeOrderRequest
+  //fulfillmentTypeOrderRequest
   const fulfillmentTypeOrderRequest = (type: number) => {
     let value: UpdateFulFillmentStatusRequest = {
       order_id: null,
@@ -428,21 +416,21 @@ const OrderDetail = () => {
         : null;
     value.fulfillment_id = fulfillment_id;
 
-    switch (type){
+    switch (type) {
       case 1:
         value.status = FulFillmentStatus.PICKED;
-        break ;
+        break;
       case 2:
         value.status = FulFillmentStatus.PACKED;
         break;
       case 3:
         value.status = FulFillmentStatus.SHIPPING;
-        break ;
+        break;
       case 4:
         value.status = FulFillmentStatus.SHIPPED;
         break;
       default:
-        return 
+        return;
     }
     dispatch(UpdateFulFillmentStatusAction(value, onUpdateSuccess));
   };
@@ -451,17 +439,19 @@ const OrderDetail = () => {
     useState<boolean>(false);
 
   const onOkShippingConfirm = () => {
-    if(
-      OrderDetail?.fulfillments && OrderDetail?.fulfillments &&
+    if (
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments &&
       OrderDetail?.fulfillments.length > 0 &&
-      OrderDetail?.fulfillments[0].shipment && 
-      OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED){
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+    ) {
       fulfillmentTypeOrderRequest(1);
-    }else if(stepsStatusValue === FulFillmentStatus.PICKED){
+    } else if (stepsStatusValue === FulFillmentStatus.PICKED) {
       fulfillmentTypeOrderRequest(2);
-    }else if(stepsStatusValue === FulFillmentStatus.PACKED){
+    } else if (stepsStatusValue === FulFillmentStatus.PACKED) {
       fulfillmentTypeOrderRequest(3);
-    }else if(stepsStatusValue === FulFillmentStatus.SHIPPING){
+    } else if (stepsStatusValue === FulFillmentStatus.SHIPPING) {
       fulfillmentTypeOrderRequest(4);
     }
   };
@@ -520,7 +510,7 @@ const OrderDetail = () => {
 
   const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
     value.expected_received_date = value.dating_ship?.utc().format();
-    value.requirements_name = requirementName
+    value.requirements_name = requirementName;
     if (OrderDetail?.fulfillments !== undefined && OrderDetail?.fulfillments) {
       value.delivery_service_provider_type = "Shipper";
     }
@@ -560,6 +550,21 @@ const OrderDetail = () => {
     dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
   };
 
+  
+  const getRequirementName = () => {
+    if (
+      OrderDetail !== null &&
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0
+    ) {
+      let requirement = OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
+      const reqObj = shipping_requirements?.find(
+        (r) => r.value === requirement
+      );
+      setRequirementName(reqObj ? reqObj?.name : "");
+    }
+  };
+
   useEffect(() => {
     if (OrderDetail != null) {
       dispatch(CustomerDetail(OrderDetail.customer_id, setCustomerDetail));
@@ -570,36 +575,47 @@ const OrderDetail = () => {
     if (OrderDetail?.store_id != null) {
       dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
     }
+
+    getRequirementName();
   }, [dispatch, OrderDetail?.store_id]);
   // shipment button action
-interface ShipmentButtonModel {
-  name: string | null
-  value: number ;
-  icon: string | undefined;
-}
+  interface ShipmentButtonModel {
+    name: string | null;
+    value: number;
+    icon: string | undefined;
+  }
 
-const [shipmentButton, setShipmentButton] = useState<Array<ShipmentButtonModel>>([{
-  name: "Chuyển đối tác giao hàng",
-  value: 1,
-  icon: deliveryIcon
-},{
-  name: "Tự giao hàng",
-  value: 2,
-  icon: selfdeliver
-},{
-  name: "Nhận tại cửa hàng",
-  value: 3,
-  icon: shoppingBag
-},{
-  name: "Giao hàng sau",
-  value: 4,
-  icon: wallClock
-}])
+  const shipmentButton: Array<ShipmentButtonModel> = [
+    {
+      name: "Chuyển đối tác giao hàng",
+      value: 1,
+      icon: deliveryIcon,
+    },
+    {
+      name: "Tự giao hàng",
+      value: 2,
+      icon: selfdeliver,
+    },
+    {
+      name: "Nhận tại cửa hàng",
+      value: 3,
+      icon: shoppingBag,
+    },
+    {
+      name: "Giao hàng sau",
+      value: 4,
+      icon: wallClock,
+    },
+  ];
 
-const setRequirementNameCallback = useCallback((value) => {
-  const reqObj = shipping_requirements?.find(r => r.value === value)
-  setRequirementName(reqObj ? reqObj?.name : "")
-},[setRequirementName, requirementName])
+  const setRequirementNameCallback = useCallback(
+    (value) => {
+      const reqObj = shipping_requirements?.find((r) => r.value === value);
+      setRequirementName(reqObj ? reqObj?.name : "");
+    },
+    [setRequirementName, shipping_requirements]
+  );
+
 
   //#endregion
   return (
@@ -1189,9 +1205,16 @@ const setRequirementNameCallback = useCallback((value) => {
                 className="margin-top-20"
                 title={
                   <Space>
-                    <ProfileOutlined />
-                    Đóng gói và giao hàng
-                    <Tag className="orders-tag text-menu" style={{color: "#FCAF17", backgroundColor: "rgba(252, 175, 23, 0.1)"}}>
+                    <div className="d-flex" style={{ marginTop: "5px" }}>
+                      <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
+                    </div>
+                    <Tag
+                      className="orders-tag text-menu"
+                      style={{
+                        color: "#FCAF17",
+                        backgroundColor: "rgba(252, 175, 23, 0.1)",
+                      }}
+                    >
                       {OrderDetail?.fulfillment_status !== null
                         ? OrderDetail?.fulfillment_status
                         : "Chưa giao hàng"}
@@ -1201,8 +1224,12 @@ const setRequirementNameCallback = useCallback((value) => {
                 extra={
                   <Space size={26}>
                     <div className="text-menu">
-                      <img src={calendarOutlined} style={{marginRight: 9.5}}></img>
-                      <span style={{color: "#222222", lineHeight: "16px"}}>
+                      <img
+                        src={calendarOutlined}
+                        style={{ marginRight: 9.5 }}
+                        alt=""
+                      ></img>
+                      <span style={{ color: "#222222", lineHeight: "16px" }}>
                         {OrderDetail?.fulfillments !== null &&
                           OrderDetail?.fulfillments !== undefined &&
                           OrderDetail?.fulfillments.map((item, index) =>
@@ -1211,28 +1238,37 @@ const setRequirementNameCallback = useCallback((value) => {
                             )
                           )}
                       </span>
-                      <span style={{marginLeft: 6, color: "#737373", fontSize: "14px"}}> (Giờ hành chính)</span>
+                      <span
+                        style={{
+                          marginLeft: 6,
+                          color: "#737373",
+                          fontSize: "14px",
+                        }}
+                      >
+                        (Giờ hành chính)
+                      </span>
                     </div>
                     <div className="text-menu">
                       <img src={eyeOutline} alt="eye"></img>
-                      <span>
-                        {OrderDetail?.fulfillments !== null &&
-                          OrderDetail?.fulfillments !== undefined &&
-                          OrderDetail?.fulfillments.map(
-                            (item, index) => item.shipment?.requirements_name
-                          )}
-                      </span>
-                      <span style={{marginLeft: 9}}>Test test test</span>
+                      <span style={{marginLeft: "5px"}}>{requirementName}</span>
                     </div>
                   </Space>
                 }
               >
-                <div className="padding-24" style={{paddingTop: 6}}>
+                <div className="padding-24" style={{ paddingTop: 6 }}>
                   <Collapse
                     className="saleorder_shipment_order_colapse"
                     defaultActiveKey={["1"]}
                     expandIcon={({ isActive }) => (
-                      <img src={doubleArrow} style={{transform: isActive ?  "rotate(0deg)" : "rotate(270deg)"}}/>
+                      <img
+                        src={doubleArrow}
+                        alt=""
+                        style={{
+                          transform: isActive
+                            ? "rotate(0deg)"
+                            : "rotate(270deg)",
+                        }}
+                      />
                     )}
                     ghost
                   >
@@ -1240,7 +1276,7 @@ const setRequirementNameCallback = useCallback((value) => {
                       className="orders-timeline-custom"
                       header={
                         <Row gutter={24}>
-                          <Col style={{padding: 0}} >
+                          <Col style={{ padding: 0 }}>
                             <p
                               className="text-field"
                               style={{ color: "#2A2A86", fontWeight: 500 }}
@@ -1250,11 +1286,20 @@ const setRequirementNameCallback = useCallback((value) => {
                                 OrderDetail?.fulfillments.map(
                                   (item, index) => item.id
                                 )}
-                             NVSTestTest
                             </p>
                           </Col>
-                          <Col style={{padding: 0, marginLeft: 6, marginBottom: 8}}>
-                            <img src={copyFileBtn} />
+                          <Col
+                            style={{
+                              padding: 0,
+                              marginLeft: 6,
+                              marginBottom: 8,
+                            }}
+                          >
+                            <img
+                              src={copyFileBtn}
+                              alt=""
+                              style={{ marginTop: "10px" }}
+                            />
                           </Col>
                         </Row>
                       }
@@ -1344,7 +1389,7 @@ const setRequirementNameCallback = useCallback((value) => {
                     Hủy
                   </Button>
 
-                  { stepsStatusValue === OrderStatus.FINALIZED && (
+                  {stepsStatusValue === OrderStatus.FINALIZED && (
                     <Button
                       type="primary"
                       style={{ marginLeft: "10px" }}
@@ -1385,7 +1430,6 @@ const setRequirementNameCallback = useCallback((value) => {
                       Đã hoàn thành
                     </Button>
                   )}
-
                 </div>
               </Card>
             ) : (
@@ -1393,9 +1437,16 @@ const setRequirementNameCallback = useCallback((value) => {
                 className="margin-top-20"
                 title={
                   <Space>
-                    <ProfileOutlined />
-                    Đóng gói và giao hàng
-                    <Tag className="orders-tag text-menu" style={{color: "#FCAF17", backgroundColor: "rgba(252, 175, 23, 0.1)"}}>
+                    <div className="d-flex" style={{ marginTop: "5px" }}>
+                      <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
+                    </div>
+                    <Tag
+                      className="orders-tag text-menu"
+                      style={{
+                        color: "#FCAF17",
+                        backgroundColor: "rgba(252, 175, 23, 0.1)",
+                      }}
+                    >
                       {OrderDetail?.fulfillment_status !== null
                         ? OrderDetail?.fulfillment_status
                         : "Chưa giao hàng"}
@@ -1411,91 +1462,122 @@ const setRequirementNameCallback = useCallback((value) => {
                       onFinish={onFinishUpdateFulFillment}
                       layout="vertical"
                     >
-                      <Row gutter={24} style={{justifyContent: "space-between"}}>
-          <Col md={9}>
-            <span
-              style={{
-                float: "left",
-                lineHeight: "40px",
-                marginRight: "10px",
-              }}
-            >
-              Hẹn giao:
-            </span>
-            <Form.Item name="dating_ship">
-              <DatePicker
-                format="DD/MM/YYYY HH:mm A"
-                style={{ width: "100%" }}
-                className="r-5 w-100 ip-search"
-                placeholder="Chọn ngày giao"
-              />
-            </Form.Item>
-          </Col>
+                      <Row
+                        gutter={24}
+                        style={{ justifyContent: "space-between" }}
+                      >
+                        <Col md={9}>
+                          <span
+                            style={{
+                              float: "left",
+                              lineHeight: "40px",
+                              marginRight: "10px",
+                            }}
+                          >
+                            Hẹn giao:
+                          </span>
+                          <Form.Item name="dating_ship">
+                            <DatePicker
+                              format="DD/MM/YYYY HH:mm A"
+                              style={{ width: "100%" }}
+                              className="r-5 w-100 ip-search"
+                              placeholder="Chọn ngày giao"
+                            />
+                          </Form.Item>
+                        </Col>
 
-          <Col md={6}>
-            <Form.Item>
-              <Checkbox style={{marginTop: "8px"}}>Giờ hành chính</Checkbox>
-            </Form.Item>
-          </Col>
-          <Col md={9}>
-            <span
-              style={{
-                float: "left",
-                lineHeight: "40px",
-                marginRight: "10px",
-              }}
-            >
-              Yêu cầu:
-            </span>
-            <Form.Item name="requirements">
-              <Select
-                onChange={(value) => setRequirementNameCallback(value)}
-                className="select-with-search"
-                showSearch
-                showArrow
-                notFoundContent="Không có dữ liệu"
-                style={{ width: "100%" }}
-                placeholder="Chọn yêu cầu"
-                filterOption={(input, option) => {
-                  if (option) {
-                    return (
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    );
-                  }
-                  return false;
-                }}
-              >
-                {shipping_requirements?.map((item, index) => (
-                  <Select.Option
-                    style={{ width: "100%" }}
-                    key={index.toString()}
-                    value={item.value}
-                  >
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-                      <Row >
-        <div className="saleorder_shipment_method_btn" style={shipmentMethod === ShipmentMethodOption.DELIVERLATER ? {border: "none"} : {borderBottom: "1px solid #2A2A86"}}>
-          {shipmentButton.map(button => 
-              <Space>{shipmentMethod !== button.value ? 
-                <div className="saleorder_shipment_button" key={button.value} onClick={()=>ShipMethodOnChange(button.value)}>
-                  <img src={button.icon} alt="icon"></img>
-                  <span>{button.name}</span>
-                </div> 
-                : 
-                <div className={shipmentMethod === ShipmentMethodOption.DELIVERLATER ? "saleorder_shipment_button saleorder_shipment_button_border" : "saleorder_shipment_button_active"} key={button.value}>
-                  <img src={button.icon} alt="icon"></img>
-                  <span>{button.name}</span>  
-                </div>}</Space>
-          )}
-        </div>
-        </Row> 
+                        <Col md={6}>
+                          <Form.Item>
+                            <Checkbox style={{ marginTop: "8px" }}>
+                              Giờ hành chính
+                            </Checkbox>
+                          </Form.Item>
+                        </Col>
+                        <Col md={9}>
+                          <span
+                            style={{
+                              float: "left",
+                              lineHeight: "40px",
+                              marginRight: "10px",
+                            }}
+                          >
+                            Yêu cầu:
+                          </span>
+                          <Form.Item name="requirements">
+                            <Select
+                              onChange={(value) =>
+                                setRequirementNameCallback(value)
+                              }
+                              className="select-with-search"
+                              showSearch
+                              showArrow
+                              notFoundContent="Không có dữ liệu"
+                              style={{ width: "100%" }}
+                              placeholder="Chọn yêu cầu"
+                              filterOption={(input, option) => {
+                                if (option) {
+                                  return (
+                                    option.children
+                                      .toLowerCase()
+                                      .indexOf(input.toLowerCase()) >= 0
+                                  );
+                                }
+                                return false;
+                              }}
+                            >
+                              {shipping_requirements?.map((item, index) => (
+                                <Select.Option
+                                  style={{ width: "100%" }}
+                                  key={index.toString()}
+                                  value={item.value}
+                                >
+                                  {item.name}
+                                </Select.Option>
+                              ))}
+                            </Select>
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <div
+                          className="saleorder_shipment_method_btn"
+                          style={
+                            shipmentMethod === ShipmentMethodOption.DELIVERLATER
+                              ? { border: "none" }
+                              : { borderBottom: "1px solid #2A2A86" }
+                          }
+                        >
+                          {shipmentButton.map((button) => (
+                            <Space>
+                              {shipmentMethod !== button.value ? (
+                                <div
+                                  className="saleorder_shipment_button"
+                                  key={button.value}
+                                  onClick={() =>
+                                    ShipMethodOnChange(button.value)
+                                  }
+                                >
+                                  <img src={button.icon} alt="icon"></img>
+                                  <span>{button.name}</span>
+                                </div>
+                              ) : (
+                                <div
+                                  className={
+                                    shipmentMethod ===
+                                    ShipmentMethodOption.DELIVERLATER
+                                      ? "saleorder_shipment_button saleorder_shipment_button_border"
+                                      : "saleorder_shipment_button_active"
+                                  }
+                                  key={button.value}
+                                >
+                                  <img src={button.icon} alt="icon"></img>
+                                  <span>{button.name}</span>
+                                </div>
+                              )}
+                            </Space>
+                          ))}
+                        </div>
+                      </Row>
                       <div hidden={shipmentMethod !== 2}>
                         <Row gutter={24}>
                           <Col md={12}>
@@ -1552,14 +1634,18 @@ const setRequirementNameCallback = useCallback((value) => {
                                   }}
                                   maxLength={15}
                                   minLength={0}
-                                  value={takeMoneyHelper || OrderDetail?.total_line_amount_after_line_discount }
-                                  onChange={(value) => setTakeMoneyHelper(value)}
+                                  value={
+                                    takeMoneyHelper ||
+                                    OrderDetail?.total_line_amount_after_line_discount
+                                  }
+                                  onChange={(value) =>
+                                    setTakeMoneyHelper(value)
+                                  }
                                 />
                               </Form.Item>
                             )}
                           </Col>
                           <Col md={12}>
-                            
                             <Form.Item
                               name="shipping_fee_paid_to_3pls"
                               label="Phí ship trả đối tác giao hàng"
@@ -1700,8 +1786,9 @@ const setRequirementNameCallback = useCallback((value) => {
                   className="margin-top-20"
                   title={
                     <Space>
-                      <CreditCardOutlined />
-                      Thanh toán
+                      <div className="d-flex" style={{ marginTop: "5px" }}>
+                        <span className="title-card">THANH TOÁN</span>
+                      </div>
                       {OrderDetail?.payments !== null
                         ? OrderDetail?.payments.map(
                             (item, index) =>
@@ -1862,49 +1949,37 @@ const setRequirementNameCallback = useCallback((value) => {
             >
               <div className="padding-24">
                 <Row className="" gutter={5}>
-                  <Col span={9}>
-                    Cửa hàng
-                  </Col>
+                  <Col span={9}>Cửa hàng</Col>
                   <Col span={15}>
                     <span className="text-focus">{OrderDetail?.store}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    Điện thoại
-                  </Col>
+                  <Col span={9}>Điện thoại</Col>
                   <Col span={15}>
                     <span>{OrderDetail?.customer_phone_number}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    Địa chỉ
-                  </Col>
+                  <Col span={9}>Địa chỉ</Col>
                   <Col span={15}>
                     <span>{OrderDetail?.shipping_address?.full_address}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    NVBH
-                  </Col>
+                  <Col span={9}>NVBH</Col>
                   <Col span={15}>
                     <span className="text-focus">{OrderDetail?.assignee}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    Người tạo
-                  </Col>
+                  <Col span={9}>Người tạo</Col>
                   <Col span={15}>
                     <span className="text-focus">{OrderDetail?.account}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    Thời gian
-                  </Col>
+                  <Col span={9}>Thời gian</Col>
                   <Col span={15}>
                     <span>
                       {OrderDetail?.fulfillments !== null &&
@@ -1918,9 +1993,7 @@ const setRequirementNameCallback = useCallback((value) => {
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    Đường dẫn
-                  </Col>
+                  <Col span={9}>Đường dẫn</Col>
                   <Col span={15}>
                     <span className="text-focus">
                       {OrderDetail?.url !== undefined
@@ -1942,9 +2015,7 @@ const setRequirementNameCallback = useCallback((value) => {
             >
               <div className="padding-24">
                 <Row className="" gutter={5}>
-                  <Col span={9}>
-                    Ghi chú
-                  </Col>
+                  <Col span={9}>Ghi chú</Col>
                   <Col span={15}>
                     <span className="text-focus">
                       {OrderDetail?.note !== ""
@@ -1955,9 +2026,7 @@ const setRequirementNameCallback = useCallback((value) => {
                 </Row>
 
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>
-                    Tags
-                  </Col>
+                  <Col span={9}>Tags</Col>
                   <Col span={15}>
                     <span className="text-focus">
                       {OrderDetail?.tags !== ""
@@ -1974,26 +2043,6 @@ const setRequirementNameCallback = useCallback((value) => {
               </div>
             </Card>
           </Col>
-        </Row>
-
-        <Row className="margin-top-10" justify="end">
-          <Button
-            type="default"
-            className="btn-style btn-cancel"
-            style={{ marginRight: "10px" }}
-          >
-            Hủy
-          </Button>
-          <Button
-            type="primary"
-            className="btn-style btn-save"
-            style={{ color: "white" }}
-            // form="order_update"
-            // htmlType="submit"
-            onClick={() => setIsvibleUpdateFulfilmentConfirm(true)}
-          >
-            Lưu
-          </Button>
         </Row>
       </div>
       <SaveAndConfirmOrder

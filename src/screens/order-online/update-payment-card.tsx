@@ -17,7 +17,11 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { OrderStatus, PaymentMethodCode, PaymentMethodOption } from "utils/Constants";
+import {
+  OrderStatus,
+  PaymentMethodCode,
+  PaymentMethodOption,
+} from "utils/Constants";
 import deleteIcon from "assets/icon/delete.svg";
 import {
   formatCurrency,
@@ -56,7 +60,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
 
   const dispatch = useDispatch();
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
-  const [textValue, settextValue] = useState<string>("")
+  const [textValue, settextValue] = useState<string>("");
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
@@ -72,8 +76,10 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   };
 
   const ListMaymentMethods = useMemo(() => {
-    return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
-  }, [dispatch, listPaymentMethod]);
+    return listPaymentMethod.filter(
+      (item) => item.code !== PaymentMethodCode.CARD
+    );
+  }, [listPaymentMethod]);
 
   const handleInputPoint = (index: number, point: number) => {
     paymentData[index].point = point;
@@ -135,16 +141,19 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       showSuccess("Thanh toán thành công");
       window.location.reload();
     },
-    [history]
+    []
   );
 
   const ShowConfirmPayment = () => {
     if (props.orderDetail.status === OrderStatus.FINALIZED) {
-      settextValue("Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?");
-    }
-    else{
+      settextValue(
+        "Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?"
+      );
+    } else {
       if (props.orderDetail.status === OrderStatus.DRAFT) {
-        settextValue("Đơn hàng sẽ được duyệt khi xác nhận thanh toán. Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?");
+        settextValue(
+          "Đơn hàng sẽ được duyệt khi xác nhận thanh toán. Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?"
+        );
       }
     }
     setVisibleConfirmPayment(true);
@@ -170,7 +179,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       total_line_amount_after_line_discount: null,
       shipment: null,
       items: props.orderDetail?.items,
-      shipping_fee_informed_to_customer: null, 
+      shipping_fee_informed_to_customer: null,
     };
     let listFullfillmentRequest = [];
     listFullfillmentRequest.push(request);
@@ -198,10 +207,9 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     <Card
       className="margin-top-20"
       title={
-        <Space>
-          <CreditCardOutlined />
-          Thanh toán
-        </Space>
+        <div className="d-flex" style={{ marginTop: "5px" }}>
+          <span className="title-card">THANH TOÁN</span>
+        </div>
       }
     >
       {isVisibleUpdatePayment === true && (
@@ -214,11 +222,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
           >
             <Space size={24}>
               <Radio value={PaymentMethodOption.COD}>COD</Radio>
-              <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
-              <Radio value={PaymentMethodOption.POSTPAYMENT}>Thanh toán sau</Radio>
+              <Radio value={PaymentMethodOption.PREPAYMENT}>
+                Thanh toán trước
+              </Radio>
+              <Radio value={PaymentMethodOption.POSTPAYMENT}>
+                Thanh toán sau
+              </Radio>
             </Space>
           </Radio.Group>
-
           <Row gutter={24} hidden={props.paymentMethod !== 2}>
             <Col xs={24} lg={24}>
               <div className="form-group form-group-with-search">
