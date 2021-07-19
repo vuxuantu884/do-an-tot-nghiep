@@ -1455,7 +1455,7 @@ const OrderDetail = () => {
                       type="primary"
                       style={{ marginLeft: "10px" }}
                       className="create-button-custom ant-btn-outline fixed-button"
-                      onClick={()=> setIsvibleShippingConfirm(true)}
+                      onClick={() => setIsvibleShippingConfirm(true)}
                     >
                       Xuất kho
                     </Button>
@@ -1977,7 +1977,9 @@ const OrderDetail = () => {
 
             {OrderDetail !== null &&
               OrderDetail.fulfillments !== undefined &&
-              OrderDetail.fulfillments !== null &&
+              OrderDetail.fulfillments !== null && OrderDetail.fulfillments.length > 0 &&
+              OrderDetail.fulfillments[0].shipment !== undefined &&
+              OrderDetail.fulfillments[0].shipment !== null &&
               OrderDetail.fulfillments[0].shipment?.cod ===
                 OrderDetail.total && (
                 <Card
@@ -2027,13 +2029,15 @@ const OrderDetail = () => {
                         <span className="text-field margin-right-40">
                           Còn phải trả
                         </span>
-                        <span className="text-success">{OrderDetail !== null &&
-                              OrderDetail.fulfillments !== undefined &&
-                              OrderDetail.fulfillments !== null
-                                ? formatCurrency(
-                                    OrderDetail.fulfillments[0].shipment?.cod
-                                  )
-                                : 0}</span>
+                        <span className="text-success">
+                          {OrderDetail !== null &&
+                          OrderDetail.fulfillments !== undefined &&
+                          OrderDetail.fulfillments !== null
+                            ? formatCurrency(
+                                OrderDetail.fulfillments[0].shipment?.cod
+                              )
+                            : 0}
+                        </span>
                       </Col>
                     </Row>
                   </div>
@@ -2099,9 +2103,7 @@ const OrderDetail = () => {
 
             {OrderDetail !== null &&
               OrderDetail.payments?.length === 0 &&
-              OrderDetail.fulfillments !== undefined &&
-              OrderDetail.fulfillments !== null &&
-              OrderDetail.fulfillments[0].shipment === null && (
+              OrderDetail.fulfillments?.length === 0 && (
                 <UpdatePaymentCard
                   setSelectedPaymentMethod={onPaymentSelect}
                   setPayments={onPayments}
@@ -2247,7 +2249,15 @@ const OrderDetail = () => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
         title="Xác nhận xuất kho"
-        text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${takeMoneyHelper || (OrderDetail?.total && OrderDetail?.total + (shippingFeeInformedCustomer !== null ? shippingFeeInformedCustomer : 0)) || OrderDetail?.total} không?`}
+        text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${
+          takeMoneyHelper ||
+          (OrderDetail?.total &&
+            OrderDetail?.total +
+              (shippingFeeInformedCustomer !== null
+                ? shippingFeeInformedCustomer
+                : 0)) ||
+          OrderDetail?.total
+        } không?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleUpdateFulfilmentConfirm(false)}
