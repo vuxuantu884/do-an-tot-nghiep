@@ -412,7 +412,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 style={{ padding: "5px 0" }}
               >
                 <Col xs={6} className="row-large-title">
-                  {moneyReturn > 0 ? "Tiền thiếu" : "Tiền thừa"}
+                  {moneyReturn > 0 ? "Còn phải trả" : "Tiền thừa"}
                 </Col>
                 <Col
                   className="lbl-money"
