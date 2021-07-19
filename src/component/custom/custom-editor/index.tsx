@@ -28,7 +28,7 @@ const CustomEditor: React.FC<CustomEditorProps> = (
           [{ 'color': [] }],
           [{ 'background': [] }],
           [{ 'align': [] }],
-          ["link", "image",],
+          ["link"],
         ],
         clipboard: {
           matchVisual: false,
