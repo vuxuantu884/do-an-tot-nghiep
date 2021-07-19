@@ -1,8 +1,8 @@
-//#region Import
 import {
   UserOutlined,
   SearchOutlined,
   UnorderedListOutlined,
+  CheckOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -14,23 +14,25 @@ import {
   Checkbox,
   Space,
   AutoComplete,
+  Steps,
 } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import SupplierInfo from "./supplier-info";
-import PurchaseItem from "./purchase-item";
-import PurchaseInfo from "./purchase-info";
+import POSupplierForm from "./component/po-supplier.form";
+import PurchaseItem from "./component/purchase-item";
+import PurchaseInfo from "./component/purchase-info";
 import { SupplierQuery, SupplierResponse } from "model/core/supplier.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
+import ContentContainer from "component/container/content.container";
+import UrlConfig from "config/UrlConfig";
 
 const initSupplierQuery: SupplierQuery = {
   limit: 10,
   page: 1,
 };
 
-const CreatePO = () => {
-  //#region state
+const POCreateScreen = () => {
   const dispatch = useDispatch();
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
 
@@ -73,39 +75,45 @@ const CreatePO = () => {
   useEffect(() => {}, []);
 
   return (
-    <div className="orders">
-      <Form layout="vertical">
+    <ContentContainer
+      title="Quản lý đơn đặt hàng"
+      breadcrumb={[
+        {
+          name: "Tổng quản",
+          path: UrlConfig.HOME,
+        },
+        {
+          name: "Đặt hàng",
+          path: `${UrlConfig.PURCHASE_ORDER}`,
+        },
+        {
+          name: "Tạo mới đơn đặt hàng",
+        },
+      ]}
+      extra={
+        <Steps
+          progressDot={(dot: any, { status, index }: any) => (
+            <div className="ant-steps-icon-dot">
+              {(status === "process" || status === "finish") && (
+                <CheckOutlined />
+              )}
+            </div>
+          )}
+          size="small"
+          current={0}
+        >
+          <Steps.Step title="Đặt hàng" />
+          <Steps.Step title="Duyệt" />
+          <Steps.Step title="Nhập kho" />
+          <Steps.Step title="Hoàn thành" />
+        </Steps>
+      }
+    >
+      <Form.Provider>
         <Row gutter={20}>
           {/* Left Side */}
           <Col md={18}>
-            <Card
-              title={
-                <Space>
-                  <UserOutlined />
-                  Nhà cung cấp
-                </Space>
-              }
-            >
-              <div className="padding-20">
-                <AutoComplete
-                  notFoundContent={"Không tìm thấy thông tin nhà cung cấp"}
-                  dropdownClassName="search-layout dropdown-search-header"
-                  className="w-100"
-                  style={{ width: "100%" }}
-                  onChange={onChangeSearchSupplier}
-                  dataSource={listSupplier}
-                  options={supplierOptionAutocomplete}
-                >
-                  <Input
-                    placeholder="Tìm hoặc thêm nhà cung cấp"
-                    className="border-input"
-                    prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                  />
-                </AutoComplete>
-              </div>
-
-              <SupplierInfo />
-            </Card>
+            <POSupplierForm />
             <Card
               className="margin-top-20"
               title={
@@ -148,9 +156,9 @@ const CreatePO = () => {
             </Button>
           </Space>
         </div>
-      </Form>
-    </div>
+      </Form.Provider>
+    </ContentContainer>
   );
 };
 
-export default CreatePO;
+export default POCreateScreen;
