@@ -155,7 +155,9 @@ const ProductCreateScreen: React.FC = () => {
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
   const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
   const [listSize, setListSize] = useState<Array<SizeResponse>>([]);
-  const [listSizeByCategory, setListSizeByCategory] = useState<Array<SizeResponse>>([]);
+  const [listSizeByCategory, setListSizeByCategory] = useState<
+    Array<SizeResponse>
+  >([]);
   const [listColor, setListColor] = useState<Array<ColorResponse>>([]);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
@@ -465,8 +467,10 @@ const ProductCreateScreen: React.FC = () => {
       debugger;
       formRef.current?.setFieldsValue({
         size: [],
-      })
-      let listSizeFilter=listSize.filter((item)=> item.categories.findIndex(c=>c.category_id===value)>-1);
+      });
+      let listSizeFilter = listSize.filter(
+        (item) => item.categories.findIndex((c) => c.category_id === value) > -1
+      );
       setListSizeByCategory(listSizeFilter);
     },
     [formRef, listCategory, listSize]
