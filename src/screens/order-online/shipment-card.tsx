@@ -56,8 +56,11 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   const ShipMethodOnChange = (value: number) => {
     setshipmentMethod(value);
     props.setShipmentMethodProps(value);
-    if (value === ShipmentMethodOption.SELFDELIVER)
-      props.setPaymentMethod(PaymentMethodOption.COD);
+    if (props.paymentMethod !== PaymentMethodOption.PREPAYMENT) {
+      if (value === ShipmentMethodOption.SELFDELIVER) {
+        props.setPaymentMethod(PaymentMethodOption.COD);
+      }
+    }
   };
 
   const shipping_requirements = useSelector(

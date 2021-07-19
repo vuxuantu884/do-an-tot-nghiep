@@ -239,7 +239,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
             <Col xs={24} lg={24}>
               <Row
                 className="btn-list-method"
-                gutter={5}
+                gutter={8}
                 align="middle"
                 style={{ marginLeft: 0, marginRight: 0 }}
               >
@@ -289,16 +289,16 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
 
             <Col span={24}>
               <Row
-                gutter={12}
+                gutter={14}
                 className="row-price"
                 style={{ padding: "5px 0px" }}
               >
-                <Col xs={6} className="row-large-title">
+                <Col xs={9} className="row-large-title">
                   Khách cần trả
                 </Col>
                 <Col
                   className="lbl-money"
-                  xs={6}
+                  xs={5}
                   style={{
                     textAlign: "right",
                     fontWeight: 500,
@@ -314,12 +314,12 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
               {paymentData.map((method, index) => {
                 return (
                   <Row
-                    gutter={6}
+                    gutter={14}
                     className="row-price"
                     style={{ padding: "5px 0" }}
                     key={index}
                   >
-                    <Col xs={6}>
+                    <Col xs={9}>
                       <Row align="middle">
                         {method.name}
                         {method.code === PaymentMethodCode.POINT ? (
@@ -335,14 +335,13 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                             </span>
                             <InputNumber
                               value={method.point}
+                              size="middle"
                               style={{
-                                width: 100,
-                                marginLeft: 7,
-                                fontSize: 17,
-                                paddingTop: 4,
-                                paddingBottom: 4,
+                                textAlign: "right",
+                                borderRadius: 5,
+                                marginLeft: "5px"
                               }}
-                              className="hide-number-handle"
+                              className="yody-payment-input hide-number-handle"
                               onFocus={(e) => e.target.select()}
                               formatter={(value) =>
                                 formatSuffixPoint(value ? value : "0")
@@ -360,7 +359,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         ) : null}
                       </Row>
                     </Col>
-                    <Col className="lbl-money" xs={6}>
+                    <Col className="lbl-money" xs={5}>
                       <InputNumber
                         size="middle"
                         min={0}
@@ -377,7 +376,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         onFocus={(e) => e.target.select()}
                       />
                     </Col>
-                    <Col span={2} style={{ paddingLeft: 0 }}>
+                    {/* <Col span={2} style={{ paddingLeft: 0 }}>
                       <Button
                         type="text"
                         className="p-0 m-0"
@@ -387,7 +386,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       >
                         <img src={deleteIcon} alt="" />
                       </Button>
-                    </Col>
+                    </Col> */}
                   </Row>
                 );
               })}
@@ -398,7 +397,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 style={{ marginLeft: 0, marginRight: 0 }}
               >
                 <Col
-                  xs={6}
+                  xs={9}
                   className="row-large-title"
                   style={{ paddingLeft: 0 }}
                 >
@@ -406,7 +405,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 </Col>
                 <Col
                   className="lbl-money"
-                  xs={6}
+                  xs={5}
                   style={{
                     textAlign: "right",
                     fontWeight: 500,
@@ -422,12 +421,12 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 className="row-price"
                 style={{ padding: "5px 0" }}
               >
-                <Col xs={6} className="row-large-title">
+                <Col xs={9} className="row-large-title">
                   {moneyReturn > 0 ? "Còn phải trả" : "Tiền thừa"}
                 </Col>
                 <Col
                   className="lbl-money"
-                  xs={6}
+                  xs={5}
                   style={{
                     textAlign: "right",
                     fontWeight: 500,

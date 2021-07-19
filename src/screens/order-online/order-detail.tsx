@@ -1639,12 +1639,12 @@ const OrderDetail = () => {
                                 style={{ width: "100%" }}
                                 notFoundContent="Không tìm thấy kết quả"
                                 placeholder="Chọn đối tác giao hàng"
-                                suffix={
-                                  <Button
-                                    style={{ width: 36, height: 36 }}
-                                    icon={<PlusOutlined />}
-                                  />
-                                }
+                                // suffix={
+                                //   <Button
+                                //     style={{ width: 36, height: 36 }}
+                                //     icon={<PlusOutlined />}
+                                //   />
+                                // }
                                 filterOption={(input, option) => {
                                   if (option) {
                                     return (
