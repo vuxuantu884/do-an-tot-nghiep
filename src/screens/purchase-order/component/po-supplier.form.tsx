@@ -1,5 +1,5 @@
 //#region Import
-import { Space, Card, AutoComplete, Input, Form, Button, Avatar } from "antd";
+import { Card, AutoComplete, Input, Form, Button, Avatar, Space, Divider } from "antd";
 
 import { SearchOutlined } from "@ant-design/icons";
 import React, { useCallback, useMemo, useState } from "react";
@@ -10,7 +10,6 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse } from "model/core/supplier.model";
 import SupplierItem from "./supplier-item";
 import avatarDefault from "assets/icon/user.svg";
-
 
 const POSupplierForm = () => {
   const [data, setData] = useState<Array<SupplierResponse>>([]);
@@ -36,9 +35,16 @@ const POSupplierForm = () => {
         supplier_id: value,
         supplier: data[index],
       });
+      setData([]);
     },
     [data, form]
   );
+  const onDeleteSupplier = useCallback(() => {
+    form.setFieldsValue({
+      supplier_id: null,
+      supplier: null,
+    });
+  }, [form]);
   const renderResult = useMemo(() => {
     let options: any[] = [];
     data.forEach((item: SupplierResponse, index: number) => {
@@ -54,13 +60,12 @@ const POSupplierForm = () => {
       <Card
         className="po-form"
         title={
-          <Space>
-            <i className="icon-dot icon-title" />
-            Thông tin nhà cung cấp
-          </Space>
+          <div className="d-flex">
+            <span className="title-card">THÔNG TIN NHÀ CUNG CẤP</span>
+          </div>
         }
       >
-        <div className="padding-20">
+
           <Form.Item
             shouldUpdate={(prevValues, curValues) =>
               prevValues.supplier_id !== curValues.supplier_id
@@ -71,11 +76,22 @@ const POSupplierForm = () => {
               let supplier: SupplierResponse = getFieldValue("supplier");
               return supplier_id ? (
                 <div className="supplier-container">
-                  <div className="supplier-container-info">
+                  <div className="padding-10 supplier-container-info">
                     <Avatar src={avatarDefault} />
-                    <div className="rs-name">{supplier.name}</div>
-                    <div>Công nợ hiện tại: 0</div>
-                    <Button className="rs-delete" icon={<AiOutlineClose />} />
+                    <div className="supplier-container-info-right">
+                      <div className="rs-name">{supplier.name}</div>
+                      <div className="rs-money">
+                        Công nợ hiện tại: 0
+                        <Button
+                          onClick={onDeleteSupplier}
+                          className="rs-delete"
+                          icon={<AiOutlineClose />}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <Divider style={{margin: 0}} />
+                  <div className="supplier-container-address">
                   </div>
                 </div>
               ) : (
@@ -108,7 +124,6 @@ const POSupplierForm = () => {
               );
             }}
           </Form.Item>
-        </div>
 
         {/* <div className="padding-20">
           <Space size={40}>

@@ -1,11 +1,3 @@
-.po-form {
-  .icon-title {
-    font-size: 8px;
-    text-align: center;
-    line-height: 8px;
-    color: $secondary-color
-  }
-}
 .dropdown-custom {
   padding: 12px 8px;
   .dropdown-add-new {
@@ -64,10 +56,40 @@
     &-info {
       display: flex;
       align-items: center;
-      .rs-name {
-        margin-left: 10px;
-        color: $primary-color;
-        font-size: 16px;
+      padding-left: 20px;
+      padding-right: 20px;
+      .rs {
+        &-name {
+          margin-left: 10px;
+          color: $primary-color;
+          font-size: 16px;
+        }
+        &-money {
+          display: flex;
+          align-items: center;
+        }
+        &-delete{
+          display: flex;
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: transparent;
+          color: #222222;
+          border: none;
+          margin-left: 20px;
+          &:hover {
+            background-color: rgba($primary-color, .15)
+          }
+        }
+      }
+      &-right {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
       }
     }
   }
