@@ -6,10 +6,9 @@ const POProductForm: React.FC = () => {
       <Card
         className="po-form margin-top-20"
         title={
-          <Space>
-            <i className="icon-dot icon-title" />
-            Sản phẩm
-          </Space>
+          <div className="d-flex">
+            <span className="title-card">THÔNG TIN NHÀ CUNG CẤP</span>
+          </div>
         }
         extra={
           <Space size={20}>
@@ -18,7 +17,7 @@ const POProductForm: React.FC = () => {
         }
       >
         <div className="padding-20">
-
+          
         </div>
       </Card>
     </Form>
