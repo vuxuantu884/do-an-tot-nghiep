@@ -1,24 +1,19 @@
 import {
-  SearchOutlined,
-  UnorderedListOutlined,
   CheckOutlined,
 } from "@ant-design/icons";
 import {
   Button,
-  Card,
-  Input,
   Row,
   Col,
   Form,
-  Checkbox,
   Space,
   Steps,
 } from "antd";
 import POSupplierForm from "./component/po-supplier.form";
-import PurchaseItem from "./component/purchase-item";
 import PurchaseInfo from "./component/purchase-info";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
+import POProductForm from "./component/po-product.form";
 
 const POCreateScreen = () => {
   return (
@@ -61,34 +56,7 @@ const POCreateScreen = () => {
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm />
-            <Card
-              className="margin-top-20"
-              title={
-                <Space>
-                  <UnorderedListOutlined />
-                  Sản phẩm
-                </Space>
-              }
-              extra={
-                <Space size={20}>
-                  <Checkbox>Tách dòng</Checkbox>
-                </Space>
-              }
-            >
-              <div className="padding-20">
-                <Row gutter={20}>
-                  <Col md={24}>
-                    <Form.Item label="Sản phẩm">
-                      <Input
-                        prefix={<SearchOutlined />}
-                        placeholder="Tìm sản phẩm/ SKU/ mã vạch (F3)"
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </div>
-              <PurchaseItem />
-            </Card>
+            <POProductForm />
           </Col>
           {/* Right Side */}
           <Col md={6}>
