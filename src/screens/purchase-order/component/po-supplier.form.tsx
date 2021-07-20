@@ -11,7 +11,6 @@ import { SupplierResponse } from "model/core/supplier.model";
 import SupplierItem from "./supplier-item";
 import avatarDefault from "assets/icon/user.svg";
 
-
 const SupplierInfo = () => {
   const [data, setData] = useState<Array<SupplierResponse>>([]);
   const [form] = Form.useForm();
