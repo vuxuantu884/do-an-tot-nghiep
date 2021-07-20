@@ -9,7 +9,6 @@ import {
   Space,
   Steps,
 } from "antd";
-import {useEffect} from "react";
 import POSupplierForm from "./component/po-supplier.form";
 import PurchaseInfo from "./component/purchase-info";
 import ContentContainer from "component/container/content.container";
@@ -17,9 +16,6 @@ import UrlConfig from "config/UrlConfig";
 import POProductForm from "./component/po-product.form";
 
 const POCreateScreen = () => {
-
-  useEffect(() => {}, []);
-
   return (
     <ContentContainer
       title="Quản lý đơn đặt hàng"
