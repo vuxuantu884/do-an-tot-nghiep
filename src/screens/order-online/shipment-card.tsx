@@ -8,12 +8,9 @@ import {
   Form,
   Select,
   DatePicker,
-  Button,
-  Tabs,
   Checkbox,
 } from "antd";
 
-import { PlusOutlined } from "@ant-design/icons";
 import callIcon from "assets/img/call.svg";
 import locationIcon from "assets/img/location.svg";
 import storeBluecon from "../../assets/img/storeBlue.svg";
@@ -32,7 +29,6 @@ import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
-const { TabPane } = Tabs;
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;

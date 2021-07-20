@@ -1,7 +1,7 @@
 import { Input, InputNumber, Select, Typography } from "antd";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useState } from "react";
-import { formatCurrency, replaceFormat } from "utils/AppUtils";
+import { formatCurrency } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
 
 type DiscountGroupProps = {
@@ -19,7 +19,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 ) => {
   const { Text } = Typography;
   const [selected, setSelected] = useState(MoneyType.MONEY);
-  const [showResult, setShowResult] = useState(true);
+  let showResult = true;
 
   const changeDiscountType = (value: string) => {
     setSelected(value);

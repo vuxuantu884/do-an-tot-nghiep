@@ -1,5 +1,5 @@
 // @ts-ignore
-import { Button, Card, Row, Col, Radio, InputNumber, Form, Space } from "antd";
+import { Button, Card, Row, Col, Radio, InputNumber, Space } from "antd";
 
 import {
   BugOutlined,
@@ -22,7 +22,6 @@ import {
   PaymentMethodCode,
   PaymentMethodOption,
 } from "utils/Constants";
-import deleteIcon from "assets/icon/delete.svg";
 import {
   formatCurrency,
   formatSuffixPoint,
@@ -35,7 +34,6 @@ import {
 } from "model/request/order.request";
 import { showSuccess } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
-import { useHistory } from "react-router-dom";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 
 type PaymentCardUpdateProps = {
@@ -50,7 +48,6 @@ type PaymentCardUpdateProps = {
 const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   props: PaymentCardUpdateProps
 ) => {
-  const history = useHistory();
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
     if (value === PaymentMethodOption.PREPAYMENT) {
