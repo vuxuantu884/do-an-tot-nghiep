@@ -21,10 +21,17 @@ import {
   VariantUpdateView,
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
-import { OrderLineItemResponse } from "model/response/order/order.response";
-import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
+import {
+  OrderLineItemResponse,
+  OrderPaymentResponse,
+  OrderResponse,
+} from "model/response/order/order.response";
+import {
+  OrderLineItemRequest,
+  OrderPaymentRequest,
+} from "model/request/order.request";
 import { RegUtil } from "./RegUtils";
-import {SupplierDetail, SupplierResponse} from "../model/core/supplier.model";
+import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -41,8 +48,8 @@ export const findCurrentRoute = (
     current: "",
     subMenu: "",
   };
-  console.log('routes', routes);
-  console.log('path', path);
+  console.log("routes", routes);
+  console.log("path", path);
   routes.forEach((route) => {
     if (path.includes(route.path)) {
       obj.current = route.key;
@@ -199,12 +206,13 @@ export const convertSupplierResponseToDetail = (supplier: SupplierResponse) => {
   let supplierConverted: SupplierDetail = {
     ...supplier,
     goods: goods,
-  }
+  };
   return supplierConverted;
 };
 
-export const formatCurrency = (currency: number | string): string => {
-  try {let format = currency.toString();
+export const formatCurrency = (currency: number | string | boolean): string => {
+  try {
+    let format = currency.toString();
     return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
   } catch (e) {
     return "";
@@ -287,7 +295,7 @@ export const findTaxInVariant = (
   variantPrices: Array<VariantPricesResponse>,
   currency_code: string
 ): number => {
-  let tax: number = 0;
+  let tax: number | null = 0;
   variantPrices.forEach((v) => {
     if (
       v.currency_code === currency_code &&
@@ -325,9 +333,7 @@ export const replaceFormatString = (currency: number | string): string => {
   return format.replace(/,/gi, "");
 };
 
-export const findAvatar = (
-  VariantImage: Array<VariantImage>
-): string => {
+export const findAvatar = (VariantImage: Array<VariantImage>): string => {
   let avatar: string = "";
   VariantImage.forEach((v) => {
     if (v.variant_avatar) {
@@ -358,13 +364,15 @@ export const ListUtil = {
 };
 
 export const Products = {
-  convertVariantPriceViewToRequest:(priceView:Array<VariantPriceViewRequest>)=>{
+  convertVariantPriceViewToRequest: (
+    priceView: Array<VariantPriceViewRequest>
+  ) => {
     let variant_prices: Array<VariantPriceRequest> = [];
     priceView.forEach((item) => {
       let retail_price = parseInt(item.retail_price);
       let import_price = parseInt(item.import_price);
       let whole_sale_price = parseInt(item.whole_sale_price);
-      let tax_percent = parseInt(item.tax_percent);
+      let tax_percent = parseInt(item.tax_percent ? item.tax_percent : "0");
       if (!isNaN(retail_price)) {
         variant_prices.push({
           price: retail_price,
@@ -400,10 +408,11 @@ export const Products = {
     let variants: Array<VariantRequest> = [];
     let variant_prices: Array<VariantPriceRequest> = [];
     pr.variant_prices.forEach((item) => {
+      debugger;
       let retail_price = parseInt(item.retail_price);
       let import_price = parseInt(item.import_price);
       let whole_sale_price = parseInt(item.whole_sale_price);
-      let tax_percent = parseInt(item.tax_percent);
+      let tax_percent = parseInt(item.tax_percent ? item.tax_percent : "0");
       if (!isNaN(retail_price)) {
         variant_prices.push({
           price: retail_price,
@@ -449,6 +458,7 @@ export const Products = {
         variant_prices: variant_prices,
         variant_images: [],
         inventory: 0,
+        supplier_id: pr.supplier_id,
       });
     });
     let productRequest: ProductRequest = {
@@ -459,6 +469,7 @@ export const Products = {
       description: pr.description,
       designer_code: pr.designer_code,
       goods: pr.goods,
+
       made_in_id: pr.made_in_id,
       merchandiser_code: pr.merchandiser_code,
       name: pr.name,
@@ -468,7 +479,10 @@ export const Products = {
       status: status,
       tags: pr.tags.join(","),
       variants: variants,
-      product_unit: pr.product_unit,
+      unit: pr.unit,
+      supplier_id: pr.supplier_id,
+      material_id: pr.material_id,
+      collections: pr.collections,
     };
     return productRequest;
   },
@@ -486,7 +500,7 @@ export const Products = {
     let variantPrices: Array<VariantPriceViewRequest> = [];
     variant.variant_prices.forEach((item) => {
       let index = variantPrices.findIndex(
-        (v) => (v.currency === item.currency_code)
+        (v) => v.currency === item.currency_code
       );
       let price = item.price;
       let type = item.price_type;
@@ -497,7 +511,7 @@ export const Products = {
           currency: item.currency_code,
           retail_price: "",
           import_price: "",
-          tax_percent: tax_percent.toString(),
+          tax_percent: tax_percent ? tax_percent.toString() : "0",
           whole_sale_price: "",
         };
         if (type === PriceConfig.RETAIL) {
@@ -524,9 +538,9 @@ export const Products = {
       }
     });
     let variantUpdateView: VariantUpdateView = {
-      id:variant.id,
-      product_id:variant.product_id,
-      supplier_id:variant.supplier_id,
+      id: variant.id,
+      product_id: variant.product_id,
+      supplier_id: variant.supplier_id,
       status: variant.status,
       name: variant.name,
       color_id: variant.color_id,
@@ -536,9 +550,9 @@ export const Products = {
       saleable: variant.saleable,
       deleted: false,
       sku: variant.sku,
-      width: variant.width ,
-      height: variant.height ,
-      length:variant.length ,
+      width: variant.width,
+      height: variant.height,
+      length: variant.length,
       length_unit: variant.length_unit,
       weight: variant.weight,
       weight_unit: variant.weight_unit,
@@ -563,7 +577,7 @@ export const Products = {
         specifications: variant.product.specifications,
         material_id: variant.product.material_id,
       },
-      variant_image:null
+      variant_image: null,
     };
     return variantUpdateView;
   },
@@ -590,10 +604,10 @@ export const Products = {
       weight_unit: variant.weight_unit,
       variant_prices: variant.variant_prices,
       variant_images: variant.variant_images,
-    }
+    };
     console.log(variant.variant_prices);
     return variantUpadteRequest;
-  }
+  },
 };
 
 export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
@@ -604,43 +618,88 @@ export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
     }
   }
   return value;
-}
+};
 
-export const getAmountPayment = (items: Array<OrderPaymentRequest>) => {
+export const getAmountPayment = (items: Array<OrderPaymentResponse> | null) => {
   let value = 0;
-  if (items.length > 0) {
-    if (items[0].paid_amount !== null) {
-      value = items[0].paid_amount;
+  if (items !== null) {
+    if (items.length > 0) {
+      items.forEach((a) => (value = value + a.paid_amount));
     }
   }
   return value;
-}
+};
+
+export const getAmountPaymentRequest = (items: Array<OrderPaymentRequest> | null) => {
+  let value = 0;
+  if (items !== null) {
+    if (items.length > 0) {
+      items.forEach((a) => (value = value + a.paid_amount));
+    }
+  }
+  return value;
+};
 
 export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
   items.forEach((a) => {
-    if (a.product_type === 'normal' || "combo") {
+    if (a.product_type === "normal" || "combo") {
       total = total + a.amount;
     }
   });
   return total;
-}
+};
 
 export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
-  items.forEach((a) => total = total + a.discount_amount);
+  items.forEach((a) => (total = total + a.discount_amount));
   return total;
-}
+};
 
-
-export const getTotalAmountAfferDiscount = (items: Array<OrderLineItemRequest>) => {
+export const getTotalAmountAfferDiscount = (
+  items: Array<OrderLineItemRequest>
+) => {
   let total = 0;
-  items.forEach((a) => total = total + a.line_amount_after_line_discount);
+  items.forEach((a) => (total = total + a.line_amount_after_line_discount));
   return total;
-}
+};
 
 export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
   let total = 0;
-  items.forEach((a) => total = total + a.quantity);
+  items.forEach((a) => (total = total + a.quantity));
   return total;
+};
+
+export const checkPaymentStatusToShow = (items: OrderResponse) => {
+  //tính tổng đã thanh toán
+  let value = 0;
+  if (items !== null) {
+    if (items.payments !== null) {
+      if (items.payments.length > 0) {
+        items.payments.forEach((a) => (value = value + a.paid_amount));
+      }
+    }
+  }
+
+  if (items.total === value) {
+    return 1; //đã thanh toán
+  } else {
+    if (value === 0) {
+      return -1; //chưa thanh toán
+    } else {
+      return 0; //thanh toán 1 phần
+    }
+  }
+};
+
+export const getDateLastPayment = (items: OrderResponse) => {
+  let value : Date | undefined;
+  if (items !== null) {
+    if (items.payments !== null) {
+      if (items.payments.length > 0) {
+        items.payments.forEach((a) => (value = a.created_date));
+      }
+    }
+  }
+  return value;
 }

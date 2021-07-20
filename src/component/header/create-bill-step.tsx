@@ -6,7 +6,7 @@ import { OrderResponse } from "model/response/order/order.response";
 
 type StepStatusProps = {
   status?: string | null | undefined;
-  orderDetail:OrderResponse | null;
+  orderDetail: OrderResponse | null;
 };
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
@@ -17,13 +17,17 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
         setstate(0);
         break;
       case "finalized":
+      case "picked":
         setstate(1);
         break;
       case "packed":
         setstate(2);
-        break
+        break;
       case "shipping":
         setstate(3);
+        break;
+      case "shipped":
+        setstate(4);
         break;
       default:
         return 0;
@@ -32,8 +36,6 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   useEffect(() => {
     point();
   }, [point, props.status]);
-  
-
 
   const progressDot = (dot: any, { status, index }: any) => (
     <div className="ant-steps-icon-dot">
@@ -43,8 +45,13 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
 
   return (
     <Steps progressDot={progressDot} size="small" current={state}>
-      <Steps.Step title="Đặt hàng" description={moment(props.orderDetail?.created_date).format("DD/MM/YYYY HH:MM")} />
-      <Steps.Step title="Xác nhận"/>
+      <Steps.Step
+        title="Đặt hàng"
+        description={moment(props.orderDetail?.created_date).format(
+          "DD/MM/YYYY HH:MM"
+        )}
+      />
+      <Steps.Step title="Xác nhận" />
       <Steps.Step title="Đóng gói" />
       <Steps.Step title="Xuất kho" />
       <Steps.Step title="Hoàn thành" />

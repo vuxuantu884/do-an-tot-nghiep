@@ -37,7 +37,7 @@ const bill: Array<RouteMenu> = [
         title: "Chi tiết đơn hàng",
         icon: 'icon-dot',
         component: OrderDetail,
-        key: "submenu53",
+        key: "submenu5412",
         isShow: true,
         header: null,
         subMenu: [],

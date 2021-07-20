@@ -157,6 +157,7 @@ export interface VariantRequest {
   length: number|null,
   length_unit: string|null,
   weight: number|null,
+  supplier_id:number|null,
   weight_unit: string|null,
   variant_prices: Array<VariantPriceRequest>
   variant_images: Array<VariantImage>,
@@ -205,7 +206,10 @@ export interface ProductRequest {
   status: string,
   tags: string|null,
   variants: Array<VariantRequest>,
-  product_unit: string|null,
+  unit: string|null,
+  material_id:number|null,
+  supplier_id:number|null,
+  collections:Array<string>,
 }
 
 export interface VariantRequestView {
@@ -240,7 +244,7 @@ export interface ProductRequestView {
   weight: number|null,
   weight_unit: string|null,
   tags: Array<string>,
-  product_unit: string|null,
+  unit: string|null,
   brand: string|null,
   content: string|null,
   description: string|null,
@@ -252,6 +256,9 @@ export interface ProductRequestView {
   status: string,
   variant_prices: Array<VariantPriceViewRequest>,
   saleable: boolean,
+  material_id:number|null,
+  supplier_id:number|null,
+
 }
 
 export interface ProductUpdateView {

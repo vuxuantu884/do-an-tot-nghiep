@@ -31,7 +31,7 @@ export interface OrderResponse extends BaseObject {
   return_status: string | null;
   reference: string | null;
   url: string | null;
-  total_line_amount_after_line_discount: number | null;
+  total_line_amount_after_line_discount: number;
   shipping_fee_informed_to_customer: number | null;
   total: number;
   order_discount_rate: number | null;
@@ -49,6 +49,7 @@ export interface OrderResponse extends BaseObject {
   items: Array<OrderLineItemResponse>;
   discounts: Array<OrderDiscountResponse> | null;
   payments: Array<OrderPaymentResponse> | null;
+  total_paid?: number | null;
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
   fulfillments: Array<FulFillmentResponse> | null | undefined;
@@ -208,4 +209,5 @@ export interface ShipmentResponse extends BaseObject {
   requirements_name: string | null;
   shipping_address: ShippingAddress | null;
   fulfillment_id:string|null;
+  cod: number 
 }

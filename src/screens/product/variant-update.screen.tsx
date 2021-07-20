@@ -115,6 +115,7 @@ const VariantUpdateScreen: React.FC = () => {
   const [listSize, setListSize] = useState<Array<SizeResponse>>([]);
   const [listColor, setListColor] = useState<Array<ColorResponse>>([]);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
+  const [saleableStatus, setSaleableStatus] = useState<string>("Đang bán");
   //End get master data
   //state
   const formRef = createRef<FormInstance>();
@@ -132,6 +133,13 @@ const VariantUpdateScreen: React.FC = () => {
     }
     return "";
   }, [productStatusList, status]);
+  const onChangesaleable = useCallback((checked: boolean) => {
+    if (checked === true) {
+      setSaleableStatus("Cho phép bán");
+    } else {
+      setSaleableStatus("Ngừng bán");
+    }
+  }, []);
   //end state
   //callback data
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
@@ -154,14 +162,16 @@ const VariantUpdateScreen: React.FC = () => {
   }, [history]);
   const onGetDetail = useCallback(
     (detail: VariantResponse | null) => {
+      console.log(detail);
       if (detail == null) {
         setError(true);
       } else {
         setLoading(false);
         setData(detail);
+        onChangesaleable(detail.saleable);
       }
     },
-    [setData]
+    [onChangesaleable, setData]
   );
   const onSuccess = useCallback(
     (result: VariantResponse) => {
@@ -252,7 +262,7 @@ const VariantUpdateScreen: React.FC = () => {
       breadcrumb={[
         {
           name: "Tổng quản",
-         path: UrlConfig.HOME,
+          path: UrlConfig.HOME,
         },
         {
           name: "Sản phẩm",
@@ -269,6 +279,7 @@ const VariantUpdateScreen: React.FC = () => {
           ref={formRef}
           initialValues={detail}
           layout="vertical"
+          scrollToFirstError
           onFinish={onFinish}
         >
           <Card
@@ -307,7 +318,12 @@ const VariantUpdateScreen: React.FC = () => {
                 <Col md={8}>
                   <Item
                     label="Mã sản phẩm"
-                    required
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập mã sản phẩm",
+                      }
+                    ]}
                     name="sku"
                     tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
                   >
@@ -318,7 +334,12 @@ const VariantUpdateScreen: React.FC = () => {
                   <Item
                     label="Tên sản phẩm"
                     name="name"
-                    required
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập mã sản phẩm",
+                      }
+                    ]}
                     tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
                   >
                     <Input
@@ -334,8 +355,13 @@ const VariantUpdateScreen: React.FC = () => {
                 >
                   <Space size={15}>
                     <label className="text-default">Lựa chọn</label>
-                    <Switch className="ant-switch-primary" defaultChecked />
-                    <label className="text-primary">Cho phép bán</label>
+                    <Item valuePropName="checked" noStyle name="saleable">
+                      <Switch
+                        className="ant-switch-primary"
+                        onChange={onChangesaleable}
+                      />
+                    </Item>
+                    <label className="text-primary">{saleableStatus}</label>
                   </Space>
                 </Col>
               </Row>
@@ -376,7 +402,10 @@ const VariantUpdateScreen: React.FC = () => {
                   <Item
                     label="Kích thước (dài, rộng, cao)"
                     required
-                    tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
+                    tooltip={{
+                      title: "Thông tin kích thước khi đóng gói sản phẩm",
+                      icon: <InfoCircleOutlined />,
+                    }}
                   >
                     <Input.Group compact>
                       <Item name="length" noStyle>
@@ -606,7 +635,7 @@ const VariantUpdateScreen: React.FC = () => {
                                 />
                               </Item>
                             </Col>
-                            {index !== 0 && (
+                            {fields.length > 1 && (
                               <Col
                                 md={4}
                                 style={{
@@ -688,6 +717,8 @@ const VariantUpdateScreen: React.FC = () => {
                         disabled
                         showArrow={false}
                         placeholder="Chọn ngành hàng"
+                        optionFilterProp="children"
+                        showSearch
                       >
                         {goods?.map((item) => (
                           <Option key={item.value} value={item.value}>
@@ -712,6 +743,8 @@ const VariantUpdateScreen: React.FC = () => {
                       <Select
                         placeholder="Chọn danh mục"
                         disabled
+                        optionFilterProp="children"
+                        showSearch
                         showArrow={false}
                       >
                         {listCategory.map((item) => (
@@ -736,6 +769,7 @@ const VariantUpdateScreen: React.FC = () => {
                         placeholder="Chọn bộ sư tập"
                         disabled
                         showArrow={false}
+                        mode="multiple"
                       >
                         {collectionList?.map((item) => (
                           <Option key={item.value} value={item.value}>
