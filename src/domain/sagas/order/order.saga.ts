@@ -10,6 +10,7 @@ import { HttpStatus } from "config/HttpStatus";
 import { YodyAction } from "../../../base/BaseAction";
 import { showError } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
+import { getAmountPayment } from 'utils/AppUtils';
 
 function* orderCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
@@ -129,6 +130,7 @@ function* orderDetailSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        response.data.total_paid = getAmountPayment(response.data.payments);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:

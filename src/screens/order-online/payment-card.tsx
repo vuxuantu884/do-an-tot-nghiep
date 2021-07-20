@@ -63,7 +63,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     return listPaymentMethod.filter(
       (item) => item.code !== PaymentMethodCode.CARD
     );
-  }, [dispatch, listPaymentMethod]);
+  }, [listPaymentMethod]);
 
   const handleInputPoint = (index: number, point: number) => {
     paymentData[index].point = point;
@@ -327,8 +327,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                           </Col>
                           <Col span={7} style={{ paddingLeft: 0 }}>
                             {method.code === PaymentMethodCode.BANK_TRANSFER ? (
-                              <Input placeholder="Tham chiếu"/>
-                            ): null}
+                              <Input placeholder="Tham chiếu" />
+                            ) : null}
                           </Col>
 
                           {/* <Col span={2} style={{ paddingLeft: 0 }}>
