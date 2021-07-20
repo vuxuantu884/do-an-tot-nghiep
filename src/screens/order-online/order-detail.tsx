@@ -625,12 +625,13 @@ const OrderDetail = () => {
       }
     }
     if (paymentType === 1) {
-      value.cod = takeMoneyHelper ||
-      (OrderDetail?.total_line_amount_after_line_discount &&
-        shippingFeeInformedCustomer &&
-        OrderDetail?.total_line_amount_after_line_discount +
-          shippingFeeInformedCustomer) ||
-      OrderDetail?.total_line_amount_after_line_discount;
+      value.cod =
+        takeMoneyHelper ||
+        (OrderDetail?.total_line_amount_after_line_discount &&
+          shippingFeeInformedCustomer &&
+          OrderDetail?.total_line_amount_after_line_discount +
+            shippingFeeInformedCustomer) ||
+        OrderDetail?.total_line_amount_after_line_discount;
     }
     FulFillmentRequest.shipment = value;
     if (shippingFeeInformedCustomer !== null) {
@@ -1387,6 +1388,7 @@ const OrderDetail = () => {
                           transform: isActive
                             ? "rotate(0deg)"
                             : "rotate(270deg)",
+                          float: "right",
                         }}
                       />
                     )}
@@ -1940,7 +1942,13 @@ const OrderDetail = () => {
                         </Tag>
                       )}
                       {checkPaymentStatusToShow(OrderDetail) === 1 && (
-                        <Tag className="orders-tag orders-tag-success">
+                        <Tag
+                          className="orders-tag orders-tag-success"
+                          style={{
+                            backgroundColor: "rgba(39, 174, 96, 0.1)",
+                            color: "#27AE60",
+                          }}
+                        >
                           Đã thanh toán
                         </Tag>
                       )}
@@ -1950,25 +1958,23 @@ const OrderDetail = () => {
                   <div className="padding-24">
                     <Row>
                       <Col span={12}>
-                        <span className="text-field margin-right-40">
-                          Đã thanh toán:
-                        </span>
-                        <span>
+                        <span className="margin-right-40">Đã thanh toán:</span>
+                        <b>
                           {formatCurrency(
                             getAmountPayment(OrderDetail.payments)
                           )}
-                        </span>
+                        </b>
                       </Col>
                       <Col span={12}>
                         <span className="text-field margin-right-40">
                           Còn phải trả
                         </span>
-                        <span className="text-success">
+                        <b style={{ color: "#E24343" }}>
                           {formatCurrency(
                             OrderDetail.total -
                               getAmountPayment(OrderDetail.payments)
                           )}
-                        </span>
+                        </b>
                       </Col>
                     </Row>
                   </div>
@@ -1978,18 +1984,30 @@ const OrderDetail = () => {
                       <Collapse
                         className="orders-timeline"
                         defaultActiveKey={["1"]}
+                        expandIcon={({ isActive }) => (
+                          <img
+                            src={doubleArrow}
+                            alt=""
+                            style={{
+                              transform: isActive
+                                ? "rotate(0deg)"
+                                : "rotate(270deg)",
+                                float:"right"
+                            }}
+                          />
+                        )}
                         ghost
                       >
                         <Panel
-                          className="orders-timeline-custom"
+                          className="orders-timeline-custom success-collapse"
                           header={
-                            <span>
-                              Đã thanh toán:{" "}
+                            <span style={{ color: "#222222" }}>
+                              Đã thanh toán:
                               <b>
-                              {OrderDetail?.payments !== null &&
-                                OrderDetail?.payments.map(
-                                  (item, index) => item.payment_method + ", "
-                                )}
+                                {OrderDetail?.payments !== null &&
+                                  OrderDetail?.payments.map(
+                                    (item, index) => item.payment_method + ", "
+                                  )}
                               </b>
                             </span>
                           }
@@ -1998,15 +2016,11 @@ const OrderDetail = () => {
                             <>
                               {OrderDetail?.payments !== null && (
                                 <div>
-                                  <b className="fixed-total">
-                                    {formatCurrency(
-                                      getAmountPayment(OrderDetail.payments)
-                                    )}
-                                  </b>
+                                 
                                   <span className="fixed-time text-field">
                                     {moment(
                                       getDateLastPayment(OrderDetail)
-                                    ).format("DD/MM/YYYY HH:MM a")}
+                                    ).format("DD/MM/YYYY HH:MM")}
                                   </span>
                                 </div>
                               )}
@@ -2017,10 +2031,10 @@ const OrderDetail = () => {
                             {OrderDetail?.payments !== null &&
                               OrderDetail?.payments.map((item, index) => (
                                 <Col span={12}>
-                                  <p className="text-field">
+                                  <p style={{color:"#737373"}}>
                                     {item.payment_method}
                                   </p>
-                                  <p>{formatCurrency(item.paid_amount)}</p>
+                                  <b>{formatCurrency(item.paid_amount)}</b>
                                 </Col>
                               ))}
                           </Row>
