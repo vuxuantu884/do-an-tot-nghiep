@@ -132,7 +132,7 @@ const OrderDetail = () => {
   );
   const [amount, setAmount] = useState<number>(0);
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
-    useState<number | null>(0);
+    useState<number>(0);
   const [isvibleShippedConfirm, setIsvibleShippedConfirm] =
     useState<boolean>(false);
   const [requirementName, setRequirementName] = useState<string | null>(null);
@@ -566,7 +566,12 @@ const OrderDetail = () => {
       }
     }
     if (paymentType === 1) {
-      value.cod = OrderDetail?.total_line_amount_after_line_discount;
+      value.cod = takeMoneyHelper ||
+      (OrderDetail?.total_line_amount_after_line_discount &&
+        shippingFeeInformedCustomer &&
+        OrderDetail?.total_line_amount_after_line_discount +
+          shippingFeeInformedCustomer) ||
+      OrderDetail?.total_line_amount_after_line_discount;
     }
     FulFillmentRequest.shipment = value;
     if (shippingFeeInformedCustomer !== null) {
@@ -705,18 +710,20 @@ const OrderDetail = () => {
     },
   ];
   // copy button
-  const copyOrderID = (e : any) =>{
+  const copyOrderID = (e: any) => {
     e.stopPropagation();
-    e.target.style.width = "82%"
-    const decWidth = setTimeout(() => {e.target.style.width = "77%"},500)
-    clearTimeout(decWidth)
+    e.target.style.width = "82%";
+    const decWidth = setTimeout(() => {
+      e.target.style.width = "77%";
+    }, 500);
+    clearTimeout(decWidth);
     let selection = window.getSelection();
     let range = document.createRange();
     range.selectNodeContents(copyRef?.current);
     selection && selection.removeAllRanges();
     selection && selection.addRange(range);
     document.execCommand("Copy");
-  }
+  };
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -1385,7 +1392,8 @@ const OrderDetail = () => {
                       header={
                         <Row gutter={24}>
                           <Col style={{ padding: 0 }}>
-                            <p ref={copyRef}
+                            <p
+                              ref={copyRef}
                               className="text-field"
                               style={{ color: "#2A2A86", fontWeight: 500 }}
                             >
@@ -1402,10 +1410,11 @@ const OrderDetail = () => {
                               marginLeft: 6,
                               marginBottom: 8,
                               width: 30,
-                              height: 30
+                              height: 30,
                             }}
                           >
-                            <img onClick={(e) => copyOrderID(e)}
+                            <img
+                              onClick={(e) => copyOrderID(e)}
                               src={copyFileBtn}
                               alt=""
                               style={{ marginTop: "5px", width: "77%" }}
@@ -1757,6 +1766,10 @@ const OrderDetail = () => {
                                   minLength={0}
                                   value={
                                     takeMoneyHelper ||
+                                    (OrderDetail?.total_line_amount_after_line_discount &&
+                                      shippingFeeInformedCustomer &&
+                                      OrderDetail?.total_line_amount_after_line_discount +
+                                        shippingFeeInformedCustomer) ||
                                     OrderDetail?.total_line_amount_after_line_discount
                                   }
                                   onChange={(value) =>
@@ -1800,7 +1813,7 @@ const OrderDetail = () => {
                                 }}
                                 maxLength={15}
                                 minLength={0}
-                                onChange={(e) =>
+                                onChange={(e: any) =>
                                   setShippingFeeInformedCustomer(e)
                                 }
                               />
