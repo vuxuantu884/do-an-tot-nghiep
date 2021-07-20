@@ -7,7 +7,6 @@ import {
   Row,
   Col,
   Input,
-  Space,
   FormInstance,
   Select,
 } from "antd";
@@ -46,7 +45,11 @@ import {
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
-import { getAmountPayment, getTotalAmountAfferDiscount } from "utils/AppUtils";
+import {
+  getAmountPayment,
+  getAmountPaymentRequest,
+  getTotalAmountAfferDiscount,
+} from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 //#endregion
 
@@ -78,7 +81,7 @@ export default function Order() {
   const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] =
     useState<boolean>(false);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false)
+  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   //#endregion
 
   //#region Customer
@@ -283,7 +286,23 @@ export default function Order() {
       if (takeMoneyHelper !== null) {
         objShipment.cod = takeMoneyHelper;
       } else {
-        objShipment.cod = orderAmount;
+        if (shippingFeeCustomer !== null) {
+          if (
+            orderAmount +
+              shippingFeeCustomer -
+              getAmountPaymentRequest(payments) >
+            0
+          ) {
+            objShipment.cod =
+              orderAmount +
+              shippingFeeCustomer -
+              getAmountPaymentRequest(payments);
+          }
+        } else {
+          if (orderAmount - getAmountPaymentRequest(payments) > 0) {
+            objShipment.cod = orderAmount - getAmountPaymentRequest(payments);
+          }
+        }
       }
       return objShipment;
     }
@@ -344,9 +363,10 @@ export default function Order() {
   const onFinish = (values: OrderRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    let totalPaid = getAmountPayment(payments);
     let total_line_amount_after_line_discount =
       getTotalAmountAfferDiscount(items);
+
+    //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
       values.payments = [];
@@ -355,13 +375,19 @@ export default function Order() {
       values.total = orderAmount;
       values.shipping_fee_informed_to_customer = 0;
     } else {
+      //Nếu là đơn lưu và duyệt
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments;
+
+      //Nếu có phí ship báo khách
       if (shippingFeeCustomer !== null) {
         values.total = orderAmount + shippingFeeCustomer;
         if (values.fulfillments[0].shipment != null) {
-          values.fulfillments[0].shipment.cod = orderAmount + shippingFeeCustomer;
+          values.fulfillments[0].shipment.cod =
+            orderAmount +
+            shippingFeeCustomer -
+            getAmountPaymentRequest(payments);
         }
       } else {
         values.total = orderAmount;
@@ -401,14 +427,14 @@ export default function Order() {
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
-//windows offset
-  window.addEventListener("scroll", () => { 
-    if(window.pageYOffset > 100){
-      setIsShowBillStep(true)
-    }else{
-      setIsShowBillStep(false)
+  //windows offset
+  window.addEventListener("scroll", () => {
+    if (window.pageYOffset > 100) {
+      setIsShowBillStep(true);
+    } else {
+      setIsShowBillStep(false);
     }
-  })
+  });
   return (
     <ContentContainer
       title="Tạo mới đơn hàng"
@@ -612,7 +638,7 @@ export default function Order() {
               bottom: "0%",
               backgroundColor: "#FFFFFF",
               marginLeft: "-30px",
-              display: `${isShowBillStep ? "" : "none"}`
+              display: `${isShowBillStep ? "" : "none"}`,
             }}
           >
             <Col
