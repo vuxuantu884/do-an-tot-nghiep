@@ -78,6 +78,7 @@ export default function Order() {
   const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] =
     useState<boolean>(false);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
+  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false)
   //#endregion
 
   //#region Customer
@@ -359,6 +360,9 @@ export default function Order() {
       values.payments = payments;
       if (shippingFeeCustomer !== null) {
         values.total = orderAmount + shippingFeeCustomer;
+        if (values.fulfillments[0].shipment != null) {
+          values.fulfillments[0].shipment.cod = orderAmount + shippingFeeCustomer;
+        }
       } else {
         values.total = orderAmount;
       }
@@ -397,7 +401,14 @@ export default function Order() {
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
-
+//windows offset
+  window.addEventListener("scroll", () => { 
+    if(window.pageYOffset > 100){
+      setIsShowBillStep(true)
+    }else{
+      setIsShowBillStep(false)
+    }
+  })
   return (
     <ContentContainer
       title="Tạo mới đơn hàng"
@@ -592,7 +603,7 @@ export default function Order() {
           </Row>
           <Row
             gutter={24}
-            className="margin-top-10"
+            className="margin-top-10 "
             style={{
               position: "fixed",
               textAlign: "right",
@@ -600,17 +611,18 @@ export default function Order() {
               height: "55px",
               bottom: "0%",
               backgroundColor: "#FFFFFF",
-              marginLeft: "-31px",
+              marginLeft: "-30px",
+              display: `${isShowBillStep ? "" : "none"}`
             }}
           >
             <Col
-              md={12}
+              md={10}
               style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px" }}
             >
               <CreateBillStep status="draff" orderDetail={null} />
             </Col>
 
-            <Col md={7} style={{ marginTop: "8px" }}>
+            <Col md={9} style={{ marginTop: "8px" }}>
               <Button
                 className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => history.push(`${UrlConfig.ORDER}/list`)}
