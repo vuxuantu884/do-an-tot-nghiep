@@ -92,5 +92,14 @@
         justify-content: space-between;
       }
     }
+    &-address {
+      padding: 0 20px;
+      .su-title {
+        font-weight: 400;
+        font-size: 14px;
+        color:#737373;
+      }
+    }
   }
+  
 }

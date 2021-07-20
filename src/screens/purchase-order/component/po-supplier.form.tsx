@@ -1,8 +1,17 @@
-//#region Import
-import { Card, AutoComplete, Input, Form, Button, Avatar, Space, Divider } from "antd";
+import {
+  Card,
+  AutoComplete,
+  Input,
+  Form,
+  Button,
+  Avatar,
+  Divider,
+  Row,
+  Col,
+} from "antd";
 
 import { SearchOutlined } from "@ant-design/icons";
-import React, { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
@@ -65,36 +74,60 @@ const POSupplierForm = () => {
           </div>
         }
       >
-
-          <Form.Item
-            shouldUpdate={(prevValues, curValues) =>
-              prevValues.supplier_id !== curValues.supplier_id
-            }
-          >
-            {({ getFieldValue }) => {
-              let supplier_id = getFieldValue("supplier_id");
-              let supplier: SupplierResponse = getFieldValue("supplier");
-              return supplier_id ? (
-                <div className="supplier-container">
-                  <div className="padding-10 supplier-container-info">
-                    <Avatar src={avatarDefault} />
-                    <div className="supplier-container-info-right">
-                      <div className="rs-name">{supplier.name}</div>
-                      <div className="rs-money">
-                        Công nợ hiện tại: 0
-                        <Button
-                          onClick={onDeleteSupplier}
-                          className="rs-delete"
-                          icon={<AiOutlineClose />}
-                        />
-                      </div>
+        <Form.Item
+          shouldUpdate={(prevValues, curValues) =>
+            prevValues.supplier_id !== curValues.supplier_id
+          }
+        >
+          {({ getFieldValue }) => {
+            let supplier_id = getFieldValue("supplier_id");
+            let supplier: SupplierResponse = getFieldValue("supplier");
+            return supplier_id ? (
+              <div className="supplier-container">
+                <div className="padding-10 supplier-container-info">
+                  <Avatar src={avatarDefault} />
+                  <div className="supplier-container-info-right">
+                    <div className="rs-name">{supplier.name}</div>
+                    <div className="rs-money">
+                      Công nợ hiện tại: 0
+                      <Button
+                        onClick={onDeleteSupplier}
+                        className="rs-delete"
+                        icon={<AiOutlineClose />}
+                      />
                     </div>
                   </div>
-                  <Divider style={{margin: 0}} />
-                  <div className="supplier-container-address">
-                  </div>
                 </div>
-              ) : (
+                <Divider style={{ margin: 0 }} />
+                <div className="supplier-container-address">
+                  <Row className="margin-top-10" gutter={24}>
+                    <Col span={4}>
+                      <span className="su-title">Mã nhà cung cấp</span>
+                    </Col>
+                    <Col span={20}>
+                      <span>{supplier.code}</span>
+                    </Col>
+                  </Row>
+                  <Row className="margin-top-10" gutter={24}>
+                    <Col span={4}>
+                      <span className="su-title">Địa chỉ</span>
+                    </Col>
+                    <Col span={20}>
+                      <span>{`${supplier.district_name} ${supplier.city_name} ${supplier.country_name}`}</span>
+                    </Col>
+                  </Row>
+                  <Row className="margin-top-10" gutter={24}>
+                    <Col span={4}>
+                      <span className="su-title">Số điện thoại</span>
+                    </Col>
+                    <Col span={20}>
+                      <span>{supplier.phone}</span>
+                    </Col>
+                  </Row>
+                </div>
+              </div>
+            ) : (
+              <div className="padding-20">
                 <AutoComplete
                   notFoundContent={"Không tìm thấy nhà cung cấp"}
                   onSearch={onSupplierSearchChange}
@@ -121,52 +154,10 @@ const POSupplierForm = () => {
                     prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                   />
                 </AutoComplete>
-              );
-            }}
-          </Form.Item>
-
-        {/* <div className="padding-20">
-          <Space size={40}>
-            <Space>
-              <Link to="#">Đỗ Nguyệt Anh</Link>
-            </Space>
-          </Space>
-          <Divider className="margin-0" />
-          <div className="padding-20">
-            <Row gutter={10}>
-              <Col md={12}>
-                <Space direction="vertical">
-                  <strong>Địa chỉ giao hàng</strong>
-                  <span>
-                    <ProfileOutlined /> Kho online
-                  </span>
-                  <span>
-                    <PhoneOutlined /> 0986868686
-                  </span>
-                  <span>
-                    <EnvironmentOutlined />
-                    YODY hub, Dưới chân cầu An Định, Tp. Hải Dương
-                  </span>
-                </Space>
-              </Col>
-              <Col md={12}>
-                <Space direction="vertical">
-                  <strong>Địa chỉ hóa đơn</strong>
-                  <span>
-                    <ProfileOutlined /> Kho online
-                  </span>
-                  <span>
-                    <PhoneOutlined /> 0986868686
-                  </span>
-                  <span>
-                    <EnvironmentOutlined />
-                    YODY hub, Dưới chân cầu An Định, Tp. Hải Dương
-                  </span>
-                </Space>
-              </Col>
-            </Row>
-          </div>
-        </div> */}
+              </div>
+            );
+          }}
+        </Form.Item>
       </Card>
     </Form>
   );
