@@ -7,7 +7,7 @@ const POProductForm: React.FC = () => {
         className="po-form margin-top-20"
         title={
           <div className="d-flex">
-            <span className="title-card">THÔNG TIN NHÀ CUNG CẤP</span>
+            <span className="title-card">THÔNG TIN SẢN PHẨM</span>
           </div>
         }
         extra={

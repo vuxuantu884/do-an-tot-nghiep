@@ -1,22 +1,16 @@
 import {
-  SearchOutlined,
-  UnorderedListOutlined,
   CheckOutlined,
 } from "@ant-design/icons";
 import {
   Button,
-  Card,
-  Input,
   Row,
   Col,
   Form,
-  Checkbox,
   Space,
   Steps,
 } from "antd";
 import {useEffect} from "react";
 import POSupplierForm from "./component/po-supplier.form";
-import PurchaseItem from "./component/purchase-item";
 import PurchaseInfo from "./component/purchase-info";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
