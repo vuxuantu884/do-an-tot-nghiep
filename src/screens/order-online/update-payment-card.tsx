@@ -1,5 +1,14 @@
 // @ts-ignore
-import { Button, Card, Row, Col, Radio, InputNumber, Space } from "antd";
+import {
+  Button,
+  Card,
+  Row,
+  Col,
+  Radio,
+  InputNumber,
+  Space,
+  Divider,
+} from "antd";
 
 import {
   BugOutlined,
@@ -43,6 +52,7 @@ type PaymentCardUpdateProps = {
   paymentMethod: number;
   amount: any;
   order_id: number | null;
+  showPartialPayment?: boolean;
 };
 
 const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
@@ -133,13 +143,10 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     props.setPayments([...paymentData]);
   };
 
-  const onUpdateSuccess = useCallback(
-    (value: OrderResponse) => {
-      showSuccess("Thanh toán thành công");
-      window.location.reload();
-    },
-    []
-  );
+  const onUpdateSuccess = useCallback((value: OrderResponse) => {
+    showSuccess("Thanh toán thành công");
+    window.location.reload();
+  }, []);
 
   const ShowConfirmPayment = () => {
     if (props.orderDetail.status === OrderStatus.FINALIZED) {
@@ -201,179 +208,186 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   }, [dispatch]);
 
   return (
-    <Card
-      className="margin-top-20"
-      title={
-        <div className="d-flex" style={{ marginTop: "5px" }}>
-          <span className="title-card">THANH TOÁN</span>
-        </div>
-      }
-    >
-      {isVisibleUpdatePayment === true && (
-        <div className="padding-20">
-          <i>Lựa chọn một hoặc nhiều phương thức thanh toán</i> <br />
-          <Radio.Group
-            value={props.paymentMethod}
-            onChange={(e) => changePaymentMethod(e.target.value)}
-            style={{ margin: "20px 0 20px 0" }}
-          >
-            <Space size={24}>
-              <Radio value={PaymentMethodOption.COD}>COD</Radio>
-              <Radio value={PaymentMethodOption.PREPAYMENT}>
-                Thanh toán trước
-              </Radio>
-              <Radio value={PaymentMethodOption.POSTPAYMENT}>
-                Thanh toán sau
-              </Radio>
-            </Space>
-          </Radio.Group>
-          <Row gutter={24} hidden={props.paymentMethod !== 2}>
-            <Col xs={24} lg={24}>
-              <div className="form-group form-group-with-search">
-                <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
-              </div>
-            </Col>
-            <Col xs={24} lg={24}>
-              <Row
-                className="btn-list-method"
-                gutter={8}
-                align="middle"
-                style={{ marginLeft: 0, marginRight: 0 }}
+    <div>
+      <ConfirmPaymentModal
+        onCancel={onCancleConfirm}
+        onOk={onOkConfirm}
+        visible={isibleConfirmPayment}
+        order_id={props.order_id}
+        text={textValue}
+      />
+      {props.showPartialPayment === false && (
+        <Card
+          className="margin-top-20"
+          title={
+            <div className="d-flex" style={{ marginTop: "5px" }}>
+              <span className="title-card">THANH TOÁN</span>
+            </div>
+          }
+        >
+          {isVisibleUpdatePayment === true && (
+            <div className="padding-20">
+              <Radio.Group
+                value={props.paymentMethod}
+                onChange={(e) => changePaymentMethod(e.target.value)}
+                style={{ margin: "20px 0 20px 0" }}
               >
-                {ListMaymentMethods.map((method, index) => {
-                  let icon = null;
-                  switch (method.code) {
-                    case PaymentMethodCode.CASH:
-                      icon = <Cash />;
-                      break;
-                    case PaymentMethodCode.CARD:
-                    case PaymentMethodCode.BANK_TRANSFER:
-                      icon = <CreditCardOutlined />;
-                      break;
-                    case PaymentMethodCode.QR_CODE:
-                      icon = <QrcodeOutlined />;
-                      break;
-                    case PaymentMethodCode.POINT:
-                      icon = <YdCoin />;
-                      break;
-                    default:
-                      icon = <BugOutlined />;
-                      break;
-                  }
-                  return (
-                    <Col key={method.code} className="btn-payment-method">
-                      <Button
-                        type={
-                          paymentData.some((p) => p.code === method.code)
-                            ? "primary"
-                            : "default"
-                        }
-                        value={method.id}
-                        icon={icon}
-                        size="large"
-                        onClick={() => {
-                          handlePickPaymentMethod(method.code);
-                        }}
-                        className=""
-                      >
-                        {method.name}
-                      </Button>
-                    </Col>
-                  );
-                })}
-              </Row>
-            </Col>
-
-            <Col span={24}>
-              <Row
-                gutter={14}
-                className="row-price"
-                style={{ padding: "5px 0px" }}
-              >
-                <Col xs={9} className="row-large-title">
-                  Khách cần trả
+                <Space size={24}>
+                  <Radio value={PaymentMethodOption.COD}>COD</Radio>
+                  <Radio value={PaymentMethodOption.PREPAYMENT}>
+                    Thanh toán trước
+                  </Radio>
+                  <Radio value={PaymentMethodOption.POSTPAYMENT}>
+                    Thanh toán sau
+                  </Radio>
+                </Space>
+              </Radio.Group>
+              <Row gutter={24} hidden={props.paymentMethod !== 2}>
+                <Col xs={24} lg={24}>
+                  <div className="form-group form-group-with-search">
+                    <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
+                  </div>
                 </Col>
-                <Col
-                  className="lbl-money"
-                  xs={5}
-                  style={{
-                    textAlign: "right",
-                    fontWeight: 500,
-                    fontSize: "20px",
-                  }}
-                >
-                  <span className="t-result-blue">
-                    {formatCurrency(props.amount)}
-                  </span>
+                <Col xs={24} lg={24}>
+                  <Row
+                    className="btn-list-method"
+                    gutter={8}
+                    align="middle"
+                    style={{ marginLeft: 0, marginRight: 0 }}
+                  >
+                    {ListMaymentMethods.map((method, index) => {
+                      let icon = null;
+                      switch (method.code) {
+                        case PaymentMethodCode.CASH:
+                          icon = <Cash />;
+                          break;
+                        case PaymentMethodCode.CARD:
+                        case PaymentMethodCode.BANK_TRANSFER:
+                          icon = <CreditCardOutlined />;
+                          break;
+                        case PaymentMethodCode.QR_CODE:
+                          icon = <QrcodeOutlined />;
+                          break;
+                        case PaymentMethodCode.POINT:
+                          icon = <YdCoin />;
+                          break;
+                        default:
+                          icon = <BugOutlined />;
+                          break;
+                      }
+                      return (
+                        <Col key={method.code} className="btn-payment-method">
+                          <Button
+                            type={
+                              paymentData.some((p) => p.code === method.code)
+                                ? "primary"
+                                : "default"
+                            }
+                            value={method.id}
+                            icon={icon}
+                            size="large"
+                            onClick={() => {
+                              handlePickPaymentMethod(method.code);
+                            }}
+                            className=""
+                          >
+                            {method.name}
+                          </Button>
+                        </Col>
+                      );
+                    })}
+                  </Row>
                 </Col>
-              </Row>
-
-              {paymentData.map((method, index) => {
-                return (
+                <Col span={24}>
                   <Row
                     gutter={14}
                     className="row-price"
-                    style={{ padding: "5px 0" }}
-                    key={index}
+                    style={{ padding: "5px 0px" }}
                   >
-                    <Col xs={9}>
-                      <Row align="middle">
-                        {method.name}
-                        {method.code === PaymentMethodCode.POINT ? (
-                          <div>
-                            <span
-                              style={{
-                                fontSize: 14,
-                                marginLeft: 5,
-                              }}
-                            >
-                              {" "}
-                              (1 điểm = 1,000₫)
-                            </span>
-                            <InputNumber
-                              value={method.point}
-                              size="middle"
-                              style={{
-                                textAlign: "right",
-                                borderRadius: 5,
-                                marginLeft: "5px"
-                              }}
-                              className="yody-payment-input hide-number-handle"
-                              onFocus={(e) => e.target.select()}
-                              formatter={(value) =>
-                                formatSuffixPoint(value ? value : "0")
-                              }
-                              parser={(value) =>
-                                replaceFormat(value ? value : "0")
-                              }
-                              min={0}
-                              max={99999}
-                              onChange={(value) => {
-                                handleInputPoint(index, value);
-                              }}
-                            />
-                          </div>
-                        ) : null}
-                      </Row>
+                    <Col xs={9} className="row-large-title">
+                      Khách cần trả
                     </Col>
-                    <Col className="lbl-money" xs={5}>
-                      <InputNumber
-                        size="middle"
-                        min={0}
-                        max={999999999999}
-                        value={method.amount}
-                        disabled={method.code === PaymentMethodCode.POINT}
-                        className="yody-payment-input hide-number-handle"
-                        formatter={(value) =>
-                          formatCurrency(value ? value : "0")
-                        }
-                        placeholder="Nhập tiền mặt"
-                        style={{ textAlign: "right", width: "100%" }}
-                        onChange={(value) => handleInputMoney(index, value)}
-                        onFocus={(e) => e.target.select()}
-                      />
+                    <Col
+                      className="lbl-money"
+                      xs={5}
+                      style={{
+                        textAlign: "right",
+                        fontWeight: 500,
+                        fontSize: "20px",
+                      }}
+                    >
+                      <span className="t-result-blue">
+                        {formatCurrency(props.amount)}
+                      </span>
                     </Col>
-                    {/* <Col span={2} style={{ paddingLeft: 0 }}>
+                  </Row>
+
+                  {paymentData.map((method, index) => {
+                    return (
+                      <Row
+                        gutter={14}
+                        className="row-price"
+                        style={{ padding: "5px 0" }}
+                        key={index}
+                      >
+                        <Col xs={9}>
+                          <Row align="middle">
+                            {method.name}
+                            {method.code === PaymentMethodCode.POINT ? (
+                              <div>
+                                <span
+                                  style={{
+                                    fontSize: 14,
+                                    marginLeft: 5,
+                                  }}
+                                >
+                                  {" "}
+                                  (1 điểm = 1,000₫)
+                                </span>
+                                <InputNumber
+                                  value={method.point}
+                                  size="middle"
+                                  style={{
+                                    textAlign: "right",
+                                    borderRadius: 5,
+                                    marginLeft: "5px",
+                                  }}
+                                  className="yody-payment-input hide-number-handle"
+                                  onFocus={(e) => e.target.select()}
+                                  formatter={(value) =>
+                                    formatSuffixPoint(value ? value : "0")
+                                  }
+                                  parser={(value) =>
+                                    replaceFormat(value ? value : "0")
+                                  }
+                                  min={0}
+                                  max={99999}
+                                  onChange={(value) => {
+                                    handleInputPoint(index, value);
+                                  }}
+                                />
+                              </div>
+                            ) : null}
+                          </Row>
+                        </Col>
+                        <Col className="lbl-money" xs={5}>
+                          <InputNumber
+                            size="middle"
+                            min={0}
+                            max={999999999999}
+                            value={method.amount}
+                            disabled={method.code === PaymentMethodCode.POINT}
+                            className="yody-payment-input hide-number-handle"
+                            formatter={(value) =>
+                              formatCurrency(value ? value : "0")
+                            }
+                            placeholder="Nhập tiền mặt"
+                            style={{ textAlign: "right", width: "100%" }}
+                            onChange={(value) => handleInputMoney(index, value)}
+                            onFocus={(e) => e.target.select()}
+                          />
+                        </Col>
+                        {/* <Col span={2} style={{ paddingLeft: 0 }}>
                       <Button
                         type="text"
                         className="p-0 m-0"
@@ -384,112 +398,371 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         <img src={deleteIcon} alt="" />
                       </Button>
                     </Col> */}
+                      </Row>
+                    );
+                  })}
+
+                  <Row
+                    gutter={12}
+                    className="row-price total-customer-pay"
+                    style={{ marginLeft: 0, marginRight: 0 }}
+                  >
+                    <Col
+                      xs={9}
+                      className="row-large-title"
+                      style={{ paddingLeft: 0 }}
+                    >
+                      Tổng số tiền khách trả
+                    </Col>
+                    <Col
+                      className="lbl-money"
+                      xs={5}
+                      style={{
+                        textAlign: "right",
+                        fontWeight: 500,
+                        fontSize: "20px",
+                        paddingRight: 3,
+                      }}
+                    >
+                      <span>{formatCurrency(totalAmountPaid)}</span>
+                    </Col>
                   </Row>
-                );
-              })}
+                  <Row
+                    gutter={12}
+                    className="row-price"
+                    style={{ padding: "5px 0" }}
+                  >
+                    <Col xs={9} className="row-large-title">
+                      {moneyReturn > 0 ? "Còn phải trả" : "Tiền thừa"}
+                    </Col>
+                    <Col
+                      className="lbl-money"
+                      xs={5}
+                      style={{
+                        textAlign: "right",
+                        fontWeight: 500,
+                        fontSize: "20px",
+                      }}
+                    >
+                      <span
+                        style={{ color: moneyReturn <= 0 ? "blue" : "red" }}
+                      >
+                        {formatCurrency(Math.abs(moneyReturn))}
+                      </span>
+                    </Col>
+                  </Row>
 
-              <Row
-                gutter={12}
-                className="row-price total-customer-pay"
-                style={{ marginLeft: 0, marginRight: 0 }}
-              >
-                <Col
-                  xs={9}
-                  className="row-large-title"
-                  style={{ paddingLeft: 0 }}
-                >
-                  Tổng số tiền khách trả
-                </Col>
-                <Col
-                  className="lbl-money"
-                  xs={5}
-                  style={{
-                    textAlign: "right",
-                    fontWeight: 500,
-                    fontSize: "20px",
-                    paddingRight: 3,
-                  }}
-                >
-                  <span>{formatCurrency(totalAmountPaid)}</span>
+                  <Row gutter={24} style={{ marginTop: "20px" }}>
+                    <Col xs={24}>
+                      <div>
+                        <Button
+                          type="primary"
+                          className="ant-btn-outline fixed-button text-right"
+                          style={{ float: "right" }}
+                          htmlType="submit"
+                          onClick={ShowConfirmPayment}
+                        >
+                          Tạo thanh toán trước
+                        </Button>
+                        <Button
+                          type="default"
+                          className="ant-btn-outline fixed-button text-right"
+                          style={{ float: "right", marginRight:"10px" }}
+                        >
+                          Hủy
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
-              <Row
-                gutter={12}
-                className="row-price"
-                style={{ padding: "5px 0" }}
-              >
-                <Col xs={9} className="row-large-title">
-                  {moneyReturn > 0 ? "Còn phải trả" : "Tiền thừa"}
-                </Col>
-                <Col
-                  className="lbl-money"
-                  xs={5}
-                  style={{
-                    textAlign: "right",
-                    fontWeight: 500,
-                    fontSize: "20px",
-                  }}
-                >
-                  <span style={{ color: moneyReturn <= 0 ? "blue" : "red" }}>
-                    {formatCurrency(Math.abs(moneyReturn))}
-                  </span>
-                </Col>
-              </Row>
+            </div>
+          )}
 
-              <Row gutter={24} style={{ marginTop: "20px" }}>
-                <Col xs={24}>
-                  <div>
-                    <Button
-                      type="primary"
-                      className="ant-btn-outline fixed-button text-right"
-                      style={{ float: "right" }}
-                      htmlType="submit"
-                      onClick={ShowConfirmPayment}
-                    >
-                      Tạo thanh toán trước
-                    </Button>
-                    <Button
-                      type="default"
-                      className="ant-btn-outline fixed-button text-right"
-                      style={{ float: "right" }}
-                    >
-                      Hủy thanh toán
-                    </Button>
+          {isVisibleUpdatePayment === false && (
+            <div className="padding-lef-right" style={{ paddingTop: "20px" }}>
+              <label
+                className="text-left"
+                style={{ marginTop: "20px", lineHeight: "40px" }}
+              >
+                <i>Chưa tạo thanh toán</i>{" "}
+              </label>
+              <Button
+                type="primary"
+                className="ant-btn-outline fixed-button text-right"
+                style={{ float: "right", marginBottom: "20px" }}
+                onClick={ShowPayment}
+              >
+                Thanh toán
+              </Button>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {props.showPartialPayment && (
+        <div>
+          <Divider style={{ margin: "0 0 10px 0" }} />
+          <div style={{ padding: "0 20px 20px 20px" }}>
+            <Radio.Group
+              value={props.paymentMethod}
+              onChange={(e) => changePaymentMethod(e.target.value)}
+              style={{ margin: "20px 0 20px 0" }}
+            >
+              <Space size={24}>
+                <Radio value={PaymentMethodOption.COD}>COD</Radio>
+                <Radio value={PaymentMethodOption.PREPAYMENT}>
+                  Thanh toán trước
+                </Radio>
+              </Space>
+            </Radio.Group>
+            {props.paymentMethod === 2 && (
+              <Row gutter={24} hidden={props.paymentMethod !== 2}>
+                <Col xs={24} lg={24}>
+                  <div className="form-group form-group-with-search">
+                    <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán *</i>
                   </div>
                 </Col>
+                <Col xs={24} lg={24}>
+                  <Row
+                    className="btn-list-method"
+                    gutter={8}
+                    align="middle"
+                    style={{ marginLeft: 0, marginRight: 0 }}
+                  >
+                    {ListMaymentMethods.map((method, index) => {
+                      let icon = null;
+                      switch (method.code) {
+                        case PaymentMethodCode.CASH:
+                          icon = <Cash />;
+                          break;
+                        case PaymentMethodCode.CARD:
+                        case PaymentMethodCode.BANK_TRANSFER:
+                          icon = <CreditCardOutlined />;
+                          break;
+                        case PaymentMethodCode.QR_CODE:
+                          icon = <QrcodeOutlined />;
+                          break;
+                        case PaymentMethodCode.POINT:
+                          icon = <YdCoin />;
+                          break;
+                        default:
+                          icon = <BugOutlined />;
+                          break;
+                      }
+                      return (
+                        <Col key={method.code} className="btn-payment-method">
+                          <Button
+                            type={
+                              paymentData.some((p) => p.code === method.code)
+                                ? "primary"
+                                : "default"
+                            }
+                            value={method.id}
+                            icon={icon}
+                            size="large"
+                            onClick={() => {
+                              handlePickPaymentMethod(method.code);
+                            }}
+                            className=""
+                          >
+                            {method.name}
+                          </Button>
+                        </Col>
+                      );
+                    })}
+                  </Row>
+                </Col>
+
+                <Col span={24}>
+                  <Row
+                    gutter={14}
+                    className="row-price"
+                    style={{ padding: "5px 0px" }}
+                  >
+                    <Col xs={9} className="row-large-title">
+                      Khách cần trả
+                    </Col>
+                    <Col
+                      className="lbl-money"
+                      xs={5}
+                      style={{
+                        textAlign: "right",
+                        fontWeight: 500,
+                        fontSize: "20px",
+                      }}
+                    >
+                      <span className="t-result-blue">
+                        {formatCurrency(props.amount)}
+                      </span>
+                    </Col>
+                  </Row>
+
+                  {paymentData.map((method, index) => {
+                    return (
+                      <Row
+                        gutter={14}
+                        className="row-price"
+                        style={{ padding: "5px 0" }}
+                        key={index}
+                      >
+                        <Col xs={9}>
+                          <Row align="middle">
+                            {method.name}
+                            {method.code === PaymentMethodCode.POINT ? (
+                              <div>
+                                <span
+                                  style={{
+                                    fontSize: 14,
+                                    marginLeft: 5,
+                                  }}
+                                >
+                                  {" "}
+                                  (1 điểm = 1,000₫)
+                                </span>
+                                <InputNumber
+                                  value={method.point}
+                                  size="middle"
+                                  style={{
+                                    textAlign: "right",
+                                    borderRadius: 5,
+                                    marginLeft: "5px",
+                                  }}
+                                  className="yody-payment-input hide-number-handle"
+                                  onFocus={(e) => e.target.select()}
+                                  formatter={(value) =>
+                                    formatSuffixPoint(value ? value : "0")
+                                  }
+                                  parser={(value) =>
+                                    replaceFormat(value ? value : "0")
+                                  }
+                                  min={0}
+                                  max={99999}
+                                  onChange={(value) => {
+                                    handleInputPoint(index, value);
+                                  }}
+                                />
+                              </div>
+                            ) : null}
+                          </Row>
+                        </Col>
+                        <Col className="lbl-money" xs={5}>
+                          <InputNumber
+                            size="middle"
+                            min={0}
+                            max={999999999999}
+                            value={method.amount}
+                            disabled={method.code === PaymentMethodCode.POINT}
+                            className="yody-payment-input hide-number-handle"
+                            formatter={(value) =>
+                              formatCurrency(value ? value : "0")
+                            }
+                            placeholder="Nhập tiền mặt"
+                            style={{ textAlign: "right", width: "100%" }}
+                            onChange={(value) => handleInputMoney(index, value)}
+                            onFocus={(e) => e.target.select()}
+                          />
+                        </Col>
+                        {/* <Col span={2} style={{ paddingLeft: 0 }}>
+                <Button
+                  type="text"
+                  className="p-0 m-0"
+                  onClick={() => {
+                    handlePickPaymentMethod(method.code);
+                  }}
+                >
+                  <img src={deleteIcon} alt="" />
+                </Button>
+              </Col> */}
+                      </Row>
+                    );
+                  })}
+
+                  <Row
+                    gutter={12}
+                    className="row-price total-customer-pay"
+                    style={{ marginLeft: 0, marginRight: 0 }}
+                  >
+                    <Col
+                      xs={9}
+                      className="row-large-title"
+                      style={{ paddingLeft: 0 }}
+                    >
+                      Tổng số tiền khách trả
+                    </Col>
+                    <Col
+                      className="lbl-money"
+                      xs={5}
+                      style={{
+                        textAlign: "right",
+                        fontWeight: 500,
+                        fontSize: "20px",
+                        paddingRight: 3,
+                      }}
+                    >
+                      <span>{formatCurrency(totalAmountPaid)}</span>
+                    </Col>
+                  </Row>
+                  <Row
+                    gutter={12}
+                    className="row-price"
+                    style={{ padding: "5px 0" }}
+                  >
+                    <Col xs={9} className="row-large-title">
+                      {moneyReturn > 0 ? "Còn phải trả" : "Tiền thừa"}
+                    </Col>
+                    <Col
+                      className="lbl-money"
+                      xs={5}
+                      style={{
+                        textAlign: "right",
+                        fontWeight: 500,
+                        fontSize: "20px",
+                      }}
+                    >
+                      <span
+                        style={{ color: moneyReturn <= 0 ? "blue" : "red" }}
+                      >
+                        {formatCurrency(Math.abs(moneyReturn))}
+                      </span>
+                    </Col>
+                  </Row>
+
+                  <Row gutter={24} style={{ marginTop: "20px" }}>
+                    <Col xs={24}>
+                      <div>
+                        <Button
+                          type="primary"
+                          className="ant-btn-outline fixed-button text-right"
+                          style={{ float: "right" }}
+                          htmlType="submit"
+                          onClick={ShowConfirmPayment}
+                        >
+                          Tạo thanh toán
+                        </Button>
+                        <Button
+                          type="default"
+                          className="ant-btn-outline fixed-button text-right"
+                          style={{ float: "right", marginRight:"10px" }}
+                        >
+                          Hủy
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                </Col>
               </Row>
-            </Col>
-          </Row>
+            )}
+
+            {props.paymentMethod === 1 && (
+              <Row>
+                <i>Vui lòng chọn đóng gói và giao hàng</i>
+              </Row>
+            )}
+          </div>
         </div>
       )}
-
-      {isVisibleUpdatePayment === false && (
-        <div className="padding-lef-right" style={{ paddingTop: "20px" }}>
-          <label
-            className="text-left"
-            style={{ marginTop: "20px", lineHeight: "40px" }}
-          >
-            <i>Chưa tạo thanh toán</i>{" "}
-          </label>
-          <Button
-            type="primary"
-            className="ant-btn-outline fixed-button text-right"
-            style={{ float: "right", marginBottom: "20px" }}
-            onClick={ShowPayment}
-          >
-            Thanh toán
-          </Button>
-        </div>
-      )}
-
-      <ConfirmPaymentModal
-        onCancel={onCancleConfirm}
-        onOk={onOkConfirm}
-        visible={isibleConfirmPayment}
-        order_id={props.order_id}
-        text={textValue}
-      />
-    </Card>
+    </div>
   );
 };
 

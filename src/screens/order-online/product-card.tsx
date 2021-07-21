@@ -158,8 +158,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const total = useCallback(() => {
     let _items = [...items];
     let _amount = 0;
-    _items.forEach((i, index) => {
-      let amountItem = (i.price - i.discount_items[index].value) * i.quantity;
+    let total_discount_items = 0;
+
+    _items.forEach((i) => {
+      i.discount_items.forEach((d) => {
+         total_discount_items = total_discount_items + d.value;
+      });
+      let amountItem = (i.price - total_discount_items) * i.quantity;
       i.line_amount_after_line_discount = amountItem;
       i.amount = i.price * i.quantity;
       _amount += amountItem;
