@@ -630,7 +630,9 @@ export const getAmountPayment = (items: Array<OrderPaymentResponse> | null) => {
   return value;
 };
 
-export const getAmountPaymentRequest = (items: Array<OrderPaymentRequest> | null) => {
+export const getAmountPaymentRequest = (
+  items: Array<OrderPaymentRequest> | null
+) => {
   let value = 0;
   if (items !== null) {
     if (items.length > 0) {
@@ -692,8 +694,41 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
   }
 };
 
+//COD + tổng đã thanh toán
+export const checkPaymentAll = (items: OrderResponse) => {
+  //tính tổng đã thanh toán
+  let value = 0;
+  if (items !== null) {
+    if (items.payments !== null) {
+      if (items.payments.length > 0) {
+        items.payments.forEach((a) => (value = value + a.paid_amount));
+      }
+    }
+  }
+
+  let cod = 0;
+  if (items !== null) {
+    if (items.fulfillments !== null && items.fulfillments !== undefined) {
+      if (items.fulfillments.length > 0) {
+        items.fulfillments.forEach((a) => {
+          if (a.shipment !== undefined && a.shipment !== null) {
+            cod = cod + a.shipment?.cod;
+          }
+        });
+      }
+    }
+  }
+
+  let totalPay = value + cod;
+  if (items.total === totalPay) {
+    return 1;
+  } else {
+    return 0;
+  }
+};
+
 export const getDateLastPayment = (items: OrderResponse) => {
-  let value : Date | undefined;
+  let value: Date | undefined;
   if (items !== null) {
     if (items.payments !== null) {
       if (items.payments.length > 0) {
@@ -702,4 +737,4 @@ export const getDateLastPayment = (items: OrderResponse) => {
     }
   }
   return value;
-}
+};

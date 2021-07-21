@@ -79,6 +79,7 @@ import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
 import {
+  checkPaymentAll,
   checkPaymentStatusToShow,
   formatCurrency,
   getAmountPayment,
@@ -640,8 +641,8 @@ const OrderDetail = () => {
         OrderDetail.total +
         value.shipping_fee_informed_to_customer -
         getAmountPayment(OrderDetail.payments);
-    }else{
-      if (takeHelperValue > 0 && value.shipping_fee_informed_to_customer === 0) {
+    } else {
+      if (takeHelperValue > 0) {
         value.cod = takeHelperValue;
       }
     }
@@ -1491,7 +1492,12 @@ const OrderDetail = () => {
                           <p className="text-field">Đối tác giao hàng:</p>
                         </Col>
                         <Col span={6}>
-                          <p className="text-field">Viettel Post</p>
+                          <p className="text-field">
+                            {OrderDetail?.fulfillments !== null &&
+                              OrderDetail?.fulfillments !== undefined &&
+                              OrderDetail.fulfillments[0].shipment
+                                ?.delivery_service_provider_id}
+                          </p>
                         </Col>
                         <Col span={7}>
                           <p className="text-field">
@@ -1776,6 +1782,12 @@ const OrderDetail = () => {
                             <Form.Item
                               label="Đối tác giao hàng"
                               name="delivery_service_provider_id"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Vui lòng chọn đối tác giao hàng",
+                                },
+                              ]}
                             >
                               <CustomSelect
                                 className="select-with-search"
@@ -2040,68 +2052,98 @@ const OrderDetail = () => {
                       </Col>
                     </Row>
                   </div>
-                  <Divider style={{ margin: "0px" }} />
+
                   {OrderDetail?.payments !== null && (
-                    <div className="padding-24">
-                      <Collapse
-                        className="orders-timeline"
-                        
-                        expandIcon={({ isActive }) => (
-                          <img
-                            src={doubleArrow}
-                            alt=""
-                            style={{
-                              transform: isActive
-                                ? "rotate(0deg)"
-                                : "rotate(270deg)",
-                              float: "right",
-                            }}
-                          />
-                        )}
-                        ghost
-                      >
-                        <Panel
-                          className="orders-timeline-custom success-collapse"
-                          header={
-                            <span style={{ color: "#222222" }}>
-                              Đã thanh toán:
-                              <b>
-                                {OrderDetail?.payments !== null &&
-                                  OrderDetail?.payments.map(
-                                    (item, index) => item.payment_method + ", "
-                                  )}
-                              </b>
-                            </span>
-                          }
-                          key="1"
-                          extra={
-                            <>
-                              {OrderDetail?.payments !== null && (
-                                <div>
-                                  <span className="fixed-time text-field">
-                                    {moment(
-                                      getDateLastPayment(OrderDetail)
-                                    ).format("DD/MM/YYYY HH:MM")}
-                                  </span>
-                                </div>
-                              )}
-                            </>
-                          }
+                    <div>
+                      <div style={{ padding: "0 24px 24px 24px" }}>
+                        <Collapse
+                          className="orders-timeline"
+                          expandIcon={({ isActive }) => (
+                            <img
+                              src={doubleArrow}
+                              alt=""
+                              style={{
+                                transform: isActive
+                                  ? "rotate(0deg)"
+                                  : "rotate(270deg)",
+                                float: "right",
+                              }}
+                            />
+                          )}
+                          ghost
                         >
-                          <Row gutter={24}>
-                            {OrderDetail?.payments !== null &&
-                              OrderDetail?.payments.map((item, index) => (
-                                <Col span={12}>
-                                  <p style={{ color: "#737373" }}>
-                                    {item.payment_method}
-                                  </p>
-                                  <b>{formatCurrency(item.paid_amount)}</b>
-                                </Col>
-                              ))}
-                          </Row>
-                        </Panel>
-                        {/* <Panel key="2" showArrow={false} header="COD" /> */}
-                      </Collapse>
+                          <Panel
+                            className="orders-timeline-custom success-collapse"
+                            header={
+                              <span style={{ color: "#222222" }}>
+                                Đã thanh toán:
+                                <b>
+                                  {OrderDetail?.payments !== null &&
+                                    OrderDetail?.payments.map(
+                                      (item, index) =>
+                                        item.payment_method + ", "
+                                    )}
+                                </b>
+                              </span>
+                            }
+                            key="1"
+                            extra={
+                              <>
+                                {OrderDetail?.payments !== null && (
+                                  <div>
+                                    <span className="fixed-time text-field">
+                                      {moment(
+                                        getDateLastPayment(OrderDetail)
+                                      ).format("DD/MM/YYYY HH:MM")}
+                                    </span>
+                                  </div>
+                                )}
+                              </>
+                            }
+                          >
+                            <Row gutter={24}>
+                              {OrderDetail?.payments !== null &&
+                                OrderDetail?.payments.map((item, index) => (
+                                  <Col span={12}>
+                                    <p style={{ color: "#737373" }}>
+                                      {item.payment_method}
+                                    </p>
+                                    <b>{formatCurrency(item.paid_amount)}</b>
+                                  </Col>
+                                ))}
+                            </Row>
+                          </Panel>
+                          {/* <Panel key="2" showArrow={false} header="COD" /> */}
+
+                          {OrderDetail &&
+                            OrderDetail.fulfillments &&
+                            OrderDetail.fulfillments.length > 0 &&
+                            OrderDetail.fulfillments[0].shipment &&
+                            OrderDetail.fulfillments[0].shipment?.cod !==
+                              null && (
+                              <Panel
+                                className="orders-timeline-custom"
+                                showArrow={false}
+                                header={
+                                  <span>
+                                    COD
+                                    <b style={{ marginLeft: "200px" }}>
+                                      {OrderDetail !== null &&
+                                      OrderDetail.fulfillments !== undefined &&
+                                      OrderDetail.fulfillments !== null
+                                        ? formatCurrency(
+                                            OrderDetail.fulfillments[0].shipment
+                                              ?.cod
+                                          )
+                                        : 0}
+                                    </b>
+                                  </span>
+                                }
+                                key="2"
+                              ></Panel>
+                            )}
+                        </Collapse>
+                      </div>{" "}
                     </div>
                   )}
                   {isShowPaymentPartialPayment && OrderDetail !== null && (
@@ -2118,18 +2160,19 @@ const OrderDetail = () => {
                       orderDetail={OrderDetail}
                     />
                   )}
-                  {checkPaymentStatusToShow(OrderDetail) === 0 && isShowPaymentPartialPayment === false && (
-                    <div className="padding-24 text-right">
-                      <Divider style={{ margin: "10px 0" }} />
-                      <Button
-                        type="primary"
-                        className="ant-btn-outline fixed-button"
-                        onClick={() => setShowPaymentPartialPayment(true)}
-                      >
-                        Thanh toán
-                      </Button>
-                    </div>
-                  )}
+                  {checkPaymentAll(OrderDetail) !== 1 &&
+                    isShowPaymentPartialPayment === false && (
+                      <div className="padding-24 text-right">
+                        <Divider style={{ margin: "10px 0" }} />
+                        <Button
+                          type="primary"
+                          className="ant-btn-outline fixed-button"
+                          onClick={() => setShowPaymentPartialPayment(true)}
+                        >
+                          Thanh toán
+                        </Button>
+                      </div>
+                    )}
                 </Card>
               )}
 
@@ -2260,7 +2303,10 @@ const OrderDetail = () => {
             {/* Chưa thanh toán đơn nháp*/}
             {OrderDetail !== null &&
               OrderDetail.payments?.length === 0 &&
-              (OrderDetail.fulfillments?.length === 0 || (OrderDetail.fulfillments !== undefined && OrderDetail.fulfillments !== null && OrderDetail.fulfillments[0].shipment === null)) && (
+              (OrderDetail.fulfillments?.length === 0 ||
+                (OrderDetail.fulfillments !== undefined &&
+                  OrderDetail.fulfillments !== null &&
+                  OrderDetail.fulfillments[0].shipment === null)) && (
                 <UpdatePaymentCard
                   setSelectedPaymentMethod={onPaymentSelect}
                   setPayments={onPayments}
