@@ -67,7 +67,6 @@ import eyeOutline from "assets/icon/eye_outline.svg";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
-
 import { useParams } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -147,11 +146,6 @@ const OrderDetail = () => {
   //#endregion
 
   //#region Orther
-  const onOkShippedConfirm = () => {
-    setIsvibleShippedConfirm(false);
-    formRef.current?.submit();
-  };
-
   const ShowAddressModal = () => {
     setVisibleAddress(true);
     setVisibleShippingAddress(false);
@@ -167,6 +161,10 @@ const OrderDetail = () => {
   };
 
   const onPaymentSelect = (paymentType: number) => {
+    if (paymentType === 1) {
+      setVisibleShipping(true);
+    }
+
     setPaymentType(paymentType);
   };
 
@@ -193,6 +191,10 @@ const OrderDetail = () => {
   const ShowBillingAddress = () => {
     setVisibleBilling(!isVisibleBilling);
   };
+
+  const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] =
+    useState(false);
+
   //#endregion
 
   //#region Master
@@ -305,8 +307,13 @@ const OrderDetail = () => {
 
   const ShipMethodOnChange = (value: number) => {
     setShipmentMethod(value);
-    if (value === ShipmentMethodOption.SELFDELIVER)
+    if (
+      OrderDetail !== null &&
+      value === ShipmentMethodOption.SELFDELIVER &&
+      checkPaymentStatusToShow(OrderDetail) !== 1
+    ) {
       setPaymentType(PaymentMethodOption.COD);
+    }
   };
 
   const onDeleteItem = (index: number) => {
@@ -624,14 +631,19 @@ const OrderDetail = () => {
         FulFillmentRequest.id = OrderDetail.fulfillments[0].id;
       }
     }
-    if (paymentType === 1) {
+    if (
+      OrderDetail &&
+      checkPaymentStatusToShow(OrderDetail) === 1 &&
+      value.shipping_fee_informed_to_customer !== null
+    ) {
       value.cod =
-        takeMoneyHelper ||
-        (OrderDetail?.total_line_amount_after_line_discount &&
-          shippingFeeInformedCustomer &&
-          OrderDetail?.total_line_amount_after_line_discount +
-            shippingFeeInformedCustomer) ||
-        OrderDetail?.total_line_amount_after_line_discount;
+        OrderDetail.total +
+        value.shipping_fee_informed_to_customer -
+        getAmountPayment(OrderDetail.payments);
+    }else{
+      if (takeHelperValue > 0 && value.shipping_fee_informed_to_customer === 0) {
+        value.cod = takeHelperValue;
+      }
     }
     FulFillmentRequest.shipment = value;
     if (shippingFeeInformedCustomer !== null) {
@@ -2033,7 +2045,7 @@ const OrderDetail = () => {
                     <div className="padding-24">
                       <Collapse
                         className="orders-timeline"
-                        defaultActiveKey={["1"]}
+                        
                         expandIcon={({ isActive }) => (
                           <img
                             src={doubleArrow}
@@ -2092,12 +2104,27 @@ const OrderDetail = () => {
                       </Collapse>
                     </div>
                   )}
-                  {checkPaymentStatusToShow(OrderDetail) === 0 && (
+                  {isShowPaymentPartialPayment && OrderDetail !== null && (
+                    <UpdatePaymentCard
+                      setSelectedPaymentMethod={onPaymentSelect}
+                      setPayments={onPayments}
+                      paymentMethod={paymentType}
+                      showPartialPayment={true}
+                      amount={
+                        OrderDetail.total -
+                        getAmountPayment(OrderDetail.payments)
+                      }
+                      order_id={OrderDetail.id}
+                      orderDetail={OrderDetail}
+                    />
+                  )}
+                  {checkPaymentStatusToShow(OrderDetail) === 0 && isShowPaymentPartialPayment === false && (
                     <div className="padding-24 text-right">
-                      <Divider style={{ margin: "0px" }} />
+                      <Divider style={{ margin: "10px 0" }} />
                       <Button
                         type="primary"
                         className="ant-btn-outline fixed-button"
+                        onClick={() => setShowPaymentPartialPayment(true)}
                       >
                         Thanh toán
                       </Button>
@@ -2230,10 +2257,10 @@ const OrderDetail = () => {
                 </Card>
               )}
 
-            {/* Chưa thanh toán */}
+            {/* Chưa thanh toán đơn nháp*/}
             {OrderDetail !== null &&
               OrderDetail.payments?.length === 0 &&
-              OrderDetail.fulfillments?.length === 0 && (
+              (OrderDetail.fulfillments?.length === 0 || (OrderDetail.fulfillments !== undefined && OrderDetail.fulfillments !== null && OrderDetail.fulfillments[0].shipment === null)) && (
                 <UpdatePaymentCard
                   setSelectedPaymentMethod={onPaymentSelect}
                   setPayments={onPayments}
@@ -2241,6 +2268,7 @@ const OrderDetail = () => {
                   amount={OrderDetail.total}
                   order_id={OrderDetail.id}
                   orderDetail={OrderDetail}
+                  showPartialPayment={false}
                 />
               )}
 
@@ -2380,20 +2408,32 @@ const OrderDetail = () => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
         title="Xác nhận xuất kho"
-        text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${formatCurrency(
+        text={`Bạn có chắc xuất kho đơn hàng này ${
           customerNeedToPayValue -
-            (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-        )} không?`}
+          (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+            ? ` với tiền thu hộ là: ` +
+              formatCurrency(
+                customerNeedToPayValue -
+                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+              )
+            : ""
+        } không?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
-        title="Xác nhận giao hàng thành công"
-        text={`Bạn có chắc muốn xác nhận đơn giao hàng này với tiền thu hộ ${formatCurrency(
+        title="Xác nhận giao hàng"
+        text={`Bạn có chắc muốn xác nhận giao hàng cho đơn hàng này ${
           customerNeedToPayValue -
-            (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-        )} không?`}
+          (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+            ? `với tiền thu hộ là: ` +
+              formatCurrency(
+                customerNeedToPayValue -
+                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+              )
+            : ""
+        } không?`}
       />
     </ContentContainer>
   );
