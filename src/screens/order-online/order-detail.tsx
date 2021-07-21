@@ -625,12 +625,13 @@ const OrderDetail = () => {
       }
     }
     if (paymentType === 1) {
-      value.cod = takeMoneyHelper ||
-      (OrderDetail?.total_line_amount_after_line_discount &&
-        shippingFeeInformedCustomer &&
-        OrderDetail?.total_line_amount_after_line_discount +
-          shippingFeeInformedCustomer) ||
-      OrderDetail?.total_line_amount_after_line_discount;
+      value.cod =
+        takeMoneyHelper ||
+        (OrderDetail?.total_line_amount_after_line_discount &&
+          shippingFeeInformedCustomer &&
+          OrderDetail?.total_line_amount_after_line_discount +
+            shippingFeeInformedCustomer) ||
+        OrderDetail?.total_line_amount_after_line_discount;
     }
     FulFillmentRequest.shipment = value;
     if (shippingFeeInformedCustomer !== null) {
@@ -729,6 +730,82 @@ const OrderDetail = () => {
     }
   });
   //#endregion
+  // Thu hộ
+  const takeHelper: any = () => {
+    if (takeMoneyHelper) {
+      return takeMoneyHelper;
+    } else if (
+      OrderDetail?.total_line_amount_after_line_discount &&
+      shippingFeeInformedCustomer
+    ) {
+      return OrderDetail?.total_line_amount_after_line_discount +
+        shippingFeeInformedCustomer -
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) ===
+        0
+        ? shippingFeeInformedCustomer
+        : shippingFeeInformedCustomer +
+            OrderDetail?.total_line_amount_after_line_discount -
+            (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0);
+    } else if (
+      OrderDetail?.total_paid &&
+      OrderDetail?.total_line_amount_after_line_discount
+    ) {
+      return (
+        OrderDetail?.total_line_amount_after_line_discount +
+        shippingFeeInformedCustomer -
+        OrderDetail?.total_paid
+      );
+    } else if (OrderDetail?.total_line_amount_after_line_discount) {
+      return OrderDetail?.total_line_amount_after_line_discount;
+    }
+  };
+  let takeHelperValue: any = takeHelper();
+  const showTakeHelper = () => {
+    if (paymentType === 1 && takeHelperValue !== 0) {
+      return true;
+    } else if (shippingFeeInformedCustomer) {
+      takeHelperValue = shippingFeeInformedCustomer;
+      return true;
+    } else if (takeHelperValue === 0) {
+      return false;
+    } else if (paymentType === 1) {
+      return true;
+    }
+  };
+  const isShowTakeHelper = showTakeHelper();
+
+  // khách cần trả
+  const customerNeedToPay: any = () => {
+    if (
+      OrderDetail &&
+      OrderDetail?.total_line_amount_after_line_discount &&
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+    ) {
+      return (
+        OrderDetail?.total_line_amount_after_line_discount +
+        OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+      );
+    } else if (OrderDetail?.total_line_amount_after_line_discount) {
+      return (
+        OrderDetail?.total_line_amount_after_line_discount +
+        (shippingFeeInformedCustomer !== null ? shippingFeeInformedCustomer : 0)
+      );
+    } else if (
+      OrderDetail &&
+      OrderDetail?.total_line_amount_after_line_discount &&
+      OrderDetail?.shipping_fee_informed_to_customer
+    ) {
+      return (
+        OrderDetail?.total_line_amount_after_line_discount +
+        OrderDetail?.shipping_fee_informed_to_customer
+      );
+    }
+  };
+  const customerNeedToPayValue = customerNeedToPay();
+  // end
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -1264,40 +1341,7 @@ const OrderDetail = () => {
                     <Row className="payment-row" justify="space-between">
                       <strong className="font-size-text">Khách cần trả</strong>
                       <strong className="text-success font-size-text">
-                        {(OrderDetail?.total_line_amount_after_line_discount !==
-                          null &&
-                          OrderDetail?.shipping_fee_informed_to_customer !==
-                            null &&
-                          OrderDetail?.total_line_amount_after_line_discount !==
-                            undefined &&
-                          OrderDetail?.shipping_fee_informed_to_customer !==
-                            undefined &&
-                          OrderDetail !== null &&
-                          OrderDetail !== undefined &&
-                          OrderDetail?.fulfillments !== null &&
-                          OrderDetail?.fulfillments !== undefined &&
-                          OrderDetail?.fulfillments.length > 0 &&
-                          OrderDetail?.fulfillments[0].shipment !== undefined &&
-                          OrderDetail?.fulfillments[0].shipment !== null &&
-                          OrderDetail?.fulfillments[0].shipment
-                            .shipping_fee_informed_to_customer !== undefined &&
-                          OrderDetail?.fulfillments[0].shipment
-                            .shipping_fee_informed_to_customer !== null &&
-                          formatCurrency(
-                            OrderDetail?.total_line_amount_after_line_discount +
-                              OrderDetail?.fulfillments[0].shipment
-                                .shipping_fee_informed_to_customer
-                          )) ||
-                          (OrderDetail?.total_line_amount_after_line_discount !==
-                            null &&
-                            OrderDetail?.total_line_amount_after_line_discount !==
-                              undefined &&
-                            formatCurrency(
-                              OrderDetail?.total_line_amount_after_line_discount +
-                                (shippingFeeInformedCustomer !== null
-                                  ? shippingFeeInformedCustomer
-                                  : 0)
-                            ))}
+                        {formatCurrency(customerNeedToPayValue)}
                       </strong>
                     </Row>
                   </Col>
@@ -1754,7 +1798,7 @@ const OrderDetail = () => {
                                 ))}
                               </CustomSelect>
                             </Form.Item>
-                            {paymentType === 1 && (
+                            {isShowTakeHelper && (
                               <Form.Item label="Tiền thu hộ">
                                 <NumberInput
                                   format={(a: string) => formatCurrency(a)}
@@ -1769,14 +1813,7 @@ const OrderDetail = () => {
                                   }}
                                   maxLength={15}
                                   minLength={0}
-                                  value={
-                                    takeMoneyHelper ||
-                                    (OrderDetail?.total_line_amount_after_line_discount &&
-                                      shippingFeeInformedCustomer &&
-                                      OrderDetail?.total_line_amount_after_line_discount +
-                                        shippingFeeInformedCustomer) ||
-                                    OrderDetail?.total_line_amount_after_line_discount
-                                  }
+                                  value={takeHelperValue}
                                   onChange={(value) =>
                                     setTakeMoneyHelper(value)
                                   }
@@ -1954,7 +1991,8 @@ const OrderDetail = () => {
                           Đã thanh toán:
                         </span>
                         <span>
-                          {formatCurrency(
+
+                          {OrderDetail?.fulfillments && OrderDetail?.fulfillments[0].status === "shipped" && formatCurrency(customerNeedToPayValue) || formatCurrency(
                             getAmountPayment(OrderDetail.payments)
                           )}
                         </span>
@@ -1964,10 +2002,16 @@ const OrderDetail = () => {
                           Còn phải trả
                         </span>
                         <span className="text-success">
-                          {formatCurrency(
+                          {/* {formatCurrency(
                             OrderDetail.total -
                               getAmountPayment(OrderDetail.payments)
-                          )}
+                          )} */}
+                          {OrderDetail?.fulfillments && OrderDetail?.fulfillments[0].status !== "shipped" ? formatCurrency(
+                            customerNeedToPayValue -
+                              (OrderDetail?.total_paid
+                                ? OrderDetail?.total_paid
+                                : 0)
+                          ) : 0}
                         </span>
                       </Col>
                     </Row>
@@ -1986,10 +2030,10 @@ const OrderDetail = () => {
                             <span>
                               Đã thanh toán:{" "}
                               <b>
-                              {OrderDetail?.payments !== null &&
-                                OrderDetail?.payments.map(
-                                  (item, index) => item.payment_method + ", "
-                                )}
+                                {OrderDetail?.payments !== null &&
+                                  OrderDetail?.payments.map(
+                                    (item, index) => item.payment_method + ", "
+                                  )}
                               </b>
                             </span>
                           }
@@ -2044,12 +2088,10 @@ const OrderDetail = () => {
               )}
 
             {/* COD toàn phần */}
-            {OrderDetail !== null &&
-              OrderDetail.fulfillments !== undefined &&
-              OrderDetail.fulfillments !== null &&
+            {OrderDetail &&
+              OrderDetail.fulfillments &&
               OrderDetail.fulfillments.length > 0 &&
-              OrderDetail.fulfillments[0].shipment !== undefined &&
-              OrderDetail.fulfillments[0].shipment !== null &&
+              OrderDetail.fulfillments[0].shipment &&
               OrderDetail.fulfillments[0].shipment?.cod ===
                 OrderDetail.total && (
                 <Card
@@ -2100,9 +2142,8 @@ const OrderDetail = () => {
                           Còn phải trả
                         </span>
                         <span className="text-success">
-                          {OrderDetail !== null &&
-                          OrderDetail.fulfillments !== undefined &&
-                          OrderDetail.fulfillments !== null
+                          {OrderDetail &&
+                          OrderDetail?.fulfillments
                             ? formatCurrency(
                                 OrderDetail.fulfillments[0].shipment?.cod
                               )
@@ -2321,30 +2362,20 @@ const OrderDetail = () => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
         title="Xác nhận xuất kho"
-        text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${
-          takeMoneyHelper ||
-          (OrderDetail?.total &&
-            OrderDetail?.total +
-              (shippingFeeInformedCustomer !== null
-                ? shippingFeeInformedCustomer
-                : 0)) ||
-          OrderDetail?.total
-        } không?`}
+        text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${formatCurrency(
+          customerNeedToPayValue -
+            (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+        )} không?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
         title="Xác nhận giao hàng thành công"
-        text={`Bạn có chắc muốn xác nhận đơn giao hàng này với tiền thu hộ ${
-          takeMoneyHelper ||
-          (OrderDetail?.total &&
-            OrderDetail?.total +
-              (shippingFeeInformedCustomer !== null
-                ? shippingFeeInformedCustomer
-                : 0)) ||
-          OrderDetail?.total
-        } không?`}
+        text={`Bạn có chắc muốn xác nhận đơn giao hàng này với tiền thu hộ ${formatCurrency(
+          customerNeedToPayValue -
+            (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+        )} không?`}
       />
     </ContentContainer>
   );
