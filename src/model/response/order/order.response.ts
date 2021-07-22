@@ -116,6 +116,7 @@ export interface FulFillmentResponse {
   billing_address: BillingAddress | null;
   items: Array<OrderLineItemResponse>;
   payments: Array<OrderPaymentResponse>;
+  created_date: string | null;
 }
 
 export interface OrderDiscountResponse {

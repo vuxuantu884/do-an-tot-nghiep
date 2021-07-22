@@ -144,8 +144,8 @@ const OrderDetail = () => {
   const [requirementName, setRequirementName] = useState<string | null>(null);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  const [totalPaid, setTotalPaid] = useState<number>(0);
   //#endregion
-
   //#region Orther
   const ShowAddressModal = () => {
     setVisibleAddress(true);
@@ -747,9 +747,13 @@ const OrderDetail = () => {
   //#endregion
   
   // Thu hộ
-  const takeHelper: any = () => {
+  const takeHelper:any = () => {
     if (takeMoneyHelper) {
       return takeMoneyHelper;
+    }else if (totalPaid && OrderDetail?.total) {
+      return totalPaid === OrderDetail?.total
+        ? shippingFeeInformedCustomer
+        : (OrderDetail?.total ? OrderDetail?.total : 0) - totalPaid + shippingFeeInformedCustomer;
     } else if (
       OrderDetail?.total_line_amount_after_line_discount &&
       shippingFeeInformedCustomer
@@ -777,7 +781,9 @@ const OrderDetail = () => {
   };
   let takeHelperValue: any = takeHelper();
   const showTakeHelper = () => {
-    if (paymentType === 1 && takeHelperValue !== 0) {
+    if(OrderDetail?.total && totalPaid){
+      return OrderDetail?.total - totalPaid + shippingFeeInformedCustomer !== 0
+    } else if (paymentType === 1 && takeHelperValue !== 0) {
       return true;
     } else if (shippingFeeInformedCustomer) {
       takeHelperValue = shippingFeeInformedCustomer;
@@ -789,7 +795,6 @@ const OrderDetail = () => {
     }
   };
   const isShowTakeHelper = showTakeHelper();
-
   // khách cần trả
   const customerNeedToPay: any = () => {
     if (
@@ -1812,7 +1817,7 @@ const OrderDetail = () => {
                                   }}
                                   maxLength={15}
                                   minLength={0}
-                                  value={takeHelperValue}
+                                  value={takeMoneyHelper || takeHelperValue}
                                   onChange={(value) =>
                                     setTakeMoneyHelper(value)
                                   }
@@ -2132,6 +2137,7 @@ const OrderDetail = () => {
                       }
                       order_id={OrderDetail.id}
                       orderDetail={OrderDetail}
+                      setTotalPaid={setTotalPaid}
                     />
                   )}
                   {checkPaymentAll(OrderDetail) !== 1 &&
@@ -2285,10 +2291,11 @@ const OrderDetail = () => {
                   setSelectedPaymentMethod={onPaymentSelect}
                   setPayments={onPayments}
                   paymentMethod={paymentType}
-                  amount={OrderDetail.total}
+                  amount={OrderDetail.total + shippingFeeInformedCustomer}
                   order_id={OrderDetail.id}
                   orderDetail={OrderDetail}
                   showPartialPayment={false}
+                  setTotalPaid={setTotalPaid}
                 />
               )}
 

@@ -48,6 +48,7 @@ import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
   setPayments: (value: Array<UpdateOrderPaymentRequest>) => void;
+  setTotalPaid: (value: number) => void;
   orderDetail: OrderResponse;
   paymentMethod: number;
   amount: any;
@@ -102,7 +103,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);
-
+  props.setTotalPaid(totalAmountPaid)
   const handlePickPaymentMethod = (code?: string) => {
     let paymentMaster = ListMaymentMethods.find((p) => code === p.code);
     if (!paymentMaster) return;
