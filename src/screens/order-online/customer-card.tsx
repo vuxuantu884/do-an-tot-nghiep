@@ -568,7 +568,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   <Checkbox
                     className="checkbox-style"
                     onChange={ShowBillingAddress}
-                    style={{marginLeft: "3px" }}
+                    style={{ marginLeft: "3px" }}
                   >
                     Gửi hoá đơn
                   </Checkbox>

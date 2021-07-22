@@ -20,6 +20,10 @@ export const TaxTreatment = {
   INCLUSIVE: "inclusive",
   EXCLUSIVE: "exclusive",
 };
+export const AddressType = {
+  BILLADDRESS: "billaddress",
+  SUPPLIERADDRESS: "supplieraddress",
+};
 
 export const FulFillmentStatus = {
   UNSHIPPED: "unshipped",

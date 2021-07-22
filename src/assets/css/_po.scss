@@ -24,83 +24,91 @@
 }
 
 .supplier {
-  padding: 0;
-  .ant-select-item {
-    padding: 0px;
-    height: auto;
-    .supplier-item {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      padding: 6px 12px;
-      background: #FFFFFF;
-      box-shadow: 0px 1px 0px #F5F5F5;
-      &-title {
-        margin-left: 10px;
-        color: #222222;
+    padding: 0;
+    .ant-select-item {
+        padding: 0px;
+        height: auto;
+        border-bottom: 1px solid #d9d9e4;
+        padding-top: 5px;
+        .supplier-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 6px 12px;
+            background: #FFFFFF;
+            box-shadow: 0px 1px 0px #F5F5F5;
+            &-title {
+                margin-left: 10px;
+                color: #222222;
+                font-size: 14px;
+            }
+            &-dot {
+                margin: 0 12px;
+                font-size: 6px;
+                line-height: 12px;
+                color: #737373;
+            }
+            &-phone {
+                color: #737373;
+            }
+            &:hover {
+                background-color: #F7F7FF;
+            }
+        }
+    }
+    &-container {
+        &-info {
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            padding-right: 20px;
+            .rs {
+                &-name {
+                    margin-left: 10px;
+                    color: $primary-color;
+                    font-size: 16px;
+                }
+                &-money {
+                    display: flex;
+                    align-items: center;
+                }
+                &-delete {
+                    display: flex;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: transparent;
+                    color: #222222;
+                    border: none;
+                    margin-left: 20px;
+                    &:hover {
+                        background-color: rgba($primary-color, .15)
+                    }
+                }
+            }
+            &-right {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+        &-address {
+            padding: 0 20px;
+            .su-title {
+                font-weight: 400;
+                font-size: 14px;
+                color: #737373;
+            }
+        }
+    }
+    .title-address {
+        font-weight: 500 !important;
         font-size: 14px;
-      }
-      &-dot {
-        margin: 0 12px;
-        font-size: 6px;
-        line-height: 12px;
-        color: #737373;
-      }
-      &-phone {
-        color: #737373;
-      }
-      &:hover {
-        background-color:  #F7F7FF;
-      }
+        color: #000000;
+        margin-bottom: 5px;
     }
-  }
-  &-container {
-    &-info {
-      display: flex;
-      align-items: center;
-      padding-left: 20px;
-      padding-right: 20px;
-      .rs {
-        &-name {
-          margin-left: 10px;
-          color: $primary-color;
-          font-size: 16px;
-        }
-        &-money {
-          display: flex;
-          align-items: center;
-        }
-        &-delete{
-          display: flex;
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background-color: transparent;
-          color: #222222;
-          border: none;
-          margin-left: 20px;
-          &:hover {
-            background-color: rgba($primary-color, .15)
-          }
-        }
-      }
-      &-right {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-    }
-    &-address {
-      padding: 0 20px;
-      .su-title {
-        font-weight: 400;
-        font-size: 14px;
-        color:#737373;
-      }
-    }
-  }
 }
