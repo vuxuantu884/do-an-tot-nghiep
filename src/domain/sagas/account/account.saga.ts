@@ -192,7 +192,7 @@ function* ShipperSearchSaga(action: YodyAction) {
 
 
 export function* accountSaga() {
-  yield takeLatest(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);
+  yield takeEvery(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);
   yield takeLatest(AccountType.GET_LIST_ACCOUNT_REQUEST, AccountGetListSaga);
   yield takeLatest(
     AccountType.GET_LIST_DEPARTMENT_REQUEST,

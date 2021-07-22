@@ -2,7 +2,7 @@ import {Input} from 'antd';
 import { CSSProperties, useCallback } from 'react';
 import { RegUtil } from 'utils/RegUtils';
 
-type NumberInputProps = {
+interface NumberInputProps {
   value?: number,
   isFloat?: boolean,
   onChange?: (v: number|null) => void,
@@ -14,10 +14,11 @@ type NumberInputProps = {
   suffix?: React.ReactNode,
   maxLength?: number,
   minLength?:number
+  className?: string,
 }
 
 const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
-  const {replace, value, isFloat, onChange, placeholder, style, format, onBlur, suffix, maxLength,minLength} = props;
+  const {replace, value, isFloat, onChange, placeholder, style, format, onBlur, suffix, maxLength,minLength, className} = props;
   const onChangeText = useCallback((e) => {
     let newValue: string = e.target.value;
     let value = format ? (replace ? replace(newValue) : newValue) : newValue;
@@ -49,6 +50,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
   }, [onBlur, onChange, value])
   return (
     <Input
+      className={className}
       placeholder={placeholder}
       value={value && format ? format(value.toString()) : value}
       style={style}

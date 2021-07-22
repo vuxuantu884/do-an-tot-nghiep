@@ -486,7 +486,7 @@ export const Products = {
     };
     return productRequest;
   },
-  findAvatar: (images: Array<VariantImage>) => {
+  findAvatar: (images: Array<VariantImage>): VariantImage|null => {
     let image: VariantImage | null = null;
     images.forEach((imagerRequest) => {
       if (imagerRequest.variant_avatar) {
@@ -494,6 +494,15 @@ export const Products = {
       }
     });
     return image;
+  },
+  findPrice: (prices: Array<VariantPricesResponse>, price_type: string, currency: string): VariantPricesResponse|null => {
+    let price: VariantPricesResponse | null = null;
+    prices.forEach(priceResponse => {
+      if (priceResponse.currency_code === currency && priceResponse.price_type === price_type) {
+        price = priceResponse;
+      }
+    }) 
+    return price;
   },
   convertVariantRequestToView: (variant: VariantResponse) => {
     debugger;
