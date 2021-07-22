@@ -11,7 +11,7 @@ import { ProductUploadModel } from "model/product/product-upload.model";
 
 export const searchVariantsRequestAction = (
   query: VariantSearchQuery,
-  setData: (data: PageResponse<VariantResponse>) => void
+  setData: (data: PageResponse<VariantResponse>|false) => void
 ) => {
   return BaseAction(ProductType.SEARCH_PRODUCT_REQUEST, {
     query,

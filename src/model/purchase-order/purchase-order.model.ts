@@ -1,4 +1,4 @@
-import { PurchaseOrderLineItem } from "./Purchase-item.model";
+import { PurchaseOrderLineItem } from "./purchase-item.model";
 import { PurchaseTransaction } from "./purchase-transaction.model";
 
 export interface PurchaseOrder {

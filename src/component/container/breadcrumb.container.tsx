@@ -21,7 +21,7 @@ const BreadcrumbContainer = (props: IProps) => {
         <div className="page-header-heading-left">
           <h1 className="page-header-heading-title">{title}</h1>
           {breadcrumb && (
-            <Breadcrumb>
+            <Breadcrumb separator=">">
               {breadcrumb.map((item, index) => {
                 const { name, path } = item;
                 if (!path)
