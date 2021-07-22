@@ -30,6 +30,7 @@ import {
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
+  PointConfig,
 } from "utils/Constants";
 import {
   formatCurrency,
@@ -91,8 +92,10 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
 
   const handleInputPoint = (index: number, point: number) => {
     paymentData[index].point = point;
-    paymentData[index].amount = point * 1000;
+    paymentData[index].amount = point * PointConfig.VALUE;
+    paymentData[index].paid_amount = point * PointConfig.VALUE;
     setPaymentData([...paymentData]);
+    props.setPayments([...paymentData]);
   };
 
   const totalAmountPaid = useMemo(() => {
@@ -134,8 +137,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const handleInputMoney = (index: number, amount: number) => {
     if (paymentData[index].code === PaymentMethodCode.POINT) {
       paymentData[index].point = amount;
-      paymentData[index].amount = amount * 1000;
-      paymentData[index].paid_amount = amount * 1000;
+      paymentData[index].amount = amount * PointConfig.VALUE;
+      paymentData[index].paid_amount = amount * PointConfig.VALUE;
     } else {
       paymentData[index].amount = amount;
       paymentData[index].paid_amount = amount;

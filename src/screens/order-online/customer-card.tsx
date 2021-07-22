@@ -52,7 +52,7 @@ import { CustomerSearchQuery } from "model/query/customer.query";
 //#endregion
 
 type CustomerCardProps = {
-  InfoCustomerSet: (items: CustomerResponse) => void;
+  InfoCustomerSet: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
 };
@@ -174,6 +174,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //Delete customer
   const CustomerDeleteInfo = () => {
     setCustomer(null);
+    props.InfoCustomerSet(null);
   };
 
   //#endregion

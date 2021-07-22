@@ -166,7 +166,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
           <Button
             type="text"
             onClick={() => deleteItem(index)}
-            className="yody-pos-delete-item"
+            className="yody-pos-delete-item ant-btn-custom"
           >
             <img src={deleteIcon} alt="" />
           </Button>
@@ -275,17 +275,14 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
   }, [onOk]);
   return (
     <Modal
-      title=""
+      title="Chọn quà tặng"
+      width={600}
       onCancel={onCancel}
       onOk={onOkPress}
       visible={visible}
       cancelText="Hủy"
       okText="Lưu"
-      className="yody-pos-gift-modal modal-hide-header"
     >
-      <div style={{ fontSize: 13, color: "#4F687D", marginBottom: 6 }}>
-        Quà tặng
-      </div>
       <AutoComplete
         notFoundContent={
           keysearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
@@ -297,6 +294,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
         className="w-100"
         onSearch={onChangeProductSearch}
         options={convertResultSearch}
+        style={{width:"100%", marginBottom:"10px"}}
       >
         <Input
           className="yody-pos-gift-modal-input"

@@ -652,7 +652,7 @@ input {
   line-height: 16px;
   text-transform: uppercase;
   position: relative;
-  padding-left: 25px;
+  padding-left: 20px;
 }
 .title-card::before {
   content: "";
@@ -923,27 +923,4 @@ input {
 
 .margin-top-bottom-10 {
   margin: 10px 0;
-}
-
-.yody-pos-gift-modal{
- .ant-modal-content{
-  width: 650px;
-  .ant-modal-body{
-    div{
-      &:nth-child(1){
-        
-      }
-      &:nth-child(2){
-        width: 100%;
-        margin-bottom: 2px;
-      }
-      &:nth-child(3){
-        width: 100%;
-      }
-      .ant-select-item-option-content{
-        width: 1100px;
-      }
-    }
-  }
- }
 }

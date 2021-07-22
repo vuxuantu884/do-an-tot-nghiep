@@ -29,6 +29,7 @@ import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
+import moment from "moment";
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;

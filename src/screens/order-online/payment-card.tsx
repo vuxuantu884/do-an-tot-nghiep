@@ -26,7 +26,7 @@ import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { PaymentMethodCode, PaymentMethodOption } from "utils/Constants";
+import { PaymentMethodCode, PaymentMethodOption, PointConfig } from "utils/Constants";
 import {
   formatCurrency,
   formatSuffixPoint,
@@ -67,8 +67,10 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
 
   const handleInputPoint = (index: number, point: number) => {
     paymentData[index].point = point;
-    paymentData[index].amount = point * 1000;
+    paymentData[index].amount = point * PointConfig.VALUE;
+    paymentData[index].paid_amount = point * PointConfig.VALUE;
     setPaymentData([...paymentData]);
+    props.setPayments([...paymentData]);
   };
 
   const totalAmountPaid = useMemo(() => {
@@ -110,8 +112,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   const handleInputMoney = (index: number, amount: number) => {
     if (paymentData[index].code === PaymentMethodCode.POINT) {
       paymentData[index].point = amount;
-      paymentData[index].amount = amount * 1000;
-      paymentData[index].paid_amount = amount * 1000;
+      paymentData[index].amount = amount * PointConfig.VALUE;
+      paymentData[index].paid_amount = amount * PointConfig.VALUE;
     } else {
       paymentData[index].amount = amount;
       paymentData[index].paid_amount = amount;

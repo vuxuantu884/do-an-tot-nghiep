@@ -102,6 +102,7 @@ import CustomSelect from "component/custom/select.custom";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
 import NumberInput from "component/custom/number-input.custom";
 import { setTimeout } from "timers";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 const { Panel } = Collapse;
 //#endregion
 
@@ -2071,9 +2072,7 @@ const OrderDetail = () => {
                                 {OrderDetail?.payments !== null && (
                                   <div>
                                     <span className="fixed-time text-field">
-                                      {moment(
-                                        getDateLastPayment(OrderDetail)
-                                      ).format("DD/MM/YYYY HH:MM")}
+                                      {ConvertUtcToLocalDate(getDateLastPayment(OrderDetail), "DD/MM/YYYY HH:mm")}
                                     </span>
                                   </div>
                                 )}
@@ -2170,31 +2169,27 @@ const OrderDetail = () => {
                       <div className="d-flex" style={{ marginTop: "5px" }}>
                         <span className="title-card">THANH TOÁN</span>
                       </div>
-                      {OrderDetail?.payments !== null
-                        ? OrderDetail?.payments.map(
-                            (item, index) =>
-                              OrderDetail.total !== null &&
-                              (OrderDetail.total - item.paid_amount === 0 ? (
-                                <Tag
-                                  className="orders-tag orders-tag-success"
-                                  style={{ backgroundColor: "#d3fff3" }}
-                                >
-                                  <span style={{ color: "#27AE60" }}>
-                                    {" "}
-                                    Đã thanh toán
-                                  </span>
-                                </Tag>
-                              ) : OrderDetail.total === item.paid_amount ? (
-                                <Tag className="orders-tag orders-tag-danger">
-                                  Chưa thanh toán
-                                </Tag>
-                              ) : (
-                                <Tag className="orders-tag orders-tag-warning">
-                                  Thanh toán 1 phần
-                                </Tag>
-                              ))
-                          )
-                        : "Chưa thanh toán"}
+                      {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                        <Tag className="orders-tag orders-tag-danger">
+                          Chưa thanh toán
+                        </Tag>
+                      )}
+                      {checkPaymentStatusToShow(OrderDetail) === 0 && (
+                        <Tag className="orders-tag orders-tag-warrning">
+                          Thanh toán 1 phần
+                        </Tag>
+                      )}
+                      {checkPaymentStatusToShow(OrderDetail) === 1 && (
+                        <Tag
+                          className="orders-tag orders-tag-success"
+                          style={{
+                            backgroundColor: "rgba(39, 174, 96, 0.1)",
+                            color: "#27AE60",
+                          }}
+                        >
+                          Đã thanh toán
+                        </Tag>
+                      )}
                     </Space>
                   }
                 >
@@ -2350,7 +2345,7 @@ const OrderDetail = () => {
                         OrderDetail?.fulfillments !== undefined &&
                         OrderDetail?.fulfillments.map((item, index) =>
                           moment(item.shipment?.created_date).format(
-                            "DD/MM/YYYY HH:MM a"
+                            "DD/MM/YYYY HH:mm a"
                           )
                         )}
                     </span>
