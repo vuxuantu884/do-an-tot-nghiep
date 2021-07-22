@@ -254,6 +254,28 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                   </Col>
 
                   <Col span={20}>
+                    <Row
+                      gutter={24}
+                      className="row-price"
+                      style={{ padding: "5px 0px" }}
+                    >
+                      <Col xs={12} className="row-large-title">
+                        Khách cần trả
+                      </Col>
+                      <Col
+                        className="lbl-money"
+                        xs={5}
+                        style={{
+                          textAlign: "right",
+                          fontWeight: 500,
+                          fontSize: "20px",
+                        }}
+                      >
+                        <span className="t-result-blue">
+                          {formatCurrency(props.amount)}
+                        </span>
+                      </Col>
+                    </Row>
                     {paymentData.map((method, index) => {
                       return (
                         <Row
@@ -345,6 +367,55 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         </Row>
                       );
                     })}
+
+                    <Row
+                      gutter={20}
+                      className="row-price total-customer-pay"
+                      style={{ marginLeft: 0, marginRight: 0, padding: "10px 0"  }}
+                    >
+                      <Col
+                        xs={12}
+                        className="row-large-title"
+                        style={{ paddingLeft: 0 }}
+                      >
+                        Tổng số tiền khách trả
+                      </Col>
+                      <Col
+                        className="lbl-money"
+                        xs={5}
+                        style={{
+                          textAlign: "right",
+                          fontWeight: 500,
+                          fontSize: "20px",
+                        }}
+                      >
+                        <span>{formatCurrency(totalAmountPaid)}</span>
+                      </Col>
+                    </Row>
+                    <Row
+                      gutter={20}
+                      className="row-price"
+                      style={{ padding: "10px 5px 10px 0" }}
+                    >
+                      <Col xs={12}>
+                        {moneyReturn > 0 ? "Còn phải trả" : "Tiền thừa"}
+                      </Col>
+                      <Col
+                        className="lbl-money"
+                        xs={5}
+                        style={{
+                          textAlign: "right",
+                          fontWeight: 500,
+                          fontSize: "20px",
+                        }}
+                      >
+                        <span
+                          style={{ color: moneyReturn <= 0 ? "blue" : "red" }}
+                        >
+                          {formatCurrency(Math.abs(moneyReturn))}
+                        </span>
+                      </Col>
+                    </Row>
                   </Col>
                 </Row>
               </Panel>

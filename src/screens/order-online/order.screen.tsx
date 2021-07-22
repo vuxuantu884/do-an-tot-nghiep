@@ -46,7 +46,6 @@ import UrlConfig from "config/UrlConfig";
 import moment from "moment";
 import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
 import {
-  getAmountPayment,
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
@@ -150,6 +149,8 @@ export default function Order() {
     price_type: "retail_price", //giá bán lẻ giá bán buôn
     tax_treatment: TaxTreatment.INCLUSIVE,
     delivery_service_provider_id: null,
+    shipper_code: null,
+    shipper_name: "",
     delivery_fee: null,
     shipping_fee_informed_to_customer: null,
     shipping_fee_paid_to_3pls: null,
@@ -255,6 +256,8 @@ export default function Order() {
     let objShipment: ShipmentRequest = {
       delivery_service_provider_id: null, //id người shipper
       delivery_service_provider_type: "", //shipper
+      shipper_code: "",
+      shipper_name: "",
       handover_id: null,
       service: null,
       fee_type: "",
@@ -277,8 +280,7 @@ export default function Order() {
 
     if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
       objShipment.delivery_service_provider_type = "Shipper";
-      objShipment.delivery_service_provider_id =
-        value.delivery_service_provider_id;
+      objShipment.shipper_code = value.shipper_code;
       objShipment.shipping_fee_informed_to_customer =
         value.shipping_fee_informed_to_customer;
       objShipment.shipping_fee_paid_to_3pls = value.shipping_fee_paid_to_3pls;
@@ -424,17 +426,23 @@ export default function Order() {
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
     setAccounts(data.items);
   }, []);
-  useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
-  //windows offset
-  window.addEventListener("scroll", () => {
+  const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
     } else {
       setIsShowBillStep(false);
     }
-  });
+  }, []);
+  useEffect(() => {
+    dispatch(AccountSearchAction({}, setDataAccounts));
+  }, [dispatch, setDataAccounts]);
+  //windows offset
+  useEffect(() => {
+    window.addEventListener("scroll", scroll);
+    return () => {
+      window.removeEventListener("scroll", scroll);
+    };
+  }, []);
   return (
     <ContentContainer
       title="Tạo mới đơn hàng"
@@ -651,7 +659,7 @@ export default function Order() {
             <Col md={9} style={{ marginTop: "8px" }}>
               <Button
                 className="ant-btn-outline fixed-button cancle-button"
-                onClick={() => history.push(`${UrlConfig.ORDER}/list`)}
+                onClick={() => history.push(`${UrlConfig.ORDER}/create`)}
               >
                 Huỷ
               </Button>

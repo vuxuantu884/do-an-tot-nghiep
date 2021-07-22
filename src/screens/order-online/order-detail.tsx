@@ -572,6 +572,8 @@ const OrderDetail = () => {
     code: "",
     delivery_service_provider_id: null, //id người shipper
     delivery_service_provider_type: "", //shipper
+    shipper_code: null,
+    shipper_name: "",
     handover_id: null,
     service: null,
     fee_type: "",
@@ -743,6 +745,7 @@ const OrderDetail = () => {
     }
   });
   //#endregion
+  
   // Thu hộ
   const takeHelper: any = () => {
     if (takeMoneyHelper) {
@@ -1488,81 +1491,49 @@ const OrderDetail = () => {
                       key="1"
                     >
                       <Row gutter={24}>
-                        <Col span={6}>
-                          <p className="text-field">Đối tác giao hàng:</p>
-                        </Col>
-                        <Col span={6}>
-                          <p className="text-field">
-                            {OrderDetail?.fulfillments !== null &&
-                              OrderDetail?.fulfillments !== undefined &&
-                              OrderDetail.fulfillments[0].shipment
-                                ?.delivery_service_provider_id}
-                          </p>
-                        </Col>
-                        <Col span={7}>
-                          <p className="text-field">
-                            Phí vận chuyển báo khách:
-                          </p>
-                        </Col>
-                        <Col span={5}>
-                          <p className="text-field">
-                            {OrderDetail?.fulfillments !== null &&
-                              OrderDetail?.fulfillments !== undefined &&
-                              OrderDetail?.fulfillments.map(
-                                (item, index) =>
-                                  item.shipment
-                                    ?.shipping_fee_informed_to_customer !==
-                                    undefined &&
-                                  item.shipment
-                                    ?.shipping_fee_informed_to_customer !==
-                                    null &&
-                                  formatCurrency(
-                                    item.shipment
-                                      ?.shipping_fee_informed_to_customer
-                                  )
-                              )}
-                          </p>
-                        </Col>
-                      </Row>
-                      <Row gutter={24}>
-                        <Col span={6}>
-                          <p className="text-field">Trọng lượng:</p>
-                        </Col>
-                        <Col span={6}>
-                          <p className="text-field">200g</p>
-                        </Col>
-                        <Col span={7}>
-                          <p className="text-field">
-                            Phí vận chuyển trả đối tác:
-                          </p>
-                        </Col>
-                        <Col span={5}>
-                          <p className="text-field">
-                            {OrderDetail?.fulfillments !== undefined &&
-                              OrderDetail?.fulfillments !== null &&
-                              OrderDetail?.fulfillments.map((item, index) =>
-                                item.shipment?.shipping_fee_paid_to_3pls !==
-                                  undefined &&
-                                item.shipment?.shipping_fee_paid_to_3pls !==
-                                  null
-                                  ? item.shipment?.shipping_fee_paid_to_3pls
-                                  : 0
-                              )}
-                          </p>
-                        </Col>
-                      </Row>
-                      {/* <Row className="margin-top-20">
-                          <Col span={12}>
-                            <i className="text-field">
-                              Ngày hẹn giao đơn hàng
-                              {OrderDetail?.fulfillment.map((item, index) =>
-                                moment(
-                                  item.shipment?.expected_received_date
-                                ).format("DD/MM/YYYY HH:MM a")
-                              )}
-                            </i>
+                        <Col md={6}>
+                          <Col span={24}>
+                            <p className="text-field">Đối tác giao hàng:</p>
                           </Col>
-                        </Row> */}
+                          <Col span={24}>
+                            <b>
+                              {OrderDetail?.fulfillments !== null &&
+                                OrderDetail?.fulfillments !== undefined &&
+                                OrderDetail.fulfillments[0].shipment
+                                  ?.shipper_name}
+                            </b>
+                          </Col>
+                        </Col>
+
+                        <Col md={6}>
+                          <Col span={24}>
+                            <p className="text-field">Phí ship báo khách:</p>
+                          </Col>
+                          <Col span={24}>
+                            <b className="text-field">
+                              {OrderDetail?.fulfillments !== null &&
+                                OrderDetail?.fulfillments !== undefined &&
+                                OrderDetail.fulfillments[0].shipment
+                                  ?.shipping_fee_informed_to_customer}
+                            </b>
+                          </Col>
+                        </Col>
+
+                        <Col md={6}>
+                          <Col span={24}>
+                            <p className="text-field">Phí ship trả đối tác:</p>
+                          </Col>
+                          <Col span={24}>
+                            <b className="text-field">
+                              {OrderDetail?.fulfillments !== null &&
+                                OrderDetail?.fulfillments !== undefined &&
+                                OrderDetail.fulfillments[0].shipment
+                                  ?.shipping_fee_paid_to_3pls}
+                            </b>
+                          </Col>
+                        </Col>
+                      </Row>
+                      <Row gutter={24}></Row>
                     </Panel>
                   </Collapse>
                 </div>
@@ -1709,7 +1680,7 @@ const OrderDetail = () => {
                               className="select-with-search"
                               showSearch
                               showArrow
-                              notFoundContent="Không có dữ liệu"
+                              notFoundContent="Không tìm thấy kết quả"
                               style={{ width: "100%" }}
                               placeholder="Chọn yêu cầu"
                               filterOption={(input, option) => {
@@ -1745,43 +1716,46 @@ const OrderDetail = () => {
                               : { borderBottom: "1px solid #2A2A86" }
                           }
                         >
-                          {shipmentButton.map((button) => (
-                            <Space>
-                              {shipmentMethod !== button.value ? (
-                                <div
-                                  className="saleorder_shipment_button"
-                                  key={button.value}
-                                  onClick={() =>
-                                    ShipMethodOnChange(button.value)
-                                  }
-                                >
-                                  <img src={button.icon} alt="icon"></img>
-                                  <span>{button.name}</span>
-                                </div>
-                              ) : (
-                                <div
-                                  className={
-                                    shipmentMethod ===
-                                    ShipmentMethodOption.DELIVERLATER
-                                      ? "saleorder_shipment_button saleorder_shipment_button_border"
-                                      : "saleorder_shipment_button_active"
-                                  }
-                                  key={button.value}
-                                >
-                                  <img src={button.icon} alt="icon"></img>
-                                  <span>{button.name}</span>
-                                </div>
-                              )}
-                            </Space>
-                          ))}
+                          <Space size={10}>
+                            {shipmentButton.map((button) => (
+                              <div>
+                                {shipmentMethod !== button.value ? (
+                                  <div
+                                    className="saleorder_shipment_button"
+                                    key={button.value}
+                                    onClick={() =>
+                                      ShipMethodOnChange(button.value)
+                                    }
+                                  >
+                                    <img src={button.icon} alt="icon"></img>
+                                    <span>{button.name}</span>
+                                  </div>
+                                ) : (
+                                  <div
+                                    className={
+                                      shipmentMethod ===
+                                      ShipmentMethodOption.DELIVERLATER
+                                        ? "saleorder_shipment_button saleorder_shipment_button_border"
+                                        : "saleorder_shipment_button_active"
+                                    }
+                                    key={button.value}
+                                  >
+                                    <img src={button.icon} alt="icon"></img>
+                                    <span>{button.name}</span>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </Space>
                         </div>
                       </Row>
                       <div hidden={shipmentMethod !== 2}>
                         <Row gutter={24}>
                           <Col md={12}>
+                            
                             <Form.Item
                               label="Đối tác giao hàng"
-                              name="delivery_service_provider_id"
+                              name="shipper_code"
                               rules={[
                                 {
                                   required: true,
@@ -1816,7 +1790,7 @@ const OrderDetail = () => {
                                   <CustomSelect.Option
                                     style={{ width: "100%" }}
                                     key={index.toString()}
-                                    value={item.id}
+                                    value={item.code}
                                   >
                                     {`${item.full_name} - ${item.mobile}`}
                                   </CustomSelect.Option>

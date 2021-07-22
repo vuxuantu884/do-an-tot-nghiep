@@ -203,6 +203,10 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     setVisibleConfirmPayment(false);
   }, []);
 
+  const canclePayment = () => {
+    setVisibleUpdatePayment(false);
+  };
+
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
@@ -467,7 +471,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         <Button
                           type="default"
                           className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right", marginRight:"10px" }}
+                          style={{ float: "right", marginRight: "10px" }}
+                          onClick={canclePayment}
                         >
                           Hủy
                         </Button>
@@ -743,7 +748,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         <Button
                           type="default"
                           className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right", marginRight:"10px" }}
+                          style={{ float: "right", marginRight: "10px" }}
+                          // onClick={canclePayment}
                         >
                           Hủy
                         </Button>
