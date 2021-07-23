@@ -572,7 +572,7 @@ const OrderDetail = () => {
     fee_type: "",
     fee_base_on: "",
     delivery_fee: null,
-    shipping_fee_paid_to_3pls: null,
+    shipping_fee_paid_to_three_pls: null,
     cod: null,
     expected_received_date: "",
     reference_status: "",
@@ -1529,7 +1529,7 @@ const OrderDetail = () => {
                               {OrderDetail?.fulfillments !== null &&
                                 OrderDetail?.fulfillments !== undefined &&
                                 OrderDetail.fulfillments[0].shipment
-                                  ?.shipping_fee_paid_to_3pls}
+                                  ?.shipping_fee_paid_to_three_pls}
                             </b>
                           </Col>
                         </Col>
@@ -1827,7 +1827,7 @@ const OrderDetail = () => {
                           </Col>
                           <Col md={12}>
                             <Form.Item
-                              name="shipping_fee_paid_to_3pls"
+                              name="shipping_fee_paid_to_three_pls"
                               label="Phí ship trả đối tác giao hàng"
                             >
                               <NumberInput

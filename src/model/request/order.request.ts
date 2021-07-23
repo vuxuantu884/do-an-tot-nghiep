@@ -24,7 +24,7 @@ export interface OrderRequest {
   shipper_code: string | null;
   shipper_name: string | null;
   shipping_fee_informed_to_customer: number | null;
-  shipping_fee_paid_to_3pls: number | null;
+  shipping_fee_paid_to_three_pls: number | null;
   dating_ship?: Moment;
   requirements: string | null;
   items: Array<OrderLineItemRequest>;
@@ -126,7 +126,7 @@ export interface ShipmentRequest {
   fee_base_on: string | null;
   delivery_fee: number | null;
   shipping_fee_informed_to_customer: number | null;
-  shipping_fee_paid_to_3pls: number | null;
+  shipping_fee_paid_to_three_pls: number | null;
   expected_received_date?: string | null;
   reference_status: string | null;
   reference_status_explanation: string | null;
@@ -153,7 +153,7 @@ export interface UpdateShipmentRequest {
   fee_base_on: string | null;
   delivery_fee: number | null;
   shipping_fee_informed_to_customer: number | null;
-  shipping_fee_paid_to_3pls: number | null;
+  shipping_fee_paid_to_three_pls: number | null;
   cod: number | null | undefined;
   dating_ship?: Moment;
   expected_received_date?: string | null;

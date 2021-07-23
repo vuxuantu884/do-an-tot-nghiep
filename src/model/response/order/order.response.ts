@@ -198,7 +198,7 @@ export interface ShipmentResponse extends BaseObject {
   fee_base_on: string | null;
   delivery_fee: number | null;
   shipping_fee_informed_to_customer: number|null;
-  shipping_fee_paid_to_3pls: number|null;
+  shipping_fee_paid_to_three_pls: number|null;
   expected_received_date:string|null;
   reference_status: string | null;
   reference_status_explanation: string | null;
