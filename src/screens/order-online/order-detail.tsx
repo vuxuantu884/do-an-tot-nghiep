@@ -54,7 +54,6 @@ import editBlueIcon from "assets/img/editBlue.svg";
 import pointIcon from "assets/img/point.svg";
 import callIcon from "assets/img/call.svg";
 import locationIcon from "assets/img/location.svg";
-import deleteIcon from "assets/icon/delete.svg";
 import giftIcon from "assets/icon/gift.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import addressIcon from "assets/img/user-pin.svg";
@@ -738,15 +737,17 @@ const OrderDetail = () => {
     }
   });
   //#endregion
-  
+
   // Thu hộ
-  const takeHelper:any = () => {
+  const takeHelper: any = () => {
     if (takeMoneyHelper) {
       return takeMoneyHelper;
-    }else if (totalPaid && OrderDetail?.total) {
+    } else if (totalPaid && OrderDetail?.total) {
       return totalPaid === OrderDetail?.total
         ? shippingFeeInformedCustomer
-        : (OrderDetail?.total ? OrderDetail?.total : 0) - totalPaid + shippingFeeInformedCustomer;
+        : (OrderDetail?.total ? OrderDetail?.total : 0) -
+            totalPaid +
+            shippingFeeInformedCustomer;
     } else if (
       OrderDetail?.total_line_amount_after_line_discount &&
       shippingFeeInformedCustomer
@@ -774,8 +775,8 @@ const OrderDetail = () => {
   };
   let takeHelperValue: any = takeHelper();
   const showTakeHelper = () => {
-    if(OrderDetail?.total && totalPaid){
-      return OrderDetail?.total - totalPaid + shippingFeeInformedCustomer !== 0
+    if (OrderDetail?.total && totalPaid) {
+      return OrderDetail?.total - totalPaid + shippingFeeInformedCustomer !== 0;
     } else if (paymentType === 1 && takeHelperValue !== 0) {
       return true;
     } else if (shippingFeeInformedCustomer) {
@@ -790,8 +791,12 @@ const OrderDetail = () => {
   const isShowTakeHelper = showTakeHelper();
   // khách cần trả
   const customerNeedToPay: any = () => {
-    if(!shippingFeeInformedCustomer && OrderDetail?.total_discount && OrderDetail?.total){
-     return OrderDetail?.total
+    if (
+      !shippingFeeInformedCustomer &&
+      OrderDetail?.total_discount &&
+      OrderDetail?.total
+    ) {
+      return OrderDetail?.total;
     }
     if (
       OrderDetail &&
@@ -1534,10 +1539,19 @@ const OrderDetail = () => {
                           </Col>
                         </Col>
                       </Row>
-                      <Row gutter={24} style={{marginTop: 6}}>
-                      <Col span={24}>
-                          <p className="text-field" style={{padding: "0px 12px"}}>{OrderDetail?.items.reduce((a: any, b:any) => a + b.quantity, 0)} Sản phẩm giao hàng</p>
-                          </Col>
+                      <Row gutter={24} style={{ marginTop: 6 }}>
+                        <Col span={24}>
+                          <p
+                            className="text-field"
+                            style={{ padding: "0px 12px" }}
+                          >
+                            {OrderDetail?.items.reduce(
+                              (a: any, b: any) => a + b.quantity,
+                              0
+                            )}{" "}
+                            Sản phẩm giao hàng
+                          </p>
+                        </Col>
                       </Row>
                     </Panel>
                   </Collapse>
@@ -1633,6 +1647,17 @@ const OrderDetail = () => {
                     <Form
                       initialValues={initialFormUpdateShipment}
                       ref={formRef}
+                      onFinishFailed={({ errorFields }: any) => {
+                        const element: any = document.getElementById(
+                          errorFields[0].name.join("")
+                        );
+                        element?.focus();
+                        const y =
+                          element?.getBoundingClientRect()?.top +
+                          window.pageYOffset +
+                          -250;
+                        window.scrollTo({ top: y, behavior: "smooth" });
+                      }}
                       onFinish={onFinishUpdateFulFillment}
                       layout="vertical"
                     >
@@ -1757,7 +1782,6 @@ const OrderDetail = () => {
                       <div hidden={shipmentMethod !== 2}>
                         <Row gutter={24}>
                           <Col md={12}>
-                            
                             <Form.Item
                               label="Đối tác giao hàng"
                               name="shipper_code"
@@ -2013,11 +2037,7 @@ const OrderDetail = () => {
                         <span className="text-field margin-right-40">
                           Còn phải trả
                         </span>
-                        <span className="text-success">
-                          {/* {formatCurrency(
-                            OrderDetail.total -
-                              getAmountPayment(OrderDetail.payments)
-                          )} */}
+                        <b style={{ color: "red" }}>
                           {OrderDetail?.fulfillments &&
                           OrderDetail?.fulfillments[0].status !== "shipped"
                             ? formatCurrency(
@@ -2027,7 +2047,7 @@ const OrderDetail = () => {
                                     : 0)
                               )
                             : 0}
-                        </span>
+                        </b>
                       </Col>
                     </Row>
                   </div>
@@ -2071,7 +2091,10 @@ const OrderDetail = () => {
                                 {OrderDetail?.payments !== null && (
                                   <div>
                                     <span className="fixed-time text-field">
-                                      {ConvertUtcToLocalDate(getDateLastPayment(OrderDetail), "DD/MM/YYYY HH:mm")}
+                                      {ConvertUtcToLocalDate(
+                                        getDateLastPayment(OrderDetail),
+                                        "DD/MM/YYYY HH:mm"
+                                      )}
                                     </span>
                                   </div>
                                 )}
@@ -2139,7 +2162,8 @@ const OrderDetail = () => {
                     />
                   )}
                   {checkPaymentAll(OrderDetail) !== 1 &&
-                    isShowPaymentPartialPayment === false && checkPaymentStatusToShow(OrderDetail) !== 1 && (
+                    isShowPaymentPartialPayment === false &&
+                    checkPaymentStatusToShow(OrderDetail) !== 1 && (
                       <div className="padding-24 text-right">
                         <Divider style={{ margin: "10px 0" }} />
                         <Button
@@ -2159,8 +2183,8 @@ const OrderDetail = () => {
               OrderDetail.fulfillments &&
               OrderDetail.fulfillments.length > 0 &&
               OrderDetail.fulfillments[0].shipment &&
-              OrderDetail.fulfillments[0].shipment?.cod ===
-                OrderDetail.total && checkPaymentStatusToShow(OrderDetail) !== 1 && (
+              OrderDetail.fulfillments[0].shipment?.cod === OrderDetail.total &&
+              checkPaymentStatusToShow(OrderDetail) !== 1 && (
                 <Card
                   className="margin-top-20"
                   title={
@@ -2204,13 +2228,13 @@ const OrderDetail = () => {
                         <span className="text-field margin-right-40">
                           Còn phải trả
                         </span>
-                        <span className="text-success">
+                        <b style={{ color: "red" }}>
                           {OrderDetail && OrderDetail?.fulfillments
                             ? formatCurrency(
                                 OrderDetail.fulfillments[0].shipment?.cod
                               )
                             : 0}
-                        </span>
+                        </b>
                       </Col>
                     </Row>
                   </div>
@@ -2428,22 +2452,41 @@ const OrderDetail = () => {
         onCancel={() => setIsvibleShippingConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
-        title="Thông báo"
-        text={`Bạn có chắc chắn đơn hàng đã “Xuất kho” ? `}
+        title="Xác nhận xuất kho"
+        text={`Bạn có chắc xuất kho đơn giao hàng này với tiền thu hộ là ${
+          takeMoneyHelper ||
+          (OrderDetail?.total &&
+            formatCurrency(
+              OrderDetail?.total +
+                (shippingFeeInformedCustomer !== null
+                  ? shippingFeeInformedCustomer
+                  : 0)
+            )) ||
+          formatCurrency(OrderDetail?.total ? OrderDetail?.total : 0)
+        } không?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
-        title="Thông báo"
-        text={`Bạn có chắc chắn đơn hàng đã “Giao thành công” ? `}
+        title="Xác nhận giao hàng thành công"
+        text={`Bạn có chắc muốn xác nhận đơn giao hàng này với tiền thu hộ ${
+          takeMoneyHelper ||
+          (OrderDetail?.total &&
+            formatCurrency(
+              OrderDetail?.total +
+                (shippingFeeInformedCustomer !== null
+                  ? shippingFeeInformedCustomer
+                  : 0)
+            )) ||
+          formatCurrency(OrderDetail?.total ? OrderDetail?.total : 0)
+        } không?`}
       />
     </ContentContainer>
   );
 };
 
 export default OrderDetail;
-
 
 // ${
 //   customerNeedToPayValue -

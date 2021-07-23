@@ -790,6 +790,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                     ? "Không tìm thấy sản phẩm"
                     : undefined
                 }
+                id="search_product"
                 value={keysearchVariant}
                 ref={autoCompleteRef}
                 onSelect={onSearchVariantSelect}
