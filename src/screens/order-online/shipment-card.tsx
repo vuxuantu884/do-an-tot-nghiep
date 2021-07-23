@@ -298,7 +298,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             </Col>
             <Col md={12}>
               <Form.Item
-                name="shipping_fee_paid_to_3pls"
+                name="shipping_fee_paid_to_three_pls"
                 label="Phí ship trả đối tác giao hàng"
               >
                 <NumberInput

@@ -154,7 +154,7 @@ export default function Order() {
     shipper_name: "",
     delivery_fee: null,
     shipping_fee_informed_to_customer: null,
-    shipping_fee_paid_to_3pls: null,
+    shipping_fee_paid_to_three_pls: null,
     dating_ship: moment(),
     requirements: null,
     source_id: null,
@@ -264,7 +264,7 @@ export default function Order() {
       fee_type: "",
       fee_base_on: "",
       delivery_fee: null,
-      shipping_fee_paid_to_3pls: null,
+      shipping_fee_paid_to_three_pls: null,
       expected_received_date: value.dating_ship?.utc().format(),
       reference_status: "",
       shipping_fee_informed_to_customer: null,
@@ -284,7 +284,7 @@ export default function Order() {
       objShipment.shipper_code = value.shipper_code;
       objShipment.shipping_fee_informed_to_customer =
         value.shipping_fee_informed_to_customer;
-      objShipment.shipping_fee_paid_to_3pls = value.shipping_fee_paid_to_3pls;
+      objShipment.shipping_fee_paid_to_three_pls = value.shipping_fee_paid_to_three_pls;
 
       if (takeMoneyHelper !== null) {
         objShipment.cod = takeMoneyHelper;
