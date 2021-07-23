@@ -50,6 +50,7 @@ import {
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
+import SearchOutlined from "@ant-design/icons";
 //#endregion
 
 var typeButton = "";
@@ -361,7 +362,7 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
-
+  console.log(orderAmount)
   const onFinish = (values: OrderRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
@@ -381,7 +382,6 @@ export default function Order() {
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments;
-
       //Nếu có phí ship báo khách
       if (shippingFeeCustomer !== null) {
         values.total = orderAmount + shippingFeeCustomer;
@@ -546,7 +546,7 @@ export default function Order() {
                       className="select-with-search"
                       showSearch
                       notFoundContent="Không tìm thấy kết quả"
-                      placeholder="Chọn nhân viên bán hàng"
+                      placeholder="Tìm, chọn nhân viên"
                       filterOption={(input, option) => {
                         if (option) {
                           return (

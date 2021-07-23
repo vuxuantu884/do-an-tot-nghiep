@@ -369,14 +369,6 @@ const OrderDetail = () => {
       return (
         <div className="w-100" style={{ overflow: "hidden" }}>
           <div className="d-flex align-items-center">
-            <Button
-              type="text"
-              className="p-0 ant-btn-custom"
-              onClick={() => onDeleteItem(index)}
-              style={{ float: "left", marginRight: "13px" }}
-            >
-              <img src={deleteIcon} alt="" />
-            </Button>
             <div style={{ width: "calc(100% - 32px)", marginLeft: "15px" }}>
               <div className="yody-pos-sku">
                 <Typography.Link>{l.sku}</Typography.Link>
@@ -437,7 +429,7 @@ const OrderDetail = () => {
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
-        <div className="site-input-group-wrapper">
+        <div className="site-input-group-wrapper saleorder-input-group-wrapper">
           {l.discount_rate !== null
             ? l.discount_rate
             : l.discount_value !== null
@@ -797,6 +789,9 @@ const OrderDetail = () => {
   const isShowTakeHelper = showTakeHelper();
   // khách cần trả
   const customerNeedToPay: any = () => {
+    if(!shippingFeeInformedCustomer && OrderDetail?.total_discount && OrderDetail?.total){
+     return OrderDetail?.total
+    }
     if (
       OrderDetail &&
       OrderDetail?.total_line_amount_after_line_discount &&
@@ -1300,8 +1295,8 @@ const OrderDetail = () => {
                         )}
                       </Space>
                       <div className="font-weight-500 ">
-                        {OrderDetail?.order_discount_value !== null
-                          ? OrderDetail?.order_discount_value
+                        {OrderDetail?.total_discount !== null
+                          ? OrderDetail?.total_discount
                           : 0}
                       </div>
                     </Row>
@@ -1538,7 +1533,11 @@ const OrderDetail = () => {
                           </Col>
                         </Col>
                       </Row>
-                      <Row gutter={24}></Row>
+                      <Row gutter={24} style={{marginTop: 6}}>
+                      <Col span={24}>
+                          <p className="text-field" style={{padding: "0px 12px"}}>{OrderDetail?.items.reduce((a: any, b:any) => a + b.quantity, 0)} Sản phẩm giao hàng</p>
+                          </Col>
+                      </Row>
                     </Panel>
                   </Collapse>
                 </div>
@@ -2434,36 +2433,41 @@ const OrderDetail = () => {
         onCancel={() => setIsvibleShippingConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
-        title="Xác nhận xuất kho"
-        text={`Bạn có chắc xuất kho đơn hàng này ${
-          customerNeedToPayValue -
-          (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-            ? ` với tiền thu hộ là: ` +
-              formatCurrency(
-                customerNeedToPayValue -
-                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-              )
-            : ""
-        } không?`}
+        title="Thông báo"
+        text={`Bạn có chắc chắn đơn hàng đã “Xuất kho” ? `}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
-        title="Xác nhận giao hàng"
-        text={`Bạn có chắc muốn xác nhận giao hàng cho đơn hàng này ${
-          customerNeedToPayValue -
-          (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-            ? `với tiền thu hộ là: ` +
-              formatCurrency(
-                customerNeedToPayValue -
-                  (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-              )
-            : ""
-        } không?`}
+        title="Thông báo"
+        text={`Bạn có chắc chắn đơn hàng đã “Giao thành công” ? `}
       />
     </ContentContainer>
   );
 };
 
 export default OrderDetail;
+
+
+// ${
+//   customerNeedToPayValue -
+//   (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+//     ? `với tiền thu hộ là: ` +
+//       formatCurrency(
+//         customerNeedToPayValue -
+//           (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+//       )
+//     : ""
+// } không?`
+
+// ${
+//   customerNeedToPayValue -
+//   (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+//     ? ` với tiền thu hộ là: ` +
+//       formatCurrency(
+//         customerNeedToPayValue -
+//           (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+//       )
+//     : ""
+// } không?

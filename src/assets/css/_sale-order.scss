@@ -435,15 +435,15 @@
   height: 60px;
 }
 
-input {
-  border-left: 0;
-  padding: 4px 8px;
-}
+// input {
+//   border-left: 0;
+//   padding: 4px 8px;
+// }
 // checking
-.site-input-group-wrapper {
+.saleorder-input-group-wrapper {
   padding: 0;
   min-height: 37px;
-  > div {
+  &> div {
     position: relative;
   }
   .ant-input-group {
@@ -458,7 +458,9 @@ input {
     right: 1px;
     top: calc(100% + 2px);
   }
-
+  .ant-table-body{
+    overflow: hidden;
+  }
   .currency-option {
     color: black;
     font-size: 16px;
@@ -485,11 +487,11 @@ input {
     height: 37px;
   }
 }
-.ant-modal-footer {
-  box-shadow: none;
-  border: none;
-  padding: 0 34px 26px 0;
-}
+// .ant-modal-footer {
+//   box-shadow: none;
+//   border: none;
+//   padding: 0 34px 26px 0;
+// }
 
 .hide-number-handle {
   .ant-input-number-handler-wrap {
@@ -735,7 +737,17 @@ input {
 }
 .sale-product-box-table {
   padding: 0 24px;
+  .ant-table-body{
+    overflow-y: scroll;
+    overflow-x: hidden;
+    &::-webkit-scrollbar{
+      z-index: 1111;
+      background-color: rgb(236, 234, 234);
+    }
+
+  }
 }
+
 .sale-product-box-payment {
   & > div {
     &:first-child {
@@ -946,4 +958,38 @@ input {
     }
   }
  }
+}
+
+.saleorder-modal-config{
+  button{
+    &:nth-child(1){
+      height: 38px;
+      border-radius: 3px;
+      
+    }
+    &:nth-child(2){
+      width: 98px; 
+      height: 38px;
+      border-radius: 3px;
+    }
+    &:nth-child(3){  
+
+    }
+}
+ div{
+   &:nth-child(1){
+    font-style: normal;
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 16px;
+   }
+ }
+ .ant-modal-footer {
+  box-shadow: none;
+  border: none;
+  padding: 0 34px 26px 0;
+}
+.ant-modal-header{
+  padding: 26px 34px 0 24px ;
+}
 }
