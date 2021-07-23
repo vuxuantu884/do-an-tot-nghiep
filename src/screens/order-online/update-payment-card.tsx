@@ -30,6 +30,7 @@ import {
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
+  PointConfig,
 } from "utils/Constants";
 import {
   formatCurrency,
@@ -48,6 +49,7 @@ import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
   setPayments: (value: Array<UpdateOrderPaymentRequest>) => void;
+  setTotalPaid: (value: number) => void;
   orderDetail: OrderResponse;
   paymentMethod: number;
   amount: any;
@@ -90,8 +92,10 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
 
   const handleInputPoint = (index: number, point: number) => {
     paymentData[index].point = point;
-    paymentData[index].amount = point * 1000;
+    paymentData[index].amount = point * PointConfig.VALUE;
+    paymentData[index].paid_amount = point * PointConfig.VALUE;
     setPaymentData([...paymentData]);
+    props.setPayments([...paymentData]);
   };
 
   const totalAmountPaid = useMemo(() => {
@@ -102,7 +106,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);
-
+  props.setTotalPaid(totalAmountPaid)
   const handlePickPaymentMethod = (code?: string) => {
     let paymentMaster = ListMaymentMethods.find((p) => code === p.code);
     if (!paymentMaster) return;
@@ -133,8 +137,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const handleInputMoney = (index: number, amount: number) => {
     if (paymentData[index].code === PaymentMethodCode.POINT) {
       paymentData[index].point = amount;
-      paymentData[index].amount = amount * 1000;
-      paymentData[index].paid_amount = amount * 1000;
+      paymentData[index].amount = amount * PointConfig.VALUE;
+      paymentData[index].paid_amount = amount * PointConfig.VALUE;
     } else {
       paymentData[index].amount = amount;
       paymentData[index].paid_amount = amount;
@@ -202,6 +206,10 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const onCancleConfirm = useCallback(() => {
     setVisibleConfirmPayment(false);
   }, []);
+
+  const canclePayment = () => {
+    setVisibleUpdatePayment(false);
+  };
 
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
@@ -467,7 +475,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         <Button
                           type="default"
                           className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right", marginRight:"10px" }}
+                          style={{ float: "right", marginRight: "10px" }}
+                          onClick={canclePayment}
                         >
                           Hủy
                         </Button>
@@ -743,7 +752,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         <Button
                           type="default"
                           className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right", marginRight:"10px" }}
+                          style={{ float: "right", marginRight: "10px" }}
+                          // onClick={canclePayment}
                         >
                           Hủy
                         </Button>

@@ -116,6 +116,7 @@ export interface FulFillmentResponse {
   billing_address: BillingAddress | null;
   items: Array<OrderLineItemResponse>;
   payments: Array<OrderPaymentResponse>;
+  created_date: string | null;
 }
 
 export interface OrderDiscountResponse {
@@ -188,6 +189,8 @@ export interface ShippingAddress {
 export interface ShipmentResponse extends BaseObject {
   delivery_service_provider_id: number | null;
   delivery_service_provider_type: string | null;
+  shipper_code: string | null;
+  shipper_name: string | null;
   handover_id: number | null;
   service: number | null;
   who_paid: string | null;

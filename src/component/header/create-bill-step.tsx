@@ -3,6 +3,8 @@ import { CheckOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { OrderResponse } from "model/response/order/order.response";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { getDateLastPayment } from "utils/AppUtils";
 
 type StepStatusProps = {
   status?: string | null | undefined;
@@ -48,7 +50,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
       <Steps.Step
         title="Đặt hàng"
         description={moment(props.orderDetail?.created_date).format(
-          "DD/MM/YYYY HH:MM"
+          "DD/MM/YYYY HH:mm"
         )}
       />
       <Steps.Step title="Xác nhận" />

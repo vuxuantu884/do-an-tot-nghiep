@@ -29,6 +29,7 @@ import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
+import moment from "moment";
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
@@ -154,7 +155,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 className="select-with-search"
                 showSearch
                 showArrow
-                notFoundContent="Không có dữ liệu"
+                notFoundContent="Không tìm thấy kết quả"
                 style={{ width: "100%" }}
                 placeholder="Chọn yêu cầu"
                 filterOption={(input, option) => {
@@ -191,32 +192,35 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 : { borderBottom: "1px solid #2A2A86" }
             }
           >
-            {shipmentButton.map((button) => (
-              <Space>
-                {props.shipmentMethod !== button.value ? (
-                  <div
-                    className="saleorder_shipment_button"
-                    key={button.value}
-                    onClick={() => ShipMethodOnChange(button.value)}
-                  >
-                    <img src={button.icon} alt="icon"></img>
-                    <span>{button.name}</span>
-                  </div>
-                ) : (
-                  <div
-                    className={
-                      props.shipmentMethod === ShipmentMethodOption.DELIVERLATER
-                        ? "saleorder_shipment_button saleorder_shipment_button_border"
-                        : "saleorder_shipment_button_active"
-                    }
-                    key={button.value}
-                  >
-                    <img src={button.icon} alt="icon"></img>
-                    <span>{button.name}</span>
-                  </div>
-                )}
-              </Space>
-            ))}
+            <Space size={10}>
+              {shipmentButton.map((button) => (
+                <div>
+                  {props.shipmentMethod !== button.value ? (
+                    <div
+                      className="saleorder_shipment_button"
+                      key={button.value}
+                      onClick={() => ShipMethodOnChange(button.value)}
+                    >
+                      <img src={button.icon} alt="icon"></img>
+                      <span>{button.name}</span>
+                    </div>
+                  ) : (
+                    <div
+                      className={
+                        props.shipmentMethod ===
+                        ShipmentMethodOption.DELIVERLATER
+                          ? "saleorder_shipment_button saleorder_shipment_button_border"
+                          : "saleorder_shipment_button_active"
+                      }
+                      key={button.value}
+                    >
+                      <img src={button.icon} alt="icon"></img>
+                      <span>{button.name}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </Space>
           </div>
         </Row>
         {shipmentMethodState === ShipmentMethodOption.SELFDELIVER && (
@@ -224,7 +228,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             <Col md={12}>
               <Form.Item
                 label="Đối tác giao hàng"
-                name="delivery_service_provider_id"
+                name="shipper_code"
                 rules={[
                   {
                     required: true,
@@ -259,7 +263,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                     <CustomSelect.Option
                       style={{ width: "100%" }}
                       key={index.toString()}
-                      value={item.id}
+                      value={item.code}
                     >
                       {`${item.full_name} - ${item.mobile}`}
                     </CustomSelect.Option>
