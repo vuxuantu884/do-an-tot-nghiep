@@ -19,6 +19,7 @@ const ConfirmPaymentModal: React.FC<ConfirmPaymentModalProps> = (props: ConfirmP
             okText="Đồng ý"
             cancelText="Thoát"
             title="Bạn muốn xác nhận thanh toán cho đơn hàng này?"
+            className="saleorder-modal-config"
         >
             <span>
                 {props.text}

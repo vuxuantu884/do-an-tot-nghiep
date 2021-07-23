@@ -28,10 +28,7 @@ import React, {
   useMemo,
   createRef,
 } from "react";
-import {
-  SearchOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+import { SearchOutlined, EditOutlined } from "@ant-design/icons";
 import DiscountGroup from "./discount-group";
 import { useDispatch, useSelector } from "react-redux";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -56,9 +53,9 @@ import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";
 import emptyProduct from "assets/icon/empty_products.svg";
+import Xclosebtn from "assets/icon/X_close.svg";
 import addIcon from "assets/img/plus_1.svg";
-import { Type } from "config/TypeConfig";
-import deleteIcon from "assets/icon/delete.svg";
+import { Type } from "config/TypeConfig"; 
 import AddGiftModal from "./modal/AddGiftModal";
 import { OrderItemDiscountModel } from "model/other/Order/order-model";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
@@ -74,7 +71,7 @@ import { OrderLineItemRequest } from "model/request/order.request";
 type ProductCardProps = {
   storeId: number | null;
   selectStore: (item: number) => void;
-  shippingFeeCustomer: number|null;
+  shippingFeeCustomer: number | null;
   changeInfo: (
     items: Array<OrderLineItemRequest>,
     amount: number,
@@ -140,7 +137,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
     total();
   };
-
+console.log(items)
   const onChangePrice = (value: number | null, index: number) => {
     let _items = [...items];
     if (value !== null) {
@@ -162,7 +159,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
     _items.forEach((i) => {
       i.discount_items.forEach((d) => {
-         total_discount_items = total_discount_items + d.value;
+        total_discount_items = total_discount_items + d.value;
       });
       let amountItem = (i.price - total_discount_items) * i.quantity;
       i.line_amount_after_line_discount = amountItem;
@@ -186,15 +183,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const renderSearchVariant = (item: VariantResponse) => {
     let avatar = findAvatar(item.variant_images);
     return (
-      <div className="row-search w-100" style={{padding: 0, paddingRight: 20, paddingLeft: 20}}>
-        <div className="rs-left w-100" style={{ width: "100%"}}>
-         <div style={{marginTop: 10}}> 
-           <img
-            src={avatar === "" ? imgdefault : avatar}
-            alt="anh"
-            placeholder={imgdefault}
-            style={{width: "40px", height: "40px", borderRadius: 5}}
-          /></div>
+      <div
+        className="row-search w-100"
+        style={{ padding: 0, paddingRight: 20, paddingLeft: 20 }}
+      >
+        <div className="rs-left w-100" style={{ width: "100%" }}>
+          <div style={{ marginTop: 10 }}>
+            <img
+              src={avatar === "" ? imgdefault : avatar}
+              alt="anh"
+              placeholder={imgdefault}
+              style={{ width: "40px", height: "40px", borderRadius: 5 }}
+            />
+          </div>
           <div className="rs-info w-100">
             <span style={{ color: "#37394D" }} className="text">
               {item.name}
@@ -207,7 +208,15 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         <div className="rs-right">
           <span style={{ color: "#222222" }} className="text t-right">
             {`${findPrice(item.variant_prices, AppConfig.currency)} `}
-            <span style={{ color: "#737373", textDecoration: "underline", textDecorationColor: "#737373"}}>đ</span>
+            <span
+              style={{
+                color: "#737373",
+                textDecoration: "underline",
+                textDecorationColor: "#737373",
+              }}
+            >
+              đ
+            </span>
           </span>
           <span style={{ color: "#737373" }} className="text t-right p-4">
             Có thể bán:
@@ -219,7 +228,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                     : "rgba(226, 67, 67, 1)",
               }}
             >
-             {` ${item.inventory}`}
+              {` ${item.inventory}`}
             </span>
           </span>
         </div>
@@ -243,24 +252,23 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const ProductColumn = {
     title: () => (
       <div className="text-center">
-        <div>Sản phẩm</div>
+        <div style={{ textAlign: "left" }}>Sản phẩm</div>
         <span style={{ color: "#0080FF" }}></span>
       </div>
     ),
-    width: "33%",
+    width: "30%",
     className: "yody-pos-name",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
-        <div className="w-100" style={{ overflow: "hidden" }}>
+        <div
+          className="w-100"
+          style={{
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <div className="d-flex align-items-center">
-            <Button
-              type="text"
-              className="p-0 ant-btn-custom"
-              onClick={() => onDeleteItem(index)}
-              style={{ float: "left", marginRight: "13px" }}
-            >
-              <img src={deleteIcon} alt="" />
-            </Button>
             <div
               style={{
                 width: "calc(100% - 32px)",
@@ -279,15 +287,16 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               </div>
             </div>
           </div>
-          {l.gifts.map((a, index1) => (
-            <div key={index1} className="yody-pos-addition yody-pos-gift">
-              <div>
-                <img src={giftIcon} alt="" /> {a.variant}{" "}
-                <span>({a.quantity})</span>
+          <div>
+            {l.gifts.map((a, index1) => (
+              <div key={index1} className="yody-pos-addition yody-pos-gift">
+                <div>
+                  <img src={giftIcon} alt="" /> {a.variant}{" "}
+                  <span>({a.quantity})</span>
+                </div>
               </div>
-            </div>
-          ))}
-
+            ))}
+          </div>
           <div className="yody-pos-note" hidden={!l.show_note && l.note === ""}>
             <Input
               addonBefore={<EditOutlined />}
@@ -314,8 +323,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const AmountColumnt = {
     title: () => (
       <div className="text-center">
-        <div>Số lượng</div>
-       {getTotalQuantity(items) > 0 && <span style={{ color: "#0080FF" }}>({getTotalQuantity(items)})</span>}
+        <div style={{ textAlign: "center" }}>Số lượng</div>
+        {getTotalQuantity(items) > 0 && (
+          <span style={{ color: "#0080FF" }}>({getTotalQuantity(items)})</span>
+        )}
       </div>
     ),
     className: "yody-pos-quantity text-center",
@@ -325,7 +336,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       return (
         <div className="yody-pos-qtt">
           <NumberInput
-            style={{ textAlign: "right", fontWeight:500, color:"#222222" }}
+            style={{ textAlign: "right", fontWeight: 500, color: "#222222" }}
             value={l.quantity}
             onChange={(value) => onChangeQuantity(value, index)}
             maxLength={4}
@@ -337,10 +348,15 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   };
 
   const PriceColumnt = {
-    title: "Đơn giá",
+    title: () => (
+      <div className="text-center">
+         Đơn giá
+        <span style={{ color: "#808080", marginLeft: "6px" , fontWeight: 400}}>₫</span>
+      </div>
+    ),
     className: "yody-pos-price text-right",
     width: "17%",
-    align: "right",
+    align: "center",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
         <div>
@@ -350,15 +366,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             placeholder="VD: 100,000"
             style={{
               textAlign: "right",
-              width:"100%",
-              fontWeight:500,
-              color:"#222222"
+              width: "100%",
+              fontWeight: 500,
+              color: "#222222",
             }}
             maxLength={14}
             minLength={0}
             value={l.price}
             onChange={(value) => onChangePrice(value, index)}
-            
           />
         </div>
       );
@@ -367,12 +382,12 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const DiscountColumnt = {
     title: "Chiết khấu",
-    align: "right",
+    align: "center",
     width: "22%",
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
-        <div className="site-input-group-wrapper">
+        <div className="site-input-group-wrapper saleorder-input-group-wrapper">
           <DiscountGroup
             price={l.price}
             index={index}
@@ -388,12 +403,21 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   };
 
   const TotalPriceColumn = {
-    title: "Tổng tiền",
-    align: "right",
+    title: () => (
+      <div className="text-center">
+         Tổng tiền
+        <span style={{ color: "#808080", marginLeft: "6px" , fontWeight: 400}}>₫</span>
+      </div>
+    ),
+    align: "center",
     className: "yody-table-total-money text-right",
     width: "14%",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
-      return <div className="yody-pos-varian-name">{formatCurrency(l.line_amount_after_line_discount)}</div>;
+      return (
+        <div className="yody-pos-varian-name">
+          {formatCurrency(l.line_amount_after_line_discount)}
+        </div>
+      );
     },
   };
 
@@ -429,12 +453,39 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         </Menu>
       );
       return (
-        <div className="site-input-group-wrapper">
-          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
-            <Button type="text" className="p-0 ant-btn-custom">
-              <img src={arrowDownIcon} alt="" />
+        <div style={{ display: "flex" }}>
+          <div
+            className="site-input-group-wrapper saleorder-input-group-wrapper"
+            style={{
+              marginRight: 6,
+              padding: 0,
+              borderRadius: 5,
+            }}
+          >
+            <Dropdown
+              overlay={menu}
+              trigger={["click"]}
+              placement="bottomRight"
+            >
+              <Button
+                type="text"
+                className="p-0 ant-btn-custom"
+                style={{ height: 36, width: 32 }}
+              >
+                <img src={arrowDownIcon} alt="" />
+              </Button>
+            </Dropdown>
+          </div>
+          <div>
+            <Button
+              type="text"
+              className="p-0 ant-btn-custom"
+              onClick={() => onDeleteItem(index)}
+              style={{ marginLeft: "8px" }}
+            >
+              <img src={Xclosebtn} alt="" />
             </Button>
-          </Dropdown>
+          </div>
         </div>
       );
     },
@@ -509,12 +560,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const onSearchVariantSelect = useCallback(
     (v, o) => {
+      let newV = parseInt(v)
       let _items = [...items].reverse();
-      let indexSearch = resultSearchVariant.items.findIndex((s) => s.id == v);
+      let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
       console.log(indexSearch);
-      let index = _items.findIndex((i) => i.variant_id == v);
+      let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
-      if (r.id == v) {
+      if (r.id === newV) {
         if (splitLine || index === -1) {
           const item: OrderLineItemRequest = createItem(r);
           _items.push(item);
@@ -660,13 +712,18 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       }
       extra={
         <Space size={20}>
-          <Checkbox onChange={() => setSplitLine(!splitLine)} >
+          <Checkbox onChange={() => setSplitLine(!splitLine)}>
             Tách dòng
           </Checkbox>
           <span>Chính sách giá:</span>
-          <Form.Item name="price_type" style={{ margin: "0px"}}>
-            <Select style={{ minWidth: 145, height: 38}} placeholder="Chính sách giá">
-              <Select.Option value="retail_price" color="#222222">Giá bán lẻ</Select.Option>
+          <Form.Item name="price_type" style={{ margin: "0px" }}>
+            <Select
+              style={{ minWidth: 145, height: 38 }}
+              placeholder="Chính sách giá"
+            >
+              <Select.Option value="retail_price" color="#222222">
+                Giá bán lẻ
+              </Select.Option>
               <Select.Option value="whole_sale_price">
                 Giá bán buôn
               </Select.Option>
@@ -740,7 +797,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                   <div>
                     <div
                       className="row-search w-100"
-                      style={{ minHeight: "42px", lineHeight: "50px", cursor: "pointer"}}
+                      style={{
+                        minHeight: "42px",
+                        lineHeight: "50px",
+                        cursor: "pointer",
+                      }}
                     >
                       <div className="rs-left w-100">
                         <div style={{ float: "left", marginLeft: "20px" }}>
@@ -764,7 +825,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 <Input
                   size="middle"
                   className="yody-search"
-                  placeholder="Tìm sản phẩm theo tên/ SKU (F3)"
+                  placeholder="Tìm sản phẩm mã 7... (F3)"
                   prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                 />
               </AutoComplete>
@@ -784,21 +845,20 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           emptyText: (
             <div className="sale_order_empty_product">
               <img src={emptyProduct} alt="empty product"></img>
-                <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
-                <Button
-              type="text"
-              className="font-weight-500"
-              style={{
-                background: "rgba(42,42,134,0.05)",
-              }}
-              onClick={() => {
-                autoCompleteRef.current?.focus();
-              }}
-            >
-              Thêm sản phẩm ngay (F3)
+              <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
+              <Button
+                type="text"
+                className="font-weight-500"
+                style={{
+                  background: "rgba(42,42,134,0.05)",
+                }}
+                onClick={() => {
+                  autoCompleteRef.current?.focus();
+                }}
+              >
+                Thêm sản phẩm ngay (F3)
               </Button>
             </div>
-           
           ),
         }}
         rowKey={(record) => record.id}
@@ -814,22 +874,34 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <div className="row-footer-custom">
               <div
                 className="yody-foot-total-text"
-                style={{ width: "37%", float: "left", textAlign: "center", fontWeight:500 }}
+                style={{
+                  width: "37%",
+                  float: "left",
+                  textAlign: "center",
+                  fontWeight: 500,
+                }}
               >
                 Tổng
-              </div>
-
-              <div style={{ width: "17%", float: "left", textAlign: "right", fontWeight:500 }}>
-                {formatCurrency(getTotalAmount(items))}
               </div>
 
               <div
                 style={{
                   width: "20%",
                   float: "left",
-                  textAlign: "right",
+                  textAlign: "center",
+                  fontWeight: 500,
+                }}
+              >
+                {formatCurrency(getTotalAmount(items))}
+              </div>
+
+              <div
+                style={{
+                  width: "18%",
+                  float: "left",
+                  textAlign: "center",
                   color: "#E24343",
-                  fontWeight:500
+                  fontWeight: 500,
                 }}
               >
                 {formatCurrency(getTotalDiscount(items))}
@@ -837,17 +909,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
               <div
                 style={{
-                  width: "15%",
+                  width: "17%",
                   float: "left",
-                  textAlign: "right",
+                  textAlign: "center",
                   color: "#0080FF",
-                  fontWeight:500
+                  fontWeight: 500,
                 }}
               >
                 {formatCurrency(getTotalAmountAfferDiscount(items))}
               </div>
             </div>
-          ) : <div />
+          ) : (
+            <div />
+          )
         }
       />
       <div className="padding-24" style={{ paddingTop: "30px" }}>
@@ -857,7 +931,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Checkbox
                 className=""
                 onChange={() => console.log(1)}
-                style={{fontWeight: 500}}
+                style={{ fontWeight: 500 }}
               >
                 Bỏ chiết khấu tự động
               </Checkbox>
@@ -866,7 +940,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Checkbox
                 className=""
                 onChange={() => console.log(1)}
-                style={{fontWeight: 500}}
+                style={{ fontWeight: 500 }}
               >
                 Không tính thuế VAT
               </Checkbox>
@@ -875,7 +949,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Checkbox
                 className=""
                 onChange={() => console.log(1)}
-                style={{fontWeight: 500}}
+                style={{ fontWeight: 500 }}
               >
                 Bỏ tích điểm tự động
               </Checkbox>
@@ -884,33 +958,34 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           <Col xs={24} lg={12}>
             <Row className="payment-row" justify="space-between">
               <div className="font-weight-500">Tổng tiền</div>
-              <div className="font-weight-500 ">
-                {formatCurrency(amount)}
-              </div>
+              <div className="font-weight-500 ">{formatCurrency(amount)}</div>
             </Row>
 
-            <Row
-              className="payment-row"
-              justify="space-between"
-              align="middle"
-            >
+            <Row className="payment-row" justify="space-between" align="middle">
               <Space align="center">
-                {items.length > 0 ? <Typography.Link
-                  className="font-weight-500"
-                  onClick={ShowDiscountModal}
-                  style={{
-                    textDecoration: "underline",
-                    textDecorationColor: "#5D5D8A",
-                    color: "#5D5D8A"
-                  }}
-                >
-                  Chiết khấu
-                </Typography.Link> : <div>Chiết khấu</div>}
-                
+                {items.length > 0 ? (
+                  <Typography.Link
+                    className="font-weight-500"
+                    onClick={ShowDiscountModal}
+                    style={{
+                      textDecoration: "underline",
+                      textDecorationColor: "#5D5D8A",
+                      color: "#5D5D8A",
+                    }}
+                  >
+                    Chiết khấu
+                  </Typography.Link>
+                ) : (
+                  <div>Chiết khấu</div>
+                )}
 
                 {discountRate !== 0 && (
                   <Tag
-                    style={{marginTop: 0, color: "#E24343", backgroundColor: "#F5F5F5"}}
+                    style={{
+                      marginTop: 0,
+                      color: "#E24343",
+                      backgroundColor: "#F5F5F5",
+                    }}
                     className="orders-tag orders-tag-danger"
                     closable
                     onClose={() => {
@@ -928,27 +1003,31 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               </div>
             </Row>
 
-            <Row
-              className="payment-row"
-              justify="space-between"
-              align="middle"
-            >
+            <Row className="payment-row" justify="space-between" align="middle">
               <Space align="center">
-               {items.length > 0 ?  <Typography.Link
-                  className="font-weight-500"
-                  onClick={ShowDiscountModal}
-                  style={{
-                    textDecoration: "underline",
-                    textDecorationColor: "#5D5D8A",
-                    color: "#5D5D8A"
-                  }}
-                >
-                  Mã giảm giá
-                </Typography.Link> : <div>Mã giảm giá</div>}
+                {items.length > 0 ? (
+                  <Typography.Link
+                    className="font-weight-500"
+                    onClick={ShowDiscountModal}
+                    style={{
+                      textDecoration: "underline",
+                      textDecorationColor: "#5D5D8A",
+                      color: "#5D5D8A",
+                    }}
+                  >
+                    Mã giảm giá
+                  </Typography.Link>
+                ) : (
+                  <div>Mã giảm giá</div>
+                )}
 
                 {counpon !== "" && (
                   <Tag
-                    style={{margin: 0, color: "#E24343", backgroundColor: "#F5F5F5"}}
+                    style={{
+                      margin: 0,
+                      color: "#E24343",
+                      backgroundColor: "#F5F5F5",
+                    }}
                     className="orders-tag orders-tag-danger"
                     closable
                     onClose={() => {
@@ -965,14 +1044,21 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
             <Row className="payment-row padding-top-10" justify="space-between">
               <div className="font-weight-500">Phí ship báo khách</div>
-              <div className="font-weight-500 payment-row-money">{props.shippingFeeCustomer !== null ? formatCurrency(props.shippingFeeCustomer) : "-"}</div>
+              <div className="font-weight-500 payment-row-money">
+                {props.shippingFeeCustomer !== null
+                  ? formatCurrency(props.shippingFeeCustomer)
+                  : "-"}
+              </div>
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
-            <Row className="payment-row" justify="space-between"> 
+            <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Khách cần phải trả:</strong>
               <strong className="text-success font-size-text">
-                {changeMoney !== null || props.shippingFeeCustomer !== null ?
-                (props.shippingFeeCustomer !== null ? formatCurrency(changeMoney + props.shippingFeeCustomer) : formatCurrency(changeMoney)) : "-"}
+                {changeMoney !== null || props.shippingFeeCustomer !== null
+                  ? props.shippingFeeCustomer !== null
+                    ? formatCurrency(changeMoney + props.shippingFeeCustomer)
+                    : formatCurrency(changeMoney)
+                  : "-"}
               </strong>
             </Row>
           </Col>
