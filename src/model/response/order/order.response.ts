@@ -104,6 +104,7 @@ export interface FulFillmentResponse {
   receive_cancellation_account_code: string | null;
   packed_on: string | null;
   shipped_on: string | null;
+  export_on: string | null;
   received_on: string | null;
   cancel: string | null;
   receive_cancellation_on: string | null;
