@@ -109,15 +109,13 @@ const CreateSupplierScreen: React.FC = () => {
         (val) => val.code === currentUserCode
       );
       if (checkUser !== -1 && currentUserCode !== undefined) {
-        console.log(formRef);
-        // setPersonInCharge(currentUserId);
-
+        
         formSupplier.setFieldsValue({
-          person_in_charge: [currentUserCode],
+          person_in_charge: currentUserCode,
         });
       }
     },
-    [currentUserCode, formRef, formSupplier]
+    [currentUserCode, formSupplier]
   );
 
   const onChangeStatus = useCallback(
