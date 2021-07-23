@@ -2139,7 +2139,7 @@ const OrderDetail = () => {
                     />
                   )}
                   {checkPaymentAll(OrderDetail) !== 1 &&
-                    isShowPaymentPartialPayment === false && (
+                    isShowPaymentPartialPayment === false && checkPaymentStatusToShow(OrderDetail) !== 1 && (
                       <div className="padding-24 text-right">
                         <Divider style={{ margin: "10px 0" }} />
                         <Button
@@ -2160,7 +2160,7 @@ const OrderDetail = () => {
               OrderDetail.fulfillments.length > 0 &&
               OrderDetail.fulfillments[0].shipment &&
               OrderDetail.fulfillments[0].shipment?.cod ===
-                OrderDetail.total && (
+                OrderDetail.total && checkPaymentStatusToShow(OrderDetail) !== 1 && (
                 <Card
                   className="margin-top-20"
                   title={

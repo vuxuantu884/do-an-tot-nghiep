@@ -55,7 +55,7 @@ import imgdefault from "assets/icon/img-default.svg";
 import emptyProduct from "assets/icon/empty_products.svg";
 import Xclosebtn from "assets/icon/X_close.svg";
 import addIcon from "assets/img/plus_1.svg";
-import { Type } from "config/TypeConfig"; 
+import { Type } from "config/TypeConfig";
 import AddGiftModal from "./modal/AddGiftModal";
 import { OrderItemDiscountModel } from "model/other/Order/order-model";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
@@ -137,7 +137,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
     total();
   };
-console.log(items)
+  console.log(items);
   const onChangePrice = (value: number | null, index: number) => {
     let _items = [...items];
     if (value !== null) {
@@ -350,8 +350,10 @@ console.log(items)
   const PriceColumnt = {
     title: () => (
       <div className="text-center">
-         Đơn giá
-        <span style={{ color: "#808080", marginLeft: "6px" , fontWeight: 400}}>₫</span>
+        Đơn giá
+        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
+          ₫
+        </span>
       </div>
     ),
     className: "yody-pos-price text-right",
@@ -405,8 +407,10 @@ console.log(items)
   const TotalPriceColumn = {
     title: () => (
       <div className="text-center">
-         Tổng tiền
-        <span style={{ color: "#808080", marginLeft: "6px" , fontWeight: 400}}>₫</span>
+        Tổng tiền
+        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
+          ₫
+        </span>
       </div>
     ),
     align: "center",
@@ -560,9 +564,11 @@ console.log(items)
 
   const onSearchVariantSelect = useCallback(
     (v, o) => {
-      let newV = parseInt(v)
+      let newV = parseInt(v);
       let _items = [...items].reverse();
-      let indexSearch = resultSearchVariant.items.findIndex((s) => s.id === newV);
+      let indexSearch = resultSearchVariant.items.findIndex(
+        (s) => s.id === newV
+      );
       console.log(indexSearch);
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
