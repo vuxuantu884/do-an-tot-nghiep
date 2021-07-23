@@ -69,7 +69,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
             ]}
         >
             <Form ref={formRef} layout="vertical">
-                <div className="site-input-group-wrapper">
+                <div className="site-input-group-wrapper saleorder-input-group-wrapper">
                     <Form.Item label="Chiết khấu đơn hàng">
                         <Input.Group size="large">
                             <Select
@@ -98,7 +98,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
                         </Input.Group>
                     </Form.Item>
                 </div>
-                <div className="site-input-group-wrapper">
+                <div className="site-input-group-wrapper saleorder-input-group-wrapper">
                     <Form.Item label="Mã giảm giá">
                         <Input
                             placeholder="Mã giảm giá"

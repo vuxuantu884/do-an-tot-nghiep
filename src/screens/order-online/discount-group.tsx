@@ -14,9 +14,7 @@ type DiscountGroupProps = {
   setItems: (_items: Array<OrderLineItemRequest>) => void;
 };
 
-const DiscountGroup: React.FC<DiscountGroupProps> = (
-  props: DiscountGroupProps
-) => {
+const DiscountGroup: React.FC<DiscountGroupProps> = ( props: DiscountGroupProps ) => {
   const { Text } = Typography;
   const [selected, setSelected] = useState(MoneyType.MONEY);
   let showResult = true;
@@ -26,9 +24,8 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
   };
 
   const ChangeValueDiscount = useCallback(
-    (v) => {
-      console.log(v);
-      let _items = [...props.items];
+      (v) => {
+      let _items = [...props.items]; 
       let _item = _items[props.index].discount_items[0];
       let _price = _items[props.index].price;
       if (selected === MoneyType.MONEY) {

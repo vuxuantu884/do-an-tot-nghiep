@@ -17,9 +17,12 @@ const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (props: Sav
             onOk={onOk}
             visible={visible}
             centered
-            okText="Có"
-            cancelText="Không"
+            okText="Đồng ý"
+            cancelText="Hủy"
             title={title}
+            width={600}
+            className="saleorder-modal-config"
+
         >
             <span>
             {text}
