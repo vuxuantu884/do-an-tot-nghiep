@@ -930,6 +930,21 @@
       }
     }
   }
+    .ant-collapse-header{
+    width: 100%;
+      .ant-row{
+      width: 100%;
+      display: flex;
+      justify-content:space-between;
+      .ant-col{
+        display: flex;
+        justify-content: space-between;
+        p{
+         line-height: 2
+        }
+      }
+    }
+  }
 }
 
 .margin-top-bottom-10 {

@@ -151,13 +151,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
     total();
   };
-
+console.log(items)
   const total = useCallback(() => {
     let _items = [...items];
     let _amount = 0;
-    let total_discount_items = 0;
+    
 
     _items.forEach((i) => {
+      let total_discount_items = 0;
       i.discount_items.forEach((d) => {
         total_discount_items = total_discount_items + d.value;
       });
@@ -419,7 +420,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
         <div className="yody-pos-varian-name">
-          {formatCurrency(l.line_amount_after_line_discount)}
+          {formatCurrency(Math.round(l.line_amount_after_line_discount))}
         </div>
       );
     },
