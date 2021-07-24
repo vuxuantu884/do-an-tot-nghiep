@@ -49,8 +49,6 @@ export const findCurrentRoute = (
     current: "",
     subMenu: "",
   };
-  console.log("routes", routes);
-  console.log("path", path);
   routes.forEach((route) => {
     if (path.includes(route.path)) {
       obj.current = route.key;
@@ -409,7 +407,7 @@ export const Products = {
     let variants: Array<VariantRequest> = [];
     let variant_prices: Array<VariantPriceRequest> = [];
     pr.variant_prices.forEach((item) => {
-      debugger;
+      
       let retail_price = parseInt(item.retail_price);
       let import_price = parseInt(item.import_price);
       let whole_sale_price = parseInt(item.whole_sale_price);
@@ -487,7 +485,7 @@ export const Products = {
     };
     return productRequest;
   },
-  findAvatar: (images: Array<VariantImage>) => {
+  findAvatar: (images: Array<VariantImage>): VariantImage|null => {
     let image: VariantImage | null = null;
     images.forEach((imagerRequest) => {
       if (imagerRequest.variant_avatar) {
@@ -496,8 +494,17 @@ export const Products = {
     });
     return image;
   },
+  findPrice: (prices: Array<VariantPricesResponse>, price_type: string, currency: string): VariantPricesResponse|null => {
+    let price: VariantPricesResponse | null = null;
+    prices.forEach(priceResponse => {
+      if (priceResponse.currency_code === currency && priceResponse.price_type === price_type) {
+        price = priceResponse;
+      }
+    }) 
+    return price;
+  },
   convertVariantRequestToView: (variant: VariantResponse) => {
-    debugger;
+    
     let variantPrices: Array<VariantPriceViewRequest> = [];
     variant.variant_prices.forEach((item) => {
       let index = variantPrices.findIndex(
@@ -606,7 +613,6 @@ export const Products = {
       variant_prices: variant.variant_prices,
       variant_images: variant.variant_images,
     };
-    console.log(variant.variant_prices);
     return variantUpadteRequest;
   },
 };

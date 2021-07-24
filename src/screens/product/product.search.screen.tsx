@@ -203,9 +203,11 @@ const ListProductScreen: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {}, []);
 
   const setSearchResult = useCallback(
-    (listResult: PageResponse<VariantResponse>) => {
+    (result: PageResponse<VariantResponse>|false) => {
       setTableLoading(false);
-      setData(listResult);
+      if(!!result) {
+        setData(result);
+      }
     },
     []
   );
@@ -223,6 +225,7 @@ const ListProductScreen: React.FC = () => {
     }
   }, [dispatch]);
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
+  
   useEffect(() => {
     if (isFirstLoad.current) {
       dispatch(CountryGetAllAction(setCountry));

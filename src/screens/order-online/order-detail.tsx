@@ -1612,7 +1612,7 @@ const OrderDetail = () => {
                           </p>
                         </Col>
                       </Row>
-                    </Panel>
+                    </Panel> 
                   </Collapse>
                 </div>
                 <Divider style={{ margin: "0px" }} />
@@ -2512,47 +2512,17 @@ const OrderDetail = () => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
         title="Xác nhận xuất kho"
-        text={`Bạn có chắc xuất kho đơn giao hàng này ${
-          confirmExportAndFinishValue()
-            ? `với tiền thu hộ là ${confirmExportAndFinishValue()}`
-            : ""
-        } không?`}
+        text={`Bạn có chắc xuất kho đơn giao hàng này ${confirmExportAndFinishValue() ? `với tiền thu hộ là ${confirmExportAndFinishValue()}` : ""} không?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
         title="Xác nhận giao hàng thành công"
-        text={`Bạn có chắc muốn xác nhận đơn giao hàng này  ${
-          confirmExportAndFinishValue()
-            ? `với tiền thu hộ là ${confirmExportAndFinishValue()}`
-            : ""
-        } không?`}
+        text={`Bạn có chắc muốn xác nhận đơn giao hàng này  ${confirmExportAndFinishValue() ? `với tiền thu hộ là ${confirmExportAndFinishValue()}` : ""} không?`}
       />
     </ContentContainer>
   );
 };
 
 export default OrderDetail;
-
-// ${
-//   customerNeedToPayValue -
-//   (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-//     ? `với tiền thu hộ là: ` +
-//       formatCurrency(
-//         customerNeedToPayValue -
-//           (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-//       )
-//     : ""
-// } không?`
-
-// ${
-//   customerNeedToPayValue -
-//   (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-//     ? ` với tiền thu hộ là: ` +
-//       formatCurrency(
-//         customerNeedToPayValue -
-//           (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-//       )
-//     : ""
-// } không?
