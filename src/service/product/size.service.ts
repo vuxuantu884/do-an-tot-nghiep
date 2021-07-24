@@ -10,7 +10,7 @@ export const getAllSizeApi = (): Promise<BaseResponse<PageResponse<SizeResponse>
 };
 
 export const getSearchSize = (query: SizeQuery): Promise<BaseResponse<PageResponse<SizeResponse>>> => {
-  debugger;
+  
   let params = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PRODUCT}/sizes?${params}`);
 };
