@@ -1595,7 +1595,7 @@ const OrderDetail = () => {
                           </p>
                         </Col>
                       </Row>
-                    </Panel>
+                    </Panel> 
                   </Collapse>
                 </div>
                 <Divider style={{ margin: "0px" }} />
