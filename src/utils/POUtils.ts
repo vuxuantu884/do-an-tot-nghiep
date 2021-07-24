@@ -129,6 +129,18 @@ const POUtils = {
       line_amount_after_line_discount: amount - discount_amount
     };
   },
+  updateVatItem: (data: PurchaseOrderLineItem, tax: number): PurchaseOrderLineItem => {
+    return {...data, tax: tax}
+  },
+  caculatePrice: (price: number, discount_rate: number|null, discount_value: number|null) => {
+    if(discount_rate !== null) {
+      return price - price * discount_rate / 100;
+    }
+    if(discount_value !== null) {
+      return price - discount_value;
+    }
+    return price;
+  }
 };
 
 export { POUtils };

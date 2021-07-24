@@ -216,17 +216,39 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .product-item-discount {
-    &-select {
-      .ant-select-selector {
-        border-top-left-radius: 5px !important;
-        border-bottom-left-radius: 5px !important;
-        background-color: #F5F5F5;
-      }
+  .product-item-price {
+    height: 38px;
+    padding: 7px 14px;
+    border-color: #DFDFDF;
+    font-size: 14px;
+    border-radius: 5px;
+    color: #737373;
+    background-color: $white;
+    width: 100%;
+    &:focus, &:active, &:hover  {
+      background-color: $white;
+    border-color: #DFDFDF;
+
     }
-    &-input {
-      width: 65%;
+  }
+  .product-item-vat {
+    .ant-input {
       text-align: right;
+      padding: 0;
+    }
+    .ant-input-prefix {
+      margin: 1px;
+      div {
+        display: flex;
+        height: 100%;
+        width: 30px;
+        background-color: #F5F5F5;
+        border-radius: 5px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
   &-sumary {
@@ -235,5 +257,30 @@
       font-size: 14px;
       line-height: 18px;
     }
+  }
+}
+.product-item-discount {
+  &-select {
+    .ant-select-selector {
+      border-top-left-radius: 5px !important;
+      border-bottom-left-radius: 5px !important;
+      background-color: #F5F5F5 !important;
+    }
+  }
+  &-input {
+    width: 65%;
+    text-align: right;
+  }
+}
+.payment-checkbox {
+  margin-bottom: 20px;
+}
+.payment-row {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  margin-right: 76px;
+  &-result {
+    font-weight: 500;
   }
 }
