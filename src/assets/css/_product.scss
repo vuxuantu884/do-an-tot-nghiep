@@ -13,10 +13,18 @@
     position: absolute;
   }
   &-upload {
+    z-index: 100;
     display: none;
   }
   &-default {
+    z-index: 99;
     display: inline;
+  }
+  &-path {
+    width: 40px !important;
+    height: 40px !important;
+    object-fit: contain;
+    border-radius: 5px;
   }
   &:hover {
     .prodcut-image-upload {
