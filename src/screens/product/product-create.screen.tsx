@@ -235,7 +235,7 @@ const ProductCreateScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: ProductRequestView) => {
-      debugger;
+      
       setLoadingSaveButton(true);
 
       let request = Products.convertProductViewToRequest(
@@ -464,7 +464,7 @@ const ProductCreateScreen: React.FC = () => {
           code: listCategory[categoryIndex].code,
         });
       }
-      debugger;
+      
       formRef.current?.setFieldsValue({
         size: [],
       });

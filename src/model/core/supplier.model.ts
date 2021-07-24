@@ -15,7 +15,7 @@ export interface SupplierResponse extends BaseObject {
   address: string,
   country_id: number,
   country_name: string,
-  city_id: string,
+  city_id: number,
   city_name: string,
   contact_name: string,
   identity_number: string|null
@@ -54,7 +54,7 @@ export interface SupplierDetail extends BaseObject {
   address: string,
   country_id: number,
   country_name: string,
-  city_id: string,
+  city_id: number,
   city_name: string,
   contact_name: string,
   identity_number: string|null

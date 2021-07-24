@@ -33,11 +33,12 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import { RegUtil } from "utils/RegUtils";
 import NumberInput from "component/custom/number-input.custom";
+import { VietNamId } from "utils/Constants";
 
 const { Item } = Form;
 const { Option } = Select;
 
-const DefaultCountry = 233;
+const DefaultCountry = VietNamId;
 const initRequest: SupplierCreateRequest = {
   address: "",
   bank_brand: "",
@@ -102,23 +103,18 @@ const CreateSupplierScreen: React.FC = () => {
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse>) => {
       let listWinAccount = data.items;
-      console.log(listWinAccount);
+
       setAccounts(listWinAccount);
       let checkUser = listWinAccount.findIndex(
         (val) => val.code === currentUserCode
       );
-      console.log(checkUser);
-      debugger;
       if (checkUser !== -1 && currentUserCode !== undefined) {
-        console.log(formRef);
-        // setPersonInCharge(currentUserId);
-
         formSupplier.setFieldsValue({
-          person_in_charge: [currentUserCode],
+          person_in_charge: currentUserCode,
         });
       }
     },
-    [currentUserCode, formRef, formSupplier]
+    [currentUserCode, formSupplier]
   );
 
   const onChangeStatus = useCallback(
@@ -152,7 +148,6 @@ const CreateSupplierScreen: React.FC = () => {
   }, [history]);
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
-      console.log(values);
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]
@@ -245,10 +240,7 @@ const CreateSupplierScreen: React.FC = () => {
               >
                 <Radio.Group>
                   {supplier_type?.map((item) => (
-                    <Radio
-                      value={item.value}
-                      key={item.value}
-                    >
+                    <Radio value={item.value} key={item.value}>
                       {item.name}
                     </Radio>
                   ))}
@@ -343,10 +335,7 @@ const CreateSupplierScreen: React.FC = () => {
                 </Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
-                <Item
-                  name="contact_name"
-                  label="Người liên hệ"
-                >
+                <Item name="contact_name" label="Người liên hệ">
                   <Input placeholder="Nhập người liên hệ" maxLength={255} />
                 </Item>
               </Col>
