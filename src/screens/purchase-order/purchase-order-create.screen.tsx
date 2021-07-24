@@ -16,6 +16,7 @@ import { AppConfig } from "config/AppConfig";
 import { useHistory } from "react-router-dom";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { PoFormName } from "utils/Constants";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
 const POCreateScreen = () => {
   const collapse = useSelector(
@@ -55,15 +56,19 @@ const POCreateScreen = () => {
     debugger;
     if (name === PoFormName.Main) {
       const { formSupplier, formInfo, formPoProduct } = forms;
-      let supplierInfo = formSupplier.getFieldsValue(true);
 
       Promise.all([
         formSupplier.validateFields(),
         formInfo.validateFields(),
-        formPoProduct.validateFields(),
+        formPoProduct.validateFields()
       ])
         .then((values) => {
-          console.log(values); // [3, 1337, "foo"]
+          let supplierInfo = formSupplier.getFieldsValue(true);
+          let poInfo = formInfo.getFieldsValue(true);
+          let productItem = formPoProduct.getFieldsValue(true);
+          let data:PurchaseOrder={...supplierInfo,...poInfo,...productItem}
+          console.log("PO");
+          console.log(data);
         })
         .catch((result: any) => {
           if (result.errorFields.length > 0) {
@@ -71,8 +76,6 @@ const POCreateScreen = () => {
             const elementError: any = document.querySelectorAll(
               "[id$=" + elName + "]"
             );
-            // document.querySelectorAll("[id$="+elName+"]")
-            // elementError?[0].focus();
             if (elementError.length > 0) {
               elementError[0].focus();
               const y =
@@ -83,8 +86,6 @@ const POCreateScreen = () => {
             }
           }
         });
-      var poInfo = formInfo.getFieldsValue(true);
-      var product = formPoProduct.getFieldsValue(true);
     }
   };
   useEffect(() => {

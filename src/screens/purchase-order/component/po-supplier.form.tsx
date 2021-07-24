@@ -101,7 +101,7 @@ const SupplierInfo = () => {
       };
       formSupplier.setFieldsValue({
         supplier_id: value,
-        supplier: data[index],
+        supplier: data[index].name,
         billing_address: supplierAddress,
         supplier_address: supplierAddress,
       });

@@ -34,6 +34,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency } from "utils/AppUtils";
 import PriceModal from "./price.modal";
+import { PoFormName } from "utils/Constants";
 
 const POProductForm: React.FC = () => {
   const dispatch = useDispatch();
@@ -163,7 +164,7 @@ const POProductForm: React.FC = () => {
     <React.Fragment>
       <Form
         form={form}
-        name="po-line-items"
+        name={PoFormName.Product}
         initialValues={{
           line_items: [],
           price_type: "import_price",
