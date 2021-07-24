@@ -563,11 +563,7 @@ const OrderDetail = () => {
     if (takeMoneyHelper) {
       return formatCurrency(takeMoneyHelper);
     } else if (
-      OrderDetail?.total_line_amount_after_line_discount &&
-      OrderDetail?.fulfillments &&
-      OrderDetail?.fulfillments.length > 0 &&
-      OrderDetail?.fulfillments[0].shipment &&
-      OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+      OrderDetail?.total && OrderDetail?.total_paid
     ) {
       return formatCurrency(
         OrderDetail?.total +
@@ -576,6 +572,8 @@ const OrderDetail = () => {
             : 0) -
           (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
       );
+    }else if(OrderDetail?.total){
+      return formatCurrency(OrderDetail?.total)
     }
   };
   //#region shiment
@@ -1315,23 +1313,28 @@ const OrderDetail = () => {
                         >
                           Chiết khấu
                         </Typography.Link>
-                        {OrderDetail?.discounts !== undefined && OrderDetail?.discounts !== null && OrderDetail?.discounts.length > 0 && (
-                          <div>
-                            <Tag
-                              style={{
-                                marginTop: 0,
-                                color: "#E24343",
-                                backgroundColor: "#F5F5F5",
-                              }}
-                              className="orders-tag orders-tag-danger"
-                            >
-                              {OrderDetail?.discounts[0].rate} %
-                            </Tag>
-                          </div>
-                        )}
+                        {OrderDetail?.discounts !== undefined &&
+                          OrderDetail?.discounts !== null &&
+                          OrderDetail?.discounts.length > 0 && (
+                            <div>
+                              <Tag
+                                style={{
+                                  marginTop: 0,
+                                  color: "#E24343",
+                                  backgroundColor: "#F5F5F5",
+                                }}
+                                className="orders-tag orders-tag-danger"
+                              >
+                                {OrderDetail?.discounts[0].rate} %
+                              </Tag>
+                            </div>
+                          )}
                       </Space>
                       <div className="font-weight-500 ">
-                        {OrderDetail?.discounts !== undefined && OrderDetail?.discounts !== null&& OrderDetail?.discounts.length > 0 && OrderDetail?.discounts[0].amount !== null
+                        {OrderDetail?.discounts !== undefined &&
+                        OrderDetail?.discounts !== null &&
+                        OrderDetail?.discounts.length > 0 &&
+                        OrderDetail?.discounts[0].amount !== null
                           ? formatCurrency(OrderDetail?.discounts[0].amount)
                           : 0}
                       </div>
@@ -1393,7 +1396,9 @@ const OrderDetail = () => {
                     <Row className="payment-row" justify="space-between">
                       <strong className="font-size-text">Khách cần trả</strong>
                       <strong className="text-success font-size-text">
-                        {OrderDetail!== undefined && OrderDetail!== null && formatCurrency(OrderDetail?.total)}
+                        {OrderDetail !== undefined &&
+                          OrderDetail !== null &&
+                          formatCurrency(OrderDetail?.total)}
                       </strong>
                     </Row>
                   </Col>
@@ -1687,17 +1692,20 @@ const OrderDetail = () => {
                     <div className="d-flex" style={{ marginTop: "5px" }}>
                       <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
                     </div>
-                    {OrderDetail?.fulfillments && OrderDetail?.fulfillments.length > 0 && <Tag
-                      className="orders-tag text-menu"
-                      style={{
-                        color: "#FCAF17",
-                        backgroundColor: "rgba(252, 175, 23, 0.1)",
-                      }}
-                    >
-                      {OrderDetail?.fulfillment_status !== null
-                        ? OrderDetail?.fulfillment_status
-                        : "Chưa giao hàng"}
-                    </Tag>}
+                    {OrderDetail?.fulfillments &&
+                      OrderDetail?.fulfillments.length > 0 && (
+                        <Tag
+                          className="orders-tag text-menu"
+                          style={{
+                            color: "#FCAF17",
+                            backgroundColor: "rgba(252, 175, 23, 0.1)",
+                          }}
+                        >
+                          {OrderDetail?.fulfillment_status !== null
+                            ? OrderDetail?.fulfillment_status
+                            : "Chưa giao hàng"}
+                        </Tag>
+                      )}
                   </Space>
                 }
               >
@@ -2514,7 +2522,7 @@ const OrderDetail = () => {
         title="Xác nhận xuất kho"
         text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? `với tiền thu hộ là ${confirmExportAndFinishValue()}`
+            ? `với tiền thu hộ là ${confirmExportAndFinishValue()} `
             : ""
         } không?`}
       />
@@ -2523,9 +2531,9 @@ const OrderDetail = () => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
         title="Xác nhận giao hàng thành công"
-        text={`Bạn có chắc muốn xác nhận đơn giao hàng này  ${
+        text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? `với tiền thu hộ là ${confirmExportAndFinishValue()}`
+            ? `với tiền thu hộ là ${confirmExportAndFinishValue()} `
             : ""
         } không?`}
       />
