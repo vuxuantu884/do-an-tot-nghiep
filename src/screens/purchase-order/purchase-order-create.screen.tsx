@@ -15,6 +15,7 @@ import { AccountSearchAction } from "domain/actions/account/account.action";
 import { AppConfig } from "config/AppConfig";
 import { useHistory } from "react-router-dom";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { PoFormName } from "utils/Constants";
 
 const POCreateScreen = () => {
   const collapse = useSelector(
@@ -29,12 +30,11 @@ const POCreateScreen = () => {
   const onResultRD = useCallback((data: PageResponse<AccountResponse>) => {
     setRDAccount(data.items);
     setLoading(false);
-    console.log("vào đây");
   }, []);
   const onResultWin = useCallback(
     (data: PageResponse<AccountResponse>) => {
       setWinAccount(data.items);
-      console.log("vào đây");
+
       dispatch(
         AccountSearchAction(
           { department_ids: [AppConfig.RD_DEPARTMENT] },
@@ -51,6 +51,42 @@ const POCreateScreen = () => {
       setIsShowBillStep(false);
     }
   }, []);
+  const onProviderFinish = (name: string, { values, forms }: any) => {
+    debugger;
+    if (name === PoFormName.Main) {
+      const { formSupplier, formInfo, formPoProduct } = forms;
+      let supplierInfo = formSupplier.getFieldsValue(true);
+
+      Promise.all([
+        formSupplier.validateFields(),
+        formInfo.validateFields(),
+        formPoProduct.validateFields(),
+      ])
+        .then((values) => {
+          console.log(values); // [3, 1337, "foo"]
+        })
+        .catch((result: any) => {
+          if (result.errorFields.length > 0) {
+            let elName = result.errorFields[0].name.join("_");
+            const elementError: any = document.querySelectorAll(
+              "[id$=" + elName + "]"
+            );
+            // document.querySelectorAll("[id$="+elName+"]")
+            // elementError?[0].focus();
+            if (elementError.length > 0) {
+              elementError[0].focus();
+              const y =
+                elementError[0].getBoundingClientRect()?.top +
+                window.pageYOffset +
+                -250;
+              window.scrollTo({ top: y, behavior: "smooth" });
+            }
+          }
+        });
+      var poInfo = formInfo.getFieldsValue(true);
+      var product = formPoProduct.getFieldsValue(true);
+    }
+  };
   useEffect(() => {
     dispatch(
       AccountSearchAction(
@@ -60,11 +96,11 @@ const POCreateScreen = () => {
     );
   }, [dispatch, onResultWin, onResultRD]);
   useEffect(() => {
-    window.addEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll);
     return () => {
-      window.removeEventListener('scroll', onScroll);
-    }
-  })
+      window.removeEventListener("scroll", onScroll);
+    };
+  });
   return (
     <ContentContainer
       isLoading={isLoading}
@@ -102,8 +138,8 @@ const POCreateScreen = () => {
         </Steps>
       }
     >
-      <Form.Provider>
-        <Row gutter={20} style={{paddingBottom: 80}}>
+      <Form.Provider onFormFinish={onProviderFinish}>
+        <Row gutter={20} style={{ paddingBottom: 80 }}>
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm />
@@ -116,61 +152,61 @@ const POCreateScreen = () => {
             <POInfoForm winAccount={winAccount} rdAccount={rdAccount} />
           </Col>
         </Row>
-        <Row
-          gutter={24}
-          className="margin-top-10 "
-          style={{
-            position: "fixed",
-            textAlign: "right",
-            width: "100%",
-            height: "55px",
-            bottom: "0%",
-            backgroundColor: "#FFFFFF",
-            marginLeft: collapse ? '-25px' : "-30px",
-            display: `${isShowBillStep ? "" : "none"}`,
-          }}
-        >
-          <Col
-            md={10}
-            style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px" }}
+        <Form name={PoFormName.Main}>
+          <Row
+            gutter={24}
+            className="margin-top-10 "
+            style={{
+              position: "fixed",
+              textAlign: "right",
+              width: "100%",
+              height: "55px",
+              bottom: "0%",
+              backgroundColor: "#FFFFFF",
+              marginLeft: collapse ? "-25px" : "-30px",
+              display: `${isShowBillStep ? "" : "none"}`,
+            }}
           >
-            <Steps
-              progressDot={(dot: any, { status, index }: any) => (
-                <div className="ant-steps-icon-dot">
-                  {(status === "process" || status === "finish") && (
-                    <CheckOutlined />
-                  )}
-                </div>
-              )}
-              size="small"
-              current={0}
+            <Col
+              md={10}
+              style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px" }}
             >
-              <Steps.Step title="Đặt hàng" />
-              <Steps.Step title="Xác nhận" />
-              <Steps.Step title="Phiếu nháp" />
-              <Steps.Step title="Nhập kho" />
-              <Steps.Step title="Hoàn thành" />
-            </Steps>
-          </Col>
+              <Steps
+                progressDot={(dot: any, { status, index }: any) => (
+                  <div className="ant-steps-icon-dot">
+                    {(status === "process" || status === "finish") && (
+                      <CheckOutlined />
+                    )}
+                  </div>
+                )}
+                size="small"
+                current={0}
+              >
+                <Steps.Step title="Đặt hàng" />
+                <Steps.Step title="Xác nhận" />
+                <Steps.Step title="Phiếu nháp" />
+                <Steps.Step title="Nhập kho" />
+                <Steps.Step title="Hoàn thành" />
+              </Steps>
+            </Col>
 
-          <Col md={9} style={{ marginTop: "8px" }}>
-            <Button
-              className="ant-btn-outline fixed-button cancle-button"
-              onClick={() => history.goBack()}
-            >
-              Huỷ
-            </Button>
-            <Button
-              type="primary"
-              className="create-button-custom"
-              onClick={() => {
-                
-              }}
-            >
-              Lưu
-            </Button>
-          </Col>
-        </Row>
+            <Col md={9} style={{ marginTop: "8px" }}>
+              <Button
+                className="ant-btn-outline fixed-button cancle-button"
+                onClick={() => history.goBack()}
+              >
+                Huỷ
+              </Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="create-button-custom"
+              >
+                Lưu
+              </Button>
+            </Col>
+          </Row>
+        </Form>
       </Form.Provider>
     </ContentContainer>
   );

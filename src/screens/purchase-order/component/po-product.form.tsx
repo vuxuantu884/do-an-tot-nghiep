@@ -120,7 +120,7 @@ const POProductForm: React.FC = () => {
   return (
     <Form
       form={form}
-      name="po-line-items"
+      name="formPoProduct"
       initialValues={{
         line_items: [],
         price_type: "import_price",

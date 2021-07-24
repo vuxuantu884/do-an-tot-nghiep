@@ -80,7 +80,7 @@ function* AccountCreateSaga(action: YodyAction) {
 function* AccountUpdateSaga(action: YodyAction) {
   const { id, request, setData } = action.payload;
   try {
-    debugger;
+    
     let response: BaseResponse<AccountResponse> = yield call(
       AccountUpdateService,
       id,
@@ -102,7 +102,7 @@ function* AccountUpdateSaga(action: YodyAction) {
 function* AccountDeleteSaga(action: YodyAction) {
   const { id, deleteCallback} = action.payload;
   try {
-    debugger;
+    
     let response: BaseResponse<any|null> = yield call(
       AccountDeleteService,
       id

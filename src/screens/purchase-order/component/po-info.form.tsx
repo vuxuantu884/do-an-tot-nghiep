@@ -11,7 +11,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
   const [form] = Form.useForm();
   
   return (
-    <Form layout="vertical" form={form} name="po-info">
+    <Form layout="vertical" form={form} name="formInfo">
       <Card
         className="po-form"
         title={

@@ -48,8 +48,6 @@ export const findCurrentRoute = (
     current: "",
     subMenu: "",
   };
-  console.log("routes", routes);
-  console.log("path", path);
   routes.forEach((route) => {
     if (path.includes(route.path)) {
       obj.current = route.key;
@@ -408,7 +406,7 @@ export const Products = {
     let variants: Array<VariantRequest> = [];
     let variant_prices: Array<VariantPriceRequest> = [];
     pr.variant_prices.forEach((item) => {
-      debugger;
+      
       let retail_price = parseInt(item.retail_price);
       let import_price = parseInt(item.import_price);
       let whole_sale_price = parseInt(item.whole_sale_price);
@@ -505,7 +503,7 @@ export const Products = {
     return price;
   },
   convertVariantRequestToView: (variant: VariantResponse) => {
-    debugger;
+    
     let variantPrices: Array<VariantPriceViewRequest> = [];
     variant.variant_prices.forEach((item) => {
       let index = variantPrices.findIndex(
@@ -614,7 +612,6 @@ export const Products = {
       variant_prices: variant.variant_prices,
       variant_images: variant.variant_images,
     };
-    console.log(variant.variant_prices);
     return variantUpadteRequest;
   },
 };

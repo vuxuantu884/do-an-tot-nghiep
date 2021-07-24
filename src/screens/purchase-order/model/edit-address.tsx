@@ -90,7 +90,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
   );
   const onAddressFormFinish = useCallback(
     (values: PurchaseAddress) => {
-      debugger;
+      
       onOk(values, addressType);
     },
     [addressType, onOk]
@@ -114,7 +114,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
     }
   }, [addressInfo?.district_id, dispatch, getListWardCallback]);
   useEffect(() => {
-    debugger;
+    
     if (visible) {
       formAddress.setFieldsValue(addressInfo);
     }

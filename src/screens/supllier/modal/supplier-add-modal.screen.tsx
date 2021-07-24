@@ -99,7 +99,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   );
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
-      debugger;
+      
       dispatch(SupplierCreateAction(values, createSupplierCallback));
     },
     [createSupplierCallback, dispatch]
@@ -145,9 +145,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
       >
         <Row gutter={24}>
           <Col xs={24} lg={12}>
-            <Item hidden name="status">
-           
-            </Item>
+            <Item hidden name="status"></Item>
             <Item
               rules={[
                 {

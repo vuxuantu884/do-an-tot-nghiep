@@ -37,7 +37,7 @@ import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import { AddressType, VietNamId } from "utils/Constants";
+import { AddressType, PoFormName, VietNamId } from "utils/Constants";
 import SupplierAddModal from "screens/supllier/modal/supplier-add-modal.screen";
 
 import { createRef } from "react";
@@ -82,7 +82,6 @@ const SupplierInfo = () => {
 
   const onSelect = useCallback(
     (value: string) => {
-      debugger;
       setKeySearchSupplier("");
 
       let index = data.findIndex((item) => item.id.toString() === value);
@@ -121,14 +120,6 @@ const SupplierInfo = () => {
   }, [formSupplier]);
   const renderResult = useMemo(() => {
     let options: any[] = [];
-
-    // if (data.length > 0) {
-    // options.push({
-    //   label: (
-    //     <AddItem title="Thêm mới nhà cung cấp" isNotFound={data.length === 0} />
-    //   ),
-    //   value: "0",
-    // });
     data.forEach((item: SupplierResponse, index: number) => {
       options.push({
         label: <SupplierItem data={item} key={item.id.toString()} />,
@@ -145,30 +136,32 @@ const SupplierInfo = () => {
   const CancelSupplierAddModal = useCallback(() => {
     setVisibleSupplierAddModal(false);
   }, []);
-  const OkSupplierAddModal = useCallback((supplierItem: SupplierResponse) => {
-    debugger;
-    let supplierAddress: PurchaseAddress = {
-      name: supplierItem.name_person_in_charge,
-      email: supplierItem.email,
-      phone: supplierItem.phone,
-      tax_code: supplierItem.tax_code,
-      country_id: supplierItem.country_id,
-      country: supplierItem.country_name,
-      city_id: supplierItem.city_id,
-      city: supplierItem.city_name,
-      district_id: supplierItem.district_id,
-      district: supplierItem.district_name,
-      full_address: supplierItem.address,
-    };
-    formSupplier.setFieldsValue({
-      supplier_id: supplierItem.id,
-      supplier: supplierItem,
-      billing_address: supplierAddress,
-      supplier_address: supplierAddress,
-    });
-    setIsSelectSupplier(true);
-    setVisibleSupplierAddModal(false);
-  }, [formSupplier]);
+  const OkSupplierAddModal = useCallback(
+    (supplierItem: SupplierResponse) => {
+      let supplierAddress: PurchaseAddress = {
+        name: supplierItem.name_person_in_charge,
+        email: supplierItem.email,
+        phone: supplierItem.phone,
+        tax_code: supplierItem.tax_code,
+        country_id: supplierItem.country_id,
+        country: supplierItem.country_name,
+        city_id: supplierItem.city_id,
+        city: supplierItem.city_name,
+        district_id: supplierItem.district_id,
+        district: supplierItem.district_name,
+        full_address: supplierItem.address,
+      };
+      formSupplier.setFieldsValue({
+        supplier_id: supplierItem.id,
+        supplier: supplierItem.name,
+        billing_address: supplierAddress,
+        supplier_address: supplierAddress,
+      });
+      setIsSelectSupplier(true);
+      setVisibleSupplierAddModal(false);
+    },
+    [formSupplier]
+  );
 
   const OkAddressModal = useCallback(
     (addressUpdate: PurchaseAddress, addressType: string) => {
@@ -194,7 +187,7 @@ const SupplierInfo = () => {
 
   return (
     <div className="supplier">
-      <Form form={formSupplier} name="formSupplier" layout="vertical">
+      <Form form={formSupplier} name={PoFormName.Supplier} layout="vertical">
         <Card
           className="po-form"
           title={
@@ -212,7 +205,7 @@ const SupplierInfo = () => {
             >
               {({ getFieldValue }) => {
                 let supplier_id = getFieldValue("supplier_id");
-                let supplier: SupplierResponse = getFieldValue("supplier");
+                let supplier: string = getFieldValue("supplier");
                 return supplier_id ? (
                   <div>
                     <Row
@@ -227,7 +220,7 @@ const SupplierInfo = () => {
                           className="primary"
                           style={{ fontSize: "16px" }}
                         >
-                          {supplier.name}
+                          {supplier}
                         </Link>
                         <Button
                           className="icon-information-delete"
@@ -549,6 +542,12 @@ const SupplierInfo = () => {
                               Email gửi hóa đơn
                             </label>
                           }
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn ít nhất 1 danh mục",
+                            },
+                          ]}
                         >
                           <Input
                             placeholder="Điền email"

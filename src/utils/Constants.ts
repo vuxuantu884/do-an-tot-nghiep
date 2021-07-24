@@ -25,6 +25,14 @@ export const AddressType = {
   SUPPLIERADDRESS: "supplieraddress",
 };
 
+export const PoFormName = {
+  Main: "formMain",
+  Supplier: "formSupplier",
+  Product:"formPoProduct",
+  Info:"formInfo"
+};
+
+
 export const FulFillmentStatus = {
   UNSHIPPED: "unshipped",
   PICKED: "picked",

@@ -230,7 +230,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
 
   const onVariantSelect = useCallback(
     (v, o) => {
-      console.log(o);
+      
       let _items = [...props.items];
       let indexSearch = resultSearch.items.findIndex((s) => s.id === v);
       let index = _items.findIndex((i) => i.variant_id === v);

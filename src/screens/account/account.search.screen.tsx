@@ -188,7 +188,7 @@ const ListAccountScreen: React.FC = () => {
   
     (index: number) => {
       if (accountSelected.length > 0) {
-        debugger;
+        
         let id = accountSelected[0].id;
         switch (index) {
           case 1:

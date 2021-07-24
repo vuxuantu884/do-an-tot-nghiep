@@ -103,13 +103,12 @@ const CreateSupplierScreen: React.FC = () => {
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse>) => {
       let listWinAccount = data.items;
-      console.log(listWinAccount);
+
       setAccounts(listWinAccount);
       let checkUser = listWinAccount.findIndex(
         (val) => val.code === currentUserCode
       );
       if (checkUser !== -1 && currentUserCode !== undefined) {
-        
         formSupplier.setFieldsValue({
           person_in_charge: currentUserCode,
         });
@@ -149,7 +148,6 @@ const CreateSupplierScreen: React.FC = () => {
   }, [history]);
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
-      console.log(values);
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]

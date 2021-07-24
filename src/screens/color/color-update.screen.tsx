@@ -59,7 +59,7 @@ const ColorUpdateScreen: React.FC = () => {
   }, [history]);
   const getColorCallback = useCallback((result: ColorResponse | false) => {
     // setLoadingData(false);
-    debugger;
+    
     if (!result) {
       setError(true);
     } else {
