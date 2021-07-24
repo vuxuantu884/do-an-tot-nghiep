@@ -431,11 +431,9 @@ const OrderDetail = () => {
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
-        <div className="site-input-group-wrapper saleorder-input-group-wrapper">
-          {l.discount_rate !== null
-            ? l.discount_rate
-            : l.discount_value !== null
-            ? formatCurrency(l.discount_value)
+        <div>
+          {l.discount_items[0].value !== null
+            ? formatCurrency(l.discount_items[0].value)
             : 0}
         </div>
       );
@@ -448,7 +446,9 @@ const OrderDetail = () => {
     className: "yody-table-total-money text-right",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
-        <div style={{ textAlign: "left" }}>{formatCurrency(l.amount)}</div>
+        <div style={{ textAlign: "left" }}>
+          {formatCurrency(l.line_amount_after_line_discount)}
+        </div>
       );
     },
   };
@@ -567,8 +567,9 @@ const OrderDetail = () => {
         OrderDetail?.total +
           (shippingFeeInformedCustomer !== null
             ? shippingFeeInformedCustomer
-            : 0) - (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-      )
+            : 0) -
+          (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+      );
     }
   };
   //#region shiment
@@ -1309,13 +1310,24 @@ const OrderDetail = () => {
                         >
                           Chiết khấu
                         </Typography.Link>
-                        {OrderDetail?.order_discount_rate !== null && (
-                          <span>{OrderDetail?.order_discount_rate} %</span>
+                        {OrderDetail?.discounts !== undefined && OrderDetail?.discounts !== null && OrderDetail?.discounts.length > 0 && (
+                          <div>
+                            <Tag
+                              style={{
+                                marginTop: 0,
+                                color: "#E24343",
+                                backgroundColor: "#F5F5F5",
+                              }}
+                              className="orders-tag orders-tag-danger"
+                            >
+                              {OrderDetail?.discounts[0].rate} %
+                            </Tag>
+                          </div>
                         )}
                       </Space>
                       <div className="font-weight-500 ">
-                        {OrderDetail?.total_discount !== null
-                          ? OrderDetail?.total_discount
+                        {OrderDetail?.discounts !== undefined && OrderDetail?.discounts !== null&& OrderDetail?.discounts.length > 0 && OrderDetail?.discounts[0].amount !== null
+                          ? formatCurrency(OrderDetail?.discounts[0].amount)
                           : 0}
                       </div>
                     </Row>
@@ -1376,7 +1388,7 @@ const OrderDetail = () => {
                     <Row className="payment-row" justify="space-between">
                       <strong className="font-size-text">Khách cần trả</strong>
                       <strong className="text-success font-size-text">
-                        {formatCurrency(customerNeedToPayValue)}
+                        {OrderDetail!== undefined && OrderDetail!== null && formatCurrency(OrderDetail?.total)}
                       </strong>
                     </Row>
                   </Col>
@@ -1595,7 +1607,7 @@ const OrderDetail = () => {
                           </p>
                         </Col>
                       </Row>
-                    </Panel> 
+                    </Panel>
                   </Collapse>
                 </div>
                 <Divider style={{ margin: "0px" }} />
@@ -2495,14 +2507,22 @@ const OrderDetail = () => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
         title="Xác nhận xuất kho"
-        text={`Bạn có chắc xuất kho đơn giao hàng này ${confirmExportAndFinishValue() ? `với tiền thu hộ là ${confirmExportAndFinishValue()}` : ""} không?`}
+        text={`Bạn có chắc xuất kho đơn giao hàng này ${
+          confirmExportAndFinishValue()
+            ? `với tiền thu hộ là ${confirmExportAndFinishValue()}`
+            : ""
+        } không?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
         title="Xác nhận giao hàng thành công"
-        text={`Bạn có chắc muốn xác nhận đơn giao hàng này  ${confirmExportAndFinishValue() ? `với tiền thu hộ là ${confirmExportAndFinishValue()}` : ""} không?`}
+        text={`Bạn có chắc muốn xác nhận đơn giao hàng này  ${
+          confirmExportAndFinishValue()
+            ? `với tiền thu hộ là ${confirmExportAndFinishValue()}`
+            : ""
+        } không?`}
       />
     </ContentContainer>
   );
