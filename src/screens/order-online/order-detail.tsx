@@ -567,8 +567,7 @@ const OrderDetail = () => {
         OrderDetail?.total +
           (shippingFeeInformedCustomer !== null
             ? shippingFeeInformedCustomer
-            : 0) -
-          (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+            : 0) - (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
       )
     }
   };
@@ -2496,24 +2495,14 @@ const OrderDetail = () => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
         title="Xác nhận xuất kho"
-        text={`Bạn có chắc xuất kho đơn giao hàng này ${`với tiền thu hộ là ${confirmExportAndFinishValue()}`} không?`}
+        text={`Bạn có chắc xuất kho đơn giao hàng này ${confirmExportAndFinishValue() ? `với tiền thu hộ là ${confirmExportAndFinishValue()}` : ""} không?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
         title="Xác nhận giao hàng thành công"
-        text={`Bạn có chắc muốn xác nhận đơn giao hàng này với tiền thu hộ ${
-          takeMoneyHelper ||
-          (OrderDetail?.total &&
-            formatCurrency(
-              OrderDetail?.total +
-                (shippingFeeInformedCustomer !== null
-                  ? shippingFeeInformedCustomer
-                  : 0)
-            )) ||
-          formatCurrency(OrderDetail?.total ? OrderDetail?.total : 0)
-        } không?`}
+        text={`Bạn có chắc muốn xác nhận đơn giao hàng này  ${confirmExportAndFinishValue() ? `với tiền thu hộ là ${confirmExportAndFinishValue()}` : ""} không?`}
       />
     </ContentContainer>
   );
