@@ -1995,12 +1995,12 @@ const OrderDetail = () => {
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {checkPaymentStatusToShow(OrderDetail) === -1 && (
-                        <Tag className="orders-tag orders-tag-danger">
+                        <Tag className="orders-tag orders-tag-default">
                           Chưa thanh toán
                         </Tag>
                       )}
                       {checkPaymentStatusToShow(OrderDetail) === 0 && (
-                        <Tag className="orders-tag orders-tag-warrning">
+                        <Tag className="orders-tag orders-tag-warning">
                           Thanh toán 1 phần
                         </Tag>
                       )}
@@ -2193,12 +2193,12 @@ const OrderDetail = () => {
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {checkPaymentStatusToShow(OrderDetail) === -1 && (
-                        <Tag className="orders-tag orders-tag-danger">
+                        <Tag className="orders-tag orders-tag-default">
                           Chưa thanh toán
                         </Tag>
                       )}
                       {checkPaymentStatusToShow(OrderDetail) === 0 && (
-                        <Tag className="orders-tag orders-tag-warrning">
+                        <Tag className="orders-tag orders-tag-warning">
                           Thanh toán 1 phần
                         </Tag>
                       )}
