@@ -284,7 +284,8 @@ export default function Order() {
       objShipment.shipper_code = value.shipper_code;
       objShipment.shipping_fee_informed_to_customer =
         value.shipping_fee_informed_to_customer;
-      objShipment.shipping_fee_paid_to_three_pls = value.shipping_fee_paid_to_three_pls;
+      objShipment.shipping_fee_paid_to_three_pls =
+        value.shipping_fee_paid_to_three_pls;
 
       if (takeMoneyHelper !== null) {
         objShipment.cod = takeMoneyHelper;
@@ -362,7 +363,7 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
-  console.log(orderAmount)
+  console.log(orderAmount);
   const onFinish = (values: OrderRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
@@ -405,9 +406,13 @@ export default function Order() {
       total_line_amount_after_line_discount;
     if (values.customer_id === undefined || values.customer_id === null) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
+      const element: any = document.getElementById("search_customer");
+      element?.focus();
     } else {
       if (items.length === 0) {
         showError("Vui lòng chọn ít nhất 1 sản phẩm");
+        const element: any = document.getElementById("search_product");
+        element?.focus();
       } else {
         if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
           if (values.delivery_service_provider_id === null) {
@@ -463,9 +468,17 @@ export default function Order() {
       <div className="orders">
         <Form
           layout="vertical"
-          scrollToFirstError
           initialValues={initialForm}
           ref={formRef}
+          onFinishFailed={({ errorFields }: any) => {
+            const element: any = document.getElementById(
+              errorFields[0].name.join("")
+            );
+            element?.focus();
+            const y =
+              element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+            window.scrollTo({ top: y, behavior: "smooth" });
+          }}
           onFinish={onFinish}
         >
           <Form.Item noStyle hidden name="action">
@@ -659,7 +672,7 @@ export default function Order() {
             <Col md={9} style={{ marginTop: "8px" }}>
               <Button
                 className="ant-btn-outline fixed-button cancle-button"
-                onClick={() => history.push(`${UrlConfig.ORDER}/create`)}
+                onClick={() => window.location.reload()}
               >
                 Huỷ
               </Button>
