@@ -34,6 +34,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency } from "utils/AppUtils";
 import PriceModal from "./price.modal";
+import DiscountModal from "./discount.modal";
 
 const POProductForm: React.FC = () => {
   const dispatch = useDispatch();
@@ -98,7 +99,10 @@ const POProductForm: React.FC = () => {
         quantity
       );
       data[index] = updateItem;
-      form.setFieldsValue({ line_items: [...data] });
+      console.log(data);
+      let total = POUtils.totalAmount(data);
+      console.log("total", total);
+      form.setFieldsValue({ line_items: [...data], total: total });
     },
     [form]
   );
@@ -125,7 +129,9 @@ const POProductForm: React.FC = () => {
         data[index].quantity
       );
       data[index] = updateItem;
-      form.setFieldsValue({ line_items: [...data] });
+      let total = POUtils.totalAmount(data);
+
+      form.setFieldsValue({ line_items: [...data], total: total });
     },
     [form]
   );
@@ -516,6 +522,7 @@ const POProductForm: React.FC = () => {
                 >
                   {({ getFieldValue }) => {
                     let total = getFieldValue("total");
+                    console.log(total);
                     return (
                       <div className="payment-row">
                         <div>Tổng tiền</div>
@@ -534,19 +541,42 @@ const POProductForm: React.FC = () => {
                 >
                   {({ getFieldValue }) => {
                     let total_discount = getFieldValue("total_discount");
+                    let discount_rate = getFieldValue("discount_rate");
+                    let discount_value = getFieldValue("discount_value");
+                    let type = "percent";
+                    if (discount_value !== null) {
+                      type = "money";
+                    }
                     return (
                       <div className="payment-row">
-                        <Typography.Link
-                          style={{
-                            textDecoration: "underline",
-                            textDecorationColor: "#5D5D8A",
-                            color: "#5D5D8A",
-                          }}
+                        <Popover
+                          trigger="click"
+                          content={
+                            <DiscountModal
+                              price={total_discount}
+                              discount={
+                                type === "money"
+                                  ? discount_value
+                                  : discount_rate
+                              }
+                              type={type}
+                            />
+                          }
                         >
-                          Chiết khấu
-                        </Typography.Link>
+                          <Typography.Link
+                            style={{
+                              textDecoration: "underline",
+                              textDecorationColor: "#5D5D8A",
+                              color: "#5D5D8A",
+                            }}
+                          >
+                            Chiết khấu
+                          </Typography.Link>
+                        </Popover>
                         <div className="payment-row-result">
-                          {total_discount === 0 ? "-" : formatCurrency(total_discount)}
+                          {total_discount === 0
+                            ? "-"
+                            : formatCurrency(total_discount)}
                         </div>
                       </div>
                     );
