@@ -151,7 +151,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
     total();
   };
-console.log(items)
+  
   const total = useCallback(() => {
     let _items = [...items];
     let _amount = 0;
