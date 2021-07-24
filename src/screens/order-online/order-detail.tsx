@@ -54,7 +54,6 @@ import editBlueIcon from "assets/img/editBlue.svg";
 import pointIcon from "assets/img/point.svg";
 import callIcon from "assets/img/call.svg";
 import locationIcon from "assets/img/location.svg";
-import deleteIcon from "assets/icon/delete.svg";
 import giftIcon from "assets/icon/gift.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import addressIcon from "assets/img/user-pin.svg";
@@ -103,6 +102,7 @@ import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
 import NumberInput from "component/custom/number-input.custom";
 import { setTimeout } from "timers";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { isBuffer } from "util";
 const { Panel } = Collapse;
 //#endregion
 
@@ -146,6 +146,7 @@ const OrderDetail = () => {
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [totalPaid, setTotalPaid] = useState<number>(0);
+  const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
   //#endregion
   //#region Orther
   const ShowAddressModal = () => {
@@ -290,10 +291,10 @@ const OrderDetail = () => {
   // copy button
   const copyOrderID = (e: any) => {
     e.stopPropagation();
-    e.target.style.width = "82%";
+    e.target.style.width = "34px";
     const decWidth = setTimeout(() => {
-      e.target.style.width = "77%";
-    }, 500);
+      e.target.style.width = "32px";
+    }, 200);
     clearTimeout(decWidth);
     let selection = window.getSelection();
     let range = document.createRange();
@@ -558,7 +559,18 @@ const OrderDetail = () => {
     }
   };
   //#endregion
-
+  const confirmExportAndFinishValue = () => {
+    if (takeMoneyHelper) {
+      return formatCurrency(takeMoneyHelper);
+    } else if (OrderDetail?.total) {
+      return formatCurrency(
+        OrderDetail?.total +
+          (shippingFeeInformedCustomer !== null
+            ? shippingFeeInformedCustomer
+            : 0) - (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+      )
+    }
+  };
   //#region shiment
   let initialFormUpdateShipment: UpdateShipmentRequest = {
     order_id: null,
@@ -738,15 +750,17 @@ const OrderDetail = () => {
     }
   });
   //#endregion
-  
+
   // Thu hộ
-  const takeHelper:any = () => {
+  const takeHelper: any = () => {
     if (takeMoneyHelper) {
       return takeMoneyHelper;
-    }else if (totalPaid && OrderDetail?.total) {
+    } else if (totalPaid && OrderDetail?.total) {
       return totalPaid === OrderDetail?.total
         ? shippingFeeInformedCustomer
-        : (OrderDetail?.total ? OrderDetail?.total : 0) - totalPaid + shippingFeeInformedCustomer;
+        : (OrderDetail?.total ? OrderDetail?.total : 0) -
+            totalPaid +
+            shippingFeeInformedCustomer;
     } else if (
       OrderDetail?.total_line_amount_after_line_discount &&
       shippingFeeInformedCustomer
@@ -774,8 +788,8 @@ const OrderDetail = () => {
   };
   let takeHelperValue: any = takeHelper();
   const showTakeHelper = () => {
-    if(OrderDetail?.total && totalPaid){
-      return OrderDetail?.total - totalPaid + shippingFeeInformedCustomer !== 0
+    if (OrderDetail?.total && totalPaid) {
+      return OrderDetail?.total - totalPaid + shippingFeeInformedCustomer !== 0;
     } else if (paymentType === 1 && takeHelperValue !== 0) {
       return true;
     } else if (shippingFeeInformedCustomer) {
@@ -790,8 +804,12 @@ const OrderDetail = () => {
   const isShowTakeHelper = showTakeHelper();
   // khách cần trả
   const customerNeedToPay: any = () => {
-    if(!shippingFeeInformedCustomer && OrderDetail?.total_discount && OrderDetail?.total){
-     return OrderDetail?.total
+    if (
+      !shippingFeeInformedCustomer &&
+      OrderDetail?.total_discount &&
+      OrderDetail?.total
+    ) {
+      return OrderDetail?.total;
     }
     if (
       OrderDetail &&
@@ -1408,14 +1426,18 @@ const OrderDetail = () => {
                         style={{ marginRight: 9.5 }}
                         alt=""
                       ></img>
+
                       <span style={{ color: "#222222", lineHeight: "16px" }}>
                         {OrderDetail?.fulfillments !== null &&
-                          OrderDetail?.fulfillments !== undefined &&
-                          OrderDetail?.fulfillments.map((item, index) =>
-                            moment(item.shipment?.created_date).format(
-                              "DD/MM/YYYY"
-                            )
-                          )}
+                        OrderDetail?.fulfillments !== undefined &&
+                        OrderDetail?.fulfillments.length > 0 &&
+                        OrderDetail?.fulfillments[0].shipment
+                          ?.expected_received_date
+                          ? moment(
+                              OrderDetail?.fulfillments[0].shipment
+                                ?.expected_received_date
+                            ).format("DD/MM/YYYY")
+                          : ""}
                       </span>
                       <span
                         style={{
@@ -1436,29 +1458,22 @@ const OrderDetail = () => {
                   </Space>
                 }
               >
-                <div className="padding-24" style={{ paddingTop: 6 }}>
+                <div
+                  className="padding-24"
+                  style={{ paddingTop: 6, paddingBottom: 4 }}
+                >
                   <Collapse
                     className="saleorder_shipment_order_colapse"
                     defaultActiveKey={["1"]}
-                    expandIcon={({ isActive }) => (
-                      <img
-                        src={doubleArrow}
-                        alt=""
-                        style={{
-                          transform: isActive
-                            ? "rotate(0deg)"
-                            : "rotate(270deg)",
-                          float: "right",
-                        }}
-                      />
-                    )}
+                    onChange={() => setIsArrowRotation(!isArrowRotation)}
                     ghost
                   >
                     <Panel
                       className="orders-timeline-custom"
+                      showArrow={false}
                       header={
                         <Row gutter={24}>
-                          <Col style={{ padding: 0 }}>
+                          <Col style={{ padding: "0 4px" }}>
                             <p
                               ref={copyRef}
                               className="text-field"
@@ -1470,22 +1485,41 @@ const OrderDetail = () => {
                                   (item, index) => item.id
                                 )}
                             </p>
-                          </Col>
-                          <Col
-                            style={{
-                              padding: 0,
-                              marginLeft: 6,
-                              marginBottom: 8,
-                              width: 30,
-                              height: 30,
-                            }}
-                          >
+                            <div style={{ width: 40, margin: "0 8px" }}>
+                              <img
+                                onClick={(e) => copyOrderID(e)}
+                                src={copyFileBtn}
+                                alt=""
+                                style={{ width: 32 }}
+                              />
+                            </div>
                             <img
-                              onClick={(e) => copyOrderID(e)}
-                              src={copyFileBtn}
+                              src={doubleArrow}
                               alt=""
-                              style={{ marginTop: "5px", width: "77%" }}
+                              style={{
+                                transform: `${
+                                  isArrowRotation
+                                    ? "rotate(270deg)"
+                                    : "rotate(0deg)"
+                                }`,
+                              }}
                             />
+                          </Col>
+                          <Col>
+                            <span
+                              style={{ color: "#000000d9", marginRight: 6 }}
+                            >
+                              Ngày tạo:
+                            </span>
+                            <span style={{ color: "#000000d9" }}>
+                              {OrderDetail?.fulfillments !== null &&
+                                OrderDetail?.fulfillments !== undefined &&
+                                OrderDetail?.fulfillments.map((item, index) =>
+                                  moment(item.shipment?.created_date).format(
+                                    "DD/MM/YYYY"
+                                  )
+                                )}
+                            </span>
                           </Col>
                         </Row>
                       }
@@ -1512,10 +1546,15 @@ const OrderDetail = () => {
                           </Col>
                           <Col span={24}>
                             <b className="text-field">
-                              {OrderDetail?.fulfillments !== null &&
-                                OrderDetail?.fulfillments !== undefined &&
-                                OrderDetail.fulfillments[0].shipment
-                                  ?.shipping_fee_informed_to_customer}
+                              {OrderDetail?.fulfillments &&
+                                OrderDetail?.fulfillments.length > 0 &&
+                                formatCurrency(
+                                  OrderDetail.fulfillments[0].shipment
+                                    ?.shipping_fee_informed_to_customer
+                                    ? OrderDetail.fulfillments[0].shipment
+                                        ?.shipping_fee_informed_to_customer
+                                    : 0
+                                )}
                             </b>
                           </Col>
                         </Col>
@@ -1528,18 +1567,35 @@ const OrderDetail = () => {
                             <b className="text-field">
                               {OrderDetail?.fulfillments !== null &&
                                 OrderDetail?.fulfillments !== undefined &&
-                                OrderDetail.fulfillments[0].shipment
-                                  ?.shipping_fee_paid_to_three_pls}
+                                formatCurrency(
+                                  OrderDetail.fulfillments[0].shipment
+                                    ?.shipping_fee_paid_to_three_pls
+                                    ? OrderDetail.fulfillments[0].shipment
+                                        ?.shipping_fee_paid_to_three_pls
+                                    : 0
+                                )}
                             </b>
                           </Col>
                         </Col>
                       </Row>
-                      <Row gutter={24} style={{marginTop: 6}}>
-                      <Col span={24}>
-                          <p className="text-field" style={{padding: "0px 12px"}}>{OrderDetail?.items.reduce((a: any, b:any) => a + b.quantity, 0)} Sản phẩm giao hàng</p>
-                          </Col>
+                      <Row
+                        gutter={24}
+                        style={{ marginTop: 12, marginBottom: 0 }}
+                      >
+                        <Col span={24}>
+                          <p
+                            className="text-field"
+                            style={{ padding: "0px 12px" }}
+                          >
+                            {OrderDetail?.items.reduce(
+                              (a: any, b: any) => a + b.quantity,
+                              0
+                            )}{" "}
+                            Sản phẩm giao hàng
+                          </p>
+                        </Col>
                       </Row>
-                    </Panel>
+                    </Panel> 
                   </Collapse>
                 </div>
                 <Divider style={{ margin: "0px" }} />
@@ -1633,6 +1689,17 @@ const OrderDetail = () => {
                     <Form
                       initialValues={initialFormUpdateShipment}
                       ref={formRef}
+                      onFinishFailed={({ errorFields }: any) => {
+                        const element: any = document.getElementById(
+                          errorFields[0].name.join("")
+                        );
+                        element?.focus();
+                        const y =
+                          element?.getBoundingClientRect()?.top +
+                          window.pageYOffset +
+                          -250;
+                        window.scrollTo({ top: y, behavior: "smooth" });
+                      }}
                       onFinish={onFinishUpdateFulFillment}
                       layout="vertical"
                     >
@@ -1757,7 +1824,6 @@ const OrderDetail = () => {
                       <div hidden={shipmentMethod !== 2}>
                         <Row gutter={24}>
                           <Col md={12}>
-                            
                             <Form.Item
                               label="Đối tác giao hàng"
                               name="shipper_code"
@@ -1971,12 +2037,12 @@ const OrderDetail = () => {
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {checkPaymentStatusToShow(OrderDetail) === -1 && (
-                        <Tag className="orders-tag orders-tag-danger">
+                        <Tag className="orders-tag orders-tag-default">
                           Chưa thanh toán
                         </Tag>
                       )}
                       {checkPaymentStatusToShow(OrderDetail) === 0 && (
-                        <Tag className="orders-tag orders-tag-warrning">
+                        <Tag className="orders-tag orders-tag-warning">
                           Thanh toán 1 phần
                         </Tag>
                       )}
@@ -2013,11 +2079,7 @@ const OrderDetail = () => {
                         <span className="text-field margin-right-40">
                           Còn phải trả
                         </span>
-                        <span className="text-success">
-                          {/* {formatCurrency(
-                            OrderDetail.total -
-                              getAmountPayment(OrderDetail.payments)
-                          )} */}
+                        <b style={{ color: "red" }}>
                           {OrderDetail?.fulfillments &&
                           OrderDetail?.fulfillments[0].status !== "shipped"
                             ? formatCurrency(
@@ -2027,7 +2089,7 @@ const OrderDetail = () => {
                                     : 0)
                               )
                             : 0}
-                        </span>
+                        </b>
                       </Col>
                     </Row>
                   </div>
@@ -2071,7 +2133,10 @@ const OrderDetail = () => {
                                 {OrderDetail?.payments !== null && (
                                   <div>
                                     <span className="fixed-time text-field">
-                                      {ConvertUtcToLocalDate(getDateLastPayment(OrderDetail), "DD/MM/YYYY HH:mm")}
+                                      {ConvertUtcToLocalDate(
+                                        getDateLastPayment(OrderDetail),
+                                        "DD/MM/YYYY HH:mm"
+                                      )}
                                     </span>
                                   </div>
                                 )}
@@ -2139,7 +2204,8 @@ const OrderDetail = () => {
                     />
                   )}
                   {checkPaymentAll(OrderDetail) !== 1 &&
-                    isShowPaymentPartialPayment === false && checkPaymentStatusToShow(OrderDetail) !== 1 && (
+                    isShowPaymentPartialPayment === false &&
+                    checkPaymentStatusToShow(OrderDetail) !== 1 && (
                       <div className="padding-24 text-right">
                         <Divider style={{ margin: "10px 0" }} />
                         <Button
@@ -2159,8 +2225,8 @@ const OrderDetail = () => {
               OrderDetail.fulfillments &&
               OrderDetail.fulfillments.length > 0 &&
               OrderDetail.fulfillments[0].shipment &&
-              OrderDetail.fulfillments[0].shipment?.cod ===
-                OrderDetail.total && checkPaymentStatusToShow(OrderDetail) !== 1 && (
+              OrderDetail.fulfillments[0].shipment?.cod === OrderDetail.total &&
+              checkPaymentStatusToShow(OrderDetail) !== 1 && (
                 <Card
                   className="margin-top-20"
                   title={
@@ -2169,12 +2235,12 @@ const OrderDetail = () => {
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {checkPaymentStatusToShow(OrderDetail) === -1 && (
-                        <Tag className="orders-tag orders-tag-danger">
+                        <Tag className="orders-tag orders-tag-default">
                           Chưa thanh toán
                         </Tag>
                       )}
                       {checkPaymentStatusToShow(OrderDetail) === 0 && (
-                        <Tag className="orders-tag orders-tag-warrning">
+                        <Tag className="orders-tag orders-tag-warning">
                           Thanh toán 1 phần
                         </Tag>
                       )}
@@ -2204,13 +2270,13 @@ const OrderDetail = () => {
                         <span className="text-field margin-right-40">
                           Còn phải trả
                         </span>
-                        <span className="text-success">
+                        <b style={{ color: "red" }}>
                           {OrderDetail && OrderDetail?.fulfillments
                             ? formatCurrency(
                                 OrderDetail.fulfillments[0].shipment?.cod
                               )
                             : 0}
-                        </span>
+                        </b>
                       </Col>
                     </Row>
                   </div>
@@ -2428,22 +2494,21 @@ const OrderDetail = () => {
         onCancel={() => setIsvibleShippingConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
-        title="Thông báo"
-        text={`Bạn có chắc chắn đơn hàng đã “Xuất kho” ? `}
+        title="Xác nhận xuất kho"
+        text={`Bạn có chắc xuất kho đơn giao hàng này ${confirmExportAndFinishValue() ? `với tiền thu hộ là ${confirmExportAndFinishValue()}` : ""} không?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
-        title="Thông báo"
-        text={`Bạn có chắc chắn đơn hàng đã “Giao thành công” ? `}
+        title="Xác nhận giao hàng thành công"
+        text={`Bạn có chắc muốn xác nhận đơn giao hàng này  ${confirmExportAndFinishValue() ? `với tiền thu hộ là ${confirmExportAndFinishValue()}` : ""} không?`}
       />
     </ContentContainer>
   );
 };
 
 export default OrderDetail;
-
 
 // ${
 //   customerNeedToPayValue -

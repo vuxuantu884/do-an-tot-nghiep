@@ -308,6 +308,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   ? "Không tìm thấy khách hàng"
                   : undefined
               }
+              id="search_customer"
               value={keysearchCustomer}
               ref={autoCompleteRef}
               onSelect={SearchCustomerSelect}
