@@ -145,9 +145,30 @@ const SupplierInfo = () => {
   const CancelSupplierAddModal = useCallback(() => {
     setVisibleSupplierAddModal(false);
   }, []);
-  const OkSupplierAddModal = useCallback(() => {
-    setVisibleAddressModal(false);
-  }, []);
+  const OkSupplierAddModal = useCallback((supplierItem: SupplierResponse) => {
+    debugger;
+    let supplierAddress: PurchaseAddress = {
+      name: supplierItem.name_person_in_charge,
+      email: supplierItem.email,
+      phone: supplierItem.phone,
+      tax_code: supplierItem.tax_code,
+      country_id: supplierItem.country_id,
+      country: supplierItem.country_name,
+      city_id: supplierItem.city_id,
+      city: supplierItem.city_name,
+      district_id: supplierItem.district_id,
+      district: supplierItem.district_name,
+      full_address: supplierItem.address,
+    };
+    formSupplier.setFieldsValue({
+      supplier_id: supplierItem.id,
+      supplier: supplierItem,
+      billing_address: supplierAddress,
+      supplier_address: supplierAddress,
+    });
+    setIsSelectSupplier(true);
+    setVisibleSupplierAddModal(false);
+  }, [formSupplier]);
 
   const OkAddressModal = useCallback(
     (addressUpdate: PurchaseAddress, addressType: string) => {

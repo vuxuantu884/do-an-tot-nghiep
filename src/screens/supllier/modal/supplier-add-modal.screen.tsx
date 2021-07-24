@@ -2,23 +2,28 @@ import { Col, Form, Input, Modal, Radio, Row, Select } from "antd";
 import { AppConfig } from "config/AppConfig";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
+import { SupplierCreateAction } from "domain/actions/core/supplier.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { WardResponse } from "model/content/ward.model";
-import { SupplierCreateRequest } from "model/core/supplier.model";
+import {
+  SupplierCreateRequest,
+  SupplierResponse,
+} from "model/core/supplier.model";
 import { PurchaseAddress } from "model/purchase-order/purchase-address.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
+import { showSuccess } from "utils/ToastUtils";
 
 type SupplierAddModalProps = {
   visible: boolean;
   onCancel: () => void;
-  onOk: () => void;
+  onOk: (supplier: SupplierResponse) => void;
 };
 const { Item } = Form;
 const { Option } = Select;
@@ -76,18 +81,30 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
       );
       if (checkUser !== -1 && currentUserCode !== undefined) {
         formSupplierAdd.setFieldsValue({
-          person_in_charge: [currentUserCode],
+          person_in_charge: currentUserCode,
         });
       }
     },
     [currentUserCode, formSupplierAdd]
   );
-
-  const onFinish = useCallback(() => {
-    onOk();
-  }, [onOk]);
+  const createSupplierCallback = useCallback(
+    (result: SupplierResponse) => {
+      if (result !== null && result !== undefined) {
+        showSuccess("Thêm mới dữ liệu thành công");
+        onOk(result);
+        formSupplierAdd.resetFields();
+      }
+    },
+    [formSupplierAdd, onOk]
+  );
+  const onFinish = useCallback(
+    (values: SupplierCreateRequest) => {
+      debugger;
+      dispatch(SupplierCreateAction(values, createSupplierCallback));
+    },
+    [createSupplierCallback, dispatch]
+  );
   const onOkPress = useCallback(() => {
-    // onOk();
     formSupplierAdd.submit();
   }, [formSupplierAdd]);
   const handleCancel = () => {
@@ -102,10 +119,9 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
         setDataAccounts
       )
     );
-    return ()=>{
-    formSupplierAdd.resetFields();
-
-    }
+    return () => {
+      formSupplierAdd.resetFields();
+    };
   }, [dispatch, formSupplierAdd, setDataAccounts]);
 
   return (
@@ -129,6 +145,9 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
       >
         <Row gutter={24}>
           <Col xs={24} lg={12}>
+            <Item hidden name="status">
+           
+            </Item>
             <Item
               rules={[
                 {
