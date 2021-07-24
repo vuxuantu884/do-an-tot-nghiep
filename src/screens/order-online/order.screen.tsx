@@ -322,7 +322,7 @@ export default function Order() {
     let objDiscount: OrderDiscountRequest = {
       rate: discountRate,
       value: discountValue,
-      amount: discountValue + discountRate,
+      amount: discountValue,
       promotion_id: null,
       reason: "",
       source: "",
@@ -672,7 +672,7 @@ export default function Order() {
             <Col md={9} style={{ marginTop: "8px" }}>
               <Button
                 className="ant-btn-outline fixed-button cancle-button"
-                onClick={() => history.push(`${UrlConfig.ORDER}/create`)}
+                onClick={() => window.location.reload()}
               >
                 Huỷ
               </Button>
