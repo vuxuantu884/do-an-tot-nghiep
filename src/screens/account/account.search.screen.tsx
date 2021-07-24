@@ -148,7 +148,7 @@ const ListAccountScreen: React.FC = () => {
   }, []);
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page - 1;
+      params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });

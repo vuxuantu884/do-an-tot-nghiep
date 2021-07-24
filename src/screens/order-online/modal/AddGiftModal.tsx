@@ -19,7 +19,10 @@ import {
   OrderItemDiscountModel,
   OrderItemModel,
 } from "model/other/Order/order-model";
-import { VariantResponse, VariantSearchQuery} from "model/product/product.model";
+import {
+  VariantResponse,
+  VariantSearchQuery,
+} from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { OrderLineItemRequest } from "model/request/order.request";
@@ -32,7 +35,7 @@ type AddGiftModalProps = {
   onUpdateData: (items: Array<OrderLineItemRequest>) => void;
 };
 
-const initQuery: VariantSearchQuery  = {
+const initQuery: VariantSearchQuery = {
   limit: 10,
   page: 1,
 };
@@ -44,12 +47,13 @@ export interface AddGiftRef {
 const renderSearch = (item: VariantResponse) => {
   let avatar = findAvatar(item.variant_images);
   return (
-    <div className="row-search w-100">
+    <div className="row-search w-100" style={{justifyContent: "space-between", padding: "10px 20px" }}>
       <div className="rs-left w-100">
         <img
           src={avatar === "" ? imgdefault : avatar}
           alt="anh"
           placeholder={imgdefault}
+          style={{ width: 42, height: 42, marginTop: 10 }}
         />
         <div className="rs-info w-100">
           <span style={{ color: "#37394D" }} className="text">
@@ -146,7 +150,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
             minLength={1}
             maxLength={4}
             onFocus={(e) => e.target.select()}
-            style={{ width: 60, textAlign: "right" }}
+            style={{ width: 60, textAlign: "center"}}
           />
         </div>
       ),
@@ -162,7 +166,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
           <Button
             type="text"
             onClick={() => deleteItem(index)}
-            className="yody-pos-delete-item"
+            className="yody-pos-delete-item ant-btn-custom"
           >
             <img src={deleteIcon} alt="" />
           </Button>
@@ -230,12 +234,12 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
 
   const onVariantSelect = useCallback(
     (v, o) => {
-      
+      let newV = parseInt(v);
       let _items = [...props.items];
-      let indexSearch = resultSearch.items.findIndex((s) => s.id === v);
-      let index = _items.findIndex((i) => i.variant_id === v);
+      let indexSearch = resultSearch.items.findIndex((i) => i.id === newV);
+      let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearch.items[indexSearch];
-      if (r.id === v) {
+      if (r.id === newV) {
         if (index === -1) {
           const item: OrderLineItemRequest = createItem(r);
           _items.push(item);
@@ -256,8 +260,6 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     // autoCompleteRef, dispatch, resultSearch
   );
 
-  
-
   const createNewDiscountItem = () => {
     const newDiscountItem: OrderItemDiscountModel = {
       amount: 0,
@@ -273,18 +275,14 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
   }, [onOk]);
   return (
     <Modal
-      title=""
+      title="Chọn quà tặng"
+      width={600}
       onCancel={onCancel}
       onOk={onOkPress}
       visible={visible}
-      centered
       cancelText="Hủy"
       okText="Lưu"
-      className="yody-pos-gift-modal modal-hide-header"
     >
-      <div style={{ fontSize: 13, color: "#4F687D", marginBottom: 6 }}>
-        Quà tặng
-      </div>
       <AutoComplete
         notFoundContent={
           keysearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
@@ -296,6 +294,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
         className="w-100"
         onSearch={onChangeProductSearch}
         options={convertResultSearch}
+        style={{width:"100%", marginBottom:"10px"}}
       >
         <Input
           className="yody-pos-gift-modal-input"
