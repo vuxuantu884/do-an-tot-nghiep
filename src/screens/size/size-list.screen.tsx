@@ -171,7 +171,7 @@ const SizeListScreen: React.FC = () => {
       return;
     }
 
-    
+    debugger;
     if (selected.length === 1) {
       let id = selected[0].id;
       dispatch(sizeDeleteOneAction(id, onDeleteSuccess));

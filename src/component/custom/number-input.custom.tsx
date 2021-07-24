@@ -2,7 +2,7 @@ import {Input} from 'antd';
 import { CSSProperties, useCallback } from 'react';
 import { RegUtil } from 'utils/RegUtils';
 
-interface NumberInputProps {
+type NumberInputProps = {
   value?: number,
   isFloat?: boolean,
   onChange?: (v: number|null) => void,
@@ -14,14 +14,10 @@ interface NumberInputProps {
   suffix?: React.ReactNode,
   maxLength?: number,
   minLength?:number
-  className?: string,
-  min?: number,
-  max?: number,
-  prefix?: React.ReactNode, 
 }
 
 const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
-  const {replace, value, isFloat, onChange, placeholder, style, format, onBlur, suffix, maxLength,minLength, className, prefix} = props;
+  const {replace, value, isFloat, onChange, placeholder, style, format, onBlur, suffix, maxLength,minLength} = props;
   const onChangeText = useCallback((e) => {
     let newValue: string = e.target.value;
     let value = format ? (replace ? replace(newValue) : newValue) : newValue;
@@ -43,24 +39,16 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
   const onBlurEvent = useCallback((e) => {
     let temp = value?.toString();
     let valueTemp = temp;
-    if(temp && value) {
+    if(temp) {
       if (temp.charAt(temp.length - 1) === '.' || temp === '-') {
         valueTemp = temp.slice(0, -1);
       }
-      if(props.min && value < props.min) {
-        onChange && onChange(props.min);
-        
-      } else if(props.max && value > props.max) {
-        onChange && onChange(props.max);
-      } else {
-        (onChange && valueTemp) && onChange(parseFloat(valueTemp.replace(/0*(\d+)/, '$1')));
-      }
+      (onChange && valueTemp) && onChange(parseFloat(valueTemp.replace(/0*(\d+)/, '$1')));
     }
     onBlur && onBlur();
-  }, [onBlur, onChange, props.max, props.min, value])
+  }, [onBlur, onChange, value])
   return (
     <Input
-      className={className}
       placeholder={placeholder}
       value={value && format ? format(value.toString()) : value}
       style={style}
@@ -70,9 +58,8 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       maxLength={maxLength}
       minLength={minLength}
       onFocus={(e) => {
-        e.target.select();
+        e.target.setSelectionRange(0, e.target.value.length);
       }}
-      prefix={prefix}
     />
   )
 }

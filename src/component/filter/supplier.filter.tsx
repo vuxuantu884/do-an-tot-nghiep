@@ -56,7 +56,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
 
   const onFinish = useCallback(
     (values: SupplierQuery) => {
-      
+      debugger;
       onFilter && onFilter(values);
     },
     [onFilter]
@@ -84,7 +84,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
     [onMenuClick]
   );
   useEffect(() => {
-    
+    debugger;
     if (visible) {
       formAdvance.resetFields();
     }

@@ -13,7 +13,7 @@ const ButtonCreate: React.FC<ButtonCreateProps> = (
     <Link to={props.path}>
       <Button
         type="primary"
-        className="ant-btn-primary"
+        className="ant-btn-secondary"
         size="large"
         icon={<PlusOutlined />}
       >

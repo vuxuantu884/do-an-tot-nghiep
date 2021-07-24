@@ -42,7 +42,7 @@ function* getAllSizeSaga(action: YodyAction) {
 function* sizeSearchSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    
+    debugger;
     let response: BaseResponse<PageResponse<SizeResponse>> = yield call(
       getSearchSize,query
     );

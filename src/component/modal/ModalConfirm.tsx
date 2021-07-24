@@ -1,5 +1,8 @@
 import {
+  InfoCircleOutlined,
   QuestionCircleOutlined,
+  RadiusBottomrightOutlined,
+  RadiusUprightOutlined,
 } from "@ant-design/icons";
 import { Modal } from "antd";
 
