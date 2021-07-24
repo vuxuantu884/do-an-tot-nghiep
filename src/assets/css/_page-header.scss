@@ -20,10 +20,9 @@
       .ant-breadcrumb{
         span{
           .ant-breadcrumb-link{
-            color: rgba(149, 161, 172, 0.9);
-            
-            a{
-              color: rgba(149, 161, 172, 0.9);
+            color: #5D5D8A;
+              a{
+              color: #5D5D8A;
             }
 
             &:hover{
@@ -36,7 +35,7 @@
 
           &:last-child{
             .ant-breadcrumb-link, a{
-              color: $primary-color;
+              color: #222222;
             }
           }
         }

@@ -20,6 +20,18 @@ export const TaxTreatment = {
   INCLUSIVE: "inclusive",
   EXCLUSIVE: "exclusive",
 };
+export const AddressType = {
+  BILLADDRESS: "billaddress",
+  SUPPLIERADDRESS: "supplieraddress",
+};
+
+export const PoFormName = {
+  Main: "formMain",
+  Supplier: "formSupplier",
+  Product:"formPoProduct",
+  Info:"formInfo"
+};
+
 
 export const FulFillmentStatus = {
   UNSHIPPED: "unshipped",

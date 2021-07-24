@@ -127,13 +127,15 @@ function* supplierCreateSaga(action: YodyAction) {
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
+        
         break;
       default:
         response.errors.forEach((e) => showError(e));
+        setData(null);
         break;
     }
   } catch (error) {
-    
+    setData(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
