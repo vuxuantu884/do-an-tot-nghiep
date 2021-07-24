@@ -186,7 +186,7 @@ const VariantUpdateScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (values: VariantUpdateView) => {
-      
+      debugger;
       setLoadingSaveButton(true);
       // let request = Products.convertProductViewToRequest(
       //   values,

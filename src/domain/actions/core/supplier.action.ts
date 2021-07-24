@@ -13,7 +13,7 @@ export const SupplierGetAllAction = (setData: (response: Array<SupplierResponse>
   return BaseAction(SupplierType.GET_ALL_SUPPLIER_REQUEST, {setData});
 }
 
-export const SupplierCreateAction = (request: SupplierCreateRequest, setData: (result:SupplierResponse) => void) => {
+export const SupplierCreateAction = (request: SupplierCreateRequest, setData: () => void) => {
   return BaseAction(SupplierType.CREATE_SUPPLIER_REQUEST, {request, setData});
 }
 
