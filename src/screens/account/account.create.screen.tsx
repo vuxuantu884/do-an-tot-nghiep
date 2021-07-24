@@ -35,6 +35,7 @@ import {
   AccountView,
 } from 'model/account/account.model';
 import {
+  DeleteOutlined,
   EyeInvisibleOutlined,
   EyeTwoTone,
   PlusOutlined,
@@ -58,8 +59,9 @@ import {showSuccess} from 'utils/ToastUtils';
 import ContentContainer from 'component/container/content.container';
 import CustomDatepicker from 'component/custom/date-picker.custom';
 import UrlConfig from 'config/UrlConfig';
+import NumberInput from "../../component/custom/number-input.custom";
 
-const {Item} = Form;
+const {Item, List} = Form;
 const {Option, OptGroup} = Select;
 
 const DefaultCountry = 233;
@@ -239,70 +241,6 @@ const AccountCreateScreen: React.FC = () => {
   }, [status, listAccountStatus]);
   //end memo
 
-  const columns = [
-    {
-      title: 'Bộ phận',
-      render: (text: string, item: AccountJobReQuest, index: number) => {
-        return (
-          <div>
-            <Select
-              placeholder="Chọn bộ phận"
-              allowClear
-              showArrow
-              optionFilterProp="children"
-              onChange={(value) => onChangeDepartment(value, index)}
-              style={{width: '100%'}}
-            >
-              {listDepartment?.map((item) => (
-                <Option key={item.id} value={item.id}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
-          </div>
-        );
-      },
-    },
-    {
-      title: 'Vị trí',
-      render: (text: string, item: AccountJobReQuest, index: number) => {
-        return (
-          <div>
-            <Select
-              placeholder="Chọn bộ phận"
-              allowClear
-              showArrow
-              optionFilterProp="children"
-              onChange={(value) => onChangePosition(value, index)}
-              style={{width: '100%'}}
-            >
-              {listPosition?.map((item) => (
-                <Option key={item.id} value={item.id}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
-          </div>
-        );
-      },
-    },
-    {
-      title: '',
-      render: (text: string, item: AccountJobReQuest, index: number) => {
-        return (
-          <div>
-            <Button
-              type="text"
-              className="p-0 yody-pos-delete-free-form"
-              onClick={() => onDeleteJob(index)}
-            >
-              <img src={deleteIcon} alt="" />
-            </Button>
-          </div>
-        );
-      },
-    },
-  ];
   useEffect(() => {
     dispatch(DepartmentGetListAction(setDepartment));
     dispatch(PositionGetListAction(setPosition));
@@ -335,7 +273,7 @@ const AccountCreateScreen: React.FC = () => {
         initialValues={initRequest}
       >
         <Card
-          title="Thông tin cơ bản"
+          title="Thông tin người dùng"
           extra={
             <Space size={15}>
               <label className="text-default">Trạng thái</label>
@@ -361,7 +299,7 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Tên đăng nhập"
                   name="user_name"
-                  rules={[{required: true, message: 'Vui lòng nhập họ và tên'}]}
+                  rules={[{required: true, message: 'Vui lòng nhập tên đăng nhập'}]}
                   hasFeedback
                 >
                   <Input
@@ -409,18 +347,15 @@ const AccountCreateScreen: React.FC = () => {
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  rules={[{required: true, message: 'Vui lòng nhập mật khẩu'}]}
-                  name="password"
-                  label="Mật khẩu"
-                  hasFeedback
+                    label="Họ và tên"
+                    name="full_name"
+                    rules={[{required: true, message: 'Vui lòng nhập họ và tên'}]}
+                    hasFeedback
                 >
-                  <Input.Password
-                    className="r-5"
-                    placeholder="Nhập mật khẩu"
-                    size="large"
-                    iconRender={(visible) =>
-                      visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                    }
+                  <Input
+                      className="r-5"
+                      placeholder="Nhập họ và tên"
+                      size="large"
                   />
                 </Item>
               </Col>
@@ -428,15 +363,18 @@ const AccountCreateScreen: React.FC = () => {
             <Row gutter={24}>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Item
-                  label="Họ và tên"
-                  name="full_name"
-                  rules={[{required: true, message: 'Vui lòng nhập họ và tên'}]}
-                  hasFeedback
+                    rules={[{required: true, message: 'Vui lòng nhập mật khẩu'}]}
+                    name="password"
+                    label="Mật khẩu"
+                    hasFeedback
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập họ và tên"
-                    size="large"
+                  <Input.Password
+                      className="r-5"
+                      placeholder="Nhập mật khẩu"
+                      size="large"
+                      iconRender={(visible) =>
+                          visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                      }
                   />
                 </Item>
               </Col>
@@ -490,12 +428,6 @@ const AccountCreateScreen: React.FC = () => {
                   name="account_stores"
                   label="Cửa hàng"
                   hasFeedback
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Vui lòng chọn cửa hàng',
-                    },
-                  ]}
                 >
                   <Select
                     placeholder="Chọn cửa hàng"
@@ -518,7 +450,6 @@ const AccountCreateScreen: React.FC = () => {
                 <Item
                   label="Ngày sinh"
                   name="birthday"
-                  rules={[{required: true, message: 'Vui lòng nhập ngày sinh'}]}
                   hasFeedback
                 >
                   {/* <DatePicker
@@ -546,7 +477,7 @@ const AccountCreateScreen: React.FC = () => {
                   ]}
                 >
                   <Select
-                    placeholder="Chọn cửa hàng"
+                    placeholder="Chọn vị trí"
                     allowClear
                     showArrow
                     mode="multiple"
@@ -614,36 +545,81 @@ const AccountCreateScreen: React.FC = () => {
         >
           <Collapse.Panel key="1" header="Thông tin công việc">
             <div className="padding-20">
-              <Row gutter={24}>
-                <Col span={24} lg={24} md={24} sm={24}>
-                  <Table
-                    columns={columns}
-                    rowKey={(record) => record.key}
-                    dataSource={listaccountJob}
-                    className="sale-product-box-table w-100"
-                    tableLayout="fixed"
-                    pagination={false}
-                  />
-                </Col>
-              </Row>
-              <div className="margin-top-10">
-                <Row gutter={24}>
-                  <Col span={24} lg={24} md={24} sm={24}>
-                    {/* <Button type="dashed" onClick={addNewJob}>
-                      <PlusOutlined /> Thêm phòng ban/vị trí
-                    </Button>
-                    */}
-                    <Button
-                      type="link"
-                      className="padding-0"
-                      icon={<PlusOutlined />}
-                      onClick={addNewJob}
-                    >
-                      Thêm phòng ban/vị trí
-                    </Button>
-                  </Col>
-                </Row>
-              </div>
+              <List name="account_jobs">
+                {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(
+                          ({ key, name, fieldKey, ...restField }, index) => (
+                              <Row key={key} gutter={16}>
+                                <Col md={8}>
+                                  <Item
+                                      label="Bộ phận"
+                                      name={[name, "department_id"]}
+                                      fieldKey={[fieldKey, "department_id"]}
+                                  >
+                                    <Select
+                                        placeholder="Chọn bộ phận"
+                                        allowClear
+                                        showArrow
+                                        optionFilterProp="children"
+                                        onChange={(value) => onChangeDepartment(value, index)}
+                                        style={{width: '100%'}}
+                                    >
+                                      {listDepartment?.map((item) => (
+                                          <Option key={item.id} value={item.id}>
+                                            {item.name}
+                                          </Option>
+                                      ))}
+                                    </Select>
+                                  </Item>
+                                </Col>
+                                <Col md={8}>
+                                  <Item
+                                      name={[name, "position_id"]}
+                                      fieldKey={[fieldKey, "position_id"]}
+                                      label="Vị trí"
+                                  >
+                                    <Select
+                                        placeholder="Chọn vị trí"
+                                        allowClear
+                                        showArrow
+                                        optionFilterProp="children"
+                                        onChange={(value) => onChangePosition(value, index)}
+                                        style={{width: '100%'}}
+                                    >
+                                      {listPosition?.map((item) => (
+                                          <Option key={item.id} value={item.id}>
+                                            {item.name}
+                                          </Option>
+                                      ))}trí
+                                    </Select>
+                                  </Item>
+                                </Col>
+                                {fields.length > 1 && (
+                                    <Col
+                                        md={4}
+                                        style={{ display: "flex", alignItems: "center" }}
+                                    >
+                                      <Button
+                                          onClick={() => remove(name)}
+                                          icon={<DeleteOutlined />}
+                                      />
+                                    </Col>
+                                )}
+                              </Row>
+                          )
+                      )}
+                      <Button
+                          type="link"
+                          className="padding-0"
+                          onClick={() => add()}
+                          icon={<PlusOutlined />}
+                      >
+                        Thêm mới
+                      </Button>
+                    </>
+                )}
+              </List>
             </div>
           </Collapse.Panel>
         </Collapse>

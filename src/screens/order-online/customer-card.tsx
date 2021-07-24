@@ -52,7 +52,7 @@ import { CustomerSearchQuery } from "model/query/customer.query";
 //#endregion
 
 type CustomerCardProps = {
-  InfoCustomerSet: (items: CustomerResponse) => void;
+  InfoCustomerSet: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
 };
@@ -174,6 +174,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //Delete customer
   const CustomerDeleteInfo = () => {
     setCustomer(null);
+    props.InfoCustomerSet(null);
   };
 
   //#endregion
@@ -265,7 +266,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               style={{ width: 300, borderRadius: "6px" }}
               showArrow
               showSearch
-              placeholder="Chọn nguồn đơn hàng"
+              placeholder="Nguồn đơn hàng"
               notFoundContent="Không tìm thấy kết quả"
               filterOption={(input, option) => {
                 if (option) {
@@ -307,6 +308,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                   ? "Không tìm thấy khách hàng"
                   : undefined
               }
+              id="search_customer"
               value={keysearchCustomer}
               ref={autoCompleteRef}
               onSelect={SearchCustomerSelect}

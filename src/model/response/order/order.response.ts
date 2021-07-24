@@ -104,6 +104,7 @@ export interface FulFillmentResponse {
   receive_cancellation_account_code: string | null;
   packed_on: string | null;
   shipped_on: string | null;
+  export_on: string | null;
   received_on: string | null;
   cancel: string | null;
   receive_cancellation_on: string | null;
@@ -116,6 +117,7 @@ export interface FulFillmentResponse {
   billing_address: BillingAddress | null;
   items: Array<OrderLineItemResponse>;
   payments: Array<OrderPaymentResponse>;
+  created_date: string | null;
 }
 
 export interface OrderDiscountResponse {
@@ -188,6 +190,8 @@ export interface ShippingAddress {
 export interface ShipmentResponse extends BaseObject {
   delivery_service_provider_id: number | null;
   delivery_service_provider_type: string | null;
+  shipper_code: string | null;
+  shipper_name: string | null;
   handover_id: number | null;
   service: number | null;
   who_paid: string | null;
@@ -195,7 +199,7 @@ export interface ShipmentResponse extends BaseObject {
   fee_base_on: string | null;
   delivery_fee: number | null;
   shipping_fee_informed_to_customer: number|null;
-  shipping_fee_paid_to_3pls: number|null;
+  shipping_fee_paid_to_three_pls: number|null;
   expected_received_date:string|null;
   reference_status: string | null;
   reference_status_explanation: string | null;

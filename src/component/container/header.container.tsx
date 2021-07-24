@@ -5,6 +5,8 @@ import {Link} from 'react-router-dom';
 import {FiMenu} from 'react-icons/fi';
 import {AccountResponse} from 'model/account/account.model';
 import {RiNotification2Line, RiArrowDropDownLine} from 'react-icons/ri';
+import { useDispatch } from 'react-redux';
+import { logoutAction } from 'domain/actions/auth/auth.action';
 
 type HeaderContainerProps = {
   onCollapse: () => void;
@@ -14,6 +16,7 @@ type HeaderContainerProps = {
 const HeaderContainer: React.FC<HeaderContainerProps> = (
   props: HeaderContainerProps
 ) => {
+  const dispatch = useDispatch();
   const userMenu = (
     <Menu>
       <Menu.Item key="logout">
@@ -22,7 +25,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
         </Link>
       </Menu.Item>
       <Menu.Item key="logout">
-        <Link to="#" type="text">
+        <Link onClick={()=> dispatch(logoutAction())} to="#" type="text">
           <span>Đăng xuất</span>
         </Link>
       </Menu.Item>
