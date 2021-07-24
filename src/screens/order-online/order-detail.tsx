@@ -562,13 +562,22 @@ const OrderDetail = () => {
   const confirmExportAndFinishValue = () => {
     if (takeMoneyHelper) {
       return formatCurrency(takeMoneyHelper);
-    } else if (OrderDetail?.total) {
+    } else if (
+      OrderDetail?.total_line_amount_after_line_discount &&
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+    ) {
       return formatCurrency(
-        OrderDetail?.total +
-          (shippingFeeInformedCustomer !== null
-            ? shippingFeeInformedCustomer
-            : 0) - (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-      )
+        OrderDetail?.total_line_amount_after_line_discount +
+          (OrderDetail?.fulfillments[0].shipment
+            .shipping_fee_informed_to_customer !== null
+            ? OrderDetail?.fulfillments[0].shipment
+                .shipping_fee_informed_to_customer
+            : 0) -
+          (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+      );
     }
   };
   //#region shiment
@@ -805,13 +814,6 @@ const OrderDetail = () => {
   // khách cần trả
   const customerNeedToPay: any = () => {
     if (
-      !shippingFeeInformedCustomer &&
-      OrderDetail?.total_discount &&
-      OrderDetail?.total
-    ) {
-      return OrderDetail?.total;
-    }
-    if (
       OrderDetail &&
       OrderDetail?.total_line_amount_after_line_discount &&
       OrderDetail?.fulfillments &&
@@ -823,6 +825,12 @@ const OrderDetail = () => {
         OrderDetail?.total_line_amount_after_line_discount +
         OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
       );
+    } else if (
+      !shippingFeeInformedCustomer &&
+      OrderDetail?.total_discount &&
+      OrderDetail?.total_line_amount_after_line_discount
+    ) {
+      return OrderDetail?.total_line_amount_after_line_discount;
     } else if (OrderDetail?.total_line_amount_after_line_discount) {
       return (
         OrderDetail?.total_line_amount_after_line_discount +
@@ -1670,7 +1678,7 @@ const OrderDetail = () => {
                     <div className="d-flex" style={{ marginTop: "5px" }}>
                       <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
                     </div>
-                    <Tag
+                    {OrderDetail?.fulfillments && OrderDetail?.fulfillments.length > 0 && <Tag
                       className="orders-tag text-menu"
                       style={{
                         color: "#FCAF17",
@@ -1680,7 +1688,7 @@ const OrderDetail = () => {
                       {OrderDetail?.fulfillment_status !== null
                         ? OrderDetail?.fulfillment_status
                         : "Chưa giao hàng"}
-                    </Tag>
+                    </Tag>}
                   </Space>
                 }
               >
@@ -2195,7 +2203,7 @@ const OrderDetail = () => {
                       paymentMethod={paymentType}
                       showPartialPayment={true}
                       amount={
-                        OrderDetail.total -
+                        OrderDetail.total_line_amount_after_line_discount -
                         getAmountPayment(OrderDetail.payments)
                       }
                       order_id={OrderDetail.id}
@@ -2495,14 +2503,22 @@ const OrderDetail = () => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
         title="Xác nhận xuất kho"
-        text={`Bạn có chắc xuất kho đơn giao hàng này ${confirmExportAndFinishValue() ? `với tiền thu hộ là ${confirmExportAndFinishValue()}` : ""} không?`}
+        text={`Bạn có chắc xuất kho đơn giao hàng này ${
+          confirmExportAndFinishValue()
+            ? `với tiền thu hộ là ${confirmExportAndFinishValue()}`
+            : ""
+        } không?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
         title="Xác nhận giao hàng thành công"
-        text={`Bạn có chắc muốn xác nhận đơn giao hàng này  ${confirmExportAndFinishValue() ? `với tiền thu hộ là ${confirmExportAndFinishValue()}` : ""} không?`}
+        text={`Bạn có chắc muốn xác nhận đơn giao hàng này  ${
+          confirmExportAndFinishValue()
+            ? `với tiền thu hộ là ${confirmExportAndFinishValue()}`
+            : ""
+        } không?`}
       />
     </ContentContainer>
   );

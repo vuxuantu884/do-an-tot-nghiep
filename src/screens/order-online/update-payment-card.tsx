@@ -135,6 +135,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   };
 
   const handleInputMoney = (index: number, amount: number) => {
+    if(amount > props.amount) amount = props.amount;
     if (paymentData[index].code === PaymentMethodCode.POINT) {
       paymentData[index].point = amount;
       paymentData[index].amount = amount * PointConfig.VALUE;
