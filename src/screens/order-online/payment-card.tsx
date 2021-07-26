@@ -26,7 +26,11 @@ import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { PaymentMethodCode, PaymentMethodOption, PointConfig } from "utils/Constants";
+import {
+  PaymentMethodCode,
+  PaymentMethodOption,
+  PointConfig,
+} from "utils/Constants";
 import {
   formatCurrency,
   formatSuffixPoint,
@@ -58,6 +62,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
+  const [maxPayment, setMaxpayment] = useState(0);
 
   const ListMaymentMethods = useMemo(() => {
     return listPaymentMethod.filter(
@@ -373,7 +378,11 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                     <Row
                       gutter={20}
                       className="row-price total-customer-pay"
-                      style={{ marginLeft: 0, marginRight: 0, padding: "10px 0"  }}
+                      style={{
+                        marginLeft: 0,
+                        marginRight: 0,
+                        padding: "10px 0",
+                      }}
                     >
                       <Col
                         xs={12}

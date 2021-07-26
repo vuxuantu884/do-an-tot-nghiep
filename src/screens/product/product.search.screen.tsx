@@ -114,7 +114,8 @@ const ListProductScreen: React.FC = () => {
     {
       title: "Ảnh",
       render: (value: VariantResponse) => {
-        return <ImageProduct onClick={() => {
+        let image = Products.findAvatar(value.variant_images);
+        return <ImageProduct  path={image !== null ? image.url : null} onClick={() => {
           setVariant({
             name: value.name,
             sku: value.sku,

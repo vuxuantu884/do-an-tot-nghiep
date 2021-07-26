@@ -322,7 +322,7 @@ export default function Order() {
     let objDiscount: OrderDiscountRequest = {
       rate: discountRate,
       value: discountValue,
-      amount: discountValue + discountRate,
+      amount: discountValue,
       promotion_id: null,
       reason: "",
       source: "",
