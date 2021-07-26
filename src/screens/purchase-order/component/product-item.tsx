@@ -2,17 +2,26 @@ import { VariantResponse } from "model/product/product.model";
 import imgDefIcon from "assets/img/img-def.svg";
 import { formatCurrency, Products } from "utils/AppUtils";
 import { AppConfig } from "config/AppConfig";
+import { Checkbox } from "antd";
 
 type ProductItemProps = {
   data: VariantResponse
+  showCheckBox?: boolean,
+  checked?: boolean
+  onChange?: (checked: boolean) => void
 }
 
 const ProductItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
-  const {data} = props;
+  const {data, showCheckBox, checked} = props;
   const avatar = Products.findAvatar(data.variant_images);
-  const price_data = Products.findPrice(data.variant_prices, 'import_price', AppConfig.currency);
+  const price_data = Products.findPrice(data.variant_prices, AppConfig.import_price, AppConfig.currency);
   return (
     <div className="product-item">
+      {
+        showCheckBox && (
+          <Checkbox checked={checked} onChange={(e) => props.onChange && props.onChange(e.target.checked)} />
+        )
+      }
       <div className="product-item-image">
         <img src={avatar === null ? imgDefIcon : avatar.url} alt="" className="" />
       </div>

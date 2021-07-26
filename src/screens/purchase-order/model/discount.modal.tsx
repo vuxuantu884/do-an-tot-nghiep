@@ -7,15 +7,16 @@ type DiscountModalProps = {
   price: number;
   type: string;
   discount: number | null;
-  onChange?: (price: number, type: string, discount: number) => void
+  onChange?: (type: string, discount: number) => void;
 };
 
-const DiscountModal: React.FC<DiscountModalProps> = (props: DiscountModalProps) => {
+const DiscountModal: React.FC<DiscountModalProps> = (
+  props: DiscountModalProps
+) => {
   const [form] = Form.useForm();
   const [type, setType] = useState<string>(props.type);
   useEffect(() => {
     form.setFieldsValue({
-      price: props.price,
       type: props.type,
       discount: props.discount === null ? 0 : props.discount,
     });
@@ -26,8 +27,9 @@ const DiscountModal: React.FC<DiscountModalProps> = (props: DiscountModalProps) 
       <Form
         form={form}
         onFinish={(value) => {
-          props.onChange && props.onChange(value.price, value.type, value.discount);
-        }}  
+          props.onChange &&
+            props.onChange(value.type, value.discount);
+        }}
         layout="vertical"
       >
         <Form.Item label="Chiết khấu">
@@ -42,8 +44,8 @@ const DiscountModal: React.FC<DiscountModalProps> = (props: DiscountModalProps) 
                 className="product-item-discount-select"
                 onChange={(value: string) => {
                   setType(value);
-                  form.setFieldsValue({discount: 0})}
-                }
+                  form.setFieldsValue({ discount: 0 });
+                }}
               >
                 <Select.Option value="percent">%</Select.Option>
                 <Select.Option value="money">₫</Select.Option>
@@ -51,16 +53,16 @@ const DiscountModal: React.FC<DiscountModalProps> = (props: DiscountModalProps) 
             </Form.Item>
             <Form.Item noStyle name="discount">
               <NumberInput
-                 onBlur={() => {
+                onBlur={() => {
                   form.submit();
                 }}
                 className="product-item-discount-input"
-                style={{ width: "65%", textAlign: 'right'}}
+                style={{ width: "65%", textAlign: "right" }}
                 placeholder="Nhập chiết khấu"
                 format={(a) => formatCurrency(a)}
                 replace={(a) => replaceFormatString(a)}
                 min={0}
-                max={type === 'money' ? form.getFieldValue('price') : 100}
+                max={type === "money" ? props.price : 100}
               />
             </Form.Item>
           </Input.Group>
