@@ -1,4 +1,4 @@
-import { SearchOutlined } from "@ant-design/icons";
+import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
@@ -18,6 +18,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import classNames from "classnames";
 import imgDefIcon from "assets/img/img-def.svg";
 import { RefSelectProps } from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
@@ -30,7 +31,7 @@ import {
 } from "model/purchase-order/purchase-item.model";
 import React, { createRef, useCallback, useMemo } from "react";
 import { useState } from "react";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { POUtils } from "utils/POUtils";
 import ProductItem from "./product-item";
@@ -115,6 +116,31 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       setSearchValue("");
     },
     [data, formMain, splitLine]
+  );
+  const onDeleteItem = useCallback(
+    (index: number) => {
+      let old_line_items: Array<PurchaseOrderLineItem> =
+        formMain.getFieldValue("line_items");
+      let discount_rate_total = formMain.getFieldValue("discount_rate");
+      let discount_value_total = formMain.getFieldValue("discount_value");
+      old_line_items.splice(index, 1);
+      let total = POUtils.totalAmount(old_line_items);
+      let total_discount = POUtils.getTotalDiscount(
+        total,
+        discount_rate_total,
+        discount_value_total
+      );
+      let vats = POUtils.getVatList(old_line_items);
+      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      formMain.setFieldsValue({
+        line_items: [...old_line_items],
+        total: total,
+        vats: vats,
+        total_discount: total_discount,
+        total_payment: total_payment,
+      });
+    },
+    [formMain]
   );
   const onQuantityChange = useCallback(
     (quantity, index) => {
@@ -280,6 +306,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [formMain]
   );
+  const onNoteChange = useCallback((value: string, index: number) => {
+    let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue("line_items");
+    data[index].note = value;
+    formMain.setFieldsValue({
+      line_items: [...data],
+    });
+  }, [formMain])
   const onSearch = useCallback(
     (value: string) => {
       setSearchValue(value);
@@ -374,7 +407,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           </Input.Group>
           <Form.Item noStyle name="line_items" hidden>
             <Input />
-          </Form.Item> 
+          </Form.Item>
           <Form.Item
             style={{ padding: 0 }}
             className="margin-top-20"
@@ -438,10 +471,18 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       title: "Sản phẩm",
                       width: "99%",
                       dataIndex: "variant",
-                      render: (value: string, item: PurchaseOrderLineItem) => (
+                      render: (value: string, item: PurchaseOrderLineItem, index: number) => (
                         <div>
-                          <div className="product-item-sku">{item.sku}</div>
-                          <div className="product-item-name">{value}</div>
+                          <div>
+                            <div className="product-item-sku">{item.sku}</div>
+                            <div className="product-item-name">{value}</div>
+                          </div>
+                          <Input
+                            addonBefore={<EditOutlined />}
+                            className={classNames("product-item-note-input", item.note === '' && 'product-item-note')}
+                            value={item.note}
+                            onChange={(e) => onNoteChange(e.target.value, index)}
+                          />
                         </div>
                       ),
                     },
@@ -557,7 +598,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             min={0}
                             max={100}
                             onBlur={() => {
-                              debugger;
                               if (value === null) {
                                 onVATChange(0, index);
                               }
@@ -576,6 +616,17 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       align: "center",
                       width: 120,
                       render: (value: string) => formatCurrency(value),
+                    },
+                    {
+                      title: "",
+                      width: 60,
+                      render: (value: string, item, index: number) => (
+                        <Button
+                          onClick={() => onDeleteItem(index)}
+                          className="product-item-delete"
+                          icon={<AiOutlineClose />}
+                        />
+                      ),
                     },
                   ]}
                   dataSource={items}
@@ -604,6 +655,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           >
                             {formatCurrency(POUtils.totalAmount(items))}
                           </Table.Summary.Cell>
+                          <Table.Summary.Cell index={3} colSpan={1} />
                         </Table.Summary.Row>
                       </Table.Summary>
                     )
@@ -653,13 +705,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   );
                 }}
               </Form.Item>
-              <Form.Item name="discount_rate" hidden  noStyle>
+              <Form.Item name="discount_rate" hidden noStyle>
                 <Input />
               </Form.Item>
-              <Form.Item name="discount_value" hidden  noStyle>
+              <Form.Item name="discount_value" hidden noStyle>
                 <Input />
               </Form.Item>
-              <Form.Item name="total_discount" hidden  noStyle>
+              <Form.Item name="total_discount" hidden noStyle>
                 <Input />
               </Form.Item>
               <Form.Item
@@ -737,7 +789,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
 
               <Divider className="margin-top-5 margin-bottom-5" />
 
-              <Form.Item name="total_payment" hidden  noStyle>
+              <Form.Item name="total_payment" hidden noStyle>
                 <Input />
               </Form.Item>
               <Form.Item
