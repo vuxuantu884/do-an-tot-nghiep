@@ -1,7 +1,7 @@
 import { AppConfig } from "config/AppConfig";
 import { Type } from "config/TypeConfig";
 import { VariantResponse } from "model/product/product.model";
-import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
+import { PurchaseOrderLineItem, Vat } from "model/purchase-order/purchase-item.model";
 import { Products } from "./AppUtils";
 
 const POUtils = {
@@ -140,6 +140,40 @@ const POUtils = {
       return price - discount_value;
     }
     return price;
+  },
+  getVatList: (data: Array<PurchaseOrderLineItem>): Array<Vat> => {
+    let result: Array<Vat> = [];
+    data.forEach((item) => {
+      if(item.tax > 0) {
+        let index = result.findIndex((vatItem) => vatItem.value === item.tax);
+        let amountTax = item.line_amount_after_line_discount * item.tax / 100;
+        if(index === -1) {
+          result.push({
+            value: item.tax,
+            amount: amountTax,
+          })
+        } else {
+          result[index].amount = result[index].amount + amountTax;
+        }
+      }
+    })
+    return result;
+  },
+  getTotalDiscount: (total: number, rate: number|null, value: number|null): number => {
+    if(rate) {
+      return total * rate / 100;
+    }
+    if(value) {
+      return value;
+    }
+    return 0;
+  },
+  getTotalPayment: (total: number, total_discount: number, vats: Array<Vat>): number => {
+    let sum = total - total_discount;
+    vats.forEach((item) => {
+      sum = sum + item.amount;
+    })
+    return sum;
   }
 };
 

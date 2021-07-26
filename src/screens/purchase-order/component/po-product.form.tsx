@@ -23,7 +23,7 @@ import emptyProduct from "assets/icon/empty_products.svg";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
-import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
+import { PurchaseOrderLineItem, Vat } from "model/purchase-order/purchase-item.model";
 import React, { createRef, useCallback, useMemo } from "react";
 import { useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
@@ -33,9 +33,10 @@ import ProductItem from "./product-item";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency } from "utils/AppUtils";
-import PriceModal from "./price.modal";
+import PriceModal from "../model/price.modal";
 import { PoFormName } from "utils/Constants";
-import DiscountModal from "./discount.modal";
+import DiscountModal from "../model/discount.modal";
+import PickManyProductModal from "../model/pick-many-product.modal";
 
 const POProductForm: React.FC = () => {
   const dispatch = useDispatch();
@@ -45,6 +46,7 @@ const POProductForm: React.FC = () => {
   const product_units = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   );
+  const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [data, setData] = useState<Array<VariantResponse>>([]);
@@ -73,6 +75,8 @@ const POProductForm: React.FC = () => {
       let index = data.findIndex((item) => item.id.toString() === value);
       if (index !== -1) {
         let old_line_items = form.getFieldValue("line_items");
+        let discount_rate_total = form.getFieldValue("discount_rate");
+        let discount_value_total = form.getFieldValue("discount_value");
         let variants: Array<VariantResponse> = [data[index]];
         let new_items: Array<PurchaseOrderLineItem> = [
           ...POUtils.convertVariantToLineitem(variants),
@@ -82,7 +86,11 @@ const POProductForm: React.FC = () => {
           new_items,
           splitLine
         );
-        form.setFieldsValue({ line_items: new_line_items });
+        let total = POUtils.totalAmount(new_line_items);
+        let total_discount = POUtils.getTotalDiscount(total, discount_rate_total, discount_value_total);
+        let vats = POUtils.getVatList(new_line_items);
+        let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+        form.setFieldsValue({ line_items: new_line_items, total: total, vats: vats, total_discount: total_discount, total_payment: total_payment });
       }
       setData([]);
       setSearchValue("");
@@ -92,6 +100,8 @@ const POProductForm: React.FC = () => {
   const onQuantityChange = useCallback(
     (quantity, index) => {
       let data: Array<PurchaseOrderLineItem> = form.getFieldValue("line_items");
+      let discount_rate_total = form.getFieldValue("discount_rate");
+      let discount_value_total = form.getFieldValue("discount_value");
       let updateItem = POUtils.updateQuantityItem(
         data[index],
         data[index].price,
@@ -100,27 +110,28 @@ const POProductForm: React.FC = () => {
         quantity
       );
       data[index] = updateItem;
-      console.log(data);
       let total = POUtils.totalAmount(data);
-      console.log("total", total);
-      form.setFieldsValue({ line_items: [...data], total: total });
+      let vats = POUtils.getVatList(data);
+      let total_discount = POUtils.getTotalDiscount(total, discount_rate_total, discount_value_total);
+      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      form.setFieldsValue({ line_items: [...data], total: total, vats: vats, total_payment: total_payment, total_discount: total_discount });
     },
     [form]
   );
   const onPriceChange = useCallback(
     (price: number, type: string, discount: number, index) => {
       let data: Array<PurchaseOrderLineItem> = form.getFieldValue("line_items");
+      let discount_rate_total = form.getFieldValue("discount_rate");
+      let discount_value_total = form.getFieldValue("discount_value");
       let discount_rate = data[index].discount_rate;
       let discount_value = data[index].discount_value;
-      if (discount !== 0) {
-        if (type === "percent") {
-          discount_rate = discount;
-          discount_value = null;
-        }
-        if (type === "money") {
-          discount_rate = null;
-          discount_value = discount;
-        }
+      if (type === "percent") {
+        discount_rate = discount;
+        discount_value = null;
+      }
+      if (type === "money") {
+        discount_rate = null;
+        discount_value = discount;
       }
       let updateItem = POUtils.updateQuantityItem(
         data[index],
@@ -131,17 +142,74 @@ const POProductForm: React.FC = () => {
       );
       data[index] = updateItem;
       let total = POUtils.totalAmount(data);
-
-      form.setFieldsValue({ line_items: [...data], total: total });
+      let vats = POUtils.getVatList(data);
+      let total_discount = POUtils.getTotalDiscount(total, discount_rate_total, discount_value_total);
+      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      form.setFieldsValue({ line_items: [...data], total: total, vats: vats, total_discount: total_discount, total_payment: total_payment});
     },
     [form]
+  );
+  const onBillDiscountChange = useCallback(
+    (type: string, discount: number) => {
+      let data: Array<PurchaseOrderLineItem> = form.getFieldValue("line_items");
+      let discount_rate = form.getFieldValue("discount_rate");
+      let discount_value = form.getFieldValue("discount_value");
+      let total = form.getFieldValue("total");
+      if (type === "percent") {
+        discount_rate = discount;
+        discount_value = null;
+      }
+      if (type === "money") {
+        discount_rate = null;
+        discount_value = discount;
+      }
+      let total_discount = POUtils.getTotalDiscount(total, discount_rate, discount_value);
+      let vats = POUtils.getVatList(data);
+      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      form.setFieldsValue({
+        discount_rate: discount_rate,
+        discount_value: discount_value,
+        total_discount: total_discount,
+        total_payment: total_payment,
+        vats: vats,
+      });
+    },
+    [form]
+  );
+  const onPickManyProduct = useCallback(
+    (items: Array<VariantResponse>) => {
+      setVisibleManyProduct(false);
+      let old_line_items = form.getFieldValue("line_items");
+      let discount_rate = form.getFieldValue("discount_rate");
+      let discount_value = form.getFieldValue("discount_value");
+      let new_items: Array<PurchaseOrderLineItem> = [
+        ...POUtils.convertVariantToLineitem(items),
+      ];
+      let new_line_items = POUtils.addProduct(
+        old_line_items,
+        new_items,
+        splitLine
+      );
+      let total = POUtils.totalAmount(new_line_items);
+      let total_discount = POUtils.getTotalDiscount(total, discount_rate, discount_value);
+      let vats = POUtils.getVatList(new_line_items);
+      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      form.setFieldsValue({ line_items: new_line_items, total: total, vats: vats, total_payment: total_payment, total_discount: total_discount });
+    },
+    [form, splitLine]
   );
   const onVATChange = useCallback(
     (vat, index: number) => {
       let data: Array<PurchaseOrderLineItem> = form.getFieldValue("line_items");
+      let discount_rate = form.getFieldValue("discount_rate");
+      let discount_value = form.getFieldValue("discount_value");
       let updateItem = POUtils.updateVatItem(data[index], vat);
       data[index] = updateItem;
-      form.setFieldsValue({ line_items: [...data] });
+      let vats = POUtils.getVatList(data);
+      let total = POUtils.totalAmount(data);
+      let total_discount = POUtils.getTotalDiscount(total, discount_rate, discount_value);
+      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      form.setFieldsValue({ line_items: [...data], vats: vats, total: total, total_discount: total_discount, total_payment: total_payment});
     },
     [form]
   );
@@ -178,6 +246,8 @@ const POProductForm: React.FC = () => {
           discount_rate: null,
           discount_value: null,
           total_discount: 0,
+          total_payment: 0,
+          vats: [],
         }}
       >
         <Card
@@ -242,7 +312,12 @@ const POProductForm: React.FC = () => {
                   prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                 />
               </AutoComplete>
-              <Button style={{ width: 132, marginLeft: 10 }}>Chọn nhiều</Button>
+              <Button
+                onClick={() => setVisibleManyProduct(true)}
+                style={{ width: 132, marginLeft: 10 }}
+              >
+                Chọn nhiều
+              </Button>
             </Input.Group>
             <Form.Item
               style={{ padding: 0 }}
@@ -501,15 +576,6 @@ const POProductForm: React.FC = () => {
                     onChange={() => console.log(1)}
                     style={{ fontWeight: 500 }}
                   >
-                    Bỏ chiết khấu tự động
-                  </Checkbox>
-                </div>
-                <div className="payment-checkbox">
-                  <Checkbox
-                    className=""
-                    onChange={() => console.log(1)}
-                    style={{ fontWeight: 500 }}
-                  >
                     Giá đã bao gồm thuế VAT
                   </Checkbox>
                 </div>
@@ -560,6 +626,7 @@ const POProductForm: React.FC = () => {
                                   ? discount_value
                                   : discount_rate
                               }
+                              onChange={onBillDiscountChange}
                               type={type}
                             />
                           }
@@ -583,6 +650,24 @@ const POProductForm: React.FC = () => {
                     );
                   }}
                 </Form.Item>
+                <Form.Item
+                  shouldUpdate={(prevValues, curValues) =>
+                    prevValues.line_items !== curValues.line_items
+                  }
+                  noStyle
+                >
+                  {({ getFieldValue }) => {
+                    let vats = getFieldValue("vats");
+                    return vats.map((item: Vat) => (
+                      <div className="payment-row">
+                        <div>{`VAT (${item.value}%)`}</div>
+                        <div className="payment-row-result">
+                          {formatCurrency(item.amount)}
+                        </div>
+                      </div>
+                    ));
+                  }}
+                </Form.Item>
                 <Form.Item noStyle>
                   <div className="payment-row">
                     <div>Chi phí</div>
@@ -591,15 +676,32 @@ const POProductForm: React.FC = () => {
                 </Form.Item>
 
                 <Divider className="margin-top-5 margin-bottom-5" />
-                <Row className="payment-row" justify="space-between">
-                  <strong className="font-size-text">Tiền cần trả</strong>
-                  <strong className="text-success font-size-text"></strong>
-                </Row>
+                <Form.Item
+                  shouldUpdate={(prevValues, curValues) =>
+                    prevValues.total_payment !== curValues.total_payment
+                  }
+                  noStyle
+                >
+                  {({ getFieldValue }) => {
+                    let total_payment = getFieldValue("total_payment");
+                    return (
+                      <div className="payment-row">
+                        <strong className="font-size-text">Tiền cần trả</strong>
+                        <strong className="text-success font-size-text">{formatCurrency(total_payment)}</strong>
+                      </div>
+                    );
+                  }}
+                </Form.Item>
               </Col>
             </Row>
           </div>
         </Card>
       </Form>
+      <PickManyProductModal
+        onSave={onPickManyProduct}
+        onCancle={() => setVisibleManyProduct(false)}
+        visible={visibleManyProduct}
+      />
     </React.Fragment>
   );
 };

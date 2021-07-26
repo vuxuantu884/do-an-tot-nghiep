@@ -23,3 +23,8 @@ export interface PurchaseOrderLineItem{
     position: number|null,
     purchase_order_id: number|null,
 }
+
+export interface Vat {
+    value: number,
+    amount: number,
+}

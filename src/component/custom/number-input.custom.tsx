@@ -17,7 +17,8 @@ interface NumberInputProps {
   className?: string,
   min?: number,
   max?: number,
-  prefix?: React.ReactNode, 
+  prefix?: React.ReactNode,
+  autoFocus?: boolean 
 }
 
 const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
@@ -73,6 +74,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
         e.target.select();
       }}
       prefix={prefix}
+      autoFocus={props.autoFocus}
     />
   )
 }
