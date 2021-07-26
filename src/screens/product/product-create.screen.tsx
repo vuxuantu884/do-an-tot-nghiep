@@ -308,15 +308,17 @@ const ProductCreateScreen: React.FC = () => {
   };
   const imageCol = {
     title: "Ảnh",
-    dataIndex: "image",
+    dataIndex: "variant_images",
     render: (
       images: Array<VariantImage>,
       item: VariantRequestView,
       index: number
     ) => {
-      // let image = Products.findAvatar(images);
+      console.log(images);
+      let image = Products.findAvatar(images);
       return (
         <ImageProduct
+          path={image !== null ? image.url : null}
           onClick={() => {
             onClickUpload(item, index);
           }}
@@ -1263,6 +1265,14 @@ const ProductCreateScreen: React.FC = () => {
         }}
         visible={isVisibleUpload}
         variant={variant}
+        onSave={(variant_images) => {
+          let index = variants.findIndex((item) => item.sku === variant?.sku);
+          if(index !== -1) {
+            variants[index].variant_images = variant_images;
+          }
+          setVariants([...variants]);
+          setVisibleUpload(false);
+        }}
       />
       <ModalConfirm
         onCancel={() => {
