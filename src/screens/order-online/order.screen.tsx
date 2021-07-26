@@ -363,7 +363,6 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
-  console.log(orderAmount);
   const onFinish = (values: OrderRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();

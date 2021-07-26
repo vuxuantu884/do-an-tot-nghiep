@@ -206,7 +206,6 @@ const OrderDetail = () => {
       state.bootstrapReducer.data?.shipping_requirement
   );
   const stepsStatus = () => {
-    console.log(OrderDetail, FulFillmentStatus);
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
     }
@@ -1263,7 +1262,6 @@ const OrderDetail = () => {
                     <div className="payment-row">
                       <Checkbox
                         className="margin-bottom-15"
-                        onChange={() => console.log(1)}
                       >
                         Bỏ chiết khấu tự động
                       </Checkbox>
@@ -1271,7 +1269,6 @@ const OrderDetail = () => {
                     <div className="payment-row">
                       <Checkbox
                         className="margin-bottom-15"
-                        onChange={() => console.log(1)}
                       >
                         Không tính thuế VAT
                       </Checkbox>
@@ -1279,7 +1276,6 @@ const OrderDetail = () => {
                     <div className="payment-row">
                       <Checkbox
                         className="margin-bottom-15"
-                        onChange={() => console.log(1)}
                       >
                         Bỏ tích điểm tự động
                       </Checkbox>

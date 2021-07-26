@@ -127,8 +127,6 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     props.setPayments([...paymentData]);
   };
 
-  console.log(listPaymentMethod);
-
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);

@@ -137,7 +137,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
     total();
   };
-  console.log(items);
   const onChangePrice = (value: number | null, index: number) => {
     let _items = [...items];
     if (value !== null) {
@@ -570,7 +569,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       let indexSearch = resultSearchVariant.items.findIndex(
         (s) => s.id === newV
       );
-      console.log(indexSearch);
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
       if (r.id === newV) {
@@ -938,7 +936,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <div className="payment-row">
               <Checkbox
                 className=""
-                onChange={() => console.log(1)}
                 style={{ fontWeight: 500 }}
               >
                 Bỏ chiết khấu tự động
@@ -947,7 +944,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <div className="payment-row">
               <Checkbox
                 className=""
-                onChange={() => console.log(1)}
                 style={{ fontWeight: 500 }}
               >
                 Không tính thuế VAT
@@ -956,7 +952,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <div className="payment-row">
               <Checkbox
                 className=""
-                onChange={() => console.log(1)}
                 style={{ fontWeight: 500 }}
               >
                 Bỏ tích điểm tự động
