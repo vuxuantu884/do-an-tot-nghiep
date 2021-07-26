@@ -26,7 +26,16 @@ import {
 } from "domain/actions/content/content.action";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-
+const initPurchaseOrder = {
+  line_items: [],
+  price_type: "import_price",
+  total: 0,
+  discount_rate: null,
+  discount_value: null,
+  total_discount: 0,
+  total_payment: 0,
+  vats: [],
+};
 const POCreateScreen = () => {
   const collapse = useSelector(
     (state: RootReducerType) => state.appSettingReducer.collapse
@@ -84,45 +93,7 @@ const POCreateScreen = () => {
     },
     [createCallback, dispatch]
   );
-  const onProviderFinish = (name: string, { values, forms }: any) => {
-    debugger;
-    if (name === PoFormName.Main) {
-      const { formSupplier, formInfo, formPoProduct } = forms;
 
-      Promise.all([
-        formSupplier.validateFields(),
-        formInfo.validateFields(),
-        formPoProduct.validateFields(),
-      ])
-        .then((values) => {
-          let supplierInfo = formSupplier.getFieldsValue(true);
-          let poInfo = formInfo.getFieldsValue(true);
-          let productItem = formPoProduct.getFieldsValue(true);
-          let data: PurchaseOrder = {
-            ...supplierInfo,
-            ...poInfo,
-            ...productItem,
-          };
-          formMain.setFieldsValue(data);
-        })
-        .catch((result: any) => {
-          if (result.errorFields.length > 0) {
-            let elName = result.errorFields[0].name.join("_");
-            const elementError: any = document.querySelectorAll(
-              "[id$=" + elName + "]"
-            );
-            if (elementError.length > 0) {
-              elementError[0].focus();
-              const y =
-                elementError[0].getBoundingClientRect()?.top +
-                window.pageYOffset +
-                -250;
-              window.scrollTo({ top: y, behavior: "smooth" });
-            }
-          }
-        });
-    }
-  };
   useEffect(() => {
     dispatch(
       AccountSearchAction(
@@ -189,6 +160,7 @@ const POCreateScreen = () => {
           window.scrollTo({ top: y, behavior: "smooth" });
         }}
         onFinish={onFinish}
+        initialValues={initPurchaseOrder}
         layout="vertical"
       >
         <Row gutter={20} style={{ paddingBottom: 80 }}>
@@ -199,9 +171,9 @@ const POCreateScreen = () => {
               listDistrict={listDistrict}
               formMain={formMain}
             />
-            {/* <POProductForm />
+            <POProductForm formMain={formMain} />
             <POInventoryForm />
-            <POPaymentForm /> */}
+            <POPaymentForm />
           </Col>
           {/* Right Side */}
           <Col md={6}>

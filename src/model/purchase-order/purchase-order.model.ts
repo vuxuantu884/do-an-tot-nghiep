@@ -13,7 +13,7 @@ export interface PurchaseOrder {
   phone:string,
   billing_address: PurchaseAddress,
   supplier_address: PurchaseAddress,
-  lineItems: Array<PurchaseOrderLineItem>,
+  line_items: Array<PurchaseOrderLineItem>,
   note: string,
   tags: string,
   price_list_id: number,
