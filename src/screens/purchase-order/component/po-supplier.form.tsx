@@ -10,6 +10,7 @@ import {
   Row,
   Divider,
   Col,
+  FormInstance,
 } from "antd";
 
 import {
@@ -33,26 +34,30 @@ import { PurchaseAddress } from "model/purchase-order/purchase-address.model";
 import EditAddressModal from "../model/edit-address";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import {
-  CountryGetAllAction,
-  DistrictGetByCountryAction,
-} from "domain/actions/content/content.action";
 import { AddressType, PoFormName, VietNamId } from "utils/Constants";
 import SupplierAddModal from "screens/supllier/modal/supplier-add-modal.screen";
 
 import { createRef } from "react";
 import { RefSelectProps } from "antd/lib/select";
-const SupplierInfo = () => {
+type SupplierInfoProps = {
+  listCountries: Array<CountryResponse>;
+  listDistrict: Array<DistrictResponse>;
+  formMain: FormInstance;
+};
+const SupplierInfo: React.FC<SupplierInfoProps> = (
+  props: SupplierInfoProps
+) => {
+  const { formMain, listCountries, listDistrict } = props;
   const [data, setData] = useState<Array<SupplierResponse>>([]);
-  const [formSupplier] = Form.useForm();
+  // const [formSupplier] = Form.useForm();
   const autoRef = createRef<RefSelectProps>();
   const dispatch = useDispatch();
   const [keySearchSupplier, setKeySearchSupplier] = useState("");
   const [isVisibleAddressModal, setVisibleAddressModal] = useState(false);
   const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] =
     useState(false);
-  const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
-  const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
+  // const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
+  // const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const onResult = useCallback((result: PageResponse<SupplierResponse>) => {
     setData(result.items);
   }, []);
@@ -83,7 +88,7 @@ const SupplierInfo = () => {
   const onSelect = useCallback(
     (value: string) => {
       setKeySearchSupplier("");
-
+      debugger;
       let index = data.findIndex((item) => item.id.toString() === value);
       var supplier = data[index];
       let supplierAddress: PurchaseAddress = {
@@ -99,7 +104,7 @@ const SupplierInfo = () => {
         district: supplier.district_name,
         full_address: supplier.address,
       };
-      formSupplier.setFieldsValue({
+      formMain.setFieldsValue({
         supplier_id: value,
         supplier: data[index].name,
         billing_address: supplierAddress,
@@ -107,17 +112,17 @@ const SupplierInfo = () => {
       });
       setIsSelectSupplier(true);
     },
-    [data, formSupplier]
+    [data, formMain]
   );
   const removeSupplier = useCallback(() => {
-    formSupplier.setFieldsValue({
+    formMain.setFieldsValue({
       supplier_id: undefined,
       supplier: null,
       billing_address: null,
       supplier_address: null,
     });
     setIsSelectSupplier(false);
-  }, [formSupplier]);
+  }, [formMain]);
   const renderResult = useMemo(() => {
     let options: any[] = [];
     data.forEach((item: SupplierResponse, index: number) => {
@@ -151,7 +156,7 @@ const SupplierInfo = () => {
         district: supplierItem.district_name,
         full_address: supplierItem.address,
       };
-      formSupplier.setFieldsValue({
+      formMain.setFieldsValue({
         supplier_id: supplierItem.id,
         supplier: supplierItem.name,
         billing_address: supplierAddress,
@@ -160,139 +165,281 @@ const SupplierInfo = () => {
       setIsSelectSupplier(true);
       setVisibleSupplierAddModal(false);
     },
-    [formSupplier]
+    [formMain]
   );
 
   const OkAddressModal = useCallback(
     (addressUpdate: PurchaseAddress, addressType: string) => {
       if (addressType === AddressType.SUPPLIERADDRESS) {
-        formSupplier.setFieldsValue({
+        formMain.setFieldsValue({
           supplier_address: addressUpdate,
         });
       }
       if (addressType === AddressType.BILLADDRESS) {
-        formSupplier.setFieldsValue({
+        formMain.setFieldsValue({
           billing_address: addressUpdate,
         });
       }
       setVisibleAddressModal(false);
     },
-    [formSupplier]
+    [formMain]
   );
 
-  useEffect(() => {
-    dispatch(CountryGetAllAction(setCountries));
-    dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
-  }, [dispatch, setListDistrict]);
+  // useEffect(() => {
+  //   dispatch(CountryGetAllAction(setCountries));
+  //   dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
+  // }, [dispatch, setListDistrict]);
 
   return (
     <div className="supplier">
-      <Form form={formSupplier} name={PoFormName.Supplier} layout="vertical">
-        <Card
-          className="po-form"
-          title={
-            <div className="d-flex">
-              <span className="title-card">THÔNG TIN NHÀ CUNG CẤP</span>
-            </div>
-          }
-        >
-          <div className="padding-10">
-            <Form.Item
-              shouldUpdate={(prevValues, curValues) =>
-                prevValues.supplier_id !== curValues.supplier_id
-              }
-              className="margin-bottom-0"
-            >
-              {({ getFieldValue }) => {
-                let supplier_id = getFieldValue("supplier_id");
-                let supplier: string = getFieldValue("supplier");
-                return supplier_id ? (
-                  <div>
-                    <Row
-                      align="middle"
-                      justify="space-between"
-                      className="row-customer-detail"
-                    >
-                      <Space>
-                        <Avatar src={avatarDefault} />
-                        <Link
-                          to="#"
-                          className="primary"
-                          style={{ fontSize: "16px" }}
-                        >
-                          {supplier}
-                        </Link>
-                        <Button
-                          className="icon-information-delete"
-                          onClick={removeSupplier}
-                          icon={<AiOutlineClose />}
-                        />
-                      </Space>
-                      <Space className="customer-detail-action">
-                        <Button
-                          type="text"
-                          className="p-0 ant-btn-custom"
-                          icon={<EditOutlined style={{ fontSize: "24px" }} />}
-                        ></Button>
-                      </Space>
-                    </Row>
-                    <Divider
-                      className="margin-0"
-                      style={{ padding: 0, marginBottom: 0 }}
-                    />
-                  </div>
-                ) : (
-                  <AutoComplete
-                    ref={autoRef}
-                    notFoundContent={
-                      keySearchSupplier.length >= 3
-                        ? "Không tìm thấy nhà cung cấp"
-                        : undefined
-
-                      // <div>
-                      //   <AddItem
-                      //     title="Thêm mới nhà cung cấp"
-                      //     onClick={() => setVisibleSupplierAddModal(true)}
-                      //   />
-                      //   ,<div>Không tìm thấy nhà cung cấp</div>
-                      // </div>
-                    }
-                    // onDropdownVisibleChange={AutoCompleteVisible}
-                    onSearch={onSupplierSearchChange}
-                    value={keySearchSupplier}
-                    style={{ width: "100%" }}
-                    dropdownClassName="supplier"
-                    dropdownRender={(menu) => (
-                      <div className="dropdown-custom">
-                        <Button
-                          icon={<AiOutlinePlusCircle size={24} />}
-                          className="dropdown-add-new"
-                          type="link"
-                          onClick={() => {
-                            setVisibleSupplierAddModal(true);
-                          }}
-                        >
-                          {/* <PlusCircleOutlined /> */}
-                          Thêm mới nhà cung cấp
-                        </Button>
-                        {menu}
-                      </div>
-                    )}
-                    onSelect={onSelect}
-                    options={renderResult}
+      <Card
+        className="po-form"
+        title={
+          <div className="d-flex">
+            <span className="title-card">THÔNG TIN NHÀ CUNG CẤP</span>
+          </div>
+        }
+      >
+        <div className="padding-10">
+          <Form.Item
+            shouldUpdate={(prevValues, curValues) =>
+              prevValues.supplier_id !== curValues.supplier_id
+            }
+            className="margin-bottom-0"
+          >
+            {({ getFieldValue }) => {
+              let supplier_id = getFieldValue("supplier_id");
+              let supplier: string = getFieldValue("supplier");
+              return supplier_id ? (
+                <div>
+                  <Row
+                    align="middle"
+                    justify="space-between"
+                    className="row-customer-detail"
                   >
-                    <Input
-                      placeholder="Tìm hoặc thêm nhà cung cấp... (F4)"
-                      className="border-input"
-                      prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                    />
-                  </AutoComplete>
-                );
-              }}
-            </Form.Item>
-            {isSelectSupplier === true && (
-              <div>
-                <div className="padding-lef-right">
+                    <Space>
+                      <Avatar src={avatarDefault} />
+                      <Link
+                        to="#"
+                        className="primary"
+                        style={{ fontSize: "16px" }}
+                      >
+                        {supplier}
+                      </Link>
+                      <Button
+                        className="icon-information-delete"
+                        onClick={removeSupplier}
+                        icon={<AiOutlineClose />}
+                      />
+                    </Space>
+                    <Space className="customer-detail-action">
+                      <Button
+                        type="text"
+                        className="p-0 ant-btn-custom"
+                        icon={<EditOutlined style={{ fontSize: "24px" }} />}
+                      ></Button>
+                    </Space>
+                  </Row>
+                  <Divider
+                    className="margin-0"
+                    style={{ padding: 0, marginBottom: 0 }}
+                  />
+                </div>
+              ) : (
+                <AutoComplete
+                  ref={autoRef}
+                  notFoundContent={
+                    keySearchSupplier.length >= 3
+                      ? "Không tìm thấy nhà cung cấp"
+                      : undefined
+
+                    // <div>
+                    //   <AddItem
+                    //     title="Thêm mới nhà cung cấp"
+                    //     onClick={() => setVisibleSupplierAddModal(true)}
+                    //   />
+                    //   ,<div>Không tìm thấy nhà cung cấp</div>
+                    // </div>
+                  }
+                  // onDropdownVisibleChange={AutoCompleteVisible}
+                  onSearch={onSupplierSearchChange}
+                  value={keySearchSupplier}
+                  style={{ width: "100%" }}
+                  dropdownClassName="supplier"
+                  dropdownRender={(menu) => (
+                    <div className="dropdown-custom">
+                      <Button
+                        icon={<AiOutlinePlusCircle size={24} />}
+                        className="dropdown-add-new"
+                        type="link"
+                        onClick={() => {
+                          setVisibleSupplierAddModal(true);
+                        }}
+                      >
+                        {/* <PlusCircleOutlined /> */}
+                        Thêm mới nhà cung cấp
+                      </Button>
+                      {menu}
+                    </div>
+                  )}
+                  onSelect={onSelect}
+                  options={renderResult}
+                >
+                  <Input
+                    placeholder="Tìm hoặc thêm nhà cung cấp... (F4)"
+                    className="border-input"
+                    prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                  />
+                </AutoComplete>
+              );
+            }}
+          </Form.Item>
+          {isSelectSupplier === true && (
+            <div>
+              <Form.Item hidden name="supplier_id">
+                <Input />
+              </Form.Item>
+              <Form.Item hidden name="supplier">
+                <Input />
+              </Form.Item>
+              <Form.Item hidden name="billing_address">
+                <Input />
+              </Form.Item>
+              <Form.Item hidden name="supplier_address">
+                <Input />
+              </Form.Item>
+              <div className="padding-lef-right">
+                <Row gutter={24}>
+                  <Col
+                    xs={24}
+                    lg={12}
+                    style={{
+                      borderRight: "1px solid #E5E5E5",
+                      paddingTop: "14px",
+                    }}
+                    className="font-weight-500 customer-info-left"
+                  >
+                    <Form.Item
+                      className="margin-bottom-0"
+                      shouldUpdate={(prevValues, curValues) =>
+                        prevValues.supplier_id !== null &&
+                        curValues.supplier_id !== null &&
+                        prevValues.supplier_id !== undefined &&
+                        curValues.supplier_id !== undefined
+                      }
+                    >
+                      {({ getFieldValue }) => {
+                        let supplier_id = getFieldValue("supplier_id");
+                        let supplier_address: PurchaseAddress =
+                          getFieldValue("supplier_address");
+                        return supplier_id ? (
+                          <div>
+                            <div className="title-address">
+                              Địa chỉ xuất hàng
+                            </div>
+                            <Row className="customer-row-info">
+                              <span style={{ fontWeight: 500 }}>
+                                <img
+                                  src={addressIcon}
+                                  alt=""
+                                  style={{
+                                    width: "18px",
+                                    height: "18px",
+                                  }}
+                                />{" "}
+                                {supplier_address.name !== null
+                                  ? supplier_address.name
+                                  : "--"}
+                              </span>
+                            </Row>
+                            <Row className="customer-row-info">
+                              <span>
+                                <PhoneFilled />{" "}
+                                {supplier_address.phone !== ""
+                                  ? supplier_address.phone
+                                  : "--"}
+                              </span>
+                            </Row>
+                            <Row className="customer-row-info">
+                              <span>
+                                <EnvironmentFilled />{" "}
+                                {supplier_address.full_address !== ""
+                                  ? supplier_address.full_address
+                                  : "--"}
+                              </span>
+                            </Row>
+                            <Row className="customer-row-info">
+                              <span>
+                                {supplier_address.country !== ""
+                                  ? supplier_address.country
+                                  : ""}
+                                {supplier_address.city !== null
+                                  ? " - " + supplier_address.city
+                                  : ""}
+                                {supplier_address.district !== null
+                                  ? " - " + supplier_address.district
+                                  : ""}
+                                {supplier_address.ward !== null &&
+                                supplier_address.ward !== undefined
+                                  ? " - " + supplier_address.ward
+                                  : ""}
+                              </span>
+                            </Row>
+                            <Row>
+                              <Button
+                                type="link"
+                                className="btn-style"
+                                onClick={() =>
+                                  ShowEditAddressModal(
+                                    supplier_address,
+                                    AddressType.SUPPLIERADDRESS
+                                  )
+                                }
+                              >
+                                Thay đổi địa chỉ xuất hàng
+                              </Button>
+                            </Row>
+                          </div>
+                        ) : null;
+                      }}
+                    </Form.Item>
+                  </Col>
+                  <Col
+                    xs={24}
+                    lg={12}
+                    className="font-weight-500"
+                    style={{ paddingLeft: "34px", marginTop: "14px" }}
+                  >
+                    <Form.Item
+                      name="supplier_note"
+                      label={
+                        <label className="title-address">
+                          <img
+                            src={noteCustomer}
+                            alt=""
+                            style={{
+                              width: "20px",
+                              height: "20px",
+                              marginRight: "10px",
+                            }}
+                          />
+                          Ghi chú của khách
+                        </label>
+                      }
+                    >
+                      <Input.TextArea
+                        placeholder="Điền ghi chú"
+                        rows={4}
+                        maxLength={500}
+                        style={{ marginTop: "10px" }}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </div>
+              <div className="padding-lef-right">
+                <Divider style={{ padding: 0, margin: 0 }} />
+                <div className="send-order-box">
                   <Row gutter={24}>
                     <Col
                       xs={24}
@@ -314,12 +461,13 @@ const SupplierInfo = () => {
                       >
                         {({ getFieldValue }) => {
                           let supplier_id = getFieldValue("supplier_id");
-                          let supplier_address: PurchaseAddress =
-                            getFieldValue("supplier_address");
+                          let billing_address: PurchaseAddress =
+                            getFieldValue("billing_address");
+
                           return supplier_id ? (
                             <div>
                               <div className="title-address">
-                                Địa chỉ xuất hàng
+                                Địa chỉ nhận hóa đơn
                               </div>
                               <Row className="customer-row-info">
                                 <span style={{ fontWeight: 500 }}>
@@ -331,41 +479,41 @@ const SupplierInfo = () => {
                                       height: "18px",
                                     }}
                                   />{" "}
-                                  {supplier_address.name !== null
-                                    ? supplier_address.name
+                                  {billing_address.name !== null
+                                    ? billing_address.name
                                     : "--"}
                                 </span>
                               </Row>
                               <Row className="customer-row-info">
                                 <span>
                                   <PhoneFilled />{" "}
-                                  {supplier_address.phone !== ""
-                                    ? supplier_address.phone
+                                  {billing_address.phone !== ""
+                                    ? billing_address.phone
                                     : "--"}
                                 </span>
                               </Row>
                               <Row className="customer-row-info">
                                 <span>
                                   <EnvironmentFilled />{" "}
-                                  {supplier_address.full_address !== ""
-                                    ? supplier_address.full_address
+                                  {billing_address.full_address !== ""
+                                    ? billing_address.full_address
                                     : "--"}
                                 </span>
                               </Row>
                               <Row className="customer-row-info">
                                 <span>
-                                  {supplier_address.country !== ""
-                                    ? supplier_address.country
+                                  {billing_address.country !== ""
+                                    ? billing_address.country
                                     : ""}
-                                  {supplier_address.city !== null
-                                    ? " - " + supplier_address.city
+                                  {billing_address.city !== null
+                                    ? " - " + billing_address.city
                                     : ""}
-                                  {supplier_address.district !== null
-                                    ? " - " + supplier_address.district
+                                  {billing_address.district !== null
+                                    ? " - " + billing_address.district
                                     : ""}
-                                  {supplier_address.ward !== null &&
-                                  supplier_address.ward !== undefined
-                                    ? " - " + supplier_address.ward
+                                  {billing_address.ward !== null &&
+                                  billing_address.ward !== undefined
+                                    ? " - " + billing_address.ward
                                     : ""}
                                 </span>
                               </Row>
@@ -375,12 +523,12 @@ const SupplierInfo = () => {
                                   className="btn-style"
                                   onClick={() =>
                                     ShowEditAddressModal(
-                                      supplier_address,
-                                      AddressType.SUPPLIERADDRESS
+                                      billing_address,
+                                      AddressType.BILLADDRESS
                                     )
                                   }
                                 >
-                                  Thay đổi địa chỉ xuất hàng
+                                  Thay đổi địa chỉ xuất hóa đơn
                                 </Button>
                               </Row>
                             </div>
@@ -395,7 +543,7 @@ const SupplierInfo = () => {
                       style={{ paddingLeft: "34px", marginTop: "14px" }}
                     >
                       <Form.Item
-                        name="supplier_note"
+                        name={["billing_address", "email"]}
                         label={
                           <label className="title-address">
                             <img
@@ -407,163 +555,31 @@ const SupplierInfo = () => {
                                 marginRight: "10px",
                               }}
                             />
-                            Ghi chú của khách
+                            Email gửi hóa đơn
                           </label>
                         }
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng chọn ít nhất 1 danh mục",
+                          },
+                        ]}
                       >
-                        <Input.TextArea
-                          placeholder="Điền ghi chú"
-                          rows={4}
-                          maxLength={500}
+                        <Input
+                          placeholder="Điền email"
+                          maxLength={255}
                           style={{ marginTop: "10px" }}
                         />
                       </Form.Item>
                     </Col>
                   </Row>
                 </div>
-                <div className="padding-lef-right">
-                  <Divider style={{ padding: 0, margin: 0 }} />
-                  <div className="send-order-box">
-                    <Row gutter={24}>
-                      <Col
-                        xs={24}
-                        lg={12}
-                        style={{
-                          borderRight: "1px solid #E5E5E5",
-                          paddingTop: "14px",
-                        }}
-                        className="font-weight-500 customer-info-left"
-                      >
-                        <Form.Item
-                          className="margin-bottom-0"
-                          shouldUpdate={(prevValues, curValues) =>
-                            prevValues.supplier_id !== null &&
-                            curValues.supplier_id !== null &&
-                            prevValues.supplier_id !== undefined &&
-                            curValues.supplier_id !== undefined
-                          }
-                        >
-                          {({ getFieldValue }) => {
-                            let supplier_id = getFieldValue("supplier_id");
-                            let billing_address: PurchaseAddress =
-                              getFieldValue("billing_address");
-
-                            return supplier_id ? (
-                              <div>
-                                <div className="title-address">
-                                  Địa chỉ nhận hóa đơn
-                                </div>
-                                <Row className="customer-row-info">
-                                  <span style={{ fontWeight: 500 }}>
-                                    <img
-                                      src={addressIcon}
-                                      alt=""
-                                      style={{
-                                        width: "18px",
-                                        height: "18px",
-                                      }}
-                                    />{" "}
-                                    {billing_address.name !== null
-                                      ? billing_address.name
-                                      : "--"}
-                                  </span>
-                                </Row>
-                                <Row className="customer-row-info">
-                                  <span>
-                                    <PhoneFilled />{" "}
-                                    {billing_address.phone !== ""
-                                      ? billing_address.phone
-                                      : "--"}
-                                  </span>
-                                </Row>
-                                <Row className="customer-row-info">
-                                  <span>
-                                    <EnvironmentFilled />{" "}
-                                    {billing_address.full_address !== ""
-                                      ? billing_address.full_address
-                                      : "--"}
-                                  </span>
-                                </Row>
-                                <Row className="customer-row-info">
-                                  <span>
-                                    {billing_address.country !== ""
-                                      ? billing_address.country
-                                      : ""}
-                                    {billing_address.city !== null
-                                      ? " - " + billing_address.city
-                                      : ""}
-                                    {billing_address.district !== null
-                                      ? " - " + billing_address.district
-                                      : ""}
-                                    {billing_address.ward !== null &&
-                                    billing_address.ward !== undefined
-                                      ? " - " + billing_address.ward
-                                      : ""}
-                                  </span>
-                                </Row>
-                                <Row>
-                                  <Button
-                                    type="link"
-                                    className="btn-style"
-                                    onClick={() =>
-                                      ShowEditAddressModal(
-                                        billing_address,
-                                        AddressType.BILLADDRESS
-                                      )
-                                    }
-                                  >
-                                    Thay đổi địa chỉ xuất hóa đơn
-                                  </Button>
-                                </Row>
-                              </div>
-                            ) : null;
-                          }}
-                        </Form.Item>
-                      </Col>
-                      <Col
-                        xs={24}
-                        lg={12}
-                        className="font-weight-500"
-                        style={{ paddingLeft: "34px", marginTop: "14px" }}
-                      >
-                        <Form.Item
-                          name={["billing_address", "email"]}
-                          label={
-                            <label className="title-address">
-                              <img
-                                src={noteCustomer}
-                                alt=""
-                                style={{
-                                  width: "20px",
-                                  height: "20px",
-                                  marginRight: "10px",
-                                }}
-                              />
-                              Email gửi hóa đơn
-                            </label>
-                          }
-                          rules={[
-                            {
-                              required: true,
-                              message: "Vui lòng chọn ít nhất 1 danh mục",
-                            },
-                          ]}
-                        >
-                          <Input
-                            placeholder="Điền email"
-                            maxLength={255}
-                            style={{ marginTop: "10px" }}
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </div>
-                </div>
               </div>
-            )}
-          </div>
-        </Card>
-      </Form>
+            </div>
+          )}
+        </div>
+      </Card>
+
       <EditAddressModal
         visible={isVisibleAddressModal}
         listCountry={listCountries}
