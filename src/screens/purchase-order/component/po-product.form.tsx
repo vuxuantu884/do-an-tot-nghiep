@@ -38,10 +38,8 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency } from "utils/AppUtils";
 import PriceModal from "../model/price.modal";
-import { PoFormName } from "utils/Constants";
 import DiscountModal from "../model/discount.modal";
 import PickManyProductModal from "../model/pick-many-product.modal";
-import form from "antd/lib/form";
 type POProductProps = {
   formMain: FormInstance;
 };
@@ -374,6 +372,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               Chọn nhiều
             </Button>
           </Input.Group>
+          <Form.Item noStyle name="line_items" hidden>
+            <Input />
+          </Form.Item> 
           <Form.Item
             style={{ padding: 0 }}
             className="margin-top-20"
@@ -652,6 +653,15 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   );
                 }}
               </Form.Item>
+              <Form.Item name="discount_rate" hidden  noStyle>
+                <Input />
+              </Form.Item>
+              <Form.Item name="discount_value" hidden  noStyle>
+                <Input />
+              </Form.Item>
+              <Form.Item name="total_discount" hidden  noStyle>
+                <Input />
+              </Form.Item>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues.total_discount !== curValues.total_discount
@@ -702,7 +712,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               </Form.Item>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
-                  prevValues.line_items !== curValues.line_items
+                  prevValues.vats !== curValues.vats
                 }
                 noStyle
               >
@@ -726,6 +736,10 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               </Form.Item>
 
               <Divider className="margin-top-5 margin-bottom-5" />
+
+              <Form.Item name="total_payment" hidden  noStyle>
+                <Input />
+              </Form.Item>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues.total_payment !== curValues.total_payment
