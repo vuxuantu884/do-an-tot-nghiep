@@ -9,6 +9,8 @@ export interface PurchaseOrder {
   code: string,
   supplier_id: number,
   supplier: string,
+  supplier_note:string,
+  phone:string,
   billing_address: PurchaseAddress,
   supplier_address: PurchaseAddress,
   lineItems: Array<PurchaseOrderLineItem>,

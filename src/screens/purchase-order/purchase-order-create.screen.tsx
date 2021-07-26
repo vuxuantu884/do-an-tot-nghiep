@@ -17,6 +17,8 @@ import { useHistory } from "react-router-dom";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { PoFormName } from "utils/Constants";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import { PoCreateAction } from "domain/actions/po/po.action";
+import { showSuccess } from "utils/ToastUtils";
 
 const POCreateScreen = () => {
   const collapse = useSelector(
@@ -24,10 +26,12 @@ const POCreateScreen = () => {
   );
   const dispatch = useDispatch();
   const history = useHistory();
+  const [formMain] = Form.useForm();
   const [isLoading, setLoading] = useState<boolean>(true);
   const [winAccount, setWinAccount] = useState<Array<AccountResponse>>([]);
   const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  const [loadingSaveButton, setLoadingSaveButton] = useState(false);
   const onResultRD = useCallback((data: PageResponse<AccountResponse>) => {
     setRDAccount(data.items);
     setLoading(false);
@@ -52,6 +56,21 @@ const POCreateScreen = () => {
       setIsShowBillStep(false);
     }
   }, []);
+  const createCallback = useCallback(
+    (result: PurchaseOrder) => {
+      if (result) {
+        showSuccess("Thêm mới dữ liệu thành công");
+        history.push(UrlConfig.PURCHASE_ORDER);
+      } else {
+        setLoadingSaveButton(false);
+      }
+    },
+    [history]
+  );
+  const onFinish = useCallback((data: PurchaseOrder) => {
+    setLoadingSaveButton(true);
+    dispatch(PoCreateAction(data, createCallback));
+  }, []);
   const onProviderFinish = (name: string, { values, forms }: any) => {
     debugger;
     if (name === PoFormName.Main) {
@@ -60,15 +79,18 @@ const POCreateScreen = () => {
       Promise.all([
         formSupplier.validateFields(),
         formInfo.validateFields(),
-        formPoProduct.validateFields()
+        formPoProduct.validateFields(),
       ])
         .then((values) => {
           let supplierInfo = formSupplier.getFieldsValue(true);
           let poInfo = formInfo.getFieldsValue(true);
           let productItem = formPoProduct.getFieldsValue(true);
-          let data:PurchaseOrder={...supplierInfo,...poInfo,...productItem}
-          console.log("PO");
-          console.log(data);
+          let data: PurchaseOrder = {
+            ...supplierInfo,
+            ...poInfo,
+            ...productItem,
+          };
+          formMain.setFieldsValue(data);
         })
         .catch((result: any) => {
           if (result.errorFields.length > 0) {
@@ -153,7 +175,7 @@ const POCreateScreen = () => {
             <POInfoForm winAccount={winAccount} rdAccount={rdAccount} />
           </Col>
         </Row>
-        <Form name={PoFormName.Main}>
+        <Form name={PoFormName.Main} form={formMain} onFinish={onFinish}>
           <Row
             gutter={24}
             className="margin-top-10 "
@@ -202,6 +224,7 @@ const POCreateScreen = () => {
                 type="primary"
                 htmlType="submit"
                 className="create-button-custom"
+                loading={loadingSaveButton}
               >
                 Lưu
               </Button>

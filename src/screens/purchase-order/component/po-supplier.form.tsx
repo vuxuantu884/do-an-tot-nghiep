@@ -395,7 +395,7 @@ const SupplierInfo = () => {
                       style={{ paddingLeft: "34px", marginTop: "14px" }}
                     >
                       <Form.Item
-                        name="customer_note"
+                        name="supplier_note"
                         label={
                           <label className="title-address">
                             <img
