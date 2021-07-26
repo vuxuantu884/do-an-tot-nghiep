@@ -562,9 +562,7 @@ const OrderDetail = () => {
   const confirmExportAndFinishValue = () => {
     if (takeMoneyHelper) {
       return formatCurrency(takeMoneyHelper);
-    } else if (
-      OrderDetail?.total && OrderDetail?.total_paid
-    ) {
+    } else if (OrderDetail?.total && OrderDetail?.total_paid) {
       return formatCurrency(
         OrderDetail?.total +
           (shippingFeeInformedCustomer !== null
@@ -572,8 +570,8 @@ const OrderDetail = () => {
             : 0) -
           (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
       );
-    }else if(OrderDetail?.total){
-      return formatCurrency(OrderDetail?.total)
+    } else if (OrderDetail?.total) {
+      return formatCurrency(OrderDetail?.total);
     }
   };
   //#region shiment
@@ -1748,6 +1746,9 @@ const OrderDetail = () => {
                               style={{ width: "100%" }}
                               className="r-5 w-100 ip-search"
                               placeholder="Chọn ngày giao"
+                              disabledDate={(current: any) =>
+                                current && current.valueOf() < Date.now()
+                              }
                             />
                           </Form.Item>
                         </Col>
@@ -2543,24 +2544,3 @@ const OrderDetail = () => {
 
 export default OrderDetail;
 
-// ${
-//   customerNeedToPayValue -
-//   (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-//     ? `với tiền thu hộ là: ` +
-//       formatCurrency(
-//         customerNeedToPayValue -
-//           (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-//       )
-//     : ""
-// } không?`
-
-// ${
-//   customerNeedToPayValue -
-//   (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-//     ? ` với tiền thu hộ là: ` +
-//       formatCurrency(
-//         customerNeedToPayValue -
-//           (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
-//       )
-//     : ""
-// } không?
