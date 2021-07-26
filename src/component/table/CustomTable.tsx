@@ -139,13 +139,16 @@ const CustomTable = (props: ICustomTableProps) => {
   return (
     <div className="custom-table">
       <ANTTable
+        bordered
         {...props}
         rowSelection={{
           type: "checkbox",
           onSelect: onSelect,
           onSelectAll: onSelectAll,
         }}
-        columns={showColumnSetting ? columns?.concat(configSettingColumns) : columns}
+        columns={
+          showColumnSetting ? columns?.concat(configSettingColumns) : columns
+        }
         locale={locale}
         loading={
           isLoading
@@ -161,9 +164,8 @@ const CustomTable = (props: ICustomTableProps) => {
             : false
         }
         pagination={false}
-        // scroll={{ y: 700 }} 
-         size="middle"
-         bordered
+        // scroll={{ y: 700 }}
+        size="middle"
       />
       {pagination && (
         <div className="custom-table-pagination">
@@ -172,73 +174,73 @@ const CustomTable = (props: ICustomTableProps) => {
               {showTotal(pagination)}
             </span>
           </div>
-          
-            <div className="custom-table-pagination-right">
-              {pagination.showSizeChanger && (
-                <div className="custom-table-pagination-size-change">
-                  <label htmlFor="custom-pagination-size-changer">
-                    Hiển thị số dòng:{" "}
-                  </label>
-                  <Select
-                    value={pagination.pageSize}
-                    id="custom-pagination-size-changer"
-                    onChange={(value: number) =>
-                      handleSizeChanger(pagination, value)
-                    }
-                  >
-                    {pagination &&
-                      PageConfig.map((size) => (
-                        <Select.Option key={size} value={size}>
-                          {size}
-                        </Select.Option>
-                      ))}
-                  </Select>
-                </div>
-              )}
-              <div className="custom-table-pagination-container">
-                <li
-                  title="Trang đầu"
-                  className={classNames(
-                    "ant-pagination-prev",
-                    pagination.current &&
-                      pagination.current === 1 &&
-                      "ant-pagination-disabled"
-                  )}
+
+          <div className="custom-table-pagination-right">
+            {pagination.showSizeChanger && (
+              <div className="custom-table-pagination-size-change">
+                <label htmlFor="custom-pagination-size-changer">
+                  Hiển thị số dòng:{" "}
+                </label>
+                <Select
+                  value={pagination.pageSize}
+                  id="custom-pagination-size-changer"
+                  onChange={(value: number) =>
+                    handleSizeChanger(pagination, value)
+                  }
                 >
-                  <button
-                    onClick={() => handleLastNextPage(pagination, 0)}
-                    className="ant-pagination-item-link"
-                    type="button"
-                  >
-                    <DoubleLeftOutlined />
-                  </button>
-                </li>
-                <Pagination
-                  total={pagination.total}
-                  current={pagination.current}
-                  pageSize={pagination.pageSize}
-                  onChange={pagination.onChange}
-                  showSizeChanger={false}
-                />
-                <li
-                  title="Trang cuối"
-                  className={classNames(
-                    "ant-pagination-prev",
-                    pagination.current &&
-                      pagination.current === totalPage &&
-                      "ant-pagination-disabled"
-                  )}
-                >
-                  <button
-                    onClick={() => handleLastNextPage(pagination, 1)}
-                    className="ant-pagination-item-link"
-                    type="button"
-                  >
-                    <DoubleRightOutlined />
-                  </button>
-                </li>
+                  {pagination &&
+                    PageConfig.map((size) => (
+                      <Select.Option key={size} value={size}>
+                        {size}
+                      </Select.Option>
+                    ))}
+                </Select>
               </div>
+            )}
+            <div className="custom-table-pagination-container">
+              <li
+                title="Trang đầu"
+                className={classNames(
+                  "ant-pagination-prev",
+                  pagination.current &&
+                    pagination.current === 1 &&
+                    "ant-pagination-disabled"
+                )}
+              >
+                <button
+                  onClick={() => handleLastNextPage(pagination, 0)}
+                  className="ant-pagination-item-link"
+                  type="button"
+                >
+                  <DoubleLeftOutlined />
+                </button>
+              </li>
+              <Pagination
+                total={pagination.total}
+                current={pagination.current}
+                pageSize={pagination.pageSize}
+                onChange={pagination.onChange}
+                showSizeChanger={false}
+              />
+              <li
+                title="Trang cuối"
+                className={classNames(
+                  "ant-pagination-prev",
+                  pagination.current &&
+                    pagination.current === totalPage &&
+                    "ant-pagination-disabled"
+                )}
+              >
+                <button
+                  onClick={() => handleLastNextPage(pagination, 1)}
+                  className="ant-pagination-item-link"
+                  type="button"
+                >
+                  <DoubleRightOutlined />
+                </button>
+              </li>
             </div>
+          </div>
         </div>
       )}
     </div>
