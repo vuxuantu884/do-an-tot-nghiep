@@ -669,6 +669,7 @@ const OrderDetail = () => {
       );
     }
   };
+
   const customerNeedToPayValue = customerNeedToPay();
   // end
   return (
