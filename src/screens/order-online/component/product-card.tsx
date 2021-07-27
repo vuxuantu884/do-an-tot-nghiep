@@ -35,7 +35,7 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { showError, showSuccess } from "utils/ToastUtils";
 import NumberInput from "component/custom/number-input.custom";
-import PickDiscountModal from "./modal/PickDiscountModal";
+import PickDiscountModal from "../modal/PickDiscountModal";
 import {
   haveAccess,
   findPrice,
@@ -56,7 +56,7 @@ import emptyProduct from "assets/icon/empty_products.svg";
 import Xclosebtn from "assets/icon/X_close.svg";
 import addIcon from "assets/img/plus_1.svg";
 import { Type } from "config/TypeConfig";
-import AddGiftModal from "./modal/AddGiftModal";
+import AddGiftModal from "../modal/AddGiftModal";
 import { OrderItemDiscountModel } from "model/other/Order/order-model";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
