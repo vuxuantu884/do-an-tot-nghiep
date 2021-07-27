@@ -62,7 +62,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
-  const [maxPayment, setMaxpayment] = useState(0);
+
 
   const ListMaymentMethods = useMemo(() => {
     return listPaymentMethod.filter(
