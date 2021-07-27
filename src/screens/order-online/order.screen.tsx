@@ -51,6 +51,7 @@ import {
 } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
 import SearchOutlined from "@ant-design/icons";
+import SubStatusOrder from "component/main-sidebar/sub-status-order";
 //#endregion
 
 var typeButton = "";
@@ -604,6 +605,7 @@ export default function Order() {
                   </Form.Item>
                 </div>
               </Card>
+              <SubStatusOrder />
               <Card
                 className="margin-top-20"
                 title={
