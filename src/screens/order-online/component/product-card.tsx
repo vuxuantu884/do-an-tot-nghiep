@@ -35,7 +35,7 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { showError, showSuccess } from "utils/ToastUtils";
 import NumberInput from "component/custom/number-input.custom";
-import PickDiscountModal from "./modal/PickDiscountModal";
+import PickDiscountModal from "../modal/pick-discount.modal";
 import {
   haveAccess,
   findPrice,
@@ -56,7 +56,7 @@ import emptyProduct from "assets/icon/empty_products.svg";
 import Xclosebtn from "assets/icon/X_close.svg";
 import addIcon from "assets/img/plus_1.svg";
 import { Type } from "config/TypeConfig";
-import AddGiftModal from "./modal/AddGiftModal";
+import AddGiftModal from "../modal/add-gift.modal";
 import { OrderItemDiscountModel } from "model/other/Order/order-model";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -137,7 +137,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
     total();
   };
-  console.log(items);
   const onChangePrice = (value: number | null, index: number) => {
     let _items = [...items];
     if (value !== null) {
@@ -570,7 +569,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       let indexSearch = resultSearchVariant.items.findIndex(
         (s) => s.id === newV
       );
-      console.log(indexSearch);
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
       if (r.id === newV) {
@@ -938,7 +936,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <div className="payment-row">
               <Checkbox
                 className=""
-                onChange={() => console.log(1)}
                 style={{ fontWeight: 500 }}
               >
                 Bỏ chiết khấu tự động
@@ -947,7 +944,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <div className="payment-row">
               <Checkbox
                 className=""
-                onChange={() => console.log(1)}
                 style={{ fontWeight: 500 }}
               >
                 Không tính thuế VAT
@@ -956,7 +952,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <div className="payment-row">
               <Checkbox
                 className=""
-                onChange={() => console.log(1)}
                 style={{ fontWeight: 500 }}
               >
                 Bỏ tích điểm tự động
