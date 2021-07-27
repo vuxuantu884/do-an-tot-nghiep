@@ -131,6 +131,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
                 placeholder="Chọn ngày giao"
+                disabledDate= {(current: any) => current && current.valueOf() < Date.now() }
               />
             </Form.Item>
           </Col>
