@@ -10,7 +10,7 @@ const POUtils = {
   ): Array<PurchaseOrderLineItem> => {
     let result: Array<PurchaseOrderLineItem> = [];
     variants.forEach((variant) => {
-      let newId = new Date().getTime();
+      let newId = `${variant.sku}${new Date().getTime()}`;
       let price_response = Products.findPrice(
         variant.variant_prices,
         AppConfig.import_price,
@@ -19,7 +19,6 @@ const POUtils = {
       let variant_image = Products.findAvatar(variant.variant_images);
       let price = price_response !== null ? price_response.price : 0;
       let newItem: PurchaseOrderLineItem = {
-        id: newId,
         sku: variant.sku,
         variant_id: variant.id,
         product_id: variant.product_id,
@@ -42,6 +41,7 @@ const POUtils = {
         discount_amount: 0,
         position: null,
         purchase_order_id: null,
+        temp_id: newId,
       };
       result.push(newItem);
     });

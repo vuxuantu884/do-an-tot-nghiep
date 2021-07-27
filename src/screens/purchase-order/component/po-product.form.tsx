@@ -38,9 +38,10 @@ import ProductItem from "./product-item";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency } from "utils/AppUtils";
-import PriceModal from "../model/price.modal";
-import DiscountModal from "../model/discount.modal";
-import PickManyProductModal from "../model/pick-many-product.modal";
+import PriceModal from "../modal/price.modal";
+import DiscountModal from "../modal/discount.modal";
+import PickManyProductModal from "../modal/pick-many-product.modal";
+import ExpenseModal from "../modal/expense.modal";
 type POProductProps = {
   formMain: FormInstance;
 };
@@ -53,6 +54,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+  const [visibleExpense, setVisibleExpense] = useState<boolean>(false);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [data, setData] = useState<Array<VariantResponse>>([]);
@@ -262,6 +264,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         new_items,
         splitLine
       );
+      console.log('new_line_items', new_line_items);
       let total = POUtils.totalAmount(new_line_items);
       let total_discount = POUtils.getTotalDiscount(
         total,
@@ -306,13 +309,17 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [formMain]
   );
-  const onNoteChange = useCallback((value: string, index: number) => {
-    let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue("line_items");
-    data[index].note = value;
-    formMain.setFieldsValue({
-      line_items: [...data],
-    });
-  }, [formMain])
+  const onNoteChange = useCallback(
+    (value: string, index: number) => {
+      let data: Array<PurchaseOrderLineItem> =
+        formMain.getFieldValue("line_items");
+      data[index].note = value;
+      formMain.setFieldsValue({
+        line_items: [...data],
+      });
+    },
+    [formMain]
+  );
   const onSearch = useCallback(
     (value: string) => {
       setSearchValue(value);
@@ -444,7 +451,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     ),
                   }}
                   rowKey={(record: PurchaseOrderLineItem) =>
-                    record.id?.toString()
+                    record.temp_id
                   }
                   columns={[
                     {
@@ -470,8 +477,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     {
                       title: "Sản phẩm",
                       width: "99%",
+                      className: "ant-col-info",
                       dataIndex: "variant",
-                      render: (value: string, item: PurchaseOrderLineItem, index: number) => (
+                      render: (
+                        value: string,
+                        item: PurchaseOrderLineItem,
+                        index: number
+                      ) => (
                         <div>
                           <div>
                             <div className="product-item-sku">{item.sku}</div>
@@ -479,9 +491,15 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           </div>
                           <Input
                             addonBefore={<EditOutlined />}
-                            className={classNames("product-item-note-input", item.note === '' && 'product-item-note')}
+                            className={classNames(
+                              "product-item-note-input",
+                              item.note === "" && "product-item-note"
+                            )}
+                            placeholder="Thêm ghi chú"
                             value={item.note}
-                            onChange={(e) => onNoteChange(e.target.value, index)}
+                            onChange={(e) =>
+                              onNoteChange(e.target.value, index)
+                            }
                           />
                         </div>
                       ),
@@ -586,7 +604,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           VAT
                         </div>
                       ),
-                      width: 140,
+                      width: 90,
                       dataIndex: "tax",
                       render: (value, item, index) => {
                         return (
@@ -619,7 +637,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                     {
                       title: "",
-                      width: 60,
+                      width: 40,
                       render: (value: string, item, index: number) => (
                         <Button
                           onClick={() => onDeleteItem(index)}
@@ -782,7 +800,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               </Form.Item>
               <Form.Item noStyle>
                 <div className="payment-row">
-                  <div>Chi phí</div>
+                  <Typography.Link
+                    onClick={() => setVisibleExpense(true)}
+                    style={{
+                      textDecoration: "underline",
+                      textDecorationColor: "#5D5D8A",
+                      color: "#5D5D8A",
+                    }}
+                  >
+                    Chi phí
+                  </Typography.Link>
                   <div className="payment-row-result">-</div>
                 </div>
               </Form.Item>
@@ -814,7 +841,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           </Row>
         </div>
       </Card>
-
+      <ExpenseModal visible={visibleExpense} onCancel={() => setVisibleExpense(false)} />
       <PickManyProductModal
         onSave={onPickManyProduct}
         onCancle={() => setVisibleManyProduct(false)}

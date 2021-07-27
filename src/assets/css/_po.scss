@@ -192,7 +192,10 @@
 }
 
 .product-table {
-  .ant-table-row:hover {
+  .ant-table-cell {
+    padding: 10px 5px !important;
+  }
+  .ant-col-info:hover {
     .product-item-note {
       display: inline-block;
     }
