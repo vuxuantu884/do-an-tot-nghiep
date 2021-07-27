@@ -15,8 +15,8 @@ import {
 import {
   OrderResponse,
 } from "model/response/order/order.response";
-import AddAddressModal from "../modal/AddAddressModal";
-import EditCustomerModal from "../modal/AddAddressModal";
+import AddAddressModal from "../modal/addAddressModal";
+import EditCustomerModal from "../modal/addAddressModal";
 import bithdayIcon from "assets/img/bithday.svg";
 import editBlueIcon from "assets/img/editBlue.svg";
 import pointIcon from "assets/img/point.svg";

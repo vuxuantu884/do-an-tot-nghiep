@@ -393,16 +393,25 @@ const OrderDetail = () => {
   const confirmExportAndFinishValue = () => {
     if (takeMoneyHelper) {
       return formatCurrency(takeMoneyHelper);
+    } else if (
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+    ) {
+      return formatCurrency(
+        OrderDetail?.fulfillments[0].shipment
+          .shipping_fee_informed_to_customer +
+          OrderDetail?.total_line_amount_after_line_discount +
+          shippingFeeInformedCustomer -
+          (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+      );
     } else if (OrderDetail?.total && OrderDetail?.total_paid) {
       return formatCurrency(
         OrderDetail?.total +
-          (shippingFeeInformedCustomer !== null
-            ? shippingFeeInformedCustomer
-            : 0) -
-          (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+          shippingFeeInformedCustomer -
+          OrderDetail?.total_paid
       );
-    } else if (OrderDetail?.total) {
-      return formatCurrency(OrderDetail?.total);
     }
   };
   //#region shiment
@@ -584,37 +593,26 @@ const OrderDetail = () => {
 
   // Thu hộ
   const takeHelper: any = () => {
-    if (takeMoneyHelper) {
-      return takeMoneyHelper;
-    } else if (totalPaid && OrderDetail?.total) {
-      return totalPaid === OrderDetail?.total
-        ? shippingFeeInformedCustomer
-        : (OrderDetail?.total ? OrderDetail?.total : 0) -
-            totalPaid +
-            shippingFeeInformedCustomer;
-    } else if (
-      OrderDetail?.total_line_amount_after_line_discount &&
-      shippingFeeInformedCustomer
-    ) {
-      return OrderDetail?.total_line_amount_after_line_discount +
-        shippingFeeInformedCustomer -
-        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) ===
-        0
-        ? shippingFeeInformedCustomer
-        : shippingFeeInformedCustomer +
-            OrderDetail?.total_line_amount_after_line_discount -
-            (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0);
-    } else if (
-      OrderDetail?.total_paid &&
-      OrderDetail?.total_line_amount_after_line_discount
+    if (
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].total
     ) {
       return (
-        OrderDetail?.total_line_amount_after_line_discount +
+        (OrderDetail?.fulfillments[0].total
+          ? OrderDetail?.fulfillments[0].total
+          : 0) +
         shippingFeeInformedCustomer -
-        OrderDetail?.total_paid
+        totalPaid -
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
       );
-    } else if (OrderDetail?.total_line_amount_after_line_discount) {
-      return OrderDetail?.total_line_amount_after_line_discount;
+    } else if (OrderDetail?.total) {
+      return (
+        (OrderDetail?.total ? OrderDetail?.total : 0) +
+        shippingFeeInformedCustomer -
+        totalPaid -
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+      );
     }
   };
   let takeHelperValue: any = takeHelper();
@@ -632,41 +630,25 @@ const OrderDetail = () => {
       return true;
     }
   };
+
+  console.log(OrderDetail);
   const isShowTakeHelper = showTakeHelper();
   // khách cần trả
   const customerNeedToPay: any = () => {
     if (
-      OrderDetail &&
-      OrderDetail?.total_line_amount_after_line_discount &&
       OrderDetail?.fulfillments &&
       OrderDetail?.fulfillments.length > 0 &&
       OrderDetail?.fulfillments[0].shipment &&
       OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
     ) {
       return (
+        OrderDetail?.fulfillments[0].shipment
+          .shipping_fee_informed_to_customer +
         OrderDetail?.total_line_amount_after_line_discount +
-        OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+        shippingFeeInformedCustomer
       );
-    } else if (
-      !shippingFeeInformedCustomer &&
-      OrderDetail?.total_discount &&
-      OrderDetail?.total_line_amount_after_line_discount
-    ) {
-      return OrderDetail?.total_line_amount_after_line_discount;
-    } else if (OrderDetail?.total_line_amount_after_line_discount) {
-      return (
-        OrderDetail?.total_line_amount_after_line_discount +
-        (shippingFeeInformedCustomer !== null ? shippingFeeInformedCustomer : 0)
-      );
-    } else if (
-      OrderDetail &&
-      OrderDetail?.total_line_amount_after_line_discount &&
-      OrderDetail?.shipping_fee_informed_to_customer
-    ) {
-      return (
-        OrderDetail?.total_line_amount_after_line_discount +
-        OrderDetail?.shipping_fee_informed_to_customer
-      );
+    } else if (OrderDetail?.total) {
+      return OrderDetail?.total + shippingFeeInformedCustomer;
     }
   };
   const customerNeedToPayValue = customerNeedToPay();
@@ -706,6 +688,7 @@ const OrderDetail = () => {
             <UpdateProductCard
               OrderDetail={OrderDetail}
               shippingFeeInformedCustomer={shippingFeeInformedCustomer}
+              customerNeedToPayValue={customerNeedToPayValue}
             />
             {/*--- end product ---*/}
 
@@ -1042,7 +1025,10 @@ const OrderDetail = () => {
                               format="DD/MM/YYYY HH:mm A"
                               style={{ width: "100%" }}
                               className="r-5 w-100 ip-search"
-                              placeholder="Chọn ngày giao"
+                              placeholder="dd/mm/yyyy"
+                              disabledDate={(current: any) =>
+                                current && current.valueOf() < Date.now()
+                              }
                             />
                           </Form.Item>
                         </Col>
@@ -1658,7 +1644,7 @@ const OrderDetail = () => {
               )}
 
             {/* Chưa thanh toán đơn nháp*/}
-            {OrderDetail !== null &&
+            {OrderDetail &&
               OrderDetail.payments?.length === 0 &&
               (OrderDetail.fulfillments?.length === 0 ||
                 (OrderDetail?.fulfillments &&
@@ -1809,7 +1795,7 @@ const OrderDetail = () => {
         title="Xác nhận xuất kho"
         text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? `với tiền thu hộ là ${confirmExportAndFinishValue()}`
+            ? "với tiền thu hộ là " + confirmExportAndFinishValue()
             : ""
         } không?`}
       />
@@ -1818,9 +1804,9 @@ const OrderDetail = () => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
         title="Xác nhận giao hàng thành công"
-        text={`Bạn có chắc muốn xác nhận đơn giao hàng này  ${
+        text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? `với tiền thu hộ là ${confirmExportAndFinishValue()}`
+            ? "với tiền thu hộ là " + confirmExportAndFinishValue()
             : ""
         } không?`}
       />

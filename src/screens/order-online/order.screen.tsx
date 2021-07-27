@@ -10,7 +10,7 @@ import {
   FormInstance,
   Select,
 } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { CustomerResponse } from "model/response/customer/customer.response";
@@ -50,7 +50,6 @@ import {
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
-import SearchOutlined from "@ant-design/icons";
 //#endregion
 
 var typeButton = "";
@@ -556,9 +555,13 @@ export default function Order() {
                   >
                     <Select
                       className="select-with-search"
-                      showSearch
                       notFoundContent="Không tìm thấy kết quả"
-                      placeholder="Tìm, chọn nhân viên"
+                      placeholder={
+                        <React.Fragment>
+                          <SearchOutlined />
+                          <span> Tìm, chọn nhân viên</span>
+                        </React.Fragment>
+                      }
                       filterOption={(input, option) => {
                         if (option) {
                           return (

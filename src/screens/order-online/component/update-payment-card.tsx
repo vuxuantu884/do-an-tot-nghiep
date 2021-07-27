@@ -685,17 +685,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                             onFocus={(e) => e.target.select()}
                           />
                         </Col>
-                        {/* <Col span={2} style={{ paddingLeft: 0 }}>
-                <Button
-                  type="text"
-                  className="p-0 m-0"
-                  onClick={() => {
-                    handlePickPaymentMethod(method.code);
-                  }}
-                >
-                  <img src={deleteIcon} alt="" />
-                </Button>
-              </Col> */}
                       </Row>
                     );
                   })}
