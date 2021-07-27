@@ -22,7 +22,6 @@ import {
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
 import {
-  OrderDiscountResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,

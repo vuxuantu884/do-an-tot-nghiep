@@ -13,7 +13,6 @@ import {
   Select,
   Space,
   Switch,
-  Table,
 } from 'antd';
 import {
   CountryGetAllAction,
@@ -51,7 +50,6 @@ import {AccountCreateAction} from 'domain/actions/account/account.action';
 import {StoreResponse} from 'model/core/store.model';
 import {RoleResponse, RoleSearchQuery} from 'model/auth/roles.model';
 import {RoleGetListAction} from 'domain/actions/auth/role.action';
-import deleteIcon from 'assets/icon/delete.svg';
 import moment from 'moment';
 import {DepartmentResponse} from 'model/account/department.model';
 import {PositionResponse} from 'model/account/position.model';
@@ -59,7 +57,6 @@ import {showSuccess} from 'utils/ToastUtils';
 import ContentContainer from 'component/container/content.container';
 import CustomDatepicker from 'component/custom/date-picker.custom';
 import UrlConfig from 'config/UrlConfig';
-import NumberInput from "../../component/custom/number-input.custom";
 
 const {Item, List} = Form;
 const {Option, OptGroup} = Select;
@@ -129,15 +126,15 @@ const AccountCreateScreen: React.FC = () => {
     },
     [formRef]
   );
-  const addNewJob = () => {
-    let listJob = [...listaccountJob];
-    listJob.push({
-      department_id: 0,
-      position_id: 0,
-      key: Number(moment().format('x')),
-    });
-    setAccountJob(listJob);
-  };
+  // const addNewJob = () => {
+  //   let listJob = [...listaccountJob];
+  //   listJob.push({
+  //     department_id: 0,
+  //     position_id: 0,
+  //     key: Number(moment().format('x')),
+  //   });
+  //   setAccountJob(listJob);
+  // };
   const onChangeDepartment = (e: any, key: number) => {
     let listJob = [...listaccountJob];
     listJob[key].department_id = e;
@@ -148,11 +145,11 @@ const AccountCreateScreen: React.FC = () => {
     listJob[key].position_id = e;
     setAccountJob(listJob);
   };
-  const onDeleteJob = (key: number) => {
-    let listJob = [...listaccountJob];
-    listJob.splice(key, 1);
-    setAccountJob(listJob);
-  };
+  // const onDeleteJob = (key: number) => {
+  //   let listJob = [...listaccountJob];
+  //   listJob.splice(key, 1);
+  //   setAccountJob(listJob);
+  // };
   const onSelectDistrict = useCallback(
     (value: number) => {
       let cityId = -1;
