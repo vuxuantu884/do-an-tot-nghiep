@@ -3,15 +3,13 @@ import { Card, Form, Input, Select } from "antd";
 import { AccountResponse } from "model/account/account.model";
 
 type POInfoFormProps = {
-  winAccount: Array<AccountResponse>,
-  rdAccount: Array<AccountResponse>,
-}
+  winAccount: Array<AccountResponse>;
+  rdAccount: Array<AccountResponse>;
+};
 
 const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
-  const [form] = Form.useForm();
-  
   return (
-    <Form layout="vertical" form={form} name="formInfo">
+    <div>
       <Card
         className="po-form"
         title={
@@ -31,11 +29,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             name="merchandiser_code"
             label="Merchandiser"
           >
-            <Select
-              showArrow
-              showSearch
-              placeholder="Chọn Merchandiser"
-            >
+            <Select showArrow showSearch placeholder="Chọn Merchandiser">
               <Select.Option value="">Chọn Merchandiser</Select.Option>
               {props.winAccount.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
@@ -45,11 +39,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             </Select>
           </Form.Item>
           <Form.Item name="qc_code" label="QC">
-            <Select
-              showArrow
-              showSearch
-              placeholder="Chọn QC"
-            >
+            <Select showArrow showSearch placeholder="Chọn QC">
               <Select.Option value="">Chọn QC</Select.Option>
               {props.rdAccount.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
@@ -92,7 +82,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
           </Form.Item>
         </div>
       </Card>
-    </Form>
+    </div>
   );
 };
 

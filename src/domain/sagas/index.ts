@@ -15,6 +15,7 @@ import { accountSaga } from "./account/account.saga";
 import customerSagas from "./customer/customer.saga";
 import { roleSaga } from "./auth/role.saga";
 import { permissionSaga } from "./auth/permission.saga";
+import { poSaga } from "./po/po.saga";
 function* rootSaga() {
   yield all([
     appSaga(),
@@ -33,6 +34,7 @@ function* rootSaga() {
     customerSagas(),
     roleSaga(),
     permissionSaga(),
+    poSaga(),
   ]);
 }
 

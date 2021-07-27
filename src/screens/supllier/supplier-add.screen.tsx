@@ -129,6 +129,7 @@ const CreateSupplierScreen: React.FC = () => {
 
   const onSelectDistrict = useCallback(
     (value: number) => {
+      debugger;
       let cityId = -1;
       listDistrict.forEach((item) => {
         if (item.id === value) {
@@ -136,18 +137,19 @@ const CreateSupplierScreen: React.FC = () => {
         }
       });
       if (cityId !== -1) {
-        formRef.current?.setFieldsValue({
+        formSupplier.setFieldsValue({
           city_id: cityId,
         });
       }
     },
-    [formRef, listDistrict]
+    [formSupplier, listDistrict]
   );
   const onCreateSuccess = useCallback(() => {
     history.push(`${UrlConfig.SUPPLIERS}`);
   }, [history]);
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
+      debugger;
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]
