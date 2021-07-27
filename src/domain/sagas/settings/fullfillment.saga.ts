@@ -1,37 +1,34 @@
-import { call, fork, put, takeLatest } from '@redux-saga/core/effects';
+import { call, put, takeLatest } from '@redux-saga/core/effects';
 import { YodyAction } from 'base/BaseAction';
 import BaseResponse from 'base/BaseResponse';
 import { HttpStatus } from 'config/HttpStatus';
 import { unauthorizedAction } from 'domain/actions/auth/auth.action';
-import { actionFetchList, actionFetchListFailed, actionFetchListSuccessful } from 'domain/actions/settings/fulfillment.action';
+import { actionFetchListFailed, actionFetchListSuccessful } from 'domain/actions/settings/fulfillment.action';
 import { SETTING_TYPES } from 'domain/types/settings.type';
 import { PageResponse } from 'model/base/base-metadata.response';
-import { CategoryResponse } from 'model/product/category.model';
 import { SizeResponse } from 'model/product/size.model';
-import { take } from 'redux-saga/effects';
-import {
-  getCategoryApi
-} from 'service/product/category.service';
-import { getAllSizeApi } from 'service/product/size.service';
+import { searchVariantsApi } from 'service/product/product.service';
 import { showError } from 'utils/ToastUtils';
 
 function* listAllSaga(action: YodyAction) {
   console.log('action', action)
+  const { params } = action.payload;
   try {
-    // const {query} = action.payload;
+    // const {params} = action.payload;
     // console.log('action', action)
     // console.log('22');
     /**
     * chỗ này phải sửa sau, đợi api
     */
      let response: BaseResponse<PageResponse<SizeResponse>> = yield call(
-      getAllSizeApi
+      searchVariantsApi, params
     );
     console.log('response', response)
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        yield put(actionFetchListSuccessful(response.data))
+        console.log('response.data.items',response.data.items)
+        yield put(actionFetchListSuccessful(response.data.items))
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());

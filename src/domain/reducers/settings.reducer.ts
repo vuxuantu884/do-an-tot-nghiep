@@ -1,13 +1,13 @@
-import { AppType } from 'domain/types/app.type';
-import { SETTING_TYPES } from 'domain/types/settings.type';
-import { AnyAction } from 'redux';
-import { setAppSetting } from 'utils/LocalStorageUtils';
+import { AppType } from "domain/types/app.type";
+import { SETTING_TYPES } from "domain/types/settings.type";
+import { AnyAction } from "redux";
+import { setAppSetting } from "utils/LocalStorageUtils";
 
 const initialState = {
   fulfillment: {
     list: [],
-  }
-}
+  },
+};
 
 const settingsReducer = (state = initialState, action: AnyAction) => {
   switch (action.type) {
@@ -15,19 +15,20 @@ const settingsReducer = (state = initialState, action: AnyAction) => {
       return {
         ...initialState,
         fulfillment: {
-          list: []
-        }
-      }
-      case SETTING_TYPES.fulfillment.listAllSuccessful:
+          list: [],
+        },
+      };
+    case SETTING_TYPES.fulfillment.listAllSuccessful:
+      console.log('action', action)
       return {
         ...initialState,
         fulfillment: {
-          list: action.payload
-        }
-      }
+          list: action.payload.data,
+        },
+      };
     default:
       return state;
   }
-}
+};
 
 export default settingsReducer;

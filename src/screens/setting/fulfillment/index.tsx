@@ -5,41 +5,64 @@ import ContentContainer from 'component/container/content.container';
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
 import UrlConfig from 'config/UrlConfig';
 import { actionFetchList } from 'domain/actions/settings/fulfillment.action';
-import { VariantResponse } from 'model/product/product.model';
-import { useEffect, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { VariantResponse, VariantSearchQuery } from 'model/product/product.model';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { generateQuery } from 'utils/AppUtils';
 
 
 const SettingFulfillment: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
   const dispatch = useDispatch();
+  const data = useSelector((state:any) => {
+    return state.settings.fulfillment.list;
+  });
+
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<VariantResponse>>>([
     {
       title: "Trạng thái xử lý",
-      dataIndex: "statusProcess",
+      dataIndex: "name",
       visible: true,
     },
     {
       title: "Trạng thái đơn hàng",
-      dataIndex: "statusFulfillment",
+      dataIndex: "color",
       visible: true,
     },
     {
       title: "Ghi chú",
-      dataIndex: "note",
+      dataIndex: "size",
       visible: true,
     },
     {
       title: "Áp dụng ",
-      dataIndex: "apply",
+      dataIndex: "status",
       visible: true,
     },
   ]);
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
+  const history = useHistory();
+  
+  let [params, setParams] = useState({
+    page: 1,
+    limit: 30,
+  });
+  const onPageChange = useCallback(
+    (page, size) => {
+      params.page = page;
+      params.limit = size;
+      let queryParam = generateQuery(params);
+      setParams({ ...params });
+      history.replace(`${UrlConfig.FULFILLMENTS}?${queryParam}`);
+    },
+    [history, params]
+  );
+
   useEffect(() => {
-    dispatch(actionFetchList());
-  }, [dispatch])
+    dispatch(actionFetchList(params));
+  }, [dispatch, params])
 
   return (
     <ContentContainer
@@ -63,16 +86,16 @@ const SettingFulfillment: React.FC = () => {
           isLoading={tableLoading}
           showColumnSetting={true}
           scroll={{ x: 1080 }}
-          // pagination={{
-          //   pageSize: data.metadata.limit,
-          //   total: data.metadata.total,
-          //   current: data.metadata.page,
-          //   showSizeChanger: true,
-          //   onChange: onPageChange,
-          //   onShowSizeChange: onPageChange,
-          // }}
+          pagination={{
+            pageSize: params.limit,
+            total: 50,
+            current: params.page,
+            showSizeChanger: true,
+            onChange: onPageChange,
+            onShowSizeChange: onPageChange,
+          }}
           // onShowColumnSetting={() => setShowSettingColumn(true)}
-          // dataSource={data.items}
+          dataSource={data}
           columns={columnFinal}
           rowKey={(item: VariantResponse) => item.id}
         />
