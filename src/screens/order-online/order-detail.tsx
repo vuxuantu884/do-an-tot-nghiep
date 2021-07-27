@@ -19,7 +19,7 @@ import {
   FormInstance,
   Select,
 } from "antd";
-import UpdatePaymentCard from "./update-payment-card";
+import UpdatePaymentCard from "./component/update-payment-card";
 import {
   useState,
   useCallback,
@@ -47,8 +47,8 @@ import {
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
-import AddAddressModal from "./modal/addAddressModal";
-import EditCustomerModal from "./modal/editCustomerModal";
+import AddAddressModal from "./modal/AddAddressModal";
+import EditCustomerModal from "./modal/EditCustomerModal";
 import bithdayIcon from "assets/img/bithday.svg";
 import editBlueIcon from "assets/img/editBlue.svg";
 import pointIcon from "assets/img/point.svg";
@@ -99,7 +99,7 @@ import {
 } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import CustomSelect from "component/custom/select.custom";
-import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
+import SaveAndConfirmOrder from "./modal/SaveAndConfirmModal";
 import NumberInput from "component/custom/number-input.custom";
 import { setTimeout } from "timers";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";

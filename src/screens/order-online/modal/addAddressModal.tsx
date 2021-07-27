@@ -1,5 +1,5 @@
 import { Col, Input, Modal, Row, Select, Form } from 'antd';
-import arrowDownIcon from '../../../assets/img/drow-down.svg';
+import arrowDownIcon from 'assets/img/drow-down.svg';
 import React, { useCallback } from 'react';
 
 type AddAddressModalProps = {

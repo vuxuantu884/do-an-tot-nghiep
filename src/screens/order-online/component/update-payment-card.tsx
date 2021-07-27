@@ -44,7 +44,7 @@ import {
 } from "model/request/order.request";
 import { showSuccess } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
-import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
+import ConfirmPaymentModal from "../modal/ConfirmPaymentModal";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;

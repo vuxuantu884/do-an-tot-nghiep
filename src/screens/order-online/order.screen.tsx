@@ -30,10 +30,10 @@ import {
   ShippingAddress,
 } from "model/request/order.request";
 import { orderCreateAction } from "domain/actions/order/order.action";
-import ShipmentCard from "./shipment-card";
-import ProductCard from "./product-card";
-import PaymentCard from "./payment-card";
-import CustomerCard from "./customer-card";
+import ShipmentCard from "./component/shipment-card";
+import ProductCard from "./component/product-card";
+import PaymentCard from "./component/payment-card";
+import CustomerCard from "./component/customer-card";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
@@ -44,7 +44,7 @@ import {
 } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
-import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
+import SaveAndConfirmOrder from "./modal/SaveAndConfirmModal";
 import {
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,

@@ -13,11 +13,11 @@ import {
 
 import callIcon from "assets/img/call.svg";
 import locationIcon from "assets/img/location.svg";
-import storeBluecon from "../../assets/img/storeBlue.svg";
-import deliveryIcon from "../../assets/icon/delivery.svg";
-import selfdeliver from "../../assets/icon/self_shipping.svg";
-import shoppingBag from "../../assets/icon/shopping_bag.svg";
-import wallClock from "../../assets/icon/wall_clock.svg";
+import storeBluecon from "assets/img/storeBlue.svg";
+import deliveryIcon from "assets/icon/delivery.svg";
+import selfdeliver from "assets/icon/self_shipping.svg";
+import shoppingBag from "assets/icon/shopping_bag.svg";
+import wallClock from "assets/icon/wall_clock.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useDispatch, useSelector } from "react-redux";
 import { useLayoutEffect, useState } from "react";
@@ -29,7 +29,6 @@ import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
-import moment from "moment";
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
