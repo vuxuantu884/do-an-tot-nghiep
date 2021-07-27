@@ -13,7 +13,8 @@ const UrlConfig = {
   ACCOUNTS: `/accounts`,
   STORE: `/stores`,
   ROLES: `/roles`,
-  ORDER:`/orders`
+  ORDER:`/orders`,
+  FULFILLMENTS:`/settings/fulfillments`,
 }
 
 export default UrlConfig;

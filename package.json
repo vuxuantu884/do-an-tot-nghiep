@@ -67,6 +67,7 @@
     "@types/react-router-dom": "^5.1.7",
     "@types/redux-saga": "^0.10.5",
     "babel-plugin-module-resolver": "^4.1.0",
-    "dotenv-cli": "^4.0.0"
+    "dotenv-cli": "^4.0.0",
+    "redux-devtools-extension": "^2.13.9"
   }
 }
