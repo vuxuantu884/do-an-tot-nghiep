@@ -95,6 +95,7 @@ import {
   OrderStatus,
   ShipmentMethodOption,
   PaymentMethodOption,
+  PaymentMethodCode,
 } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import CustomSelect from "component/custom/select.custom";
