@@ -44,7 +44,7 @@ import {
 } from "model/request/order.request";
 import { showSuccess } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
-import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
+import ConfirmPaymentModal from "../modal/ConfirmPaymentModal";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
@@ -106,7 +106,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);
-  props.setTotalPaid(totalAmountPaid)
+  props.setTotalPaid(totalAmountPaid);
   const handlePickPaymentMethod = (code?: string) => {
     let paymentMaster = ListMaymentMethods.find((p) => code === p.code);
     if (!paymentMaster) return;
@@ -135,7 +135,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   };
 
   const handleInputMoney = (index: number, amount: number) => {
-    if(amount > props.amount) amount = props.amount;
+    if (amount > props.amount) amount = props.amount;
     if (paymentData[index].code === PaymentMethodCode.POINT) {
       paymentData[index].point = amount;
       paymentData[index].amount = amount * PointConfig.VALUE;
@@ -202,6 +202,18 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       fulfillments: fulfillment,
     };
     dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
+  };
+
+  const caculateMax = (totalAmount: number, index: number) => {
+    let total = totalAmount;
+    for (let i = 0; i < index; i++) {
+      if (paymentData[i].code === PaymentMethodCode.POINT) {
+        total = total - paymentData[i].point! * 1000;
+      } else {
+        total = total - paymentData[i].amount;
+      }
+    }
+    return total;
   };
 
   const onCancleConfirm = useCallback(() => {
@@ -370,7 +382,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                                     replaceFormat(value ? value : "0")
                                   }
                                   min={0}
-                                  max={99999}
+                                  max={caculateMax(props.amount, index) / 1000}
                                   onChange={(value) => {
                                     handleInputPoint(index, value);
                                   }}
@@ -383,7 +395,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                           <InputNumber
                             size="middle"
                             min={0}
-                            max={999999999999}
+                            max={caculateMax(props.amount, index)}
                             value={method.amount}
                             disabled={method.code === PaymentMethodCode.POINT}
                             className="yody-payment-input hide-number-handle"
