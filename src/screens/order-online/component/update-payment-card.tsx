@@ -210,6 +210,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       if (paymentData[i].code === PaymentMethodCode.POINT) {
         total = total - paymentData[i].point! * 1000;
       } else {
+        console.log("test", total);
         total = total - paymentData[i].amount;
       }
     }
