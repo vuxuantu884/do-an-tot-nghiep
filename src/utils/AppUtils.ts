@@ -716,19 +716,7 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
   }
 };
 
-//COD + tổng đã thanh toán
-export const checkPaymentAll = (items: OrderResponse) => {
-  //tính tổng đã thanh toán
-  let value = 0;
-  if (items !== null) {
-    if (items.payments !== null) {
-      if (items.payments.length > 0) {
-        items.payments.forEach((a) => (value = value + a.paid_amount));
-      }
-    }
-  }
-
-  //tổng cod
+export const SumCOD = (items: OrderResponse) => {
   let cod = 0;
   if (items !== null) {
     if (items.fulfillments) {
@@ -742,6 +730,24 @@ export const checkPaymentAll = (items: OrderResponse) => {
     }
   }
 
+  return cod;
+}
+
+//COD + tổng đã thanh toán
+export const checkPaymentAll = (items: OrderResponse) => {
+  //tính tổng đã thanh toán
+  let value = 0;
+  if (items !== null) {
+    if (items.payments !== null) {
+      if (items.payments.length > 0) {
+        items.payments.forEach((a) => (value = value + a.paid_amount));
+      }
+    }
+  }
+
+  //tổng cod
+  let cod = SumCOD(items);
+
   let totalPay = value + cod;
   if (items.total === totalPay) {
     return 1;
@@ -749,6 +755,7 @@ export const checkPaymentAll = (items: OrderResponse) => {
     return 0;
   }
 };
+
 
 export const getDateLastPayment = (items: OrderResponse) => {
   let value: Date | undefined;
