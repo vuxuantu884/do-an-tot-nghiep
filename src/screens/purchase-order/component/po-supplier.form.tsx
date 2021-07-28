@@ -17,6 +17,7 @@ import {
   EditOutlined,
   EnvironmentFilled,
   PhoneFilled,
+  PhoneOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -69,7 +70,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
     (value) => {
       setKeySearchSupplier(value);
       if (value.length >= 3) {
-        dispatch(SupplierSearchAction({ info: value }, onResult));
+        dispatch(SupplierSearchAction({ query: value }, onResult));
       } else {
         setData([]);
       }
@@ -92,7 +93,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
       let index = data.findIndex((item) => item.id.toString() === value);
       var supplier = data[index];
       let supplierAddress: PurchaseAddress = {
-        name: supplier.name_person_in_charge,
+        name: supplier.contact_name,
         email: supplier.email,
         phone: supplier.phone,
         tax_code: supplier.tax_code,
@@ -109,6 +110,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
         supplier: data[index].name,
         billing_address: supplierAddress,
         supplier_address: supplierAddress,
+        phone: supplier.phone,
       });
       setIsSelectSupplier(true);
     },
@@ -120,6 +122,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
       supplier: null,
       billing_address: null,
       supplier_address: null,
+      phone: null,
     });
     setIsSelectSupplier(false);
   }, [formMain]);
@@ -144,7 +147,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
   const OkSupplierAddModal = useCallback(
     (supplierItem: SupplierResponse) => {
       let supplierAddress: PurchaseAddress = {
-        name: supplierItem.name_person_in_charge,
+        name: supplierItem.contact_name,
         email: supplierItem.email,
         phone: supplierItem.phone,
         tax_code: supplierItem.tax_code,
@@ -161,6 +164,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
         supplier: supplierItem.name,
         billing_address: supplierAddress,
         supplier_address: supplierAddress,
+        phone: supplierItem.phone,
       });
       setIsSelectSupplier(true);
       setVisibleSupplierAddModal(false);
@@ -209,6 +213,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
           >
             {({ getFieldValue }) => {
               let supplier_id = getFieldValue("supplier_id");
+              let phone = getFieldValue("phone");
               let supplier: string = getFieldValue("supplier");
               return supplier_id ? (
                 <div>
@@ -231,6 +236,8 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                         onClick={removeSupplier}
                         icon={<AiOutlineClose />}
                       />
+                      <PhoneOutlined />
+                      <label>{phone}</label>
                     </Space>
                     <Space className="customer-detail-action">
                       <Button
@@ -286,7 +293,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                   options={renderResult}
                 >
                   <Input
-                    placeholder="Tìm hoặc thêm nhà cung cấp... (F4)"
+                    placeholder="Tìm kiếm nhà cung cấp"
                     className="border-input"
                     prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                   />
@@ -300,6 +307,9 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                 <Input />
               </Form.Item>
               <Form.Item hidden name="supplier">
+                <Input />
+              </Form.Item>
+              <Form.Item hidden name="phone">
                 <Input />
               </Form.Item>
               <Form.Item hidden name="billing_address">
@@ -423,7 +433,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                               marginRight: "10px",
                             }}
                           />
-                          Ghi chú của khách
+                          Ghi chú của nhà cung cấp
                         </label>
                       }
                     >
@@ -528,7 +538,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                                     )
                                   }
                                 >
-                                  Thay đổi địa chỉ xuất hóa đơn
+                                  Thay đổi địa chỉ nhận hóa đơn
                                 </Button>
                               </Row>
                             </div>

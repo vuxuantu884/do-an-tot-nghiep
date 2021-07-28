@@ -319,7 +319,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               Tách dòng
             </Checkbox>
             <span>Chính sách giá:</span>
-            <Form.Item name="price_type" style={{ margin: "0px" }}>
+            <Form.Item name="policy_price_code" style={{ margin: "0px" }}>
               <Select
                 style={{ minWidth: 145, height: 38 }}
                 placeholder="Chính sách giá"
