@@ -563,8 +563,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const onSearchVariantSelect = useCallback(
     (v, o) => {
-      console.log(v)
-      console.log(items)
       let newV = parseInt(v);
       let _items = [...items].reverse();
       let indexSearch = resultSearchVariant.items.findIndex(
@@ -585,25 +583,21 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
           );
           setSplitLine(false);
         } else {
-          let lastIndex = index;
-          _items.forEach((value, _index) => {
-            if (_index > lastIndex) {
-              lastIndex = _index;
-            }
-          });
-          _items[lastIndex].quantity += 1;
-          _items[lastIndex].line_amount_after_line_discount +=
-            items[lastIndex].price - _items[lastIndex].discount_items[0].amount;
+          let variantitems =  _items.filter((item) => item.variant_id === newV)
+          let lastIndex = variantitems.length - 1
+          variantitems[lastIndex].quantity += 1;
+          variantitems[lastIndex].line_amount_after_line_discount +=
+            items[lastIndex].price - variantitems[lastIndex].discount_items[0].amount;
           setAmount(
             amount +
-              _items[lastIndex].price -
-              _items[lastIndex].discount_items[0].amount
+            variantitems[lastIndex].price -
+            variantitems[lastIndex].discount_items[0].amount
           );
           calculateChangeMoney(
             _items,
             amount +
-              _items[lastIndex].price -
-              _items[lastIndex].discount_items[0].amount,
+            variantitems[lastIndex].price -
+            variantitems[lastIndex].discount_items[0].amount,
             discountRate,
             discountValue
           );
