@@ -605,14 +605,16 @@ const OrderDetail = () => {
           : 0) +
         shippingFeeInformedCustomer -
         totalPaid -
-        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)- (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0)
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
+        (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0)
       );
     } else if (OrderDetail?.total) {
       return (
         (OrderDetail?.total ? OrderDetail?.total : 0) +
         shippingFeeInformedCustomer -
         totalPaid -
-        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) - (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0)
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
+        (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0)
       );
     }
   };
@@ -1420,67 +1422,73 @@ const OrderDetail = () => {
                           )}
                           ghost
                         >
-                          <Panel
-                            className="orders-timeline-custom success-collapse"
-                            header={
-                              <span style={{ color: "#222222" }}>
-                                <span>Đã thanh toán: </span>
-                                <b>
-                                  {OrderDetail?.payments &&
-                                    OrderDetail?.payments
-                                      .filter(
-                                        (payment, index) =>
-                                          payment.payment_method !== "cod"
-                                      )
-                                      .map(
-                                        (item, index) =>
-                                          item.payment_method +
-                                          (index ===
-                                          (OrderDetail?.payments &&
-                                          OrderDetail?.payments.length > 0
-                                            ? OrderDetail?.payments.length
-                                            : 0) -
-                                            1
-                                            ? ""
-                                            : ", ")
-                                      )}
-                                </b>
-                              </span>
-                            }
-                            key="1"
-                            extra={
-                              <>
-                                {OrderDetail?.payments && (
-                                  <div>
-                                    <span className="fixed-time text-field">
-                                      {ConvertUtcToLocalDate(
-                                        getDateLastPayment(OrderDetail),
-                                        "DD/MM/YYYY HH:mm"
-                                      )}
-                                    </span>
-                                  </div>
-                                )}
-                              </>
-                            }
-                          >
-                            <Row gutter={24}>
-                              {OrderDetail?.payments &&
-                                OrderDetail?.payments
-                                  .filter(
-                                    (payment) =>
-                                      payment.payment_method !== "cod"
-                                  )
-                                  .map((item, index) => (
-                                    <Col span={12}>
-                                      <p style={{ color: "#737373" }}>
-                                        {item.payment_method}
-                                      </p>
-                                      <b>{formatCurrency(item.paid_amount)}</b>
-                                    </Col>
-                                  ))}
-                            </Row>
-                          </Panel>
-                          {/* <Panel key="2" showArrow={false} header="COD" /> */}
+                          {OrderDetail.total === SumCOD(OrderDetail) &&
+                          OrderDetail.total === OrderDetail.total_paid ? (
+                            ""
+                          ) : (
+                            <Panel
+                              className="orders-timeline-custom success-collapse"
+                              header={
+                                <span style={{ color: "#222222" }}>
+                                  <span>Đã thanh toán: </span>
+                                  <b>
+                                    {OrderDetail?.payments &&
+                                      OrderDetail?.payments
+                                        .filter(
+                                          (payment, index) =>
+                                            payment.payment_method !== "cod"
+                                        )
+                                        .map(
+                                          (item, index) =>
+                                            item.payment_method +
+                                            (index ===
+                                            (OrderDetail?.payments &&
+                                            OrderDetail?.payments.length > 0
+                                              ? OrderDetail?.payments.length
+                                              : 0) -
+                                              1
+                                              ? ""
+                                              : ", ")
+                                        )}
+                                  </b>
+                                </span>
+                              }
+                              key="1"
+                              extra={
+                                <>
+                                  {OrderDetail?.payments && (
+                                    <div>
+                                      <span className="fixed-time text-field">
+                                        {ConvertUtcToLocalDate(
+                                          getDateLastPayment(OrderDetail),
+                                          "DD/MM/YYYY HH:mm"
+                                        )}
+                                      </span>
+                                    </div>
+                                  )}
+                                </>
+                              }
+                            >
+                              <Row gutter={24}>
+                                {OrderDetail?.payments &&
+                                  OrderDetail?.payments
+                                    .filter(
+                                      (payment) =>
+                                        payment.payment_method !== "cod"
+                                    )
+                                    .map((item, index) => (
+                                      <Col span={12}>
+                                        <p style={{ color: "#737373" }}>
+                                          {item.payment_method}
+                                        </p>
+                                        <b>
+                                          {formatCurrency(item.paid_amount)}
+                                        </b>
+                                      </Col>
+                                    ))}
+                              </Row>
+                            </Panel>
+                          )}
 
                           {OrderDetail &&
                             OrderDetail.fulfillments &&
