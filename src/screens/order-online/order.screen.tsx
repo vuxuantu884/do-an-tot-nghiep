@@ -82,7 +82,6 @@ export default function Order() {
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   //#endregion
-
   //#region Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
@@ -516,6 +515,7 @@ export default function Order() {
                 shippingFeeCustomer={shippingFeeCustomer}
                 cusomerInfo = {customer}
                 items = {items}
+                discountValue={discountValue}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
