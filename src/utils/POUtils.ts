@@ -1,7 +1,11 @@
 import { AppConfig } from "config/AppConfig";
 import { Type } from "config/TypeConfig";
 import { VariantResponse } from "model/product/product.model";
-import { PurchaseOrderLineItem, Vat } from "model/purchase-order/purchase-item.model";
+import { CostLine } from "model/purchase-order/cost-line.model";
+import {
+  PurchaseOrderLineItem,
+  Vat,
+} from "model/purchase-order/purchase-item.model";
 import { Products } from "./AppUtils";
 
 const POUtils = {
@@ -10,7 +14,7 @@ const POUtils = {
   ): Array<PurchaseOrderLineItem> => {
     let result: Array<PurchaseOrderLineItem> = [];
     variants.forEach((variant) => {
-      let newId = new Date().getTime();
+      let newId = `${variant.sku}${new Date().getTime()}`;
       let price_response = Products.findPrice(
         variant.variant_prices,
         AppConfig.import_price,
@@ -19,7 +23,6 @@ const POUtils = {
       let variant_image = Products.findAvatar(variant.variant_images);
       let price = price_response !== null ? price_response.price : 0;
       let newItem: PurchaseOrderLineItem = {
-        id: newId,
         sku: variant.sku,
         variant_id: variant.id,
         product_id: variant.product_id,
@@ -42,6 +45,7 @@ const POUtils = {
         discount_amount: 0,
         position: null,
         purchase_order_id: null,
+        temp_id: newId,
       };
       result.push(newItem);
     });
@@ -58,7 +62,7 @@ const POUtils = {
     newItems.forEach((item) => {
       let index = oldItems.findIndex((oldItem) => oldItem.sku === item.sku);
       if (index === -1) {
-        oldItems.push(item);
+        oldItems.unshift(item);
       } else {
         let oldItem = oldItems[index];
         let newQuantity = oldItem.quantity + 1;
@@ -110,71 +114,134 @@ const POUtils = {
     );
     return total;
   },
-  updateQuantityItem: (data: PurchaseOrderLineItem, price: number, discount_rate: number|null, discount_value: number|null, quantity: number): PurchaseOrderLineItem => {
+  updateQuantityItem: (
+    data: PurchaseOrderLineItem,
+    price: number,
+    discount_rate: number | null,
+    discount_value: number | null,
+    quantity: number
+  ): PurchaseOrderLineItem => {
     let newQuantity = quantity;
     let amount = newQuantity * price;
-    let discount_amount = POUtils.caculateDiscountAmount(
-        price,
-        discount_rate,
-        discount_value
-      ) * quantity;
+    let discount_amount =
+      POUtils.caculateDiscountAmount(price, discount_rate, discount_value) *
+      quantity;
     return {
-      ...data, 
+      ...data,
       price: price,
-      quantity: newQuantity, 
-      amount: amount, 
-      discount_amount: discount_amount, 
-      discount_rate: discount_rate, 
+      quantity: newQuantity,
+      amount: amount,
+      discount_amount: discount_amount,
+      discount_rate: discount_rate,
       discount_value: discount_value,
-      line_amount_after_line_discount: amount - discount_amount
+      line_amount_after_line_discount: amount - discount_amount,
     };
   },
-  updateVatItem: (data: PurchaseOrderLineItem, tax: number): PurchaseOrderLineItem => {
-    return {...data, tax: tax}
+  updateVatItem: (
+    data: PurchaseOrderLineItem,
+    tax: number
+  ): PurchaseOrderLineItem => {
+    return { ...data, tax: tax };
   },
-  caculatePrice: (price: number, discount_rate: number|null, discount_value: number|null) => {
-    if(discount_rate !== null) {
-      return price - price * discount_rate / 100;
+  caculatePrice: (
+    price: number,
+    discount_rate: number | null,
+    discount_value: number | null
+  ) => {
+    if (discount_rate !== null) {
+      return price - (price * discount_rate) / 100;
     }
-    if(discount_value !== null) {
+    if (discount_value !== null) {
       return price - discount_value;
     }
     return price;
   },
-  getVatList: (data: Array<PurchaseOrderLineItem>): Array<Vat> => {
+  getVatList: (
+    data: Array<PurchaseOrderLineItem>,
+    tradeDiscountRate: number | null,
+    tradeDiscountValue: number | null
+  ): Array<Vat> => {
     let result: Array<Vat> = [];
+    let total = POUtils.totalAmount(data);
     data.forEach((item) => {
-      if(item.tax > 0) {
+      if (item.tax > 0) {
         let index = result.findIndex((vatItem) => vatItem.value === item.tax);
-        let amountTax = item.line_amount_after_line_discount * item.tax / 100;
-        if(index === -1) {
+        let amount_after_discount = item.line_amount_after_line_discount;
+        if (tradeDiscountRate !== null) {
+          amount_after_discount =
+            amount_after_discount -
+            (amount_after_discount * tradeDiscountRate) / 100;
+        } else if (tradeDiscountValue !== null) {
+          amount_after_discount =
+            amount_after_discount -
+            (amount_after_discount / total) * tradeDiscountValue;
+        }
+        let amountTax = parseFloat(((amount_after_discount * item.tax) / 100).toFixed(2));
+        if (index === -1) {
           result.push({
             value: item.tax,
             amount: amountTax,
-          })
+          });
         } else {
           result[index].amount = result[index].amount + amountTax;
         }
       }
-    })
+    });
     return result;
   },
-  getTotalDiscount: (total: number, rate: number|null, value: number|null): number => {
-    if(rate) {
-      return total * rate / 100;
+  getTotalDiscount: (
+    total: number,
+    rate: number | null,
+    value: number | null
+  ): number => {
+    if (rate) {
+      return (total * rate) / 100;
     }
-    if(value) {
+    if (value) {
       return value;
     }
     return 0;
   },
-  getTotalPayment: (total: number, total_discount: number, vats: Array<Vat>): number => {
-    let sum = total - total_discount;
+  getTotaTradelDiscount: (
+    total: number,
+    rate: number | null,
+    value: number | null
+  ): number => {
+    if (rate) {
+      return (total * rate) / 100;
+    }
+    if (value) {
+      return value;
+    }
+    return 0;
+  },
+  getTotalPayment: (
+    total: number,
+    trade_discount_total: number,
+    payment_discount_total: number,
+    total_cost_lines: number,
+    vats: Array<Vat>
+  ): number => {
+    let sum = total - trade_discount_total - payment_discount_total + total_cost_lines;
     vats.forEach((item) => {
       sum = sum + item.amount;
-    })
+    });
     return sum;
-  }
+  },
+  getTotaExpense: (data: Array<CostLine>): number => {
+    let sum = 0;
+    data.forEach((item) => {
+      sum = sum + item.amount;
+    });
+    return sum;
+  },
+  getTotalAfterTax: (total: number, trade_discount_amount: number, vats: Array<Vat>) => {
+    let sum = total - trade_discount_amount;
+    vats.forEach((item) => {
+      sum = sum + item.amount;
+    });
+    return sum;
+  },
 };
 
 export { POUtils };

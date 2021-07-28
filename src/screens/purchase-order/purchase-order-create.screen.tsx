@@ -26,17 +26,24 @@ import {
 } from "domain/actions/content/content.action";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-const initPurchaseOrder = {
-  line_items: [],
-  price_type: "import_price",
-  total: 0,
-  discount_rate: null,
-  discount_value: null,
-  total_discount: 0,
-  total_payment: 0,
-  vats: [],
-};
+
 const POCreateScreen = () => {
+  let initPurchaseOrder = {
+    line_items: [],
+    price_type: "import_price",
+    total: 0,
+    trade_discount_rate: null,
+    trade_discount_value: null,
+    trade_discount_amount: 0,
+    payment_discount_rate: null,
+    payment_discount_value: null,
+    payment_discount_amount: 0,
+    total_cost_lines: 0,
+    total_payment: 0,
+    cost_lines: [],
+    vats: [],
+    supplier_id: 0,
+  };
   const collapse = useSelector(
     (state: RootReducerType) => state.appSettingReducer.collapse
   );
@@ -89,6 +96,7 @@ const POCreateScreen = () => {
     (data: PurchaseOrder) => {
       debugger;
       setLoadingSaveButton(true);
+
       dispatch(PoCreateAction(data, createCallback));
     },
     [createCallback, dispatch]
@@ -109,7 +117,7 @@ const POCreateScreen = () => {
     return () => {
       window.removeEventListener("scroll", onScroll);
     };
-  });
+  }, [formMain, onScroll]);
   return (
     <ContentContainer
       isLoading={isLoading}
@@ -163,7 +171,7 @@ const POCreateScreen = () => {
         initialValues={initPurchaseOrder}
         layout="vertical"
       >
-        <Row gutter={20} style={{ paddingBottom: 80 }}>
+        <Row gutter={24} style={{ paddingBottom: 80 }}>
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm

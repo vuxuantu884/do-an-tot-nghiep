@@ -1,5 +1,5 @@
 export interface PurchaseOrderLineItem{
-    id: number,
+    id?: number,
     sku:string,
     variant_id: number,
     product_id: number,
@@ -22,6 +22,7 @@ export interface PurchaseOrderLineItem{
     discount_amount: number,
     position: number|null,
     purchase_order_id: number|null,
+    temp_id: string
 }
 
 export interface Vat {
