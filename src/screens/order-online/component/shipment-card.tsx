@@ -74,7 +74,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       }
     }
   };
-  console.log(props.storeId);
+
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement

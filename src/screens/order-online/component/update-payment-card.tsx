@@ -135,7 +135,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   };
 
   const handleInputMoney = (index: number, amount: number) => {
-    if (amount > props.amount) amount = props.amount;
     if (paymentData[index].code === PaymentMethodCode.POINT) {
       paymentData[index].point = amount;
       paymentData[index].amount = amount * PointConfig.VALUE;
@@ -645,6 +644,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                                 </span>
                                 <InputNumber
                                   value={method.point}
+                                  
                                   size="middle"
                                   style={{
                                     textAlign: "right",
@@ -660,7 +660,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                                     replaceFormat(value ? value : "0")
                                   }
                                   min={0}
-                                  max={99999}
+                                  max={caculateMax(props.amount, index)/1000}
                                   onChange={(value) => {
                                     handleInputPoint(index, value);
                                   }}
@@ -673,7 +673,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                           <InputNumber
                             size="middle"
                             min={0}
-                            max={999999999999}
+                            max={caculateMax(props.amount, index)}
                             value={method.amount}
                             disabled={method.code === PaymentMethodCode.POINT}
                             className="yody-payment-input hide-number-handle"
