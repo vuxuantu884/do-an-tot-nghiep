@@ -1,7 +1,4 @@
-import {
-  DeleteOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Modal, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { CostLine } from "model/purchase-order/cost-line.model";
@@ -11,25 +8,49 @@ import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 type ExpenseModalType = {
   visible: boolean;
   onCancel: () => void;
-  onOk: (result: Array<CostLine>) => void
+  onOk: (result: Array<CostLine>) => void;
+  costLines: Array<CostLine>;
 };
 
 const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
   const [form] = Form.useForm();
-  const onOk = useCallback((e) => {
-    form.submit();
-  }, [form]);
-  const onFinish = useCallback((value) => {
-    let cost_lines: Array<CostLine> = value.cost_lines;
-    props.onOk(cost_lines);
-  }, [props]);
+  const onOk = useCallback(
+    (e) => {
+      form.submit();
+    },
+    [form]
+  );
+  const onCancel = useCallback(
+    (e) => {
+      form.setFieldsValue({
+        cost_lines: props.costLines,
+      });
+      props.onCancel && props.onCancel();
+    },
+    [form, props]
+  );
+  const onFinish = useCallback(
+    (value) => {
+      let cost_lines: Array<CostLine> = value.cost_lines;
+      props.onOk(cost_lines);
+    },
+    [props]
+  );
   useEffect(() => {
-
-  }, []);
+    if (props.visible) {
+      let cost_lines: Array<CostLine> = form.getFieldValue("cost_lines");
+      if (cost_lines.length === 0) {
+        cost_lines.push({ title: "", amount: 0 });
+        form.setFieldsValue({
+          cost_lines: cost_lines
+        })
+      }
+    }
+  }, [form, props.visible]);
   return (
     <Modal
       width={600}
-      onCancel={props.onCancel}
+      onCancel={onCancel}
       visible={props.visible}
       cancelText="Thoát"
       okText="Áp dụng"

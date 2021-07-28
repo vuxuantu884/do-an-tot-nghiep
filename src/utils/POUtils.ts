@@ -176,7 +176,7 @@ const POUtils = {
             amount_after_discount -
             (amount_after_discount / total) * tradeDiscountValue;
         }
-        let amountTax = (amount_after_discount * item.tax) / 100;
+        let amountTax = parseFloat(((amount_after_discount * item.tax) / 100).toFixed(2));
         if (index === -1) {
           result.push({
             value: item.tax,
