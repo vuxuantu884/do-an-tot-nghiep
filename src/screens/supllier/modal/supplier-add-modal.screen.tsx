@@ -55,7 +55,6 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   const dispatch = useDispatch();
   const [formSupplierAdd] = Form.useForm();
   const { visible, onCancel, onOk } = props;
-
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const supplier_type = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
@@ -92,6 +91,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
     },
     [formSupplierAdd, onOk]
   );
+
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
       dispatch(SupplierCreateAction(values, createSupplierCallback));
@@ -192,6 +192,10 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
                   required: true,
                   message: "Vui lòng nhập tên nhà cung cấp",
                 },
+                {
+                  whitespace: true,
+                  message: "Vui lòng nhập tên nhà cung cấp",
+                },
               ]}
               name="name"
               label="Tên nhà cung cấp"
@@ -240,18 +244,18 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
               <Input placeholder="Nhập số điện thoại" />
             </Item>
           </Col>
-          <Col xs={24} lg={24}>
+          <Col xs={24} lg={12}>
             <Item
-              label="Địa chỉ"
-              name="address"
+              label="Mã số thuế"
+              name="tax_code"
               rules={[
                 {
-                  required: true,
-                  message: "Vui lòng nhập địa chỉ",
+                  pattern: RegUtil.NUMBERREG,
+                  message: "Mã số thuế chỉ được phép nhập số",
                 },
               ]}
             >
-              <Input placeholder="Nhập địa chỉ" maxLength={255} />
+              <Input placeholder="Nhập mã số thuế" maxLength={13} />
             </Item>
           </Col>
         </Row>
