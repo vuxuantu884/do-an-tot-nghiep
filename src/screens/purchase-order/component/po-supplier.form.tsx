@@ -25,7 +25,7 @@ import { useDispatch } from "react-redux";
 import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { SupplierResponse } from "model/core/supplier.model";
+import { SupplierQuery, SupplierResponse } from "model/core/supplier.model";
 import SupplierItem from "./supplier-item";
 import avatarDefault from "assets/icon/user.svg";
 import addressIcon from "assets/img/user-pin.svg";
@@ -70,7 +70,9 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
     (value) => {
       setKeySearchSupplier(value);
       if (value.length >= 3) {
-        dispatch(SupplierSearchAction({ query: value }, onResult));
+        dispatch(
+          SupplierSearchAction({ query: value, status: "active" }, onResult)
+        );
       } else {
         setData([]);
       }
