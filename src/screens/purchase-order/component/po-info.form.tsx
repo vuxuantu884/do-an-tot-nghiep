@@ -77,6 +77,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               className="ant-select-hashtag"
               dropdownClassName="ant-select-dropdown-hashtag"
               mode="tags"
+              tokenSeparators={[","," "]}
               placeholder="Nhập từ khóa"
             />
           </Form.Item>
