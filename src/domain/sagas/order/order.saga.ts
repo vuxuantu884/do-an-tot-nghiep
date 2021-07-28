@@ -1,16 +1,26 @@
-import { unauthorizedAction } from './../../actions/auth/auth.action';
-import { getSources, getOrderDetail, updateFulFillmentStatus, updateShipment, updatePayment } from './../../../service/order/order.service';
-import { SourceResponse } from './../../../model/response/order/source.response';
-import { PaymentMethodResponse } from './../../../model/response/order/paymentmethod.response';
-import { getPaymentMethod, orderPostApi } from "../../../service/order/order.service";
+import { unauthorizedAction } from "./../../actions/auth/auth.action";
+import {
+  getSources,
+  getOrderDetail,
+  updateFulFillmentStatus,
+  updateShipment,
+  updatePayment,
+  getDeliverieServices,
+} from "./../../../service/order/order.service";
+import { SourceResponse } from "./../../../model/response/order/source.response";
+import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
+import {
+  getPaymentMethod,
+  orderPostApi,
+} from "../../../service/order/order.service";
 import { OrderType } from "../../types/order.type";
 import BaseResponse from "base/BaseResponse";
 import { put, call, takeLatest } from "redux-saga/effects";
 import { HttpStatus } from "config/HttpStatus";
 import { YodyAction } from "../../../base/BaseAction";
 import { showError } from "utils/ToastUtils";
-import { OrderResponse } from "model/response/order/order.response";
-import { getAmountPayment } from 'utils/AppUtils';
+import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
+import { getAmountPayment } from "utils/AppUtils";
 
 function* orderCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
@@ -96,38 +106,37 @@ function* updateShipmentSaga(action: YodyAction) {
 function* PaymentMethodGetListSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
-      let response: BaseResponse<Array<PaymentMethodResponse>> = yield call(getPaymentMethod);
-      switch (response.code) {
-          case HttpStatus.SUCCESS:
-              setData(response.data);
-              break;
-          default:
-              break;
-      }
+    let response: BaseResponse<Array<PaymentMethodResponse>> = yield call(
+      getPaymentMethod
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
   } catch (error) {}
 }
 
 function* getDataSource(action: YodyAction) {
   let { setData } = action.payload;
   try {
-      let response: BaseResponse<Array<SourceResponse>> = yield call(getSources);
-      switch (response.code) {
-          case HttpStatus.SUCCESS:
-              setData(response.data);
-              break;
-          default:
-              break;
-      }
+    let response: BaseResponse<Array<SourceResponse>> = yield call(getSources);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
   } catch (error) {}
 }
 
 function* orderDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
-    let response: BaseResponse<OrderResponse> = yield call(
-      getOrderDetail,
-      id
-    );
+    let response: BaseResponse<OrderResponse> = yield call(getOrderDetail, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         response.data.total_paid = getAmountPayment(response.data.payments);
@@ -145,15 +154,37 @@ function* orderDetailSaga(action: YodyAction) {
   }
 }
 
+function* ListDeliveryServicesSaga(action: YodyAction) {
+  let { setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<DeliveryServiceResponse>> = yield call(
+      getDeliverieServices
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
 
 function* OrderOnlineSaga() {
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
   yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga);
-  yield takeLatest(OrderType.UPDATE_FULFILLMENT_METHOD, updateFulFillmentStatusSaga);
+  yield takeLatest(
+    OrderType.UPDATE_FULFILLMENT_METHOD,
+    updateFulFillmentStatusSaga
+  );
   yield takeLatest(OrderType.UPDATE_SHIPPING_METHOD, updateShipmentSaga);
-  yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD,updatePaymentSaga);
+  yield takeLatest(
+    OrderType.GET_LIST_DELIVERY_SERVICE,
+    ListDeliveryServicesSaga
+  );
+  yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD, updatePaymentSaga);
 }
 
 export default OrderOnlineSaga;

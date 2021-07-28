@@ -211,7 +211,7 @@ export interface UpdatePaymentRequest {
 }
 
 export interface OrderLineItemRequest {
-  id:number;
+  id: number;
   sku: string;
   variant_id: number;
   variant: string;
@@ -229,9 +229,9 @@ export interface OrderLineItemRequest {
   warranty: string;
   tax_rate: number;
   tax_include: boolean;
-  composite:boolean;
-  product:string;
-  is_composite:boolean;
+  composite: boolean;
+  product: string;
+  is_composite: boolean;
   line_amount_after_line_discount: number;
   discount_items: Array<OrderItemDiscountRequest>;
   discount_rate: number;
@@ -262,4 +262,16 @@ export interface UpdateFulFillmentStatusRequest {
   order_id: number | null | undefined;
   fulfillment_id: number | null;
   status: string | null;
+}
+
+export interface ShippingGHTKRequest {
+  pick_address?: string | null;
+  pick_province?: string | null;
+  pick_district?: string | null;
+  province?: string | null;
+  district?: string | null;
+  address?: string | null;
+  weight?: number | null;
+  value?: number | null;
+  transport?: string | null;
 }

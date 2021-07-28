@@ -9,10 +9,10 @@ import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { SourceResponse } from "model/response/order/source.response";
-import { OrderResponse } from "model/response/order/order.response";
+import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/sources`);
+  return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
 };
 
 export const getPaymentMethod = (): Promise<
@@ -54,4 +54,10 @@ export const updatePayment = (
 ): Promise<BaseResponse<OrderResponse>> => {
   let link = `${ApiConfig.ORDER}/orders/${order_id}/payments`;
   return BaseAxios.put(link, request);
+};
+
+export const getDeliverieServices = (): Promise<
+  BaseResponse<Array<DeliveryServiceResponse>>
+> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/shipping/delivery-services`);
 };

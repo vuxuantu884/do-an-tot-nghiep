@@ -32,6 +32,7 @@ import {
 } from "model/request/order.request";
 import { RegUtil } from "./RegUtils";
 import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
+import { CustomerResponse } from "model/response/customer/customer.response";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -694,7 +695,17 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
     }
   }
 
-  if (items.total === value) {
+  if (
+    items?.total_line_amount_after_line_discount +
+      (items?.fulfillments &&
+      items?.fulfillments.length > 0 &&
+      items?.fulfillments[0].shipment &&
+      items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+        ? items?.fulfillments[0].shipment &&
+          items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+        : 0) ===
+    value
+  ) {
     return 1; //đã thanh toán
   } else {
     if (value === 0) {
@@ -720,7 +731,7 @@ export const checkPaymentAll = (items: OrderResponse) => {
   //tổng cod
   let cod = 0;
   if (items !== null) {
-    if (items.fulfillments !== null && items.fulfillments !== undefined) {
+    if (items.fulfillments) {
       if (items.fulfillments.length > 0) {
         items.fulfillments.forEach((a) => {
           if (a.shipment !== undefined && a.shipment !== null) {
@@ -744,9 +755,22 @@ export const getDateLastPayment = (items: OrderResponse) => {
   if (items !== null) {
     if (items.payments !== null) {
       if (items.payments.length > 0) {
-        items.payments.forEach((a) => (value = a.created_date));
+        items.payments.forEach((a) => (value = a.created_date)); 
       }
     }
   }
   return value;
 };
+
+//Lấy ra địa chỉ giao hàng mắc định
+export const getShipingAddresDefault = (items: CustomerResponse | null) => {
+  let objShippingAddress = null;
+  if (items !== null) {
+    for (let i = 0; i < items.shipping_addresses.length; i++) {
+      if (items.shipping_addresses[i].default === true) {
+        objShippingAddress = items.shipping_addresses[i];
+      }
+    }
+  }
+  return objShippingAddress;
+}
