@@ -150,11 +150,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
     total();
   };
-  
+
   const total = useCallback(() => {
     let _items = [...items];
     let _amount = 0;
-    
 
     _items.forEach((i) => {
       let total_discount_items = 0;
@@ -582,27 +581,23 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             discountRate,
             discountValue
           );
-          setSplitLine(false);
         } else {
-          let lastIndex = index;
-          _items.forEach((value, _index) => {
-            if (_index > lastIndex) {
-              lastIndex = _index;
-            }
-          });
-          _items[lastIndex].quantity += 1;
-          _items[lastIndex].line_amount_after_line_discount +=
-            items[lastIndex].price - _items[lastIndex].discount_items[0].amount;
+          let variantItems = _items.filter((item) => item.variant_id === newV);
+          let lastIndex = variantItems.length - 1;
+          variantItems[lastIndex].quantity += 1;
+          variantItems[lastIndex].line_amount_after_line_discount +=
+          variantItems[lastIndex].price -
+            variantItems[lastIndex].discount_items[0].amount;
           setAmount(
             amount +
-              _items[lastIndex].price -
-              _items[lastIndex].discount_items[0].amount
+            variantItems[lastIndex].price -
+            variantItems[lastIndex].discount_items[0].amount
           );
           calculateChangeMoney(
             _items,
             amount +
-              _items[lastIndex].price -
-              _items[lastIndex].discount_items[0].amount,
+            variantItems[lastIndex].price -
+            variantItems[lastIndex].discount_items[0].amount,
             discountRate,
             discountValue
           );
@@ -934,26 +929,17 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         <Row className="sale-product-box-payment" gutter={24}>
           <Col xs={24} lg={12}>
             <div className="payment-row">
-              <Checkbox
-                className=""
-                style={{ fontWeight: 500 }}
-              >
+              <Checkbox className="" style={{ fontWeight: 500 }}>
                 Bỏ chiết khấu tự động
               </Checkbox>
             </div>
             <div className="payment-row">
-              <Checkbox
-                className=""
-                style={{ fontWeight: 500 }}
-              >
+              <Checkbox className="" style={{ fontWeight: 500 }}>
                 Không tính thuế VAT
               </Checkbox>
             </div>
             <div className="payment-row">
-              <Checkbox
-                className=""
-                style={{ fontWeight: 500 }}
-              >
+              <Checkbox className="" style={{ fontWeight: 500 }}>
                 Bỏ tích điểm tự động
               </Checkbox>
             </div>
@@ -1057,10 +1043,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Khách cần phải trả:</strong>
               <strong className="text-success font-size-text">
-                {changeMoney !== null || props.shippingFeeCustomer !== null
-                  ? props.shippingFeeCustomer !== null
-                    ? formatCurrency(changeMoney + props.shippingFeeCustomer)
-                    : formatCurrency(changeMoney)
+                {changeMoney
+                  ? formatCurrency(
+                      changeMoney +
+                        (props.shippingFeeCustomer
+                          ? props.shippingFeeCustomer
+                          : 0)
+                    )
                   : "-"}
               </strong>
             </Row>
