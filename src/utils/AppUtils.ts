@@ -703,7 +703,7 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
       items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
         ? items?.fulfillments[0].shipment &&
           items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-        : 0) ===
+        : 0) - (items?.total_discount ? items?.total_discount :0) ===
     value
   ) {
     return 1; //đã thanh toán
