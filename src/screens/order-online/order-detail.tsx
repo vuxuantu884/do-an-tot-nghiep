@@ -612,7 +612,7 @@ const OrderDetail = () => {
         (OrderDetail?.total ? OrderDetail?.total : 0) +
         shippingFeeInformedCustomer -
         totalPaid -
-        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) - (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0)
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
       );
     }
   };
