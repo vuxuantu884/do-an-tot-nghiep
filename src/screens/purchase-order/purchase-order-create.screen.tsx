@@ -30,10 +30,15 @@ const initPurchaseOrder = {
   line_items: [],
   price_type: "import_price",
   total: 0,
-  discount_rate: null,
-  discount_value: null,
-  total_discount: 0,
+  trade_discount_rate: null,
+  trade_discount_value: null,
+  trade_discount_amount: 0,
+  payment_discount_rate: null,
+  payment_discount_value: null,
+  payment_discount_amount: 0,
+  total_cost_lines: 0,
   total_payment: 0,
+  cost_lines: [],
   vats: [],
 };
 const POCreateScreen = () => {
@@ -103,7 +108,7 @@ const POCreateScreen = () => {
     );
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
-  }, [dispatch, onResultWin, onResultRD]);
+  }, [dispatch, onResultWin, onResultRD, formMain]);
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
     return () => {
