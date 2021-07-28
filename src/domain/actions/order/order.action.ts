@@ -1,4 +1,4 @@
-import { OrderResponse } from 'model/response/order/order.response';
+import { DeliveryServiceResponse, OrderResponse } from 'model/response/order/order.response';
 import { PaymentMethodResponse } from 'model/response/order/paymentmethod.response';
 import { OrderRequest, UpdateFulFillmentStatusRequest, UpdateLineFulFillment, UpdatePaymentRequest } from 'model/request/order.request';
 import { OrderType } from '../../types/order.type';
@@ -26,4 +26,8 @@ export const UpdatePaymentAction = (request : UpdatePaymentRequest, order_id: nu
 
 export const UpdateShipmentAction = (request : UpdateLineFulFillment, setData: (data: OrderResponse) => void) => {
   return BaseAction(OrderType.UPDATE_SHIPPING_METHOD, {request, setData});
+}
+
+export const DeliveryServicesGetList = (setData: (data: Array<DeliveryServiceResponse>) => void) => {
+  return BaseAction(OrderType.GET_LIST_DELIVERY_SERVICE, { setData });
 }
