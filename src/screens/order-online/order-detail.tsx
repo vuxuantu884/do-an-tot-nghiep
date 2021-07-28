@@ -605,14 +605,14 @@ const OrderDetail = () => {
           : 0) +
         shippingFeeInformedCustomer -
         totalPaid -
-        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)- (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0)
       );
     } else if (OrderDetail?.total) {
       return (
         (OrderDetail?.total ? OrderDetail?.total : 0) +
         shippingFeeInformedCustomer -
         totalPaid -
-        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) - (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0)
       );
     }
   };
@@ -1190,7 +1190,7 @@ const OrderDetail = () => {
                                   }}
                                   maxLength={15}
                                   minLength={0}
-                                  value={takeMoneyHelper || takeHelperValue}
+                                  value={takeHelperValue}
                                   onChange={(value) =>
                                     setTakeMoneyHelper(value)
                                   }

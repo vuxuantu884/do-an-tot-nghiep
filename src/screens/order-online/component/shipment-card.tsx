@@ -52,6 +52,7 @@ type ShipmentCardProps = {
   shippingFeeCustomer: number | null;
   cusomerInfo: CustomerResponse | null;
   items?: Array<OrderLineItemRequest>;
+  discountValue: number | null;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
@@ -447,11 +448,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                     replace={(a: string) => replaceFormatString(a)}
                     placeholder="0"
                     value={
-                      takeMoneyHelper ||
                       props.amount +
                         (props.shippingFeeCustomer
                           ? props.shippingFeeCustomer
-                          : 0)
+                          : 0) - (props.discountValue ? props.discountValue : 0)
                     }
                     onChange={(value: any) => setTakeMoneyHelper(value)}
                     style={{
