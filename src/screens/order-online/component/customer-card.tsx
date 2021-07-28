@@ -35,8 +35,8 @@ import { SearchOutlined } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import AddAddressModal from "../modal/AddAddressModal";
-import EditCustomerModal from "../modal/EditCustomerModal";
+import AddAddressModal from "../modal/addAddressModal";
+import EditCustomerModal from "../modal/editCustomerModal";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { RefSelectProps } from "antd/lib/select";
 import { CloseOutlined } from "@ant-design/icons";
@@ -86,7 +86,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
-
+  
   //#region Modal
   const ShowAddressModal = () => {
     setVisibleAddress(true);

@@ -696,7 +696,17 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
     }
   }
 
-  if (items.total === value) {
+  if (
+    items?.total_line_amount_after_line_discount +
+      (items?.fulfillments &&
+      items?.fulfillments.length > 0 &&
+      items?.fulfillments[0].shipment &&
+      items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+        ? items?.fulfillments[0].shipment &&
+          items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+        : 0) ===
+    value
+  ) {
     return 1; //đã thanh toán
   } else {
     if (value === 0) {
@@ -746,7 +756,7 @@ export const getDateLastPayment = (items: OrderResponse) => {
   if (items !== null) {
     if (items.payments !== null) {
       if (items.payments.length > 0) {
-        items.payments.forEach((a) => (value = a.created_date));
+        items.payments.forEach((a) => (value = a.created_date)); 
       }
     }
   }

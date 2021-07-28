@@ -208,10 +208,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 format="DD/MM/YYYY"
                 style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
-                placeholder="Chọn ngày giao"
-                disabledDate={(current: any) =>
-                  current && current.valueOf() < Date.now()
-                }
+                placeholder="dd/mm/yyyy"
+                disabledDate={(current: any) => current && current.valueOf() < Date.now()}
               />
             </Form.Item>
           </Col>
