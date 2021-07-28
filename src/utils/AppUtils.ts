@@ -33,6 +33,7 @@ import {
 } from "model/request/order.request";
 import { RegUtil } from "./RegUtils";
 import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
+import { CustomerResponse } from "model/response/customer/customer.response";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -731,7 +732,7 @@ export const checkPaymentAll = (items: OrderResponse) => {
   //tổng cod
   let cod = 0;
   if (items !== null) {
-    if (items.fulfillments !== null && items.fulfillments !== undefined) {
+    if (items.fulfillments) {
       if (items.fulfillments.length > 0) {
         items.fulfillments.forEach((a) => {
           if (a.shipment !== undefined && a.shipment !== null) {
@@ -761,3 +762,16 @@ export const getDateLastPayment = (items: OrderResponse) => {
   }
   return value;
 };
+
+//Lấy ra địa chỉ giao hàng mắc định
+export const getShipingAddresDefault = (items: CustomerResponse | null) => {
+  let objShippingAddress = null;
+  if (items !== null) {
+    for (let i = 0; i < items.shipping_addresses.length; i++) {
+      if (items.shipping_addresses[i].default === true) {
+        objShippingAddress = items.shipping_addresses[i];
+      }
+    }
+  }
+  return objShippingAddress;
+}

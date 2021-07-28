@@ -652,6 +652,7 @@ const OrderDetail = () => {
       return OrderDetail?.total + shippingFeeInformedCustomer;
     }
   };
+
   const customerNeedToPayValue = customerNeedToPay();
   // end
   return (

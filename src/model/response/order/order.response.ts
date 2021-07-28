@@ -215,3 +215,10 @@ export interface ShipmentResponse extends BaseObject {
   fulfillment_id:string|null;
   cod: number 
 }
+
+export interface DeliveryServiceResponse {
+  id: number;
+  code: string;
+  name: string;
+  logo: string;
+}

@@ -201,13 +201,6 @@ export default function Order() {
   const [textValue, settextValue] = useState<string>("");
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
 
-  const ShowConfirmPayment = () => {
-    settextValue(
-      "Đơn hàng có tiền thu hộ không đúng với tiền khách còn phải trả. Bạn có muốn xác nhận thanh toán và giao hàng cho đơn hàng này không?"
-    );
-    setVisibleConfirmPayment(true);
-  };
-
   const onOkConfirmPayment = () => {};
 
   const onCancleConfirmPayment = useCallback(() => {
@@ -521,6 +514,8 @@ export default function Order() {
                 setPaymentMethod={setPaymentMethod}
                 paymentMethod={paymentMethod}
                 shippingFeeCustomer={shippingFeeCustomer}
+                cusomerInfo = {customer}
+                items = {items}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
