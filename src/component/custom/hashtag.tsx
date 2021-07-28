@@ -12,6 +12,7 @@ const HashTag: React.FC<HashTagProps> = (props: HashTagProps) => {
       className="ant-select-hashtag"
       dropdownClassName="ant-select-dropdown-hashtag"
       mode="tags"
+      tokenSeparators={[","," "]}
       value={props.value ? props.value.split(',') : []}
       placeholder="Nhập từ khóa"
       onChange={(value) => {
