@@ -1,5 +1,6 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Select } from "antd";
+import HashTag from "component/custom/hashtag";
 import { AccountResponse } from "model/account/account.model";
 
 type POInfoFormProps = {
@@ -73,13 +74,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             name="tags"
             label="Từ khóa"
           >
-            <Select
-              className="ant-select-hashtag"
-              dropdownClassName="ant-select-dropdown-hashtag"
-              mode="tags"
-              tokenSeparators={[","," "]}
-              placeholder="Nhập từ khóa"
-            />
+            <HashTag />
           </Form.Item>
         </div>
       </Card>
