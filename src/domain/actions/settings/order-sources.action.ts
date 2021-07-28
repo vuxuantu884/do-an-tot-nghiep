@@ -9,11 +9,12 @@ export const actionFetchListOrderSources = (params = {}) => {
   };
 }
 
-export const actionFetchListOrderSourcesSuccessful = (data: any) => {
+export const actionFetchListOrderSourcesSuccessful = (listOrderSources: any, total: number) => {
   return {
     type: SETTING_TYPES.orderSources.listAllSuccessful,
     payload: {
-      data,
+      listOrderSources,
+      total
     },
   };
 };

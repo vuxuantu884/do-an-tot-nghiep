@@ -7,7 +7,8 @@ import { actionFetchListOrderSourcesFailed, actionFetchListOrderSourcesSuccessfu
 import { SETTING_TYPES } from 'domain/types/settings.type';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { SizeResponse } from 'model/product/size.model';
-import { getSources } from 'service/order/order.service';
+import { OrderSourceModel } from 'model/response/order/order-source.response';
+import { getSources, getSourcesWithParams } from 'service/order/order.service';
 import { searchVariantsApi } from 'service/product/product.service';
 import { showError } from 'utils/ToastUtils';
 
@@ -21,14 +22,16 @@ function* listAllOrderSourceSaga(action: YodyAction) {
     /**
     * chỗ này phải sửa sau, đợi api
     */
-     let response: BaseResponse<PageResponse<SizeResponse>> = yield call(
-      getSources
+     let response: BaseResponse<PageResponse<OrderSourceModel>> = yield call(
+      getSourcesWithParams, params
     );
     console.log('response', response)
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        yield put(actionFetchListOrderSourcesSuccessful(response.data))
+        const {total} = response.data.metadata;
+        const listOrderSources = response.data.items;
+        yield put(actionFetchListOrderSourcesSuccessful(listOrderSources, total))
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());

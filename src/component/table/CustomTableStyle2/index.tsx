@@ -30,10 +30,10 @@ export interface ICustomTableColumType<T> extends ColumnType<T> {
 }
 
 export interface ICustomTablePaginationConfig {
-  total?: number;
+  total: number;
   disabled?: boolean;
   current?: number;
-  pageSize?: number;
+  pageSize: number;
   onChange?: (page: number, pageSize?: number) => void;
   showSizeChanger?: boolean;
   pageSizeOptions?: string[];
@@ -176,47 +176,50 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
           </div>
 
           <div className="custom-table-pagination-right">
-            {pagination.showSizeChanger && (
-              <div className="custom-table-pagination-size-change">
-                <label htmlFor="custom-pagination-size-changer">
-                  Hiển thị:{" "}
-                </label>
-                <Select
-                  value={pagination.pageSize}
-                  id="custom-pagination-size-changer"
-                  onChange={(value: number) =>
-                    handleSizeChanger(pagination, value)
-                  }
-                >
-                  {pagination &&
-                    PageConfig.map((size) => (
-                      <Select.Option key={size} value={size}>
-                        {size}
-                      </Select.Option>
-                    ))}
-                </Select>
-                <span>Kết quả</span>
-              </div>
-            )}
+            {pagination.showSizeChanger &&
+              pagination?.pageSize < pagination.total && (
+                <div className="custom-table-pagination-size-change">
+                  <label htmlFor="custom-pagination-size-changer">
+                    Hiển thị:{" "}
+                  </label>
+                  <Select
+                    value={pagination.pageSize}
+                    id="custom-pagination-size-changer"
+                    onChange={(value: number) =>
+                      handleSizeChanger(pagination, value)
+                    }
+                  >
+                    {pagination &&
+                      PageConfig.map((size) => (
+                        <Select.Option key={size} value={size}>
+                          {size}
+                        </Select.Option>
+                      ))}
+                  </Select>
+                  <span>Kết quả</span>
+                </div>
+              )}
             <div className="custom-table-pagination-container">
-              <li
-                title="Trang đầu"
-                className={classNames(
-                  "ant-pagination-prev",
-                  pagination.current &&
-                    pagination.current === 1 &&
-                    "ant-pagination-disabled"
-                )}
-              >
-                <button
-                  onClick={() => handleLastNextPage(pagination, 0)}
-                  className="ant-pagination-item-link"
-                  type="button"
+              {pagination?.pageSize < pagination.total && (
+                <li
+                  title="Trang đầu"
+                  className={classNames(
+                    "ant-pagination-prev",
+                    pagination.current &&
+                      pagination.current === 1 &&
+                      "ant-pagination-disabled"
+                  )}
                 >
-                  <DoubleLeftOutlined />
-                  Trang đầu
-                </button>
-              </li>
+                  <button
+                    onClick={() => handleLastNextPage(pagination, 0)}
+                    className="ant-pagination-item-link"
+                    type="button"
+                  >
+                    <DoubleLeftOutlined />
+                    Trang đầu
+                  </button>
+                </li>
+              )}
               <Pagination
                 total={pagination.total}
                 current={pagination.current}
@@ -224,24 +227,26 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
                 onChange={pagination.onChange}
                 showSizeChanger={false}
               />
-              <li
-                title="Trang cuối"
-                className={classNames(
-                  "ant-pagination-prev",
-                  pagination.current &&
-                    pagination.current === totalPage &&
-                    "ant-pagination-disabled"
-                )}
-              >
-                <button
-                  onClick={() => handleLastNextPage(pagination, 1)}
-                  className="ant-pagination-item-link"
-                  type="button"
+              {pagination?.pageSize < pagination.total && (
+                <li
+                  title="Trang cuối"
+                  className={classNames(
+                    "ant-pagination-prev",
+                    pagination.current &&
+                      pagination.current === totalPage &&
+                      "ant-pagination-disabled"
+                  )}
                 >
-                  <DoubleRightOutlined />
-                  Trang cuối
-                </button>
-              </li>
+                  <button
+                    onClick={() => handleLastNextPage(pagination, 1)}
+                    className="ant-pagination-item-link"
+                    type="button"
+                  >
+                    <DoubleRightOutlined />
+                    Trang cuối
+                  </button>
+                </li>
+              )}
             </div>
           </div>
         </div>

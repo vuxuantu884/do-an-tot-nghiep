@@ -7,6 +7,7 @@ const initialState = {
   },
   orderSources: {
     list: [],
+    total: 0,
   },
 };
 
@@ -41,13 +42,17 @@ const settingsReducer = (state = initialState, action: AnyAction) => {
         ...initialState,
         orderSources: {
           list: [],
+          total: 0,
         },
       };
     case SETTING_TYPES.orderSources.listAllSuccessful:
+      const {total} = action.payload
+      const list = action.payload.listOrderSources
       return {
         ...initialState,
         orderSources: {
-          list: action.payload.data,
+          list,
+          total
         },
       };
     case SETTING_TYPES.orderSources.listAllFailed:
@@ -55,6 +60,7 @@ const settingsReducer = (state = initialState, action: AnyAction) => {
         ...initialState,
         orderSources: {
           list: [],
+          total: 0,
         },
       };
     default:

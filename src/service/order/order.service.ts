@@ -10,6 +10,8 @@ import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { SourceResponse } from "model/response/order/source.response";
 import { OrderResponse } from "model/response/order/order.response";
+import { generateQuery } from "utils/AppUtils";
+import { OrderSourceModel } from "model/response/order/order-source.response";
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources`);
@@ -54,4 +56,15 @@ export const updatePayment = (
 ): Promise<BaseResponse<OrderResponse>> => {
   let link = `${ApiConfig.ORDER}/orders/${order_id}/payments`;
   return BaseAxios.put(link, request);
+};
+
+export const getSourcesWithParams = (query = {page: 1, limit: 30}): Promise<BaseResponse<SourceResponse>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/sources?${queryString}`);
+};
+
+export const createOrderSourceService = (
+  newOrderSource: OrderSourceModel
+): Promise<BaseResponse<OrderResponse>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/sources`, newOrderSource);
 };
