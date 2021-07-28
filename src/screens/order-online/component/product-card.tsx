@@ -582,22 +582,22 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             discountValue
           );
         } else {
-          let variantitems = _items.filter((item) => item.variant_id === newV);
-          let lastIndex = variantitems.length - 1;
-          variantitems[lastIndex].quantity += 1;
-          variantitems[lastIndex].line_amount_after_line_discount +=
-          variantitems[lastIndex].price -
-            variantitems[lastIndex].discount_items[0].amount;
+          let variantItems = _items.filter((item) => item.variant_id === newV);
+          let lastIndex = variantItems.length - 1;
+          variantItems[lastIndex].quantity += 1;
+          variantItems[lastIndex].line_amount_after_line_discount +=
+          variantItems[lastIndex].price -
+            variantItems[lastIndex].discount_items[0].amount;
           setAmount(
             amount +
-              variantitems[lastIndex].price -
-              variantitems[lastIndex].discount_items[0].amount
+            variantItems[lastIndex].price -
+            variantItems[lastIndex].discount_items[0].amount
           );
           calculateChangeMoney(
             _items,
             amount +
-              variantitems[lastIndex].price -
-              variantitems[lastIndex].discount_items[0].amount,
+            variantItems[lastIndex].price -
+            variantItems[lastIndex].discount_items[0].amount,
             discountRate,
             discountValue
           );
