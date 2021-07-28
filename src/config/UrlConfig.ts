@@ -15,6 +15,7 @@ const UrlConfig = {
   ROLES: `/roles`,
   ORDER:`/orders`,
   FULFILLMENTS:`/settings/fulfillments`,
+  ORDER_SOURCES:`/settings/order-sources`,
 }
 
 export default UrlConfig;

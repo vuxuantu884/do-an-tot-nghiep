@@ -1,14 +1,11 @@
-import { Card } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
-import {
-  ICustomTableColumType
-} from "component/table/CustomTable";
+import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTableStyle2 from "component/table/CustomTableStyle2";
 import UrlConfig from "config/UrlConfig";
-import { actionFetchList } from "domain/actions/settings/fulfillment.action";
-import {
-  VariantResponse
-} from "model/product/product.model";
+import { actionFetchListOrderSources } from "domain/actions/settings/order-sources.action";
+import { VariantResponse } from "model/product/product.model";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
@@ -19,7 +16,7 @@ const OrderSources: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
   const dispatch = useDispatch();
   const data = useSelector((state: any) => {
-    return state.settings.fulfillment.list;
+    return state.settings.orderSources.list;
   });
 
   const [columns, setColumn] = useState<
@@ -27,18 +24,29 @@ const OrderSources: React.FC = () => {
   >([
     {
       title: "Nguồn đơn hàng",
-      dataIndex: "name",
+      dataIndex: "code",
       visible: true,
     },
     {
       title: "Áp dụng cho đơn hàng",
-      dataIndex: "color",
+      dataIndex: "is_active",
       visible: true,
+      render: (value, row, index) => {
+        if (value) {
+          return 'Đang áp dụng';
+        }
+        return 'Ngưng áp dụng';
+      },
     },
     {
       title: "Mặc định",
-      dataIndex: "size",
+      dataIndex: "is_active",
       visible: true,
+      render: (value, row, index) => {
+        if (value) {
+          return 'Mặc định';
+        }
+      },
     },
   ]);
   const columnFinal = useMemo(
@@ -58,13 +66,31 @@ const OrderSources: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setParams({ ...params });
-      history.replace(`${UrlConfig.FULFILLMENTS}?${queryParam}`);
+      history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
     },
     [history, params]
   );
 
+  const handleAddNew = () => {
+    console.log('add new')
+  };
+
+  const addNewHtml = () => {
+    return (
+      <Button
+        type="primary"
+        className="ant-btn-primary"
+        size="large"
+        onClick={() => handleAddNew()}
+        icon={<PlusOutlined />}
+      >
+        Thêm mới
+      </Button>
+    );
+  };
+
   useEffect(() => {
-    dispatch(actionFetchList(params));
+    dispatch(actionFetchListOrderSources(params));
   }, [dispatch, params]);
 
   return (
@@ -84,6 +110,7 @@ const OrderSources: React.FC = () => {
             name: "Nguồn đơn hàng",
           },
         ]}
+        extra={addNewHtml()}
       >
         <Card>
           <CustomTableStyle2

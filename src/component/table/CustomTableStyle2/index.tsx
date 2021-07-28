@@ -65,10 +65,10 @@ const showTotal = (pagination: ICustomTablePaginationConfig) => {
   let from = (current - 1) * pageSize + 1;
   let to = current * pageSize;
   if (from > total) {
-    return "Hiển thị kết quả: 0 kết quả";
+    return "Không có kết quả";
   }
   if (to > total) to = total;
-  return `Hiển thị kết quả: ${from}-${to} / ${total} kết quả`;
+  return `${from} - ${to} trong tổng ${total}`;
 };
 
 const handleLastNextPage = (
@@ -179,7 +179,7 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
             {pagination.showSizeChanger && (
               <div className="custom-table-pagination-size-change">
                 <label htmlFor="custom-pagination-size-changer">
-                  Hiển thị số dòng:{" "}
+                  Hiển thị:{" "}
                 </label>
                 <Select
                   value={pagination.pageSize}
@@ -195,6 +195,7 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
                       </Select.Option>
                     ))}
                 </Select>
+                <span>Kết quả</span>
               </div>
             )}
             <div className="custom-table-pagination-container">
@@ -213,6 +214,7 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
                   type="button"
                 >
                   <DoubleLeftOutlined />
+                  Trang đầu
                 </button>
               </li>
               <Pagination
@@ -223,7 +225,7 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
                 showSizeChanger={false}
               />
               <li
-                title="Trang cuối 2"
+                title="Trang cuối"
                 className={classNames(
                   "ant-pagination-prev",
                   pagination.current &&
@@ -237,6 +239,7 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
                   type="button"
                 >
                   <DoubleRightOutlined />
+                  Trang cuối
                 </button>
               </li>
             </div>

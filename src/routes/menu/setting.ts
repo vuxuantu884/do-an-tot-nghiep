@@ -2,7 +2,6 @@ import UrlConfig from "config/UrlConfig";
 import React from "react";
 import { RouteMenu } from "model/other";
 import { HEADER_TYPE } from "config/HeaderConfig";
-import SettingFulfillment from "screens/setting/fulfillment";
 
 const ManageUserScreen = React.lazy(
   () => import("screens/account/account.search.screen")
@@ -34,9 +33,14 @@ const StoreUpdateScreen = React.lazy(
   () => import("screens/store/store-update.screen")
 );
 
-// fulfillment:quản lý đơn hàng
+// fulfillment: quản lý đơn hàng
 const SettingFulfillmentScreen = React.lazy(
-  () => import("screens/account/account.search.screen")
+  () => import("screens/settings/fulfillment")
+);
+
+// order sources: quản lý nguồn đơn hàng
+const SettingOrderSourcesScreen = React.lazy(
+  () => import("screens/settings/order-sources")
 );
 
 const setting: Array<RouteMenu> = [
@@ -171,7 +175,7 @@ const setting: Array<RouteMenu> = [
     exact: true,
     title: "Xử lý đơn hàng",
     icon: "icon-dot",
-    component: SettingFulfillment,
+    component: SettingFulfillmentScreen,
     key: "submenu95",
     isShow: true,
     header: null,
@@ -193,6 +197,49 @@ const setting: Array<RouteMenu> = [
         path: `${UrlConfig.FULFILLMENTS}/:id`,
         exact: true,
         title: "Chỉnh sửa người dùng",
+        icon: "icon-dot",
+        component: AccountUpdateScreen,
+        key: "account2",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore: ["create"],
+      },
+    ],
+    type: HEADER_TYPE.BUTTON_CREATE,
+    object: {
+      pathCreate: `${UrlConfig.FULFILLMENTS}/create`,
+    },
+  },
+  {
+    path: UrlConfig.ORDER_SOURCES,
+    exact: true,
+    title: "Nguồn đơn hàng",
+    icon: "icon-dot",
+    component: SettingOrderSourcesScreen,
+    key: "submenu96",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.ORDER_SOURCES}/create`,
+        exact: true,
+        title: "Thêm mới nguồn đơn hàng",
+        icon: "icon-dot",
+        component: AccountCreateScreen,
+        key: "submenu261",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+      {
+        path: `${UrlConfig.ORDER_SOURCES}/:id`,
+        exact: true,
+        title: "Chỉnh sửa nguồn đơn hàng",
         icon: "icon-dot",
         component: AccountUpdateScreen,
         key: "account2",
