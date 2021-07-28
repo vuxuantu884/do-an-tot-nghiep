@@ -44,12 +44,12 @@ import {
 } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
-import SaveAndConfirmOrder from "./modal/SaveAndConfirmModal";
+import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 import {
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
-import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
+import ConfirmPaymentModal from "./modal/confirm-payment.modal";
 //#endregion
 
 var typeButton = "";

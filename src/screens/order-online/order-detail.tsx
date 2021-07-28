@@ -81,7 +81,7 @@ import {
 } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import CustomSelect from "component/custom/select.custom";
-import SaveAndConfirmOrder from "./modal/SaveAndConfirmModal";
+import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 import NumberInput from "component/custom/number-input.custom";
 import { setTimeout } from "timers";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
