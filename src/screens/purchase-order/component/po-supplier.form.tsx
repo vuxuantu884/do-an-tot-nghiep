@@ -20,7 +20,7 @@ import {
   PhoneOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
@@ -35,7 +35,7 @@ import { PurchaseAddress } from "model/purchase-order/purchase-address.model";
 import EditAddressModal from "../modal/edit-address";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { AddressType, PoFormName, VietNamId } from "utils/Constants";
+import { AddressType,} from "utils/Constants";
 import SupplierAddModal from "screens/supllier/modal/supplier-add-modal.screen";
 
 import { createRef } from "react";
