@@ -10,6 +10,7 @@ import {
   DatePicker,
   Checkbox,
   Input,
+  Radio,
 } from "antd";
 
 import callIcon from "assets/img/call.svg";
@@ -207,10 +208,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 format="DD/MM/YYYY"
                 style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
-                placeholder="Chọn ngày giao"
-                disabledDate={(current: any) =>
-                  current && current.valueOf() < Date.now()
-                }
+                placeholder="dd/mm/yyyy"
+                disabledDate={(current: any) => current && current.valueOf() < Date.now()}
               />
             </Form.Item>
           </Col>
@@ -351,41 +350,31 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                   />
                                 </td>
                                 <td style={{ padding: 0 }}>
-                                  {single.code === "ghtk" ? (
-                                    <div>
+                                  <Radio.Group>
+                                    {single.code === "ghtk" ? (
+                                      <div>
+                                        <div
+                                          style={{ padding: "8px 16px" }}
+                                          className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                        >
+                                          <Radio value={index}>Đường bộ</Radio>
+                                        </div>
+                                        <div
+                                          style={{ padding: "8px 16px" }}
+                                          className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                        >
+                                          <Radio value={index}>Đường bay</Radio>
+                                        </div>
+                                      </div>
+                                    ) : (
                                       <div
                                         style={{ padding: "8px 16px" }}
                                         className="custom-table__has-border-bottom custom-table__has-select-radio"
                                       >
-                                        <input
-                                          type="radio"
-                                          style={{ marginRight: 10 }}
-                                        />
-                                        <label>Đường bộ</label>
+                                       <Radio value={index}>Chuyển phát nhanh PDE</Radio>
                                       </div>
-                                      <div
-                                        style={{ padding: "8px 16px" }}
-                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                      >
-                                        <input
-                                          type="radio"
-                                          style={{ marginRight: 10 }}
-                                        />
-                                        <label>Đường bay</label>
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div
-                                      style={{ padding: "8px 16px" }}
-                                      className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                    >
-                                      <input
-                                        type="radio"
-                                        style={{ marginRight: 10 }}
-                                      />
-                                      <label>Chuyển phát nhanh PDE</label>
-                                    </div>
-                                  )}
+                                    )}
+                                  </Radio.Group>
                                 </td>
                                 <td style={{ padding: 0, textAlign: "right" }}>
                                   {single.code === "ghtk" ? (
