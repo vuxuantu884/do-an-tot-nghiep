@@ -1848,7 +1848,7 @@ const OrderDetail = () => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
         title="Xác nhận giao hàng thành công"
-        text={`Bạn có chắc xuất kho đơn giao hàng này ${
+        text={`Bạn có chắc đã giao đơn giao hàng này ${
           confirmExportAndFinishValue()
             ? "với tiền thu hộ là " + confirmExportAndFinishValue()
             : ""
