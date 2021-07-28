@@ -126,7 +126,7 @@ const OrderDetail = () => {
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
   //#endregion
-
+  console.log(shipper);
   //#region Orther
   const ShowShipping = () => {
     setVisibleShipping(true);
@@ -392,28 +392,29 @@ const OrderDetail = () => {
   //#endregion
   const confirmExportAndFinishValue = () => {
     if (takeMoneyHelper) {
-      return formatCurrency(takeMoneyHelper);
+      return takeMoneyHelper;
     } else if (
       OrderDetail?.fulfillments &&
       OrderDetail?.fulfillments.length > 0 &&
       OrderDetail?.fulfillments[0].shipment &&
       OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
     ) {
-      return formatCurrency(
+      return (
         OrderDetail?.fulfillments[0].shipment
           .shipping_fee_informed_to_customer +
-          OrderDetail?.total_line_amount_after_line_discount +
-          shippingFeeInformedCustomer -
-          (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+        OrderDetail?.total_line_amount_after_line_discount +
+        shippingFeeInformedCustomer -
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
       );
     } else if (OrderDetail?.total && OrderDetail?.total_paid) {
-      return formatCurrency(
+      return (
         OrderDetail?.total +
-          shippingFeeInformedCustomer -
-          OrderDetail?.total_paid
+        shippingFeeInformedCustomer -
+        OrderDetail?.total_paid
       );
     }
   };
+
   //#region shiment
   let initialFormUpdateShipment: UpdateShipmentRequest = {
     order_id: null,
@@ -767,7 +768,7 @@ const OrderDetail = () => {
                   style={{ paddingTop: 6, paddingBottom: 4 }}
                 >
                   <Collapse
-                    className="saleorder_shipment_order_colapse"
+                    className="saleorder_shipment_order_colapse payment_success"
                     defaultActiveKey={["1"]}
                     onChange={() => setIsArrowRotation(!isArrowRotation)}
                     ghost
@@ -835,8 +836,14 @@ const OrderDetail = () => {
                           <Col span={24}>
                             <b>
                               {OrderDetail?.fulfillments &&
-                                OrderDetail.fulfillments[0].shipment
-                                  ?.shipper_name}
+                                OrderDetail.fulfillments.length &&
+                                shipper &&
+                                shipper.find(
+                                  (s) =>
+                                    OrderDetail.fulfillments &&
+                                    OrderDetail.fulfillments[0].shipment
+                                      ?.shipper_code === s.code
+                                )?.full_name}
                             </b>
                           </Col>
                         </Col>
@@ -1146,12 +1153,6 @@ const OrderDetail = () => {
                                 style={{ width: "100%" }}
                                 notFoundContent="Không tìm thấy kết quả"
                                 placeholder="Chọn đối tác giao hàng"
-                                // suffix={
-                                //   <Button
-                                //     style={{ width: 36, height: 36 }}
-                                //     icon={<PlusOutlined />}
-                                //   />
-                                // }
                                 filterOption={(input, option) => {
                                   if (option) {
                                     return (
@@ -1423,13 +1424,26 @@ const OrderDetail = () => {
                             className="orders-timeline-custom success-collapse"
                             header={
                               <span style={{ color: "#222222" }}>
-                                Đã thanh toán:
+                                <span>Đã thanh toán: </span>
                                 <b>
                                   {OrderDetail?.payments &&
-                                    OrderDetail?.payments.map(
-                                      (item, index) =>
-                                        item.payment_method + ", "
-                                    )}
+                                    OrderDetail?.payments
+                                      .filter(
+                                        (payment, index) =>
+                                          payment.payment_method !== "cod"
+                                      )
+                                      .map(
+                                        (item, index) =>
+                                          item.payment_method +
+                                          (index ===
+                                          (OrderDetail?.payments &&
+                                          OrderDetail?.payments.length > 0
+                                            ? OrderDetail?.payments.length
+                                            : 0) -
+                                            2
+                                            ? ""
+                                            : ",")
+                                      )}
                                 </b>
                               </span>
                             }
@@ -1451,14 +1465,19 @@ const OrderDetail = () => {
                           >
                             <Row gutter={24}>
                               {OrderDetail?.payments &&
-                                OrderDetail?.payments.map((item, index) => (
-                                  <Col span={12}>
-                                    <p style={{ color: "#737373" }}>
-                                      {item.payment_method}
-                                    </p>
-                                    <b>{formatCurrency(item.paid_amount)}</b>
-                                  </Col>
-                                ))}
+                                OrderDetail?.payments
+                                  .filter(
+                                    (payment) =>
+                                      payment.payment_method !== "cod"
+                                  )
+                                  .map((item, index) => (
+                                    <Col span={12}>
+                                      <p style={{ color: "#737373" }}>
+                                        {item.payment_method}
+                                      </p>
+                                      <b>{formatCurrency(item.paid_amount)}</b>
+                                    </Col>
+                                  ))}
                             </Row>
                           </Panel>
                           {/* <Panel key="2" showArrow={false} header="COD" /> */}
@@ -1475,7 +1494,12 @@ const OrderDetail = () => {
                                 header={
                                   <span>
                                     COD
-                                    <b style={{ marginLeft: "200px" }}>
+                                    <b
+                                      style={{
+                                        marginLeft: "200px",
+                                        color: "#222222",
+                                      }}
+                                    >
                                       {OrderDetail !== null &&
                                       OrderDetail.fulfillments
                                         ? formatCurrency(
@@ -1485,6 +1509,20 @@ const OrderDetail = () => {
                                         : 0}
                                     </b>
                                   </span>
+                                }
+                                extra={
+                                  <>
+                                    {OrderDetail?.payments && (
+                                      <div>
+                                        <span className="fixed-time text-field">
+                                          {ConvertUtcToLocalDate(
+                                            getDateLastPayment(OrderDetail),
+                                            "DD/MM/YYYY HH:mm"
+                                          )}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </>
                                 }
                                 key="2"
                               ></Panel>
@@ -1508,20 +1546,24 @@ const OrderDetail = () => {
                       setTotalPaid={setTotalPaid}
                     />
                   )}
-                  {checkPaymentAll(OrderDetail) !== 1 &&
-                    isShowPaymentPartialPayment === false &&
-                    checkPaymentStatusToShow(OrderDetail) !== 1 && (
-                      <div className="padding-24 text-right">
-                        <Divider style={{ margin: "10px 0" }} />
-                        <Button
-                          type="primary"
-                          className="ant-btn-outline fixed-button"
-                          onClick={() => setShowPaymentPartialPayment(true)}
-                        >
-                          Thanh toán
-                        </Button>
-                      </div>
-                    )}
+                  {(OrderDetail?.fulfillments &&
+                    OrderDetail?.fulfillments.length > 0 &&
+                    OrderDetail?.fulfillments[0].shipment &&
+                    OrderDetail?.fulfillments[0].shipment.cod !== null) ||
+                    (checkPaymentAll(OrderDetail) !== 1 &&
+                      isShowPaymentPartialPayment === false &&
+                      checkPaymentStatusToShow(OrderDetail) !== 1 && (
+                        <div className="padding-24 text-right">
+                          <Divider style={{ margin: "10px 0" }} />
+                          <Button
+                            type="primary"
+                            className="ant-btn-outline fixed-button"
+                            onClick={() => setShowPaymentPartialPayment(true)}
+                          >
+                            Thanh toán
+                          </Button>
+                        </div>
+                      ))}
                 </Card>
               )}
 
@@ -1598,7 +1640,9 @@ const OrderDetail = () => {
                         header={
                           <span>
                             COD
-                            <b style={{ marginLeft: "200px" }}>
+                            <b
+                              style={{ marginLeft: "200px", color: "#222222" }}
+                            >
                               {OrderDetail.fulfillments
                                 ? formatCurrency(
                                     OrderDetail.fulfillments[0].shipment?.cod

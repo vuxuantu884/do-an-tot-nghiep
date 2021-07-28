@@ -86,7 +86,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
-
+  
   //#region Modal
   const ShowAddressModal = () => {
     setVisibleAddress(true);
