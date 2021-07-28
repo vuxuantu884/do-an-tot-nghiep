@@ -374,13 +374,13 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         </div>
 
         {/*--- Giao hàng sau ----*/}
-        {/* <Row className="ship-later-box" hidden={shipmentMethodState !== 4}>
+        <Row className="ship-later-box" hidden={shipmentMethodState !== 4}>
           <div className="form-group m-0">
             <label htmlFor="">
               <i>Bạn có thể xử lý giao hàng sau khi tạo và duyệt đơn hàng.</i>
             </label>
           </div>
-        </Row> */}
+        </Row>
       </div>
     </Card>
   );

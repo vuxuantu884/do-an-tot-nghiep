@@ -721,7 +721,7 @@ export const checkPaymentAll = (items: OrderResponse) => {
   //tổng cod
   let cod = 0;
   if (items !== null) {
-    if (items.fulfillments !== null && items.fulfillments !== undefined) {
+    if (items.fulfillments) {
       if (items.fulfillments.length > 0) {
         items.fulfillments.forEach((a) => {
           if (a.shipment !== undefined && a.shipment !== null) {
