@@ -1441,9 +1441,9 @@ const OrderDetail = () => {
                                           OrderDetail?.payments.length > 0
                                             ? OrderDetail?.payments.length
                                             : 0) -
-                                            2
+                                            1
                                             ? ""
-                                            : ",")
+                                            : ", ")
                                       )}
                                 </b>
                               </span>

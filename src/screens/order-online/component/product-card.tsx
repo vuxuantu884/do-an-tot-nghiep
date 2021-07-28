@@ -150,11 +150,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
     total();
   };
-  
+
   const total = useCallback(() => {
     let _items = [...items];
     let _amount = 0;
-    
 
     _items.forEach((i) => {
       let total_discount_items = 0;
@@ -564,6 +563,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const onSearchVariantSelect = useCallback(
     (v, o) => {
+      console.log(v)
+      console.log(items)
       let newV = parseInt(v);
       let _items = [...items].reverse();
       let indexSearch = resultSearchVariant.items.findIndex(
@@ -934,26 +935,17 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         <Row className="sale-product-box-payment" gutter={24}>
           <Col xs={24} lg={12}>
             <div className="payment-row">
-              <Checkbox
-                className=""
-                style={{ fontWeight: 500 }}
-              >
+              <Checkbox className="" style={{ fontWeight: 500 }}>
                 Bỏ chiết khấu tự động
               </Checkbox>
             </div>
             <div className="payment-row">
-              <Checkbox
-                className=""
-                style={{ fontWeight: 500 }}
-              >
+              <Checkbox className="" style={{ fontWeight: 500 }}>
                 Không tính thuế VAT
               </Checkbox>
             </div>
             <div className="payment-row">
-              <Checkbox
-                className=""
-                style={{ fontWeight: 500 }}
-              >
+              <Checkbox className="" style={{ fontWeight: 500 }}>
                 Bỏ tích điểm tự động
               </Checkbox>
             </div>
@@ -1057,10 +1049,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Khách cần phải trả:</strong>
               <strong className="text-success font-size-text">
-                {changeMoney !== null || props.shippingFeeCustomer !== null
-                  ? props.shippingFeeCustomer !== null
-                    ? formatCurrency(changeMoney + props.shippingFeeCustomer)
-                    : formatCurrency(changeMoney)
+                {changeMoney
+                  ? formatCurrency(
+                      changeMoney +
+                        (props.shippingFeeCustomer
+                          ? props.shippingFeeCustomer
+                          : 0)
+                    )
                   : "-"}
               </strong>
             </Row>
