@@ -1,4 +1,4 @@
-import { SearchOutlined } from "@ant-design/icons";
+import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
@@ -18,6 +18,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
+import classNames from "classnames";
 import imgDefIcon from "assets/img/img-def.svg";
 import { RefSelectProps } from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
@@ -30,16 +31,17 @@ import {
 } from "model/purchase-order/purchase-item.model";
 import React, { createRef, useCallback, useMemo } from "react";
 import { useState } from "react";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { POUtils } from "utils/POUtils";
 import ProductItem from "./product-item";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency } from "utils/AppUtils";
-import PriceModal from "../model/price.modal";
-import DiscountModal from "../model/discount.modal";
-import PickManyProductModal from "../model/pick-many-product.modal";
+import PriceModal from "../modal/price.modal";
+import DiscountModal from "../modal/discount.modal";
+import PickManyProductModal from "../modal/pick-many-product.modal";
+import ExpenseModal from "../modal/expense.modal";
 type POProductProps = {
   formMain: FormInstance;
 };
@@ -52,6 +54,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+  const [visibleExpense, setVisibleExpense] = useState<boolean>(false);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [data, setData] = useState<Array<VariantResponse>>([]);
@@ -115,6 +118,31 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       setSearchValue("");
     },
     [data, formMain, splitLine]
+  );
+  const onDeleteItem = useCallback(
+    (index: number) => {
+      let old_line_items: Array<PurchaseOrderLineItem> =
+        formMain.getFieldValue("line_items");
+      let discount_rate_total = formMain.getFieldValue("discount_rate");
+      let discount_value_total = formMain.getFieldValue("discount_value");
+      old_line_items.splice(index, 1);
+      let total = POUtils.totalAmount(old_line_items);
+      let total_discount = POUtils.getTotalDiscount(
+        total,
+        discount_rate_total,
+        discount_value_total
+      );
+      let vats = POUtils.getVatList(old_line_items);
+      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      formMain.setFieldsValue({
+        line_items: [...old_line_items],
+        total: total,
+        vats: vats,
+        total_discount: total_discount,
+        total_payment: total_payment,
+      });
+    },
+    [formMain]
   );
   const onQuantityChange = useCallback(
     (quantity, index) => {
@@ -236,6 +264,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         new_items,
         splitLine
       );
+      console.log('new_line_items', new_line_items);
       let total = POUtils.totalAmount(new_line_items);
       let total_discount = POUtils.getTotalDiscount(
         total,
@@ -276,6 +305,17 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         total: total,
         total_discount: total_discount,
         total_payment: total_payment,
+      });
+    },
+    [formMain]
+  );
+  const onNoteChange = useCallback(
+    (value: string, index: number) => {
+      let data: Array<PurchaseOrderLineItem> =
+        formMain.getFieldValue("line_items");
+      data[index].note = value;
+      formMain.setFieldsValue({
+        line_items: [...data],
       });
     },
     [formMain]
@@ -374,7 +414,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           </Input.Group>
           <Form.Item noStyle name="line_items" hidden>
             <Input />
-          </Form.Item> 
+          </Form.Item>
           <Form.Item
             style={{ padding: 0 }}
             className="margin-top-20"
@@ -411,7 +451,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     ),
                   }}
                   rowKey={(record: PurchaseOrderLineItem) =>
-                    record.id?.toString()
+                    record.temp_id
                   }
                   columns={[
                     {
@@ -437,11 +477,30 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     {
                       title: "Sản phẩm",
                       width: "99%",
+                      className: "ant-col-info",
                       dataIndex: "variant",
-                      render: (value: string, item: PurchaseOrderLineItem) => (
+                      render: (
+                        value: string,
+                        item: PurchaseOrderLineItem,
+                        index: number
+                      ) => (
                         <div>
-                          <div className="product-item-sku">{item.sku}</div>
-                          <div className="product-item-name">{value}</div>
+                          <div>
+                            <div className="product-item-sku">{item.sku}</div>
+                            <div className="product-item-name">{value}</div>
+                          </div>
+                          <Input
+                            addonBefore={<EditOutlined />}
+                            className={classNames(
+                              "product-item-note-input",
+                              item.note === "" && "product-item-note"
+                            )}
+                            placeholder="Thêm ghi chú"
+                            value={item.note}
+                            onChange={(e) =>
+                              onNoteChange(e.target.value, index)
+                            }
+                          />
                         </div>
                       ),
                     },
@@ -545,7 +604,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           VAT
                         </div>
                       ),
-                      width: 140,
+                      width: 90,
                       dataIndex: "tax",
                       render: (value, item, index) => {
                         return (
@@ -557,7 +616,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             min={0}
                             max={100}
                             onBlur={() => {
-                              debugger;
                               if (value === null) {
                                 onVATChange(0, index);
                               }
@@ -576,6 +634,17 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       align: "center",
                       width: 120,
                       render: (value: string) => formatCurrency(value),
+                    },
+                    {
+                      title: "",
+                      width: 40,
+                      render: (value: string, item, index: number) => (
+                        <Button
+                          onClick={() => onDeleteItem(index)}
+                          className="product-item-delete"
+                          icon={<AiOutlineClose />}
+                        />
+                      ),
                     },
                   ]}
                   dataSource={items}
@@ -604,6 +673,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           >
                             {formatCurrency(POUtils.totalAmount(items))}
                           </Table.Summary.Cell>
+                          <Table.Summary.Cell index={3} colSpan={1} />
                         </Table.Summary.Row>
                       </Table.Summary>
                     )
@@ -653,13 +723,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   );
                 }}
               </Form.Item>
-              <Form.Item name="discount_rate" hidden  noStyle>
+              <Form.Item name="discount_rate" hidden noStyle>
                 <Input />
               </Form.Item>
-              <Form.Item name="discount_value" hidden  noStyle>
+              <Form.Item name="discount_value" hidden noStyle>
                 <Input />
               </Form.Item>
-              <Form.Item name="total_discount" hidden  noStyle>
+              <Form.Item name="total_discount" hidden noStyle>
                 <Input />
               </Form.Item>
               <Form.Item
@@ -730,14 +800,23 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               </Form.Item>
               <Form.Item noStyle>
                 <div className="payment-row">
-                  <div>Chi phí</div>
+                  <Typography.Link
+                    onClick={() => setVisibleExpense(true)}
+                    style={{
+                      textDecoration: "underline",
+                      textDecorationColor: "#5D5D8A",
+                      color: "#5D5D8A",
+                    }}
+                  >
+                    Chi phí
+                  </Typography.Link>
                   <div className="payment-row-result">-</div>
                 </div>
               </Form.Item>
 
               <Divider className="margin-top-5 margin-bottom-5" />
 
-              <Form.Item name="total_payment" hidden  noStyle>
+              <Form.Item name="total_payment" hidden noStyle>
                 <Input />
               </Form.Item>
               <Form.Item
@@ -762,7 +841,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           </Row>
         </div>
       </Card>
-
+      <ExpenseModal visible={visibleExpense} onCancel={() => setVisibleExpense(false)} />
       <PickManyProductModal
         onSave={onPickManyProduct}
         onCancle={() => setVisibleManyProduct(false)}

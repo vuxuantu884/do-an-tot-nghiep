@@ -32,7 +32,7 @@ import addressIcon from "assets/img/user-pin.svg";
 import noteCustomer from "assets/img/note-customer.svg";
 import { Link } from "react-router-dom";
 import { PurchaseAddress } from "model/purchase-order/purchase-address.model";
-import EditAddressModal from "../model/edit-address";
+import EditAddressModal from "../modal/edit-address";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { AddressType, PoFormName, VietNamId } from "utils/Constants";

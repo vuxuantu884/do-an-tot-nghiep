@@ -22,6 +22,7 @@ import {
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
 import {
+  OrderDiscountResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
@@ -660,7 +661,7 @@ export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
 
 export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
-  items.forEach((a) => (total = total + a.discount_amount));
+  items.forEach((a) => (total = total + a.discount_amount * a.quantity));
   return total;
 };
 
