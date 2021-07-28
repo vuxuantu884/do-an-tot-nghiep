@@ -11,7 +11,7 @@ import { ApiConfig } from "config/ApiConfig";
 import { SourceResponse } from "model/response/order/source.response";
 import { OrderResponse } from "model/response/order/order.response";
 import { generateQuery } from "utils/AppUtils";
-import { OrderSourceModel } from "model/response/order/order-source.response";
+import { OrderSourceCompanyModel, OrderSourceModel } from "model/response/order/order-source.response";
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources`);
@@ -63,8 +63,12 @@ export const getSourcesWithParams = (query = {page: 1, limit: 30}): Promise<Base
   return BaseAxios.get(`${ApiConfig.ORDER}/sources?${queryString}`);
 };
 
+export const getListSourcesCompanies = (): Promise<BaseResponse<SourceResponse>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
+};
+
 export const createOrderSourceService = (
   newOrderSource: OrderSourceModel
-): Promise<BaseResponse<OrderResponse>> => {
+): Promise<BaseResponse<OrderSourceCompanyModel>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/sources`, newOrderSource);
 };

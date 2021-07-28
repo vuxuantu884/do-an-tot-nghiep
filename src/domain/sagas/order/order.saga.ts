@@ -32,7 +32,7 @@ function* orderCreateSaga(action: YodyAction) {
   }
 }
 
-function* updateFulFillmentStatusSaga(action: YodyAction) {
+function* updateFulfillmentStatusSaga(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
     let response: BaseResponse<OrderResponse> = yield call(
@@ -151,7 +151,7 @@ function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
   yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga);
-  yield takeLatest(OrderType.UPDATE_FULFILLMENT_METHOD, updateFulFillmentStatusSaga);
+  yield takeLatest(OrderType.UPDATE_FULFILLMENT_METHOD, updateFulfillmentStatusSaga);
   yield takeLatest(OrderType.UPDATE_SHIPPING_METHOD, updateShipmentSaga);
   yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD,updatePaymentSaga);
 }

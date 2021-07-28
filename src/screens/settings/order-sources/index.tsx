@@ -24,7 +24,7 @@ const OrderSources: React.FC = () => {
   const [isShowModalCreate, setIsShowModalCreate] = useState(false);
   const dispatch = useDispatch();
   const data = useSelector((state: any) => {
-    return state.settings.orderSources.list;
+    return state.settings.orderSources.data;
   });
 
   const total = useSelector((state: any) => {
@@ -117,7 +117,8 @@ const OrderSources: React.FC = () => {
       })
       .catch((error) => {
         console.log("error", error);
-      }).finally(()=> {
+      })
+      .finally(() => {
         setIsShowModalCreate(false);
       });
   };
@@ -165,11 +166,13 @@ const OrderSources: React.FC = () => {
             />
           </Card>
         )}
-        <ModalAddOrderSource
-          visible={isShowModalCreate}
-          onCreate={(value) => handleCreateOrderSource(value)}
-          onCancel={() => setIsShowModalCreate(false)}
-        />
+        {isShowModalCreate && (
+          <ModalAddOrderSource
+            visible={isShowModalCreate}
+            onCreate={(value) => handleCreateOrderSource(value)}
+            onCancel={() => setIsShowModalCreate(false)}
+          />
+        )}
       </ContentContainer>
     </StyledComponent>
   );

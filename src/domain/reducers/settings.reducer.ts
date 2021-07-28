@@ -3,10 +3,11 @@ import { AnyAction } from "redux";
 
 const initialState = {
   fulfillment: {
-    list: [],
+    data: [],
   },
   orderSources: {
-    list: [],
+    data: [],
+    listCompanies: [],
     total: 0,
   },
 };
@@ -16,53 +17,81 @@ const settingsReducer = (state = initialState, action: AnyAction) => {
     // fulfillment
     case SETTING_TYPES.fulfillment.listAll:
       return {
-        ...initialState,
+        ...state,
         fulfillment: {
-          list: [],
+          data: [],
         },
       };
     case SETTING_TYPES.fulfillment.listAllSuccessful:
       return {
-        ...initialState,
+        ...state,
         fulfillment: {
-          list: action.payload.data,
+          data: action.payload.data,
         },
       };
     case SETTING_TYPES.fulfillment.listAllFailed:
       return {
-        ...initialState,
+        ...state,
         fulfillment: {
-          list: [],
+          data: [],
         },
       };
 
     // order resource
-    case SETTING_TYPES.orderSources.listAll:
+    case SETTING_TYPES.orderSources.listData:
       return {
-        ...initialState,
+        ...state,
         orderSources: {
-          list: [],
+          ...initialState.orderSources,
+          data: [],
           total: 0,
-        },
+        }
       };
-    case SETTING_TYPES.orderSources.listAllSuccessful:
-      const {total} = action.payload
-      const list = action.payload.listOrderSources
+    case SETTING_TYPES.orderSources.listDataSuccessful:
+      console.log('action', action)
       return {
-        ...initialState,
+        ...state,
         orderSources: {
-          list,
-          total
-        },
+          ...state.orderSources,
+          data: action.payload.listOrderSources,
+          total: action.payload.total,
+        }
       };
-    case SETTING_TYPES.orderSources.listAllFailed:
+    case SETTING_TYPES.orderSources.listDataFailed:
       return {
-        ...initialState,
+        ...state,
         orderSources: {
-          list: [],
+          ...state.orderSources,
+          data: [],
           total: 0,
-        },
+        }
       };
+
+      case SETTING_TYPES.orderSources.listSourceCompany:
+        return {
+          ...state,
+          orderSources: {
+            ...state.orderSources,
+            listCompanies: [],
+          }
+        };
+      case SETTING_TYPES.orderSources.listSourceCompanySuccessful:
+        console.log('action', action)
+        return {
+          ...state,
+          orderSources: {
+            ...state.orderSources,
+            listCompanies: action.payload.listOrderSourceCompanies,
+          }
+        };
+      case SETTING_TYPES.orderSources.listSourceCompanyFailed:
+        return {
+          ...state,
+          orderSources: {
+            ...state.orderSources,
+            listCompanies: [],
+          }
+        };
     default:
       return state;
   }

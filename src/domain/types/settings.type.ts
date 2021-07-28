@@ -5,8 +5,11 @@ export const SETTING_TYPES = {
     listAllFailed: 'LIST_ALL_FULFILLMENT_FAILED',
   },
   orderSources: {
-    listAll: 'LIST_ALL_ORDER_SOURCES',
-    listAllSuccessful: 'LIST_ALL_ORDER_SOURCES_SUCCESSFUL',
-    listAllFailed: 'LIST_ALL_ORDER_SOURCES_FAILED',
+    listData: 'LIST_DATA_ORDER_SOURCES',
+    listDataSuccessful: 'LIST_DATA_ORDER_SOURCES_SUCCESSFUL',
+    listDataFailed: 'LIST_DATA_ORDER_SOURCES_FAILED',
+    listSourceCompany: 'LIST_SOURCE_COMPANY',
+    listSourceCompanySuccessful: 'LIST_SOURCE_COMPANY_SUCCESSFUL',
+    listSourceCompanyFailed: 'LIST_SOURCE_COMPANY_FAILED',
   }  
 }

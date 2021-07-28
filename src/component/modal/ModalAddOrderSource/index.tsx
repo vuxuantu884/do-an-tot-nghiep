@@ -1,5 +1,8 @@
-import { Checkbox, Form, Input, Modal } from "antd";
-import { OrderSourceModel } from "model/response/order/order-source.response";
+import { Checkbox, Dropdown, Form, Input, Menu, Modal } from "antd";
+import { actionFetchListOrderSourceCompanies } from "domain/actions/settings/order-sources.action";
+import { OrderSourceCompanyModel, OrderSourceModel } from "model/response/order/order-source.response";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 type ModalAddOrderSourceType = {
   visible?: boolean;
@@ -12,6 +15,14 @@ type ModalAddOrderSourceType = {
   bgIcon?: string;
 };
 
+type stateType = {
+  settings: {
+    orderSources: {
+      listCompanies: OrderSourceCompanyModel[];
+    }
+  }
+}
+
 const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
   props: ModalAddOrderSourceType
 ) => {
@@ -19,9 +30,22 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
   const [form] = Form.useForm();
   const initialFormValue: OrderSourceModel = {
     company: "",
+    name: "",
     is_active: false,
     is_default: false,
   };
+  const dispatch = useDispatch();
+  const listOrderCompany = useSelector((state: stateType) => {
+    return state.settings.orderSources.listCompanies;
+  });
+
+  useEffect(() => {
+    if(!listOrderCompany.length) {
+      console.log('aaa')
+      dispatch(actionFetchListOrderSourceCompanies())
+    }
+  }, [dispatch, listOrderCompany.length])
+
   return (
     <Modal
       width="600px"
@@ -52,8 +76,29 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
         layout="vertical"
         initialValues={initialFormValue}
       >
+        {listOrderCompany?.length && (
+          <Form.Item
+            name="company"
+            label="Doanh nghiệp"
+            rules={[
+              { required: true, message: "Vui lòng chọn doanh nghiệp !" }
+            ]}
+          >
+            {/* <Dropdown trigger={["click"]} placement="bottomCenter" overlay={
+              <Menu>
+                {
+                  listOrderCompany.map((singleCompany, index) => (
+                    <Menu.Item  key={index}>{singleCompany.name}</Menu.Item>
+                  ))
+                }
+              </Menu>
+            }>
+            </Dropdown> */}
+          </Form.Item>
+
+        )}
         <Form.Item
-          name="company"
+          name="name"
           label="Tên nguồn đơn hàng"
           rules={[
             { required: true, message: "Vui lòng điền tên nguồn đơn hàng !" },
