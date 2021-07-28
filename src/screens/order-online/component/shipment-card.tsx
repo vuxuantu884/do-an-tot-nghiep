@@ -9,6 +9,7 @@ import {
   Select,
   DatePicker,
   Checkbox,
+  Input,
 } from "antd";
 
 import callIcon from "assets/img/call.svg";
@@ -20,7 +21,7 @@ import shoppingBag from "assets/icon/shopping_bag.svg";
 import wallClock from "assets/icon/wall_clock.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useDispatch, useSelector } from "react-redux";
-import { useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
@@ -29,6 +30,9 @@ import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
+import imageDHL from './delete-images/imageDHL.svg';
+import imageGHTK from './delete-images/imageGHTK.svg';
+import imageVTP from './delete-images/imageVTP.svg';
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
@@ -102,6 +106,47 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       icon: wallClock,
     },
   ];
+
+  const FAKE_DELIVER_PARTNER_DATA = [
+    {
+      name: 'DHL',
+      image: imageDHL,
+      services : [
+        {
+          title: 'Chuyển phát nhanh PDE',
+          price: '18.000',
+          key: '1',
+        }
+      ]
+    },
+    {
+      name: 'GHTK',
+      image: imageGHTK,
+      services : [
+        {
+          title: 'Đường bộ',
+          price: '30.000',
+          key: '2',
+        },
+        {
+          title: 'Đường bay',
+          price: '50.000',
+          key:'3',
+        }
+      ]
+    },
+    {
+      name: 'VTP',
+      image: imageVTP,
+      services : [
+        {
+          title: 'Chuyển phát nhanh PDE',
+          price: '18.000',
+          key: '4',
+        }
+      ]
+    }
+  ]
 
   return (
     <Card
@@ -223,6 +268,81 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             </Space>
           </div>
         </Row>
+        {/*--- Chuyển hãng vận chuyển ----*/}
+        {shipmentMethodState === ShipmentMethodOption.DELIVERPARNER && (
+          <>
+          <Row gutter={20}>
+            <Col md={12}>
+              <Form.Item
+                label="Tiền thu hộ:"
+                name="shipper_code"
+              >
+                <Input placeholder="166.000" />
+              </Form.Item>
+            </Col>
+            <Col md={12}>
+              <Form.Item
+                label="Phí ship báo khách:"
+                name="shipper_code"
+              >
+                <Input placeholder="20.000" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <div className='ant-table ant-table-bordered custom-table'>
+            <div className="ant-table-container">
+              <div className="ant-table-content">
+                <table className="table-bordered" style={{width: '100%', tableLayout: 'auto'}}>
+                  <thead className='ant-table-thead'>
+                    <tr>
+                      <th className='ant-table-cell'>Hãng vận chuyển</th>
+                      <th className='ant-table-cell'>Dịch vụ chuyển phát</th>
+                      <th className='ant-table-cell' style={{textAlign: 'right'}}>Cước phí</th>
+
+                    </tr>
+                  </thead>
+                  <tbody className="ant-table-tbody">
+                    {FAKE_DELIVER_PARTNER_DATA.map((single, index) => {
+                      return (
+                        <React.Fragment key={index}>
+                          <tr>
+                            <td>
+                              <img src={single.image} alt="" />
+                            </td>
+                            <td style={{padding: 0}}>
+                              {single.services.map((singleService, i) => {
+                                return (
+                                  <div key={i} style={{padding: '8px 16px'}} className='custom-table__has-border-bottom custom-table__has-select-radio'>
+                                    <input type="radio" id={singleService.key} name='selectDeliveryCompany' style={{marginRight: 10}}/>
+                                    <label htmlFor={singleService.key}>{singleService.title}
+                                    </label>
+                                  </div>
+                                )
+                              })}
+                            </td>
+                            <td style={{padding: 0, textAlign: 'right'}}>
+                              {single.services.map((singleService, i) => {
+                                return (
+                                  <div key={i} style={{padding: '8px 16px'}} className='custom-table__has-border-bottom custom-table__has-select-radio'>
+                                    {singleService.price}
+                                  </div>
+                                )
+                              })}
+                            </td>
+                          </tr>
+                        </React.Fragment>
+                      )
+                    })}
+                  </tbody>
+                  
+                </table>
+              </div>
+            
+            </div>
+          </div>
+          
+          </>
+        )}
         {shipmentMethodState === ShipmentMethodOption.SELFDELIVER && (
           <Row gutter={20}>
             <Col md={12}>
