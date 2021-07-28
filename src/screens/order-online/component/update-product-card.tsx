@@ -24,6 +24,7 @@ import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 type ProductCardUpdateProps = {
   shippingFeeInformedCustomer: number | null;
   OrderDetail: OrderResponse | null;
+  customerNeedToPayValue: any 
 };
 
 const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
@@ -318,9 +319,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Khách cần trả</strong>
               <strong className="text-success font-size-text">
-                {props.OrderDetail !== undefined &&
-                  props.OrderDetail !== null &&
-                  formatCurrency(props.OrderDetail?.total)}
+                {formatCurrency(props.customerNeedToPayValue)}
               </strong>
             </Row>
           </Col>

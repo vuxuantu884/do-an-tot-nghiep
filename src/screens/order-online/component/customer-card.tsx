@@ -86,7 +86,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
-
+  
   //#region Modal
   const ShowAddressModal = () => {
     setVisibleAddress(true);
@@ -191,10 +191,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         props.InfoCustomerSet(resultSearch[index]);
 
         //set Shipping Address
-        if (
-          resultSearch[index].shipping_addresses !== undefined &&
-          resultSearch[index].shipping_addresses !== null
-        ) {
+        if (resultSearch[index].shipping_addresses) {
           resultSearch[index].shipping_addresses.forEach((item, index2) => {
             if (item.default === true) {
               setShippingAddress(item);
@@ -204,10 +201,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         }
 
         //set Billing Address
-        if (
-          resultSearch[index].billing_addresses !== undefined &&
-          resultSearch[index].billing_addresses !== null
-        ) {
+        if (resultSearch[index].billing_addresses) {
           resultSearch[index].billing_addresses.forEach((item, index2) => {
             if (item.default === true) {
               setBillingAddress(item);
