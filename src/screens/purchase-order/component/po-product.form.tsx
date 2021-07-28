@@ -60,6 +60,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [data, setData] = useState<Array<VariantResponse>>([]);
+  const [costLines, setCostLines] = useState<Array<CostLine>>([]);
   const renderResult = useMemo(() => {
     let options: any[] = [];
     data.forEach((item: VariantResponse, index: number) => {
@@ -684,20 +685,22 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               Chọn nhiều
             </Button>
           </Input.Group>
-          <Form.Item noStyle name="line_items" hidden>
+          <Form.Item noStyle name={POField.line_items} hidden>
             <Input />
           </Form.Item>
           <Form.Item
             style={{ padding: 0 }}
             className="margin-top-20"
             shouldUpdate={(prevValues, curValues) =>
-              prevValues.line_items !== curValues.line_items
+              prevValues[POField.line_items] !== curValues[POField.line_items]
             }
           >
             {({ getFieldValue }) => {
-              let items = getFieldValue("line_items")
-                ? getFieldValue("line_items")
+              let items = getFieldValue(POField.line_items)
+                ? getFieldValue(POField.line_items)
                 : [];
+              debugger;
+
               return (
                 <Table
                   className="product-table"
@@ -1055,7 +1058,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       <div className="payment-row-result">
                         {trade_discount_amount === 0
                           ? "-"
-                          : formatCurrency(trade_discount_amount)}
+                          : formatCurrency(Math.round(trade_discount_amount))}
                       </div>
                     </div>
                   );
@@ -1129,7 +1132,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       <div className="payment-row-result">
                         {payment_discount_amount === 0
                           ? "-"
-                          : formatCurrency(payment_discount_amount)}
+                          : formatCurrency(Math.round(payment_discount_amount))}
                       </div>
                     </div>
                   );
@@ -1147,7 +1150,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     <div className="payment-row">
                       <div>{`VAT (${item.value}%)`}</div>
                       <div className="payment-row-result">
-                        {formatCurrency(item.amount)}
+                        {formatCurrency(Math.round(item.amount))}
                       </div>
                     </div>
                   ));
@@ -1161,10 +1164,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               >
                 {({ getFieldValue }) => {
                   let total_cost_lines = getFieldValue(POField.total_cost_lines);
+                  let cost_lines = getFieldValue(POField.cost_lines);
                   return (
                     <div className="payment-row">
                       <Typography.Link
-                        onClick={() => setVisibleExpense(true)}
+                        onClick={() => {
+                          setCostLines(cost_lines);
+                          setVisibleExpense(true)
+                        }}
                         style={{
                           textDecoration: "underline",
                           textDecorationColor: "#5D5D8A",
@@ -1200,7 +1207,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     <div className="payment-row">
                       <strong className="font-size-text">Tiền cần trả</strong>
                       <strong className="text-success font-size-text">
-                        {formatCurrency(total_payment)}
+                        {formatCurrency(Math.round(total_payment))}
                       </strong>
                     </div>
                   );
@@ -1214,11 +1221,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         visible={visibleExpense}
         onCancel={() => setVisibleExpense(false)}
         onOk={onOkExpense}
+        costLines={costLines}
       />
       <PickManyProductModal
         onSave={onPickManyProduct}
         onCancle={() => setVisibleManyProduct(false)}
         visible={visibleManyProduct}
+        
       />
     </React.Fragment>
   );
