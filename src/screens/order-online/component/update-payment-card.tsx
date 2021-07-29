@@ -382,7 +382,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                                     replaceFormat(value ? value : "0")
                                   }
                                   min={0}
-                                  max={caculateMax(props.amount, index) / 1000}
+                                  max={caculateMax(props.amount, index)/1000}
                                   onChange={(value) => {
                                     handleInputPoint(index, value);
                                   }}
