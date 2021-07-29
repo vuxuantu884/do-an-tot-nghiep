@@ -1,6 +1,7 @@
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import {
   OrderRequest,
+  ShippingGHTKRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   UpdatePaymentRequest,
@@ -9,7 +10,7 @@ import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { SourceResponse } from "model/response/order/source.response";
-import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
+import { DeliveryServiceResponse, OrderResponse, ShippingGHTKResponse } from "model/response/order/order.response";
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
@@ -26,6 +27,13 @@ export const orderPostApi = (
 ): Promise<BaseResponse<OrderResponse>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/orders`, request);
 };
+
+export const getInfoDeliveryGHTK = (
+  request: ShippingGHTKRequest
+): Promise<BaseResponse<ShippingGHTKResponse>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/shipping/ghtk/fees`, request);
+};
+
 
 export const getOrderDetail = (
   id: number

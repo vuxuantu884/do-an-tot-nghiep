@@ -226,6 +226,8 @@ export interface OrderLineItemRequest {
   type: string;
   variant_image: string;
   unit: string;
+  weight: number;
+  weight_unit: string;
   warranty: string;
   tax_rate: number;
   tax_include: boolean;
