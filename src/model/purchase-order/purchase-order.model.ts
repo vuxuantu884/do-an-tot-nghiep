@@ -39,3 +39,9 @@ export interface PurchaseOrder {
   completed_date: string,
   payment_term_id: string,
 }
+
+export interface PurchaseOrderQuery{
+  info:string,
+  supplier_id?:number,
+  
+}
