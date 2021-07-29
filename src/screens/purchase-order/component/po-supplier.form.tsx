@@ -195,7 +195,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
           </div>
         }
       >
-        <div className="padding-10">
+        <div className="padding-20">
           <Form.Item
             shouldUpdate={(prevValues, curValues) =>
               prevValues.supplier_id !== curValues.supplier_id
