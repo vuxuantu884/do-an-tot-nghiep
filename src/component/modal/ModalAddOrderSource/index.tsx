@@ -22,7 +22,7 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
   const { visible, onCreate, onCancel } = props;
   const [form] = Form.useForm();
   const initialFormValue: OrderSourceModel = {
-    company: "",
+    // company_id: 0,
     name: "",
     is_active: false,
     is_default: false,
@@ -75,21 +75,21 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
       >
         {listOrderCompanies?.length && (
           <Form.Item
-            name="company"
+            name="company_id"
             label="Doanh nghiệp"
             rules={[
               { required: true, message: "Vui lòng chọn doanh nghiệp !" }
             ]}
           >
             <Select
-              placeholder="Select a option and change input text above"
+              placeholder="Chọn doanh nghiệp"
               // onChange={this.onGenderChange}
               allowClear
             >
               {listOrderCompanies && (
                 listOrderCompanies.map((singleOrderCompany) => {
                   return (
-                    <Select.Option value={singleOrderCompany.company} key={singleOrderCompany.id}>{singleOrderCompany.name}</Select.Option>
+                    <Select.Option value={singleOrderCompany.id} key={singleOrderCompany.id}>{singleOrderCompany.name}</Select.Option>
                   )
                 })
               )}
@@ -102,7 +102,7 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
           label="Tên nguồn đơn hàng"
           rules={[
             { required: true, message: "Vui lòng điền tên nguồn đơn hàng !" },
-            { max: 10, message: "Tên nguồn đơn hàng tối đa 10 kí tự" },
+            { max: 500, message: "Không được nhập quá 500 ký tự" },
           ]}
         >
           <Input

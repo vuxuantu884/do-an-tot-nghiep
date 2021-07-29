@@ -20,4 +20,5 @@ export interface OrderSourceCompanyModel extends BaseObject  {
   company_id: number,
   company: string,
   name: string,
+  channel_id?: string,
 }
