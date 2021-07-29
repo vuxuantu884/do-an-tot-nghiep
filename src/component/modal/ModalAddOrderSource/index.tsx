@@ -33,6 +33,9 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
 
 
   useEffect(() => {
+    /**
+    * when dispatch action, call function (handleData) to handle data
+    */
     dispatch(actionFetchListOrderSourceCompanies(
       (data: OrderSourceCompanyModel[])=> {
         setListOrderCompanies(data);
@@ -86,7 +89,7 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
               {listOrderCompanies && (
                 listOrderCompanies.map((singleOrderCompany) => {
                   return (
-                    <Select.Option value={singleOrderCompany.company} key={singleOrderCompany.company_id}>{singleOrderCompany.name}</Select.Option>
+                    <Select.Option value={singleOrderCompany.company} key={singleOrderCompany.id}>{singleOrderCompany.name}</Select.Option>
                   )
                 })
               )}

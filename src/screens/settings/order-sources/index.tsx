@@ -116,7 +116,9 @@ const OrderSources: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('33')
+     /**
+    * when dispatch action, call function (handleData) to handle data
+    */
     dispatch(
       actionFetchListOrderSources(params, (data: OrderSourceModelResponse) => {
         console.log('data', data)

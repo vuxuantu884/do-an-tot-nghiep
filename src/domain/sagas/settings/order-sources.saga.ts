@@ -24,6 +24,9 @@ function* listAllOrderSourceSaga(action: YodyAction) {
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        /**
+        * call function handleData in payload, variables are taken from the response -> use when dispatch
+        */
         handleData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
