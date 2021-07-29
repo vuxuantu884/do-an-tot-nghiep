@@ -35,7 +35,7 @@ import { PurchaseAddress } from "model/purchase-order/purchase-address.model";
 import EditAddressModal from "../modal/edit-address";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { AddressType,} from "utils/Constants";
+import { AddressType } from "utils/Constants";
 import SupplierAddModal from "screens/supllier/modal/supplier-add-modal.screen";
 
 import { createRef } from "react";
@@ -255,51 +255,56 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                   />
                 </div>
               ) : (
-                <AutoComplete
-                  ref={autoRef}
-                  notFoundContent={
-                    keySearchSupplier.length >= 3
-                      ? "Không tìm thấy nhà cung cấp"
-                      : undefined
+                <div>
+                  <AutoComplete
+                    ref={autoRef}
+                    notFoundContent={
+                      keySearchSupplier.length >= 3
+                        ? "Không tìm thấy nhà cung cấp"
+                        : undefined
 
-                    // <div>
-                    //   <AddItem
-                    //     title="Thêm mới nhà cung cấp"
-                    //     onClick={() => setVisibleSupplierAddModal(true)}
-                    //   />
-                    //   ,<div>Không tìm thấy nhà cung cấp</div>
-                    // </div>
-                  }
-                  // onDropdownVisibleChange={AutoCompleteVisible}
-                  onSearch={onSupplierSearchChange}
-                  value={keySearchSupplier}
-                  style={{ width: "100%" }}
-                  dropdownClassName="supplier"
-                  dropdownRender={(menu) => (
-                    <div className="dropdown-custom">
-                      <Button
-                        icon={<AiOutlinePlusCircle size={24} />}
-                        className="dropdown-add-new"
-                        type="link"
-                        onClick={() => {
-                          setVisibleSupplierAddModal(true);
-                        }}
-                      >
-                        {/* <PlusCircleOutlined /> */}
-                        Thêm mới nhà cung cấp
-                      </Button>
-                      {menu}
-                    </div>
-                  )}
-                  onSelect={onSelect}
-                  options={renderResult}
-                >
-                  <Input
-                    placeholder="Tìm kiếm nhà cung cấp"
-                    className="border-input"
-                    prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                  />
-                </AutoComplete>
+                      // <div>
+                      //   <AddItem
+                      //     title="Thêm mới nhà cung cấp"
+                      //     onClick={() => setVisibleSupplierAddModal(true)}
+                      //   />
+                      //   ,<div>Không tìm thấy nhà cung cấp</div>
+                      // </div>
+                    }
+                    // onDropdownVisibleChange={AutoCompleteVisible}
+                    onSearch={onSupplierSearchChange}
+                    value={keySearchSupplier}
+                    style={{ width: "100%" }}
+                    dropdownClassName="supplier"
+                    dropdownRender={(menu) => (
+                      <div className="dropdown-custom">
+                        <Button
+                          icon={<AiOutlinePlusCircle size={24} />}
+                          className="dropdown-add-new"
+                          type="link"
+                          onClick={() => {
+                            setVisibleSupplierAddModal(true);
+                          }}
+                        >
+                          {/* <PlusCircleOutlined /> */}
+                          Thêm mới nhà cung cấp
+                        </Button>
+                        {menu}
+                      </div>
+                    )}
+                    onSelect={onSelect}
+                    options={renderResult}
+                  >
+                    <Input
+                      placeholder="Tìm kiếm nhà cung cấp"
+                      className="border-input"
+                      prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                    />
+                  </AutoComplete>
+                  <div className="ant-form-item-explain ant-form-item-explain-error">
+                    <div role="alert">Vui lòng chọn Merchandiser</div>
+                  </div>
+                </div>
               );
             }}
           </Form.Item>
