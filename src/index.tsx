@@ -1,18 +1,22 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import 'antd/dist/antd.min.css';
-import 'assets/font/iconmon/font.css';
+import { ConfigProvider } from "antd";
+import "antd/dist/antd.min.css";
+import viVN from "antd/lib/locale/vi_VN";
 import "assets/css/app.scss";
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import { Provider } from 'react-redux';
-import store from 'domain/store';
+import "assets/font/iconmon/font.css";
+import store from "domain/store";
+import React from "react";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <ConfigProvider locale={viVN}>
+      <App />
+    </ConfigProvider>
   </Provider>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function

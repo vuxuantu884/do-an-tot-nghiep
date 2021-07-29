@@ -159,7 +159,7 @@ const OrderSources: React.FC = () => {
         extra={createOrderSourceHtml()}
       >
         {listOrderSources && (
-          <Card>
+          <Card style={{padding: 24}}>
             <CustomTableStyle2
               isLoading={tableLoading}
               showColumnSetting={true}

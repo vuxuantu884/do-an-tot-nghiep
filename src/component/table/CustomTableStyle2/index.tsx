@@ -1,21 +1,24 @@
-import React, { useCallback } from "react";
-import {
-  Button,
-  Pagination,
-  Table as ANTTable,
-  TableProps,
-  Select,
-} from "antd";
-import { TableLocale, ColumnType } from "antd/lib/table/interface";
 import {
   DoubleLeftOutlined,
   DoubleRightOutlined,
+  LoadingOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
+import {
+  Button,
+  Col,
+  Pagination,
+  Row,
+  Select,
+  Spin,
+  Table as ANTTable,
+  TableProps,
+} from "antd";
+import { ColumnType, TableLocale } from "antd/lib/table/interface";
 import classNames from "classnames";
 import { PageConfig } from "config/PageConfig";
-import { Spin } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
+import React, { useCallback } from "react";
+import { StyledComponent } from "./styles";
 
 export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   pagination?: false | ICustomTablePaginationConfig;
@@ -23,6 +26,8 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   onSelectedChange?: (selectedRows: any[]) => void;
   isLoading?: boolean;
   showColumnSetting?: boolean;
+  isRowSelection?: boolean;
+  isBordered?: boolean;
 }
 
 export interface ICustomTableColumType<T> extends ColumnType<T> {
@@ -105,6 +110,8 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
     onShowColumnSetting,
     showColumnSetting,
     isLoading,
+    isRowSelection,
+    isBordered,
   } = props;
 
   const totalPage = pagination
@@ -137,121 +144,126 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
     [onSelectedChange]
   );
   return (
-    <div className="custom-table">
-      <ANTTable
-        bordered
-        {...props}
-        rowSelection={{
-          type: "checkbox",
-          onSelect: onSelect,
-          onSelectAll: onSelectAll,
-        }}
-        columns={
-          showColumnSetting ? columns?.concat(configSettingColumns) : columns
-        }
-        locale={locale}
-        loading={
-          isLoading
-            ? {
-                indicator: (
-                  <Spin
-                    indicator={
-                      <LoadingOutlined style={{ fontSize: 24 }} spin />
-                    }
+    <StyledComponent>
+      <div className="custom-table">
+        <ANTTable
+          bordered={isBordered ? true : false}
+          {...props}
+          rowSelection={
+            isRowSelection
+              ? {
+                  type: "checkbox",
+                  onSelect: onSelect,
+                  onSelectAll: onSelectAll,
+                }
+              : undefined
+          }
+          columns={
+            showColumnSetting ? columns?.concat(configSettingColumns) : columns
+          }
+          locale={locale}
+          loading={
+            isLoading
+              ? {
+                  indicator: (
+                    <Spin
+                      indicator={
+                        <LoadingOutlined style={{ fontSize: 24 }} spin />
+                      }
+                    />
+                  ),
+                }
+              : false
+          }
+          pagination={false}
+          // scroll={{ y: 700 }}
+          size="middle"
+        />
+        {pagination && (
+          <div className="pagination">
+            <Row>
+              <Col span={7}>
+                <span className="pagination__showTotal">
+                  {showTotal(pagination)}
+                </span>
+              </Col>
+              <Col span={7}>
+                {pagination.showSizeChanger && (
+                  <div className="pagination__sizeChange">
+                    <label
+                      htmlFor="custom-pagination-size-changer"
+                      style={{ marginRight: 12 }}
+                    >
+                      Hiển thị:{" "}
+                    </label>
+                    <Select
+                      value={pagination.pageSize}
+                      id="custom-pagination-size-changer"
+                      onChange={(value: number) =>
+                        handleSizeChanger(pagination, value)
+                      }
+                    >
+                      {pagination &&
+                        PageConfig.map((size) => (
+                          <Select.Option key={size} value={size}>
+                            {size}
+                          </Select.Option>
+                        ))}
+                    </Select>
+                    <span style={{ marginLeft: 12 }}>Kết quả</span>
+                  </div>
+                )}
+              </Col>
+              <Col span={10}>
+                <div className="pagination__main">
+                  <div title="Trang đầu" className="ant-pagination-first">
+                    <button
+                      onClick={() => handleLastNextPage(pagination, 0)}
+                      className={classNames(
+                        "ant-pagination-item ant-pagination-item-link",
+                        pagination.current &&
+                          pagination.current === 1 &&
+                          "ant-pagination-disabled"
+                      )}
+                      type="button"
+                    >
+                      <DoubleLeftOutlined style={{ marginRight: 10 }} />
+                      Trang đầu
+                    </button>
+                  </div>
+                  <Pagination
+                    total={pagination.total}
+                    current={pagination.current}
+                    pageSize={pagination.pageSize}
+                    onChange={pagination.onChange}
+                    showSizeChanger={false}
                   />
-                ),
-              }
-            : false
-        }
-        pagination={false}
-        // scroll={{ y: 700 }}
-        size="middle"
-      />
-      {pagination && (
-        <div className="custom-table-pagination">
-          <div className="custom-table-pagination-left">
-            <span className="custom-table-pagination-show-total">
-              {showTotal(pagination)}
-            </span>
-          </div>
-
-          <div className="custom-table-pagination-right">
-            {pagination.showSizeChanger &&
-              pagination?.pageSize < pagination.total && (
-                <div className="custom-table-pagination-size-change">
-                  <label htmlFor="custom-pagination-size-changer">
-                    Hiển thị:{" "}
-                  </label>
-                  <Select
-                    value={pagination.pageSize}
-                    id="custom-pagination-size-changer"
-                    onChange={(value: number) =>
-                      handleSizeChanger(pagination, value)
-                    }
+                  <div
+                    title="Trang cuối"
+                    className="ant-pagination-last"
+                    style={{ marginLeft: 8 }}
                   >
-                    {pagination &&
-                      PageConfig.map((size) => (
-                        <Select.Option key={size} value={size}>
-                          {size}
-                        </Select.Option>
-                      ))}
-                  </Select>
-                  <span>Kết quả</span>
+                    <button
+                      onClick={() => handleLastNextPage(pagination, 1)}
+                      className={classNames(
+                        "ant-pagination-item ant-pagination-item-link",
+                        pagination.current &&
+                          pagination.current === totalPage &&
+                          "ant-pagination-disabled"
+                      )}
+                      type="button"
+                    >
+                      Trang cuối
+                      <DoubleRightOutlined style={{ marginLeft: 10 }} />
+                    </button>
+                  </div>
                 </div>
-              )}
-            <div className="custom-table-pagination-container">
-              {pagination?.pageSize < pagination.total && (
-                <li
-                  title="Trang đầu"
-                  className={classNames(
-                    "ant-pagination-prev",
-                    pagination.current &&
-                      pagination.current === 1 &&
-                      "ant-pagination-disabled"
-                  )}
-                >
-                  <button
-                    onClick={() => handleLastNextPage(pagination, 0)}
-                    className="ant-pagination-item-link"
-                    type="button"
-                  >
-                    <DoubleLeftOutlined />
-                    Trang đầu
-                  </button>
-                </li>
-              )}
-              <Pagination
-                total={pagination.total}
-                current={pagination.current}
-                pageSize={pagination.pageSize}
-                onChange={pagination.onChange}
-                showSizeChanger={false}
-              />
-              {pagination?.pageSize < pagination.total && (
-                <li
-                  title="Trang cuối"
-                  className={classNames(
-                    "ant-pagination-prev",
-                    pagination.current &&
-                      pagination.current === totalPage &&
-                      "ant-pagination-disabled"
-                  )}
-                >
-                  <button
-                    onClick={() => handleLastNextPage(pagination, 1)}
-                    className="ant-pagination-item-link"
-                    type="button"
-                  >
-                    <DoubleRightOutlined />
-                    Trang cuối
-                  </button>
-                </li>
-              )}
-            </div>
+              </Col>
+            </Row>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </StyledComponent>
   );
 };
 
