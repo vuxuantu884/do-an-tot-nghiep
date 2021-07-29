@@ -1,11 +1,16 @@
 import { Checkbox, Form, Input, Modal, Select } from "antd";
 import { actionFetchListOrderSourceCompanies } from "domain/actions/settings/order-sources.action";
-import { OrderSourceCompanyModel, OrderSourceModel } from "model/response/order/order-source.response";
+import { modalActionType } from "model/modal/modal.model";
+import {
+  OrderSourceCompanyModel,
+  OrderSourceModel,
+} from "model/response/order/order-source.response";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 type ModalAddOrderSourceType = {
   visible?: boolean;
+  onUpdate: (value: OrderSourceModel) => void;
   onCreate: (value: OrderSourceModel) => void;
   onCancel: () => void;
   title?: string | React.ReactNode;
@@ -13,35 +18,54 @@ type ModalAddOrderSourceType = {
   okText?: string;
   cancelText?: string;
   bgIcon?: string;
+  modalAction?: modalActionType;
+  modalSingleOrderSource: OrderSourceModel | null;
 };
 
-
+type ModalFormType = {
+  id?: number;
+  name?: string;
+  is_active?: boolean;
+  is_default?: boolean;
+};
 const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
   props: ModalAddOrderSourceType
 ) => {
-  const { visible, onCreate, onCancel } = props;
+  const { visible, onCreate, onCancel, modalAction, modalSingleOrderSource } =
+    props;
   const [form] = Form.useForm();
-  const initialFormValue: OrderSourceModel = {
-    // company_id: 0,
-    name: "",
-    is_active: false,
-    is_default: false,
-  };
+  const initialFormValue: ModalFormType =
+    modalAction === "edit" && modalSingleOrderSource
+      ? {
+          id: modalSingleOrderSource.id,
+          name: modalSingleOrderSource.name,
+          is_active: modalSingleOrderSource.is_active,
+          is_default: modalSingleOrderSource.is_default,
+        }
+      : {
+          id: 3,
+          name: "",
+          is_active: false,
+          is_default: false,
+        };
   const dispatch = useDispatch();
 
-  const [listOrderCompanies, setListOrderCompanies] = useState<OrderSourceCompanyModel[]>([]);
-
+  const [listOrderCompanies, setListOrderCompanies] = useState<
+    OrderSourceCompanyModel[]
+  >([]);
 
   useEffect(() => {
-    /**
-    * when dispatch action, call function (handleData) to handle data
-    */
-    dispatch(actionFetchListOrderSourceCompanies(
-      (data: OrderSourceCompanyModel[])=> {
-        setListOrderCompanies(data);
-      }
-    ))
-  }, [dispatch])
+    // if(modalAction !== 'edit') {
+      /**
+       * when dispatch action, call function (handleData) to handle data
+       */
+      dispatch(
+        actionFetchListOrderSourceCompanies((data: OrderSourceCompanyModel[]) => {
+          setListOrderCompanies(data);
+        })
+      );
+    // }
+  }, [dispatch, modalAction]);
 
   return (
     <Modal
@@ -75,10 +99,10 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
       >
         {listOrderCompanies?.length && (
           <Form.Item
-            name="company_id"
+            name="id"
             label="Doanh nghiệp"
             rules={[
-              { required: true, message: "Vui lòng chọn doanh nghiệp !" }
+              { required: true, message: "Vui lòng chọn doanh nghiệp !" },
             ]}
           >
             <Select
@@ -86,16 +110,19 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
               // onChange={this.onGenderChange}
               allowClear
             >
-              {listOrderCompanies && (
+              {listOrderCompanies &&
                 listOrderCompanies.map((singleOrderCompany) => {
                   return (
-                    <Select.Option value={singleOrderCompany.id} key={singleOrderCompany.id}>{singleOrderCompany.name}</Select.Option>
-                  )
-                })
-              )}
+                    <Select.Option
+                      value={singleOrderCompany.id}
+                      key={singleOrderCompany.id}
+                    >
+                      {singleOrderCompany.company}
+                    </Select.Option>
+                  );
+                })}
             </Select>
           </Form.Item>
-
         )}
         <Form.Item
           name="name"
@@ -110,10 +137,18 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
             style={{ width: "100%" }}
           />
         </Form.Item>
-        <Form.Item name="is_active" valuePropName="checked" style={{marginBottom: 10}}>
+        <Form.Item
+          name="is_active"
+          valuePropName="checked"
+          style={{ marginBottom: 10 }}
+        >
           <Checkbox>Áp dụng cho đơn hàng</Checkbox>
         </Form.Item>
-        <Form.Item name="is_default" valuePropName="checked" style={{marginBottom: 10}}>
+        <Form.Item
+          name="is_default"
+          valuePropName="checked"
+          style={{ marginBottom: 10 }}
+        >
           <Checkbox>Đặt làm mặc định</Checkbox>
         </Form.Item>
       </Form>
