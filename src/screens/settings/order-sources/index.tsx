@@ -10,7 +10,7 @@ import { modalActionType } from "model/modal/modal.model";
 import { VariantResponse } from "model/product/product.model";
 import {
   OrderSourceModel,
-  OrderSourceModelResponse
+  OrderSourceModelResponse,
 } from "model/response/order/order-source.response";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -30,7 +30,7 @@ const OrderSources: React.FC = () => {
     return new URLSearchParams(useLocation().search);
   };
   const query = useQuery();
-  console.log('query', query.get('page'))
+  console.log("query", query.get("page"));
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [modalSingleOrderSource, setModalSingleOrderSource] =
@@ -48,9 +48,9 @@ const OrderSources: React.FC = () => {
       visible: true,
       render: (value, row, index) => {
         if (value) {
-          return "Đang áp dụng";
+          return <span style={{ color: "#27AE60" }}>Đang áp dụng</span>;
         }
-        return "Ngưng áp dụng";
+        return <span style={{ color: "#E24343" }}>Ngưng áp dụng</span>;
       },
     },
     {
@@ -69,8 +69,8 @@ const OrderSources: React.FC = () => {
   const history = useHistory();
 
   let [params, setParams] = useState({
-    page: +(query.get('page') || 1),
-    limit: +(query.get('limit') || 30),
+    page: +(query.get("page") || 1),
+    limit: +(query.get("limit") || 30),
   });
   const onPageChange = useCallback(
     (page, size) => {
@@ -101,7 +101,7 @@ const OrderSources: React.FC = () => {
   };
 
   const handleCreateOrderSource = (value: OrderSourceModel) => {
-    console.log('value', value)
+    console.log("value", value);
     // createOrderSourceService(value)
     //   .then((response) => {
     //     console.log("response", response);
@@ -159,7 +159,7 @@ const OrderSources: React.FC = () => {
         extra={createOrderSourceHtml()}
       >
         {listOrderSources && (
-          <Card style={{padding: 24}}>
+          <Card style={{ padding: 24 }}>
             <CustomTableStyle2
               isLoading={tableLoading}
               showColumnSetting={true}

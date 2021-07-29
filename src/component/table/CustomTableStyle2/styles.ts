@@ -1,6 +1,11 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
+  .ant-table-tbody {
+    tr {
+      cursor: pointer;
+    }
+  }
   .pagination {
     color: #000;
     margin-top: 25px;
