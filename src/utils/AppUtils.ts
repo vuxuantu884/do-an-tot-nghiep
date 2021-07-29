@@ -703,7 +703,8 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
       items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
         ? items?.fulfillments[0].shipment &&
           items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-        : 0) - (items?.total_discount ? items?.total_discount :0) ===
+        : 0) -
+      (items?.total_discount ? items?.total_discount : 0) ===
     value
   ) {
     return 1; //đã thanh toán
@@ -731,7 +732,7 @@ export const SumCOD = (items: OrderResponse) => {
   }
 
   return cod;
-}
+};
 
 //COD + tổng đã thanh toán
 export const checkPaymentAll = (items: OrderResponse) => {
@@ -756,13 +757,12 @@ export const checkPaymentAll = (items: OrderResponse) => {
   }
 };
 
-
 export const getDateLastPayment = (items: OrderResponse) => {
   let value: Date | undefined;
   if (items !== null) {
     if (items.payments !== null) {
       if (items.payments.length > 0) {
-        items.payments.forEach((a) => (value = a.created_date)); 
+        items.payments.forEach((a) => (value = a.created_date));
       }
     }
   }
@@ -780,4 +780,24 @@ export const getShipingAddresDefault = (items: CustomerResponse | null) => {
     }
   }
   return objShippingAddress;
-}
+};
+
+export const SumWeight = (items?: Array<OrderLineItemRequest>) => {
+  let totalWeight = 0;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      switch (items[i].weight_unit) {
+        case "g":
+          totalWeight = totalWeight + items[i].weight;
+          break;
+        case "kg":
+          totalWeight = totalWeight + items[i].weight * 1000;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return totalWeight;
+};
