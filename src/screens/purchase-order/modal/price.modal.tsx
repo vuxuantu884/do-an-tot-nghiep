@@ -35,6 +35,7 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
             onBlur={() => {
               form.submit();
             }}
+            min={0}
             style={{textAlign: 'right'}}
             format={(a) => formatCurrency(a)}
             replace={(a) => replaceFormatString(a)}

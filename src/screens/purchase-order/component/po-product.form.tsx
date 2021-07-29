@@ -596,14 +596,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const onSearch = useCallback(
     (value: string) => {
       setSearchValue(value);
-      if (value.length >= 3) {
+      if (value.trim() !== '' && value.length >= 3) {
         dispatch(
           searchVariantsRequestAction(
             {
               status: "active",
               limit: 10,
               page: 1,
-              info: value,
+              info: value.trim(),
             },
             onResultSearch
           )
@@ -699,7 +699,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               let items = getFieldValue(POField.line_items)
                 ? getFieldValue(POField.line_items)
                 : [];
-              debugger;
 
               return (
                 <Table
@@ -769,7 +768,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                               "product-item-note-input",
                               item.note === "" && "product-item-note"
                             )}
-                            placeholder="Thêm ghi chú"
+                            placeholder="Nhập ghi chú"
                             value={item.note}
                             onChange={(e) =>
                               onNoteChange(e.target.value, index)
@@ -799,8 +798,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                     {
                       title: (
-                        <div style={{ width: "100%", textAlign: "center" }}>
+                        <div style={{ width: "100%", textAlign: "center", flexDirection: 'column', display: 'flex', }}>
                           SL
+                          <div style={{color: '#2A2A86', fontWeight: 'normal'}}>({POUtils.totalQuantity(items)})</div>
                         </div>
                       ),
                       width: 100,
@@ -810,7 +810,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           isFloat={false}
                           style={{ textAlign: "center" }}
                           value={value}
-                          maxLength={4}
+                          min={1}
                           onChange={(quantity) =>
                             onQuantityChange(quantity, index)
                           }
@@ -903,6 +903,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       title: (
                         <Tooltip title="Thành tiền không bao gồm thuế VAT">
                           Thành tiền
+                          <span
+                            style={{
+                              color: "#737373",
+                              fontSize: "12px",
+                              fontWeight: "normal",
+                            }}
+                          >
+                            {" "}
+                            ₫
+                          </span>
                         </Tooltip>
                       ),
                       align: "center",
