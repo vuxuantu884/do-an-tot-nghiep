@@ -551,6 +551,7 @@ export default function Order() {
                     <Select
                       className="select-with-search"
                       notFoundContent="Không tìm thấy kết quả"
+                      showSearch
                       placeholder={
                         <React.Fragment>
                           <SearchOutlined />
