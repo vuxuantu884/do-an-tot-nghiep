@@ -252,9 +252,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                     dropdownMatchSelectWidth={456}
                     style={{ width: "100%" }}
                     showAdd={true}
-                    onClickAddNew={() =>
-                      setTimeout(() => setVisibleAddressModal(true), 200)
-                    }
+                    onClickAddNew={() => setVisibleAddressModal(true)}
                     textAdd="Thêm mới nhà cung cấp"
                     onSelect={onSelect}
                     options={renderResult}
