@@ -1575,7 +1575,13 @@ const OrderDetail = () => {
               OrderDetail.fulfillments &&
               OrderDetail.fulfillments.length > 0 &&
               OrderDetail.fulfillments[0].shipment &&
-              OrderDetail.fulfillments[0].shipment?.cod >= OrderDetail?.total &&
+              OrderDetail.fulfillments[0].shipment?.cod ===
+                (OrderDetail?.fulfillments[0].shipment
+                  .shipping_fee_informed_to_customer
+                  ? OrderDetail?.fulfillments[0].shipment
+                      .shipping_fee_informed_to_customer
+                  : 0) +
+                  OrderDetail?.total_line_amount_after_line_discount &&
               checkPaymentStatusToShow(OrderDetail) !== 1 && (
                 <Card
                   className="margin-top-20"

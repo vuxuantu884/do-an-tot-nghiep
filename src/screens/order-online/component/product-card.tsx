@@ -525,6 +525,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       type: Type.NORMAL,
       variant_image: avatar,
       unit: variant.product.unit,
+      weight: variant.weight,
+      weight_unit: variant.weight_unit,
       warranty: variant.product.preservation,
       discount_items: [discountItem],
       discount_amount: 0,

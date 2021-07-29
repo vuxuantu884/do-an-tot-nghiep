@@ -63,6 +63,11 @@ export const ShipmentMethodOption = {
   DELIVERLATER: 4,
 };
 
+export const TRANSPORTS = {
+  ROAD: "road",
+  FLY: "fly"
+}
+
 export const PointConfig = {
   VALUE: 1000,
 };

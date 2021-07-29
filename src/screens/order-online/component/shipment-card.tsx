@@ -21,7 +21,7 @@ import shoppingBag from "assets/icon/shopping_bag.svg";
 import wallClock from "assets/icon/wall_clock.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useLayoutEffect, useState } from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
@@ -32,8 +32,9 @@ import {
   formatCurrency,
   getShipingAddresDefault,
   replaceFormatString,
+  SumWeight,
 } from "utils/AppUtils";
-import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
+import { PaymentMethodOption, ShipmentMethodOption, TRANSPORTS } from "utils/Constants";
 import {
   OrderLineItemRequest,
   ShippingGHTKRequest,
@@ -74,6 +75,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         props.setPaymentMethod(PaymentMethodOption.COD);
       }
     }
+
+    if (value !== ShipmentMethodOption.DELIVERPARNER) {
+      getInfoDeliveryGHTK();
+    }
   };
 
   const shipping_requirements = useSelector(
@@ -81,7 +86,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       state.bootstrapReducer.data?.shipping_requirement
   );
 
-  const getInfoDelivery = () => {
+  const getInfoDeliveryGHTK = useCallback(() => {
     let request: ShippingGHTKRequest = {
       pick_address: storeDetail?.address,
       pick_province: storeDetail?.city_name,
@@ -89,11 +94,13 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       province: getShipingAddresDefault(props.cusomerInfo)?.country,
       district: getShipingAddresDefault(props.cusomerInfo)?.district,
       address: getShipingAddresDefault(props.cusomerInfo)?.full_address,
-      weight: null,
-      value: null,
-      transport: "",
+      weight: SumWeight(props.items),
+      value: props.amount,
+      transport: TRANSPORTS.ROAD,
     };
-  };
+
+    //
+  }, []);
 
   useLayoutEffect(() => {
     if (props.storeId != null) {
@@ -449,9 +456,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                     placeholder="0"
                     value={
                       props.amount +
-                        (props.shippingFeeCustomer
-                          ? props.shippingFeeCustomer
-                          : 0) - (props.discountValue ? props.discountValue : 0)
+                      (props.shippingFeeCustomer
+                        ? props.shippingFeeCustomer
+                        : 0) -
+                      (props.discountValue ? props.discountValue : 0)
                     }
                     onChange={(value: any) => setTakeMoneyHelper(value)}
                     style={{
