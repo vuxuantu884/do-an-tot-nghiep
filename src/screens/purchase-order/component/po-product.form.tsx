@@ -1,6 +1,5 @@
-import { EditOutlined, SearchOutlined } from "@ant-design/icons";
+import { EditOutlined } from "@ant-design/icons";
 import {
-  AutoComplete,
   Button,
   Card,
   Checkbox,
@@ -31,7 +30,7 @@ import {
 } from "model/purchase-order/purchase-item.model";
 import React, { createRef, useCallback, useMemo } from "react";
 import { useState } from "react";
-import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
+import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { POUtils } from "utils/POUtils";
 import ProductItem from "./product-item";
@@ -44,6 +43,7 @@ import PickManyProductModal from "../modal/pick-many-product.modal";
 import ExpenseModal from "../modal/expense.modal";
 import { DiscountType, POField } from "model/purchase-order/po-field";
 import { CostLine } from "model/purchase-order/cost-line.model";
+import CustomAutoComplete from "component/custom/autocomplete.cusom";
 type POProductProps = {
   formMain: FormInstance;
 };
@@ -51,14 +51,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
   const { formMain } = props;
   const productSearchRef = createRef<RefSelectProps>();
-  const inputRef = createRef<Input>();
   const product_units = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [visibleExpense, setVisibleExpense] = useState<boolean>(false);
   const [splitLine, setSplitLine] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>("");
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [costLines, setCostLines] = useState<Array<CostLine>>([]);
   const renderResult = useMemo(() => {
@@ -147,7 +145,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         });
       }
       setData([]);
-      setSearchValue("");
     },
     [data, formMain, splitLine]
   );
@@ -595,7 +592,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   );
   const onSearch = useCallback(
     (value: string) => {
-      setSearchValue(value);
       if (value.trim() !== '' && value.length >= 3) {
         dispatch(
           searchVariantsRequestAction(
@@ -647,37 +643,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       >
         <div className="padding-20">
           <Input.Group className="display-flex">
-            <AutoComplete
-              ref={productSearchRef}
-              dropdownMatchSelectWidth={456}
-              maxLength={255}
-              value={searchValue}
-              style={{ width: "100%" }}
-              onSearch={onSearch}
-              dropdownClassName="product"
-              dropdownRender={(menu) => (
-                <div className="dropdown-custom">
-                  <Button
-                    icon={<AiOutlinePlusCircle size={24} />}
-                    className="dropdown-add-new"
-                    type="link"
-                  >
-                    Thêm mới sản phẩm
-                  </Button>
-                  {menu}
-                </div>
-              )}
+            <CustomAutoComplete 
+              dropdownClassName="product"  
+              placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)" 
+              onSearch={onSearch}  
+              dropdownMatchSelectWidth={456} style={{ width: "100%" }} 
+              showAdd={true}
+              textAdd="Thêm mới sản phẩm"
               onSelect={onSelectProduct}
               options={renderResult}
-            >
-              <Input
-                ref={inputRef}
-                size="middle"
-                className="yody-search"
-                placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
-                prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-              />
-            </AutoComplete>
+            />
             <Button
               onClick={() => setVisibleManyProduct(true)}
               style={{ width: 132, marginLeft: 10 }}
@@ -811,8 +786,10 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           style={{ textAlign: "center" }}
                           value={value}
                           min={1}
-                          onChange={(quantity) =>
+                          default={1}
+                          onChange={(quantity) =>{
                             onQuantityChange(quantity, index)
+                          }
                           }
                         />
                       ),

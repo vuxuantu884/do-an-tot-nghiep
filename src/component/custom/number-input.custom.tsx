@@ -17,6 +17,7 @@ interface NumberInputProps {
   className?: string,
   min?: number,
   max?: number,
+  default?: number,
   prefix?: React.ReactNode,
   autoFocus?: boolean 
 }
@@ -44,7 +45,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
   const onBlurEvent = useCallback((e) => {
     let temp = value?.toString();
     let valueTemp = temp;
-    if(temp && value) {
+    if(temp!== undefined && value !== undefined) {
       if (temp.charAt(temp.length - 1) === '.' || temp === '-') {
         valueTemp = temp.slice(0, -1);
       }
@@ -56,9 +57,13 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       } else {
         (onChange && valueTemp) && onChange(parseFloat(valueTemp.replace(/0*(\d+)/, '$1')));
       }
+    } else {
+      if(props.default) {
+        onChange && onChange(props.default);
+      }
     }
     onBlur && onBlur();
-  }, [onBlur, onChange, props.max, props.min, value])
+  }, [onBlur, onChange, props, value])
   return (
     <Input
       className={className}
