@@ -1,8 +1,8 @@
-import { Checkbox, Dropdown, Form, Input, Menu, Modal } from "antd";
+import { Checkbox, Form, Input, Modal, Select } from "antd";
 import { actionFetchListOrderSourceCompanies } from "domain/actions/settings/order-sources.action";
 import { OrderSourceCompanyModel, OrderSourceModel } from "model/response/order/order-source.response";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 type ModalAddOrderSourceType = {
   visible?: boolean;
@@ -15,13 +15,6 @@ type ModalAddOrderSourceType = {
   bgIcon?: string;
 };
 
-type stateType = {
-  settings: {
-    orderSources: {
-      listCompanies: OrderSourceCompanyModel[];
-    }
-  }
-}
 
 const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
   props: ModalAddOrderSourceType
@@ -35,16 +28,17 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
     is_default: false,
   };
   const dispatch = useDispatch();
-  const listOrderCompany = useSelector((state: stateType) => {
-    return state.settings.orderSources.listCompanies;
-  });
+
+  const [listOrderCompanies, setListOrderCompanies] = useState<OrderSourceCompanyModel[]>([]);
+
 
   useEffect(() => {
-    if(!listOrderCompany.length) {
-      console.log('aaa')
-      dispatch(actionFetchListOrderSourceCompanies())
-    }
-  }, [dispatch, listOrderCompany.length])
+    dispatch(actionFetchListOrderSourceCompanies(
+      (data: OrderSourceCompanyModel[])=> {
+        setListOrderCompanies(data);
+      }
+    ))
+  }, [dispatch])
 
   return (
     <Modal
@@ -76,7 +70,7 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
         layout="vertical"
         initialValues={initialFormValue}
       >
-        {listOrderCompany?.length && (
+        {listOrderCompanies?.length && (
           <Form.Item
             name="company"
             label="Doanh nghiệp"
@@ -84,16 +78,19 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
               { required: true, message: "Vui lòng chọn doanh nghiệp !" }
             ]}
           >
-            {/* <Dropdown trigger={["click"]} placement="bottomCenter" overlay={
-              <Menu>
-                {
-                  listOrderCompany.map((singleCompany, index) => (
-                    <Menu.Item  key={index}>{singleCompany.name}</Menu.Item>
-                  ))
-                }
-              </Menu>
-            }>
-            </Dropdown> */}
+            <Select
+              placeholder="Select a option and change input text above"
+              // onChange={this.onGenderChange}
+              allowClear
+            >
+              {listOrderCompanies && (
+                listOrderCompanies.map((singleOrderCompany) => {
+                  return (
+                    <Select.Option value={singleOrderCompany.company} key={singleOrderCompany.company_id}>{singleOrderCompany.name}</Select.Option>
+                  )
+                })
+              )}
+            </Select>
           </Form.Item>
 
         )}

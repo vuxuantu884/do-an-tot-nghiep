@@ -9,9 +9,9 @@ import UrlConfig from "config/UrlConfig";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { actionFetchListOrderSources } from "domain/actions/settings/order-sources.action";
 import { VariantResponse } from "model/product/product.model";
-import { OrderSourceModel } from "model/response/order/order-source.response";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { OrderSourceModel, OrderSourceModelResponse } from "model/response/order/order-source.response";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { createOrderSourceService } from "service/order/order.service";
 import { generateQuery } from "utils/AppUtils";
@@ -23,17 +23,12 @@ const OrderSources: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
   const [isShowModalCreate, setIsShowModalCreate] = useState(false);
   const dispatch = useDispatch();
-  const data = useSelector((state: any) => {
-    return state.settings.orderSources.data;
-  });
+  const [listOrderSources, setListOrderSources] = useState<OrderSourceModel[]>(
+    []
+  );
+  const [total, setTotal] = useState(0)
 
-  const total = useSelector((state: any) => {
-    return state.settings.orderSources.total;
-  });
-
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<VariantResponse>>
-  >([
+  const columns: Array<ICustomTableColumType<VariantResponse>> = [
     {
       title: "Nguồn đơn hàng",
       dataIndex: "code",
@@ -60,11 +55,8 @@ const OrderSources: React.FC = () => {
         }
       },
     },
-  ]);
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  ];
+  const columnFinal = () => columns.filter((item) => item.visible === true);
 
   const history = useHistory();
 
@@ -124,8 +116,16 @@ const OrderSources: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch(actionFetchListOrderSources(params));
+    console.log('33')
+    dispatch(
+      actionFetchListOrderSources(params, (data: OrderSourceModelResponse) => {
+        console.log('data', data)
+        setListOrderSources(data.items);
+        setTotal(data.metadata.total);
+      })
+    );
   }, [dispatch, params]);
+  
 
   return (
     <StyledComponent>
@@ -146,7 +146,7 @@ const OrderSources: React.FC = () => {
         ]}
         extra={createOrderSourceHtml()}
       >
-        {data && (
+        {listOrderSources && (
           <Card>
             <CustomTableStyle2
               isLoading={tableLoading}
@@ -160,8 +160,8 @@ const OrderSources: React.FC = () => {
                 onChange: onPageChange,
                 onShowSizeChange: onPageChange,
               }}
-              dataSource={data}
-              columns={columnFinal}
+              dataSource={listOrderSources}
+              columns={columnFinal()}
               rowKey={(item: VariantResponse) => item.id}
             />
           </Card>

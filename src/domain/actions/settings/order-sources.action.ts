@@ -1,56 +1,25 @@
 import { SETTING_TYPES } from "domain/types/settings.type";
+import {
+  OrderSourceCompanyModel, OrderSourceModelResponse
+} from "model/response/order/order-source.response";
 
-export const actionFetchListOrderSources = (params = {}) => {
+export const actionFetchListOrderSources = (params = {}, handleData: (data: OrderSourceModelResponse) => void) => {
   return {
     type: SETTING_TYPES.orderSources.listData,
     payload: {
       params,
-    },
-  };
-}
-
-export const actionFetchListOrderSourcesSuccessful = (listOrderSources: any, total: number) => {
-  return {
-    type: SETTING_TYPES.orderSources.listDataSuccessful,
-    payload: {
-      listOrderSources,
-      total
+      handleData,
     },
   };
 };
 
-export const actionFetchListOrderSourcesFailed = (error:any) => {
-  return {
-    type: SETTING_TYPES.orderSources.listDataFailed,
-    payload: {
-      error,
-    },
-  };
-};
-
-export const actionFetchListOrderSourceCompanies = (params = {}) => {
+export const actionFetchListOrderSourceCompanies = (
+  handleData: (data: OrderSourceCompanyModel[]) => void
+) => {
   return {
     type: SETTING_TYPES.orderSources.listSourceCompany,
     payload: {
-      params,
-    },
-  };
-}
-
-export const actionFetchListOrderSourceCompaniesSuccessful = (listOrderSourceCompanies: any) => {
-  return {
-    type: SETTING_TYPES.orderSources.listSourceCompanySuccessful,
-    payload: {
-      listOrderSourceCompanies,
-    },
-  };
-};
-
-export const actionFetchListOrderSourceCompaniesFailed = (error:any) => {
-  return {
-    type: SETTING_TYPES.orderSources.listSourceCompanyFailed,
-    payload: {
-      error,
+      handleData,
     },
   };
 };
