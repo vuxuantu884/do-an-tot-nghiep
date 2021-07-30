@@ -46,6 +46,7 @@ const DiscountModal: React.FC<DiscountModalProps> = (
                   setType(value);
                   form.setFieldsValue({ discount: 0 });
                 }}
+                onBlur={() => form.submit()}
               >
                 <Select.Option value="percent">%</Select.Option>
                 <Select.Option value="money">₫</Select.Option>
@@ -63,6 +64,7 @@ const DiscountModal: React.FC<DiscountModalProps> = (
                 format={(a) => formatCurrency(a)}
                 replace={(a) => replaceFormatString(a)}
                 min={0}
+                default={0}
                 max={type === "money" ? props.price : 100}
               />
             </Form.Item>
