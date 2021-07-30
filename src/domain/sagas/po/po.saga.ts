@@ -68,6 +68,7 @@ function* poDetailSaga(action: YodyAction) {
 function* poSearchSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
+    debugger;
     let response: BaseResponse<PageResponse<PurchaseOrder>> = yield call(
       searchPurchaseOrderApi,
       query

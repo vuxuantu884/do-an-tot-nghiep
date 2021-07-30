@@ -22,6 +22,7 @@ import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
+import NumberFormat from 'react-number-format';
 
 const PurchaseOrderListScreen: React.FC = () => {
   const query = useQuery();
@@ -72,6 +73,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       title: "Tiền phải trả",
       dataIndex: "total",
       visible: true,
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
       title: "Người tạo",
@@ -82,7 +84,16 @@ const PurchaseOrderListScreen: React.FC = () => {
       title: "Ngày tạo",
       dataIndex: "created_date",
       visible: false,
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (value: string) => (
+        <NumberFormat
+          value={2456981}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+          prefix={"$"}
+
+        />
+      ),
     },
     {
       title: "Trạng thái",
@@ -184,14 +195,14 @@ const PurchaseOrderListScreen: React.FC = () => {
         />
       </Card>
       <ModalSettingColumn
-          visible={showSettingColumn}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumn(data)
-          }}
-          data={columns}
-        />
+        visible={showSettingColumn}
+        onCancel={() => setShowSettingColumn(false)}
+        onOk={(data) => {
+          setShowSettingColumn(false);
+          setColumn(data);
+        }}
+        data={columns}
+      />
     </ContentContainer>
   );
 };
