@@ -62,8 +62,9 @@ export default class CustomAutoComplete extends Component<
   };
 
   add = () => {
-    this.setState({open: false});
-    this.props.onClickAddNew && this.props.onClickAddNew();
+    this.setState({open: false}, () => {
+       setTimeout(() => this.props.onClickAddNew && this.props.onClickAddNew(), 100);
+    });
   }
 
   render() {

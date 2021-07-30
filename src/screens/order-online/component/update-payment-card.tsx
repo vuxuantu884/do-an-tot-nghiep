@@ -66,7 +66,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       handlePickPaymentMethod(PaymentMethodCode.CASH);
     }
   };
-
   const dispatch = useDispatch();
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, settextValue] = useState<string>("");
@@ -135,7 +134,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   };
 
   const handleInputMoney = (index: number, amount: number) => {
-    if (amount > props.amount) amount = props.amount;
     if (paymentData[index].code === PaymentMethodCode.POINT) {
       paymentData[index].point = amount;
       paymentData[index].amount = amount * PointConfig.VALUE;
@@ -210,6 +208,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       if (paymentData[i].code === PaymentMethodCode.POINT) {
         total = total - paymentData[i].point! * 1000;
       } else {
+        console.log("test", total);
         total = total - paymentData[i].amount;
       }
     }
@@ -248,21 +247,30 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         >
           {isVisibleUpdatePayment === true && (
             <div className="padding-20">
-              <Radio.Group
-                value={props.paymentMethod}
-                onChange={(e) => changePaymentMethod(e.target.value)}
-                style={{ margin: "20px 0 20px 0" }}
-              >
-                <Space size={24}>
-                  <Radio value={PaymentMethodOption.COD}>COD</Radio>
-                  <Radio value={PaymentMethodOption.PREPAYMENT}>
-                    Thanh toán trước
-                  </Radio>
-                  <Radio value={PaymentMethodOption.POSTPAYMENT}>
-                    Thanh toán sau
-                  </Radio>
-                </Space>
-              </Radio.Group>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <Radio.Group
+                  value={props.paymentMethod}
+                  onChange={(e) => changePaymentMethod(e.target.value)}
+                  style={{ margin: "20px 0 20px 0" }}
+                >
+                  <Space size={24}>
+                    <Radio value={PaymentMethodOption.COD}>COD</Radio>
+                    <Radio value={PaymentMethodOption.PREPAYMENT}>
+                      Thanh toán trước
+                    </Radio>
+                    <Radio value={PaymentMethodOption.POSTPAYMENT}>
+                      Thanh toán sau
+                    </Radio>
+                  </Space>
+                </Radio.Group>
+                {props.paymentMethod === PaymentMethodOption.COD && (
+                  <i>
+                    Vui lòng chọn hình thức Đóng gói và Giao hàng để có thể nhập
+                    giá trị Tiền thu hộ *
+                  </i>
+                )}
+              </div>
+
               <Row gutter={24} hidden={props.paymentMethod !== 2}>
                 <Col xs={24} lg={24}>
                   <div className="form-group form-group-with-search">
@@ -659,7 +667,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                                     replaceFormat(value ? value : "0")
                                   }
                                   min={0}
-                                  max={99999}
+                                  max={caculateMax(props.amount, index) / 1000}
                                   onChange={(value) => {
                                     handleInputPoint(index, value);
                                   }}
@@ -672,7 +680,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                           <InputNumber
                             size="middle"
                             min={0}
-                            max={999999999999}
+                            max={caculateMax(props.amount, index)}
                             value={method.amount}
                             disabled={method.code === PaymentMethodCode.POINT}
                             className="yody-payment-input hide-number-handle"

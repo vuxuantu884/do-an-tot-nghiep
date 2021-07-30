@@ -1,8 +1,6 @@
-//#region Import
 import {
   Space,
   Card,
-  AutoComplete,
   Input,
   Form,
   Button,
@@ -18,14 +16,13 @@ import {
   EnvironmentFilled,
   PhoneFilled,
   PhoneOutlined,
-  SearchOutlined,
 } from "@ant-design/icons";
 import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
+import { AiOutlineClose } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { SupplierQuery, SupplierResponse } from "model/core/supplier.model";
+import { SupplierResponse } from "model/core/supplier.model";
 import SupplierItem from "./supplier-item";
 import avatarDefault from "assets/icon/user.svg";
 import addressIcon from "assets/img/user-pin.svg";
@@ -37,9 +34,7 @@ import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { AddressType } from "utils/Constants";
 import SupplierAddModal from "screens/supllier/modal/supplier-add-modal.screen";
-
-import { createRef } from "react";
-import { RefSelectProps } from "antd/lib/select";
+import CustomAutoComplete from "component/custom/autocomplete.cusom";
 type SupplierInfoProps = {
   listCountries: Array<CountryResponse>;
   listDistrict: Array<DistrictResponse>;
@@ -50,10 +45,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
 ) => {
   const { formMain, listCountries, listDistrict } = props;
   const [data, setData] = useState<Array<SupplierResponse>>([]);
-  // const [formSupplier] = Form.useForm();
-  const autoRef = createRef<RefSelectProps>();
   const dispatch = useDispatch();
-  const [keySearchSupplier, setKeySearchSupplier] = useState("");
   const [isVisibleAddressModal, setVisibleAddressModal] = useState(false);
   const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] =
     useState(false);
@@ -68,7 +60,6 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
 
   const onSupplierSearchChange = useCallback(
     (value) => {
-      setKeySearchSupplier(value);
       if (value.length >= 3) {
         dispatch(
           SupplierSearchAction({ query: value, status: "active" }, onResult)
@@ -90,8 +81,6 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
 
   const onSelect = useCallback(
     (value: string) => {
-      setKeySearchSupplier("");
-      debugger;
       let index = data.findIndex((item) => item.id.toString() === value);
       var supplier = data[index];
       let supplierAddress: PurchaseAddress = {
@@ -206,7 +195,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
           </div>
         }
       >
-        <div className="padding-10">
+        <div className="padding-20">
           <Form.Item
             shouldUpdate={(prevValues, curValues) =>
               prevValues.supplier_id !== curValues.supplier_id
@@ -256,52 +245,19 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                 </div>
               ) : (
                 <div>
-                  <AutoComplete
-                    ref={autoRef}
-                    notFoundContent={
-                      keySearchSupplier.length >= 3
-                        ? "Không tìm thấy nhà cung cấp"
-                        : undefined
-
-                      // <div>
-                      //   <AddItem
-                      //     title="Thêm mới nhà cung cấp"
-                      //     onClick={() => setVisibleSupplierAddModal(true)}
-                      //   />
-                      //   ,<div>Không tìm thấy nhà cung cấp</div>
-                      // </div>
-                    }
-                    // onDropdownVisibleChange={AutoCompleteVisible}
-                    onSearch={onSupplierSearchChange}
-                    value={keySearchSupplier}
-                    style={{ width: "100%" }}
+                  <CustomAutoComplete
                     dropdownClassName="supplier"
-                    dropdownRender={(menu) => (
-                      <div className="dropdown-custom">
-                        <Button
-                          icon={<AiOutlinePlusCircle size={24} />}
-                          className="dropdown-add-new"
-                          type="link"
-                          onClick={() => {
-                            setVisibleSupplierAddModal(true);
-                          }}
-                        >
-                          {/* <PlusCircleOutlined /> */}
-                          Thêm mới nhà cung cấp
-                        </Button>
-                        {menu}
-                      </div>
-                    )}
+                    placeholder="Tìm kiếm nhà cung cấp"
+                    onSearch={onSupplierSearchChange}
+                    dropdownMatchSelectWidth={456}
+                    style={{ width: "100%" }}
+                    showAdd={true}
+                    onClickAddNew={() => setVisibleAddressModal(true)}
+                    textAdd="Thêm mới nhà cung cấp"
                     onSelect={onSelect}
                     options={renderResult}
-                  >
-                    <Input
-                      placeholder="Tìm kiếm nhà cung cấp"
-                      className="border-input"
-                      prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                    />
-                  </AutoComplete>
-                  {/* <div className="ant-form-item-explain ant-form-item-explain-error">
+                  />
+                  <div className="ant-form-item-explain ant-form-item-explain-error">
                     <div role="alert">Vui lòng chọn Merchandiser</div>
                   </div> */}
                 </div>

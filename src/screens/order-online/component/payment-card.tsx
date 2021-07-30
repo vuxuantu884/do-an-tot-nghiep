@@ -63,7 +63,6 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     []
   );
 
-
   const ListMaymentMethods = useMemo(() => {
     return listPaymentMethod.filter(
       (item) => item.code !== PaymentMethodCode.CARD
@@ -172,6 +171,14 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
               </Radio>
             </Space>
           </Radio.Group>
+          {props.paymentMethod === PaymentMethodOption.COD && (
+            <div style={{ marginTop: 10 }}>
+              <i>
+                Vui lòng chọn hình thức Đóng gói và Giao hàng để có thể nhập giá
+                trị Tiền thu hộ *
+              </i>
+            </div>
+          )}
         </Form.Item>
 
         <Row
@@ -331,7 +338,9 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                       replaceFormat(value ? value : "0")
                                     }
                                     min={0}
-                                    max={caculateMax(props.amount, index)/1000}
+                                    max={
+                                      caculateMax(props.amount, index) / 1000
+                                    }
                                     onChange={(value) => {
                                       handleInputPoint(index, value);
                                     }}
