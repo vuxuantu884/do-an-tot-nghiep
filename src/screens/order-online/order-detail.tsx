@@ -1404,7 +1404,7 @@ const OrderDetail = () => {
                     </Col>
                     <Col span={12}>
                       <span className="text-field margin-right-40">
-                        Còn phải trả
+                        Còn phải trả:
                       </span>
                       <b style={{ color: "red" }}>
                         {OrderDetail?.fulfillments &&
@@ -1515,7 +1515,7 @@ const OrderDetail = () => {
                           OrderDetail.fulfillments[0].shipment?.cod !==
                             null && (
                             <Panel
-                              className="orders-timeline-custom"
+                              className={OrderDetail?.fulfillments[0].status !== "shipped" ? "orders-timeline-custom orders-dot-status" : "orders-timeline-custom"}
                               showArrow={false}
                               header={
                                 <span>
@@ -1652,7 +1652,7 @@ const OrderDetail = () => {
                       </Col>
                       <Col span={12}>
                         <span className="text-field margin-right-40">
-                          Còn phải trả
+                          Còn phải trả:
                         </span>
                         <b style={{ color: "red" }}>
                           {OrderDetail && OrderDetail?.fulfillments

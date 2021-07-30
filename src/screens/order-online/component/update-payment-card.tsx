@@ -246,7 +246,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
           }
         >
           {isVisibleUpdatePayment === true && (
-            <div className="padding-20">
+            <div className="padding-20 create-order-payment">
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <Radio.Group
                   value={props.paymentMethod}
@@ -533,7 +533,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       {props.showPartialPayment && (
         <div>
           <Divider style={{ margin: "0 0 10px 0" }} />
-          <div style={{ padding: "0 20px 20px 20px" }}>
+          <div style={{ padding: "0 20px 20px 20px " }} className="create-order-payment">
             <Radio.Group
               value={props.paymentMethod}
               onChange={(e) => changePaymentMethod(e.target.value)}

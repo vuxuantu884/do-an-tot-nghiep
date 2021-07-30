@@ -152,7 +152,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
         </Space>
       }
     >
-      <div className="padding-20">
+      <div className="padding-20 create-order-payment">
         <Form.Item
           label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
           required
