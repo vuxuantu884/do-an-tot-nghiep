@@ -252,12 +252,15 @@ const OrderDetail = () => {
     document.execCommand("Copy");
   };
   //#region Product
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
-    if(!data) {
-      return;
-    }
-    setAccounts(data.items);
-  }, []);
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
 
   const ShipMethodOnChange = (value: number) => {
     setShipmentMethod(value);
@@ -309,7 +312,7 @@ const OrderDetail = () => {
       window.location.reload();
     }, timeout);
   };
-
+console.log(OrderDetail?.payments)
   const onPickSuccess = (value: OrderResponse) => {
     showSuccess("Nhặt hàng thành công");
     setTimeout(() => {
@@ -1455,8 +1458,7 @@ const OrderDetail = () => {
                             <Panel
                               className="orders-timeline-custom success-collapse"
                               header={
-                                <span style={{ color: "#222222" }}>
-                                  <span>Đã thanh toán: </span>
+                                <span style={{ color: "#222222"}}>
                                   <b>
                                     {OrderDetail?.payments &&
                                       OrderDetail?.payments
@@ -1483,8 +1485,8 @@ const OrderDetail = () => {
                               extra={
                                 <>
                                   {OrderDetail?.payments && (
-                                    <div>
-                                      <span className="fixed-time text-field">
+                                    <div >
+                                      <span className="fixed-time text-field" style={{color: "#737373" }}>
                                         {ConvertUtcToLocalDate(
                                           getDateLastPayment(OrderDetail),
                                           "DD/MM/YYYY HH:mm"
@@ -1503,13 +1505,17 @@ const OrderDetail = () => {
                                         payment.payment_method !== "cod"
                                     )
                                     .map((item, index) => (
-                                      <Col span={12}>
-                                        <p style={{ color: "#737373" }}>
+                                      <Col span={6}>
+                                        <>
+                                        <p style={{ color: "#737373", marginBottom: 10 }}>
                                           {item.payment_method}
                                         </p>
                                         <b>
                                           {formatCurrency(item.paid_amount)}
                                         </b>
+                                        </>
+                                        {item.payment_method_id === 3 && <p>FA18TAMFIXCUNG</p>}
+                                        {item.payment_method_id === 5 && <p>{Math.round(item.amount/1000)} điểm</p>}
                                       </Col>
                                     ))}
                               </Row>
@@ -1523,12 +1529,19 @@ const OrderDetail = () => {
                             OrderDetail.fulfillments[0].shipment?.cod !==
                               null && (
                               <Panel
-                                className="orders-timeline-custom"
+                                className={
+                                  OrderDetail?.fulfillments[0].status !==
+                                  "shipped"
+                                    ? "orders-timeline-custom orders-dot-status"
+                                    : "orders-timeline-custom"
+                                }
                                 showArrow={false}
                                 header={
-                                  <span>
+                                  <>
+                                  <b style={{paddingLeft: "4px", color: "#222222"}}>
                                     COD
-                                    <b
+                                  </b>
+                                  <b
                                       style={{
                                         marginLeft: "200px",
                                         color: "#222222",
@@ -1542,13 +1555,13 @@ const OrderDetail = () => {
                                           )
                                         : 0}
                                     </b>
-                                  </span>
+                                  </>
                                 }
                                 extra={
                                   <>
-                                    {OrderDetail?.payments && (
-                                      <div>
-                                        <span className="fixed-time text-field">
+                                    {OrderDetail?.fulfillments[0].status === "shipped" && (
+                                      <div >
+                                        <span className="fixed-time text-field" style={{ color: "#737373"}}>
                                           {ConvertUtcToLocalDate(
                                             getDateLastPayment(OrderDetail),
                                             "DD/MM/YYYY HH:mm"
@@ -1798,8 +1811,8 @@ const OrderDetail = () => {
                   <Col span={15}>
                     <span>
                       {moment(OrderDetail?.created_date).format(
-                            "DD/MM/YYYY HH:mm a"
-                          )}
+                        "DD/MM/YYYY HH:mm a"
+                      )}
                     </span>
                   </Col>
                 </Row>
@@ -1881,7 +1894,8 @@ const OrderDetail = () => {
         title="Xác nhận xuất kho"
         text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!) 
+            ? "với tiền thu hộ là " +
+              formatCurrency(confirmExportAndFinishValue()!)
             : ""
         } không?`}
       />
@@ -1892,7 +1906,8 @@ const OrderDetail = () => {
         title="Xác nhận giao hàng thành công"
         text={`Bạn có chắc đã giao đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!) 
+            ? "với tiền thu hộ là " +
+              formatCurrency(confirmExportAndFinishValue()!)
             : ""
         } không?`}
       />
