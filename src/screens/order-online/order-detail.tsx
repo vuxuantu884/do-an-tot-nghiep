@@ -401,7 +401,12 @@ const OrderDetail = () => {
           .shipping_fee_informed_to_customer +
         OrderDetail?.total_line_amount_after_line_discount +
         shippingFeeInformedCustomer -
-        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
+        (OrderDetail?.discounts &&
+        OrderDetail?.discounts.length > 0 &&
+        OrderDetail?.discounts[0].amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
       );
     } else if (OrderDetail?.total && OrderDetail?.total_paid) {
       return (
@@ -411,7 +416,6 @@ const OrderDetail = () => {
       );
     }
   };
-
   //#region shiment
   let initialFormUpdateShipment: UpdateShipmentRequest = {
     order_id: null,
@@ -605,13 +609,19 @@ const OrderDetail = () => {
         (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
         (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0)
       );
-    } else if (OrderDetail?.total) {
+    } else if (OrderDetail?.total_line_amount_after_line_discount) {
       return (
-        (OrderDetail?.total ? OrderDetail?.total : 0) +
+        (OrderDetail?.total_line_amount_after_line_discount
+          ? OrderDetail?.total_line_amount_after_line_discount
+          : 0) +
         shippingFeeInformedCustomer -
         totalPaid -
         (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
-        (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0)
+        (OrderDetail?.discounts &&
+        OrderDetail?.discounts.length > 0 &&
+        OrderDetail?.discounts[0].amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
       );
     }
   };
@@ -644,10 +654,23 @@ const OrderDetail = () => {
         OrderDetail?.fulfillments[0].shipment
           .shipping_fee_informed_to_customer +
         OrderDetail?.total_line_amount_after_line_discount +
-        shippingFeeInformedCustomer
+        shippingFeeInformedCustomer -
+        (OrderDetail?.discounts &&
+        OrderDetail?.discounts.length > 0 &&
+        OrderDetail?.discounts[0].amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
       );
-    } else if (OrderDetail?.total) {
-      return OrderDetail?.total + shippingFeeInformedCustomer;
+    } else if (OrderDetail?.total_line_amount_after_line_discount) {
+      return (
+        OrderDetail?.total_line_amount_after_line_discount +
+        shippingFeeInformedCustomer -
+        (OrderDetail?.discounts &&
+        OrderDetail?.discounts.length > 0 &&
+        OrderDetail?.discounts[0].amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
+      );
     }
   };
 
@@ -1581,7 +1604,12 @@ const OrderDetail = () => {
                   ? OrderDetail?.fulfillments[0].shipment
                       .shipping_fee_informed_to_customer
                   : 0) +
-                  OrderDetail?.total_line_amount_after_line_discount &&
+                  OrderDetail?.total_line_amount_after_line_discount -
+                  (OrderDetail?.discounts &&
+                  OrderDetail?.discounts.length > 0 &&
+                  OrderDetail?.discounts[0].amount
+                    ? OrderDetail?.discounts[0].amount
+                    : 0) &&
               checkPaymentStatusToShow(OrderDetail) !== 1 && (
                 <Card
                   className="margin-top-20"
