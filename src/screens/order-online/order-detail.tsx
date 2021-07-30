@@ -1794,12 +1794,9 @@ const OrderDetail = () => {
                   <Col span={9}>Thời gian</Col>
                   <Col span={15}>
                     <span>
-                      {OrderDetail?.fulfillments &&
-                        OrderDetail?.fulfillments.map((item, index) =>
-                          moment(item.shipment?.created_date).format(
+                      {moment(OrderDetail?.created_date).format(
                             "DD/MM/YYYY HH:mm a"
-                          )
-                        )}
+                          )}
                     </span>
                   </Col>
                 </Row>
@@ -1881,7 +1878,7 @@ const OrderDetail = () => {
         title="Xác nhận xuất kho"
         text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " + confirmExportAndFinishValue()
+            ? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!) 
             : ""
         } không?`}
       />
@@ -1892,7 +1889,7 @@ const OrderDetail = () => {
         title="Xác nhận giao hàng thành công"
         text={`Bạn có chắc đã giao đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " + confirmExportAndFinishValue()
+            ? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!) 
             : ""
         } không?`}
       />

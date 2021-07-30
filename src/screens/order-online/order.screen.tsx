@@ -359,6 +359,8 @@ export default function Order() {
   };
   console.log(orderAmount);
   const onFinish = (values: OrderRequest) => {
+    const element2: any = document.getElementById("save-and-confirm");
+    element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
@@ -695,6 +697,7 @@ export default function Order() {
               <Button
                 type="primary"
                 className="create-button-custom"
+                id="save-and-confirm"
                 onClick={() => {
                   typeButton = OrderStatus.FINALIZED;
                   formRef.current?.submit();
