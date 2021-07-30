@@ -806,6 +806,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           value={value}
                           min={1}
                           default={1}
+                          maxLength={7}
                           onChange={(quantity) => {
                             onQuantityChange(quantity, index);
                           }}

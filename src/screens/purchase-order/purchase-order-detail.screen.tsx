@@ -212,7 +212,7 @@ const PODetailScreen: React.FC = () => {
         >
           <Col
             md={10}
-            style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px" }}
+            style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px", zIndex: 100 }}
           >
             <Steps
               progressDot={(dot: any, { status, index }: any) => (

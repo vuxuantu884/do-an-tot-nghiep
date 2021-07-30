@@ -72,6 +72,7 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
                   form.submit();
                 }}
                 isFloat={true}
+                default={0}
                 className="product-item-discount-input"
                 style={{ width: "65%", textAlign: "right" }}
                 placeholder="Nhập chiết khấu"
