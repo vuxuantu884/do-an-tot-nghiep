@@ -8,7 +8,7 @@ type PriceModalProps = {
   price: number;
   type: string;
   discount: number | null;
-  onChange?: (price: number, type: string, discount: number) => void
+  onChange?: (price: number, type: string, discount: number) => void;
 };
 
 const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
@@ -27,21 +27,24 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
       <Form
         form={form}
         onFinish={(value) => {
-          props.onChange && props.onChange(value.price, value.type, value.discount);
-        }}  
+          props.onChange &&
+            props.onChange(value.price, value.type, value.discount);
+        }}
         layout="vertical"
       >
         <Form.Item name="price" label="Đơn giá nhập">
-          <NumberInput 
+          <NumberInput
             onBlur={() => {
               form.submit();
             }}
             min={0}
             default={0}
-            style={{textAlign: 'right'}}
+            style={{ textAlign: "right" }}
             format={(a) => formatCurrency(a)}
             replace={(a) => replaceFormatString(a)}
-            placeholder="Nhập đơn giá" />
+            placeholder="Nhập đơn giá"
+            autoFocus={true}
+          />
         </Form.Item>
         <Form.Item label="Chiết khấu">
           <Input.Group
@@ -55,8 +58,8 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
                 className="product-item-discount-select"
                 onChange={(value: string) => {
                   setType(value);
-                  form.setFieldsValue({discount: 0})}
-                }
+                  form.setFieldsValue({ discount: 0 });
+                }}
               >
                 <Select.Option value={DiscountType.percent}>%</Select.Option>
                 <Select.Option value={DiscountType.money}>₫</Select.Option>
@@ -64,17 +67,17 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
             </Form.Item>
             <Form.Item noStyle name="discount">
               <NumberInput
-                 onBlur={() => {
+                onBlur={() => {
                   form.submit();
                 }}
                 isFloat={true}
                 className="product-item-discount-input"
-                style={{ width: "65%", textAlign: 'right'}}
+                style={{ width: "65%", textAlign: "right" }}
                 placeholder="Nhập chiết khấu"
                 format={(a) => formatCurrency(a)}
                 replace={(a) => replaceFormatString(a)}
                 min={0}
-                max={type === 'money' ? form.getFieldValue('price') : 100}
+                max={type === "money" ? form.getFieldValue("price") : 100}
               />
             </Form.Item>
           </Input.Group>

@@ -251,7 +251,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                     rules={[
                       {
                         required: true,
-                        message: "Vui lòng chọn loại nhà cung cấp",
+                        message: "Vui lòng chọn nhà cung cấp",
                       },
                     ]}
                   >

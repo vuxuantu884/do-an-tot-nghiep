@@ -85,6 +85,7 @@ function* poSearchSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
+    console.log(error);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
