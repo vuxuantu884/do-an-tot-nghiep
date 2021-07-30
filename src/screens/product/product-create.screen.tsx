@@ -282,7 +282,10 @@ const ProductCreateScreen: React.FC = () => {
     let temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
   }, []);
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
+    if(!data) {
+      return false;
+    }
     setAccounts(data.items);
   }, []);
   //end callback data

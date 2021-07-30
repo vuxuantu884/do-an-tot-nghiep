@@ -6,7 +6,6 @@ import UrlConfig from 'config/UrlConfig';
 import UpdateSupplierScreen from "../../screens/supllier/supplier-update.screen";
 
 const Category = React.lazy(() => import ("screens/category/category-list.screen"));
-const Product = React.lazy(() => import ("screens/product/product.search.screen"));
 const ProductCreateScreen = React.lazy(() => import ("screens/product/product-create.screen"));
 const ColorListScreen = React.lazy(() => import ("screens/color/color-list.screen"));
 const UpdateMaterial = React.lazy(() => import ("screens/materials/ material-update.screen"));
@@ -20,10 +19,17 @@ const AddCategory = React.lazy(() => import ("screens/category/category-add.scre
 const UpdateCategory = React.lazy(() => import ("screens/category/category-update.screen"))
 const SupplierCreateScreen = React.lazy(() => import ("screens/supllier/supplier-add.screen"));
 const ColorCreateScreen = React.lazy(() => import ("screens/color/color-create.screen"));
+
+//Product
+const Product = React.lazy(() => import ("screens/product/product.search.screen"));
 const  VariantUpdateScreen = React.lazy(() => import ("screens/product/variant-update.screen"));
 const  ProductUpdateScreen = React.lazy(() => import ("screens/product/product-update.screen"));
+
+//PO
 const  PurchaseOrderListScreen = React.lazy(() => import ("screens/purchase-order/purchase-order-list.screen"));
 const  PurchaseOrderCreateScreen = React.lazy(() => import ("screens/purchase-order/purchase-order-create.screen"));
+const  PurchaseOrderDetailScreen = React.lazy(() => import ("screens/purchase-order/purchase-order-detail.screen"));
+
 
 
 const product: Array<RouteMenu> = [
@@ -105,6 +111,20 @@ const product: Array<RouteMenu> = [
         subMenu: [],
         type: 0,
         object: null,
+      },
+      {
+        path: `${UrlConfig.PURCHASE_ORDER}/:id`,
+        exact: true,
+        title: "Thêm sản phẩm mới",
+        icon: 'icon-dot',
+        component: PurchaseOrderDetailScreen,
+        key: "submenu222",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore:['create']
       },
     ],
     type: 0,

@@ -424,7 +424,10 @@ export default function Order() {
   };
   //#endregion
 
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
+    if(!data) {
+      return;
+    }
     setAccounts(data.items);
   }, []);
   const scroll = useCallback(() => {

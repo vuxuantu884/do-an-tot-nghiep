@@ -6,6 +6,7 @@ import { Component } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 
 interface CustomAutoCompleteType {
+  id?: string,
   placeholder?: string;
   dropdownMatchSelectWidth?: number;
   style?: CSSProperties;
@@ -41,7 +42,10 @@ export default class CustomAutoComplete extends Component<
     };
   }
 
-  focus() {}
+  focus() {
+    console.log('vào đây');
+    this.auputRef?.focus();
+  }
 
   onSelect = (value: string) => {
     this.setState({
@@ -70,6 +74,7 @@ export default class CustomAutoComplete extends Component<
   render() {
     return (
       <AutoComplete
+        id={this.props.id}
         value={this.state.value}
         ref={(ref) => (this.auputRef = ref)}
         maxLength={255}

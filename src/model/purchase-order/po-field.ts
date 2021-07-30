@@ -7,10 +7,11 @@ const POField = {
   payment_discount_amount: 'payment_discount_amount',
   cost_lines: 'cost_lines',
   line_items: 'line_items',
-  total_payment: 'total_payment',
-  total_cost_lines: 'total_cost_lines',
   total: 'total',
-  vats: 'vats',
+  total_cost_line: 'total_cost_line',
+  untaxed_amount: 'untaxed_amount',
+  tax_lines: 'tax_lines',
+
 }
 
 const CostLineField = {

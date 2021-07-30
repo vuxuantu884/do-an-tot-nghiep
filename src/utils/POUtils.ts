@@ -37,6 +37,7 @@ const POUtils = {
         variant_image: variant_image !== null ? variant_image.url : null,
         unit: variant.product.unit,
         tax: 0,
+        tax_rate: 0,
         tax_included: false,
         tax_type_id: null,
         line_amount_after_line_discount: price,
@@ -138,10 +139,25 @@ const POUtils = {
     };
   },
   updateVatItem: (
-    data: PurchaseOrderLineItem,
-    tax: number
+    item: PurchaseOrderLineItem,
+    tax_rate: number,
+    data: Array<PurchaseOrderLineItem>,
+    tradeDiscountRate: number | null,
+    tradeDiscountValue: number | null,
   ): PurchaseOrderLineItem => {
-    return { ...data, tax: tax };
+    let total = POUtils.totalAmount(data);
+    let amount_after_discount = item.line_amount_after_line_discount;
+        if (tradeDiscountRate !== null) {
+          amount_after_discount =
+            amount_after_discount -
+            (amount_after_discount * tradeDiscountRate) / 100;
+        } else if (tradeDiscountValue !== null) {
+          amount_after_discount =
+            amount_after_discount -
+            (amount_after_discount / total) * tradeDiscountValue;
+        }
+    let tax = parseFloat(((amount_after_discount * item.tax_rate) / 100).toFixed(2));
+    return { ...item, tax_rate: tax_rate, tax: tax };
   },
   caculatePrice: (
     price: number,
@@ -164,8 +180,8 @@ const POUtils = {
     let result: Array<Vat> = [];
     let total = POUtils.totalAmount(data);
     data.forEach((item) => {
-      if (item.tax > 0) {
-        let index = result.findIndex((vatItem) => vatItem.value === item.tax);
+      if (item.tax_rate > 0) {
+        let index = result.findIndex((vatItem) => vatItem.rate === item.tax_rate);
         let amount_after_discount = item.line_amount_after_line_discount;
         if (tradeDiscountRate !== null) {
           amount_after_discount =
@@ -176,10 +192,10 @@ const POUtils = {
             amount_after_discount -
             (amount_after_discount / total) * tradeDiscountValue;
         }
-        let amountTax = parseFloat(((amount_after_discount * item.tax) / 100).toFixed(2));
+        let amountTax = parseFloat(((amount_after_discount * item.tax_rate) / 100).toFixed(2));
         if (index === -1) {
           result.push({
-            value: item.tax,
+            rate: item.tax_rate,
             amount: amountTax,
           });
         } else {
@@ -219,10 +235,10 @@ const POUtils = {
     total: number,
     trade_discount_total: number,
     payment_discount_total: number,
-    total_cost_lines: number,
+    total_cost_line: number,
     vats: Array<Vat>
   ): number => {
-    let sum = total - trade_discount_total - payment_discount_total + total_cost_lines;
+    let sum = total - trade_discount_total - payment_discount_total + total_cost_line;
     vats.forEach((item) => {
       sum = sum + item.amount;
     });
@@ -231,7 +247,9 @@ const POUtils = {
   getTotaExpense: (data: Array<CostLine>): number => {
     let sum = 0;
     data.forEach((item) => {
-      sum = sum + item.amount;
+      if(item && item.amount !== undefined && item.amount !== null) {
+        sum = sum + item.amount;
+      }
     });
     return sum;
   },
