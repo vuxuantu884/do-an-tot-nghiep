@@ -43,7 +43,7 @@ export interface PurchaseOrder {
 }
 
 export interface PurchaseOrderQuery extends BaseQuery{
-  info:string,
+  code:string,
   supplier_id?:number,
   
 }

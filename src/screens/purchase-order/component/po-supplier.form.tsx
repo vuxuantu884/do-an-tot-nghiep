@@ -256,7 +256,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                     rules={[
                       {
                         required: true,
-                        message: "Vui lòng chọn loại nhà cung cấp",
+                        message: "Vui lòng chọn nhà cung cấp",
                       },
                     ]}
                   >

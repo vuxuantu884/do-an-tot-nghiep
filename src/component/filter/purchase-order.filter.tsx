@@ -9,6 +9,7 @@ import { StarOutlined } from "@ant-design/icons";
 import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
 
 type PurchaseOrderFilterProps = {
+  params: PurchaseOrderQuery;
   listSupplier?: Array<SupplierResponse>;
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
@@ -22,26 +23,51 @@ const { Option } = Select;
 const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   props: PurchaseOrderFilterProps
 ) => {
-  const { listSupplier, actions, onMenuClick, onClearFilter, onFilter } = props;
+  const {
+    params,
+    listSupplier,
+    actions,
+    onMenuClick,
+    onClearFilter,
+    onFilter,
+  } = props;
   const [visible, setVisible] = useState(false);
 
-  const [formPoFilter] = Form.useForm();
-  const onFinish = useCallback(
+  const [formBaseFilter] = Form.useForm();
+  const [formAdvanceFilter] = Form.useForm();
+  const onBaseFinish = useCallback(
     (values: PurchaseOrderQuery) => {
-      onFilter && onFilter(values);
+      debugger;
+      let data = formBaseFilter.getFieldsValue(true);
+      onFilter && onFilter(data);
     },
-    [onFilter]
+    [formBaseFilter, onFilter]
+  );
+  const onAdvanceFinish = useCallback(
+    (values: PurchaseOrderQuery) => {
+      debugger;
+      let data = formAdvanceFilter.getFieldsValue(true);
+      onFilter && onFilter(data);
+    },
+    [formAdvanceFilter, onFilter]
   );
   const onFilterClick = useCallback(() => {
     setVisible(false);
-    formPoFilter.submit();
-  }, [formPoFilter]);
+    formAdvanceFilter.submit();
+  }, [formAdvanceFilter]);
   const openFilter = useCallback(() => {
     setVisible(true);
   }, []);
   const onCancelFilter = useCallback(() => {
+    formAdvanceFilter.resetFields();
     setVisible(false);
-  }, []);
+  }, [formAdvanceFilter]);
+  const onResetFilter = useCallback(() => {
+    debugger;
+    formAdvanceFilter.setFieldsValue({ supplier_id: undefined });
+    setVisible(false);
+    formAdvanceFilter.submit();
+  }, [formAdvanceFilter]);
   const onActionClick = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
@@ -49,25 +75,45 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     [onMenuClick]
   );
   useLayoutEffect(() => {
-    if (visible) {
-      formPoFilter.resetFields();
-    }
-  }, [formPoFilter, visible]);
+    // if (visible) {
+    //   formBaseFilter.resetFields();
+    //   formAdvanceFilter.resetFields();
+    // }
+    // return () => {
+    //   formBaseFilter.resetFields();
+    //   formAdvanceFilter.resetFields();
+    // };
+  }, [formAdvanceFilter, formBaseFilter, visible]);
 
   return (
     <Card bordered={false}>
-      <Form.Provider>
+      <Form.Provider
+        onFormFinish={(name, { values, forms }) => {
+          debugger;
+          const { formBaseFilter, formAdvanceFilter } = forms;
+          let baseValues = formBaseFilter.getFieldsValue();
+          let advanceValues = formAdvanceFilter?.getFieldsValue();
+          formBaseFilter.setFieldsValue({ ...baseValues, ...advanceValues });
+
+          formAdvanceFilter?.setFieldsValue({
+            ...baseValues,
+            ...advanceValues,
+          });
+        }}
+      >
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form
-            onFinish={onFinish}
-            initialValues={{ info: "" }}
+            form={formBaseFilter}
+            name="formBaseFilter"
+            onFinish={onBaseFinish}
+            initialValues={params}
             layout="inline"
           >
-            <Item name="info">
+            <Item name="code">
               <Input
                 prefix={<img src={search} alt="" />}
                 style={{ width: 200 }}
-                placeholder="Tên/Mã sản phẩm"
+                placeholder="Mã đơn hàng"
               />
             </Item>
 
@@ -88,23 +134,25 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
         </CustomFilter>
 
         <BaseFilter
-          onClearFilter={onClearFilter}
+          onClearFilter={onResetFilter}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
         >
           <Form
-            onFinish={onFinish}
-            initialValues={{ supplier: undefined }}
+            form={formAdvanceFilter}
+            name="formAdvanceFilter"
+            onFinish={onAdvanceFinish}
+            initialValues={params}
             layout="vertical"
           >
             <Row gutter={12}>
               <Col span={24}>
-                <Item name="supplier" label="Nhà cung cấp">
-                  <Select>
+                <Item name="supplier_id" label="Nhà cung cấp">
+                  <Select placeholder="Chọn nhà cung cấp" allowClear>
                     <Option value="">Nhà cung cấp</Option>
                     {listSupplier?.map((item) => (
-                      <Option key={item.id} value={item.id}>
+                      <Option key={item.id} value={item.id.toString()}>
                         {item.name}
                       </Option>
                     ))}

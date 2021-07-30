@@ -1,7 +1,6 @@
 import { Button, Col, Drawer, Row, Space } from "antd";
 import { Scrollbars } from "react-custom-scrollbars";
 
-
 type BaseFilterProps = {
   visible: boolean;
   children: React.ReactNode;
@@ -35,10 +34,12 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
         </Row>
       }
     >
-      <Scrollbars className="body-container" autoHide style={{height: '100%'}}>
-        <div className="body-container-form">
-          {children}
-        </div>
+      <Scrollbars
+        className="body-container"
+        autoHide
+        style={{ height: "100%" }}
+      >
+        <div className="body-container-form">{children}</div>
       </Scrollbars>
     </Drawer>
   );

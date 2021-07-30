@@ -22,7 +22,7 @@ import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import NumberFormat from 'react-number-format';
+import NumberFormat from "react-number-format";
 
 const PurchaseOrderListScreen: React.FC = () => {
   const query = useQuery();
@@ -32,7 +32,7 @@ const PurchaseOrderListScreen: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [listSupplier, setSupplier] = useState<Array<SupplierResponse>>();
   let initQuery: PurchaseOrderQuery = {
-    info: "",
+    code: "",
   };
 
   let dataQuery: PurchaseOrderQuery = {
@@ -80,7 +80,6 @@ const PurchaseOrderListScreen: React.FC = () => {
           displayType={"text"}
           thousandSeparator={true}
           prefix={"$"}
-
         />
       ),
     },
@@ -93,7 +92,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       title: "Ngày tạo",
       dataIndex: "created_date",
       visible: false,
-     
+
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
@@ -172,6 +171,7 @@ const PurchaseOrderListScreen: React.FC = () => {
     >
       <Card>
         <PurchaseOrderFilter
+          params={params}
           onMenuClick={onMenuClick}
           actions={actions}
           onFilter={onFilter}
