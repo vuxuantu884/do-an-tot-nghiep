@@ -6,6 +6,7 @@ import {
   updateShipment,
   updatePayment,
   getDeliverieServices,
+  getInfoDeliveryGHTK,
 } from "./../../../service/order/order.service";
 import { SourceResponse } from "./../../../model/response/order/source.response";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
@@ -19,7 +20,11 @@ import { put, call, takeLatest } from "redux-saga/effects";
 import { HttpStatus } from "config/HttpStatus";
 import { YodyAction } from "../../../base/BaseAction";
 import { showError } from "utils/ToastUtils";
-import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
+import {
+  DeliveryServiceResponse,
+  OrderResponse,
+  ShippingGHTKResponse,
+} from "model/response/order/order.response";
 import { getAmountPayment } from "utils/AppUtils";
 
 function* orderCreateSaga(action: YodyAction) {
@@ -27,6 +32,26 @@ function* orderCreateSaga(action: YodyAction) {
   try {
     let response: BaseResponse<OrderResponse> = yield call(
       orderPostApi,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError(error);
+  }
+}
+
+function* InfoGHTKSaga(action: YodyAction) {
+  const { request, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<ShippingGHTKResponse>> = yield call(
+      getInfoDeliveryGHTK,
       request
     );
     switch (response.code) {
@@ -185,6 +210,7 @@ function* OrderOnlineSaga() {
     ListDeliveryServicesSaga
   );
   yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD, updatePaymentSaga);
+  yield takeLatest(OrderType.GET_INFO_DELIVERY_GHTK, InfoGHTKSaga);
 }
 
 export default OrderOnlineSaga;
