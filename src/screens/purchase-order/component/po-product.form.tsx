@@ -19,7 +19,6 @@ import {
 } from "antd";
 import classNames from "classnames";
 import imgDefIcon from "assets/img/img-def.svg";
-import { RefSelectProps } from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -50,7 +49,7 @@ type POProductProps = {
 const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
   const { formMain } = props;
-  const productSearchRef = createRef<RefSelectProps>();
+  const productSearchRef = createRef<CustomAutoComplete>();
   const product_units = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   );
@@ -592,7 +591,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   );
   const onSearch = useCallback(
     (value: string) => {
-      if (value.trim() !== '' && value.length >= 3) {
+      if (value.trim() !== "" && value.length >= 3) {
         dispatch(
           searchVariantsRequestAction(
             {
@@ -643,15 +642,18 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       >
         <div className="padding-20">
           <Input.Group className="display-flex">
-            <CustomAutoComplete 
-              dropdownClassName="product"  
-              placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)" 
-              onSearch={onSearch}  
-              dropdownMatchSelectWidth={456} style={{ width: "100%" }} 
+            <CustomAutoComplete
+              id="#product_search"
+              dropdownClassName="product"
+              placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
+              onSearch={onSearch}
+              dropdownMatchSelectWidth={456}
+              style={{ width: "100%" }}
               showAdd={true}
               textAdd="Thêm mới sản phẩm"
               onSelect={onSelectProduct}
               options={renderResult}
+              ref={productSearchRef}
             />
             <Button
               onClick={() => setVisibleManyProduct(true)}
@@ -691,7 +693,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             background: "rgba(42,42,134,0.05)",
                           }}
                           onClick={() => {
-                            productSearchRef.current?.focus();
+                            let element: any =
+                              document.getElementById("#product_search");
+                            element?.focus();
+                            const y =
+                              element?.getBoundingClientRect()?.top +
+                              window.pageYOffset +
+                              -250;
+                            window.scrollTo({ top: y, behavior: "smooth" });
                           }}
                         >
                           Thêm sản phẩm ngay (F1)
@@ -773,9 +782,20 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                     {
                       title: (
-                        <div style={{ width: "100%", textAlign: "center", flexDirection: 'column', display: 'flex', }}>
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "center",
+                            flexDirection: "column",
+                            display: "flex",
+                          }}
+                        >
                           SL
-                          <div style={{color: '#2A2A86', fontWeight: 'normal'}}>({POUtils.totalQuantity(items)})</div>
+                          <div
+                            style={{ color: "#2A2A86", fontWeight: "normal" }}
+                          >
+                            ({POUtils.totalQuantity(items)})
+                          </div>
                         </div>
                       ),
                       width: 100,
@@ -787,10 +807,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           value={value}
                           min={1}
                           default={1}
-                          onChange={(quantity) =>{
-                            onQuantityChange(quantity, index)
-                          }
-                          }
+                          onChange={(quantity) => {
+                            onQuantityChange(quantity, index);
+                          }}
                         />
                       ),
                     },
@@ -898,6 +917,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                     {
                       title: "",
+                      fixed: 'right',
                       width: 40,
                       render: (value: string, item, index: number) => (
                         <Button
@@ -1150,14 +1170,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 noStyle
               >
                 {({ getFieldValue }) => {
-                  let total_cost_lines = getFieldValue(POField.total_cost_lines);
+                  let total_cost_lines = getFieldValue(
+                    POField.total_cost_lines
+                  );
                   let cost_lines = getFieldValue(POField.cost_lines);
                   return (
                     <div className="payment-row">
                       <Typography.Link
                         onClick={() => {
                           setCostLines(cost_lines);
-                          setVisibleExpense(true)
+                          setVisibleExpense(true);
                         }}
                         style={{
                           textDecoration: "underline",
@@ -1214,7 +1236,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         onSave={onPickManyProduct}
         onCancle={() => setVisibleManyProduct(false)}
         visible={visibleManyProduct}
-        
       />
     </React.Fragment>
   );

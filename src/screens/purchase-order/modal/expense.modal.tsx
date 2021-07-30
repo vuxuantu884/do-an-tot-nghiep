@@ -2,8 +2,10 @@ import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, Modal, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { CostLine } from "model/purchase-order/cost-line.model";
+import { POField } from "model/purchase-order/po-field";
 import { useCallback, useEffect } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { POUtils } from "utils/POUtils";
 
 type ExpenseModalType = {
   visible: boolean;
@@ -32,27 +34,30 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
   const onFinish = useCallback(
     (value) => {
       let cost_lines: Array<CostLine> = value.cost_lines;
-      props.onOk(cost_lines);
+      let result = [...cost_lines].filter(item => item.amount !== undefined && item.amount !== null && item.amount !== 0)
+      props.onOk(result);
     },
     [props]
   );
   useEffect(() => {
     if (props.visible) {
-      let cost_lines: Array<CostLine> = form.getFieldValue("cost_lines");
+      form.resetFields();
+      let cost_lines: Array<CostLine> = props.costLines;
       if (cost_lines.length === 0) {
-        cost_lines.push({ title: "", amount: 0 });
-        form.setFieldsValue({
-          cost_lines: cost_lines
-        })
+        cost_lines.push({ title: "", amount: null });
       }
+      console.log(cost_lines);
+      form.setFieldsValue({
+        cost_lines: cost_lines,
+      });
     }
-  }, [form, props.visible]);
+  }, [form, props.costLines, props.visible]);
   return (
     <Modal
       width={600}
       onCancel={onCancel}
       visible={props.visible}
-      cancelText="Thoát"
+      cancelText="Hủy"
       okText="Áp dụng"
       onOk={onOk}
       title="Thêm chi phí"
@@ -69,21 +74,21 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
             <>
               {fields.map(({ key, name, fieldKey, ...restField }, index) => (
                 <Row key={key} gutter={24}>
-                  <Col md={16}>
+                  <Col span={12} md={12}>
                     <Form.Item
                       rules={[
                         {
                           required: true,
-                          message: "Giá bán không được để trống",
+                          message: "Vui lòng thêm tên chi phí",
                         },
                       ]}
                       name={[name, "title"]}
                       fieldKey={[fieldKey, "title"]}
                     >
-                      <Input placeholder="Tên chi phí" />
+                      <Input placeholder="Tên chi phí(*)" />
                     </Form.Item>
                   </Col>
-                  <Col md={6}>
+                  <Col span={9} md={9}>
                     <Form.Item
                       name={[name, "amount"]}
                       fieldKey={[fieldKey, "amount"]}
@@ -95,20 +100,53 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
                       />
                     </Form.Item>
                   </Col>
-                  <Button
-                    onClick={() => remove(name)}
-                    icon={<DeleteOutlined />}
-                  />
+                  <Col span={3} md={3}>
+                    <Button
+                      onClick={() => remove(name)}
+                      icon={<DeleteOutlined />}
+                    />
+                  </Col>
                 </Row>
               ))}
-              <Button
-                type="link"
-                className="padding-0"
-                onClick={() => add()}
-                icon={<PlusOutlined />}
-              >
-                Thêm mới
-              </Button>
+              <Row gutter={24} align="middle" justify="space-between">
+                <Col span={12} md={12}>
+                  <Button
+                    type="link"
+                    className="padding-0"
+                    onClick={() => add()}
+                    icon={<PlusOutlined />}
+                  >
+                    Thêm chi phí
+                  </Button>
+                </Col>
+                <Col span={9} md={9}>
+                  <Form.Item
+                    shouldUpdate={(prevValues, curValues) =>
+                      prevValues[POField.cost_lines] !==
+                      curValues[POField.cost_lines]
+                    }
+                    noStyle
+                  >
+                    {({ getFieldValue }) => {
+                      let items = getFieldValue(POField.cost_lines);
+                      console.log(items);
+                      return (
+                        <div
+                          style={{
+                            textAlign: "right",
+                            color: "#222222",
+                            fontWeight: 700,
+                          }}
+                        >
+                          Tổng chi phí:{" "}
+                          {formatCurrency(POUtils.getTotaExpense(items))}
+                        </div>
+                      );
+                    }}
+                  </Form.Item>
+                </Col>
+                <Col span={3} md={3}></Col>
+              </Row>
             </>
           )}
         </Form.List>

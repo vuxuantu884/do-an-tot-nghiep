@@ -46,6 +46,7 @@ const DiscountModal: React.FC<DiscountModalProps> = (
                   setType(value);
                   form.setFieldsValue({ discount: 0 });
                 }}
+                onBlur={() => form.submit()}
               >
                 <Select.Option value="percent">%</Select.Option>
                 <Select.Option value="money">₫</Select.Option>

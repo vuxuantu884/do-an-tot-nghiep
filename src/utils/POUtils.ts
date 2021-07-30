@@ -231,7 +231,9 @@ const POUtils = {
   getTotaExpense: (data: Array<CostLine>): number => {
     let sum = 0;
     data.forEach((item) => {
-      sum = sum + item.amount;
+      if(item && item.amount !== undefined && item.amount !== null) {
+        sum = sum + item.amount;
+      }
     });
     return sum;
   },
