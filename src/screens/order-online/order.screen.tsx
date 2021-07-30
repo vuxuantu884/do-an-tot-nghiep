@@ -90,7 +90,6 @@ export default function Order() {
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
-
   const onChangeShippingAddress = (
     _objShippingAddress: ShippingAddress | null
   ) => {
@@ -247,7 +246,12 @@ export default function Order() {
     }
     return listFullfillmentRequest;
   };
-
+  console.log(
+    orderAmount +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      getAmountPaymentRequest(payments) -
+      discountValue
+  );
   const createShipmentRequest = (value: OrderRequest) => {
     let objShipment: ShipmentRequest = {
       delivery_service_provider_id: null, //id người shipper
@@ -292,23 +296,11 @@ export default function Order() {
       if (takeMoneyHelper !== null) {
         objShipment.cod = takeMoneyHelper;
       } else {
-        if (shippingFeeCustomer !== null) {
-          if (
-            orderAmount +
-              shippingFeeCustomer -
-              getAmountPaymentRequest(payments) >
-            0
-          ) {
-            objShipment.cod =
-              orderAmount +
-              shippingFeeCustomer -
-              getAmountPaymentRequest(payments);
-          }
-        } else {
-          if (orderAmount - getAmountPaymentRequest(payments) > 0) {
-            objShipment.cod = orderAmount - getAmountPaymentRequest(payments);
-          }
-        }
+        objShipment.cod =
+          orderAmount +
+          (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+          getAmountPaymentRequest(payments) -
+          discountValue;
       }
       return objShipment;
     }
@@ -365,6 +357,7 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
+  console.log(orderAmount);
   const onFinish = (values: OrderRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
@@ -384,17 +377,17 @@ export default function Order() {
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments;
-      //Nếu có phí ship báo khách
-      if (shippingFeeCustomer !== null) {
-        values.total = orderAmount + shippingFeeCustomer;
-        if (values.fulfillments[0].shipment != null) {
-          values.fulfillments[0].shipment.cod =
-            orderAmount +
-            shippingFeeCustomer -
-            getAmountPaymentRequest(payments);
-        }
-      } else {
-        values.total = orderAmount;
+      values.total = orderAmount;
+      if (
+        values?.fulfillments &&
+        values.fulfillments.length > 0 &&
+        values.fulfillments[0].shipment
+      ) {
+        values.fulfillments[0].shipment.cod =
+          orderAmount +
+          (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+          getAmountPaymentRequest(payments) -
+          discountValue;
       }
     }
     values.tags = tags;
@@ -540,9 +533,9 @@ export default function Order() {
                 setPayments={onPayments}
                 paymentMethod={paymentMethod}
                 amount={
-                  shippingFeeCustomer
-                    ? orderAmount + shippingFeeCustomer
-                    : orderAmount
+                  orderAmount +
+                  (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                  discountValue
                 }
               />
             </Col>
