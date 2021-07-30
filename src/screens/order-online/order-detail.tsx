@@ -153,7 +153,7 @@ const OrderDetail = () => {
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
   );
-  console.log(OrderDetail);
+
   const stepsStatus = () => {
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
@@ -165,7 +165,10 @@ const OrderDetail = () => {
       ) {
         return OrderStatus.FINALIZED;
       } else {
-        if (OrderDetail?.fulfillments && OrderDetail.fulfillments.length > 0) {
+        if (
+          OrderDetail.fulfillments !== undefined &&
+          OrderDetail.fulfillments !== null
+        ) {
           if (
             OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
           ) {
@@ -699,7 +702,7 @@ const OrderDetail = () => {
     >
       <div className="orders">
         <Row gutter={24} style={{ marginBottom: "70px" }}>
-          <Col xs={24} lg={18}>
+          <Col md={18}>
             {/*--- customer ---*/}
             <UpdateCustomerCard
               OrderDetail={OrderDetail}
@@ -1355,187 +1358,125 @@ const OrderDetail = () => {
             {/*--- end shipment ---*/}
 
             {/*--- payment ---*/}
-            {OrderDetail?.payments && OrderDetail?.payments?.length > 0 && (
-              <Card
-                className="margin-top-20"
-                title={
-                  <Space>
-                    <div className="d-flex" style={{ marginTop: "5px" }}>
-                      <span className="title-card">THANH TOÁN</span>
-                    </div>
-                    {checkPaymentStatusToShow(OrderDetail) === -1 && (
-                      <Tag className="orders-tag orders-tag-default">
-                        Chưa thanh toán
-                      </Tag>
-                    )}
-                    {checkPaymentStatusToShow(OrderDetail) === 0 && (
-                      <Tag className="orders-tag orders-tag-warning">
-                        Thanh toán 1 phần
-                      </Tag>
-                    )}
-                    {checkPaymentStatusToShow(OrderDetail) === 1 && (
-                      <Tag
-                        className="orders-tag orders-tag-success"
-                        style={{
-                          backgroundColor: "rgba(39, 174, 96, 0.1)",
-                          color: "#27AE60",
-                        }}
-                      >
-                        Đã thanh toán
-                      </Tag>
-                    )}
-                  </Space>
-                }
-              >
-                <div className="padding-24">
-                  <Row>
-                    <Col span={12}>
-                      <span className="text-field margin-right-40">
-                        Đã thanh toán:
-                      </span>
-                      <b>
-                        {(OrderDetail?.fulfillments &&
-                          OrderDetail?.fulfillments[0].status === "shipped" &&
-                          formatCurrency(customerNeedToPayValue)) ||
-                          formatCurrency(
-                            getAmountPayment(OrderDetail.payments)
+            {OrderDetail !== null &&
+              OrderDetail.payments &&
+              OrderDetail.payments?.length > 0 && (
+                <Card
+                  className="margin-top-20"
+                  title={
+                    <Space>
+                      <div className="d-flex" style={{ marginTop: "5px" }}>
+                        <span className="title-card">THANH TOÁN</span>
+                      </div>
+                      {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                        <Tag className="orders-tag orders-tag-default">
+                          Chưa thanh toán
+                        </Tag>
+                      )}
+                      {checkPaymentStatusToShow(OrderDetail) === 0 && (
+                        <Tag className="orders-tag orders-tag-warning">
+                          Thanh toán 1 phần
+                        </Tag>
+                      )}
+                      {checkPaymentStatusToShow(OrderDetail) === 1 && (
+                        <Tag
+                          className="orders-tag orders-tag-success"
+                          style={{
+                            backgroundColor: "rgba(39, 174, 96, 0.1)",
+                            color: "#27AE60",
+                          }}
+                        >
+                          Đã thanh toán
+                        </Tag>
+                      )}
+                    </Space>
+                  }
+                >
+                  <div className="padding-24">
+                    <Row>
+                      <Col span={12}>
+                        <span className="text-field margin-right-40">
+                          Đã thanh toán:
+                        </span>
+                        <b>
+                          {(OrderDetail?.fulfillments &&
+                            OrderDetail?.fulfillments[0].status === "shipped" &&
+                            formatCurrency(customerNeedToPayValue)) ||
+                            formatCurrency(
+                              getAmountPayment(OrderDetail.payments)
+                            )}
+                        </b>
+                      </Col>
+                      <Col span={12}>
+                        <span className="text-field margin-right-40">
+                          Còn phải trả
+                        </span>
+                        <b style={{ color: "red" }}>
+                          {OrderDetail?.fulfillments &&
+                          OrderDetail?.fulfillments[0].status !== "shipped"
+                            ? formatCurrency(
+                                customerNeedToPayValue -
+                                  (OrderDetail?.total_paid
+                                    ? OrderDetail?.total_paid
+                                    : 0)
+                              )
+                            : 0}
+                        </b>
+                      </Col>
+                    </Row>
+                  </div>
+
+                  {OrderDetail?.payments && (
+                    <div>
+                      <div style={{ padding: "0 24px 24px 24px" }}>
+                        <Collapse
+                          className="orders-timeline"
+                          expandIcon={({ isActive }) => (
+                            <img
+                              src={doubleArrow}
+                              alt=""
+                              style={{
+                                transform: isActive
+                                  ? "rotate(0deg)"
+                                  : "rotate(270deg)",
+                                float: "right",
+                              }}
+                            />
                           )}
-                      </b>
-                    </Col>
-                    <Col span={12}>
-                      <span className="text-field margin-right-40">
-                        Còn phải trả:
-                      </span>
-                      <b style={{ color: "red" }}>
-                        {OrderDetail?.fulfillments &&
-                        OrderDetail?.fulfillments[0].status !== "shipped"
-                          ? formatCurrency(
-                              customerNeedToPayValue -
-                                (OrderDetail?.total_paid
-                                  ? OrderDetail?.total_paid
-                                  : 0)
-                            )
-                          : 0}
-                      </b>
-                    </Col>
-                  </Row>
-                </div>
-
-                {OrderDetail?.payments && (
-                  <div>
-                    <div style={{ padding: "0 24px 24px 24px" }}>
-                      <Collapse
-                        className="orders-timeline"
-                        expandIcon={({ isActive }) => (
-                          <img
-                            src={doubleArrow}
-                            alt=""
-                            style={{
-                              transform: isActive
-                                ? "rotate(0deg)"
-                                : "rotate(270deg)",
-                              float: "right",
-                            }}
-                          />
-                        )}
-                        ghost
-                      >
-                        {OrderDetail.total === SumCOD(OrderDetail) &&
-                        OrderDetail.total === OrderDetail.total_paid ? (
-                          ""
-                        ) : (
-                          <Panel
-                            className="orders-timeline-custom success-collapse"
-                            header={
-                              <span style={{ color: "#222222" }}>
-                                <span>Đã thanh toán: </span>
-                                <b>
-                                  {OrderDetail?.payments &&
-                                    OrderDetail?.payments
-                                      .filter(
-                                        (payment, index) =>
-                                          payment.payment_method !== "cod" &&
-                                          payment.paid_amount
-                                      )
-                                      .map(
-                                        (item, index) =>
-                                          item.payment_method +
-                                          (index ===
-                                          (OrderDetail?.payments &&
-                                          OrderDetail?.payments.length > 0
-                                            ? OrderDetail?.payments.length
-                                            : 0) -
-                                            1
-                                            ? ""
-                                            : ", ")
-                                      )}
-                                </b>
-                              </span>
-                            }
-                            key="1"
-                            extra={
-                              <>
-                                {OrderDetail?.payments && (
-                                  <div>
-                                    <span className="fixed-time text-field">
-                                      {ConvertUtcToLocalDate(
-                                        getDateLastPayment(OrderDetail),
-                                        "DD/MM/YYYY HH:mm"
-                                      )}
-                                    </span>
-                                  </div>
-                                )}
-                              </>
-                            }
-                          >
-                            <Row gutter={24}>
-                              {OrderDetail?.payments &&
-                                OrderDetail?.payments
-                                  .filter(
-                                    (payment) =>
-                                      payment.payment_method !== "cod" &&
-                                      payment.paid_amount
-                                  )
-                                  .map((item, index) => (
-                                    <Col span={12}>
-                                      <p style={{ color: "#737373" }}>
-                                        {item.payment_method}
-                                      </p>
-                                      <b>{formatCurrency(item.paid_amount)}</b>
-                                    </Col>
-                                  ))}
-                            </Row>
-                          </Panel>
-                        )}
-
-                        {OrderDetail &&
-                          OrderDetail.fulfillments &&
-                          OrderDetail.fulfillments.length > 0 &&
-                          OrderDetail.fulfillments[0].shipment &&
-                          OrderDetail.fulfillments[0].shipment?.cod !==
-                            null && (
+                          ghost
+                        >
+                          {OrderDetail.total === SumCOD(OrderDetail) &&
+                          OrderDetail.total === OrderDetail.total_paid ? (
+                            ""
+                          ) : (
                             <Panel
-                              className={OrderDetail?.fulfillments[0].status !== "shipped" ? "orders-timeline-custom orders-dot-status" : "orders-timeline-custom"}
-                              showArrow={false}
+                              className="orders-timeline-custom success-collapse"
                               header={
-                                <span>
-                                  COD
-                                  <b
-                                    style={{
-                                      marginLeft: "200px",
-                                      color: "#222222",
-                                    }}
-                                  >
-                                    {OrderDetail !== null &&
-                                    OrderDetail.fulfillments
-                                      ? formatCurrency(
-                                          OrderDetail.fulfillments[0].shipment
-                                            ?.cod
+                                <span style={{ color: "#222222" }}>
+                                  <span>Đã thanh toán: </span>
+                                  <b>
+                                    {OrderDetail?.payments &&
+                                      OrderDetail?.payments
+                                        .filter(
+                                          (payment, index) =>
+                                            payment.payment_method !== "cod"
                                         )
-                                      : 0}
+                                        .map(
+                                          (item, index) =>
+                                            item.payment_method +
+                                            (index ===
+                                            (OrderDetail?.payments &&
+                                            OrderDetail?.payments.length > 0
+                                              ? OrderDetail?.payments.length
+                                              : 0) -
+                                              1
+                                              ? ""
+                                              : ", ")
+                                        )}
                                   </b>
                                 </span>
                               }
+                              key="1"
                               extra={
                                 <>
                                   {OrderDetail?.payments && (
@@ -1550,48 +1491,112 @@ const OrderDetail = () => {
                                   )}
                                 </>
                               }
-                              key="2"
-                            ></Panel>
+                            >
+                              <Row gutter={24}>
+                                {OrderDetail?.payments &&
+                                  OrderDetail?.payments
+                                    .filter(
+                                      (payment) =>
+                                        payment.payment_method !== "cod"
+                                    )
+                                    .map((item, index) => (
+                                      <Col span={12}>
+                                        <p style={{ color: "#737373" }}>
+                                          {item.payment_method}
+                                        </p>
+                                        <b>
+                                          {formatCurrency(item.paid_amount)}
+                                        </b>
+                                      </Col>
+                                    ))}
+                              </Row>
+                            </Panel>
                           )}
-                      </Collapse>
-                    </div>{" "}
-                  </div>
-                )}
-                {isShowPaymentPartialPayment && OrderDetail !== null && (
-                  <UpdatePaymentCard
-                    setSelectedPaymentMethod={onPaymentSelect}
-                    setPayments={onPayments}
-                    paymentMethod={paymentType}
-                    showPartialPayment={true}
-                    amount={
-                      OrderDetail.total_line_amount_after_line_discount -
-                      getAmountPayment(OrderDetail.payments)
-                    }
-                    order_id={OrderDetail.id}
-                    orderDetail={OrderDetail}
-                    setTotalPaid={setTotalPaid}
-                  />
-                )}
-                {(OrderDetail?.fulfillments &&
-                  OrderDetail?.fulfillments.length > 0 &&
-                  OrderDetail?.fulfillments[0].shipment &&
-                  OrderDetail?.fulfillments[0].shipment.cod !== null) ||
-                  (checkPaymentAll(OrderDetail) !== 1 &&
-                    isShowPaymentPartialPayment === false &&
-                    checkPaymentStatusToShow(OrderDetail) !== 1 && (
-                      <div className="padding-24 text-right">
-                        <Divider style={{ margin: "10px 0" }} />
-                        <Button
-                          type="primary"
-                          className="ant-btn-outline fixed-button"
-                          onClick={() => setShowPaymentPartialPayment(true)}
-                        >
-                          Thanh toán
-                        </Button>
-                      </div>
-                    ))}
-              </Card>
-            )}
+
+                          {OrderDetail &&
+                            OrderDetail.fulfillments &&
+                            OrderDetail.fulfillments.length > 0 &&
+                            OrderDetail.fulfillments[0].shipment &&
+                            OrderDetail.fulfillments[0].shipment?.cod !==
+                              null && (
+                              <Panel
+                                className="orders-timeline-custom"
+                                showArrow={false}
+                                header={
+                                  <span>
+                                    COD
+                                    <b
+                                      style={{
+                                        marginLeft: "200px",
+                                        color: "#222222",
+                                      }}
+                                    >
+                                      {OrderDetail !== null &&
+                                      OrderDetail.fulfillments
+                                        ? formatCurrency(
+                                            OrderDetail.fulfillments[0].shipment
+                                              ?.cod
+                                          )
+                                        : 0}
+                                    </b>
+                                  </span>
+                                }
+                                extra={
+                                  <>
+                                    {OrderDetail?.payments && (
+                                      <div>
+                                        <span className="fixed-time text-field">
+                                          {ConvertUtcToLocalDate(
+                                            getDateLastPayment(OrderDetail),
+                                            "DD/MM/YYYY HH:mm"
+                                          )}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </>
+                                }
+                                key="2"
+                              ></Panel>
+                            )}
+                        </Collapse>
+                      </div>{" "}
+                    </div>
+                  )}
+                  {isShowPaymentPartialPayment && OrderDetail !== null && (
+                    <UpdatePaymentCard
+                      setSelectedPaymentMethod={onPaymentSelect}
+                      setPayments={onPayments}
+                      paymentMethod={paymentType}
+                      showPartialPayment={true}
+                      amount={
+                        OrderDetail.total_line_amount_after_line_discount -
+                        getAmountPayment(OrderDetail.payments)
+                      }
+                      order_id={OrderDetail.id}
+                      orderDetail={OrderDetail}
+                      setTotalPaid={setTotalPaid}
+                    />
+                  )}
+                  {(OrderDetail?.fulfillments &&
+                    OrderDetail?.fulfillments.length > 0 &&
+                    OrderDetail?.fulfillments[0].shipment &&
+                    OrderDetail?.fulfillments[0].shipment.cod !== null) ||
+                    (checkPaymentAll(OrderDetail) !== 1 &&
+                      isShowPaymentPartialPayment === false &&
+                      checkPaymentStatusToShow(OrderDetail) !== 1 && (
+                        <div className="padding-24 text-right">
+                          <Divider style={{ margin: "10px 0" }} />
+                          <Button
+                            type="primary"
+                            className="ant-btn-outline fixed-button"
+                            onClick={() => setShowPaymentPartialPayment(true)}
+                          >
+                            Thanh toán
+                          </Button>
+                        </div>
+                      ))}
+                </Card>
+              )}
 
             {/* COD toàn phần */}
             {OrderDetail &&
@@ -1745,7 +1750,7 @@ const OrderDetail = () => {
             {/*--- end payment ---*/}
           </Col>
 
-          <Col xs={24} lg={6}>
+          <Col md={6}>
             <Card
               className="card-block card-block-normal"
               title={
@@ -1789,12 +1794,9 @@ const OrderDetail = () => {
                   <Col span={9}>Thời gian</Col>
                   <Col span={15}>
                     <span>
-                      {OrderDetail?.fulfillments &&
-                        OrderDetail?.fulfillments.map((item, index) =>
-                          moment(item.shipment?.created_date).format(
+                      {moment(OrderDetail?.created_date).format(
                             "DD/MM/YYYY HH:mm a"
-                          )
-                        )}
+                          )}
                     </span>
                   </Col>
                 </Row>
@@ -1876,7 +1878,7 @@ const OrderDetail = () => {
         title="Xác nhận xuất kho"
         text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " + confirmExportAndFinishValue()
+            ? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!) 
             : ""
         } không?`}
       />
@@ -1887,7 +1889,7 @@ const OrderDetail = () => {
         title="Xác nhận giao hàng thành công"
         text={`Bạn có chắc đã giao đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " + confirmExportAndFinishValue()
+            ? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!) 
             : ""
         } không?`}
       />

@@ -1,3 +1,4 @@
+import { BaseQuery } from "model/base/base.query";
 import { PurchaseAddress } from "./purchase-address.model";
 import { PurchaseOrderLineItem } from "./purchase-item.model";
 import { PurchaseTransaction } from "./purchase-transaction.model";
@@ -38,4 +39,10 @@ export interface PurchaseOrder {
   activated_date: string,
   completed_date: string,
   payment_term_id: string,
+}
+
+export interface PurchaseOrderQuery extends BaseQuery{
+  info:string,
+  supplier_id?:number,
+  
 }

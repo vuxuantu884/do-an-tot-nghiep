@@ -50,6 +50,9 @@ import {
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/confirm-payment.modal";
+import { StoreDetailAction } from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
+import { request } from "https";
 //#endregion
 
 var typeButton = "";
@@ -81,6 +84,7 @@ export default function Order() {
     useState<boolean>(false);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  const [storeDetail, setStoreDetail] = useState<StoreResponse>();
   //#endregion
   //#region Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
@@ -195,7 +199,7 @@ export default function Order() {
 
     setTag(strTag);
   };
-  const [textValue, settextValue] = useState<string>("");
+  let textValue = "";
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
 
   const onOkConfirmPayment = () => {};
@@ -266,7 +270,14 @@ export default function Order() {
       sender_address_id: null,
       note_to_shipper: "",
       requirements: value.requirements,
+      sender_address: null,
     };
+
+    if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
+      objShipment.delivery_service_provider_id = 1;
+      objShipment.delivery_service_provider_type = "external_service";
+      objShipment.sender_address = storeDetail;
+    }
 
     if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
       objShipment.delivery_service_provider_type = "Shipper";
@@ -341,6 +352,8 @@ export default function Order() {
     }
   };
   const onFinish = (values: OrderRequest) => {
+    const element2: any = document.getElementById("save-and-confirm");
+    element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
@@ -414,6 +427,13 @@ export default function Order() {
       setIsShowBillStep(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (storeId != null) {
+      dispatch(StoreDetailAction(storeId, setStoreDetail));
+    }
+  }, [dispatch, storeId]);
+
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
@@ -493,7 +513,7 @@ export default function Order() {
               <ShipmentCard
                 setShipmentMethodProps={onShipmentSelect}
                 shipmentMethod={shipmentMethod}
-                storeId={storeId}
+                storeDetail={storeDetail}
                 setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
                 amount={orderAmount}
                 setPaymentMethod={setPaymentMethod}
@@ -670,6 +690,7 @@ export default function Order() {
               <Button
                 type="primary"
                 className="create-button-custom"
+                id="save-and-confirm"
                 onClick={() => {
                   typeButton = OrderStatus.FINALIZED;
                   formRef.current?.submit();
