@@ -110,7 +110,17 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         transport: "",
       };
 
-      dispatch(InfoGHTKAction(request, setInfoGHTK));
+      if (
+        request.pick_address &&
+        request.pick_district &&
+        request.pick_province &&
+        request.address &&
+        request.province &&
+        request.weight &&
+        request.district
+      ) {
+        dispatch(InfoGHTKAction(request, setInfoGHTK));
+      }
     },
     [dispatch, props.amount, props.cusomerInfo, props.items, props.storeDetail]
   );
