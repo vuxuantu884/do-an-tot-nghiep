@@ -1,4 +1,4 @@
-import { PurchaseOrderQuery } from "./../../../model/purchase-order/purchase-order.model";
+import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
 import { POType } from "domain/types/purchase-order.type";
 import BaseAction from "base/BaseAction";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
@@ -13,6 +13,7 @@ export const PoCreateAction = (
     createCallback,
   });
 };
+
 export const PoDetailAction = (
   id: number,
   setData: (data: PurchaseOrder | null) => void
@@ -29,3 +30,4 @@ export const PoSearchAction = (
     setData,
   });
 };
+

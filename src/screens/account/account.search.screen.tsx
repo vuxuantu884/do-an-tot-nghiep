@@ -166,7 +166,10 @@ const ListAccountScreen: React.FC = () => {
     [history, params]
   );
   const setSearchResult = useCallback(
-    (listResult: PageResponse<AccountResponse>) => {
+    (listResult: PageResponse<AccountResponse>|false) => {
+      if(!listResult) {
+        return;
+      }
       setTableLoading(false);
       setData(listResult);
     },

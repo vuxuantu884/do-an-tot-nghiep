@@ -22,5 +22,5 @@ export const searchPurchaseOrderApi = (
 export const getPurchaseOrderApi = (
   id: string
 ): Promise<BaseResponse<PurchaseOrder>> => {
-  return BaseAxios.get(`${ApiConfig.PRODUCT}/purchase-orders/${id}`);
+  return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}`);
 };

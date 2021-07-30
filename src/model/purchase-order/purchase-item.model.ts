@@ -14,6 +14,7 @@ export interface PurchaseOrderLineItem{
     variant_image: string|null,
     unit: string,
     tax: number,
+    tax_rate: number,
     tax_included: boolean,
     tax_type_id: number|null,
     line_amount_after_line_discount: number,

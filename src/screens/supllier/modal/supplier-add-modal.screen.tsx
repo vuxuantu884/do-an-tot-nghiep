@@ -40,7 +40,10 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
     (state: RootReducerType) => state.userReducer?.account?.code
   );
   const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse>) => {
+    (data: PageResponse<AccountResponse>|false) => {
+      if(!data) {
+        return false;
+      }
       let listWinAccount = data.items;
       console.log(listWinAccount);
       setAccounts(listWinAccount);

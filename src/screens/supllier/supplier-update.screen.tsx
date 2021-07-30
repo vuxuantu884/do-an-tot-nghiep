@@ -94,7 +94,10 @@ const UpdateSupplierScreen: React.FC = () => {
   const [supplier, setSupplier] = useState<SupplierDetail | null>(null);
   //EndState
   //Callback
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
+    if(!data) {
+      return;
+    }
     setAccounts(data.items);
   }, []);
 
