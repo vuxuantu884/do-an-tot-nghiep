@@ -1,34 +1,29 @@
-import { call, put, takeLatest } from '@redux-saga/core/effects';
-import { YodyAction } from 'base/BaseAction';
-import BaseResponse from 'base/BaseResponse';
-import { HttpStatus } from 'config/HttpStatus';
-import { unauthorizedAction } from 'domain/actions/auth/auth.action';
-import { actionFetchListFailed, actionFetchListSuccessful } from 'domain/actions/settings/fulfillment.action';
-import { SETTING_TYPES } from 'domain/types/settings.type';
-import { PageResponse } from 'model/base/base-metadata.response';
-import { SizeResponse } from 'model/product/size.model';
-import { searchVariantsApi } from 'service/product/product.service';
-import { showError } from 'utils/ToastUtils';
+import { call, put, takeLatest } from "@redux-saga/core/effects";
+import { YodyAction } from "base/BaseAction";
+import BaseResponse from "base/BaseResponse";
+import { HttpStatus } from "config/HttpStatus";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { SETTING_TYPES } from "domain/types/settings.type";
+import { PageResponse } from "model/base/base-metadata.response";
+import { FulfillmentResponseModel } from "model/response/fulfillment.response";
+import {
+  createOrderServiceSubStatus,
+  getOrderServiceSubStatus,
+} from "service/order/order.service";
+import { showError, showSuccess } from "utils/ToastUtils";
 
-function* listAllSaga(action: YodyAction) {
-  console.log('action', action)
-  const { params } = action.payload;
+function* listDataFulfillmentSaga(action: YodyAction) {
+  const { params, handleData } = action.payload;
   try {
-    // const {params} = action.payload;
-    // console.log('action', action)
-    // console.log('22');
-    /**
-    * chỗ này phải sửa sau, đợi api
-    */
-     let response: BaseResponse<PageResponse<SizeResponse>> = yield call(
-      searchVariantsApi, params
-    );
-    console.log('response', response)
+    let response: BaseResponse<PageResponse<FulfillmentResponseModel>> =
+      yield call(getOrderServiceSubStatus, params);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log('response.data.items',response.data.items)
-        yield put(actionFetchListSuccessful(response.data.items))
+        /**
+         * call function handleData in payload, variables are taken from the response -> use when dispatch
+         */
+        handleData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -38,12 +33,36 @@ function* listAllSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    console.log('error', error)
-    yield put(actionFetchListFailed(error))
-    showError('Có lỗi vui lòng thử lại sau');
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* addFulfillmentSaga(action: YodyAction) {
+  const { newItem, handleData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<FulfillmentResponseModel>> =
+      yield call(createOrderServiceSubStatus, newItem);
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData();
+        showSuccess("Tạo mới thành công");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 export function* settingFulfillmentSaga() {
-  yield takeLatest(SETTING_TYPES.fulfillment.listAll, listAllSaga);
+  yield takeLatest(SETTING_TYPES.fulfillment.listData, listDataFulfillmentSaga);
+  yield takeLatest(SETTING_TYPES.fulfillment.add, addFulfillmentSaga);
 }

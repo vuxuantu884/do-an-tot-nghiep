@@ -5,12 +5,11 @@ import { PageConfig } from "config/PageConfig";
 import React from "react";
 import { StyledComponent } from "./styles";
 
-export interface ICustomPaginationProps
-  extends Omit<TableProps<any>, "pagination"> {
+interface ICustomPaginationProps extends Omit<TableProps<any>, "pagination"> {
   pagination?: false | ICustomTablePaginationConfig;
 }
 
-export interface ICustomTablePaginationConfig {
+interface ICustomTablePaginationConfig {
   total: number;
   disabled?: boolean;
   current?: number;

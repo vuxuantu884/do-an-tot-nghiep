@@ -1,28 +1,31 @@
 import { SETTING_TYPES } from "domain/types/settings.type";
+import {
+  FulfillmentModel,
+  FulfillmentResponseModel,
+} from "model/response/fulfillment.response";
 
-export const actionFetchList = (params = {}) => {
+export const actionFetchListFulfillments = (
+  params = {},
+  handleData: (data: FulfillmentResponseModel) => void
+) => {
   return {
-    type: SETTING_TYPES.fulfillment.listAll,
+    type: SETTING_TYPES.fulfillment.listData,
     payload: {
       params,
-    },
-  };
-}
-
-export const actionFetchListSuccessful = (data: any) => {
-  return {
-    type: SETTING_TYPES.fulfillment.listAllSuccessful,
-    payload: {
-      data,
+      handleData,
     },
   };
 };
 
-export const actionFetchListFailed = (error:any) => {
+export const actionAddFulfillments = (
+  newItem: FulfillmentModel,
+  handleData: () => void
+) => {
   return {
-    type: SETTING_TYPES.fulfillment.listAllFailed,
+    type: SETTING_TYPES.fulfillment.add,
     payload: {
-      error,
+      newItem,
+      handleData,
     },
   };
 };

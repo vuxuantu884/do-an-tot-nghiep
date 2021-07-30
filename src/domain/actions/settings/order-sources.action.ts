@@ -1,9 +1,13 @@
 import { SETTING_TYPES } from "domain/types/settings.type";
 import {
-  OrderSourceCompanyModel, OrderSourceModelResponse
+  OrderSourceCompanyModel,
+  OrderSourceModelResponse,
 } from "model/response/order/order-source.response";
 
-export const actionFetchListOrderSources = (params = {}, handleData: (data: OrderSourceModelResponse) => void) => {
+export const actionFetchListOrderSources = (
+  params = {},
+  handleData: (data: OrderSourceModelResponse) => void
+) => {
   return {
     type: SETTING_TYPES.orderSources.listData,
     payload: {

@@ -12,6 +12,8 @@ import { SourceResponse } from "model/response/order/source.response";
 import { OrderResponse } from "model/response/order/order.response";
 import { generateQuery } from "utils/AppUtils";
 import { OrderSourceCompanyModel, OrderSourceModel } from "model/response/order/order-source.response";
+import { BaseQuery } from "model/base/base.query";
+import { FulfillmentModel } from "model/response/fulfillment.response";
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources`);
@@ -58,7 +60,7 @@ export const updatePayment = (
   return BaseAxios.put(link, request);
 };
 
-export const getSourcesWithParams = (query = {page: 1, limit: 30}): Promise<BaseResponse<SourceResponse>> => {
+export const getSourcesWithParams = (query: BaseQuery): Promise<BaseResponse<SourceResponse>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/sources?${queryString}`);
 };
@@ -71,4 +73,15 @@ export const createOrderSourceService = (
   newOrderSource: OrderSourceModel
 ): Promise<BaseResponse<OrderSourceCompanyModel>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/sources`, newOrderSource);
+};
+
+export const getOrderServiceSubStatus = (query: BaseQuery): Promise<BaseResponse<SourceResponse>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/subStatus?${queryString}`);
+};
+
+export const createOrderServiceSubStatus = (
+  newOrderServiceSubStatus: FulfillmentModel
+): Promise<BaseResponse<OrderSourceCompanyModel>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/subStatus`, newOrderServiceSubStatus);
 };
