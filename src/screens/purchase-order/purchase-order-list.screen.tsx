@@ -73,7 +73,16 @@ const PurchaseOrderListScreen: React.FC = () => {
       title: "Tiền phải trả",
       dataIndex: "total",
       visible: true,
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (value: number) => (
+        <NumberFormat
+          value={value}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+          prefix={"$"}
+
+        />
+      ),
     },
     {
       title: "Người tạo",
@@ -84,16 +93,8 @@ const PurchaseOrderListScreen: React.FC = () => {
       title: "Ngày tạo",
       dataIndex: "created_date",
       visible: false,
-      render: (value: string) => (
-        <NumberFormat
-          value={2456981}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-          prefix={"$"}
-
-        />
-      ),
+     
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
       title: "Trạng thái",
