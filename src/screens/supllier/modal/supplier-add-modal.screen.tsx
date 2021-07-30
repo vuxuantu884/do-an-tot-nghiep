@@ -22,33 +22,7 @@ type SupplierAddModalProps = {
 };
 const { Item } = Form;
 const { Option } = Select;
-const initRequest: SupplierCreateRequest = {
-  address: "",
-  bank_brand: "",
-  bank_name: "",
-  bank_number: "",
-  beneficiary_name: "",
-  certifications: [],
-  city_id: null,
-  country_id: VietNamId,
-  contact_name: "",
-  debt_time: null,
-  debt_time_unit: null,
-  district_id: null,
-  website: null,
-  email: "",
-  fax: "",
-  goods: [],
-  person_in_charge: null,
-  moq: null,
-  note: "",
-  name: "",
-  phone: "",
-  scorecard: null,
-  status: "active",
-  tax_code: "",
-  type: "",
-};
+
 const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   props: SupplierAddModalProps
 ) => {
@@ -109,7 +83,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   useEffect(() => {
     dispatch(
       AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT] },
+        { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         setDataAccounts
       )
     );
@@ -134,7 +108,33 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
         form={formSupplierAdd}
         layout="vertical"
         onFinish={onFinish}
-        initialValues={initRequest}
+        initialValues={{
+          address: "",
+          bank_brand: "",
+          bank_name: "",
+          bank_number: "",
+          beneficiary_name: "",
+          certifications: [],
+          city_id: null,
+          country_id: VietNamId,
+          contact_name: "",
+          debt_time: null,
+          debt_time_unit: null,
+          district_id: null,
+          website: null,
+          email: "",
+          fax: "",
+          goods: [],
+          person_in_charge: null,
+          moq: null,
+          note: "",
+          name: "",
+          phone: "",
+          scorecard: null,
+          status: "active",
+          tax_code: "",
+          type: "",
+        }}
         scrollToFirstError
       >
         <Row gutter={24}>

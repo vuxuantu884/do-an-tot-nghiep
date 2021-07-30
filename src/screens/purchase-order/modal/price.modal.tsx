@@ -1,5 +1,6 @@
 import { Form, Input, Select } from "antd";
 import NumberInput from "component/custom/number-input.custom";
+import { DiscountType } from "model/purchase-order/po-field";
 import { useEffect, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 
@@ -36,6 +37,7 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
               form.submit();
             }}
             min={0}
+            default={0}
             style={{textAlign: 'right'}}
             format={(a) => formatCurrency(a)}
             replace={(a) => replaceFormatString(a)}
@@ -56,8 +58,8 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
                   form.setFieldsValue({discount: 0})}
                 }
               >
-                <Select.Option value="percent">%</Select.Option>
-                <Select.Option value="money">₫</Select.Option>
+                <Select.Option value={DiscountType.percent}>%</Select.Option>
+                <Select.Option value={DiscountType.money}>₫</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item noStyle name="discount">
