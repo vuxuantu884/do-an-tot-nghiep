@@ -1156,7 +1156,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   let tax_lines = getFieldValue("tax_lines");
                   return tax_lines.map((item: Vat) => (
                     <div className="payment-row">
-                      <div>{`VAT (${item.value}%)`}</div>
+                      <div>{`VAT (${item.rate}%)`}</div>
                       <div className="payment-row-result">
                         {formatCurrency(Math.round(item.amount))}
                       </div>
@@ -1208,6 +1208,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 <Input />
               </Form.Item>
               <Form.Item name={POField.total} hidden noStyle>
+                <Input />
+              </Form.Item>
+              <Form.Item name={POField.tax_lines} hidden noStyle>
                 <Input />
               </Form.Item>
               <Form.Item

@@ -27,6 +27,6 @@ export interface PurchaseOrderLineItem{
 }
 
 export interface Vat {
-    value: number,
+    rate: number,
     amount: number,
 }

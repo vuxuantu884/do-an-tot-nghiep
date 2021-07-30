@@ -181,7 +181,7 @@ const POUtils = {
     let total = POUtils.totalAmount(data);
     data.forEach((item) => {
       if (item.tax_rate > 0) {
-        let index = result.findIndex((vatItem) => vatItem.value === item.tax_rate);
+        let index = result.findIndex((vatItem) => vatItem.rate === item.tax_rate);
         let amount_after_discount = item.line_amount_after_line_discount;
         if (tradeDiscountRate !== null) {
           amount_after_discount =
@@ -195,7 +195,7 @@ const POUtils = {
         let amountTax = parseFloat(((amount_after_discount * item.tax_rate) / 100).toFixed(2));
         if (index === -1) {
           result.push({
-            value: item.tax_rate,
+            rate: item.tax_rate,
             amount: amountTax,
           });
         } else {

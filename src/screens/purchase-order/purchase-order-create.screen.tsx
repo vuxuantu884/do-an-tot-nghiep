@@ -39,7 +39,7 @@ const POCreateScreen: React.FC = () => {
     payment_discount_value: null,
     payment_discount_amount: 0,
     total_cost_line: 0,
-    total_payment: 0,
+    total: 0,
     cost_lines: [],
     tax_lines: [],
     supplier_id: 0,

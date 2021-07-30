@@ -33,7 +33,7 @@ const PODetailScreen: React.FC = () => {
   let initPurchaseOrder = {
     line_items: [],
     price_type: AppConfig.import_price,
-    total: 0,
+    untaxed_amount: 0,
     trade_discount_rate: null,
     trade_discount_value: null,
     trade_discount_amount: 0,
@@ -41,7 +41,7 @@ const PODetailScreen: React.FC = () => {
     payment_discount_value: null,
     payment_discount_amount: 0,
     total_cost_line: 0,
-    total_payment: 0,
+    total: 0,
     cost_lines: [],
     tax_lines: [],
     supplier_id: 0,
