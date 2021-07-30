@@ -64,6 +64,7 @@ const DiscountModal: React.FC<DiscountModalProps> = (
                 format={(a) => formatCurrency(a)}
                 replace={(a) => replaceFormatString(a)}
                 min={0}
+                default={0}
                 max={type === "money" ? props.price : 100}
               />
             </Form.Item>

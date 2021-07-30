@@ -1,6 +1,6 @@
 import { Input } from "antd";
 import React from "react";
-import { CSSProperties, useCallback, useEffect } from "react";
+import { CSSProperties, useCallback } from "react";
 import { RegUtil } from "utils/RegUtils";
 
 interface NumberInputProps {
@@ -39,7 +39,6 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     className,
     prefix,
   } = props;
-  const inputRef = React.useRef<any>(null);
   const onChangeText = useCallback(
     (e) => {
       let newValue: string = e.target.value;
@@ -65,6 +64,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     (e) => {
       let temp = value?.toString();
       let valueTemp = temp;
+      console.log("temp", temp);
       if (temp !== undefined && value !== undefined) {
         if (temp.charAt(temp.length - 1) === "." || temp === "-") {
           valueTemp = temp.slice(0, -1);
@@ -79,7 +79,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
             onChange(parseFloat(valueTemp.replace(/0*(\d+)/, "$1")));
         }
       } else {
-        if (props.default) {
+        if (props.default !== undefined) {
           onChange && onChange(props.default);
         }
       }
