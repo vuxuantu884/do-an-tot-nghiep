@@ -35,6 +35,7 @@ import { DistrictResponse } from "model/content/district.model";
 import { AddressType } from "utils/Constants";
 import SupplierAddModal from "screens/supllier/modal/supplier-add-modal.screen";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
+import Item from "antd/lib/list/Item";
 type SupplierInfoProps = {
   listCountries: Array<CountryResponse>;
   listDistrict: Array<DistrictResponse>;
@@ -245,21 +246,31 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                 </div>
               ) : (
                 <div>
-                  <CustomAutoComplete
-                    dropdownClassName="supplier"
-                    placeholder="Tìm kiếm nhà cung cấp"
-                    onSearch={onSupplierSearchChange}
-                    dropdownMatchSelectWidth={456}
-                    style={{ width: "100%" }}
-                    showAdd={true}
-                    onClickAddNew={() => setVisibleAddressModal(true)}
-                    textAdd="Thêm mới nhà cung cấp"
-                    onSelect={onSelect}
-                    options={renderResult}
-                  />
-                  <div className="ant-form-item-explain ant-form-item-explain-error">
+                  <Form.Item
+                    name="supplier_item"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn loại nhà cung cấp",
+                      },
+                    ]}
+                  >
+                    <CustomAutoComplete
+                      dropdownClassName="supplier"
+                      placeholder="Tìm kiếm nhà cung cấp"
+                      onSearch={onSupplierSearchChange}
+                      dropdownMatchSelectWidth={456}
+                      style={{ width: "100%" }}
+                      showAdd={true}
+                      onClickAddNew={() => setVisibleAddressModal(true)}
+                      textAdd="Thêm mới nhà cung cấp"
+                      onSelect={onSelect}
+                      options={renderResult}
+                    />
+                    {/* <div className="ant-form-item-explain ant-form-item-explain-error">
                     <div role="alert">Vui lòng chọn Merchandiser</div>
-                  </div>
+                  </div>  */}
+                  </Form.Item>
                 </div>
               );
             }}
