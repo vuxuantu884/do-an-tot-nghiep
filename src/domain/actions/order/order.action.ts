@@ -1,11 +1,15 @@
-import { DeliveryServiceResponse, OrderResponse } from 'model/response/order/order.response';
+import { DeliveryServiceResponse, OrderResponse, ShippingGHTKResponse } from 'model/response/order/order.response';
 import { PaymentMethodResponse } from 'model/response/order/paymentmethod.response';
-import { OrderRequest, UpdateFulFillmentStatusRequest, UpdateLineFulFillment, UpdatePaymentRequest } from 'model/request/order.request';
+import { OrderRequest, ShippingGHTKRequest, UpdateFulFillmentStatusRequest, UpdateLineFulFillment, UpdatePaymentRequest } from 'model/request/order.request';
 import { OrderType } from '../../types/order.type';
 import BaseAction from 'base/BaseAction';
 
 export const orderCreateAction = (request: OrderRequest, setData: (data: OrderResponse) => void) => {
   return BaseAction(OrderType.CREATE_ORDER_REQUEST, {request, setData});
+}
+
+export const InfoGHTKAction = (request: ShippingGHTKRequest, setData: (data: Array<ShippingGHTKResponse>) => void) => {
+  return BaseAction(OrderType.GET_INFO_DELIVERY_GHTK, {request, setData});
 }
 
 export const PaymentMethodGetList = (setData: (data: Array<PaymentMethodResponse>) => void) => {

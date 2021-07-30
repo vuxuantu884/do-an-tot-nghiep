@@ -50,6 +50,9 @@ import {
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/confirm-payment.modal";
+import { StoreDetailAction } from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
+import { request } from "https";
 //#endregion
 
 var typeButton = "";
@@ -81,12 +84,12 @@ export default function Order() {
     useState<boolean>(false);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  const [storeDetail, setStoreDetail] = useState<StoreResponse>();
   //#endregion
   //#region Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
-
   const onChangeShippingAddress = (
     _objShippingAddress: ShippingAddress | null
   ) => {
@@ -197,7 +200,7 @@ export default function Order() {
 
     setTag(strTag);
   };
-  const [textValue, settextValue] = useState<string>("");
+  let textValue = "";
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
 
   const onOkConfirmPayment = () => {};
@@ -243,7 +246,12 @@ export default function Order() {
     }
     return listFullfillmentRequest;
   };
-
+  console.log(
+    orderAmount +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      getAmountPaymentRequest(payments) -
+      discountValue
+  );
   const createShipmentRequest = (value: OrderRequest) => {
     let objShipment: ShipmentRequest = {
       delivery_service_provider_id: null, //id người shipper
@@ -268,7 +276,14 @@ export default function Order() {
       sender_address_id: null,
       note_to_shipper: "",
       requirements: value.requirements,
+      sender_address: null,
     };
+
+    if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
+      objShipment.delivery_service_provider_id = 1;
+      objShipment.delivery_service_provider_type = "external_service";
+      objShipment.sender_address = storeDetail;
+    }
 
     if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
       objShipment.delivery_service_provider_type = "Shipper";
@@ -281,23 +296,11 @@ export default function Order() {
       if (takeMoneyHelper !== null) {
         objShipment.cod = takeMoneyHelper;
       } else {
-        if (shippingFeeCustomer !== null) {
-          if (
-            orderAmount +
-              shippingFeeCustomer -
-              getAmountPaymentRequest(payments) >
-            0
-          ) {
-            objShipment.cod =
-              orderAmount +
-              shippingFeeCustomer -
-              getAmountPaymentRequest(payments);
-          }
-        } else {
-          if (orderAmount - getAmountPaymentRequest(payments) > 0) {
-            objShipment.cod = orderAmount - getAmountPaymentRequest(payments);
-          }
-        }
+        objShipment.cod =
+          orderAmount +
+          (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+          getAmountPaymentRequest(payments) -
+          discountValue;
       }
       return objShipment;
     }
@@ -354,6 +357,7 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
+  console.log(orderAmount);
   const onFinish = (values: OrderRequest) => {
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
@@ -373,17 +377,17 @@ export default function Order() {
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments;
-      //Nếu có phí ship báo khách
-      if (shippingFeeCustomer !== null) {
-        values.total = orderAmount + shippingFeeCustomer;
-        if (values.fulfillments[0].shipment != null) {
-          values.fulfillments[0].shipment.cod =
-            orderAmount +
-            shippingFeeCustomer -
-            getAmountPaymentRequest(payments);
-        }
-      } else {
-        values.total = orderAmount;
+      values.total = orderAmount;
+      if (
+        values?.fulfillments &&
+        values.fulfillments.length > 0 &&
+        values.fulfillments[0].shipment
+      ) {
+        values.fulfillments[0].shipment.cod =
+          orderAmount +
+          (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+          getAmountPaymentRequest(payments) -
+          discountValue;
       }
     }
     values.tags = tags;
@@ -428,6 +432,13 @@ export default function Order() {
       setIsShowBillStep(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (storeId != null) {
+      dispatch(StoreDetailAction(storeId, setStoreDetail));
+    }
+  }, [dispatch, storeId]);
+
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
@@ -507,14 +518,14 @@ export default function Order() {
               <ShipmentCard
                 setShipmentMethodProps={onShipmentSelect}
                 shipmentMethod={shipmentMethod}
-                storeId={storeId}
+                storeDetail={storeDetail}
                 setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
                 amount={orderAmount}
                 setPaymentMethod={setPaymentMethod}
                 paymentMethod={paymentMethod}
                 shippingFeeCustomer={shippingFeeCustomer}
-                cusomerInfo = {customer}
-                items = {items}
+                cusomerInfo={customer}
+                items={items}
                 discountValue={discountValue}
               />
               <PaymentCard
@@ -522,9 +533,9 @@ export default function Order() {
                 setPayments={onPayments}
                 paymentMethod={paymentMethod}
                 amount={
-                  shippingFeeCustomer
-                    ? orderAmount + shippingFeeCustomer
-                    : orderAmount
+                  orderAmount +
+                  (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                  discountValue
                 }
               />
             </Col>

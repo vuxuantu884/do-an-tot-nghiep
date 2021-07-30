@@ -289,26 +289,18 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             <Row className="payment-row padding-top-10" justify="space-between">
               <div className="font-weight-500">Phí ship báo khách</div>
               <div className="font-weight-500 payment-row-money">
-                {(props.OrderDetail !== null &&
-                  props.OrderDetail !== undefined &&
-                  props.OrderDetail?.fulfillments !== null &&
-                  props.OrderDetail?.fulfillments !== undefined &&
+                {(props.OrderDetail &&
+                  props.OrderDetail?.fulfillments &&
                   props.OrderDetail?.fulfillments.length > 0 &&
-                  props.OrderDetail?.fulfillments[0].shipment !== undefined &&
-                  props.OrderDetail?.fulfillments[0].shipment !== null &&
-                  props.OrderDetail?.fulfillments[0].shipment
-                    .shipping_fee_informed_to_customer !== undefined &&
-                  props.OrderDetail?.fulfillments[0].shipment
-                    .shipping_fee_informed_to_customer !== null &&
+                  props.OrderDetail?.fulfillments[0].shipment &&
+                  props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer &&
                   formatCurrency(
                     props.OrderDetail?.fulfillments[0].shipment
                       .shipping_fee_informed_to_customer
                   )) ||
-                  (props.shippingFeeInformedCustomer !== null &&
+                  (props.shippingFeeInformedCustomer &&
                     formatCurrency(props.shippingFeeInformedCustomer)) ||
-                  (props.OrderDetail?.shipping_fee_informed_to_customer !== null &&
-                    props.OrderDetail?.shipping_fee_informed_to_customer !==
-                      undefined &&
+                  (props.OrderDetail?.shipping_fee_informed_to_customer &&
                     formatCurrency(
                       props.OrderDetail?.shipping_fee_informed_to_customer
                     )) ||
