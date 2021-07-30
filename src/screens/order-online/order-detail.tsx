@@ -702,7 +702,7 @@ const OrderDetail = () => {
     >
       <div className="orders">
         <Row gutter={24} style={{ marginBottom: "70px" }}>
-          <Col xs={24} lg={18}>
+          <Col md={18}>
             {/*--- customer ---*/}
             <UpdateCustomerCard
               OrderDetail={OrderDetail}
@@ -1750,7 +1750,7 @@ const OrderDetail = () => {
             {/*--- end payment ---*/}
           </Col>
 
-          <Col xs={24} lg={6}>
+          <Col md={6}>
             <Card
               className="card-block card-block-normal"
               title={
