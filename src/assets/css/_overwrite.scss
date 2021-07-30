@@ -596,7 +596,7 @@
             &>tr>th {
                 color: $column-header-color;
                 font-weight: 600;
-                background-color: rgba($background-color-secondary, 0.3);
+                background-color: rgba($background-color-secondary, 1);
                 &::before {
                     content: unset !important;
                 }

@@ -252,7 +252,10 @@ const OrderDetail = () => {
     document.execCommand("Copy");
   };
   //#region Product
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
+    if(!data) {
+      return;
+    }
     setAccounts(data.items);
   }, []);
 
