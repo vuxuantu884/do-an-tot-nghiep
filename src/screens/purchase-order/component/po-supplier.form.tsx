@@ -301,9 +301,9 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                       prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                     />
                   </AutoComplete>
-                  <div className="ant-form-item-explain ant-form-item-explain-error">
+                  {/* <div className="ant-form-item-explain ant-form-item-explain-error">
                     <div role="alert">Vui lòng chọn Merchandiser</div>
-                  </div>
+                  </div> */}
                 </div>
               );
             }}
