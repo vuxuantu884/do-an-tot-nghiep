@@ -139,7 +139,8 @@ export interface ShipmentRequest {
   sender_address_id: number | null;
   note_to_shipper: string | null;
   requirements: string | null;
-  sender_address?: StoreResponse | null;
+  sender_address?: string | null;
+  shipping_address?: string | null;
 }
 
 export interface UpdateShipmentRequest {

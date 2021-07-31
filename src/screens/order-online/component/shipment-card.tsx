@@ -50,16 +50,19 @@ import {
 import {
   DeliveryServiceResponse,
   ShippingGHTKResponse,
+  StoreCustomResponse,
 } from "model/response/order/order.response";
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
+  setShippingFeeInformedCustomerHVC: (value: number | null) => void;
   setPaymentMethod: (value: number) => void;
-  storeDetail?: StoreResponse | null;
+  storeDetail?: StoreCustomResponse | null;
   amount: number;
   paymentMethod: number;
   shippingFeeCustomer: number | null;
+  shippingFeeCustomerHVC: number | null;
   cusomerInfo: CustomerResponse | null;
   items?: Array<OrderLineItemRequest>;
   discountValue: number | null;
@@ -88,6 +91,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     if (value === ShipmentMethodOption.DELIVERPARNER) {
       getInfoDeliveryGHTK(TRANSPORTS.ROAD);
       getInfoDeliveryGHTK(TRANSPORTS.FLY);
+      props.setPaymentMethod(PaymentMethodOption.COD);
     }
   };
 
@@ -289,13 +293,44 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           <>
             <Row gutter={20}>
               <Col md={12}>
-                <Form.Item label="Tiền thu hộ:" name="shipper_code">
-                  <Input placeholder="166.000" />
+                <Form.Item label="Tiền thu hộ:">
+                  <NumberInput
+                    format={(a: string) => formatCurrency(a)}
+                    replace={(a: string) => replaceFormatString(a)}
+                    placeholder="0"
+                    value={
+                      props.amount +
+                      (props.shippingFeeCustomerHVC
+                        ? props.shippingFeeCustomerHVC
+                        : 0) -
+                      (props.discountValue ? props.discountValue : 0)
+                    }
+                    onChange={(value: any) => setTakeMoneyHelper(value)}
+                    style={{
+                      textAlign: "right",
+                      width: "100%",
+                      color: "#222222",
+                    }}
+                    maxLength={999999999999}
+                    minLength={0}
+                  />
                 </Form.Item>
               </Col>
               <Col md={12}>
-                <Form.Item label="Phí ship báo khách:" name="shipper_code">
-                  <Input placeholder="20.000" />
+                <Form.Item label="Phí ship báo khách:" name="shipping_fee_informed_to_customer">
+                  <NumberInput
+                    format={(a: string) => formatCurrency(a)}
+                    replace={(a: string) => replaceFormatString(a)}
+                    placeholder="0"
+                    style={{
+                      textAlign: "right",
+                      width: "100%",
+                      color: "#222222",
+                    }}
+                    maxLength={15}
+                    minLength={0}
+                    onChange={props.setShippingFeeInformedCustomerHVC}
+                  />
                 </Form.Item>
               </Col>
             </Row>
