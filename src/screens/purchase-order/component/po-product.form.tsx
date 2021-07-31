@@ -508,7 +508,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [formMain, splitLine]
   );
-  const onVATChange = useCallback(
+  const onTaxChange = useCallback(
     (vat, index: number) => {
       let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
         POField.line_items
@@ -519,20 +519,39 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       let trade_discount_value = formMain.getFieldValue(
         POField.trade_discount_value
       );
-      let payment_discount_amount = formMain.getFieldValue(
-        POField.payment_discount_amount
-      );
       let trade_discount_amount = formMain.getFieldValue(
         POField.trade_discount_amount
       );
+      let payment_discount_rate = formMain.getFieldValue(
+        POField.payment_discount_rate
+      );
+      let payment_discount_value = formMain.getFieldValue(
+        POField.payment_discount_value
+      );
       let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
       let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
-      let updateItem = POUtils.updateVatItem(data[index], vat, data, trade_discount_rate, trade_discount_value);
+      let updateItem = POUtils.updateVatItem(
+        data[index],
+        vat,
+        data,
+        trade_discount_rate,
+        trade_discount_value
+      );
       data[index] = updateItem;
       let tax_lines = POUtils.getVatList(
         data,
         trade_discount_rate,
         trade_discount_value
+      );
+      let total_after_tax = POUtils.getTotalAfterTax(
+        untaxed_amount,
+        trade_discount_amount,
+        tax_lines
+      );
+      let payment_discount_amount = POUtils.getTotalDiscount(
+        total_after_tax,
+        payment_discount_rate,
+        payment_discount_value
       );
       let total = POUtils.getTotalPayment(
         untaxed_amount,
@@ -545,6 +564,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         line_items: [...data],
         tax_lines: tax_lines,
         total: total,
+        payment_discount_amount: payment_discount_amount,
       });
     },
     [formMain]
@@ -857,10 +877,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           >
                             <Button className="product-item-price">
                               {formatCurrency(
-                                POUtils.caculatePrice(
-                                  value,
-                                  item.discount_rate,
-                                  item.discount_value
+                                Math.round(
+                                  POUtils.caculatePrice(
+                                    value,
+                                    item.discount_rate,
+                                    item.discount_value
+                                  )
                                 )
                               )}
                             </Button>
@@ -882,12 +904,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             className="product-item-vat"
                             value={value}
                             prefix={<div>%</div>}
-                            onChange={(v) => onVATChange(v, index)}
+                            onChange={(v) => onTaxChange(v, index)}
                             min={0}
                             max={100}
                             onBlur={() => {
                               if (value === null) {
-                                onVATChange(0, index);
+                                onTaxChange(0, index);
                               }
                             }}
                           />
@@ -913,11 +935,11 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       ),
                       align: "center",
                       width: 120,
-                      render: (value: string) => formatCurrency(value),
+                      render: (value: number) => formatCurrency(Math.round(value)),
                     },
                     {
                       title: "",
-                      fixed: 'right',
+                      fixed: "right",
                       width: 40,
                       render: (value: string, item, index: number) => (
                         <Button
@@ -952,7 +974,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             align="center"
                             colSpan={1}
                           >
-                            {formatCurrency(POUtils.totalAmount(items))}
+                            {formatCurrency(Math.round(POUtils.totalAmount(items)))}
                           </Table.Summary.Cell>
                           <Table.Summary.Cell index={3} colSpan={1} />
                         </Table.Summary.Row>
@@ -987,17 +1009,20 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
             <Col xs={24} lg={12}>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
-                  prevValues[POField.untaxed_amount] !== curValues[POField.untaxed_amount]
+                  prevValues[POField.untaxed_amount] !==
+                  curValues[POField.untaxed_amount]
                 }
                 noStyle
               >
                 {({ getFieldValue }) => {
                   let untaxed_amount = getFieldValue(POField.untaxed_amount);
                   return (
-                    <div className="payment-row">
+                    <div className="po-payment-row">
                       <div>Tổng tiền</div>
-                      <div className="payment-row-result">
-                        {untaxed_amount === 0 ? "-" : formatCurrency(untaxed_amount)}
+                      <div className="po-payment-row-result">
+                        {untaxed_amount === 0
+                          ? "-"
+                          : formatCurrency(Math.round(untaxed_amount))}
                       </div>
                     </div>
                   );
@@ -1038,7 +1063,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     type = DiscountType.money;
                   }
                   return (
-                    <div className="payment-row">
+                    <div className="po-payment-row">
                       <Popover
                         trigger="click"
                         content={
@@ -1064,7 +1089,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           Chiết khấu thương mại
                         </Typography.Link>
                       </Popover>
-                      <div className="payment-row-result">
+                      <div className="po-payment-row-result po-payment-row-result-discount">
                         {trade_discount_amount === 0
                           ? "-"
                           : formatCurrency(Math.round(trade_discount_amount))}
@@ -1081,6 +1106,24 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               </Form.Item>
               <Form.Item name={POField.payment_discount_value} hidden noStyle>
                 <Input />
+              </Form.Item>
+              <Form.Item
+                shouldUpdate={(prevValues, curValues) =>
+                  prevValues.tax_lines !== curValues.tax_lines
+                }
+                noStyle
+              >
+                {({ getFieldValue }) => {
+                  let tax_lines = getFieldValue("tax_lines");
+                  return tax_lines.map((item: Vat) => (
+                    <div className="po-payment-row">
+                      <div>{`VAT (${item.rate}%)`}</div>
+                      <div className="po-payment-row-result">
+                        {formatCurrency(Math.round(item.amount))}
+                      </div>
+                    </div>
+                  ));
+                }}
               </Form.Item>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
@@ -1114,7 +1157,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     type = DiscountType.money;
                   }
                   return (
-                    <div className="payment-row">
+                    <div className="po-payment-row">
                       <Popover
                         trigger="click"
                         content={
@@ -1138,7 +1181,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           Chiết khấu thanh toán
                         </Typography.Link>
                       </Popover>
-                      <div className="payment-row-result">
+                      <div className="po-payment-row-result po-payment-row-result-discount">
                         {payment_discount_amount === 0
                           ? "-"
                           : formatCurrency(Math.round(payment_discount_amount))}
@@ -1147,38 +1190,19 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   );
                 }}
               </Form.Item>
+              
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
-                  prevValues.tax_lines !== curValues.tax_lines
+                  prevValues[POField.total_cost_line] !==
+                  curValues[POField.total_cost_line]
                 }
                 noStyle
               >
                 {({ getFieldValue }) => {
-                  let tax_lines = getFieldValue("tax_lines");
-                  return tax_lines.map((item: Vat) => (
-                    <div className="payment-row">
-                      <div>{`VAT (${item.rate}%)`}</div>
-                      <div className="payment-row-result">
-                        {formatCurrency(Math.round(item.amount))}
-                      </div>
-                    </div>
-                  ));
-                }}
-              </Form.Item>
-              <Form.Item
-                shouldUpdate={(prevValues, curValues) =>
-                  prevValues[POField.total_cost_line] !== curValues[POField.total_cost_line] 
-                }
-                noStyle
-              >
-                {({ getFieldValue }) => {
-                  
                   let cost_lines = getFieldValue(POField.cost_lines);
-                  let total_cost_line = getFieldValue(
-                    POField.total_cost_line
-                  );
+                  let total_cost_line = getFieldValue(POField.total_cost_line);
                   return (
-                    <div className="payment-row">
+                    <div className="po-payment-row">
                       <Typography.Link
                         onClick={() => {
                           setCostLines(cost_lines);
@@ -1192,7 +1216,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       >
                         Chi phí
                       </Typography.Link>
-                      <div className="payment-row-result">
+                      <div className="po-payment-row-result">
                         {total_cost_line === 0
                           ? "-"
                           : formatCurrency(total_cost_line)}
@@ -1216,17 +1240,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               </Form.Item>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
-                  prevValues[POField.total] !==
-                  curValues[POField.total]
+                  prevValues[POField.total] !== curValues[POField.total]
                 }
                 noStyle
               >
                 {({ getFieldValue }) => {
                   let total = getFieldValue(POField.total);
                   return (
-                    <div className="payment-row">
-                      <strong className="font-size-text">Tiền cần trả</strong>
-                      <strong className="text-success font-size-text">
+                    <div className="po-payment-row">
+                      <strong className="po-payment-row-title">Tiền cần trả</strong>
+                      <strong className="po-payment-row-success">
                         {formatCurrency(Math.round(total))}
                       </strong>
                     </div>
