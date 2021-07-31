@@ -5,7 +5,7 @@ import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { SETTING_TYPES } from "domain/types/settings.type";
 import { PageResponse } from "model/base/base-metadata.response";
-import { FulfillmentResponseModel } from "model/response/fulfillment.response";
+import { OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
 import {
   OrderSourceModel,
   OrderSourceModelResponse,
@@ -72,8 +72,9 @@ function* listAllOrderSourceCompaniesSaga(action: YodyAction) {
 function* addOrderSource(action: YodyAction) {
   const { newItem, handleData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<FulfillmentResponseModel>> =
-      yield call(createOrderServiceSubStatus, newItem);
+    let response: BaseResponse<
+      PageResponse<OrderProcessingStatusResponseModel>
+    > = yield call(createOrderServiceSubStatus, newItem);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:

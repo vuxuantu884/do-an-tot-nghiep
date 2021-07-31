@@ -1,9 +1,9 @@
 export const SETTING_TYPES = {
-  fulfillment: {
-    listData: "LIST_ALL_FULFILLMENT",
-    create: "CREATE_FULFILLMENT",
-    delete: "DELETE_FULFILLMENT",
-    edit: "EDIT_FULFILLMENT",
+  orderProcessingStatus: {
+    listData: "LIST_ALL_ORDER_PROCESSING_STATUS",
+    create: "CREATE_ORDER_PROCESSING_STATUS",
+    delete: "DELETE_ORDER_PROCESSING_STATUS",
+    edit: "EDIT_ORDER_PROCESSING_STATUS",
   },
   orderSources: {
     listData: "LIST_DATA_ORDER_SOURCES",

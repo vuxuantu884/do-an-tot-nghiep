@@ -1,36 +1,36 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
-import ModalOrderServiceSubStatus from "component/modal/ModalOrderServiceSubStatus";
+import ModalOrderProcessingStatus from "component/modal/ModalOrderProcessingStatus";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTableStyle2 from "component/table/CustomTableStyle2";
 import UrlConfig from "config/UrlConfig";
 import {
-  actionAddFulfillments,
-  actionDeleteFulfillment,
-  actionEditFulfillment,
-  actionFetchListFulfillments,
-} from "domain/actions/settings/fulfillment.action";
+  actionAddOrderProcessingStatuss,
+  actionDeleteOrderProcessingStatus,
+  actionEditOrderProcessingStatus,
+  actionFetchListOrderProcessingStatuss,
+} from "domain/actions/settings/order-processing-status.action";
 import { modalActionType } from "model/modal/modal.model";
 import { VariantResponse } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  FulfillmentModel,
-  FulfillmentResponseModel,
-} from "model/response/fulfillment.response";
+  OrderProcessingStatusModel,
+  OrderProcessingStatusResponseModel,
+} from "model/response/order-processing-status.response";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
-const SettingFulfillment: React.FC = () => {
+const SettingOrderProcessingStatus: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
   const [isShowModalCreate, setIsShowModalCreate] = useState(false);
   const dispatch = useDispatch();
-  const [listFulfillment, setListFulfillment] = useState<FulfillmentModel[]>(
-    []
-  );
+  const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
+    OrderProcessingStatusModel[]
+  >([]);
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
@@ -38,7 +38,7 @@ const SettingFulfillment: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] =
-    useState<FulfillmentModel | null>(null);
+    useState<OrderProcessingStatusModel | null>(null);
 
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -99,7 +99,7 @@ const SettingFulfillment: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setParams({ ...params });
-      history.replace(`${UrlConfig.FULFILLMENTS}?${queryParam}`);
+      history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
     },
     [history, params]
   );
@@ -129,36 +129,36 @@ const SettingFulfillment: React.FC = () => {
       };
       setParams({ ...newParams });
       let queryParam = generateQuery(newParams);
-      history.replace(`${UrlConfig.FULFILLMENTS}?${queryParam}`);
+      history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
     }
   };
 
   const handleForm = {
-    create: (value: FulfillmentModel) => {
+    create: (value: OrderProcessingStatusModel) => {
       dispatch(
-        actionAddFulfillments(value, () => {
+        actionAddOrderProcessingStatuss(value, () => {
           setIsShowModalCreate(false);
           gotoFirstPage();
         })
       );
     },
-    delete: (value: FulfillmentModel) => {
+    delete: (value: OrderProcessingStatusModel) => {
       dispatch(
-        actionDeleteFulfillment(value, () => {
+        actionDeleteOrderProcessingStatus(value, () => {
           setIsShowModalCreate(false);
           gotoFirstPage();
         })
       );
     },
-    edit: (id: number, value: FulfillmentModel) => {
+    edit: (id: number, value: OrderProcessingStatusModel) => {
       dispatch(
-        actionEditFulfillment(id, value, () => {
+        actionEditOrderProcessingStatus(id, value, () => {
           setIsShowModalCreate(false);
           dispatch(
-            actionFetchListFulfillments(
+            actionFetchListOrderProcessingStatuss(
               params,
-              (data: FulfillmentResponseModel) => {
-                setListFulfillment(data.items);
+              (data: OrderProcessingStatusResponseModel) => {
+                setListOrderProcessingStatus(data.items);
                 setTotal(data.metadata.total);
               }
             )
@@ -173,10 +173,13 @@ const SettingFulfillment: React.FC = () => {
      * when dispatch action, call function (handleData) to handle data
      */
     dispatch(
-      actionFetchListFulfillments(params, (data: FulfillmentResponseModel) => {
-        setListFulfillment(data.items);
-        setTotal(data.metadata.total);
-      })
+      actionFetchListOrderProcessingStatuss(
+        params,
+        (data: OrderProcessingStatusResponseModel) => {
+          setListOrderProcessingStatus(data.items);
+          setTotal(data.metadata.total);
+        }
+      )
     );
   }, [dispatch, params]);
 
@@ -199,7 +202,7 @@ const SettingFulfillment: React.FC = () => {
         ]}
         extra={createOrderServiceSubStatusHtml()}
       >
-        {listFulfillment && (
+        {listOrderProcessingStatus && (
           <Card style={{ padding: 24 }}>
             <CustomTableStyle2
               isLoading={tableLoading}
@@ -213,10 +216,10 @@ const SettingFulfillment: React.FC = () => {
                 onChange: onPageChange,
                 onShowSizeChange: onPageChange,
               }}
-              dataSource={listFulfillment}
+              dataSource={listOrderProcessingStatus}
               columns={columnFinal()}
               rowKey={(item: VariantResponse) => item.id}
-              onRow={(record: FulfillmentModel) => {
+              onRow={(record: OrderProcessingStatusModel) => {
                 return {
                   onClick: (event) => {
                     console.log("record", record);
@@ -230,7 +233,7 @@ const SettingFulfillment: React.FC = () => {
           </Card>
         )}
         {isShowModalCreate && (
-          <ModalOrderServiceSubStatus
+          <ModalOrderProcessingStatus
             visible={isShowModalCreate}
             modalAction={modalAction}
             onCreate={(value) => handleForm.create(value)}
@@ -245,4 +248,4 @@ const SettingFulfillment: React.FC = () => {
   );
 };
 
-export default SettingFulfillment;
+export default SettingOrderProcessingStatus;

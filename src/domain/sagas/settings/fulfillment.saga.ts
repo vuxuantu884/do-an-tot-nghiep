@@ -5,7 +5,7 @@ import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { SETTING_TYPES } from "domain/types/settings.type";
 import { PageResponse } from "model/base/base-metadata.response";
-import { FulfillmentResponseModel } from "model/response/fulfillment.response";
+import { OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
 import {
   createOrderServiceSubStatus,
   editOrderServiceSubStatus,
@@ -16,8 +16,9 @@ import { showError, showSuccess } from "utils/ToastUtils";
 function* listDataFulfillmentSaga(action: YodyAction) {
   const { params, handleData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<FulfillmentResponseModel>> =
-      yield call(getOrderServiceSubStatus, params);
+    let response: BaseResponse<
+      PageResponse<OrderProcessingStatusResponseModel>
+    > = yield call(getOrderServiceSubStatus, params);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -42,8 +43,9 @@ function* listDataFulfillmentSaga(action: YodyAction) {
 function* addFulfillmentSaga(action: YodyAction) {
   const { item, handleData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<FulfillmentResponseModel>> =
-      yield call(createOrderServiceSubStatus, item);
+    let response: BaseResponse<
+      PageResponse<OrderProcessingStatusResponseModel>
+    > = yield call(createOrderServiceSubStatus, item);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -66,8 +68,9 @@ function* addFulfillmentSaga(action: YodyAction) {
 function* deleteFulfillmentSaga(action: YodyAction) {
   const { item, handleData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<FulfillmentResponseModel>> =
-      yield call(createOrderServiceSubStatus, item);
+    let response: BaseResponse<
+      PageResponse<OrderProcessingStatusResponseModel>
+    > = yield call(createOrderServiceSubStatus, item);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -91,8 +94,9 @@ function* editFulfillmentSaga(action: YodyAction) {
   const { id, item, handleData } = action.payload;
   console.log("item", item);
   try {
-    let response: BaseResponse<PageResponse<FulfillmentResponseModel>> =
-      yield call(editOrderServiceSubStatus, id, item);
+    let response: BaseResponse<
+      PageResponse<OrderProcessingStatusResponseModel>
+    > = yield call(editOrderServiceSubStatus, id, item);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -113,8 +117,20 @@ function* editFulfillmentSaga(action: YodyAction) {
 }
 
 export function* settingFulfillmentSaga() {
-  yield takeLatest(SETTING_TYPES.fulfillment.listData, listDataFulfillmentSaga);
-  yield takeLatest(SETTING_TYPES.fulfillment.create, addFulfillmentSaga);
-  yield takeLatest(SETTING_TYPES.fulfillment.delete, deleteFulfillmentSaga);
-  yield takeLatest(SETTING_TYPES.fulfillment.edit, editFulfillmentSaga);
+  yield takeLatest(
+    SETTING_TYPES.orderProcessingStatus.listData,
+    listDataFulfillmentSaga
+  );
+  yield takeLatest(
+    SETTING_TYPES.orderProcessingStatus.create,
+    addFulfillmentSaga
+  );
+  yield takeLatest(
+    SETTING_TYPES.orderProcessingStatus.delete,
+    deleteFulfillmentSaga
+  );
+  yield takeLatest(
+    SETTING_TYPES.orderProcessingStatus.edit,
+    editFulfillmentSaga
+  );
 }

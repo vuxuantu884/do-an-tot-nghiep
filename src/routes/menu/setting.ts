@@ -35,7 +35,7 @@ const StoreUpdateScreen = React.lazy(
 
 // fulfillment: quản lý đơn hàng
 const SettingFulfillmentScreen = React.lazy(
-  () => import("screens/settings/fulfillment")
+  () => import("screens/settings/order-processing-status")
 );
 
 // order sources: quản lý nguồn đơn hàng
@@ -171,7 +171,7 @@ const setting: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: UrlConfig.FULFILLMENTS,
+    path: UrlConfig.ORDER_PROCESSING_STATUS,
     exact: true,
     title: "Xử lý đơn hàng",
     icon: "icon-dot",
@@ -181,11 +181,11 @@ const setting: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.FULFILLMENTS}/create`,
+        path: `${UrlConfig.ORDER_PROCESSING_STATUS}/create`,
         exact: true,
-        title: "Thêm mới người dùng",
+        title: "Thêm mới đơn hàng",
         icon: "icon-dot",
-        component: AccountCreateScreen,
+        component: SettingFulfillmentScreen,
         key: "submenu261",
         isShow: true,
         header: null,
@@ -193,24 +193,10 @@ const setting: Array<RouteMenu> = [
         type: 0,
         object: null,
       },
-      {
-        path: `${UrlConfig.FULFILLMENTS}/:id`,
-        exact: true,
-        title: "Chỉnh sửa người dùng",
-        icon: "icon-dot",
-        component: AccountUpdateScreen,
-        key: "account2",
-        isShow: true,
-        header: null,
-        subMenu: [],
-        type: 0,
-        object: null,
-        pathIgnore: ["create"],
-      },
     ],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {
-      pathCreate: `${UrlConfig.FULFILLMENTS}/create`,
+      pathCreate: `${UrlConfig.ORDER_PROCESSING_STATUS}/create`,
     },
   },
   {
@@ -253,7 +239,7 @@ const setting: Array<RouteMenu> = [
     ],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {
-      pathCreate: `${UrlConfig.FULFILLMENTS}/create`,
+      pathCreate: `${UrlConfig.ORDER_PROCESSING_STATUS}/create`,
     },
   },
 ];

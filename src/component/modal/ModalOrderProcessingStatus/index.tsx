@@ -11,17 +11,17 @@ import {
 } from "antd";
 import { modalActionType } from "model/modal/modal.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { FulfillmentModel } from "model/response/fulfillment.response";
-import { OrderSourceModel } from "model/response/order/order-source.response";
-import { useState } from "react";
+import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import ModalDeleteConfirm from "../ModalDeleteConfirm";
 import { StyledComponent } from "./styles";
 
 type ModalAddOrderSourceType = {
   visible?: boolean;
-  onCreate: (value: FulfillmentModel) => void;
-  onDelete: (value: FulfillmentModel) => void;
-  onEdit: (id: number, value: FulfillmentModel) => void;
+  onCreate: (value: OrderProcessingStatusModel) => void;
+  onDelete: (value: OrderProcessingStatusModel) => void;
+  onEdit: (id: number, value: OrderProcessingStatusModel) => void;
   onCancel: () => void;
   title?: string | React.ReactNode;
   subTitle?: string | React.ReactNode;
@@ -29,7 +29,7 @@ type ModalAddOrderSourceType = {
   cancelText?: string;
   bgIcon?: string;
   modalAction: modalActionType;
-  modalSingleServiceSubStatus: FulfillmentModel | null;
+  modalSingleServiceSubStatus: OrderProcessingStatusModel | null;
 };
 
 type ModalFormType = {
@@ -45,7 +45,7 @@ type ModalFormType = {
  * now default company_id: 1, company: "YODY"
  * hidden fields company_id and company  and id if is edit or delete)
  */
-const ModalOrderServiceSubStatus: React.FC<ModalAddOrderSourceType> = (
+const ModalOrderProcessingStatus: React.FC<ModalAddOrderSourceType> = (
   props: ModalAddOrderSourceType
 ) => {
   const {
@@ -91,7 +91,7 @@ const ModalOrderServiceSubStatus: React.FC<ModalAddOrderSourceType> = (
     create: (form: FormInstance<any>) => {
       form
         .validateFields()
-        .then((values: FulfillmentModel) => {
+        .then((values: OrderProcessingStatusModel) => {
           form.resetFields();
           onCreate(values);
         })
@@ -99,14 +99,14 @@ const ModalOrderServiceSubStatus: React.FC<ModalAddOrderSourceType> = (
           console.log("Validate Failed:", info);
         });
     },
-    delete: (values: FulfillmentModel) => {
+    delete: (values: OrderProcessingStatusModel) => {
       onDelete(values);
     },
     edit: (form: FormInstance<any>) => {
       if (modalSingleServiceSubStatus) {
         form
           .validateFields()
-          .then((values: FulfillmentModel) => {
+          .then((values: OrderProcessingStatusModel) => {
             form.resetFields();
             onEdit(modalSingleServiceSubStatus.id, values);
           })
@@ -171,6 +171,16 @@ const ModalOrderServiceSubStatus: React.FC<ModalAddOrderSourceType> = (
     };
     return <StyledComponent>{content()}</StyledComponent>;
   };
+  const renderConfirmDeleteSubtitle = () => {
+    if (modalSingleServiceSubStatus) {
+      return (
+        <React.Fragment>
+          Bạn có chắc chắn muốn xóa "
+          <strong>{modalSingleServiceSubStatus.sub_status}</strong>" ?
+        </React.Fragment>
+      );
+    }
+  };
   return (
     <Modal
       width="600px"
@@ -187,7 +197,7 @@ const ModalOrderServiceSubStatus: React.FC<ModalAddOrderSourceType> = (
       onOk={() => {
         form
           .validateFields()
-          .then((values: FulfillmentModel) => {
+          .then((values: OrderProcessingStatusModel) => {
             form.resetFields();
             onCreate(values);
           })
@@ -279,20 +289,18 @@ const ModalOrderServiceSubStatus: React.FC<ModalAddOrderSourceType> = (
             </Col>
           </Row>
         </Form>
-        {isShowConfirmDelete && modalSingleServiceSubStatus && (
-          <Modal
-            title="Xác nhận"
+        {modalSingleServiceSubStatus && (
+          <ModalDeleteConfirm
             visible={isShowConfirmDelete}
             onOk={() => formAction.delete(modalSingleServiceSubStatus)}
             onCancel={() => setIsShowConfirmDelete(false)}
-          >
-            Bạn có chắc chắn muốn xóa "
-            <strong>{modalSingleServiceSubStatus.sub_status}</strong>" ?
-          </Modal>
+            title="Xác nhận"
+            subTitle={renderConfirmDeleteSubtitle()}
+          />
         )}
       </StyledComponent>
     </Modal>
   );
 };
 
-export default ModalOrderServiceSubStatus;
+export default ModalOrderProcessingStatus;

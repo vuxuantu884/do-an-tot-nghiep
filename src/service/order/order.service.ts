@@ -22,9 +22,9 @@ import {
 } from "model/response/order/order-source.response";
 import { BaseQuery } from "model/base/base.query";
 import {
-  FulfillmentModel,
-  FulfillmentResponseModel,
-} from "model/response/fulfillment.response";
+  OrderProcessingStatusModel,
+  OrderProcessingStatusResponseModel,
+} from "model/response/order-processing-status.response";
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
@@ -118,8 +118,8 @@ export const getOrderServiceSubStatus = (
 };
 
 export const createOrderServiceSubStatus = (
-  newOrderServiceSubStatus: FulfillmentModel
-): Promise<BaseResponse<FulfillmentResponseModel>> => {
+  newOrderServiceSubStatus: OrderProcessingStatusModel
+): Promise<BaseResponse<OrderProcessingStatusResponseModel>> => {
   return BaseAxios.post(
     `${ApiConfig.ORDER}/subStatus`,
     newOrderServiceSubStatus
@@ -128,8 +128,8 @@ export const createOrderServiceSubStatus = (
 
 export const editOrderServiceSubStatus = (
   id: number,
-  orderServiceSubStatus: FulfillmentModel
-): Promise<BaseResponse<FulfillmentResponseModel>> => {
+  orderServiceSubStatus: OrderProcessingStatusModel
+): Promise<BaseResponse<OrderProcessingStatusResponseModel>> => {
   return BaseAxios.put(
     `${ApiConfig.ORDER}/subStatus/${id}`,
     orderServiceSubStatus
