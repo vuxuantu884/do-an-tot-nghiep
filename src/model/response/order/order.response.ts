@@ -224,3 +224,10 @@ export interface DeliveryServiceResponse {
   name: string;
   logo: string;
 }
+
+export interface ShippingGHTKResponse {
+  name: string;
+  fee: number;
+  insurance_fee: number;
+  delivery_type: string;
+}

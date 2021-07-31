@@ -337,7 +337,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               )}
             >
               <Input
-                placeholder="Tìm hoặc thêm khách hàng"
+                placeholder="Tìm hoặc thêm khách hàng... (F4)"
                 // enterButton={
                 //   <Button
                 //     style={{ width: 40, height: 36 }}

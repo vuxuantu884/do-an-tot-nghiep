@@ -1,33 +1,35 @@
 import { CheckOutlined } from "@ant-design/icons";
-import { Button, Row, Col, Form, Steps } from "antd";
-import POSupplierForm from "./component/po-supplier.form";
+import { Button, Col, Form, Row, Steps } from "antd";
 import ContentContainer from "component/container/content.container";
+import { AppConfig } from "config/AppConfig";
 import UrlConfig from "config/UrlConfig";
-import POProductForm from "./component/po-product.form";
-import POInventoryForm from "./component/po-inventory.form";
-import POPaymentForm from "./component/po-payment.form";
-import POInfoForm from "./component/po-info.form";
-import { useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useState } from "react";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { PoDetailAction } from "domain/actions/po/po.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { AppConfig } from "config/AppConfig";
-import { useHistory } from "react-router-dom";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { PoFormName, VietNamId } from "utils/Constants";
+import { CountryResponse } from "model/content/country.model";
+import { DistrictResponse } from "model/content/district.model";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import { PoCreateAction } from "domain/actions/po/po.action";
-import { showError, showSuccess } from "utils/ToastUtils";
-
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
+import { PoFormName, VietNamId } from "utils/Constants";
+import POInfoForm from "./component/po-info.form";
+import POInventoryForm from "./component/po-inventory.form";
+import POPaymentForm from "./component/po-payment.form";
+import POProductForm from "./component/po-product.form";
+import POSupplierForm from "./component/po-supplier.form";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
-import { CountryResponse } from "model/content/country.model";
-import { DistrictResponse } from "model/content/district.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
-const POCreateScreen: React.FC = () => {
+
+type  PurchaseOrderParam = {
+  id: string;
+};
+const PODetailScreen: React.FC = () => {
   let initPurchaseOrder = {
     line_items: [],
     price_type: AppConfig.import_price,
@@ -44,14 +46,12 @@ const POCreateScreen: React.FC = () => {
     tax_lines: [],
     supplier_id: 0,
   };
-  const collapse = useSelector(
-    (state: RootReducerType) => state.appSettingReducer.collapse
-  );
-  const [isError, setError] = useState(false);
-
+  const { id } = useParams<PurchaseOrderParam>();
+  let idNumber = parseInt(id);
   const dispatch = useDispatch();
   const history = useHistory();
   const [formMain] = Form.useForm();
+  const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [winAccount, setWinAccount] = useState<Array<AccountResponse>>([]);
   const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
@@ -59,20 +59,28 @@ const POCreateScreen: React.FC = () => {
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
-  const onResultRD = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        setError(true);
-        return;
-      }
-      setRDAccount(data.items);
-      setLoading(false);
-    },
-    []
+  const collapse = useSelector(
+    (state: RootReducerType) => state.appSettingReducer.collapse
   );
+  const onDetail = useCallback((result: PurchaseOrder|null) => {
+    setLoading(false);
+    if (!result) {
+      setError(true);
+    } else {
+      formMain.setFieldsValue(result);
+    }
+  }, [formMain]);
+  const onResultRD = useCallback((data: PageResponse<AccountResponse>|false) => {
+    if(!data) {
+      setError(true);
+      return;
+    }
+    setRDAccount(data.items);
+    setLoading(false);
+  }, []);
   const onResultWin = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
+    (data: PageResponse<AccountResponse>|false) => {
+      if(!data) {
         setError(true);
         return;
       }
@@ -93,34 +101,6 @@ const POCreateScreen: React.FC = () => {
       setIsShowBillStep(false);
     }
   }, []);
-  const createCallback = useCallback(
-    (result: PurchaseOrder) => {
-      if (result) {
-        showSuccess("Thêm mới dữ liệu thành công");
-        history.push(UrlConfig.PURCHASE_ORDER);
-      } else {
-        setLoadingSaveButton(false);
-      }
-    },
-    [history]
-  );
-  const onFinish = useCallback(
-    (data: PurchaseOrder) => {
-      if (data.line_items.length === 0) {
-        let element: any = document.getElementById("#product_search");
-        element?.focus();
-        const y =
-          element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-        window.scrollTo({ top: y, behavior: "smooth" });
-        showError('Vui lòng thêm sản phẩm');
-        return;
-      }
-      setLoadingSaveButton(true);
-      dispatch(PoCreateAction(data, createCallback));
-    },
-    [createCallback, dispatch]
-  );
-
   useEffect(() => {
     dispatch(
       AccountSearchAction(
@@ -130,7 +110,13 @@ const POCreateScreen: React.FC = () => {
     );
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
-  }, [dispatch, onResultWin, onResultRD]);
+    if(!isNaN(idNumber)) {
+      dispatch(PoDetailAction(idNumber, onDetail));
+    } else {
+      setError(true);
+    }
+    
+  }, [dispatch, idNumber, onDetail, onResultWin]);
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
     return () => {
@@ -152,7 +138,7 @@ const POCreateScreen: React.FC = () => {
           path: `${UrlConfig.PURCHASE_ORDER}`,
         },
         {
-          name: "Tạo mới đơn đặt hàng",
+          name: `Đơn hàng ${id}`,
         },
       ]}
       extra={
@@ -187,15 +173,15 @@ const POCreateScreen: React.FC = () => {
             element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
           window.scrollTo({ top: y, behavior: "smooth" });
         }}
-        onFinish={onFinish}
+        // onFinish={onFinish}
         initialValues={initPurchaseOrder}
         layout="vertical"
       >
-        <Row gutter={24} style={{ paddingBottom: 80 }}>
+       <Row gutter={24} style={{ paddingBottom: 80 }}>
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm
-              isEdit={false}
+              isEdit={true}
               listCountries={listCountries}
               listDistrict={listDistrict}
               formMain={formMain}
@@ -226,12 +212,7 @@ const POCreateScreen: React.FC = () => {
         >
           <Col
             md={10}
-            style={{
-              marginLeft: "-20px",
-              marginTop: "3px",
-              padding: "3px",
-              zIndex: 100,
-            }}
+            style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px", zIndex: 100 }}
           >
             <Steps
               progressDot={(dot: any, { status, index }: any) => (
@@ -268,10 +249,10 @@ const POCreateScreen: React.FC = () => {
               Lưu
             </Button>
           </Col>
-        </Row>
+        </Row> 
       </Form>
     </ContentContainer>
-  );
-};
+  )
+}
 
-export default POCreateScreen;
+export default PODetailScreen;

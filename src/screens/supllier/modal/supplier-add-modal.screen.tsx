@@ -22,40 +22,13 @@ type SupplierAddModalProps = {
 };
 const { Item } = Form;
 const { Option } = Select;
-const initRequest: SupplierCreateRequest = {
-  address: "",
-  bank_brand: "",
-  bank_name: "",
-  bank_number: "",
-  beneficiary_name: "",
-  certifications: [],
-  city_id: null,
-  country_id: VietNamId,
-  contact_name: "",
-  debt_time: null,
-  debt_time_unit: null,
-  district_id: null,
-  website: null,
-  email: "",
-  fax: "",
-  goods: [],
-  person_in_charge: null,
-  moq: null,
-  note: "",
-  name: "",
-  phone: "",
-  scorecard: null,
-  status: "active",
-  tax_code: "",
-  type: "",
-};
+
 const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   props: SupplierAddModalProps
 ) => {
   const dispatch = useDispatch();
   const [formSupplierAdd] = Form.useForm();
   const { visible, onCancel, onOk } = props;
-
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const supplier_type = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
@@ -67,7 +40,10 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
     (state: RootReducerType) => state.userReducer?.account?.code
   );
   const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse>) => {
+    (data: PageResponse<AccountResponse>|false) => {
+      if(!data) {
+        return false;
+      }
       let listWinAccount = data.items;
       console.log(listWinAccount);
       setAccounts(listWinAccount);
@@ -92,6 +68,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
     },
     [formSupplierAdd, onOk]
   );
+
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
       dispatch(SupplierCreateAction(values, createSupplierCallback));
@@ -109,7 +86,7 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
   useEffect(() => {
     dispatch(
       AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT] },
+        { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         setDataAccounts
       )
     );
@@ -134,7 +111,33 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
         form={formSupplierAdd}
         layout="vertical"
         onFinish={onFinish}
-        initialValues={initRequest}
+        initialValues={{
+          address: "",
+          bank_brand: "",
+          bank_name: "",
+          bank_number: "",
+          beneficiary_name: "",
+          certifications: [],
+          city_id: null,
+          country_id: VietNamId,
+          contact_name: "",
+          debt_time: null,
+          debt_time_unit: null,
+          district_id: null,
+          website: null,
+          email: "",
+          fax: "",
+          goods: [],
+          person_in_charge: null,
+          moq: null,
+          note: "",
+          name: "",
+          phone: "",
+          scorecard: null,
+          status: "active",
+          tax_code: "",
+          type: "",
+        }}
         scrollToFirstError
       >
         <Row gutter={24}>
@@ -192,6 +195,10 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
                   required: true,
                   message: "Vui lòng nhập tên nhà cung cấp",
                 },
+                {
+                  whitespace: true,
+                  message: "Vui lòng nhập tên nhà cung cấp",
+                },
               ]}
               name="name"
               label="Tên nhà cung cấp"
@@ -240,18 +247,18 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
               <Input placeholder="Nhập số điện thoại" />
             </Item>
           </Col>
-          <Col xs={24} lg={24}>
+          <Col xs={24} lg={12}>
             <Item
-              label="Địa chỉ"
-              name="address"
+              label="Mã số thuế"
+              name="tax_code"
               rules={[
                 {
-                  required: true,
-                  message: "Vui lòng nhập địa chỉ",
+                  pattern: RegUtil.NUMBERREG,
+                  message: "Mã số thuế chỉ được phép nhập số",
                 },
               ]}
             >
-              <Input placeholder="Nhập địa chỉ" maxLength={255} />
+              <Input placeholder="Nhập mã số thuế" maxLength={13} />
             </Item>
           </Col>
         </Row>

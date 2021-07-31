@@ -90,7 +90,6 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
   );
   const onAddressFormFinish = useCallback(
     (values: PurchaseAddress) => {
-      
       onOk(values, addressType);
     },
     [addressType, onOk]
@@ -114,7 +113,6 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
     }
   }, [addressInfo?.district_id, dispatch, getListWardCallback]);
   useEffect(() => {
-    
     if (visible) {
       formAddress.setFieldsValue(addressInfo);
     }
@@ -140,8 +138,8 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
       >
         <Row gutter={24}>
           <Col xs={24} lg={12}>
-            <Item name="name" label="Người đại diện">
-              <Input placeholder="Người đại diện" maxLength={255} />
+            <Item name="name" label="Người liên hệ">
+              <Input placeholder="Người liên hệ" maxLength={255} />
             </Item>
           </Col>
           <Col xs={24} lg={12}>
@@ -157,21 +155,6 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (
               ]}
             >
               <Input placeholder=" Số điện thoại" maxLength={255} />
-            </Item>
-          </Col>
-
-          <Col xs={24} lg={12}>
-            <Item
-              name="email"
-              label="Email"
-              rules={[
-                {
-                  pattern: RegUtil.EMAIL,
-                  message: "Email chưa đúng định dạng",
-                },
-              ]}
-            >
-              <Input placeholder="Email" maxLength={255} />
             </Item>
           </Col>
 

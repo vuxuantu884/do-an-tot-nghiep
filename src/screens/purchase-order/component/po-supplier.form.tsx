@@ -1,8 +1,6 @@
-//#region Import
 import {
   Space,
   Card,
-  AutoComplete,
   Input,
   Form,
   Button,
@@ -17,11 +15,11 @@ import {
   EditOutlined,
   EnvironmentFilled,
   PhoneFilled,
-  SearchOutlined,
+  PhoneOutlined,
 } from "@ant-design/icons";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
+import { AiOutlineClose } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse } from "model/core/supplier.model";
@@ -31,28 +29,25 @@ import addressIcon from "assets/img/user-pin.svg";
 import noteCustomer from "assets/img/note-customer.svg";
 import { Link } from "react-router-dom";
 import { PurchaseAddress } from "model/purchase-order/purchase-address.model";
-import EditAddressModal from "../model/edit-address";
+import EditAddressModal from "../modal/edit-address";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { AddressType, PoFormName, VietNamId } from "utils/Constants";
+import { AddressType } from "utils/Constants";
 import SupplierAddModal from "screens/supllier/modal/supplier-add-modal.screen";
+import CustomAutoComplete from "component/custom/autocomplete.cusom";
 
-import { createRef } from "react";
-import { RefSelectProps } from "antd/lib/select";
-type SupplierInfoProps = {
+type POSupplierFormProps = {
   listCountries: Array<CountryResponse>;
   listDistrict: Array<DistrictResponse>;
   formMain: FormInstance;
+  isEdit: boolean;
 };
-const SupplierInfo: React.FC<SupplierInfoProps> = (
-  props: SupplierInfoProps
+const POSupplierForm: React.FC<POSupplierFormProps> = (
+  props: POSupplierFormProps
 ) => {
-  const { formMain, listCountries, listDistrict } = props;
+  const { formMain, listCountries, listDistrict, isEdit } = props;
   const [data, setData] = useState<Array<SupplierResponse>>([]);
-  // const [formSupplier] = Form.useForm();
-  const autoRef = createRef<RefSelectProps>();
   const dispatch = useDispatch();
-  const [keySearchSupplier, setKeySearchSupplier] = useState("");
   const [isVisibleAddressModal, setVisibleAddressModal] = useState(false);
   const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] =
     useState(false);
@@ -63,13 +58,14 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
   }, []);
   const [addressChange, setAddressChange] = useState<PurchaseAddress>();
   const [addressChangeType, setAddressChangeType] = useState<string>("");
-  const [isSelectSupplier, setIsSelectSupplier] = useState<boolean>(false);
+  const [isSelectSupplier, setIsSelectSupplier] = useState<boolean>(isEdit);
 
   const onSupplierSearchChange = useCallback(
     (value) => {
-      setKeySearchSupplier(value);
       if (value.length >= 3) {
-        dispatch(SupplierSearchAction({ info: value }, onResult));
+        dispatch(
+          SupplierSearchAction({ query: value, status: "active" }, onResult)
+        );
       } else {
         setData([]);
       }
@@ -87,12 +83,10 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
 
   const onSelect = useCallback(
     (value: string) => {
-      setKeySearchSupplier("");
-      debugger;
       let index = data.findIndex((item) => item.id.toString() === value);
       var supplier = data[index];
       let supplierAddress: PurchaseAddress = {
-        name: supplier.name_person_in_charge,
+        name: supplier.contact_name,
         email: supplier.email,
         phone: supplier.phone,
         tax_code: supplier.tax_code,
@@ -109,6 +103,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
         supplier: data[index].name,
         billing_address: supplierAddress,
         supplier_address: supplierAddress,
+        phone: supplier.phone,
       });
       setIsSelectSupplier(true);
     },
@@ -120,6 +115,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
       supplier: null,
       billing_address: null,
       supplier_address: null,
+      phone: null,
     });
     setIsSelectSupplier(false);
   }, [formMain]);
@@ -144,7 +140,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
   const OkSupplierAddModal = useCallback(
     (supplierItem: SupplierResponse) => {
       let supplierAddress: PurchaseAddress = {
-        name: supplierItem.name_person_in_charge,
+        name: supplierItem.contact_name,
         email: supplierItem.email,
         phone: supplierItem.phone,
         tax_code: supplierItem.tax_code,
@@ -161,6 +157,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
         supplier: supplierItem.name,
         billing_address: supplierAddress,
         supplier_address: supplierAddress,
+        phone: supplierItem.phone,
       });
       setIsSelectSupplier(true);
       setVisibleSupplierAddModal(false);
@@ -200,7 +197,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
           </div>
         }
       >
-        <div className="padding-10">
+        <div className="padding-20">
           <Form.Item
             shouldUpdate={(prevValues, curValues) =>
               prevValues.supplier_id !== curValues.supplier_id
@@ -209,6 +206,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
           >
             {({ getFieldValue }) => {
               let supplier_id = getFieldValue("supplier_id");
+              let phone = getFieldValue("phone");
               let supplier: string = getFieldValue("supplier");
               return supplier_id ? (
                 <div>
@@ -226,19 +224,25 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                       >
                         {supplier}
                       </Link>
-                      <Button
-                        className="icon-information-delete"
-                        onClick={removeSupplier}
-                        icon={<AiOutlineClose />}
-                      />
+                      {!isEdit && (
+                        <Button
+                          className="icon-information-delete"
+                          onClick={removeSupplier}
+                          icon={<AiOutlineClose />}
+                        />
+                      )}
+                      <PhoneOutlined />
+                      <label>{phone}</label>
                     </Space>
-                    <Space className="customer-detail-action">
-                      <Button
-                        type="text"
-                        className="p-0 ant-btn-custom"
-                        icon={<EditOutlined style={{ fontSize: "24px" }} />}
-                      ></Button>
-                    </Space>
+                    {!isEdit && (
+                      <Space className="customer-detail-action">
+                        <Button
+                          type="text"
+                          className="p-0 ant-btn-custom"
+                          icon={<EditOutlined style={{ fontSize: "24px" }} />}
+                        ></Button>
+                      </Space>
+                    )}
                   </Row>
                   <Divider
                     className="margin-0"
@@ -246,51 +250,33 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                   />
                 </div>
               ) : (
-                <AutoComplete
-                  ref={autoRef}
-                  notFoundContent={
-                    keySearchSupplier.length >= 3
-                      ? "Không tìm thấy nhà cung cấp"
-                      : undefined
-
-                    // <div>
-                    //   <AddItem
-                    //     title="Thêm mới nhà cung cấp"
-                    //     onClick={() => setVisibleSupplierAddModal(true)}
-                    //   />
-                    //   ,<div>Không tìm thấy nhà cung cấp</div>
-                    // </div>
-                  }
-                  // onDropdownVisibleChange={AutoCompleteVisible}
-                  onSearch={onSupplierSearchChange}
-                  value={keySearchSupplier}
-                  style={{ width: "100%" }}
-                  dropdownClassName="supplier"
-                  dropdownRender={(menu) => (
-                    <div className="dropdown-custom">
-                      <Button
-                        icon={<AiOutlinePlusCircle size={24} />}
-                        className="dropdown-add-new"
-                        type="link"
-                        onClick={() => {
-                          setVisibleSupplierAddModal(true);
-                        }}
-                      >
-                        {/* <PlusCircleOutlined /> */}
-                        Thêm mới nhà cung cấp
-                      </Button>
-                      {menu}
-                    </div>
-                  )}
-                  onSelect={onSelect}
-                  options={renderResult}
-                >
-                  <Input
-                    placeholder="Tìm hoặc thêm nhà cung cấp... (F4)"
-                    className="border-input"
-                    prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-                  />
-                </AutoComplete>
+                <div>
+                  <Form.Item
+                    name="supplier_item"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn nhà cung cấp",
+                      },
+                    ]}
+                  >
+                    <CustomAutoComplete
+                      dropdownClassName="supplier"
+                      placeholder="Tìm kiếm nhà cung cấp"
+                      onSearch={onSupplierSearchChange}
+                      dropdownMatchSelectWidth={456}
+                      style={{ width: "100%" }}
+                      showAdd={true}
+                      onClickAddNew={() => setVisibleAddressModal(true)}
+                      textAdd="Thêm mới nhà cung cấp"
+                      onSelect={onSelect}
+                      options={renderResult}
+                    />
+                    {/* <div className="ant-form-item-explain ant-form-item-explain-error">
+                    <div role="alert">Vui lòng chọn Merchandiser</div>
+                  </div>  */}
+                  </Form.Item>
+                </div>
               );
             }}
           </Form.Item>
@@ -300,6 +286,9 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                 <Input />
               </Form.Item>
               <Form.Item hidden name="supplier">
+                <Input />
+              </Form.Item>
+              <Form.Item hidden name="phone">
                 <Input />
               </Form.Item>
               <Form.Item hidden name="billing_address">
@@ -410,30 +399,75 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                     className="font-weight-500"
                     style={{ paddingLeft: "34px", marginTop: "14px" }}
                   >
-                    <Form.Item
-                      name="supplier_note"
-                      label={
-                        <label className="title-address">
-                          <img
-                            src={noteCustomer}
-                            alt=""
-                            style={{
-                              width: "20px",
-                              height: "20px",
-                              marginRight: "10px",
-                            }}
-                          />
-                          Ghi chú của khách
-                        </label>
-                      }
-                    >
-                      <Input.TextArea
-                        placeholder="Điền ghi chú"
-                        rows={4}
-                        maxLength={500}
-                        style={{ marginTop: "10px" }}
-                      />
-                    </Form.Item>
+                    {isEdit ? (
+                      <div>
+                        <Form.Item hidden name="supplier_note" noStyle>
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          label={
+                            <label className="title-address">
+                              <img
+                                src={noteCustomer}
+                                alt=""
+                                style={{
+                                  width: "20px",
+                                  height: "20px",
+                                  marginRight: "10px",
+                                }}
+                              />
+                              Ghi chú của nhà cung cấp
+                            </label>
+                          }
+                          shouldUpdate={(prevValue, currentValue) =>
+                            prevValue.supplier_note !==
+                            currentValue.supplier_note
+                          }
+                        >
+                          {({ getFieldValue }) => {
+                            let supplier_note = getFieldValue("supplier_note");
+                            return (
+                              <div
+                                style={{
+                                  color: "#666666",
+                                  fontWeight: 400,
+                                  fontSize: 14,
+                                }}
+                              >
+                                {supplier_note !== ""
+                                  ? supplier_note
+                                  : "Không có ghi chú"}
+                              </div>
+                            );
+                          }}
+                        </Form.Item>
+                      </div>
+                    ) : (
+                      <Form.Item
+                        name="supplier_note"
+                        label={
+                          <label className="title-address">
+                            <img
+                              src={noteCustomer}
+                              alt=""
+                              style={{
+                                width: "20px",
+                                height: "20px",
+                                marginRight: "10px",
+                              }}
+                            />
+                            Ghi chú của nhà cung cấp
+                          </label>
+                        }
+                      >
+                        <Input.TextArea
+                          placeholder="Điền ghi chú"
+                          rows={4}
+                          maxLength={500}
+                          style={{ marginTop: "10px" }}
+                        />
+                      </Form.Item>
+                    )}
                   </Col>
                 </Row>
               </div>
@@ -528,7 +562,7 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                                     )
                                   }
                                 >
-                                  Thay đổi địa chỉ xuất hóa đơn
+                                  Thay đổi địa chỉ nhận hóa đơn
                                 </Button>
                               </Row>
                             </div>
@@ -542,35 +576,76 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
                       className="font-weight-500"
                       style={{ paddingLeft: "34px", marginTop: "14px" }}
                     >
-                      <Form.Item
-                        name={["billing_address", "email"]}
-                        label={
-                          <label className="title-address">
-                            <img
-                              src={noteCustomer}
-                              alt=""
-                              style={{
-                                width: "20px",
-                                height: "20px",
-                                marginRight: "10px",
-                              }}
-                            />
-                            Email gửi hóa đơn
-                          </label>
-                        }
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn ít nhất 1 danh mục",
-                          },
-                        ]}
-                      >
-                        <Input
-                          placeholder="Điền email"
-                          maxLength={255}
-                          style={{ marginTop: "10px" }}
-                        />
-                      </Form.Item>
+                      {isEdit ? (
+                        <div>
+                          <Form.Item
+                            shouldUpdate={(prevValues, curValues) =>
+                              prevValues.billing_address !==
+                              curValues.billing_address
+                            }
+                            label={
+                              <label className="title-address">
+                                <img
+                                  src={noteCustomer}
+                                  alt=""
+                                  style={{
+                                    width: "20px",
+                                    height: "20px",
+                                    marginRight: "10px",
+                                  }}
+                                />
+                                Email gửi hóa đơn
+                              </label>
+                            }
+                          >
+                            {({ getFieldValue }) => {
+                              let billing_address: PurchaseAddress =
+                                getFieldValue("billing_address");
+                              return (
+                                <div
+                                  style={{
+                                    color: "#666666",
+                                    fontWeight: 400,
+                                    fontSize: 14,
+                                  }}
+                                >
+                                  {billing_address?.email}
+                                </div>
+                              );
+                            }}
+                          </Form.Item>
+                        </div>
+                      ) : (
+                        <Form.Item
+                          name={["billing_address", "email"]}
+                          label={
+                            <label className="title-address">
+                              <img
+                                src={noteCustomer}
+                                alt=""
+                                style={{
+                                  width: "20px",
+                                  height: "20px",
+                                  marginRight: "10px",
+                                }}
+                              />
+                              Email gửi hóa đơn
+                            </label>
+                          }
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn ít nhất 1 danh mục",
+                            },
+                          ]}
+                        >
+                          <Input
+                            placeholder="Điền email"
+                            maxLength={255}
+                            style={{ marginTop: "10px" }}
+                          />
+                        </Form.Item>
+                      )}
                     </Col>
                   </Row>
                 </div>
@@ -598,4 +673,4 @@ const SupplierInfo: React.FC<SupplierInfoProps> = (
   );
 };
 
-export default SupplierInfo;
+export default POSupplierForm;

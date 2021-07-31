@@ -435,11 +435,6 @@
   height: 60px;
 }
 
-// input {
-//   border-left: 0;
-//   padding: 4px 8px;
-// }
-// checking
 .saleorder-input-group-wrapper {
   padding: 0;
   min-height: 37px;
@@ -487,11 +482,6 @@
     height: 37px;
   }
 }
-// .ant-modal-footer {
-//   box-shadow: none;
-//   border: none;
-//   padding: 0 34px 26px 0;
-// }
 
 .hide-number-handle {
   .ant-input-number-handler-wrap {
@@ -517,7 +507,14 @@
 }
 
 .font-size-text {
-  font-size: 16px;
+  font-size: 14px;
+  color: #222222;
+}
+
+.font-size-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2A2A86;
 }
 
 .row-info-icon {
@@ -573,8 +570,9 @@
 }
 .text-center {
   div {
+    color: #222222;
     & > span {
-      color: #1389ff;
+      color: #000000;
       display: block;
     }
   }
@@ -634,7 +632,7 @@
 }
 
 .yody-pos-varian-name {
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .padding-lef-right {
@@ -930,17 +928,17 @@
       }
     }
   }
-    .ant-collapse-header{
+  .ant-collapse-header {
     width: 100%;
-      .ant-row{
+    .ant-row {
       width: 100%;
       display: flex;
-      justify-content:space-between;
-      .ant-col{
+      justify-content: space-between;
+      .ant-col {
         display: flex;
         justify-content: space-between;
-        p{
-         line-height: 2
+        p {
+          line-height: 2;
         }
       }
     }
@@ -1002,8 +1000,100 @@
   }
 }
 
-.lblShip{
+.lblShip {
   color: #222222;
   font-size: 14px;
   margin-top: -10px;
+}
+
+.radio-delivery {
+  margin-right: 10px;
+  width: 18px;
+  height: 18px;
+}
+//custom radio
+.create-order-payment {
+  .ant {
+    &-radio-inner {
+      width: 18px;
+      height: 18px;
+      border: 1px solid #2a2a86;
+      &::after {
+        background-color: #2a2a86;
+        width: 10px;
+        height: 10px;
+      }
+    }
+
+    &-radio-checked {
+      &::after {
+        border: 1px solid #2a2a86;
+      }
+    }
+  }
+  .ant-radio:hover .ant-radio-inner {
+    border: 1px solid #2a2a86;
+  }
+  .ant-radio-input:focus + .ant-radio-inner,
+  .ant-radio-wrapper:hover .ant-radio,
+  .ant-radio:hover .ant-radio-inner {
+    border-color: #2a2a86;
+  }
+  .ant-btn{
+    color: #222222;
+    margin-right: 18px;
+    span{
+      svg{
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+  .ant-btn-default {
+    background: #ffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    span {
+      font-size:14px;
+      line-height:18px;
+      padding: 4px 0;
+      font-weight:400;
+    }
+  }
+  .ant-btn-primary {
+    background: #ffff;
+    border: 1px solid #2A2A86;
+    border-radius: 3px;
+    span {
+      font-size:14px;
+      line-height:18px;
+      padding: 4px 0;
+      font-weight:400;
+      color: #2A2A86
+    }
+  }
+  // .row-price{
+  //   justify-content:space-between;
+  // }
+  // .ant-input-number{
+  //   height: 32px
+  // }
+  // .ant-input-number-handler-wrap{
+  //   height: 32px
+  // }
+  // .ant-input-number-input-wrap{
+  //   height: 32px
+  // }
+  // .ant-input-number-input{
+  //   height:32px
+  // }
+  // .ant-input{
+  //   height:32px
+  // }
+}
+
+.orders-dot-status{
+  &::after{
+    background-color: #E5E5E5 !important;
+  }
 }

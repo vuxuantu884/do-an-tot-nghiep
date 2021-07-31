@@ -10,7 +10,6 @@ import {
   DatePicker,
   Checkbox,
   Input,
-  Radio,
 } from "antd";
 
 import callIcon from "assets/img/call.svg";
@@ -22,8 +21,7 @@ import shoppingBag from "assets/icon/shopping_bag.svg";
 import wallClock from "assets/icon/wall_clock.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useLayoutEffect, useState } from "react";
-import { StoreDetailAction } from "domain/actions/core/store.action";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
@@ -33,37 +31,46 @@ import {
   formatCurrency,
   getShipingAddresDefault,
   replaceFormatString,
+  SumWeight,
 } from "utils/AppUtils";
-import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
-import imageDHL from "assets/img/imageDHL.svg";
-import imageGHTK from "assets/img/imageGHTK.svg";
-import imageVTP from "assets/img/imageVTP.svg";
+import {
+  PaymentMethodOption,
+  ShipmentMethodOption,
+  TRANSPORTS,
+} from "utils/Constants";
 import {
   OrderLineItemRequest,
   ShippingGHTKRequest,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import { DeliveryServicesGetList } from "domain/actions/order/order.action";
-import { DeliveryServiceResponse } from "model/response/order/order.response";
+import {
+  DeliveryServicesGetList,
+  InfoGHTKAction,
+} from "domain/actions/order/order.action";
+import {
+  DeliveryServiceResponse,
+  ShippingGHTKResponse,
+} from "model/response/order/order.response";
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
   setPaymentMethod: (value: number) => void;
-  storeId: number | null;
+  storeDetail?: StoreResponse | null;
   amount: number;
   paymentMethod: number;
   shippingFeeCustomer: number | null;
   cusomerInfo: CustomerResponse | null;
   items?: Array<OrderLineItemRequest>;
+  discountValue: number | null;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
   props: ShipmentCardProps
 ) => {
   const dispatch = useDispatch();
-  const [storeDetail, setStoreDetail] = useState<StoreResponse>();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
+  const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>();
   const [deliveryServices, setDeliveryServices] =
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [shipmentMethodState, setshipmentMethod] = useState<number>(4);
@@ -77,32 +84,46 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         props.setPaymentMethod(PaymentMethodOption.COD);
       }
     }
+
+    if (value === ShipmentMethodOption.DELIVERPARNER) {
+      getInfoDeliveryGHTK(TRANSPORTS.ROAD);
+      getInfoDeliveryGHTK(TRANSPORTS.FLY);
+    }
   };
-  console.log(props.storeId);
+
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
   );
 
-  const getInfoDelivery = () => {
-    let request: ShippingGHTKRequest = {
-      pick_address: storeDetail?.address,
-      pick_province: storeDetail?.city_name,
-      pick_district: storeDetail?.district_name,
-      province: getShipingAddresDefault(props.cusomerInfo)?.country,
-      district: getShipingAddresDefault(props.cusomerInfo)?.district,
-      address: getShipingAddresDefault(props.cusomerInfo)?.full_address,
-      weight: null,
-      value: null,
-      transport: "",
-    };
-  };
+  const getInfoDeliveryGHTK = useCallback(
+    (type: string) => {
+      let request: ShippingGHTKRequest = {
+        pick_address: props.storeDetail?.address,
+        pick_province: props.storeDetail?.city_name,
+        pick_district: props.storeDetail?.district_name,
+        province: getShipingAddresDefault(props.cusomerInfo)?.country,
+        district: getShipingAddresDefault(props.cusomerInfo)?.district,
+        address: getShipingAddresDefault(props.cusomerInfo)?.full_address,
+        weight: SumWeight(props.items),
+        value: props.amount,
+        transport: "",
+      };
 
-  useLayoutEffect(() => {
-    if (props.storeId != null) {
-      dispatch(StoreDetailAction(props.storeId, setStoreDetail));
-    }
-  }, [dispatch, props.storeId]);
+      if (
+        request.pick_address &&
+        request.pick_district &&
+        request.pick_province &&
+        request.address &&
+        request.province &&
+        request.weight &&
+        request.district
+      ) {
+        dispatch(InfoGHTKAction(request, setInfoGHTK));
+      }
+    },
+    [dispatch, props.amount, props.cusomerInfo, props.items, props.storeDetail]
+  );
 
   useLayoutEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
@@ -141,47 +162,6 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     },
   ];
 
-  const FAKE_DELIVER_PARTNER_DATA = [
-    {
-      name: "DHL",
-      image: imageDHL,
-      services: [
-        {
-          title: "Chuyển phát nhanh PDE",
-          price: "18.000",
-          key: "1",
-        },
-      ],
-    },
-    {
-      name: "GHTK",
-      image: imageGHTK,
-      services: [
-        {
-          title: "Đường bộ",
-          price: "30.000",
-          key: "2",
-        },
-        {
-          title: "Đường bay",
-          price: "50.000",
-          key: "3",
-        },
-      ],
-    },
-    {
-      name: "VTP",
-      image: imageVTP,
-      services: [
-        {
-          title: "Chuyển phát nhanh PDE",
-          price: "18.000",
-          key: "4",
-        },
-      ],
-    },
-  ];
-
   return (
     <Card
       className="margin-top-20"
@@ -208,8 +188,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 format="DD/MM/YYYY"
                 style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
-                placeholder="dd/mm/yyyy"
-                disabledDate={(current: any) => current && current.valueOf() < Date.now()}
+                placeholder="Chọn ngày giao"
+                disabledDate={(current: any) =>
+                  current && current.valueOf() < Date.now()
+                }
               />
             </Form.Item>
           </Col>
@@ -350,31 +332,53 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                   />
                                 </td>
                                 <td style={{ padding: 0 }}>
-                                  <Radio.Group>
-                                    {single.code === "ghtk" ? (
-                                      <div>
-                                        <div
-                                          style={{ padding: "8px 16px" }}
-                                          className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                        >
-                                          <Radio value={index}>Đường bộ</Radio>
-                                        </div>
-                                        <div
-                                          style={{ padding: "8px 16px" }}
-                                          className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                        >
-                                          <Radio value={index}>Đường bay</Radio>
-                                        </div>
-                                      </div>
-                                    ) : (
+                                  {single.code === "ghtk" ? (
+                                    <div>
                                       <div
                                         style={{ padding: "8px 16px" }}
                                         className="custom-table__has-border-bottom custom-table__has-select-radio"
                                       >
-                                       <Radio value={index}>Chuyển phát nhanh PDE</Radio>
+                                        <input
+                                          type="radio"
+                                          name="tt"
+                                          className="radio-delivery"
+                                          value="road"
+                                        />
+                                        <label className="lblShip">
+                                          Đường bộ
+                                        </label>
                                       </div>
-                                    )}
-                                  </Radio.Group>
+                                      <div
+                                        style={{ padding: "8px 16px" }}
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      >
+                                        <input
+                                          type="radio"
+                                          name="tt"
+                                          className="radio-delivery"
+                                          value="fly"
+                                        />
+                                        <label className="lblShip">
+                                          Đường bay
+                                        </label>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div
+                                      style={{ padding: "8px 16px" }}
+                                      className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                    >
+                                      <input
+                                        type="radio"
+                                        name="tt"
+                                        className="radio-delivery"
+                                        value="road"
+                                      />
+                                      <label className="lblShip">
+                                        Chuyển phát nhanh PDE
+                                      </label>
+                                    </div>
+                                  )}
                                 </td>
                                 <td style={{ padding: 0, textAlign: "right" }}>
                                   {single.code === "ghtk" ? (
@@ -383,13 +387,17 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                         style={{ padding: "8px 16px" }}
                                         className="custom-table__has-border-bottom custom-table__has-select-radio"
                                       >
-                                        100.000
+                                        {infoGHTK && infoGHTK.length > 0
+                                          ? formatCurrency(infoGHTK[0].fee)
+                                          : 0}
                                       </div>
                                       <div
                                         style={{ padding: "8px 16px" }}
                                         className="custom-table__has-border-bottom custom-table__has-select-radio"
                                       >
-                                        100.000
+                                        {infoGHTK && infoGHTK.length > 1
+                                          ? formatCurrency(infoGHTK[1].fee)
+                                          : 0}
                                       </div>
                                     </div>
                                   ) : (
@@ -468,11 +476,11 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                     replace={(a: string) => replaceFormatString(a)}
                     placeholder="0"
                     value={
-                      takeMoneyHelper ||
                       props.amount +
-                        (props.shippingFeeCustomer
-                          ? props.shippingFeeCustomer
-                          : 0)
+                      (props.shippingFeeCustomer
+                        ? props.shippingFeeCustomer
+                        : 0) -
+                      (props.discountValue ? props.discountValue : 0)
                     }
                     onChange={(value: any) => setTakeMoneyHelper(value)}
                     style={{
@@ -539,7 +547,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               </div>
               <div className="row-info-title">Cửa hàng</div>
               <div className="row-info-content">
-                <Typography.Link>{storeDetail?.name}</Typography.Link>
+                <Typography.Link>{props.storeDetail?.name}</Typography.Link>
               </div>
             </Space>
           </Row>
@@ -549,7 +557,9 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 <img src={callIcon} alt="" width="18px" />
               </div>
               <div className="row-info-title">Điện thoại</div>
-              <div className="row-info-content">{storeDetail?.hotline}</div>
+              <div className="row-info-content">
+                {props.storeDetail?.hotline}
+              </div>
             </Space>
           </Row>
           <Row className="row-info">
@@ -558,7 +568,9 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 <img src={locationIcon} alt="" width="18px" />
               </div>
               <div className="row-info-title">Địa chỉ</div>
-              <div className="row-info-content">{storeDetail?.address}</div>
+              <div className="row-info-content">
+                {props.storeDetail?.address}
+              </div>
             </Space>
           </Row>
         </div>

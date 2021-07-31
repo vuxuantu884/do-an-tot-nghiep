@@ -703,7 +703,8 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
       items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
         ? items?.fulfillments[0].shipment &&
           items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-        : 0) ===
+        : 0) -
+      (items?.discounts && items?.discounts.length > 0 && items?.discounts[0].amount ? items?.discounts[0].amount : 0) ===
     value
   ) {
     return 1; //đã thanh toán
@@ -714,6 +715,23 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
       return 0; //thanh toán 1 phần
     }
   }
+};
+
+export const SumCOD = (items: OrderResponse) => {
+  let cod = 0;
+  if (items !== null) {
+    if (items.fulfillments) {
+      if (items.fulfillments.length > 0) {
+        items.fulfillments.forEach((a) => {
+          if (a.shipment !== undefined && a.shipment !== null) {
+            cod = cod + a.shipment?.cod;
+          }
+        });
+      }
+    }
+  }
+
+  return cod;
 };
 
 //COD + tổng đã thanh toán
@@ -729,18 +747,7 @@ export const checkPaymentAll = (items: OrderResponse) => {
   }
 
   //tổng cod
-  let cod = 0;
-  if (items !== null) {
-    if (items.fulfillments) {
-      if (items.fulfillments.length > 0) {
-        items.fulfillments.forEach((a) => {
-          if (a.shipment !== undefined && a.shipment !== null) {
-            cod = cod + a.shipment?.cod;
-          }
-        });
-      }
-    }
-  }
+  let cod = SumCOD(items);
 
   let totalPay = value + cod;
   if (items.total === totalPay) {
@@ -755,7 +762,7 @@ export const getDateLastPayment = (items: OrderResponse) => {
   if (items !== null) {
     if (items.payments !== null) {
       if (items.payments.length > 0) {
-        items.payments.forEach((a) => (value = a.created_date)); 
+        items.payments.forEach((a) => (value = a.created_date));
       }
     }
   }
@@ -773,4 +780,24 @@ export const getShipingAddresDefault = (items: CustomerResponse | null) => {
     }
   }
   return objShippingAddress;
-}
+};
+
+export const SumWeight = (items?: Array<OrderLineItemRequest>) => {
+  let totalWeight = 0;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      switch (items[i].weight_unit) {
+        case "g":
+          totalWeight = totalWeight + items[i].weight;
+          break;
+        case "kg":
+          totalWeight = totalWeight + items[i].weight * 1000;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return totalWeight;
+};

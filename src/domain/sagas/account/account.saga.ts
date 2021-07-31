@@ -18,7 +18,8 @@ import {
   AccountDeleteService,
 } from "service/accounts/account.service";
 import { showError } from "utils/ToastUtils";
-
+import { put } from "redux-saga/effects";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
 
 function* AccountSearchSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -31,10 +32,16 @@ function* AccountSearchSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
+        setData(false);
         break;
     }
-  } catch (e) {}
+  } catch (e) {
+    setData(false);
+  }
 }
 
 function* AccountGetListSaga(action: YodyAction) {
@@ -47,6 +54,9 @@ function* AccountGetListSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
         break;
       default:
         break;
@@ -65,6 +75,9 @@ function* AccountCreateSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         onCreateSuccess(response.data);
         break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         onCreateSuccess(null);
         response.errors.forEach((e) => showError(e));
@@ -80,7 +93,6 @@ function* AccountCreateSaga(action: YodyAction) {
 function* AccountUpdateSaga(action: YodyAction) {
   const { id, request, setData } = action.payload;
   try {
-    
     let response: BaseResponse<AccountResponse> = yield call(
       AccountUpdateService,
       id,
@@ -89,6 +101,9 @@ function* AccountUpdateSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
         break;
       default:
         response.errors.forEach((e) => showError(e));
@@ -100,16 +115,18 @@ function* AccountUpdateSaga(action: YodyAction) {
   }
 }
 function* AccountDeleteSaga(action: YodyAction) {
-  const { id, deleteCallback} = action.payload;
+  const { id, deleteCallback } = action.payload;
   try {
-    
-    let response: BaseResponse<any|null> = yield call(
+    let response: BaseResponse<any | null> = yield call(
       AccountDeleteService,
       id
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         deleteCallback(true);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
         break;
       default:
         deleteCallback(false);
@@ -135,6 +152,9 @@ function* AccountGetByIdSaga(action: YodyAction) {
         console.log(response.data);
         setData(response.data);
         break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         response.errors.forEach((e) => showError(e));
         break;
@@ -155,6 +175,9 @@ function* DepartmentGetListSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         break;
     }
@@ -170,6 +193,9 @@ function* PositionGetListSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         break;
     }
@@ -179,17 +205,21 @@ function* PositionGetListSaga(action: YodyAction) {
 function* ShipperSearchSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
-      let response: BaseResponse<PageResponse<AccountResponse>> = yield call(searchShipperApi);
-      switch (response.code) {
-          case HttpStatus.SUCCESS:
-            setData(response.data.items);
-              break;
-          default:
-              break;
-      }
+    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
+      searchShipperApi
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data.items);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        break;
+    }
   } catch (error) {}
 }
-
 
 export function* accountSaga() {
   yield takeEvery(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);

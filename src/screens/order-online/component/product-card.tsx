@@ -150,11 +150,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setItems(_items);
     total();
   };
-  
+
   const total = useCallback(() => {
     let _items = [...items];
     let _amount = 0;
-    
 
     _items.forEach((i) => {
       let total_discount_items = 0;
@@ -222,10 +221,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             Có thể bán:
             <span
               style={{
-                color:
-                  item.inventory > 0
-                    ? "rgba(0, 128, 255, 1)"
-                    : "rgba(226, 67, 67, 1)",
+                color: item.inventory > 0 ? "#2A2A86" : "rgba(226, 67, 67, 1)",
               }}
             >
               {` ${item.inventory}`}
@@ -253,7 +249,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     title: () => (
       <div className="text-center">
         <div style={{ textAlign: "left" }}>Sản phẩm</div>
-        <span style={{ color: "#0080FF" }}></span>
       </div>
     ),
     width: "30%",
@@ -323,9 +318,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const AmountColumnt = {
     title: () => (
       <div className="text-center">
-        <div style={{ textAlign: "center" }}>Số lượng</div>
+        <div style={{ textAlign: "right" }}>Số lượng</div>
         {getTotalQuantity(items) > 0 && (
-          <span style={{ color: "#0080FF" }}>({getTotalQuantity(items)})</span>
+          <span style={{ color: "#2A2A86" }}>({getTotalQuantity(items)})</span>
         )}
       </div>
     ),
@@ -349,8 +344,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
   const PriceColumnt = {
     title: () => (
-      <div className="text-center">
-        Đơn giá
+      <div>
+        <span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
         <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
           ₫
         </span>
@@ -383,7 +378,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   };
 
   const DiscountColumnt = {
-    title: "Chiết khấu",
+    title: () => (
+      <div className="text-center">
+        <div>Chiết khấu</div>
+      </div>
+    ),
     align: "center",
     width: "22%",
     className: "yody-table-discount text-right",
@@ -407,13 +406,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const TotalPriceColumn = {
     title: () => (
       <div className="text-center">
-        Tổng tiền
+        <span style={{ color: "#222222" }}>Tổng tiền</span>
         <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
           ₫
         </span>
       </div>
     ),
-    align: "center",
+    align: "right",
     className: "yody-table-total-money text-right",
     width: "14%",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
@@ -426,7 +425,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   };
 
   const ActionColumn = {
-    title: "Thao tác",
+    title: () => (
+      <div className="text-center">
+        <div>Thao tác</div>
+      </div>
+    ),
     width: "12%",
     className: "yody-table-action text-center",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
@@ -526,6 +529,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       type: Type.NORMAL,
       variant_image: avatar,
       unit: variant.product.unit,
+      weight: variant.weight,
+      weight_unit: variant.weight_unit,
       warranty: variant.product.preservation,
       discount_items: [discountItem],
       discount_amount: 0,
@@ -582,27 +587,23 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             discountRate,
             discountValue
           );
-          setSplitLine(false);
         } else {
-          let lastIndex = index;
-          _items.forEach((value, _index) => {
-            if (_index > lastIndex) {
-              lastIndex = _index;
-            }
-          });
-          _items[lastIndex].quantity += 1;
-          _items[lastIndex].line_amount_after_line_discount +=
-            items[lastIndex].price - _items[lastIndex].discount_items[0].amount;
+          let variantItems = _items.filter((item) => item.variant_id === newV);
+          let lastIndex = variantItems.length - 1;
+          variantItems[lastIndex].quantity += 1;
+          variantItems[lastIndex].line_amount_after_line_discount +=
+            variantItems[lastIndex].price -
+            variantItems[lastIndex].discount_items[0].amount;
           setAmount(
             amount +
-              _items[lastIndex].price -
-              _items[lastIndex].discount_items[0].amount
+              variantItems[lastIndex].price -
+              variantItems[lastIndex].discount_items[0].amount
           );
           calculateChangeMoney(
             _items,
             amount +
-              _items[lastIndex].price -
-              _items[lastIndex].discount_items[0].amount,
+              variantItems[lastIndex].price -
+              variantItems[lastIndex].discount_items[0].amount,
             discountRate,
             discountValue
           );
@@ -883,19 +884,18 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 style={{
                   width: "37%",
                   float: "left",
-                  textAlign: "center",
-                  fontWeight: 500,
+                  fontWeight: 700,
                 }}
               >
-                Tổng
+                TỔNG
               </div>
 
               <div
                 style={{
-                  width: "20%",
+                  width: "16%",
                   float: "left",
-                  textAlign: "center",
-                  fontWeight: 500,
+                  textAlign: "right",
+                  fontWeight: 400,
                 }}
               >
                 {formatCurrency(getTotalAmount(items))}
@@ -903,11 +903,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
               <div
                 style={{
-                  width: "18%",
+                  width: "21%",
                   float: "left",
-                  textAlign: "center",
-                  color: "#E24343",
-                  fontWeight: 500,
+                  textAlign: "right",
+                  fontWeight: 400,
                 }}
               >
                 {formatCurrency(getTotalDiscount(items))}
@@ -915,11 +914,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
 
               <div
                 style={{
-                  width: "17%",
+                  width: "14.5%",
                   float: "left",
-                  textAlign: "center",
-                  color: "#0080FF",
-                  fontWeight: 500,
+                  textAlign: "right",
+                  color: "#000000",
+                  fontWeight: 700,
                 }}
               >
                 {formatCurrency(getTotalAmountAfferDiscount(items))}
@@ -932,35 +931,26 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       />
       <div className="padding-24" style={{ paddingTop: "30px" }}>
         <Row className="sale-product-box-payment" gutter={24}>
-          <Col xs={24} lg={12}>
+          <Col xs={24} lg={11}>
             <div className="payment-row">
-              <Checkbox
-                className=""
-                style={{ fontWeight: 500 }}
-              >
+              <Checkbox className="" style={{ fontWeight: 500 }}>
                 Bỏ chiết khấu tự động
               </Checkbox>
             </div>
             <div className="payment-row">
-              <Checkbox
-                className=""
-                style={{ fontWeight: 500 }}
-              >
+              <Checkbox className="" style={{ fontWeight: 500 }}>
                 Không tính thuế VAT
               </Checkbox>
             </div>
             <div className="payment-row">
-              <Checkbox
-                className=""
-                style={{ fontWeight: 500 }}
-              >
+              <Checkbox className="" style={{ fontWeight: 500 }}>
                 Bỏ tích điểm tự động
               </Checkbox>
             </div>
           </Col>
-          <Col xs={24} lg={12}>
-            <Row className="payment-row" justify="space-between">
-              <div className="font-weight-500">Tổng tiền</div>
+          <Col xs={24} lg={10}>
+            <Row className="payment-row">
+              <div className="font-weight-500">Tổng tiền:</div>
               <div className="font-weight-500 ">{formatCurrency(amount)}</div>
             </Row>
 
@@ -968,7 +958,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Space align="center">
                 {items.length > 0 ? (
                   <Typography.Link
-                    className="font-weight-500"
+                    className="font-weight-400"
                     onClick={ShowDiscountModal}
                     style={{
                       textDecoration: "underline",
@@ -976,7 +966,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                       color: "#5D5D8A",
                     }}
                   >
-                    Chiết khấu
+                    Chiết khấu:
                   </Typography.Link>
                 ) : (
                   <div>Chiết khấu</div>
@@ -1010,7 +1000,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Space align="center">
                 {items.length > 0 ? (
                   <Typography.Link
-                    className="font-weight-500"
+                    className="font-weight-400"
                     onClick={ShowDiscountModal}
                     style={{
                       textDecoration: "underline",
@@ -1018,7 +1008,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                       color: "#5D5D8A",
                     }}
                   >
-                    Mã giảm giá
+                    Mã giảm giá:
                   </Typography.Link>
                 ) : (
                   <div>Mã giảm giá</div>
@@ -1046,7 +1036,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             </Row>
 
             <Row className="payment-row padding-top-10" justify="space-between">
-              <div className="font-weight-500">Phí ship báo khách</div>
+              <div className="font-weight-500">Phí ship báo khách:</div>
               <div className="font-weight-500 payment-row-money">
                 {props.shippingFeeCustomer !== null
                   ? formatCurrency(props.shippingFeeCustomer)
@@ -1056,11 +1046,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Khách cần phải trả:</strong>
-              <strong className="text-success font-size-text">
-                {changeMoney !== null || props.shippingFeeCustomer !== null
-                  ? props.shippingFeeCustomer !== null
-                    ? formatCurrency(changeMoney + props.shippingFeeCustomer)
-                    : formatCurrency(changeMoney)
+              <strong className="text-success font-size-price">
+                {changeMoney
+                  ? formatCurrency(
+                      changeMoney +
+                        (props.shippingFeeCustomer
+                          ? props.shippingFeeCustomer
+                          : 0)
+                    )
                   : "-"}
               </strong>
             </Row>

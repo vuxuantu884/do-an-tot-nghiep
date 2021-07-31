@@ -102,6 +102,7 @@ export interface SupplierQuery extends BaseQuery {
   status?: string,
   type?: string,
   goods?: string,
+  query?:string
 }
 
 export interface SupplierCreateRequest {

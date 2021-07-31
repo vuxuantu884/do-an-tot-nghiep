@@ -68,6 +68,7 @@ import {
   getAmountPayment,
   getDateLastPayment,
   replaceFormatString,
+  SumCOD,
 } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -126,7 +127,6 @@ const OrderDetail = () => {
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
   //#endregion
-  console.log(shipper);
   //#region Orther
   const ShowShipping = () => {
     setVisibleShipping(true);
@@ -252,7 +252,10 @@ const OrderDetail = () => {
     document.execCommand("Copy");
   };
   //#region Product
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
+    if(!data) {
+      return;
+    }
     setAccounts(data.items);
   }, []);
 
@@ -416,7 +419,12 @@ const OrderDetail = () => {
           .shipping_fee_informed_to_customer +
         OrderDetail?.total_line_amount_after_line_discount +
         shippingFeeInformedCustomer -
-        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
+        (OrderDetail?.discounts &&
+        OrderDetail?.discounts.length > 0 &&
+        OrderDetail?.discounts[0].amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
       );
     } else if (OrderDetail?.total && OrderDetail?.total_paid) {
       return (
@@ -426,7 +434,6 @@ const OrderDetail = () => {
       );
     }
   };
-
   //#region shiment
   let initialFormUpdateShipment: UpdateShipmentRequest = {
     order_id: null,
@@ -617,14 +624,22 @@ const OrderDetail = () => {
           : 0) +
         shippingFeeInformedCustomer -
         totalPaid -
-        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
+        (OrderDetail?.total_discount ? OrderDetail?.total_discount : 0)
       );
-    } else if (OrderDetail?.total) {
+    } else if (OrderDetail?.total_line_amount_after_line_discount) {
       return (
-        (OrderDetail?.total ? OrderDetail?.total : 0) +
+        (OrderDetail?.total_line_amount_after_line_discount
+          ? OrderDetail?.total_line_amount_after_line_discount
+          : 0) +
         shippingFeeInformedCustomer -
         totalPaid -
-        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
+        (OrderDetail?.discounts &&
+        OrderDetail?.discounts.length > 0 &&
+        OrderDetail?.discounts[0].amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
       );
     }
   };
@@ -644,7 +659,6 @@ const OrderDetail = () => {
     }
   };
 
-  console.log(OrderDetail);
   const isShowTakeHelper = showTakeHelper();
   // khách cần trả
   const customerNeedToPay: any = () => {
@@ -658,10 +672,23 @@ const OrderDetail = () => {
         OrderDetail?.fulfillments[0].shipment
           .shipping_fee_informed_to_customer +
         OrderDetail?.total_line_amount_after_line_discount +
-        shippingFeeInformedCustomer
+        shippingFeeInformedCustomer -
+        (OrderDetail?.discounts &&
+        OrderDetail?.discounts.length > 0 &&
+        OrderDetail?.discounts[0].amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
       );
-    } else if (OrderDetail?.total) {
-      return OrderDetail?.total + shippingFeeInformedCustomer;
+    } else if (OrderDetail?.total_line_amount_after_line_discount) {
+      return (
+        OrderDetail?.total_line_amount_after_line_discount +
+        shippingFeeInformedCustomer -
+        (OrderDetail?.discounts &&
+        OrderDetail?.discounts.length > 0 &&
+        OrderDetail?.discounts[0].amount
+          ? OrderDetail?.discounts[0].amount
+          : 0)
+      );
     }
   };
 
@@ -690,7 +717,7 @@ const OrderDetail = () => {
     >
       <div className="orders">
         <Row gutter={24} style={{ marginBottom: "70px" }}>
-          <Col xs={24} lg={18}>
+          <Col md={18}>
             {/*--- customer ---*/}
             <UpdateCustomerCard
               OrderDetail={OrderDetail}
@@ -1268,7 +1295,7 @@ const OrderDetail = () => {
                                   }}
                                   maxLength={15}
                                   minLength={0}
-                                  value={takeMoneyHelper || takeHelperValue}
+                                  value={takeHelperValue}
                                   onChange={(value) =>
                                     setTakeMoneyHelper(value)
                                   }
@@ -1498,67 +1525,73 @@ const OrderDetail = () => {
                           )}
                           ghost
                         >
-                          <Panel
-                            className="orders-timeline-custom success-collapse"
-                            header={
-                              <span style={{ color: "#222222" }}>
-                                <span>Đã thanh toán: </span>
-                                <b>
-                                  {OrderDetail?.payments &&
-                                    OrderDetail?.payments
-                                      .filter(
-                                        (payment, index) =>
-                                          payment.payment_method !== "cod"
-                                      )
-                                      .map(
-                                        (item, index) =>
-                                          item.payment_method +
-                                          (index ===
-                                          (OrderDetail?.payments &&
-                                          OrderDetail?.payments.length > 0
-                                            ? OrderDetail?.payments.length
-                                            : 0) -
-                                            2
-                                            ? ""
-                                            : ",")
-                                      )}
-                                </b>
-                              </span>
-                            }
-                            key="1"
-                            extra={
-                              <>
-                                {OrderDetail?.payments && (
-                                  <div>
-                                    <span className="fixed-time text-field">
-                                      {ConvertUtcToLocalDate(
-                                        getDateLastPayment(OrderDetail),
-                                        "DD/MM/YYYY HH:mm"
-                                      )}
-                                    </span>
-                                  </div>
-                                )}
-                              </>
-                            }
-                          >
-                            <Row gutter={24}>
-                              {OrderDetail?.payments &&
-                                OrderDetail?.payments
-                                  .filter(
-                                    (payment) =>
-                                      payment.payment_method !== "cod"
-                                  )
-                                  .map((item, index) => (
-                                    <Col span={12}>
-                                      <p style={{ color: "#737373" }}>
-                                        {item.payment_method}
-                                      </p>
-                                      <b>{formatCurrency(item.paid_amount)}</b>
-                                    </Col>
-                                  ))}
-                            </Row>
-                          </Panel>
-                          {/* <Panel key="2" showArrow={false} header="COD" /> */}
+                          {OrderDetail.total === SumCOD(OrderDetail) &&
+                          OrderDetail.total === OrderDetail.total_paid ? (
+                            ""
+                          ) : (
+                            <Panel
+                              className="orders-timeline-custom success-collapse"
+                              header={
+                                <span style={{ color: "#222222" }}>
+                                  <span>Đã thanh toán: </span>
+                                  <b>
+                                    {OrderDetail?.payments &&
+                                      OrderDetail?.payments
+                                        .filter(
+                                          (payment, index) =>
+                                            payment.payment_method !== "cod"
+                                        )
+                                        .map(
+                                          (item, index) =>
+                                            item.payment_method +
+                                            (index ===
+                                            (OrderDetail?.payments &&
+                                            OrderDetail?.payments.length > 0
+                                              ? OrderDetail?.payments.length
+                                              : 0) -
+                                              1
+                                              ? ""
+                                              : ", ")
+                                        )}
+                                  </b>
+                                </span>
+                              }
+                              key="1"
+                              extra={
+                                <>
+                                  {OrderDetail?.payments && (
+                                    <div>
+                                      <span className="fixed-time text-field">
+                                        {ConvertUtcToLocalDate(
+                                          getDateLastPayment(OrderDetail),
+                                          "DD/MM/YYYY HH:mm"
+                                        )}
+                                      </span>
+                                    </div>
+                                  )}
+                                </>
+                              }
+                            >
+                              <Row gutter={24}>
+                                {OrderDetail?.payments &&
+                                  OrderDetail?.payments
+                                    .filter(
+                                      (payment) =>
+                                        payment.payment_method !== "cod"
+                                    )
+                                    .map((item, index) => (
+                                      <Col span={12}>
+                                        <p style={{ color: "#737373" }}>
+                                          {item.payment_method}
+                                        </p>
+                                        <b>
+                                          {formatCurrency(item.paid_amount)}
+                                        </b>
+                                      </Col>
+                                    ))}
+                              </Row>
+                            </Panel>
+                          )}
 
                           {OrderDetail &&
                             OrderDetail.fulfillments &&
@@ -1650,7 +1683,18 @@ const OrderDetail = () => {
               OrderDetail.fulfillments &&
               OrderDetail.fulfillments.length > 0 &&
               OrderDetail.fulfillments[0].shipment &&
-              OrderDetail.fulfillments[0].shipment?.cod === OrderDetail.total &&
+              OrderDetail.fulfillments[0].shipment?.cod ===
+                (OrderDetail?.fulfillments[0].shipment
+                  .shipping_fee_informed_to_customer
+                  ? OrderDetail?.fulfillments[0].shipment
+                      .shipping_fee_informed_to_customer
+                  : 0) +
+                  OrderDetail?.total_line_amount_after_line_discount -
+                  (OrderDetail?.discounts &&
+                  OrderDetail?.discounts.length > 0 &&
+                  OrderDetail?.discounts[0].amount
+                    ? OrderDetail?.discounts[0].amount
+                    : 0) &&
               checkPaymentStatusToShow(OrderDetail) !== 1 && (
                 <Card
                   className="margin-top-20"
@@ -1786,7 +1830,7 @@ const OrderDetail = () => {
             {/*--- end payment ---*/}
           </Col>
 
-          <Col xs={24} lg={6}>
+          <Col md={6}>
             <Card
               className="card-block card-block-normal"
               title={
@@ -1830,12 +1874,9 @@ const OrderDetail = () => {
                   <Col span={9}>Thời gian</Col>
                   <Col span={15}>
                     <span>
-                      {OrderDetail?.fulfillments &&
-                        OrderDetail?.fulfillments.map((item, index) =>
-                          moment(item.shipment?.created_date).format(
+                      {moment(OrderDetail?.created_date).format(
                             "DD/MM/YYYY HH:mm a"
-                          )
-                        )}
+                          )}
                     </span>
                   </Col>
                 </Row>
@@ -1917,7 +1958,7 @@ const OrderDetail = () => {
         title="Xác nhận xuất kho"
         text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " + confirmExportAndFinishValue()
+            ? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!) 
             : ""
         } không?`}
       />
@@ -1926,9 +1967,9 @@ const OrderDetail = () => {
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
         title="Xác nhận giao hàng thành công"
-        text={`Bạn có chắc xuất kho đơn giao hàng này ${
+        text={`Bạn có chắc đã giao đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " + confirmExportAndFinishValue()
+            ? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!) 
             : ""
         } không?`}
       />
