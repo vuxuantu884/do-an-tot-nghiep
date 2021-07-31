@@ -18,13 +18,41 @@ export const actionFetchListFulfillments = (
 };
 
 export const actionAddFulfillments = (
-  newItem: FulfillmentModel,
+  item: FulfillmentModel,
   handleData: () => void
 ) => {
   return {
-    type: SETTING_TYPES.fulfillment.add,
+    type: SETTING_TYPES.fulfillment.create,
     payload: {
-      newItem,
+      item,
+      handleData,
+    },
+  };
+};
+
+export const actionDeleteFulfillment = (
+  item: FulfillmentModel,
+  handleData: () => void
+) => {
+  return {
+    type: SETTING_TYPES.fulfillment.delete,
+    payload: {
+      item,
+      handleData,
+    },
+  };
+};
+
+export const actionEditFulfillment = (
+  id: number,
+  item: FulfillmentModel,
+  handleData: () => void
+) => {
+  return {
+    type: SETTING_TYPES.fulfillment.edit,
+    payload: {
+      id,
+      item,
       handleData,
     },
   };

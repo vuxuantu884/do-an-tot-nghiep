@@ -41,9 +41,10 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
 ) => {
   const { visible, onCreate, onCancel, modalAction, modalSingleOrderSource } =
     props;
+  const isCreateForm = modalAction === "create";
   const [form] = Form.useForm();
   const initialFormValue: ModalFormType =
-    modalAction === "edit" && modalSingleOrderSource
+    !isCreateForm && modalSingleOrderSource
       ? {
           channel_id: 4,
           company_id: modalSingleOrderSource.id,

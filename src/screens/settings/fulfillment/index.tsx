@@ -7,6 +7,8 @@ import CustomTableStyle2 from "component/table/CustomTableStyle2";
 import UrlConfig from "config/UrlConfig";
 import {
   actionAddFulfillments,
+  actionDeleteFulfillment,
+  actionEditFulfillment,
   actionFetchListFulfillments,
 } from "domain/actions/settings/fulfillment.action";
 import { modalActionType } from "model/modal/modal.model";
@@ -35,7 +37,7 @@ const SettingFulfillment: React.FC = () => {
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
-  const [modalSingleOrderSource, setModalSingleOrderSource] =
+  const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] =
     useState<FulfillmentModel | null>(null);
 
   const bootstrapReducer = useSelector(
@@ -131,13 +133,39 @@ const SettingFulfillment: React.FC = () => {
     }
   };
 
-  const handleCreateOrderServiceSubStatus = (value: FulfillmentModel) => {
-    dispatch(
-      actionAddFulfillments(value, () => {
-        setIsShowModalCreate(false);
-        gotoFirstPage();
-      })
-    );
+  const handleForm = {
+    create: (value: FulfillmentModel) => {
+      dispatch(
+        actionAddFulfillments(value, () => {
+          setIsShowModalCreate(false);
+          gotoFirstPage();
+        })
+      );
+    },
+    delete: (value: FulfillmentModel) => {
+      dispatch(
+        actionDeleteFulfillment(value, () => {
+          setIsShowModalCreate(false);
+          gotoFirstPage();
+        })
+      );
+    },
+    edit: (id: number, value: FulfillmentModel) => {
+      dispatch(
+        actionEditFulfillment(id, value, () => {
+          setIsShowModalCreate(false);
+          dispatch(
+            actionFetchListFulfillments(
+              params,
+              (data: FulfillmentResponseModel) => {
+                setListFulfillment(data.items);
+                setTotal(data.metadata.total);
+              }
+            )
+          );
+        })
+      );
+    },
   };
 
   useEffect(() => {
@@ -188,6 +216,16 @@ const SettingFulfillment: React.FC = () => {
               dataSource={listFulfillment}
               columns={columnFinal()}
               rowKey={(item: VariantResponse) => item.id}
+              onRow={(record: FulfillmentModel) => {
+                return {
+                  onClick: (event) => {
+                    console.log("record", record);
+                    setModalSingleServiceSubStatus(record);
+                    setModalAction("edit");
+                    setIsShowModalCreate(true);
+                  }, // click row
+                };
+              }}
             />
           </Card>
         )}
@@ -195,9 +233,11 @@ const SettingFulfillment: React.FC = () => {
           <ModalOrderServiceSubStatus
             visible={isShowModalCreate}
             modalAction={modalAction}
-            onCreate={(value) => handleCreateOrderServiceSubStatus(value)}
+            onCreate={(value) => handleForm.create(value)}
+            onDelete={(value) => handleForm.delete(value)}
+            onEdit={(id, value) => handleForm.edit(id, value)}
             onCancel={() => setIsShowModalCreate(false)}
-            modalSingleOrderSource={modalSingleOrderSource}
+            modalSingleServiceSubStatus={modalSingleServiceSubStatus}
           />
         )}
       </ContentContainer>

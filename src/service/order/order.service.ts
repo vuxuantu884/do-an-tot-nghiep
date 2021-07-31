@@ -10,12 +10,21 @@ import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { SourceResponse } from "model/response/order/source.response";
-import { DeliveryServiceResponse, OrderResponse, ShippingGHTKResponse } from "model/response/order/order.response";
-mport { OrderResponse } from "model/response/order/order.response";
+import {
+  DeliveryServiceResponse,
+  OrderResponse,
+  ShippingGHTKResponse,
+} from "model/response/order/order.response";
 import { generateQuery } from "utils/AppUtils";
-import { OrderSourceCompanyModel, OrderSourceModel } from "model/response/order/order-source.response";
+import {
+  OrderSourceCompanyModel,
+  OrderSourceModel,
+} from "model/response/order/order-source.response";
 import { BaseQuery } from "model/base/base.query";
-import { FulfillmentResponseModel } from "model/response/fulfillment.response";
+import {
+  FulfillmentModel,
+  FulfillmentResponseModel,
+} from "model/response/fulfillment.response";
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
@@ -38,7 +47,6 @@ export const getInfoDeliveryGHTK = (
 ): Promise<BaseResponse<ShippingGHTKResponse>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/shipping/ghtk/fees`, request);
 };
-
 
 export const getOrderDetail = (
   id: number
@@ -74,12 +82,21 @@ export const getDeliverieServices = (): Promise<
 > => {
   return BaseAxios.get(`${ApiConfig.ORDER}/shipping/delivery-services`);
 };
-export const getSourcesWithParams = (query: BaseQuery): Promise<BaseResponse<SourceResponse>> => {
+
+/**
+ * list Order Source: quản lý nguồn đơn hàng
+ */
+
+export const getSourcesWithParams = (
+  query: BaseQuery
+): Promise<BaseResponse<SourceResponse>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/sources?${queryString}`);
 };
 
-export const getListSourcesCompanies = (): Promise<BaseResponse<SourceResponse>> => {
+export const getListSourcesCompanies = (): Promise<
+  BaseResponse<SourceResponse>
+> => {
   return BaseAxios.get(`${ApiConfig.CONTENT}/companies`);
 };
 
@@ -89,13 +106,32 @@ export const createOrderSourceService = (
   return BaseAxios.post(`${ApiConfig.ORDER}/sources`, newOrderSource);
 };
 
-export const getOrderServiceSubStatus = (query: BaseQuery): Promise<BaseResponse<SourceResponse>> => {
+/**
+ * list Order SubStatus: Xử lý đơn hàng
+ */
+
+export const getOrderServiceSubStatus = (
+  query: BaseQuery
+): Promise<BaseResponse<SourceResponse>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/subStatus?${queryString}`);
 };
 
 export const createOrderServiceSubStatus = (
-  newOrderServiceSubStatus: FulfillmentResponseModel
-): Promise<BaseResponse<OrderSourceCompanyModel>> => {
-  return BaseAxios.post(`${ApiConfig.ORDER}/subStatus`, newOrderServiceSubStatus);
+  newOrderServiceSubStatus: FulfillmentModel
+): Promise<BaseResponse<FulfillmentResponseModel>> => {
+  return BaseAxios.post(
+    `${ApiConfig.ORDER}/subStatus`,
+    newOrderServiceSubStatus
+  );
+};
+
+export const editOrderServiceSubStatus = (
+  id: number,
+  orderServiceSubStatus: FulfillmentModel
+): Promise<BaseResponse<FulfillmentResponseModel>> => {
+  return BaseAxios.put(
+    `${ApiConfig.ORDER}/subStatus/${id}`,
+    orderServiceSubStatus
+  );
 };

@@ -8,6 +8,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { FulfillmentResponseModel } from "model/response/fulfillment.response";
 import {
   createOrderServiceSubStatus,
+  editOrderServiceSubStatus,
   getOrderServiceSubStatus,
 } from "service/order/order.service";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -39,10 +40,10 @@ function* listDataFulfillmentSaga(action: YodyAction) {
 }
 
 function* addFulfillmentSaga(action: YodyAction) {
-  const { newItem, handleData } = action.payload;
+  const { item, handleData } = action.payload;
   try {
     let response: BaseResponse<PageResponse<FulfillmentResponseModel>> =
-      yield call(createOrderServiceSubStatus, newItem);
+      yield call(createOrderServiceSubStatus, item);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -62,7 +63,58 @@ function* addFulfillmentSaga(action: YodyAction) {
   }
 }
 
+function* deleteFulfillmentSaga(action: YodyAction) {
+  const { item, handleData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<FulfillmentResponseModel>> =
+      yield call(createOrderServiceSubStatus, item);
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData();
+        showSuccess("Tạo mới thành công");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* editFulfillmentSaga(action: YodyAction) {
+  const { id, item, handleData } = action.payload;
+  console.log("item", item);
+  try {
+    let response: BaseResponse<PageResponse<FulfillmentResponseModel>> =
+      yield call(editOrderServiceSubStatus, id, item);
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData();
+        showSuccess("Cập nhật thành công");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* settingFulfillmentSaga() {
   yield takeLatest(SETTING_TYPES.fulfillment.listData, listDataFulfillmentSaga);
-  yield takeLatest(SETTING_TYPES.fulfillment.add, addFulfillmentSaga);
+  yield takeLatest(SETTING_TYPES.fulfillment.create, addFulfillmentSaga);
+  yield takeLatest(SETTING_TYPES.fulfillment.delete, deleteFulfillmentSaga);
+  yield takeLatest(SETTING_TYPES.fulfillment.edit, editFulfillmentSaga);
 }
