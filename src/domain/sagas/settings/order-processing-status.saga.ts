@@ -7,18 +7,18 @@ import { SETTING_TYPES } from "domain/types/settings.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
 import {
-  createOrderServiceSubStatus,
-  editOrderServiceSubStatus,
-  getOrderServiceSubStatus,
-} from "service/order/order.service";
+  createOrderProcessingStatus,
+  editOrderProcessingStatus,
+  getOrderProcessingStatus,
+} from "service/order/order-processing-status.service";
 import { showError, showSuccess } from "utils/ToastUtils";
 
-function* listDataFulfillmentSaga(action: YodyAction) {
+function* listDataOrderProcessingStatusSaga(action: YodyAction) {
   const { params, handleData } = action.payload;
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
-    > = yield call(getOrderServiceSubStatus, params);
+    > = yield call(getOrderProcessingStatus, params);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -40,12 +40,12 @@ function* listDataFulfillmentSaga(action: YodyAction) {
   }
 }
 
-function* addFulfillmentSaga(action: YodyAction) {
+function* addOrderProcessingStatusSaga(action: YodyAction) {
   const { item, handleData } = action.payload;
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
-    > = yield call(createOrderServiceSubStatus, item);
+    > = yield call(createOrderProcessingStatus, item);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -65,12 +65,12 @@ function* addFulfillmentSaga(action: YodyAction) {
   }
 }
 
-function* deleteFulfillmentSaga(action: YodyAction) {
+function* deleteOrderProcessingStatusSaga(action: YodyAction) {
   const { item, handleData } = action.payload;
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
-    > = yield call(createOrderServiceSubStatus, item);
+    > = yield call(createOrderProcessingStatus, item);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -90,13 +90,13 @@ function* deleteFulfillmentSaga(action: YodyAction) {
   }
 }
 
-function* editFulfillmentSaga(action: YodyAction) {
+function* editOrderProcessingStatusSaga(action: YodyAction) {
   const { id, item, handleData } = action.payload;
   console.log("item", item);
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
-    > = yield call(editOrderServiceSubStatus, id, item);
+    > = yield call(editOrderProcessingStatus, id, item);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -116,21 +116,21 @@ function* editFulfillmentSaga(action: YodyAction) {
   }
 }
 
-export function* settingFulfillmentSaga() {
+export function* settingOrderProcessingStatusSaga() {
   yield takeLatest(
     SETTING_TYPES.orderProcessingStatus.listData,
-    listDataFulfillmentSaga
+    listDataOrderProcessingStatusSaga
   );
   yield takeLatest(
     SETTING_TYPES.orderProcessingStatus.create,
-    addFulfillmentSaga
+    addOrderProcessingStatusSaga
   );
   yield takeLatest(
     SETTING_TYPES.orderProcessingStatus.delete,
-    deleteFulfillmentSaga
+    deleteOrderProcessingStatusSaga
   );
   yield takeLatest(
     SETTING_TYPES.orderProcessingStatus.edit,
-    editFulfillmentSaga
+    editOrderProcessingStatusSaga
   );
 }

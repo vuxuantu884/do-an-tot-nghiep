@@ -11,7 +11,6 @@ import {
   OrderSourceModelResponse,
 } from "model/response/order/order-source.response";
 import {
-  createOrderServiceSubStatus,
   getListSourcesCompanies,
   getSourcesWithParams,
 } from "service/order/order.service";
@@ -74,7 +73,7 @@ function* addOrderSource(action: YodyAction) {
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
-    > = yield call(createOrderServiceSubStatus, newItem);
+    > = yield call(getListSourcesCompanies);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -94,7 +93,7 @@ function* addOrderSource(action: YodyAction) {
   }
 }
 
-export function* settingOrderSourcesSaga() {
+export function* settingOrderSourceSaga() {
   yield takeLatest(SETTING_TYPES.orderSources.listData, listAllOrderSourceSaga);
   yield takeLatest(
     SETTING_TYPES.orderSources.listSourceCompany,

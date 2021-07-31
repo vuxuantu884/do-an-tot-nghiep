@@ -3,7 +3,7 @@ import { appSaga } from "./app.saga";
 import { colorSaga } from "./product/color.saga";
 import { supplierSagas } from "./core/supplier.saga";
 import OrderOnlineSaga from "./order/order.saga";
-import {storeSaga} from "./core/store.saga";
+import { storeSaga } from "./core/store.saga";
 import { authSaga } from "./auth/auth.saga";
 import { bootstrapSaga } from "./content/bootstrap.saga";
 import { contentSaga } from "./content/content.saga";
@@ -16,8 +16,8 @@ import customerSagas from "./customer/customer.saga";
 import { roleSaga } from "./auth/role.saga";
 import { permissionSaga } from "./auth/permission.saga";
 import { poSaga } from "./po/po.saga";
-import { settingFulfillmentSaga } from "./settings/fulfillment.saga";
-import { settingOrderSourcesSaga } from "./settings/order-sources.saga";
+import { settingOrderProcessingStatusSaga } from "./settings/order-processing-status.saga";
+import { settingOrderSourceSaga } from "./settings/order-source.saga";
 function* rootSaga() {
   yield all([
     appSaga(),
@@ -37,8 +37,8 @@ function* rootSaga() {
     roleSaga(),
     permissionSaga(),
     poSaga(),
-    settingFulfillmentSaga(),
-    settingOrderSourcesSaga(),
+    settingOrderProcessingStatusSaga(),
+    settingOrderSourceSaga(),
   ]);
 }
 
