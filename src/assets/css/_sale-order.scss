@@ -1153,3 +1153,11 @@
   }
 }
 
+.orders-update-shipment{
+  .ant-collapse-content-box{
+    padding: 0;
+  }
+  .ant-collapse>.ant-collapse-item.ant-collapse-no-arrow>.ant-collapse-header {
+    padding-left: 0;
+}
+}

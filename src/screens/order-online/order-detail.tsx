@@ -752,7 +752,7 @@ console.log(totalPaid)
             OrderDetail.fulfillments.length > 0 &&
             OrderDetail?.fulfillments[0].shipment !== null ? (
               <Card
-                className="margin-top-20"
+                className="margin-top-20 orders-update-shipment"
                 title={
                   <Space>
                     <div className="d-flex" style={{ marginTop: "5px" }}>
@@ -831,8 +831,8 @@ console.log(totalPaid)
                       className="orders-timeline-custom"
                       showArrow={false}
                       header={
-                        <Row gutter={24}>
-                          <Col style={{ padding: "0 4px" }}>
+                        <Row >
+                          <Col >
                             <p
                               ref={copyRef}
                               className="text-field"
@@ -886,7 +886,7 @@ console.log(totalPaid)
                       }
                       key="1"
                     >
-                      <Row gutter={24}>
+                      <Row >
                         <Col md={6}>
                           <Col span={24}>
                             <p className="text-field">Đối tác giao hàng:</p>
@@ -944,13 +944,13 @@ console.log(totalPaid)
                         </Col>
                       </Row>
                       <Row
-                        gutter={24}
+                        
                         style={{ marginTop: 12, marginBottom: 0 }}
                       >
                         <Col span={24}>
                           <p
                             className="text-field"
-                            style={{ padding: "0px 12px" }}
+                           
                           >
                             {OrderDetail?.items.reduce(
                               (a: any, b: any) => a + b.quantity,
