@@ -1,12 +1,13 @@
 import { SETTING_TYPES } from "domain/types/settings.type";
 import {
   OrderSourceCompanyModel,
-  OrderSourceModelResponse,
+  OrderSourceModel,
+  OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 
 export const actionFetchListOrderSources = (
   params = {},
-  handleData: (data: OrderSourceModelResponse) => void
+  handleData: (data: OrderSourceResponseModel) => void
 ) => {
   return {
     type: SETTING_TYPES.orderSources.listData,
@@ -23,6 +24,44 @@ export const actionFetchListOrderSourceCompanies = (
   return {
     type: SETTING_TYPES.orderSources.listSourceCompany,
     payload: {
+      handleData,
+    },
+  };
+};
+
+export const actionAddOrderSource = (
+  item: OrderSourceModel,
+  handleData: () => void
+) => {
+  return {
+    type: SETTING_TYPES.orderSources.create,
+    payload: {
+      item,
+      handleData,
+    },
+  };
+};
+
+export const actionEditOrderSource = (
+  id: number,
+  item: OrderSourceModel,
+  handleData: () => void
+) => {
+  return {
+    type: SETTING_TYPES.orderSources.edit,
+    payload: {
+      id,
+      item,
+      handleData,
+    },
+  };
+};
+
+export const actionDeleteOrderSource = (id: number, handleData: () => void) => {
+  return {
+    type: SETTING_TYPES.orderSources.delete,
+    payload: {
+      id,
       handleData,
     },
   };

@@ -12,7 +12,7 @@ import {
 import { modalActionType } from "model/modal/modal.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import ModalDeleteConfirm from "../ModalDeleteConfirm";
 import { StyledComponent } from "./styles";
@@ -20,8 +20,8 @@ import { StyledComponent } from "./styles";
 type ModalAddOrderSourceType = {
   visible?: boolean;
   onCreate: (value: OrderProcessingStatusModel) => void;
-  onDelete: (value: OrderProcessingStatusModel) => void;
   onEdit: (id: number, value: OrderProcessingStatusModel) => void;
+  onDelete: (value: OrderProcessingStatusModel) => void;
   onCancel: () => void;
   title?: string | React.ReactNode;
   subTitle?: string | React.ReactNode;
@@ -181,6 +181,11 @@ const ModalOrderProcessingStatus: React.FC<ModalAddOrderSourceType> = (
       );
     }
   };
+
+  useEffect(() => {
+    form.resetFields();
+  }, [form, modalSingleServiceSubStatus]);
+
   return (
     <Modal
       width="600px"
@@ -194,17 +199,6 @@ const ModalOrderProcessingStatus: React.FC<ModalAddOrderSourceType> = (
           : "Cập nhật trạng thái xử lý đơn hàng"
       }
       footer={renderModalFooter(form)}
-      onOk={() => {
-        form
-          .validateFields()
-          .then((values: OrderProcessingStatusModel) => {
-            form.resetFields();
-            onCreate(values);
-          })
-          .catch((info) => {
-            console.log("Validate Failed:", info);
-          });
-      }}
       onCancel={() => {
         form.resetFields();
         onCancel();

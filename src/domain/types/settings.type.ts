@@ -8,6 +8,8 @@ export const SETTING_TYPES = {
   orderSources: {
     listData: "LIST_DATA_ORDER_SOURCES",
     listSourceCompany: "LIST_SOURCE_COMPANY",
-    add: "ADD_NEW_SOURCE",
+    create: "CREATE_ORDER_SOURCE",
+    delete: "DELETE_ORDER_SOURCE",
+    edit: "EDIT_ORDER_SOURCE",
   },
 };

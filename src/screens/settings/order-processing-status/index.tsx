@@ -26,7 +26,7 @@ import { StyledComponent } from "./styles";
 
 const SettingOrderProcessingStatus: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
-  const [isShowModalCreate, setIsShowModalCreate] = useState(false);
+  const [isShowModal, setIsShowModal] = useState(false);
   const dispatch = useDispatch();
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
@@ -112,7 +112,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
         size="large"
         onClick={() => {
           setModalAction("create");
-          setIsShowModalCreate(true);
+          setIsShowModal(true);
         }}
         icon={<PlusOutlined />}
       >
@@ -135,16 +135,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
     create: (value: OrderProcessingStatusModel) => {
       dispatch(
         actionAddOrderProcessingStatus(value, () => {
-          setIsShowModalCreate(false);
-          gotoFirstPage();
-        })
-      );
-    },
-    delete: (value: OrderProcessingStatusModel) => {
-      console.log("value", value);
-      dispatch(
-        actionDeleteOrderProcessingStatus(value.id, () => {
-          setIsShowModalCreate(false);
+          setIsShowModal(false);
           gotoFirstPage();
         })
       );
@@ -152,7 +143,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
     edit: (id: number, value: OrderProcessingStatusModel) => {
       dispatch(
         actionEditOrderProcessingStatus(id, value, () => {
-          setIsShowModalCreate(false);
+          setIsShowModal(false);
           dispatch(
             actionFetchListOrderProcessingStatus(
               params,
@@ -162,6 +153,15 @@ const SettingOrderProcessingStatus: React.FC = () => {
               }
             )
           );
+        })
+      );
+    },
+    delete: (value: OrderProcessingStatusModel) => {
+      console.log("value", value);
+      dispatch(
+        actionDeleteOrderProcessingStatus(value.id, () => {
+          setIsShowModal(false);
+          gotoFirstPage();
         })
       );
     },
@@ -224,21 +224,21 @@ const SettingOrderProcessingStatus: React.FC = () => {
                     console.log("record", record);
                     setModalSingleServiceSubStatus(record);
                     setModalAction("edit");
-                    setIsShowModalCreate(true);
+                    setIsShowModal(true);
                   }, // click row
                 };
               }}
             />
           </Card>
         )}
-        {isShowModalCreate && (
+        {isShowModal && (
           <ModalOrderProcessingStatus
-            visible={isShowModalCreate}
+            visible={isShowModal}
             modalAction={modalAction}
             onCreate={(value) => handleForm.create(value)}
-            onDelete={(value) => handleForm.delete(value)}
             onEdit={(id, value) => handleForm.edit(id, value)}
-            onCancel={() => setIsShowModalCreate(false)}
+            onDelete={(value) => handleForm.delete(value)}
+            onCancel={() => setIsShowModal(false)}
             modalSingleServiceSubStatus={modalSingleServiceSubStatus}
           />
         )}

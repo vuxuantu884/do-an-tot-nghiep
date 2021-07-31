@@ -1,16 +1,21 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
-import ModalAddOrderSource from "component/modal/ModalAddOrderSource";
+import ModalOrderSource from "component/modal/ModalOrderSource";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTableStyle2 from "component/table/CustomTableStyle2";
 import UrlConfig from "config/UrlConfig";
-import { actionFetchListOrderSources } from "domain/actions/settings/order-sources.action";
+import {
+  actionAddOrderSource,
+  actionDeleteOrderSource,
+  actionEditOrderSource,
+  actionFetchListOrderSources,
+} from "domain/actions/settings/order-sources.action";
 import { modalActionType } from "model/modal/modal.model";
 import { VariantResponse } from "model/product/product.model";
 import {
   OrderSourceModel,
-  OrderSourceModelResponse,
+  OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -21,7 +26,7 @@ import { StyledComponent } from "./styles";
 
 const OrderSources: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
-  const [isShowModalCreate, setIsShowModalCreate] = useState(false);
+  const [isShowModal, setIsShowModal] = useState(false);
   const dispatch = useDispatch();
   const [listOrderSources, setListOrderSources] = useState<OrderSourceModel[]>(
     []
@@ -91,7 +96,7 @@ const OrderSources: React.FC = () => {
         size="large"
         onClick={() => {
           setModalAction("create");
-          setIsShowModalCreate(true);
+          setIsShowModal(true);
         }}
         icon={<PlusOutlined />}
       >
@@ -100,30 +105,50 @@ const OrderSources: React.FC = () => {
     );
   };
 
-  const handleCreateOrderSource = (value: OrderSourceModel) => {
-    console.log("value", value);
-    // createOrderSourceService(value)
-    //   .then((response) => {
-    //     console.log("response", response);
-    //     switch (response.code) {
-    //       case HttpStatus.SUCCESS:
-    //         params.page = 1;
-    //         setParams({ ...params });
-    //         break;
-    //       case HttpStatus.UNAUTHORIZED:
-    //         dispatch(unauthorizedAction());
-    //         break;
-    //       default:
-    //         response.errors.forEach((e) => showError(e));
-    //         break;
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.log("error", error);
-    //   })
-    //   .finally(() => {
-    //     setIsShowModalCreate(false);
-    //   });
+  const gotoFirstPage = () => {
+    const newParams = {
+      ...params,
+      page: 1,
+    };
+    setParams({ ...newParams });
+    let queryParam = generateQuery(newParams);
+    history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
+  };
+
+  const handleForm = {
+    create: (value: OrderSourceModel) => {
+      dispatch(
+        actionAddOrderSource(value, () => {
+          setIsShowModal(false);
+          gotoFirstPage();
+        })
+      );
+    },
+    edit: (id: number, value: OrderSourceModel) => {
+      dispatch(
+        actionEditOrderSource(id, value, () => {
+          setIsShowModal(false);
+          dispatch(
+            actionFetchListOrderSources(
+              params,
+              (data: OrderSourceResponseModel) => {
+                setListOrderSources(data.items);
+                setTotal(data.metadata.total);
+              }
+            )
+          );
+        })
+      );
+    },
+    delete: (value: OrderSourceModel) => {
+      console.log("value", value);
+      dispatch(
+        actionDeleteOrderSource(value.id, () => {
+          setIsShowModal(false);
+          gotoFirstPage();
+        })
+      );
+    },
   };
 
   useEffect(() => {
@@ -131,7 +156,7 @@ const OrderSources: React.FC = () => {
      * when dispatch action, call function (handleData) to handle data
      */
     dispatch(
-      actionFetchListOrderSources(params, (data: OrderSourceModelResponse) => {
+      actionFetchListOrderSources(params, (data: OrderSourceResponseModel) => {
         console.log("data", data);
         setListOrderSources(data.items);
         setTotal(data.metadata.total);
@@ -179,21 +204,22 @@ const OrderSources: React.FC = () => {
                 return {
                   onClick: (event) => {
                     console.log("record", record);
-                    setModalSingleOrderSource(record);
                     setModalAction("edit");
-                    setIsShowModalCreate(true);
+                    setModalSingleOrderSource(record);
+                    setIsShowModal(true);
                   }, // click row
                 };
               }}
             />
           </Card>
         )}
-        <ModalAddOrderSource
-          visible={isShowModalCreate}
+        <ModalOrderSource
+          visible={isShowModal}
           modalAction={modalAction}
-          onUpdate={(value) => handleCreateOrderSource(value)}
-          onCreate={(value) => handleCreateOrderSource(value)}
-          onCancel={() => setIsShowModalCreate(false)}
+          onCreate={(value) => handleForm.create(value)}
+          onEdit={(id, value) => handleForm.edit(id, value)}
+          onDelete={(value) => handleForm.delete(value)}
+          onCancel={() => setIsShowModal(false)}
           modalSingleOrderSource={modalSingleOrderSource}
         />
       </ContentContainer>

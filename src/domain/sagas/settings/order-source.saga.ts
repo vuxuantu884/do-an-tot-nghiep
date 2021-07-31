@@ -8,7 +8,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
 import {
   OrderSourceModel,
-  OrderSourceModelResponse,
+  OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import {
   getListSourcesCompanies,
@@ -20,7 +20,7 @@ function* listAllOrderSourceSaga(action: YodyAction) {
   console.log("action", action);
   const { params, handleData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<OrderSourceModelResponse>> =
+    let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
       yield call(getSourcesWithParams, params);
 
     switch (response.code) {
@@ -99,5 +99,5 @@ export function* settingOrderSourceSaga() {
     SETTING_TYPES.orderSources.listSourceCompany,
     listAllOrderSourceCompaniesSaga
   );
-  yield takeLatest(SETTING_TYPES.orderSources.add, addOrderSource);
+  yield takeLatest(SETTING_TYPES.orderSources.create, addOrderSource);
 }
