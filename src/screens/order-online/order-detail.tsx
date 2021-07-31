@@ -429,20 +429,9 @@ console.log(totalPaid)
       OrderDetail?.fulfillments[0].shipment &&
       OrderDetail?.fulfillments[0].shipment.cod
     ){
-      return (
-        OrderDetail?.fulfillments[0].shipment
-          .cod +
-        shippingFeeInformedCustomer -
-        (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
-        (OrderDetail?.discounts &&
-        OrderDetail?.discounts.length > 0 &&
-        OrderDetail?.discounts[0].amount
-          ? OrderDetail?.discounts[0].amount
-          : 0)
-      );
-    }
-  };
-  console.log(confirmExportAndFinishValue())
+      return OrderDetail?.fulfillments[0].shipment.cod
+    };
+  }
   //#region shiment
   let initialFormUpdateShipment: UpdateShipmentRequest = {
     order_id: null,
