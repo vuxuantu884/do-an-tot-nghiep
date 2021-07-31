@@ -147,7 +147,7 @@ const OrderDetail = () => {
     useState(false);
 
   //#endregion
-
+console.log(totalPaid)
   //#region Master
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
@@ -502,6 +502,10 @@ const OrderDetail = () => {
         value.cod = takeHelperValue;
       }
     }
+    if(OrderDetail?.status === "draft" && customerNeedToPayValue === totalPaid){
+      value.cod = customerNeedToPayValue
+    }
+
     FulFillmentRequest.shipment = value;
     if (shippingFeeInformedCustomer !== null) {
       FulFillmentRequest.shipping_fee_informed_to_customer =
@@ -693,6 +697,8 @@ const OrderDetail = () => {
   };
 
   const customerNeedToPayValue = customerNeedToPay();
+  console.log(customerNeedToPayValue)
+  console.log(OrderDetail)
   // end
   return (
     <ContentContainer
@@ -1477,7 +1483,7 @@ const OrderDetail = () => {
                                       OrderDetail?.payments
                                         .filter(
                                           (payment, index) =>
-                                            payment.payment_method !== "cod"
+                                            payment.payment_method !== "cod" && payment.amount
                                         )
                                         .map(
                                           (item, index) =>
@@ -1518,7 +1524,7 @@ const OrderDetail = () => {
                                   OrderDetail?.payments
                                     .filter(
                                       (payment) =>
-                                        payment.payment_method !== "cod"
+                                        payment.payment_method !== "cod" && payment.amount
                                     )
                                     .map((item, index) => (
                                       <Col span={6}>
@@ -1623,7 +1629,12 @@ const OrderDetail = () => {
                       showPartialPayment={true}
                       amount={
                         OrderDetail.total_line_amount_after_line_discount -
-                        getAmountPayment(OrderDetail.payments)
+                        getAmountPayment(OrderDetail.payments) - 
+                        (OrderDetail?.discounts &&
+                        OrderDetail?.discounts.length > 0 &&
+                        OrderDetail?.discounts[0].amount
+                          ? OrderDetail?.discounts[0].amount
+                          : 0)
                       }
                       order_id={OrderDetail.id}
                       orderDetail={OrderDetail}
