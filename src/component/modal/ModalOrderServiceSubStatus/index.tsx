@@ -120,14 +120,7 @@ const ModalOrderServiceSubStatus: React.FC<ModalAddOrderSourceType> = (
     const content = () => {
       if (isCreateServiceSubStatus) {
         return (
-          <div className="footer footerCreate">
-            <Button
-              key="submit"
-              type="primary"
-              onClick={() => formAction.create(form)}
-            >
-              Thêm
-            </Button>
+          <div className="footer footer__create">
             <Button
               key="exit"
               type="default"
@@ -135,11 +128,18 @@ const ModalOrderServiceSubStatus: React.FC<ModalAddOrderSourceType> = (
             >
               Thoát
             </Button>
+            <Button
+              key="submit"
+              type="primary"
+              onClick={() => formAction.create(form)}
+            >
+              Thêm
+            </Button>
           </div>
         );
       }
       return (
-        <div className="footer footerEdit">
+        <div className="footer footer__edit">
           <div className="footer__left">
             <Button
               key="delete"
@@ -178,7 +178,11 @@ const ModalOrderServiceSubStatus: React.FC<ModalAddOrderSourceType> = (
       visible={visible}
       okText="Thêm"
       cancelText="Thoát"
-      title="Thêm trạng thái xử lý đơn hàng"
+      title={
+        isCreateServiceSubStatus
+          ? "Thêm trạng thái xử lý đơn hàng"
+          : "Cập nhật trạng thái xử lý đơn hàng"
+      }
       footer={renderModalFooter(form)}
       onOk={() => {
         form
@@ -282,7 +286,8 @@ const ModalOrderServiceSubStatus: React.FC<ModalAddOrderSourceType> = (
             onOk={() => formAction.delete(modalSingleServiceSubStatus)}
             onCancel={() => setIsShowConfirmDelete(false)}
           >
-            Bạn có chắc chắn muốn xóa ?
+            Bạn có chắc chắn muốn xóa "
+            <strong>{modalSingleServiceSubStatus.sub_status}</strong>" ?
           </Modal>
         )}
       </StyledComponent>
