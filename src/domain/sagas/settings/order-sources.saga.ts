@@ -5,28 +5,30 @@ import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { SETTING_TYPES } from "domain/types/settings.type";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderSourceModel, OrderSourceModelResponse } from "model/response/order/order-source.response";
+import { FulfillmentResponseModel } from "model/response/fulfillment.response";
 import {
+  OrderSourceModel,
+  OrderSourceModelResponse,
+} from "model/response/order/order-source.response";
+import {
+  createOrderServiceSubStatus,
   getListSourcesCompanies,
-  getSourcesWithParams
+  getSourcesWithParams,
 } from "service/order/order.service";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listAllOrderSourceSaga(action: YodyAction) {
   console.log("action", action);
   const { params, handleData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<OrderSourceModelResponse>> = yield call(
-      getSourcesWithParams,
-      params
-    );
-    console.log("response", response);
+    let response: BaseResponse<PageResponse<OrderSourceModelResponse>> =
+      yield call(getSourcesWithParams, params);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
         /**
-        * call function handleData in payload, variables are taken from the response -> use when dispatch
-        */
+         * call function handleData in payload, variables are taken from the response -> use when dispatch
+         */
         handleData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -43,7 +45,7 @@ function* listAllOrderSourceSaga(action: YodyAction) {
 }
 
 function* listAllOrderSourceCompaniesSaga(action: YodyAction) {
-  const {handleData} = action.payload;
+  const { handleData } = action.payload;
   try {
     let response: BaseResponse<PageResponse<OrderSourceModel>> = yield call(
       getListSourcesCompanies
@@ -67,10 +69,35 @@ function* listAllOrderSourceCompaniesSaga(action: YodyAction) {
   }
 }
 
+function* addOrderSource(action: YodyAction) {
+  const { newItem, handleData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<FulfillmentResponseModel>> =
+      yield call(createOrderServiceSubStatus, newItem);
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData();
+        showSuccess("Tạo mới thành công");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* settingOrderSourcesSaga() {
   yield takeLatest(SETTING_TYPES.orderSources.listData, listAllOrderSourceSaga);
   yield takeLatest(
     SETTING_TYPES.orderSources.listSourceCompany,
     listAllOrderSourceCompaniesSaga
   );
+  yield takeLatest(SETTING_TYPES.orderSources.add, addOrderSource);
 }

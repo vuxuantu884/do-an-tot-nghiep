@@ -188,16 +188,14 @@ const OrderSources: React.FC = () => {
             />
           </Card>
         )}
-        {isShowModalCreate && (
-          <ModalAddOrderSource
-            visible={isShowModalCreate}
-            modalAction={modalAction}
-            onUpdate={(value) => handleCreateOrderSource(value)}
-            onCreate={(value) => handleCreateOrderSource(value)}
-            onCancel={() => setIsShowModalCreate(false)}
-            modalSingleOrderSource={modalSingleOrderSource}
-          />
-        )}
+        <ModalAddOrderSource
+          visible={isShowModalCreate}
+          modalAction={modalAction}
+          onUpdate={(value) => handleCreateOrderSource(value)}
+          onCreate={(value) => handleCreateOrderSource(value)}
+          onCancel={() => setIsShowModalCreate(false)}
+          modalSingleOrderSource={modalSingleOrderSource}
+        />
       </ContentContainer>
     </StyledComponent>
   );

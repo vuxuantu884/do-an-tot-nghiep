@@ -13,7 +13,7 @@ import { OrderResponse } from "model/response/order/order.response";
 import { generateQuery } from "utils/AppUtils";
 import { OrderSourceCompanyModel, OrderSourceModel } from "model/response/order/order-source.response";
 import { BaseQuery } from "model/base/base.query";
-import { FulfillmentModel } from "model/response/fulfillment.response";
+import { FulfillmentResponseModel } from "model/response/fulfillment.response";
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources`);
@@ -66,7 +66,7 @@ export const getSourcesWithParams = (query: BaseQuery): Promise<BaseResponse<Sou
 };
 
 export const getListSourcesCompanies = (): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
+  return BaseAxios.get(`${ApiConfig.CONTENT}/companies`);
 };
 
 export const createOrderSourceService = (
@@ -81,7 +81,7 @@ export const getOrderServiceSubStatus = (query: BaseQuery): Promise<BaseResponse
 };
 
 export const createOrderServiceSubStatus = (
-  newOrderServiceSubStatus: FulfillmentModel
+  newOrderServiceSubStatus: FulfillmentResponseModel
 ): Promise<BaseResponse<OrderSourceCompanyModel>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/subStatus`, newOrderServiceSubStatus);
 };

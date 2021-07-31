@@ -23,11 +23,19 @@ type ModalAddOrderSourceType = {
 };
 
 type ModalFormType = {
+  channel_id: number;
+  company_id?: number;
   id?: number;
   name?: string;
   is_active?: boolean;
   is_default?: boolean;
 };
+
+/**
+ * now default company_id: 1, company: "YODY"
+ * channel_id = 4, channel = Admin
+ * hidden 2 fields company_id and company
+ */
 const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
   props: ModalAddOrderSourceType
 ) => {
@@ -37,13 +45,17 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
   const initialFormValue: ModalFormType =
     modalAction === "edit" && modalSingleOrderSource
       ? {
+          channel_id: 4,
+          company_id: modalSingleOrderSource.id,
           id: modalSingleOrderSource.id,
           name: modalSingleOrderSource.name,
           is_active: modalSingleOrderSource.is_active,
           is_default: modalSingleOrderSource.is_default,
         }
       : {
-          id: 3,
+          channel_id: 4,
+          company_id: undefined,
+          id: undefined,
           name: "",
           is_active: false,
           is_default: false,
@@ -56,14 +68,14 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
 
   useEffect(() => {
     // if(modalAction !== 'edit') {
-      /**
-       * when dispatch action, call function (handleData) to handle data
-       */
-      dispatch(
-        actionFetchListOrderSourceCompanies((data: OrderSourceCompanyModel[]) => {
-          setListOrderCompanies(data);
-        })
-      );
+    /**
+     * when dispatch action, call function (handleData) to handle data
+     */
+    dispatch(
+      actionFetchListOrderSourceCompanies((data: OrderSourceCompanyModel[]) => {
+        setListOrderCompanies(data);
+      })
+    );
     // }
   }, [dispatch, modalAction]);
 
@@ -97,9 +109,16 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
         layout="vertical"
         initialValues={initialFormValue}
       >
+        <Form.Item name="channel_id" label="channel_id" hidden>
+          <Input
+            type="number"
+            placeholder="channel_id"
+            style={{ width: "100%" }}
+          />
+        </Form.Item>
         {listOrderCompanies?.length && (
           <Form.Item
-            name="id"
+            name="company_id"
             label="Doanh nghiệp"
             rules={[
               { required: true, message: "Vui lòng chọn doanh nghiệp !" },
@@ -117,7 +136,7 @@ const ModalAddOrderSource: React.FC<ModalAddOrderSourceType> = (
                       value={singleOrderCompany.id}
                       key={singleOrderCompany.id}
                     >
-                      {singleOrderCompany.company}
+                      {singleOrderCompany.name}
                     </Select.Option>
                   );
                 })}
