@@ -378,14 +378,26 @@ const OrderDetail = () => {
       OrderDetail?.fulfillments &&
       OrderDetail?.fulfillments.length > 0 &&
       OrderDetail?.fulfillments[0].shipment &&
-      OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+      OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED &&
+      OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type != "pick_at_store"
     ) {
       fulfillmentTypeOrderRequest(1);
-    } else if (stepsStatusValue === FulFillmentStatus.PICKED) {
+    } else if (stepsStatusValue === FulFillmentStatus.PICKED || (OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+      && OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type == "pick_at_store")) {
       fulfillmentTypeOrderRequest(2);
-    } else if (stepsStatusValue === FulFillmentStatus.PACKED) {
+    } else if (stepsStatusValue === FulFillmentStatus.PACKED && OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type == "pick_at_store") {
       fulfillmentTypeOrderRequest(3);
-    } else if (stepsStatusValue === FulFillmentStatus.SHIPPING) {
+    } else if (stepsStatusValue === FulFillmentStatus.SHIPPING || (OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].status === FulFillmentStatus.PACKED && 
+      OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type == "pick_at_store")) {
       fulfillmentTypeOrderRequest(4);
     }
   };
@@ -829,7 +841,47 @@ const OrderDetail = () => {
                       }
                       key="1"
                     >
+                      {OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type == "pick_at_store"?
+
+                    (
                       <Row gutter={24}>
+                        <Col md={6}>
+                          <Col span={24}>
+                            <p className="text-field">Tên cửa hàng:</p>
+                          </Col>
+                          <Col span={24}>
+                            <b>
+                              {OrderDetail?.store}
+                            </b>
+                          </Col>
+                        </Col>
+
+                        <Col md={6}>
+                          <Col span={24}>
+                            <p className="text-field">Số điện thoại:</p>
+                          </Col>
+                          <Col span={24}>
+                            <b className="text-field">
+                              {OrderDetail?.store_phone_number}
+                            </b>
+                          </Col>
+                        </Col>
+
+                        <Col md={6}>
+                          <Col span={24}>
+                            <p className="text-field">Địa chỉ:</p>
+                          </Col>
+                          <Col span={24}>
+                            <b className="text-field">
+                              {OrderDetail?.store_full_address}
+                            </b>
+                          </Col>
+                        </Col>
+                      </Row>
+                      ):
+
+
+                      (<Row gutter={24}>
                         <Col md={6}>
                           <Col span={24}>
                             <p className="text-field">Đối tác giao hàng:</p>
@@ -885,7 +937,9 @@ const OrderDetail = () => {
                             </b>
                           </Col>
                         </Col>
-                      </Row>
+                      </Row>)
+
+                      }
                       <Row
                         gutter={24}
                         style={{ marginTop: 12, marginBottom: 0 }}
@@ -917,7 +971,18 @@ const OrderDetail = () => {
                     Hủy
                   </Button>
 
-                  {stepsStatusValue === OrderStatus.FINALIZED && (
+                  {stepsStatusValue === OrderStatus.FINALIZED && OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type == "pick_at_store" &&(
+                    <Button
+                      type="primary"
+                      style={{ marginLeft: "10px" }}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={onOkShippingConfirm}
+                    >
+                      Nhặt hàng và đóng gói
+                    </Button>
+                  )}
+
+                  {stepsStatusValue === OrderStatus.FINALIZED&& OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type != "pick_at_store" && (
                     <Button
                       type="primary"
                       style={{ marginLeft: "10px" }}
@@ -938,7 +1003,7 @@ const OrderDetail = () => {
                       Đóng gói
                     </Button>
                   )}
-                  {stepsStatusValue === FulFillmentStatus.PACKED && (
+                  {stepsStatusValue === FulFillmentStatus.PACKED && OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type != "pick_at_store" && (
                     <Button
                       type="primary"
                       style={{ marginLeft: "10px" }}
@@ -948,6 +1013,18 @@ const OrderDetail = () => {
                       Xuất kho
                     </Button>
                   )}
+
+                  {stepsStatusValue === FulFillmentStatus.PACKED && OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type == "pick_at_store" && (
+                    <Button
+                      type="primary"
+                      style={{ marginLeft: "10px" }}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={() => setIsvibleShippingConfirm(true)}
+                    >
+                      Xuất kho và giao hàng
+                    </Button>
+                  )}
+
                   {stepsStatusValue === FulFillmentStatus.SHIPPING && (
                     <Button
                       type="primary"

@@ -5,6 +5,8 @@ export interface OrderResponse extends BaseObject {
   company: string | null;
   store_id: number | null;
   store: string | null;
+  store_phone_number: string | null;
+  store_full_address: string | null;
   status: string | null;
   price_type: string | null;
   tax_treatment: string | null;

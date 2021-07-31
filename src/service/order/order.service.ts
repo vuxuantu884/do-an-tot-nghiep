@@ -5,7 +5,7 @@ import {
   UpdateLineFulFillment,
   UpdatePaymentRequest,
 } from "model/request/order.request";
-import BaseAxios from "base/BaseAxios";
+import BaseAxios from "base/BaseAxiosLocal";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { SourceResponse } from "model/response/order/source.response";
