@@ -25,6 +25,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = ( props: DiscountGroupProps 
 
 const ChangeValueDiscount = useCallback(
       (v) => {
+      if(v < 0) v = -v
       let _items = [...props.items]; 
       let _item = _items[props.index].discount_items[0];
       let _price = _items[props.index].price;

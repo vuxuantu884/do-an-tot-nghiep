@@ -1,6 +1,5 @@
-import { EditOutlined, SearchOutlined } from "@ant-design/icons";
+import { EditOutlined } from "@ant-design/icons";
 import {
-  AutoComplete,
   Button,
   Card,
   Checkbox,
@@ -20,7 +19,6 @@ import {
 } from "antd";
 import classNames from "classnames";
 import imgDefIcon from "assets/img/img-def.svg";
-import { RefSelectProps } from "antd/lib/select";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -31,31 +29,35 @@ import {
 } from "model/purchase-order/purchase-item.model";
 import React, { createRef, useCallback, useMemo } from "react";
 import { useState } from "react";
-import { AiOutlineClose, AiOutlinePlusCircle } from "react-icons/ai";
+import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { POUtils } from "utils/POUtils";
 import ProductItem from "./product-item";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import NumberInput from "component/custom/number-input.custom";
 import { formatCurrency } from "utils/AppUtils";
-import PriceModal from "../model/price.modal";
-import DiscountModal from "../model/discount.modal";
-import PickManyProductModal from "../model/pick-many-product.modal";
+import PriceModal from "../modal/price.modal";
+import DiscountModal from "../modal/discount.modal";
+import PickManyProductModal from "../modal/pick-many-product.modal";
+import ExpenseModal from "../modal/expense.modal";
+import { DiscountType, POField } from "model/purchase-order/po-field";
+import { CostLine } from "model/purchase-order/cost-line.model";
+import CustomAutoComplete from "component/custom/autocomplete.cusom";
 type POProductProps = {
   formMain: FormInstance;
 };
 const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
   const { formMain } = props;
-  const productSearchRef = createRef<RefSelectProps>();
-  const inputRef = createRef<Input>();
+  const productSearchRef = createRef<CustomAutoComplete>();
   const product_units = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
+  const [visibleExpense, setVisibleExpense] = useState<boolean>(false);
   const [splitLine, setSplitLine] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>("");
   const [data, setData] = useState<Array<VariantResponse>>([]);
+  const [costLines, setCostLines] = useState<Array<CostLine>>([]);
   const renderResult = useMemo(() => {
     let options: any[] = [];
     data.forEach((item: VariantResponse, index: number) => {
@@ -80,9 +82,20 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     (value: string) => {
       let index = data.findIndex((item) => item.id.toString() === value);
       if (index !== -1) {
-        let old_line_items = formMain.getFieldValue("line_items");
-        let discount_rate_total = formMain.getFieldValue("discount_rate");
-        let discount_value_total = formMain.getFieldValue("discount_value");
+        let old_line_items = formMain.getFieldValue(POField.line_items);
+        let trade_discount_rate = formMain.getFieldValue(
+          POField.trade_discount_rate
+        );
+        let trade_discount_value = formMain.getFieldValue(
+          POField.trade_discount_value
+        );
+        let payment_discount_rate = formMain.getFieldValue(
+          POField.payment_discount_rate
+        );
+        let payment_discount_value = formMain.getFieldValue(
+          POField.trade_discount_value
+        );
+        let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
         let variants: Array<VariantResponse> = [data[index]];
         let new_items: Array<PurchaseOrderLineItem> = [
           ...POUtils.convertVariantToLineitem(variants),
@@ -92,62 +105,123 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           new_items,
           splitLine
         );
-        let total = POUtils.totalAmount(new_line_items);
-        let total_discount = POUtils.getTotalDiscount(
-          total,
-          discount_rate_total,
-          discount_value_total
+        let untaxed_amount = POUtils.totalAmount(new_line_items);
+        let tax_lines = POUtils.getVatList(
+          new_line_items,
+          trade_discount_rate,
+          trade_discount_value
         );
-        let vats = POUtils.getVatList(new_line_items);
-        let total_payment = POUtils.getTotalPayment(
-          total,
-          total_discount,
-          vats
+        let trade_discount_amount = POUtils.getTotalDiscount(
+          untaxed_amount,
+          trade_discount_rate,
+          trade_discount_value
+        );
+        let total_after_tax = POUtils.getTotalAfterTax(
+          untaxed_amount,
+          trade_discount_amount,
+          tax_lines
+        );
+        let payment_discount_amount = POUtils.getTotalDiscount(
+          total_after_tax,
+          payment_discount_rate,
+          payment_discount_value
+        );
+        let total = POUtils.getTotalPayment(
+          untaxed_amount,
+          trade_discount_amount,
+          payment_discount_amount,
+          total_cost_line,
+          tax_lines
         );
         formMain.setFieldsValue({
           line_items: new_line_items,
+          untaxed_amount: untaxed_amount,
+          tax_lines: tax_lines,
+          trade_discount_amount: trade_discount_amount,
+          payment_discount_amount: payment_discount_amount,
           total: total,
-          vats: vats,
-          total_discount: total_discount,
-          total_payment: total_payment,
         });
       }
       setData([]);
-      setSearchValue("");
     },
     [data, formMain, splitLine]
   );
   const onDeleteItem = useCallback(
     (index: number) => {
-      let old_line_items: Array<PurchaseOrderLineItem> =
-        formMain.getFieldValue("line_items");
-      let discount_rate_total = formMain.getFieldValue("discount_rate");
-      let discount_value_total = formMain.getFieldValue("discount_value");
-      old_line_items.splice(index, 1);
-      let total = POUtils.totalAmount(old_line_items);
-      let total_discount = POUtils.getTotalDiscount(
-        total,
-        discount_rate_total,
-        discount_value_total
+      let old_line_items: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+        POField.line_items
       );
-      let vats = POUtils.getVatList(old_line_items);
-      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      let trade_discount_rate = formMain.getFieldValue(
+        POField.trade_discount_rate
+      );
+      let trade_discount_value = formMain.getFieldValue(
+        POField.trade_discount_value
+      );
+      let payment_discount_rate = formMain.getFieldValue(
+        POField.payment_discount_rate
+      );
+      let payment_discount_value = formMain.getFieldValue(
+        POField.trade_discount_value
+      );
+      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
+      old_line_items.splice(index, 1);
+      let untaxed_amount = POUtils.totalAmount(old_line_items);
+      let tax_lines = POUtils.getVatList(
+        old_line_items,
+        trade_discount_rate,
+        trade_discount_value
+      );
+      let trade_discount_amount = POUtils.getTotalDiscount(
+        untaxed_amount,
+        trade_discount_rate,
+        trade_discount_value
+      );
+      let total_after_tax = POUtils.getTotalAfterTax(
+        untaxed_amount,
+        trade_discount_amount,
+        tax_lines
+      );
+      let payment_discount_amount = POUtils.getTotalDiscount(
+        total_after_tax,
+        payment_discount_rate,
+        payment_discount_value
+      );
+      let total = POUtils.getTotalPayment(
+        untaxed_amount,
+        trade_discount_amount,
+        payment_discount_amount,
+        total_cost_line,
+        tax_lines
+      );
       formMain.setFieldsValue({
         line_items: [...old_line_items],
+        untaxed_amount: untaxed_amount,
+        tax_lines: tax_lines,
+        trade_discount_amount: trade_discount_amount,
+        payment_discount_amount: payment_discount_amount,
         total: total,
-        vats: vats,
-        total_discount: total_discount,
-        total_payment: total_payment,
       });
     },
     [formMain]
   );
   const onQuantityChange = useCallback(
     (quantity, index) => {
-      let data: Array<PurchaseOrderLineItem> =
-        formMain.getFieldValue("line_items");
-      let discount_rate_total = formMain.getFieldValue("discount_rate");
-      let discount_value_total = formMain.getFieldValue("discount_value");
+      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+        POField.line_items
+      );
+      let trade_discount_rate = formMain.getFieldValue(
+        POField.trade_discount_rate
+      );
+      let trade_discount_value = formMain.getFieldValue(
+        POField.trade_discount_value
+      );
+      let payment_discount_rate = formMain.getFieldValue(
+        POField.payment_discount_rate
+      );
+      let payment_discount_value = formMain.getFieldValue(
+        POField.trade_discount_value
+      );
+      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
       let updateItem = POUtils.updateQuantityItem(
         data[index],
         data[index].price,
@@ -156,37 +230,70 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         quantity
       );
       data[index] = updateItem;
-      let total = POUtils.totalAmount(data);
-      let vats = POUtils.getVatList(data);
-      let total_discount = POUtils.getTotalDiscount(
-        total,
-        discount_rate_total,
-        discount_value_total
+      let untaxed_amount = POUtils.totalAmount(data);
+      let tax_lines = POUtils.getVatList(
+        data,
+        trade_discount_rate,
+        trade_discount_value
       );
-      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      let trade_discount_amount = POUtils.getTotalDiscount(
+        untaxed_amount,
+        trade_discount_rate,
+        trade_discount_value
+      );
+      let total_after_tax = POUtils.getTotalAfterTax(
+        untaxed_amount,
+        trade_discount_amount,
+        tax_lines
+      );
+      let payment_discount_amount = POUtils.getTotalDiscount(
+        total_after_tax,
+        payment_discount_rate,
+        payment_discount_value
+      );
+      let total = POUtils.getTotalPayment(
+        untaxed_amount,
+        trade_discount_amount,
+        payment_discount_amount,
+        total_cost_line,
+        tax_lines
+      );
       formMain.setFieldsValue({
         line_items: [...data],
         total: total,
-        vats: vats,
-        total_payment: total_payment,
-        total_discount: total_discount,
+        tax_lines: tax_lines,
+        trade_discount_amount: trade_discount_amount,
+        payment_discount_amount: payment_discount_amount,
+        untaxed_amount: untaxed_amount,
       });
     },
     [formMain]
   );
   const onPriceChange = useCallback(
     (price: number, type: string, discount: number, index) => {
-      let data: Array<PurchaseOrderLineItem> =
-        formMain.getFieldValue("line_items");
-      let discount_rate_total = formMain.getFieldValue("discount_rate");
-      let discount_value_total = formMain.getFieldValue("discount_value");
+      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+        POField.line_items
+      );
+      let trade_discount_rate = formMain.getFieldValue(
+        POField.trade_discount_rate
+      );
+      let trade_discount_value = formMain.getFieldValue(
+        POField.trade_discount_value
+      );
+      let payment_discount_rate = formMain.getFieldValue(
+        POField.payment_discount_rate
+      );
+      let payment_discount_value = formMain.getFieldValue(
+        POField.payment_discount_value
+      );
+      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
       let discount_rate = data[index].discount_rate;
       let discount_value = data[index].discount_value;
-      if (type === "percent") {
+      if (type === DiscountType.percent) {
         discount_rate = discount;
         discount_value = null;
       }
-      if (type === "money") {
+      if (type === DiscountType.money) {
         discount_rate = null;
         discount_value = discount;
       }
@@ -198,52 +305,140 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         data[index].quantity
       );
       data[index] = updateItem;
-      let total = POUtils.totalAmount(data);
-      let vats = POUtils.getVatList(data);
-      let total_discount = POUtils.getTotalDiscount(
-        total,
-        discount_rate_total,
-        discount_value_total
+      let untaxed_amount = POUtils.totalAmount(data);
+      let tax_lines = POUtils.getVatList(
+        data,
+        trade_discount_rate,
+        trade_discount_value
       );
-      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      let trade_discount_amount = POUtils.getTotalDiscount(
+        untaxed_amount,
+        trade_discount_rate,
+        trade_discount_value
+      );
+      let total_after_tax = POUtils.getTotalAfterTax(
+        untaxed_amount,
+        trade_discount_amount,
+        tax_lines
+      );
+      let payment_discount_amount = POUtils.getTotalDiscount(
+        total_after_tax,
+        payment_discount_rate,
+        payment_discount_value
+      );
+      let total = POUtils.getTotalPayment(
+        untaxed_amount,
+        trade_discount_amount,
+        payment_discount_amount,
+        total_cost_line,
+        tax_lines
+      );
       formMain.setFieldsValue({
         line_items: [...data],
         total: total,
-        vats: vats,
-        total_discount: total_discount,
-        total_payment: total_payment,
+        tax_lines: tax_lines,
+        trade_discount_amount: trade_discount_amount,
+        payment_discount_amount: payment_discount_amount,
+        untaxed_amount: untaxed_amount,
       });
     },
     [formMain]
   );
-  const onBillDiscountChange = useCallback(
+  const onPaymentDiscountChange = useCallback(
     (type: string, discount: number) => {
-      let data: Array<PurchaseOrderLineItem> =
-        formMain.getFieldValue("line_items");
-      let discount_rate = formMain.getFieldValue("discount_rate");
-      let discount_value = formMain.getFieldValue("discount_value");
-      let total = formMain.getFieldValue("total");
-      if (type === "percent") {
-        discount_rate = discount;
-        discount_value = null;
-      }
-      if (type === "money") {
-        discount_rate = null;
-        discount_value = discount;
-      }
-      let total_discount = POUtils.getTotalDiscount(
-        total,
-        discount_rate,
-        discount_value
+      let trade_discount_amount = formMain.getFieldValue(
+        POField.trade_discount_amount
       );
-      let vats = POUtils.getVatList(data);
-      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      let tax_lines = formMain.getFieldValue(POField.tax_lines);
+      let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
+      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
+      let payment_discount_rate = null;
+      let payment_discount_value = null;
+      if (type === DiscountType.percent) {
+        payment_discount_rate = discount;
+      }
+      if (type === DiscountType.money) {
+        payment_discount_value = discount;
+      }
+      let total_after_tax = POUtils.getTotalAfterTax(
+        untaxed_amount,
+        trade_discount_amount,
+        tax_lines
+      );
+      let payment_discount_amount = POUtils.getTotalDiscount(
+        total_after_tax,
+        payment_discount_rate,
+        payment_discount_value
+      );
+      let total = POUtils.getTotalPayment(
+        untaxed_amount,
+        trade_discount_amount,
+        payment_discount_amount,
+        total_cost_line,
+        tax_lines
+      );
       formMain.setFieldsValue({
-        discount_rate: discount_rate,
-        discount_value: discount_value,
-        total_discount: total_discount,
-        total_payment: total_payment,
-        vats: vats,
+        payment_discount_rate: payment_discount_rate,
+        payment_discount_value: payment_discount_value,
+        payment_discount_amount: payment_discount_amount,
+        total: total,
+      });
+    },
+    [formMain]
+  );
+  const onTradeDiscountChange = useCallback(
+    (type: string, discount: number) => {
+      let trade_discount_rate = null;
+      let trade_discount_value = null;
+      let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
+      let data = formMain.getFieldValue(POField.line_items);
+      let payment_discount_rate = formMain.getFieldValue(
+        POField.payment_discount_rate
+      );
+      let payment_discount_value = formMain.getFieldValue(
+        POField.payment_discount_value
+      );
+      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
+      if (type === DiscountType.percent) {
+        trade_discount_rate = discount;
+      }
+      if (type === DiscountType.money) {
+        trade_discount_value = discount;
+      }
+      let tax_lines = POUtils.getVatList(
+        data,
+        trade_discount_rate,
+        trade_discount_value
+      );
+      let trade_discount_amount = POUtils.getTotalDiscount(
+        untaxed_amount,
+        trade_discount_rate,
+        trade_discount_value
+      );
+      let total_after_tax = POUtils.getTotalAfterTax(
+        untaxed_amount,
+        trade_discount_amount,
+        tax_lines
+      );
+      let payment_discount_amount = POUtils.getTotalDiscount(
+        total_after_tax,
+        payment_discount_rate,
+        payment_discount_value
+      );
+      let total = POUtils.getTotalPayment(
+        untaxed_amount,
+        trade_discount_amount,
+        payment_discount_amount,
+        total_cost_line,
+        tax_lines
+      );
+      formMain.setFieldsValue({
+        trade_discount_rate: trade_discount_rate,
+        trade_discount_value: trade_discount_value,
+        trade_discount_amount: trade_discount_amount,
+        payment_discount_amount: payment_discount_amount,
+        total: total,
+        tax_lines: tax_lines,
       });
     },
     [formMain]
@@ -251,9 +446,20 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const onPickManyProduct = useCallback(
     (items: Array<VariantResponse>) => {
       setVisibleManyProduct(false);
-      let old_line_items = formMain.getFieldValue("line_items");
-      let discount_rate = formMain.getFieldValue("discount_rate");
-      let discount_value = formMain.getFieldValue("discount_value");
+      let old_line_items = formMain.getFieldValue(POField.line_items);
+      let trade_discount_rate = formMain.getFieldValue(
+        POField.trade_discount_rate
+      );
+      let trade_discount_value = formMain.getFieldValue(
+        POField.trade_discount_value
+      );
+      let payment_discount_rate = formMain.getFieldValue(
+        POField.payment_discount_rate
+      );
+      let payment_discount_value = formMain.getFieldValue(
+        POField.trade_discount_value
+      );
+      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
       let new_items: Array<PurchaseOrderLineItem> = [
         ...POUtils.convertVariantToLineitem(items),
       ];
@@ -262,68 +468,136 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         new_items,
         splitLine
       );
-      let total = POUtils.totalAmount(new_line_items);
-      let total_discount = POUtils.getTotalDiscount(
-        total,
-        discount_rate,
-        discount_value
+      let untaxed_amount = POUtils.totalAmount(new_line_items);
+
+      let tax_lines = POUtils.getVatList(
+        new_line_items,
+        trade_discount_rate,
+        trade_discount_value
       );
-      let vats = POUtils.getVatList(new_line_items);
-      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      let trade_discount_amount = POUtils.getTotalDiscount(
+        untaxed_amount,
+        trade_discount_rate,
+        trade_discount_value
+      );
+      let total_after_tax = POUtils.getTotalAfterTax(
+        untaxed_amount,
+        trade_discount_amount,
+        tax_lines
+      );
+      let payment_discount_amount = POUtils.getTotalDiscount(
+        total_after_tax,
+        payment_discount_rate,
+        payment_discount_value
+      );
+      let total = POUtils.getTotalPayment(
+        total_after_tax,
+        trade_discount_amount,
+        payment_discount_amount,
+        total_cost_line,
+        tax_lines
+      );
       formMain.setFieldsValue({
         line_items: new_line_items,
+        untaxed_amount: untaxed_amount,
+        tax_lines: tax_lines,
         total: total,
-        vats: vats,
-        total_payment: total_payment,
-        total_discount: total_discount,
+        trade_discount_amount: trade_discount_amount,
+        payment_discount_amount: payment_discount_amount,
       });
     },
     [formMain, splitLine]
   );
   const onVATChange = useCallback(
     (vat, index: number) => {
-      let data: Array<PurchaseOrderLineItem> =
-        formMain.getFieldValue("line_items");
-      let discount_rate = formMain.getFieldValue("discount_rate");
-      let discount_value = formMain.getFieldValue("discount_value");
-      let updateItem = POUtils.updateVatItem(data[index], vat);
-      data[index] = updateItem;
-      let vats = POUtils.getVatList(data);
-      let total = POUtils.totalAmount(data);
-      let total_discount = POUtils.getTotalDiscount(
-        total,
-        discount_rate,
-        discount_value
+      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+        POField.line_items
       );
-      let total_payment = POUtils.getTotalPayment(total, total_discount, vats);
+      let trade_discount_rate = formMain.getFieldValue(
+        POField.trade_discount_rate
+      );
+      let trade_discount_value = formMain.getFieldValue(
+        POField.trade_discount_value
+      );
+      let payment_discount_amount = formMain.getFieldValue(
+        POField.payment_discount_amount
+      );
+      let trade_discount_amount = formMain.getFieldValue(
+        POField.trade_discount_amount
+      );
+      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
+      let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
+      let updateItem = POUtils.updateVatItem(data[index], vat, data, trade_discount_rate, trade_discount_value);
+      data[index] = updateItem;
+      let tax_lines = POUtils.getVatList(
+        data,
+        trade_discount_rate,
+        trade_discount_value
+      );
+      let total = POUtils.getTotalPayment(
+        untaxed_amount,
+        trade_discount_amount,
+        payment_discount_amount,
+        total_cost_line,
+        tax_lines
+      );
       formMain.setFieldsValue({
         line_items: [...data],
-        vats: vats,
+        tax_lines: tax_lines,
         total: total,
-        total_discount: total_discount,
-        total_payment: total_payment,
       });
     },
     [formMain]
   );
-  const onNoteChange = useCallback((value: string, index: number) => {
-    let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue("line_items");
-    data[index].note = value;
-    formMain.setFieldsValue({
-      line_items: [...data],
-    });
-  }, [formMain])
+  const onNoteChange = useCallback(
+    (value: string, index: number) => {
+      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+        POField.line_items
+      );
+      data[index].note = value;
+      formMain.setFieldsValue({
+        line_items: [...data],
+      });
+    },
+    [formMain]
+  );
+  const onOkExpense = useCallback(
+    (result: Array<CostLine>) => {
+      let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
+      let payment_discount_amount = formMain.getFieldValue(
+        POField.payment_discount_amount
+      );
+      let trade_discount_amount = formMain.getFieldValue(
+        POField.trade_discount_amount
+      );
+      let tax_lines = formMain.getFieldValue(POField.tax_lines);
+      let total_cost_line = POUtils.getTotaExpense(result);
+      let total = POUtils.getTotalPayment(
+        untaxed_amount,
+        trade_discount_amount,
+        payment_discount_amount,
+        total_cost_line,
+        tax_lines
+      );
+      formMain.setFieldsValue({
+        total: total,
+        total_cost_line: total_cost_line,
+        cost_lines: result,
+      });
+      setVisibleExpense(false);
+    },
+    [formMain]
+  );
   const onSearch = useCallback(
     (value: string) => {
-      setSearchValue(value);
-      if (value.length >= 3) {
+      if (value.trim() !== "" && value.length >= 3) {
         dispatch(
           searchVariantsRequestAction(
             {
               status: "active",
               limit: 10,
               page: 1,
-              info: value,
+              info: value.trim(),
             },
             onResultSearch
           )
@@ -352,7 +626,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               Tách dòng
             </Checkbox>
             <span>Chính sách giá:</span>
-            <Form.Item name="price_type" style={{ margin: "0px" }}>
+            <Form.Item name="policy_price_code" style={{ margin: "0px" }}>
               <Select
                 style={{ minWidth: 145, height: 38 }}
                 placeholder="Chính sách giá"
@@ -367,37 +641,19 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       >
         <div className="padding-20">
           <Input.Group className="display-flex">
-            <AutoComplete
-              ref={productSearchRef}
-              dropdownMatchSelectWidth={456}
-              maxLength={255}
-              value={searchValue}
-              style={{ width: "100%" }}
-              onSearch={onSearch}
+            <CustomAutoComplete
+              id="#product_search"
               dropdownClassName="product"
-              dropdownRender={(menu) => (
-                <div className="dropdown-custom">
-                  <Button
-                    icon={<AiOutlinePlusCircle size={24} />}
-                    className="dropdown-add-new"
-                    type="link"
-                  >
-                    Thêm mới sản phẩm
-                  </Button>
-                  {menu}
-                </div>
-              )}
+              placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
+              onSearch={onSearch}
+              dropdownMatchSelectWidth={456}
+              style={{ width: "100%" }}
+              showAdd={true}
+              textAdd="Thêm mới sản phẩm"
               onSelect={onSelectProduct}
               options={renderResult}
-            >
-              <Input
-                ref={inputRef}
-                size="middle"
-                className="yody-search"
-                placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
-                prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-              />
-            </AutoComplete>
+              ref={productSearchRef}
+            />
             <Button
               onClick={() => setVisibleManyProduct(true)}
               style={{ width: 132, marginLeft: 10 }}
@@ -405,20 +661,21 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               Chọn nhiều
             </Button>
           </Input.Group>
-          <Form.Item noStyle name="line_items" hidden>
+          <Form.Item noStyle name={POField.line_items} hidden>
             <Input />
           </Form.Item>
           <Form.Item
             style={{ padding: 0 }}
             className="margin-top-20"
             shouldUpdate={(prevValues, curValues) =>
-              prevValues.line_items !== curValues.line_items
+              prevValues[POField.line_items] !== curValues[POField.line_items]
             }
           >
             {({ getFieldValue }) => {
-              let items = getFieldValue("line_items")
-                ? getFieldValue("line_items")
+              let items = getFieldValue(POField.line_items)
+                ? getFieldValue(POField.line_items)
                 : [];
+
               return (
                 <Table
                   className="product-table"
@@ -435,7 +692,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             background: "rgba(42,42,134,0.05)",
                           }}
                           onClick={() => {
-                            productSearchRef.current?.focus();
+                            let element: any =
+                              document.getElementById("#product_search");
+                            element?.focus();
+                            const y =
+                              element?.getBoundingClientRect()?.top +
+                              window.pageYOffset +
+                              -250;
+                            window.scrollTo({ top: y, behavior: "smooth" });
                           }}
                         >
                           Thêm sản phẩm ngay (F1)
@@ -443,9 +707,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       </Empty>
                     ),
                   }}
-                  rowKey={(record: PurchaseOrderLineItem) =>
-                    record.id?.toString()
-                  }
+                  rowKey={(record: PurchaseOrderLineItem) => record.temp_id}
+                  rowClassName="product-table-row"
                   columns={[
                     {
                       title: "STT",
@@ -470,8 +733,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     {
                       title: "Sản phẩm",
                       width: "99%",
+                      className: "ant-col-info",
                       dataIndex: "variant",
-                      render: (value: string, item: PurchaseOrderLineItem, index: number) => (
+                      render: (
+                        value: string,
+                        item: PurchaseOrderLineItem,
+                        index: number
+                      ) => (
                         <div>
                           <div>
                             <div className="product-item-sku">{item.sku}</div>
@@ -479,9 +747,15 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           </div>
                           <Input
                             addonBefore={<EditOutlined />}
-                            className={classNames("product-item-note-input", item.note === '' && 'product-item-note')}
+                            className={classNames(
+                              "product-item-note-input",
+                              item.note === "" && "product-item-note"
+                            )}
+                            placeholder="Nhập ghi chú"
                             value={item.note}
-                            onChange={(e) => onNoteChange(e.target.value, index)}
+                            onChange={(e) =>
+                              onNoteChange(e.target.value, index)
+                            }
                           />
                         </div>
                       ),
@@ -507,8 +781,20 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                     {
                       title: (
-                        <div style={{ width: "100%", textAlign: "center" }}>
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "center",
+                            flexDirection: "column",
+                            display: "flex",
+                          }}
+                        >
                           SL
+                          <div
+                            style={{ color: "#2A2A86", fontWeight: "normal" }}
+                          >
+                            ({POUtils.totalQuantity(items)})
+                          </div>
                         </div>
                       ),
                       width: 100,
@@ -518,10 +804,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           isFloat={false}
                           style={{ textAlign: "center" }}
                           value={value}
-                          maxLength={4}
-                          onChange={(quantity) =>
-                            onQuantityChange(quantity, index)
-                          }
+                          min={1}
+                          default={1}
+                          maxLength={7}
+                          onChange={(quantity) => {
+                            onQuantityChange(quantity, index);
+                          }}
                         />
                       ),
                     },
@@ -586,8 +874,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           VAT
                         </div>
                       ),
-                      width: 140,
-                      dataIndex: "tax",
+                      width: 90,
+                      dataIndex: "tax_rate",
                       render: (value, item, index) => {
                         return (
                           <NumberInput
@@ -611,6 +899,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       title: (
                         <Tooltip title="Thành tiền không bao gồm thuế VAT">
                           Thành tiền
+                          <span
+                            style={{
+                              color: "#737373",
+                              fontSize: "12px",
+                              fontWeight: "normal",
+                            }}
+                          >
+                            {" "}
+                            ₫
+                          </span>
                         </Tooltip>
                       ),
                       align: "center",
@@ -619,7 +917,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                     {
                       title: "",
-                      width: 60,
+                      fixed: 'right',
+                      width: 40,
                       render: (value: string, item, index: number) => (
                         <Button
                           onClick={() => onDeleteItem(index)}
@@ -666,7 +965,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           </Form.Item>
           <Row gutter={24}>
             <Col xs={24} lg={12}>
-              <div className="payment-checkbox">
+              {/* <div className="payment-checkbox">
                 <Checkbox
                   className=""
                   onChange={() => console.log(1)}
@@ -683,50 +982,60 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 >
                   Giá đã bao gồm thuế VAT
                 </Checkbox>
-              </div>
+              </div> */}
             </Col>
             <Col xs={24} lg={12}>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
-                  prevValues.total !== curValues.total
+                  prevValues[POField.untaxed_amount] !== curValues[POField.untaxed_amount]
                 }
                 noStyle
               >
                 {({ getFieldValue }) => {
-                  let total = getFieldValue("total");
-                  console.log(total);
+                  let untaxed_amount = getFieldValue(POField.untaxed_amount);
                   return (
                     <div className="payment-row">
                       <div>Tổng tiền</div>
                       <div className="payment-row-result">
-                        {total === 0 ? "-" : formatCurrency(total)}
+                        {untaxed_amount === 0 ? "-" : formatCurrency(untaxed_amount)}
                       </div>
                     </div>
                   );
                 }}
               </Form.Item>
-              <Form.Item name="discount_rate" hidden noStyle>
+              <Form.Item name={POField.untaxed_amount} hidden noStyle>
                 <Input />
               </Form.Item>
-              <Form.Item name="discount_value" hidden noStyle>
+              <Form.Item name={POField.trade_discount_amount} hidden noStyle>
                 <Input />
               </Form.Item>
-              <Form.Item name="total_discount" hidden noStyle>
+              <Form.Item name={POField.trade_discount_rate} hidden noStyle>
+                <Input />
+              </Form.Item>
+              <Form.Item name={POField.trade_discount_value} hidden noStyle>
                 <Input />
               </Form.Item>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
-                  prevValues.total_discount !== curValues.total_discount
+                  prevValues.trade_discount_amount !==
+                  curValues.trade_discount_amount
                 }
                 noStyle
               >
                 {({ getFieldValue }) => {
-                  let total_discount = getFieldValue("total_discount");
-                  let discount_rate = getFieldValue("discount_rate");
-                  let discount_value = getFieldValue("discount_value");
-                  let type = "percent";
+                  let untaxed_amount = getFieldValue(POField.untaxed_amount);
+                  let trade_discount_amount = getFieldValue(
+                    POField.trade_discount_amount
+                  );
+                  let discount_rate = getFieldValue(
+                    POField.trade_discount_rate
+                  );
+                  let discount_value = getFieldValue(
+                    POField.trade_discount_value
+                  );
+                  let type = DiscountType.percent;
                   if (discount_value !== null) {
-                    type = "money";
+                    type = DiscountType.money;
                   }
                   return (
                     <div className="payment-row">
@@ -734,11 +1043,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         trigger="click"
                         content={
                           <DiscountModal
-                            price={total_discount}
+                            price={untaxed_amount}
                             discount={
-                              type === "money" ? discount_value : discount_rate
+                              type === DiscountType.money
+                                ? discount_value
+                                : discount_rate
                             }
-                            onChange={onBillDiscountChange}
+                            onChange={onTradeDiscountChange}
                             type={type}
                           />
                         }
@@ -750,13 +1061,87 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             color: "#5D5D8A",
                           }}
                         >
-                          Chiết khấu
+                          Chiết khấu thương mại
                         </Typography.Link>
                       </Popover>
                       <div className="payment-row-result">
-                        {total_discount === 0
+                        {trade_discount_amount === 0
                           ? "-"
-                          : formatCurrency(total_discount)}
+                          : formatCurrency(Math.round(trade_discount_amount))}
+                      </div>
+                    </div>
+                  );
+                }}
+              </Form.Item>
+              <Form.Item name={POField.payment_discount_amount} hidden noStyle>
+                <Input />
+              </Form.Item>
+              <Form.Item name={POField.payment_discount_rate} hidden noStyle>
+                <Input />
+              </Form.Item>
+              <Form.Item name={POField.payment_discount_value} hidden noStyle>
+                <Input />
+              </Form.Item>
+              <Form.Item
+                shouldUpdate={(prevValues, curValues) =>
+                  prevValues[POField.payment_discount_amount] !==
+                  curValues[POField.payment_discount_amount]
+                }
+                noStyle
+              >
+                {({ getFieldValue }) => {
+                  let untaxed_amount = getFieldValue(POField.untaxed_amount);
+                  let trade_discount_amount = getFieldValue(
+                    POField.trade_discount_amount
+                  );
+                  let tax_lines = getFieldValue(POField.tax_lines);
+                  let total_after_tax = POUtils.getTotalAfterTax(
+                    untaxed_amount,
+                    trade_discount_amount,
+                    tax_lines
+                  );
+                  let payment_discount_amount = getFieldValue(
+                    POField.payment_discount_amount
+                  );
+                  let discount_rate = getFieldValue(
+                    POField.payment_discount_rate
+                  );
+                  let discount_value = getFieldValue(
+                    POField.payment_discount_value
+                  );
+                  let type = DiscountType.percent;
+                  if (discount_value !== null) {
+                    type = DiscountType.money;
+                  }
+                  return (
+                    <div className="payment-row">
+                      <Popover
+                        trigger="click"
+                        content={
+                          <DiscountModal
+                            price={total_after_tax}
+                            discount={
+                              type === "money" ? discount_value : discount_rate
+                            }
+                            onChange={onPaymentDiscountChange}
+                            type={type}
+                          />
+                        }
+                      >
+                        <Typography.Link
+                          style={{
+                            textDecoration: "underline",
+                            textDecorationColor: "#5D5D8A",
+                            color: "#5D5D8A",
+                          }}
+                        >
+                          Chiết khấu thanh toán
+                        </Typography.Link>
+                      </Popover>
+                      <div className="payment-row-result">
+                        {payment_discount_amount === 0
+                          ? "-"
+                          : formatCurrency(Math.round(payment_discount_amount))}
                       </div>
                     </div>
                   );
@@ -764,47 +1149,85 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               </Form.Item>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
-                  prevValues.vats !== curValues.vats
+                  prevValues.tax_lines !== curValues.tax_lines
                 }
                 noStyle
               >
                 {({ getFieldValue }) => {
-                  let vats = getFieldValue("vats");
-                  return vats.map((item: Vat) => (
+                  let tax_lines = getFieldValue("tax_lines");
+                  return tax_lines.map((item: Vat) => (
                     <div className="payment-row">
-                      <div>{`VAT (${item.value}%)`}</div>
+                      <div>{`VAT (${item.rate}%)`}</div>
                       <div className="payment-row-result">
-                        {formatCurrency(item.amount)}
+                        {formatCurrency(Math.round(item.amount))}
                       </div>
                     </div>
                   ));
                 }}
               </Form.Item>
-              <Form.Item noStyle>
-                <div className="payment-row">
-                  <div>Chi phí</div>
-                  <div className="payment-row-result">-</div>
-                </div>
-              </Form.Item>
-
-              <Divider className="margin-top-5 margin-bottom-5" />
-
-              <Form.Item name="total_payment" hidden noStyle>
-                <Input />
-              </Form.Item>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
-                  prevValues.total_payment !== curValues.total_payment
+                  prevValues[POField.total_cost_line] !== curValues[POField.total_cost_line] 
                 }
                 noStyle
               >
                 {({ getFieldValue }) => {
-                  let total_payment = getFieldValue("total_payment");
+                  
+                  let cost_lines = getFieldValue(POField.cost_lines);
+                  let total_cost_line = getFieldValue(
+                    POField.total_cost_line
+                  );
+                  return (
+                    <div className="payment-row">
+                      <Typography.Link
+                        onClick={() => {
+                          setCostLines(cost_lines);
+                          setVisibleExpense(true);
+                        }}
+                        style={{
+                          textDecoration: "underline",
+                          textDecorationColor: "#5D5D8A",
+                          color: "#5D5D8A",
+                        }}
+                      >
+                        Chi phí
+                      </Typography.Link>
+                      <div className="payment-row-result">
+                        {total_cost_line === 0
+                          ? "-"
+                          : formatCurrency(total_cost_line)}
+                      </div>
+                    </div>
+                  );
+                }}
+              </Form.Item>
+              <Divider className="margin-top-5 margin-bottom-5" />
+              <Form.Item name={POField.cost_lines} hidden noStyle>
+                <Input />
+              </Form.Item>
+              <Form.Item name={POField.total_cost_line} hidden noStyle>
+                <Input />
+              </Form.Item>
+              <Form.Item name={POField.total} hidden noStyle>
+                <Input />
+              </Form.Item>
+              <Form.Item name={POField.tax_lines} hidden noStyle>
+                <Input />
+              </Form.Item>
+              <Form.Item
+                shouldUpdate={(prevValues, curValues) =>
+                  prevValues[POField.total] !==
+                  curValues[POField.total]
+                }
+                noStyle
+              >
+                {({ getFieldValue }) => {
+                  let total = getFieldValue(POField.total);
                   return (
                     <div className="payment-row">
                       <strong className="font-size-text">Tiền cần trả</strong>
                       <strong className="text-success font-size-text">
-                        {formatCurrency(total_payment)}
+                        {formatCurrency(Math.round(total))}
                       </strong>
                     </div>
                   );
@@ -814,7 +1237,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           </Row>
         </div>
       </Card>
-
+      <ExpenseModal
+        visible={visibleExpense}
+        onCancel={() => setVisibleExpense(false)}
+        onOk={onOkExpense}
+        costLines={costLines}
+      />
       <PickManyProductModal
         onSave={onPickManyProduct}
         onCancle={() => setVisibleManyProduct(false)}

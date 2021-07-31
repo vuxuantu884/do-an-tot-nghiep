@@ -35,8 +35,8 @@ import { SearchOutlined } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import AddAddressModal from "./modal/addAddressModal";
-import EditCustomerModal from "./modal/editCustomerModal";
+import AddAddressModal from "../modal/add-address.modal";
+import EditCustomerModal from "../modal/edit-customer.modal";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { RefSelectProps } from "antd/lib/select";
 import { CloseOutlined } from "@ant-design/icons";
@@ -86,7 +86,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
-
+  
   //#region Modal
   const ShowAddressModal = () => {
     setVisibleAddress(true);
@@ -191,10 +191,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         props.InfoCustomerSet(resultSearch[index]);
 
         //set Shipping Address
-        if (
-          resultSearch[index].shipping_addresses !== undefined &&
-          resultSearch[index].shipping_addresses !== null
-        ) {
+        if (resultSearch[index].shipping_addresses) {
           resultSearch[index].shipping_addresses.forEach((item, index2) => {
             if (item.default === true) {
               setShippingAddress(item);
@@ -204,10 +201,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         }
 
         //set Billing Address
-        if (
-          resultSearch[index].billing_addresses !== undefined &&
-          resultSearch[index].billing_addresses !== null
-        ) {
+        if (resultSearch[index].billing_addresses) {
           resultSearch[index].billing_addresses.forEach((item, index2) => {
             if (item.default === true) {
               setBillingAddress(item);
@@ -343,7 +337,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               )}
             >
               <Input
-                placeholder="Tìm hoặc thêm khách hàng"
+                placeholder="Tìm hoặc thêm khách hàng... (F4)"
                 // enterButton={
                 //   <Button
                 //     style={{ width: 40, height: 36 }}

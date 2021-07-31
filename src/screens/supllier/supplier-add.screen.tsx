@@ -101,9 +101,11 @@ const CreateSupplierScreen: React.FC = () => {
   //EndState
   //Callback
   const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse>) => {
+    (data: PageResponse<AccountResponse>|false) => {
+      if(!data) {
+        return false;
+      }
       let listWinAccount = data.items;
-
       setAccounts(listWinAccount);
       let checkUser = listWinAccount.findIndex(
         (val) => val.code === currentUserCode

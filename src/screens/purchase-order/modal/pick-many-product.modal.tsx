@@ -26,7 +26,8 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const [query, setQuery] = useState<VariantSearchQuery>({
     info: "",
     page: 1,
-    limit: 20,
+    limit: 10,
+    status: "active",
   });
   const handleLastNextPage = (
     total: number, current: number, pageSize: number,
@@ -99,7 +100,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   return (
     <Modal
       visible={props.visible}
-      cancelText="Đóng"
+      cancelText="Thoát"
       okText="Thêm vào đơn"
       width={800}
       onCancel={() => {

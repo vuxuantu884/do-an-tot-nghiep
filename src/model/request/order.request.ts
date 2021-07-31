@@ -1,3 +1,4 @@
+import { StoreResponse } from "model/core/store.model";
 import { OrderLineItemResponse } from "model/response/order/order.response";
 import { Moment } from "moment";
 export interface OrderRequest {
@@ -138,6 +139,7 @@ export interface ShipmentRequest {
   sender_address_id: number | null;
   note_to_shipper: string | null;
   requirements: string | null;
+  sender_address?: StoreResponse | null;
 }
 
 export interface UpdateShipmentRequest {
@@ -211,7 +213,7 @@ export interface UpdatePaymentRequest {
 }
 
 export interface OrderLineItemRequest {
-  id:number;
+  id: number;
   sku: string;
   variant_id: number;
   variant: string;
@@ -226,12 +228,14 @@ export interface OrderLineItemRequest {
   type: string;
   variant_image: string;
   unit: string;
+  weight: number;
+  weight_unit: string;
   warranty: string;
   tax_rate: number;
   tax_include: boolean;
-  composite:boolean;
-  product:string;
-  is_composite:boolean;
+  composite: boolean;
+  product: string;
+  is_composite: boolean;
   line_amount_after_line_discount: number;
   discount_items: Array<OrderItemDiscountRequest>;
   discount_rate: number;
@@ -262,4 +266,16 @@ export interface UpdateFulFillmentStatusRequest {
   order_id: number | null | undefined;
   fulfillment_id: number | null;
   status: string | null;
+}
+
+export interface ShippingGHTKRequest {
+  pick_address?: string | null;
+  pick_province?: string | null;
+  pick_district?: string | null;
+  province?: string | null;
+  district?: string | null;
+  address?: string | null;
+  weight?: number | null;
+  value?: number | null;
+  transport?: string | null;
 }

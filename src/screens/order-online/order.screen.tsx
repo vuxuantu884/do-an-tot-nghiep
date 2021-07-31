@@ -10,7 +10,7 @@ import {
   FormInstance,
   Select,
 } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { CustomerResponse } from "model/response/customer/customer.response";
@@ -30,10 +30,10 @@ import {
   ShippingAddress,
 } from "model/request/order.request";
 import { orderCreateAction } from "domain/actions/order/order.action";
-import ShipmentCard from "./shipment-card";
-import ProductCard from "./product-card";
-import PaymentCard from "./payment-card";
-import CustomerCard from "./customer-card";
+import ShipmentCard from "./component/shipment-card";
+import ProductCard from "./component/product-card";
+import PaymentCard from "./component/payment-card";
+import CustomerCard from "./component/customer-card";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
@@ -44,14 +44,15 @@ import {
 } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
 import moment from "moment";
-import SaveAndConfirmOrder from "./modal/SaveAndConfirmOrder";
+import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 import {
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
-import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
-import SearchOutlined from "@ant-design/icons";
-import SubStatusOrder from "component/main-sidebar/sub-status-order";
+import ConfirmPaymentModal from "./modal/confirm-payment.modal";
+import { StoreDetailAction } from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
+import { request } from "https";
 //#endregion
 
 var typeButton = "";
@@ -83,13 +84,12 @@ export default function Order() {
     useState<boolean>(false);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  const [storeDetail, setStoreDetail] = useState<StoreResponse>();
   //#endregion
-
   //#region Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
-
   const onChangeShippingAddress = (
     _objShippingAddress: ShippingAddress | null
   ) => {
@@ -200,15 +200,8 @@ export default function Order() {
 
     setTag(strTag);
   };
-  const [textValue, settextValue] = useState<string>("");
+  let textValue = "";
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
-
-  const ShowConfirmPayment = () => {
-    settextValue(
-      "Đơn hàng có tiền thu hộ không đúng với tiền khách còn phải trả. Bạn có muốn xác nhận thanh toán và giao hàng cho đơn hàng này không?"
-    );
-    setVisibleConfirmPayment(true);
-  };
 
   const onOkConfirmPayment = () => {};
 
@@ -253,7 +246,12 @@ export default function Order() {
     }
     return listFullfillmentRequest;
   };
-
+  console.log(
+    orderAmount +
+      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+      getAmountPaymentRequest(payments) -
+      discountValue
+  );
   const createShipmentRequest = (value: OrderRequest) => {
     let objShipment: ShipmentRequest = {
       delivery_service_provider_id: null, //id người shipper
@@ -278,7 +276,14 @@ export default function Order() {
       sender_address_id: null,
       note_to_shipper: "",
       requirements: value.requirements,
+      sender_address: null,
     };
+
+    if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
+      objShipment.delivery_service_provider_id = 1;
+      objShipment.delivery_service_provider_type = "external_service";
+      objShipment.sender_address = storeDetail;
+    }
 
     if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
       objShipment.delivery_service_provider_type = "Shipper";
@@ -291,23 +296,11 @@ export default function Order() {
       if (takeMoneyHelper !== null) {
         objShipment.cod = takeMoneyHelper;
       } else {
-        if (shippingFeeCustomer !== null) {
-          if (
-            orderAmount +
-              shippingFeeCustomer -
-              getAmountPaymentRequest(payments) >
-            0
-          ) {
-            objShipment.cod =
-              orderAmount +
-              shippingFeeCustomer -
-              getAmountPaymentRequest(payments);
-          }
-        } else {
-          if (orderAmount - getAmountPaymentRequest(payments) > 0) {
-            objShipment.cod = orderAmount - getAmountPaymentRequest(payments);
-          }
-        }
+        objShipment.cod =
+          orderAmount +
+          (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+          getAmountPaymentRequest(payments) -
+          discountValue;
       }
       return objShipment;
     }
@@ -364,7 +357,10 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
+  console.log(orderAmount);
   const onFinish = (values: OrderRequest) => {
+    const element2: any = document.getElementById("save-and-confirm");
+    element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
@@ -383,17 +379,17 @@ export default function Order() {
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
       values.payments = payments;
-      //Nếu có phí ship báo khách
-      if (shippingFeeCustomer !== null) {
-        values.total = orderAmount + shippingFeeCustomer;
-        if (values.fulfillments[0].shipment != null) {
-          values.fulfillments[0].shipment.cod =
-            orderAmount +
-            shippingFeeCustomer -
-            getAmountPaymentRequest(payments);
-        }
-      } else {
-        values.total = orderAmount;
+      values.total = orderAmount;
+      if (
+        values?.fulfillments &&
+        values.fulfillments.length > 0 &&
+        values.fulfillments[0].shipment
+      ) {
+        values.fulfillments[0].shipment.cod =
+          orderAmount +
+          (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+          getAmountPaymentRequest(payments) -
+          discountValue;
       }
     }
     values.tags = tags;
@@ -428,7 +424,10 @@ export default function Order() {
   };
   //#endregion
 
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>) => {
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
+    if(!data) {
+      return;
+    }
     setAccounts(data.items);
   }, []);
   const scroll = useCallback(() => {
@@ -438,6 +437,13 @@ export default function Order() {
       setIsShowBillStep(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (storeId != null) {
+      dispatch(StoreDetailAction(storeId, setStoreDetail));
+    }
+  }, [dispatch, storeId]);
+
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
@@ -517,21 +523,24 @@ export default function Order() {
               <ShipmentCard
                 setShipmentMethodProps={onShipmentSelect}
                 shipmentMethod={shipmentMethod}
-                storeId={storeId}
+                storeDetail={storeDetail}
                 setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
                 amount={orderAmount}
                 setPaymentMethod={setPaymentMethod}
                 paymentMethod={paymentMethod}
                 shippingFeeCustomer={shippingFeeCustomer}
+                cusomerInfo={customer}
+                items={items}
+                discountValue={discountValue}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
                 setPayments={onPayments}
                 paymentMethod={paymentMethod}
                 amount={
-                  shippingFeeCustomer
-                    ? orderAmount + shippingFeeCustomer
-                    : orderAmount
+                  orderAmount +
+                  (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                  discountValue
                 }
               />
             </Col>
@@ -557,9 +566,14 @@ export default function Order() {
                   >
                     <Select
                       className="select-with-search"
-                      showSearch
                       notFoundContent="Không tìm thấy kết quả"
-                      placeholder="Tìm, chọn nhân viên"
+                      showSearch
+                      placeholder={
+                        <React.Fragment>
+                          <SearchOutlined />
+                          <span> Tìm, chọn nhân viên</span>
+                        </React.Fragment>
+                      }
                       filterOption={(input, option) => {
                         if (option) {
                           return (
@@ -605,7 +619,6 @@ export default function Order() {
                   </Form.Item>
                 </div>
               </Card>
-              <SubStatusOrder />
               <Card
                 className="margin-top-20"
                 title={
@@ -687,6 +700,7 @@ export default function Order() {
               <Button
                 type="primary"
                 className="create-button-custom"
+                id="save-and-confirm"
                 onClick={() => {
                   typeButton = OrderStatus.FINALIZED;
                   formRef.current?.submit();

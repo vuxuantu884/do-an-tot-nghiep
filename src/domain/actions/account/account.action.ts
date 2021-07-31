@@ -11,7 +11,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 
 export const AccountSearchAction = (
   query: AccountSearchQuery,
-  setData: (data: PageResponse<AccountResponse>) => void
+  setData: (data: PageResponse<AccountResponse>|false) => void
 ) => {
   return BaseAction(AccountType.SEARCH_ACCOUNT_REQUEST, { query, setData });
 };

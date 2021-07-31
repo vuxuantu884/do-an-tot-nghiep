@@ -3,8 +3,6 @@ import { CheckOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { OrderResponse } from "model/response/order/order.response";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { getDateLastPayment } from "utils/AppUtils";
 
 type StepStatusProps = {
   status?: string | null | undefined;

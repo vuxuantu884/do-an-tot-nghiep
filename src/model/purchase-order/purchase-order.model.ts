@@ -1,5 +1,6 @@
+import { BaseQuery } from "model/base/base.query";
 import { PurchaseAddress } from "./purchase-address.model";
-import { PurchaseOrderLineItem } from "./purchase-item.model";
+import { PurchaseOrderLineItem, Vat } from "./purchase-item.model";
 import { PurchaseTransaction } from "./purchase-transaction.model";
 
 export interface PurchaseOrder {
@@ -16,10 +17,15 @@ export interface PurchaseOrder {
   line_items: Array<PurchaseOrderLineItem>,
   note: string,
   tags: string,
-  price_list_id: number,
-  tax_included: boolean,
+  policy_price_code: string,
+  
   transactions: Array<PurchaseTransaction>,
-  total_discount: number,
+  trade_discount_rate: number,
+  trade_discount_value: number,
+  trade_discount_amount: number,
+  payment_discount_rate: number,
+  payment_discount_value: number,
+  payment_discount_amount: number,
   untaxed_amount: number,
   tax: number,
   total: number,
@@ -33,4 +39,11 @@ export interface PurchaseOrder {
   activated_date: string,
   completed_date: string,
   payment_term_id: string,
+  tax_lines: Array<Vat>
+}
+
+export interface PurchaseOrderQuery extends BaseQuery{
+  code:string,
+  supplier_id?:number,
+  
 }

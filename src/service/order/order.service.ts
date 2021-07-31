@@ -1,6 +1,7 @@
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import {
   OrderRequest,
+  ShippingGHTKRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   UpdatePaymentRequest,
@@ -9,14 +10,15 @@ import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { SourceResponse } from "model/response/order/source.response";
-import { OrderResponse } from "model/response/order/order.response";
+import { DeliveryServiceResponse, OrderResponse, ShippingGHTKResponse } from "model/response/order/order.response";
+mport { OrderResponse } from "model/response/order/order.response";
 import { generateQuery } from "utils/AppUtils";
 import { OrderSourceCompanyModel, OrderSourceModel } from "model/response/order/order-source.response";
 import { BaseQuery } from "model/base/base.query";
 import { FulfillmentResponseModel } from "model/response/fulfillment.response";
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/sources`);
+  return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
 };
 
 export const getPaymentMethod = (): Promise<
@@ -30,6 +32,13 @@ export const orderPostApi = (
 ): Promise<BaseResponse<OrderResponse>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/orders`, request);
 };
+
+export const getInfoDeliveryGHTK = (
+  request: ShippingGHTKRequest
+): Promise<BaseResponse<ShippingGHTKResponse>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/shipping/ghtk/fees`, request);
+};
+
 
 export const getOrderDetail = (
   id: number
@@ -60,6 +69,11 @@ export const updatePayment = (
   return BaseAxios.put(link, request);
 };
 
+export const getDeliverieServices = (): Promise<
+  BaseResponse<Array<DeliveryServiceResponse>>
+> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/shipping/delivery-services`);
+};
 export const getSourcesWithParams = (query: BaseQuery): Promise<BaseResponse<SourceResponse>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/sources?${queryString}`);

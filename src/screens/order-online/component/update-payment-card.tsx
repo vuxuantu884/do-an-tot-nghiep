@@ -44,7 +44,7 @@ import {
 } from "model/request/order.request";
 import { showSuccess } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
-import ConfirmPaymentModal from "./modal/ConfirmPaymentModal";
+import ConfirmPaymentModal from "../modal/confirm-payment.modal";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
@@ -66,7 +66,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       handlePickPaymentMethod(PaymentMethodCode.CASH);
     }
   };
-
   const dispatch = useDispatch();
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, settextValue] = useState<string>("");
@@ -106,7 +105,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);
-  props.setTotalPaid(totalAmountPaid)
+  props.setTotalPaid(totalAmountPaid);
   const handlePickPaymentMethod = (code?: string) => {
     let paymentMaster = ListMaymentMethods.find((p) => code === p.code);
     if (!paymentMaster) return;
@@ -135,7 +134,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   };
 
   const handleInputMoney = (index: number, amount: number) => {
-    if(amount > props.amount) amount = props.amount;
     if (paymentData[index].code === PaymentMethodCode.POINT) {
       paymentData[index].point = amount;
       paymentData[index].amount = amount * PointConfig.VALUE;
@@ -204,6 +202,19 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
   };
 
+  const caculateMax = (totalAmount: number, index: number) => {
+    let total = totalAmount;
+    for (let i = 0; i < index; i++) {
+      if (paymentData[i].code === PaymentMethodCode.POINT) {
+        total = total - paymentData[i].point! * 1000;
+      } else {
+        console.log("test", total);
+        total = total - paymentData[i].amount;
+      }
+    }
+    return total;
+  };
+
   const onCancleConfirm = useCallback(() => {
     setVisibleConfirmPayment(false);
   }, []);
@@ -236,21 +247,30 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         >
           {isVisibleUpdatePayment === true && (
             <div className="padding-20">
-              <Radio.Group
-                value={props.paymentMethod}
-                onChange={(e) => changePaymentMethod(e.target.value)}
-                style={{ margin: "20px 0 20px 0" }}
-              >
-                <Space size={24}>
-                  <Radio value={PaymentMethodOption.COD}>COD</Radio>
-                  <Radio value={PaymentMethodOption.PREPAYMENT}>
-                    Thanh toán trước
-                  </Radio>
-                  <Radio value={PaymentMethodOption.POSTPAYMENT}>
-                    Thanh toán sau
-                  </Radio>
-                </Space>
-              </Radio.Group>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <Radio.Group
+                  value={props.paymentMethod}
+                  onChange={(e) => changePaymentMethod(e.target.value)}
+                  style={{ margin: "20px 0 20px 0" }}
+                >
+                  <Space size={24}>
+                    <Radio value={PaymentMethodOption.COD}>COD</Radio>
+                    <Radio value={PaymentMethodOption.PREPAYMENT}>
+                      Thanh toán trước
+                    </Radio>
+                    <Radio value={PaymentMethodOption.POSTPAYMENT}>
+                      Thanh toán sau
+                    </Radio>
+                  </Space>
+                </Radio.Group>
+                {props.paymentMethod === PaymentMethodOption.COD && (
+                  <i>
+                    Vui lòng chọn hình thức Đóng gói và Giao hàng để có thể nhập
+                    giá trị Tiền thu hộ *
+                  </i>
+                )}
+              </div>
+
               <Row gutter={24} hidden={props.paymentMethod !== 2}>
                 <Col xs={24} lg={24}>
                   <div className="form-group form-group-with-search">
@@ -370,7 +390,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                                     replaceFormat(value ? value : "0")
                                   }
                                   min={0}
-                                  max={99999}
+                                  max={caculateMax(props.amount, index) / 1000}
                                   onChange={(value) => {
                                     handleInputPoint(index, value);
                                   }}
@@ -383,7 +403,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                           <InputNumber
                             size="middle"
                             min={0}
-                            max={999999999999}
+                            max={caculateMax(props.amount, index)}
                             value={method.amount}
                             disabled={method.code === PaymentMethodCode.POINT}
                             className="yody-payment-input hide-number-handle"
@@ -647,7 +667,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                                     replaceFormat(value ? value : "0")
                                   }
                                   min={0}
-                                  max={99999}
+                                  max={caculateMax(props.amount, index) / 1000}
                                   onChange={(value) => {
                                     handleInputPoint(index, value);
                                   }}
@@ -660,7 +680,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                           <InputNumber
                             size="middle"
                             min={0}
-                            max={999999999999}
+                            max={caculateMax(props.amount, index)}
                             value={method.amount}
                             disabled={method.code === PaymentMethodCode.POINT}
                             className="yody-payment-input hide-number-handle"
@@ -673,17 +693,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                             onFocus={(e) => e.target.select()}
                           />
                         </Col>
-                        {/* <Col span={2} style={{ paddingLeft: 0 }}>
-                <Button
-                  type="text"
-                  className="p-0 m-0"
-                  onClick={() => {
-                    handlePickPaymentMethod(method.code);
-                  }}
-                >
-                  <img src={deleteIcon} alt="" />
-                </Button>
-              </Col> */}
                       </Row>
                     );
                   })}

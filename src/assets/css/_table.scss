@@ -38,4 +38,14 @@
     background-color: transparent;
     border-color: transparent;
   }
+  &__has-border-bottom {
+    &:not(:last-child) {
+      border-bottom: 1px solid #f0f0f0;
+    }
+  }
+  &__has-select-radio {
+    input, label {
+      cursor: pointer;
+    }
+  }
 }

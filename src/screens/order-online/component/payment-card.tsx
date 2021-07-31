@@ -62,7 +62,6 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
-  const [maxPayment, setMaxpayment] = useState(0);
 
   const ListMaymentMethods = useMemo(() => {
     return listPaymentMethod.filter(
@@ -127,6 +126,18 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     props.setPayments([...paymentData]);
   };
 
+  const caculateMax = (totalAmount: number, index: number) => {
+    let total = totalAmount;
+    for (let i = 0; i < index; i++) {
+      if (paymentData[i].code === PaymentMethodCode.POINT) {
+        total = total - paymentData[i].point! * 1000;
+      } else {
+        total = total - paymentData[i].amount;
+      }
+    }
+    return total;
+  };
+
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
@@ -160,6 +171,14 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
               </Radio>
             </Space>
           </Radio.Group>
+          {props.paymentMethod === PaymentMethodOption.COD && (
+            <div style={{ marginTop: 10 }}>
+              <i>
+                Vui lòng chọn hình thức Đóng gói và Giao hàng để có thể nhập giá
+                trị Tiền thu hộ *
+              </i>
+            </div>
+          )}
         </Form.Item>
 
         <Row
@@ -319,7 +338,9 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                       replaceFormat(value ? value : "0")
                                     }
                                     min={0}
-                                    max={99999}
+                                    max={
+                                      caculateMax(props.amount, index) / 1000
+                                    }
                                     onChange={(value) => {
                                       handleInputPoint(index, value);
                                     }}
@@ -333,7 +354,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                             <InputNumber
                               size="middle"
                               min={0}
-                              max={props.amount}
+                              max={caculateMax(props.amount, index)}
                               value={method.amount}
                               disabled={method.code === PaymentMethodCode.POINT}
                               className="yody-payment-input hide-number-handle"

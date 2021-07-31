@@ -22,7 +22,6 @@ import {
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
 import {
-  OrderDiscountResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
@@ -33,6 +32,7 @@ import {
 } from "model/request/order.request";
 import { RegUtil } from "./RegUtils";
 import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
+import { CustomerResponse } from "model/response/customer/customer.response";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -407,7 +407,6 @@ export const Products = {
     let variants: Array<VariantRequest> = [];
     let variant_prices: Array<VariantPriceRequest> = [];
     pr.variant_prices.forEach((item) => {
-      
       let retail_price = parseInt(item.retail_price);
       let import_price = parseInt(item.import_price);
       let whole_sale_price = parseInt(item.whole_sale_price);
@@ -485,7 +484,7 @@ export const Products = {
     };
     return productRequest;
   },
-  findAvatar: (images: Array<VariantImage>): VariantImage|null => {
+  findAvatar: (images: Array<VariantImage>): VariantImage | null => {
     let image: VariantImage | null = null;
     images.forEach((imagerRequest) => {
       if (imagerRequest.variant_avatar) {
@@ -494,17 +493,23 @@ export const Products = {
     });
     return image;
   },
-  findPrice: (prices: Array<VariantPricesResponse>, price_type: string, currency: string): VariantPricesResponse|null => {
+  findPrice: (
+    prices: Array<VariantPricesResponse>,
+    price_type: string,
+    currency: string
+  ): VariantPricesResponse | null => {
     let price: VariantPricesResponse | null = null;
-    prices.forEach(priceResponse => {
-      if (priceResponse.currency_code === currency && priceResponse.price_type === price_type) {
+    prices.forEach((priceResponse) => {
+      if (
+        priceResponse.currency_code === currency &&
+        priceResponse.price_type === price_type
+      ) {
         price = priceResponse;
       }
-    }) 
+    });
     return price;
   },
   convertVariantRequestToView: (variant: VariantResponse) => {
-    
     let variantPrices: Array<VariantPriceViewRequest> = [];
     variant.variant_prices.forEach((item) => {
       let index = variantPrices.findIndex(
@@ -690,7 +695,18 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
     }
   }
 
-  if (items.total === value) {
+  if (
+    items?.total_line_amount_after_line_discount +
+      (items?.fulfillments &&
+      items?.fulfillments.length > 0 &&
+      items?.fulfillments[0].shipment &&
+      items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+        ? items?.fulfillments[0].shipment &&
+          items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+        : 0) -
+      (items?.discounts && items?.discounts.length > 0 && items?.discounts[0].amount ? items?.discounts[0].amount : 0) ===
+    value
+  ) {
     return 1; //đã thanh toán
   } else {
     if (value === 0) {
@@ -699,6 +715,23 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
       return 0; //thanh toán 1 phần
     }
   }
+};
+
+export const SumCOD = (items: OrderResponse) => {
+  let cod = 0;
+  if (items !== null) {
+    if (items.fulfillments) {
+      if (items.fulfillments.length > 0) {
+        items.fulfillments.forEach((a) => {
+          if (a.shipment !== undefined && a.shipment !== null) {
+            cod = cod + a.shipment?.cod;
+          }
+        });
+      }
+    }
+  }
+
+  return cod;
 };
 
 //COD + tổng đã thanh toán
@@ -713,18 +746,8 @@ export const checkPaymentAll = (items: OrderResponse) => {
     }
   }
 
-  let cod = 0;
-  if (items !== null) {
-    if (items.fulfillments !== null && items.fulfillments !== undefined) {
-      if (items.fulfillments.length > 0) {
-        items.fulfillments.forEach((a) => {
-          if (a.shipment !== undefined && a.shipment !== null) {
-            cod = cod + a.shipment?.cod;
-          }
-        });
-      }
-    }
-  }
+  //tổng cod
+  let cod = SumCOD(items);
 
   let totalPay = value + cod;
   if (items.total === totalPay) {
@@ -744,4 +767,37 @@ export const getDateLastPayment = (items: OrderResponse) => {
     }
   }
   return value;
+};
+
+//Lấy ra địa chỉ giao hàng mắc định
+export const getShipingAddresDefault = (items: CustomerResponse | null) => {
+  let objShippingAddress = null;
+  if (items !== null) {
+    for (let i = 0; i < items.shipping_addresses.length; i++) {
+      if (items.shipping_addresses[i].default === true) {
+        objShippingAddress = items.shipping_addresses[i];
+      }
+    }
+  }
+  return objShippingAddress;
+};
+
+export const SumWeight = (items?: Array<OrderLineItemRequest>) => {
+  let totalWeight = 0;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      switch (items[i].weight_unit) {
+        case "g":
+          totalWeight = totalWeight + items[i].weight;
+          break;
+        case "kg":
+          totalWeight = totalWeight + items[i].weight * 1000;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return totalWeight;
 };
