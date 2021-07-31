@@ -1014,6 +1014,12 @@
 //custom radio
 .create-order-payment {
   .ant {
+    &-btn-lg {
+      padding-top: 4px;
+      padding-bottom: 4px;
+      height: 38px;
+      margin-right: 0;
+    }
     &-radio-inner {
       width: 18px;
       height: 18px;
@@ -1071,30 +1077,21 @@
       font-weight:400;
       color: #2A2A86
     }
+
   }
-  // .row-price{
-  //   justify-content:space-between;
-  // }
-  // .ant-input-number{
-  //   height: 32px
-  // }
-  // .ant-input-number-handler-wrap{
-  //   height: 32px
-  // }
-  // .ant-input-number-input-wrap{
-  //   height: 32px
-  // }
-  // .ant-input-number-input{
-  //   height:32px
-  // }
-  // .ant-input{
-  //   height:32px
-  // }
+
+  
 }
 
 .orders-dot-status{
   &::after{
     background-color: #E5E5E5 !important;
+  }
+}
+
+.orders-dot-fullCod-status{
+  &::after{
+    top: 21px !important
   }
 }
 

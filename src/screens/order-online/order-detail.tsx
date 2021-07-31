@@ -239,10 +239,10 @@ const OrderDetail = () => {
   // copy button
   const copyOrderID = (e: any) => {
     e.stopPropagation();
-    e.target.style.width = "34px";
+    e.target.style.width = "26px";
     const decWidth = setTimeout(() => {
-      e.target.style.width = "32px";
-    }, 200);
+      e.target.style.width = "23px";
+    }, 100);
     clearTimeout(decWidth);
     let selection = window.getSelection();
     let range = document.createRange();
@@ -312,7 +312,6 @@ const OrderDetail = () => {
       window.location.reload();
     }, timeout);
   };
-console.log(OrderDetail?.payments)
   const onPickSuccess = (value: OrderResponse) => {
     showSuccess("Nhặt hàng thành công");
     setTimeout(() => {
@@ -636,8 +635,18 @@ console.log(OrderDetail?.payments)
   };
   let takeHelperValue: any = takeHelper();
   const showTakeHelper = () => {
-    if (OrderDetail?.total && totalPaid) {
-      return OrderDetail?.total - totalPaid + shippingFeeInformedCustomer !== 0;
+    if (OrderDetail?.total_line_amount_after_line_discount) {
+      return (
+        OrderDetail?.total_line_amount_after_line_discount -
+          totalPaid +
+          shippingFeeInformedCustomer -
+          (OrderDetail?.discounts &&
+          OrderDetail?.discounts.length > 0 &&
+          OrderDetail?.discounts[0].amount
+            ? OrderDetail?.discounts[0].amount
+            : 0) !==
+        0
+      );
     } else if (paymentType === 1 && takeHelperValue !== 0) {
       return true;
     } else if (shippingFeeInformedCustomer) {
@@ -813,19 +822,23 @@ console.log(OrderDetail?.payments)
                             <p
                               ref={copyRef}
                               className="text-field"
-                              style={{ color: "#2A2A86", fontWeight: 500 }}
+                              style={{
+                                color: "#2A2A86",
+                                fontWeight: 500,
+                                fontSize: 18,
+                              }}
                             >
                               {OrderDetail?.fulfillments &&
                                 OrderDetail?.fulfillments.map(
                                   (item, index) => item.id
                                 )}
                             </p>
-                            <div style={{ width: 40, margin: "0 8px" }}>
+                            <div style={{ width: 30, padding: "0 4px" }}>
                               <img
                                 onClick={(e) => copyOrderID(e)}
                                 src={copyFileBtn}
                                 alt=""
-                                style={{ width: 32 }}
+                                style={{ width: 23 }}
                               />
                             </div>
                             <img
@@ -1458,7 +1471,7 @@ console.log(OrderDetail?.payments)
                             <Panel
                               className="orders-timeline-custom success-collapse"
                               header={
-                                <span style={{ color: "#222222"}}>
+                                <span style={{ color: "#222222" }}>
                                   <b>
                                     {OrderDetail?.payments &&
                                       OrderDetail?.payments
@@ -1485,8 +1498,11 @@ console.log(OrderDetail?.payments)
                               extra={
                                 <>
                                   {OrderDetail?.payments && (
-                                    <div >
-                                      <span className="fixed-time text-field" style={{color: "#737373" }}>
+                                    <div>
+                                      <span
+                                        className="fixed-time text-field"
+                                        style={{ color: "#737373" }}
+                                      >
                                         {ConvertUtcToLocalDate(
                                           getDateLastPayment(OrderDetail),
                                           "DD/MM/YYYY HH:mm"
@@ -1507,15 +1523,27 @@ console.log(OrderDetail?.payments)
                                     .map((item, index) => (
                                       <Col span={6}>
                                         <>
-                                        <p style={{ color: "#737373", marginBottom: 10 }}>
-                                          {item.payment_method}
-                                        </p>
-                                        <b>
-                                          {formatCurrency(item.paid_amount)}
-                                        </b>
+                                          <p
+                                            style={{
+                                              color: "#737373",
+                                              marginBottom: 10,
+                                            }}
+                                          >
+                                            {item.payment_method}
+                                          </p>
+                                          <b>
+                                            {formatCurrency(item.paid_amount)}
+                                          </b>
                                         </>
-                                        {item.payment_method_id === 3 && <p>FA18TAMFIXCUNG</p>}
-                                        {item.payment_method_id === 5 && <p>{Math.round(item.amount/1000)} điểm</p>}
+                                        {item.payment_method_id === 3 && (
+                                          <p>FA18TAMFIXCUNG</p>
+                                        )}
+                                        {item.payment_method_id === 5 && (
+                                          <p>
+                                            {Math.round(item.amount / 1000)}{" "}
+                                            điểm
+                                          </p>
+                                        )}
                                       </Col>
                                     ))}
                               </Row>
@@ -1538,10 +1566,15 @@ console.log(OrderDetail?.payments)
                                 showArrow={false}
                                 header={
                                   <>
-                                  <b style={{paddingLeft: "4px", color: "#222222"}}>
-                                    COD
-                                  </b>
-                                  <b
+                                    <b
+                                      style={{
+                                        paddingLeft: "4px",
+                                        color: "#222222",
+                                      }}
+                                    >
+                                      COD
+                                    </b>
+                                    <b
                                       style={{
                                         marginLeft: "200px",
                                         color: "#222222",
@@ -1559,9 +1592,13 @@ console.log(OrderDetail?.payments)
                                 }
                                 extra={
                                   <>
-                                    {OrderDetail?.fulfillments[0].status === "shipped" && (
-                                      <div >
-                                        <span className="fixed-time text-field" style={{ color: "#737373"}}>
+                                    {OrderDetail?.fulfillments[0].status ===
+                                      "shipped" && (
+                                      <div>
+                                        <span
+                                          className="fixed-time text-field"
+                                          style={{ color: "#737373" }}
+                                        >
                                           {ConvertUtcToLocalDate(
                                             getDateLastPayment(OrderDetail),
                                             "DD/MM/YYYY HH:mm"
@@ -1639,7 +1676,7 @@ console.log(OrderDetail?.payments)
                       <div className="d-flex" style={{ marginTop: "5px" }}>
                         <span className="title-card">THANH TOÁN</span>
                       </div>
-                      {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                      {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (
                         <Tag className="orders-tag orders-tag-default">
                           Chưa thanh toán
                         </Tag>
@@ -1648,7 +1685,7 @@ console.log(OrderDetail?.payments)
                         <Tag className="orders-tag orders-tag-warning">
                           Thanh toán 1 phần
                         </Tag>
-                      )}
+                      )} */}
                       {checkPaymentStatusToShow(OrderDetail) === 1 && (
                         <Tag
                           className="orders-tag orders-tag-success"
@@ -1693,11 +1730,18 @@ console.log(OrderDetail?.payments)
                       ghost
                     >
                       <Panel
-                        className="orders-timeline-custom"
+                        className={
+                          OrderDetail?.fulfillments[0].status !== "shipped"
+                            ? "orders-timeline-custom orders-dot-status orders-dot-fullCod-status"
+                            : "orders-timeline-custom orders-dot-fullCod-status"
+                        }
                         showArrow={false}
                         header={
-                          <span>
+                          <b style={{ color: "#222222" }}>
                             COD
+                            <Tag className="orders-tag orders-tag-warning" style={{marginLeft: 10}}>
+                              Đang chờ thu
+                            </Tag>
                             <b
                               style={{ marginLeft: "200px", color: "#222222" }}
                             >
@@ -1707,7 +1751,7 @@ console.log(OrderDetail?.payments)
                                   )
                                 : 0}
                             </b>
-                          </span>
+                          </b>
                         }
                         key="1"
                       >

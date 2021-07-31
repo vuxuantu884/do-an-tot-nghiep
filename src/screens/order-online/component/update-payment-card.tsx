@@ -7,7 +7,7 @@ import {
   Radio,
   InputNumber,
   Space,
-  Divider,
+  Divider,Input
 } from "antd";
 
 import {
@@ -251,9 +251,9 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 <Radio.Group
                   value={props.paymentMethod}
                   onChange={(e) => changePaymentMethod(e.target.value)}
-                  style={{ margin: "20px 0 20px 0" }}
+                  style={{ margin: "18px 0" }}
                 >
-                  <Space size={24}>
+                  <Space size={20}>
                     <Radio value={PaymentMethodOption.COD}>COD</Radio>
                     <Radio value={PaymentMethodOption.PREPAYMENT}>
                       Thanh toán trước
@@ -307,6 +307,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       return (
                         <Col key={method.code} className="btn-payment-method">
                           <Button
+                           style={{ display: "flex" }}
                             type={
                               paymentData.some((p) => p.code === method.code)
                                 ? "primary"
@@ -314,7 +315,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                             }
                             value={method.id}
                             icon={icon}
-                            size="large"
                             onClick={() => {
                               handlePickPaymentMethod(method.code);
                             }}
@@ -327,18 +327,24 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     })}
                   </Row>
                 </Col>
-                <Col span={24}>
+                <Col span={20} xs={20}>
                   <Row
                     gutter={14}
                     className="row-price"
-                    style={{ padding: "5px 0px" }}
+                    style={{ height: 38, margin: "10px 0" }}
                   >
-                    <Col xs={9} className="row-large-title">
-                      Khách cần trả
-                    </Col>
+                    <Col
+                        lg={14}
+                        xxl={9}
+                        className="row-large-title"
+                        style={{ padding: "8px 0" }}
+                      >
+                        <b>Khách cần trả:</b>
+                      </Col>
                     <Col
                       className="lbl-money"
-                      xs={5}
+                      lg={9}
+                      xxl={6}
                       style={{
                         textAlign: "right",
                         fontWeight: 500,
@@ -354,132 +360,161 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   {paymentData.map((method, index) => {
                     return (
                       <Row
-                        gutter={14}
-                        className="row-price"
-                        style={{ padding: "5px 0" }}
-                        key={index}
-                      >
-                        <Col xs={9}>
-                          <Row align="middle">
-                            {method.name}
-                            {method.code === PaymentMethodCode.POINT ? (
-                              <div>
-                                <span
-                                  style={{
-                                    fontSize: 14,
-                                    marginLeft: 5,
-                                  }}
+                          gutter={20}
+                          className="row-price"
+                          key={index}
+                          style={{ margin: "10px 0" }}
+                        >
+                          <Col lg={14} xxl={9} style={{ padding: "0" }}>
+                            <Row align="middle">
+                              <b style={{ padding: "8px 0" }}>{method.name}:</b>
+                              {method.code === PaymentMethodCode.POINT ? (
+                                <Col className="point-spending">
+                                  <span
+                                    style={{
+                                      fontSize: 14,
+                                      marginLeft: 5,
+                                    }}
+                                  >
+                                    {" "}
+                                    (1 điểm = 1,000₫)
+                                  </span>
+                                  <InputNumber
+                                    value={method.point}
+                                    style={{
+                                      width: 100,
+                                      marginLeft: 12,
+                                      borderRadius: 5,
+                                    }}
+                                    className="hide-number-handle"
+                                    onFocus={(e) => e.target.select()}
+                                    formatter={(value) =>
+                                      formatSuffixPoint(value ? value : "0")
+                                    }
+                                    parser={(value) =>
+                                      replaceFormat(value ? value : "0")
+                                    }
+                                    min={0}
+                                    max={
+                                      caculateMax(props.amount, index) / 1000
+                                    }
+                                    onChange={(value) => {
+                                      handleInputPoint(index, value);
+                                    }}
+                                  />
+                                </Col>
+                              ) : null}
+
+                              {method.code ===
+                              PaymentMethodCode.BANK_TRANSFER ? (
+                                <Col
+                                  className="point-spending"
+                                  style={{ marginLeft: 6 }}
+                                  lg={14}
+                                  xxl={14}
                                 >
-                                  {" "}
-                                  (1 điểm = 1,000₫)
-                                </span>
-                                <InputNumber
-                                  value={method.point}
-                                  size="middle"
-                                  style={{
-                                    textAlign: "right",
-                                    borderRadius: 5,
-                                    marginLeft: "5px",
-                                  }}
-                                  className="yody-payment-input hide-number-handle"
-                                  onFocus={(e) => e.target.select()}
-                                  formatter={(value) =>
-                                    formatSuffixPoint(value ? value : "0")
-                                  }
-                                  parser={(value) =>
-                                    replaceFormat(value ? value : "0")
-                                  }
-                                  min={0}
-                                  max={caculateMax(props.amount, index) / 1000}
-                                  onChange={(value) => {
-                                    handleInputPoint(index, value);
-                                  }}
-                                />
-                              </div>
-                            ) : null}
-                          </Row>
+                                  <Input placeholder="Tham chiếu" />
+                                </Col>
+                              ) : null}
+                            </Row>
                         </Col>
-                        <Col className="lbl-money" xs={5}>
-                          <InputNumber
-                            size="middle"
-                            min={0}
-                            max={caculateMax(props.amount, index)}
-                            value={method.amount}
-                            disabled={method.code === PaymentMethodCode.POINT}
-                            className="yody-payment-input hide-number-handle"
-                            formatter={(value) =>
-                              formatCurrency(value ? value : "0")
-                            }
-                            placeholder="Nhập tiền mặt"
-                            style={{ textAlign: "right", width: "100%" }}
-                            onChange={(value) => handleInputMoney(index, value)}
-                            onFocus={(e) => e.target.select()}
-                          />
-                        </Col>
-                        {/* <Col span={2} style={{ paddingLeft: 0 }}>
-                      <Button
-                        type="text"
-                        className="p-0 m-0"
-                        onClick={() => {
-                          handlePickPaymentMethod(method.code);
-                        }}
-                      >
-                        <img src={deleteIcon} alt="" />
-                      </Button>
-                    </Col> */}
+                        {method.code !== PaymentMethodCode.POINT ? (
+                            <Col className="lbl-money" lg={9} xxl={6}>
+                              <InputNumber
+                                size="middle"
+                                min={0}
+                                max={caculateMax(props.amount, index)}
+                                value={method.amount}
+                                disabled={
+                                  method.code === PaymentMethodCode.POINT
+                                }
+                                className="yody-payment-input hide-number-handle"
+                                formatter={(value) =>
+                                  formatCurrency(value ? value : "0")
+                                }
+                                placeholder="Nhập tiền mặt"
+                                style={{
+                                  textAlign: "right",
+                                  width: "100%",
+                                  borderRadius: 5,
+                                }}
+                                onChange={(value) =>
+                                  handleInputMoney(index, value)
+                                }
+                                onFocus={(e) => e.target.select()}
+                              />
+                            </Col>
+                          ) : (
+                            <Col
+                              className="lbl-money"
+                              lg={9}
+                              xxl={6}
+                              style={{ padding: 8, textAlign: "right" }}
+                            >
+                              <span
+                                style={{ padding: "14px 14px", lineHeight: 1 }}
+                              >
+                                {formatCurrency(method.amount)}
+                              </span>
+                            </Col>
+                          )}
                       </Row>
                     );
                   })}
 
-                  <Row
-                    gutter={12}
-                    className="row-price total-customer-pay"
-                    style={{ marginLeft: 0, marginRight: 0 }}
-                  >
-                    <Col
-                      xs={9}
-                      className="row-large-title"
-                      style={{ paddingLeft: 0 }}
+<Row
+                      gutter={20}
+                      className="row-price total-customer-pay"
+                      style={{ height: 38, margin: "10px 0" }}
                     >
-                      Tổng số tiền khách trả
-                    </Col>
-                    <Col
-                      className="lbl-money"
-                      xs={5}
-                      style={{
-                        textAlign: "right",
-                        fontWeight: 500,
-                        fontSize: "20px",
-                        paddingRight: 3,
-                      }}
-                    >
-                      <span>{formatCurrency(totalAmountPaid)}</span>
-                    </Col>
-                  </Row>
-                  <Row
-                    gutter={12}
-                    className="row-price"
-                    style={{ padding: "5px 0" }}
-                  >
-                    <Col xs={9} className="row-large-title">
-                      {moneyReturn > 0 ? "Còn phải trả" : "Tiền thừa"}
-                    </Col>
-                    <Col
-                      className="lbl-money"
-                      xs={5}
-                      style={{
-                        textAlign: "right",
-                        fontWeight: 500,
-                        fontSize: "20px",
-                      }}
-                    >
-                      <span
-                        style={{ color: moneyReturn <= 0 ? "blue" : "red" }}
+                      <Col
+                        lg={14}
+                        xxl={9}
+                        className="row-large-title"
+                        style={{ padding: "8px 0" }}
                       >
-                        {formatCurrency(Math.abs(moneyReturn))}
-                      </span>
-                    </Col>
-                  </Row>
+                        <b>Tổng số tiền khách trả:</b>
+                      </Col>
+                      <Col
+                        className="lbl-money"
+                        lg={9}
+                        xxl={6}
+                        style={{
+                          textAlign: "right",
+                          fontWeight: 500,
+                          fontSize: "20px",
+                        }}
+                      >
+                        <span>{formatCurrency(totalAmountPaid)}</span>
+                      </Col>
+                    </Row>
+                    <Row
+                      gutter={20}
+                      className="row-price"
+                      style={{ height: 38, margin: "10px 0 0 0" }}
+                    >
+                      <Col lg={14} xxl={9} style={{ padding: "8px 0" }}>
+                        <b>
+                          {moneyReturn > 0 ? "Còn phải trả:" : "Tiền thừa:"}
+                        </b>
+                      </Col>
+                      <Col
+                        className="lbl-money"
+                        lg={9}
+                        xxl={6}
+                        style={{
+                          textAlign: "right",
+                          fontWeight: 500,
+                          fontSize: "20px",
+                        }}
+                      >
+                        <span
+                          style={{ color: moneyReturn <= 0 ? "blue" : "red" }}
+                        >
+                          {formatCurrency(Math.abs(moneyReturn))}
+                        </span>
+                      </Col>
+                    </Row>
 
                   <Row gutter={24} style={{ marginTop: "20px" }}>
                     <Col xs={24}>
