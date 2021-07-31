@@ -289,8 +289,8 @@
 .payment-checkbox {
   margin-bottom: 20px;
 }
-.payment-row {
-  margin-bottom: 5px;
+.po-payment-row {
+  margin-bottom: 15px;
   color: #222222;
   display: flex;
   justify-content: space-between;
@@ -300,6 +300,14 @@
     &-discount {
       color: #E24343;
     }
+  }
+  &-title {
+    font-weight: 700;
+    size: 14px;
+    color: #222222;
+  }
+  &-success {
+    color: $primary-color
   }
 }
 .modal-product-list {
