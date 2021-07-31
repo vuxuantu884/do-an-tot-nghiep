@@ -203,6 +203,7 @@ const setting: Array<RouteMenu> = [
     path: UrlConfig.ORDER_SOURCES,
     exact: true,
     title: "Nguồn đơn hàng",
+    subTitle: "Thêm và quản lý nguồn tạo ra đơn hàng",
     icon: "icon-dot",
     component: SettingOrderSourcesScreen,
     key: "submenu96",

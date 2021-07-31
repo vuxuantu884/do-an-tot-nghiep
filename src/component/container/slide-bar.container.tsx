@@ -1,19 +1,19 @@
-import {Layout, Menu} from 'antd';
-import React, {useMemo} from 'react';
-import {Link} from 'react-router-dom';
-import menu from 'routes/menu';
-import {findCurrentRoute} from 'utils/AppUtils';
-import {Scrollbars} from 'react-custom-scrollbars';
+import { Layout, Menu } from "antd";
+import React, { useMemo } from "react";
+import { Link } from "react-router-dom";
+import menu from "routes/menu";
+import { findCurrentRoute } from "utils/AppUtils";
+import { Scrollbars } from "react-custom-scrollbars";
 
 type SlidebarContainerProps = {
   path: string;
   collapsed: boolean;
 };
-const {Sider} = Layout;
+const { Sider } = Layout;
 const SlidebarContainer: React.FC<SlidebarContainerProps> = (
   props: SlidebarContainerProps
 ) => {
-  const {path, collapsed} = props;
+  const { path, collapsed } = props;
   let currentRoute = useMemo(() => findCurrentRoute(menu, path), [path]);
   const defaultSelectedKeys = [];
   if (currentRoute.current != null) {
@@ -39,7 +39,7 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
                   icon={
                     <i
                       className={route.icon}
-                      style={{fontSize: 24, marginRight: 10}}
+                      style={{ fontSize: 24, marginRight: 10 }}
                     />
                   }
                   title={route.title}
@@ -51,12 +51,14 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
                         icon={
                           <i
                             className={item.icon}
-                            style={{fontSize: 8, marginRight: 10}}
+                            style={{ fontSize: 8, marginRight: 0 }}
                           />
                         }
                         key={item.key}
                       >
-                        <Link to={item.path}>{item.title}</Link>
+                        <Link to={item.path} title={item.subTitle}>
+                          {item.title}
+                        </Link>
                       </Menu.Item>
                     );
                   })}
@@ -73,7 +75,7 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
                 icon={
                   <i
                     className={route.icon}
-                    style={{fontSize: 24, marginRight: 10}}
+                    style={{ fontSize: 24, marginRight: 10 }}
                   />
                 }
                 key={route.key}
