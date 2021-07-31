@@ -11,11 +11,13 @@ import {
   storeGetApi,
   storeRankGetApi,
   storesDetailApi,
+  storesDetailCustomApi,
   storesPostApi,
   storesPutApi,
 } from "service/core/store.services";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { StoreCustomResponse } from 'model/response/order/order.response';
 
 function* storeGetAllSaga(action: YodyAction) {
   let { setData } = action.payload;
@@ -161,11 +163,37 @@ export function* storeDetailSaga(action: YodyAction) {
   }
 }
 
+
+export function* storeDetailCustomSaga(action: YodyAction) {
+  const { id, setData } = action.payload;
+  try {
+    let response: BaseResponse<StoreCustomResponse> = yield call(
+      storesDetailCustomApi,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        response.data.accounts = [];
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* storeSaga() {
   yield takeLatest(StoreType.GET_LIST_STORE_REQUEST, storeGetAllSaga);
   yield takeLatest(StoreType.STORE_SEARCH, storeSearchSaga);
   yield takeLatest(StoreType.STORE_RANK, storeRanksaga);
   yield takeLatest(StoreType.STORE_CREATE, storeCreateSaga);
-  yield takeLatest(StoreType.STORE_DETAIL, storeDetailSaga)
-  yield takeLatest(StoreType.STORE_UPDATE, storeUpdateSaga)
+  yield takeLatest(StoreType.STORE_DETAIL, storeDetailSaga);
+  yield takeLatest(StoreType.STORE_DETAIL_CUSTOM, storeDetailCustomSaga)
+  yield takeLatest(StoreType.STORE_UPDATE, storeUpdateSaga);
 }
