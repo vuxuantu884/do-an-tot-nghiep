@@ -42,7 +42,7 @@ type ModalFormType = {
 };
 
 /**
- * now default company_id: 1, company: "YODY"
+ * now default company_id: 1, company: "YODY";
  * hidden fields company_id and company  and id if is edit or delete)
  */
 const ModalOrderProcessingStatus: React.FC<ModalAddOrderSourceType> = (
