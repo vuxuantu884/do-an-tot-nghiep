@@ -147,7 +147,6 @@ const OrderDetail = () => {
     useState(false);
 
   //#endregion
-console.log(totalPaid)
   //#region Master
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
@@ -705,8 +704,6 @@ console.log(totalPaid)
   };
 
   const customerNeedToPayValue = customerNeedToPay();
-  console.log(customerNeedToPayValue)
-  console.log(OrderDetail)
   // end
   return (
     <ContentContainer
@@ -765,6 +762,7 @@ console.log(totalPaid)
                             OrderDetail?.fulfillments &&
                             OrderDetail?.fulfillments[0].status) && (
                           <Tag
+                            key={statusTag.name}
                             className="orders-tag text-menu"
                             style={{
                               color: `${statusTag.color}`,
@@ -1535,7 +1533,7 @@ console.log(totalPaid)
                                         payment.payment_method !== "cod" && payment.amount
                                     )
                                     .map((item, index) => (
-                                      <Col span={6}>
+                                      <Col span={6} key={item.code}>
                                         <>
                                           <p
                                             style={{
@@ -1777,7 +1775,7 @@ console.log(totalPaid)
                         <Row gutter={24}>
                           {OrderDetail?.payments &&
                             OrderDetail?.payments.map((item, index) => (
-                              <Col span={12}>
+                              <Col span={12} key={item.id}>
                                 <p className="text-field">
                                   {item.payment_method}
                                 </p>
@@ -1796,6 +1794,7 @@ console.log(totalPaid)
                             OrderDetail.total !== null &&
                             OrderDetail.total - item.paid_amount !== 0 && (
                               <Button
+                                key={item.id}
                                 type="primary"
                                 className="ant-btn-outline fixed-button"
                               >

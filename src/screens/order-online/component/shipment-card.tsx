@@ -255,7 +255,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           >
             <Space size={10}>
               {shipmentButton.map((button) => (
-                <div>
+                <div key={button.value}>
                   {props.shipmentMethod !== button.value ? (
                     <div
                       className="saleorder_shipment_button"
