@@ -18,7 +18,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { PoFormName, VietNamId } from "utils/Constants";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PoCreateAction } from "domain/actions/po/po.action";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 
 import {
   CountryGetAllAction,
@@ -59,17 +59,20 @@ const POCreateScreen: React.FC = () => {
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
-  const onResultRD = useCallback((data: PageResponse<AccountResponse>|false) => {
-    if(!data) {
-      setError(true);
-      return;
-    }
-    setRDAccount(data.items);
-    setLoading(false);
-  }, []);
+  const onResultRD = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        setError(true);
+        return;
+      }
+      setRDAccount(data.items);
+      setLoading(false);
+    },
+    []
+  );
   const onResultWin = useCallback(
-    (data: PageResponse<AccountResponse>|false) => {
-      if(!data) {
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
         setError(true);
         return;
       }
@@ -103,8 +106,16 @@ const POCreateScreen: React.FC = () => {
   );
   const onFinish = useCallback(
     (data: PurchaseOrder) => {
+      if (data.line_items.length === 0) {
+        let element: any = document.getElementById("#product_search");
+        element?.focus();
+        const y =
+          element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+        window.scrollTo({ top: y, behavior: "smooth" });
+        showError('Vui lòng thêm sản phẩm');
+        return;
+      }
       setLoadingSaveButton(true);
-
       dispatch(PoCreateAction(data, createCallback));
     },
     [createCallback, dispatch]
@@ -215,7 +226,12 @@ const POCreateScreen: React.FC = () => {
         >
           <Col
             md={10}
-            style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px", zIndex: 100 }}
+            style={{
+              marginLeft: "-20px",
+              marginTop: "3px",
+              padding: "3px",
+              zIndex: 100,
+            }}
           >
             <Steps
               progressDot={(dot: any, { status, index }: any) => (

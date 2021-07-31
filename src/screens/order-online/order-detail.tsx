@@ -147,7 +147,7 @@ const OrderDetail = () => {
     useState(false);
 
   //#endregion
-
+console.log(totalPaid)
   //#region Master
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
@@ -239,10 +239,10 @@ const OrderDetail = () => {
   // copy button
   const copyOrderID = (e: any) => {
     e.stopPropagation();
-    e.target.style.width = "34px";
+    e.target.style.width = "26px";
     const decWidth = setTimeout(() => {
-      e.target.style.width = "32px";
-    }, 200);
+      e.target.style.width = "23px";
+    }, 100);
     clearTimeout(decWidth);
     let selection = window.getSelection();
     let range = document.createRange();
@@ -252,12 +252,15 @@ const OrderDetail = () => {
     document.execCommand("Copy");
   };
   //#region Product
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
-    if(!data) {
-      return;
-    }
-    setAccounts(data.items);
-  }, []);
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
 
   const ShipMethodOnChange = (value: number) => {
     setShipmentMethod(value);
@@ -309,7 +312,6 @@ const OrderDetail = () => {
       window.location.reload();
     }, timeout);
   };
-
   const onPickSuccess = (value: OrderResponse) => {
     showSuccess("Nhặt hàng thành công");
     setTimeout(() => {
@@ -420,8 +422,16 @@ const OrderDetail = () => {
         shippingFeeInformedCustomer -
         OrderDetail?.total_paid
       );
-    }
-  };
+    } else if (
+      OrderDetail && 
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].shipment.cod
+    ){
+      return OrderDetail?.fulfillments[0].shipment.cod
+    };
+  }
   //#region shiment
   let initialFormUpdateShipment: UpdateShipmentRequest = {
     order_id: null,
@@ -500,6 +510,10 @@ const OrderDetail = () => {
         value.cod = takeHelperValue;
       }
     }
+    if(OrderDetail?.status === "draft" && customerNeedToPayValue === totalPaid){
+      value.cod = customerNeedToPayValue
+    }
+
     FulFillmentRequest.shipment = value;
     if (shippingFeeInformedCustomer !== null) {
       FulFillmentRequest.shipping_fee_informed_to_customer =
@@ -633,8 +647,18 @@ const OrderDetail = () => {
   };
   let takeHelperValue: any = takeHelper();
   const showTakeHelper = () => {
-    if (OrderDetail?.total && totalPaid) {
-      return OrderDetail?.total - totalPaid + shippingFeeInformedCustomer !== 0;
+    if (OrderDetail?.total_line_amount_after_line_discount) {
+      return (
+        OrderDetail?.total_line_amount_after_line_discount -
+          totalPaid +
+          shippingFeeInformedCustomer -
+          (OrderDetail?.discounts &&
+          OrderDetail?.discounts.length > 0 &&
+          OrderDetail?.discounts[0].amount
+            ? OrderDetail?.discounts[0].amount
+            : 0) !==
+        0
+      );
     } else if (paymentType === 1 && takeHelperValue !== 0) {
       return true;
     } else if (shippingFeeInformedCustomer) {
@@ -681,6 +705,8 @@ const OrderDetail = () => {
   };
 
   const customerNeedToPayValue = customerNeedToPay();
+  console.log(customerNeedToPayValue)
+  console.log(OrderDetail)
   // end
   return (
     <ContentContainer
@@ -810,19 +836,23 @@ const OrderDetail = () => {
                             <p
                               ref={copyRef}
                               className="text-field"
-                              style={{ color: "#2A2A86", fontWeight: 500 }}
+                              style={{
+                                color: "#2A2A86",
+                                fontWeight: 500,
+                                fontSize: 18,
+                              }}
                             >
                               {OrderDetail?.fulfillments &&
                                 OrderDetail?.fulfillments.map(
                                   (item, index) => item.id
                                 )}
                             </p>
-                            <div style={{ width: 40, margin: "0 8px" }}>
+                            <div style={{ width: 30, padding: "0 4px" }}>
                               <img
                                 onClick={(e) => copyOrderID(e)}
                                 src={copyFileBtn}
                                 alt=""
-                                style={{ width: 32 }}
+                                style={{ width: 23 }}
                               />
                             </div>
                             <img
@@ -1456,13 +1486,12 @@ const OrderDetail = () => {
                               className="orders-timeline-custom success-collapse"
                               header={
                                 <span style={{ color: "#222222" }}>
-                                  <span>Đã thanh toán: </span>
                                   <b>
                                     {OrderDetail?.payments &&
                                       OrderDetail?.payments
                                         .filter(
                                           (payment, index) =>
-                                            payment.payment_method !== "cod"
+                                            payment.payment_method !== "cod" && payment.amount
                                         )
                                         .map(
                                           (item, index) =>
@@ -1484,7 +1513,10 @@ const OrderDetail = () => {
                                 <>
                                   {OrderDetail?.payments && (
                                     <div>
-                                      <span className="fixed-time text-field">
+                                      <span
+                                        className="fixed-time text-field"
+                                        style={{ color: "#737373" }}
+                                      >
                                         {ConvertUtcToLocalDate(
                                           getDateLastPayment(OrderDetail),
                                           "DD/MM/YYYY HH:mm"
@@ -1500,16 +1532,32 @@ const OrderDetail = () => {
                                   OrderDetail?.payments
                                     .filter(
                                       (payment) =>
-                                        payment.payment_method !== "cod"
+                                        payment.payment_method !== "cod" && payment.amount
                                     )
                                     .map((item, index) => (
-                                      <Col span={12}>
-                                        <p style={{ color: "#737373" }}>
-                                          {item.payment_method}
-                                        </p>
-                                        <b>
-                                          {formatCurrency(item.paid_amount)}
-                                        </b>
+                                      <Col span={6}>
+                                        <>
+                                          <p
+                                            style={{
+                                              color: "#737373",
+                                              marginBottom: 10,
+                                            }}
+                                          >
+                                            {item.payment_method}
+                                          </p>
+                                          <b>
+                                            {formatCurrency(item.paid_amount)}
+                                          </b>
+                                        </>
+                                        {item.payment_method_id === 3 && (
+                                          <p>FA18TAMFIXCUNG</p>
+                                        )}
+                                        {item.payment_method_id === 5 && (
+                                          <p>
+                                            {Math.round(item.amount / 1000)}{" "}
+                                            điểm
+                                          </p>
+                                        )}
                                       </Col>
                                     ))}
                               </Row>
@@ -1523,11 +1571,23 @@ const OrderDetail = () => {
                             OrderDetail.fulfillments[0].shipment?.cod !==
                               null && (
                               <Panel
-                                className="orders-timeline-custom"
+                                className={
+                                  OrderDetail?.fulfillments[0].status !==
+                                  "shipped"
+                                    ? "orders-timeline-custom orders-dot-status"
+                                    : "orders-timeline-custom"
+                                }
                                 showArrow={false}
                                 header={
-                                  <span>
-                                    COD
+                                  <>
+                                    <b
+                                      style={{
+                                        paddingLeft: "4px",
+                                        color: "#222222",
+                                      }}
+                                    >
+                                      COD
+                                    </b>
                                     <b
                                       style={{
                                         marginLeft: "200px",
@@ -1542,13 +1602,17 @@ const OrderDetail = () => {
                                           )
                                         : 0}
                                     </b>
-                                  </span>
+                                  </>
                                 }
                                 extra={
                                   <>
-                                    {OrderDetail?.payments && (
+                                    {OrderDetail?.fulfillments[0].status ===
+                                      "shipped" && (
                                       <div>
-                                        <span className="fixed-time text-field">
+                                        <span
+                                          className="fixed-time text-field"
+                                          style={{ color: "#737373" }}
+                                        >
                                           {ConvertUtcToLocalDate(
                                             getDateLastPayment(OrderDetail),
                                             "DD/MM/YYYY HH:mm"
@@ -1573,7 +1637,12 @@ const OrderDetail = () => {
                       showPartialPayment={true}
                       amount={
                         OrderDetail.total_line_amount_after_line_discount -
-                        getAmountPayment(OrderDetail.payments)
+                        getAmountPayment(OrderDetail.payments) - 
+                        (OrderDetail?.discounts &&
+                        OrderDetail?.discounts.length > 0 &&
+                        OrderDetail?.discounts[0].amount
+                          ? OrderDetail?.discounts[0].amount
+                          : 0)
                       }
                       order_id={OrderDetail.id}
                       orderDetail={OrderDetail}
@@ -1626,7 +1695,7 @@ const OrderDetail = () => {
                       <div className="d-flex" style={{ marginTop: "5px" }}>
                         <span className="title-card">THANH TOÁN</span>
                       </div>
-                      {checkPaymentStatusToShow(OrderDetail) === -1 && (
+                      {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (
                         <Tag className="orders-tag orders-tag-default">
                           Chưa thanh toán
                         </Tag>
@@ -1635,7 +1704,7 @@ const OrderDetail = () => {
                         <Tag className="orders-tag orders-tag-warning">
                           Thanh toán 1 phần
                         </Tag>
-                      )}
+                      )} */}
                       {checkPaymentStatusToShow(OrderDetail) === 1 && (
                         <Tag
                           className="orders-tag orders-tag-success"
@@ -1660,7 +1729,7 @@ const OrderDetail = () => {
                       </Col>
                       <Col span={12}>
                         <span className="text-field margin-right-40">
-                          Còn phải trả
+                          Còn phải trả:
                         </span>
                         <b style={{ color: "red" }}>
                           {OrderDetail && OrderDetail?.fulfillments
@@ -1680,11 +1749,18 @@ const OrderDetail = () => {
                       ghost
                     >
                       <Panel
-                        className="orders-timeline-custom"
+                        className={
+                          OrderDetail?.fulfillments[0].status !== "shipped"
+                            ? "orders-timeline-custom orders-dot-status orders-dot-fullCod-status"
+                            : "orders-timeline-custom orders-dot-fullCod-status"
+                        }
                         showArrow={false}
                         header={
-                          <span>
+                          <b style={{ color: "#222222" }}>
                             COD
+                            <Tag className="orders-tag orders-tag-warning" style={{marginLeft: 10}}>
+                              Đang chờ thu
+                            </Tag>
                             <b
                               style={{ marginLeft: "200px", color: "#222222" }}
                             >
@@ -1694,7 +1770,7 @@ const OrderDetail = () => {
                                   )
                                 : 0}
                             </b>
-                          </span>
+                          </b>
                         }
                         key="1"
                       >
@@ -1798,8 +1874,8 @@ const OrderDetail = () => {
                   <Col span={15}>
                     <span>
                       {moment(OrderDetail?.created_date).format(
-                            "DD/MM/YYYY HH:mm a"
-                          )}
+                        "DD/MM/YYYY HH:mm a"
+                      )}
                     </span>
                   </Col>
                 </Row>
@@ -1881,7 +1957,8 @@ const OrderDetail = () => {
         title="Xác nhận xuất kho"
         text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!) 
+            ? "với tiền thu hộ là " +
+              formatCurrency(confirmExportAndFinishValue()!)
             : ""
         } không?`}
       />
@@ -1892,7 +1969,8 @@ const OrderDetail = () => {
         title="Xác nhận giao hàng thành công"
         text={`Bạn có chắc đã giao đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!) 
+            ? "với tiền thu hộ là " +
+              formatCurrency(confirmExportAndFinishValue()!)
             : ""
         } không?`}
       />

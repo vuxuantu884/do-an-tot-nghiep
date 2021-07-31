@@ -188,7 +188,6 @@ export default function Order() {
   };
 
   //#region Order
-
   const initialForm: OrderRequest = {
     ...initialRequest,
     shipping_address: shippingAddress,
@@ -253,12 +252,7 @@ export default function Order() {
     }
     return listFullfillmentRequest;
   };
-  console.log(
-    orderAmount +
-      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-      getAmountPaymentRequest(payments) -
-      discountValue
-  );
+
   const createShipmentRequest = (value: OrderRequest) => {
     let objShipment: ShipmentRequest = {
       delivery_service_provider_id: null, //id người shipper
