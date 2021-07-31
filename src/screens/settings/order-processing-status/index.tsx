@@ -6,10 +6,10 @@ import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTableStyle2 from "component/table/CustomTableStyle2";
 import UrlConfig from "config/UrlConfig";
 import {
-  actionAddOrderProcessingStatuss,
+  actionAddOrderProcessingStatus,
   actionDeleteOrderProcessingStatus,
   actionEditOrderProcessingStatus,
-  actionFetchListOrderProcessingStatuss,
+  actionFetchListOrderProcessingStatus,
 } from "domain/actions/settings/order-processing-status.action";
 import { modalActionType } from "model/modal/modal.model";
 import { VariantResponse } from "model/product/product.model";
@@ -89,7 +89,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
 
   let [params, setParams] = useState({
     page: +(query.get("page") || 1),
-    limit: +(query.get("limit") || 3),
+    limit: +(query.get("limit") || 30),
     sort_type: "desc",
     sort_column: "id",
   });
@@ -122,29 +122,28 @@ const SettingOrderProcessingStatus: React.FC = () => {
   };
 
   const gotoFirstPage = () => {
-    if (params.page !== 1) {
-      const newParams = {
-        ...params,
-        page: 1,
-      };
-      setParams({ ...newParams });
-      let queryParam = generateQuery(newParams);
-      history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
-    }
+    const newParams = {
+      ...params,
+      page: 1,
+    };
+    setParams({ ...newParams });
+    let queryParam = generateQuery(newParams);
+    history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
   };
 
   const handleForm = {
     create: (value: OrderProcessingStatusModel) => {
       dispatch(
-        actionAddOrderProcessingStatuss(value, () => {
+        actionAddOrderProcessingStatus(value, () => {
           setIsShowModalCreate(false);
           gotoFirstPage();
         })
       );
     },
     delete: (value: OrderProcessingStatusModel) => {
+      console.log("value", value);
       dispatch(
-        actionDeleteOrderProcessingStatus(value, () => {
+        actionDeleteOrderProcessingStatus(value.id, () => {
           setIsShowModalCreate(false);
           gotoFirstPage();
         })
@@ -155,7 +154,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
         actionEditOrderProcessingStatus(id, value, () => {
           setIsShowModalCreate(false);
           dispatch(
-            actionFetchListOrderProcessingStatuss(
+            actionFetchListOrderProcessingStatus(
               params,
               (data: OrderProcessingStatusResponseModel) => {
                 setListOrderProcessingStatus(data.items);
@@ -173,7 +172,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
      * when dispatch action, call function (handleData) to handle data
      */
     dispatch(
-      actionFetchListOrderProcessingStatuss(
+      actionFetchListOrderProcessingStatus(
         params,
         (data: OrderProcessingStatusResponseModel) => {
           setListOrderProcessingStatus(data.items);

@@ -4,7 +4,7 @@ import {
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
 
-export const actionFetchListOrderProcessingStatuss = (
+export const actionFetchListOrderProcessingStatus = (
   params = {},
   handleData: (data: OrderProcessingStatusResponseModel) => void
 ) => {
@@ -17,25 +17,12 @@ export const actionFetchListOrderProcessingStatuss = (
   };
 };
 
-export const actionAddOrderProcessingStatuss = (
+export const actionAddOrderProcessingStatus = (
   item: OrderProcessingStatusModel,
   handleData: () => void
 ) => {
   return {
     type: SETTING_TYPES.orderProcessingStatus.create,
-    payload: {
-      item,
-      handleData,
-    },
-  };
-};
-
-export const actionDeleteOrderProcessingStatus = (
-  item: OrderProcessingStatusModel,
-  handleData: () => void
-) => {
-  return {
-    type: SETTING_TYPES.orderProcessingStatus.delete,
     payload: {
       item,
       handleData,
@@ -53,6 +40,19 @@ export const actionEditOrderProcessingStatus = (
     payload: {
       id,
       item,
+      handleData,
+    },
+  };
+};
+
+export const actionDeleteOrderProcessingStatus = (
+  id: number,
+  handleData: () => void
+) => {
+  return {
+    type: SETTING_TYPES.orderProcessingStatus.delete,
+    payload: {
+      id,
       handleData,
     },
   };

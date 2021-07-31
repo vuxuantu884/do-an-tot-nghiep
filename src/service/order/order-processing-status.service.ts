@@ -38,3 +38,9 @@ export const editOrderProcessingStatus = (
     OrderProcessingStatus
   );
 };
+
+export const deleteOrderProcessingStatus = (
+  id: number
+): Promise<BaseResponse<OrderProcessingStatusResponseModel>> => {
+  return BaseAxios.delete(`${ApiConfig.ORDER}/subStatus/${id}`);
+};

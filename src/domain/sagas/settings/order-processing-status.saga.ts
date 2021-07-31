@@ -8,6 +8,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
 import {
   createOrderProcessingStatus,
+  deleteOrderProcessingStatus,
   editOrderProcessingStatus,
   getOrderProcessingStatus,
 } from "service/order/order-processing-status.service";
@@ -65,31 +66,6 @@ function* addOrderProcessingStatusSaga(action: YodyAction) {
   }
 }
 
-function* deleteOrderProcessingStatusSaga(action: YodyAction) {
-  const { item, handleData } = action.payload;
-  try {
-    let response: BaseResponse<
-      PageResponse<OrderProcessingStatusResponseModel>
-    > = yield call(createOrderProcessingStatus, item);
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData();
-        showSuccess("Tạo mới thành công");
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
-  }
-}
-
 function* editOrderProcessingStatusSaga(action: YodyAction) {
   const { id, item, handleData } = action.payload;
   console.log("item", item);
@@ -116,6 +92,31 @@ function* editOrderProcessingStatusSaga(action: YodyAction) {
   }
 }
 
+function* deleteOrderProcessingStatusSaga(action: YodyAction) {
+  const { id, handleData } = action.payload;
+  try {
+    let response: BaseResponse<
+      PageResponse<OrderProcessingStatusResponseModel>
+    > = yield call(deleteOrderProcessingStatus, id);
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData();
+        showSuccess("Xóa thành công");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* settingOrderProcessingStatusSaga() {
   yield takeLatest(
     SETTING_TYPES.orderProcessingStatus.listData,
@@ -126,11 +127,11 @@ export function* settingOrderProcessingStatusSaga() {
     addOrderProcessingStatusSaga
   );
   yield takeLatest(
-    SETTING_TYPES.orderProcessingStatus.delete,
-    deleteOrderProcessingStatusSaga
-  );
-  yield takeLatest(
     SETTING_TYPES.orderProcessingStatus.edit,
     editOrderProcessingStatusSaga
+  );
+  yield takeLatest(
+    SETTING_TYPES.orderProcessingStatus.delete,
+    deleteOrderProcessingStatusSaga
   );
 }
