@@ -508,7 +508,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [formMain, splitLine]
   );
-  const onVATChange = useCallback(
+  const onTaxChange = useCallback(
     (vat, index: number) => {
       let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
         POField.line_items
@@ -519,11 +519,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       let trade_discount_value = formMain.getFieldValue(
         POField.trade_discount_value
       );
-      let payment_discount_amount = formMain.getFieldValue(
-        POField.payment_discount_amount
-      );
       let trade_discount_amount = formMain.getFieldValue(
         POField.trade_discount_amount
+      );
+      let payment_discount_rate = formMain.getFieldValue(
+        POField.payment_discount_rate
+      );
+      let payment_discount_value = formMain.getFieldValue(
+        POField.payment_discount_value
       );
       let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
       let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
@@ -540,6 +543,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         trade_discount_rate,
         trade_discount_value
       );
+      let total_after_tax = POUtils.getTotalAfterTax(
+        untaxed_amount,
+        trade_discount_amount,
+        tax_lines
+      );
+      let payment_discount_amount = POUtils.getTotalDiscount(
+        total_after_tax,
+        payment_discount_rate,
+        payment_discount_value
+      );
       let total = POUtils.getTotalPayment(
         untaxed_amount,
         trade_discount_amount,
@@ -551,6 +564,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         line_items: [...data],
         tax_lines: tax_lines,
         total: total,
+        payment_discount_amount: payment_discount_amount,
       });
     },
     [formMain]
@@ -890,12 +904,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             className="product-item-vat"
                             value={value}
                             prefix={<div>%</div>}
-                            onChange={(v) => onVATChange(v, index)}
+                            onChange={(v) => onTaxChange(v, index)}
                             min={0}
                             max={100}
                             onBlur={() => {
                               if (value === null) {
-                                onVATChange(0, index);
+                                onTaxChange(0, index);
                               }
                             }}
                           />
