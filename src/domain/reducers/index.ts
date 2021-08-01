@@ -8,7 +8,7 @@ const rootReducer = combineReducers({
   userReducer: userReducer,
   loadingReducer: loadingReducer,
   bootstrapReducer: bootstrapReducer,
-  appSettingReducer: appSettingReducer
+  appSettingReducer: appSettingReducer,
 });
 
 export default rootReducer;

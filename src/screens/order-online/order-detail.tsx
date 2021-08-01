@@ -126,6 +126,7 @@ const OrderDetail = () => {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
+  const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
   //#endregion
   //#region Orther
   const ShowShipping = () => {
@@ -147,13 +148,11 @@ const OrderDetail = () => {
     useState(false);
 
   //#endregion
-console.log(totalPaid)
   //#region Master
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
   );
-
   const stepsStatus = () => {
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
@@ -270,6 +269,7 @@ console.log(totalPaid)
       checkPaymentStatusToShow(OrderDetail) !== 1
     ) {
       setPaymentType(PaymentMethodOption.COD);
+      setVisibleUpdatePayment(true)
     }
   };
 
@@ -292,7 +292,7 @@ console.log(totalPaid)
       }
     }
     isFirstLoad.current = false;
-  }, [dispatch, OrderId]);
+  }, [dispatch, OrderId, onGetDetailSuccess]);
 
   useLayoutEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
@@ -377,7 +377,7 @@ console.log(totalPaid)
   // shipping confirm
   const [isvibleShippingConfirm, setIsvibleShippingConfirm] =
     useState<boolean>(false);
-
+console.log(OrderDetail)
   const onOkShippingConfirm = () => {
     if (
       OrderDetail?.fulfillments &&
@@ -423,15 +423,15 @@ console.log(totalPaid)
         OrderDetail?.total_paid
       );
     } else if (
-      OrderDetail && 
+      OrderDetail &&
       OrderDetail?.fulfillments &&
       OrderDetail?.fulfillments.length > 0 &&
       OrderDetail?.fulfillments[0].shipment &&
       OrderDetail?.fulfillments[0].shipment.cod
-    ){
-      return OrderDetail?.fulfillments[0].shipment.cod
-    };
-  }
+    ) {
+      return OrderDetail?.fulfillments[0].shipment.cod;
+    }
+  };
   //#region shiment
   let initialFormUpdateShipment: UpdateShipmentRequest = {
     order_id: null,
@@ -510,8 +510,11 @@ console.log(totalPaid)
         value.cod = takeHelperValue;
       }
     }
-    if(OrderDetail?.status === "draft" && customerNeedToPayValue === totalPaid){
-      value.cod = customerNeedToPayValue
+    if (
+      OrderDetail?.status === "draft" &&
+      customerNeedToPayValue === totalPaid
+    ) {
+      value.cod = customerNeedToPayValue;
     }
 
     FulFillmentRequest.shipment = value;
@@ -536,8 +539,7 @@ console.log(totalPaid)
 
     dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
   };
-
-  const getRequirementName = () => {
+  const getRequirementName = useCallback(() => {
     if (
       OrderDetail &&
       OrderDetail?.fulfillments &&
@@ -550,7 +552,7 @@ console.log(totalPaid)
       );
       setRequirementName(reqObj ? reqObj?.name : "");
     }
-  };
+  }, [OrderDetail, shipping_requirements]);
 
   useEffect(() => {
     if (OrderDetail != null) {
@@ -562,9 +564,8 @@ console.log(totalPaid)
     if (OrderDetail?.store_id != null) {
       dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
     }
-
     getRequirementName();
-  }, [dispatch, OrderDetail?.store_id]);
+  }, [dispatch, OrderDetail?.store_id, getRequirementName]);
 
   // shipment button action
   interface ShipmentButtonModel {
@@ -604,13 +605,7 @@ console.log(totalPaid)
     [setRequirementName, shipping_requirements]
   );
   //windows offset
-  window.addEventListener("scroll", () => {
-    if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
-    } else {
-      setIsShowBillStep(false);
-    }
-  });
+
   //#endregion
 
   // Thu hộ
@@ -705,9 +700,22 @@ console.log(totalPaid)
   };
 
   const customerNeedToPayValue = customerNeedToPay();
-  console.log(customerNeedToPayValue)
-  console.log(OrderDetail)
   // end
+  const scroll = useCallback(() => {
+    if (window.pageYOffset > 100) {
+      setIsShowBillStep(true);
+    } else {
+      setIsShowBillStep(false);
+    }
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener("scroll", scroll)
+    return () => {
+      window.removeEventListener("scroll", scroll)
+    };
+  },[scroll])
+
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -752,7 +760,7 @@ console.log(totalPaid)
             OrderDetail.fulfillments.length > 0 &&
             OrderDetail?.fulfillments[0].shipment !== null ? (
               <Card
-                className="margin-top-20"
+                className="margin-top-20 orders-update-shipment"
                 title={
                   <Space>
                     <div className="d-flex" style={{ marginTop: "5px" }}>
@@ -765,6 +773,7 @@ console.log(totalPaid)
                             OrderDetail?.fulfillments &&
                             OrderDetail?.fulfillments[0].status) && (
                           <Tag
+                            key={statusTag.name}
                             className="orders-tag text-menu"
                             style={{
                               color: `${statusTag.color}`,
@@ -831,8 +840,8 @@ console.log(totalPaid)
                       className="orders-timeline-custom"
                       showArrow={false}
                       header={
-                        <Row gutter={24}>
-                          <Col style={{ padding: "0 4px" }}>
+                        <Row>
+                          <Col>
                             <p
                               ref={copyRef}
                               className="text-field"
@@ -886,7 +895,7 @@ console.log(totalPaid)
                       }
                       key="1"
                     >
-                      <Row gutter={24}>
+                      <Row>
                         <Col md={6}>
                           <Col span={24}>
                             <p className="text-field">Đối tác giao hàng:</p>
@@ -943,15 +952,9 @@ console.log(totalPaid)
                           </Col>
                         </Col>
                       </Row>
-                      <Row
-                        gutter={24}
-                        style={{ marginTop: 12, marginBottom: 0 }}
-                      >
+                      <Row style={{ marginTop: 12, marginBottom: 0 }}>
                         <Col span={24}>
-                          <p
-                            className="text-field"
-                            style={{ padding: "0px 12px" }}
-                          >
+                          <p className="text-field">
                             {OrderDetail?.items.reduce(
                               (a: any, b: any) => a + b.quantity,
                               0
@@ -1161,11 +1164,10 @@ console.log(totalPaid)
                         >
                           <Space size={10}>
                             {shipmentButton.map((button) => (
-                              <div>
+                              <div  key={button.value}>
                                 {shipmentMethod !== button.value ? (
                                   <div
                                     className="saleorder_shipment_button"
-                                    key={button.value}
                                     onClick={() =>
                                       ShipMethodOnChange(button.value)
                                     }
@@ -1442,7 +1444,7 @@ console.log(totalPaid)
                       </Col>
                       <Col span={12}>
                         <span className="text-field margin-right-40">
-                          Còn phải trả
+                          Còn phải trả:
                         </span>
                         <b style={{ color: "red" }}>
                           {OrderDetail?.fulfillments &&
@@ -1491,7 +1493,8 @@ console.log(totalPaid)
                                       OrderDetail?.payments
                                         .filter(
                                           (payment, index) =>
-                                            payment.payment_method !== "cod" && payment.amount
+                                            payment.payment_method !== "cod" &&
+                                            payment.amount
                                         )
                                         .map(
                                           (item, index) =>
@@ -1532,10 +1535,11 @@ console.log(totalPaid)
                                   OrderDetail?.payments
                                     .filter(
                                       (payment) =>
-                                        payment.payment_method !== "cod" && payment.amount
+                                        payment.payment_method !== "cod" &&
+                                        payment.amount
                                     )
                                     .map((item, index) => (
-                                      <Col span={6}>
+                                      <Col span={6} key={item.code}>
                                         <>
                                           <p
                                             style={{
@@ -1637,7 +1641,7 @@ console.log(totalPaid)
                       showPartialPayment={true}
                       amount={
                         OrderDetail.total_line_amount_after_line_discount -
-                        getAmountPayment(OrderDetail.payments) - 
+                        getAmountPayment(OrderDetail.payments) -
                         (OrderDetail?.discounts &&
                         OrderDetail?.discounts.length > 0 &&
                         OrderDetail?.discounts[0].amount
@@ -1647,6 +1651,8 @@ console.log(totalPaid)
                       order_id={OrderDetail.id}
                       orderDetail={OrderDetail}
                       setTotalPaid={setTotalPaid}
+                      isVisibleUpdatePayment={isVisibleUpdatePayment}
+                      setVisibleUpdatePayment={setVisibleUpdatePayment}
                     />
                   )}
                   {(OrderDetail?.fulfillments &&
@@ -1758,7 +1764,10 @@ console.log(totalPaid)
                         header={
                           <b style={{ color: "#222222" }}>
                             COD
-                            <Tag className="orders-tag orders-tag-warning" style={{marginLeft: 10}}>
+                            <Tag
+                              className="orders-tag orders-tag-warning"
+                              style={{ marginLeft: 10 }}
+                            >
                               Đang chờ thu
                             </Tag>
                             <b
@@ -1777,7 +1786,7 @@ console.log(totalPaid)
                         <Row gutter={24}>
                           {OrderDetail?.payments &&
                             OrderDetail?.payments.map((item, index) => (
-                              <Col span={12}>
+                              <Col span={12} key={item.id}>
                                 <p className="text-field">
                                   {item.payment_method}
                                 </p>
@@ -1796,6 +1805,7 @@ console.log(totalPaid)
                             OrderDetail.total !== null &&
                             OrderDetail.total - item.paid_amount !== 0 && (
                               <Button
+                                key={index}
                                 type="primary"
                                 className="ant-btn-outline fixed-button"
                               >
@@ -1823,6 +1833,8 @@ console.log(totalPaid)
                   orderDetail={OrderDetail}
                   showPartialPayment={false}
                   setTotalPaid={setTotalPaid}
+                  isVisibleUpdatePayment={isVisibleUpdatePayment}
+                  setVisibleUpdatePayment={setVisibleUpdatePayment}
                 />
               )}
 
