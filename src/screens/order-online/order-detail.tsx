@@ -291,7 +291,7 @@ const OrderDetail = () => {
       }
     }
     isFirstLoad.current = false;
-  }, [dispatch, OrderId]);
+  }, [dispatch, OrderId, onGetDetailSuccess]);
 
   useLayoutEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
@@ -422,15 +422,15 @@ const OrderDetail = () => {
         OrderDetail?.total_paid
       );
     } else if (
-      OrderDetail && 
+      OrderDetail &&
       OrderDetail?.fulfillments &&
       OrderDetail?.fulfillments.length > 0 &&
       OrderDetail?.fulfillments[0].shipment &&
       OrderDetail?.fulfillments[0].shipment.cod
-    ){
-      return OrderDetail?.fulfillments[0].shipment.cod
-    };
-  }
+    ) {
+      return OrderDetail?.fulfillments[0].shipment.cod;
+    }
+  };
   //#region shiment
   let initialFormUpdateShipment: UpdateShipmentRequest = {
     order_id: null,
@@ -509,8 +509,11 @@ const OrderDetail = () => {
         value.cod = takeHelperValue;
       }
     }
-    if(OrderDetail?.status === "draft" && customerNeedToPayValue === totalPaid){
-      value.cod = customerNeedToPayValue
+    if (
+      OrderDetail?.status === "draft" &&
+      customerNeedToPayValue === totalPaid
+    ) {
+      value.cod = customerNeedToPayValue;
     }
 
     FulFillmentRequest.shipment = value;
@@ -535,8 +538,7 @@ const OrderDetail = () => {
 
     dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
   };
-
-  const getRequirementName = () => {
+  const getRequirementName = useCallback(() => {
     if (
       OrderDetail &&
       OrderDetail?.fulfillments &&
@@ -549,7 +551,7 @@ const OrderDetail = () => {
       );
       setRequirementName(reqObj ? reqObj?.name : "");
     }
-  };
+  }, [OrderDetail, shipping_requirements]);
 
   useEffect(() => {
     if (OrderDetail != null) {
@@ -561,9 +563,8 @@ const OrderDetail = () => {
     if (OrderDetail?.store_id != null) {
       dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
     }
-
     getRequirementName();
-  }, [dispatch, OrderDetail?.store_id]);
+  }, [dispatch, OrderDetail?.store_id, getRequirementName]);
 
   // shipment button action
   interface ShipmentButtonModel {
@@ -603,13 +604,7 @@ const OrderDetail = () => {
     [setRequirementName, shipping_requirements]
   );
   //windows offset
-  window.addEventListener("scroll", () => {
-    if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
-    } else {
-      setIsShowBillStep(false);
-    }
-  });
+
   //#endregion
 
   // Thu hộ
@@ -705,6 +700,21 @@ const OrderDetail = () => {
 
   const customerNeedToPayValue = customerNeedToPay();
   // end
+  const scroll = useCallback(() => {
+    if (window.pageYOffset > 100) {
+      setIsShowBillStep(true);
+    } else {
+      setIsShowBillStep(false);
+    }
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener("scroll", scroll)
+    return () => {
+      window.removeEventListener("scroll", scroll)
+    };
+  },[scroll])
+
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -829,8 +839,8 @@ const OrderDetail = () => {
                       className="orders-timeline-custom"
                       showArrow={false}
                       header={
-                        <Row >
-                          <Col >
+                        <Row>
+                          <Col>
                             <p
                               ref={copyRef}
                               className="text-field"
@@ -884,7 +894,7 @@ const OrderDetail = () => {
                       }
                       key="1"
                     >
-                      <Row >
+                      <Row>
                         <Col md={6}>
                           <Col span={24}>
                             <p className="text-field">Đối tác giao hàng:</p>
@@ -941,15 +951,9 @@ const OrderDetail = () => {
                           </Col>
                         </Col>
                       </Row>
-                      <Row
-                        
-                        style={{ marginTop: 12, marginBottom: 0 }}
-                      >
+                      <Row style={{ marginTop: 12, marginBottom: 0 }}>
                         <Col span={24}>
-                          <p
-                            className="text-field"
-                           
-                          >
+                          <p className="text-field">
                             {OrderDetail?.items.reduce(
                               (a: any, b: any) => a + b.quantity,
                               0
@@ -1489,7 +1493,8 @@ const OrderDetail = () => {
                                       OrderDetail?.payments
                                         .filter(
                                           (payment, index) =>
-                                            payment.payment_method !== "cod" && payment.amount
+                                            payment.payment_method !== "cod" &&
+                                            payment.amount
                                         )
                                         .map(
                                           (item, index) =>
@@ -1530,7 +1535,8 @@ const OrderDetail = () => {
                                   OrderDetail?.payments
                                     .filter(
                                       (payment) =>
-                                        payment.payment_method !== "cod" && payment.amount
+                                        payment.payment_method !== "cod" &&
+                                        payment.amount
                                     )
                                     .map((item, index) => (
                                       <Col span={6} key={item.code}>
@@ -1635,7 +1641,7 @@ const OrderDetail = () => {
                       showPartialPayment={true}
                       amount={
                         OrderDetail.total_line_amount_after_line_discount -
-                        getAmountPayment(OrderDetail.payments) - 
+                        getAmountPayment(OrderDetail.payments) -
                         (OrderDetail?.discounts &&
                         OrderDetail?.discounts.length > 0 &&
                         OrderDetail?.discounts[0].amount
@@ -1756,7 +1762,10 @@ const OrderDetail = () => {
                         header={
                           <b style={{ color: "#222222" }}>
                             COD
-                            <Tag className="orders-tag orders-tag-warning" style={{marginLeft: 10}}>
+                            <Tag
+                              className="orders-tag orders-tag-warning"
+                              style={{ marginLeft: 10 }}
+                            >
                               Đang chờ thu
                             </Tag>
                             <b
@@ -1794,7 +1803,7 @@ const OrderDetail = () => {
                             OrderDetail.total !== null &&
                             OrderDetail.total - item.paid_amount !== 0 && (
                               <Button
-                                key={item.id}
+                                key={index}
                                 type="primary"
                                 className="ant-btn-outline fixed-button"
                               >

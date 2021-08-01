@@ -106,7 +106,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);
-  props.setTotalPaid(totalAmountPaid);
+  
   const handlePickPaymentMethod = (code?: string) => {
     let paymentMaster = ListMaymentMethods.find((p) => code === p.code);
     if (!paymentMaster) return;
@@ -209,7 +209,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       if (paymentData[i].code === PaymentMethodCode.POINT) {
         total = total - paymentData[i].point! * 1000;
       } else {
-        console.log("test", total);
         total = total - paymentData[i].amount;
       }
     }
@@ -227,7 +226,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
-
+  useEffect(() => {props.setTotalPaid(totalAmountPaid)}, [])
   return (
     <div>
       <ConfirmPaymentModal

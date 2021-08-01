@@ -63,7 +63,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     []
   );
 
-  const ListMaymentMethods = useMemo(() => {
+  const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter(
       (item) => item.code !== PaymentMethodCode.CARD
     );
@@ -88,7 +88,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   }, [props.amount, totalAmountPaid]);
 
   const handlePickPaymentMethod = (code?: string) => {
-    let paymentMaster = ListMaymentMethods.find((p) => code === p.code);
+    let paymentMaster = ListPaymentMethods.find((p) => code === p.code);
     if (!paymentMaster) return;
     let indexPayment = paymentData.findIndex((p) => p.code === code);
     if (indexPayment === -1) {
@@ -233,7 +233,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       align="middle"
                       style={{ marginLeft: 0, marginRight: 0 }}
                     >
-                      {ListMaymentMethods.map((method, index) => {
+                      {ListPaymentMethods.map((method, index) => {
                         let icon = null;
                         switch (method.code) {
                           case PaymentMethodCode.CASH:
