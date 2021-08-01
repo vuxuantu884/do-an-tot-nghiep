@@ -35,12 +35,12 @@ const StoreUpdateScreen = React.lazy(
 
 // fulfillment: quản lý đơn hàng
 const SettingFulfillmentScreen = React.lazy(
-  () => import("screens/settings/order-processing-status")
+  () => import("screens/order-online/settings/order-processing-status")
 );
 
 // order sources: quản lý nguồn đơn hàng
 const SettingOrderSourcesScreen = React.lazy(
-  () => import("screens/settings/order-sources")
+  () => import("screens/order-online/settings/order-sources")
 );
 
 const setting: Array<RouteMenu> = [
