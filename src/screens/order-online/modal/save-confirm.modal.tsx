@@ -1,4 +1,4 @@
-import { Modal} from 'antd';
+import { Modal } from "antd";
 
 type SaveAndConfirmOrderModalProps = {
   visible: boolean;
@@ -6,29 +6,37 @@ type SaveAndConfirmOrderModalProps = {
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (e: React.MouseEvent<HTMLElement>) => void;
   text: string;
-  title: string
-}
+  title: string;
+  icon: string;
+};
 
-const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (props: SaveAndConfirmOrderModalProps) => {
-  const {visible, onCancel, onOk, text, title} = props
+const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
+  props: SaveAndConfirmOrderModalProps
+) => {
+  const { visible, onCancel, onOk, text, title, icon } = props;
   return (
     <Modal
-            onCancel={onCancel}
-            onOk={onOk}
-            visible={visible}
-            centered
-            okText="Đồng ý"
-            cancelText="Hủy"
-            title={title}
-            width={600}
-            className="saleorder-modal-config"
-
-        >
-            <span>
-            {text}
-            </span>
-        </Modal>
-  )
-}
+      onCancel={onCancel}
+      onOk={onOk}
+      visible={visible}
+      centered
+      okText="Đồng ý"
+      cancelText="Hủy"
+      title={[
+        <div>
+          <img src={icon} />
+          <div>
+            <h4>{title}</h4>
+            <span>{text}</span>
+          </div>
+        </div>,
+      ]}
+      width={600}
+      className="saleorder-modal-config"
+    >
+    </Modal>
+  );
+};
 
 export default SaveAndConfirmOrder;
+
