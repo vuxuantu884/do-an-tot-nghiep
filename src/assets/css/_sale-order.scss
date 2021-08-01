@@ -183,7 +183,6 @@
     background: #2a2a86;
     border-color: #2a2a86;
     svg path {
-      stroke: #fff;
     }
   }
 }
@@ -514,7 +513,7 @@
 .font-size-price {
   font-size: 18px;
   font-weight: 700;
-  color: #2A2A86;
+  color: #2a2a86;
 }
 
 .row-info-icon {
@@ -589,9 +588,12 @@
 }
 
 .row-footer-custom {
-  padding: 15px 20px 30px 20px;
+  background-color: #fff;
   color: rgba(0, 0, 0, 0.85);
-  background: #f4f4f7;
+  background-color: #fff;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  padding: 11px 11px 11px 16px;
 }
 
 .ant-table-thead {
@@ -1045,11 +1047,11 @@
   .ant-radio:hover .ant-radio-inner {
     border-color: #2a2a86;
   }
-  .ant-btn{
+  .ant-btn {
     color: #222222;
     margin-right: 18px;
-    span{
-      svg{
+    span {
+      svg {
         width: 16px;
         height: 16px;
       }
@@ -1060,53 +1062,50 @@
     border: 1px solid #e5e5e5;
     border-radius: 3px;
     span {
-      font-size:14px;
-      line-height:18px;
+      font-size: 14px;
+      line-height: 18px;
       padding: 4px 0;
-      font-weight:400;
+      font-weight: 400;
     }
   }
   .ant-btn-primary {
     background: #ffff;
-    border: 1px solid #2A2A86;
+    border: 1px solid #2a2a86;
     border-radius: 3px;
     span {
-      font-size:14px;
-      line-height:18px;
+      font-size: 14px;
+      line-height: 18px;
       padding: 4px 0;
-      font-weight:400;
-      color: #2A2A86
+      font-weight: 400;
+      color: #2a2a86;
     }
-
-  }
-
-  
-}
-
-.orders-dot-status{
-  &::after{
-    background-color: #E5E5E5 !important;
   }
 }
 
-.orders-dot-fullCod-status{
-  &::after{
-    top: 21px !important
+.orders-dot-status {
+  &::after {
+    background-color: #e5e5e5 !important;
   }
 }
 
-.custom-radio-checkbox{
-    position: relative;
-    cursor: pointer;
-    font-size: 22px;
-    user-select: none;
+.orders-dot-fullCod-status {
+  &::after {
+    top: 21px !important;
+  }
+}
+
+.custom-radio-checkbox {
+  position: relative;
+  cursor: pointer;
+  font-size: 22px;
+  user-select: none;
   /* Hide the browser's default radio button */
   input {
     position: absolute;
     opacity: 0;
     cursor: pointer;
   }
-  
+
   /* Create a custom radio button */
   label {
     position: absolute;
@@ -1117,29 +1116,29 @@
     border-radius: 50%;
     border: 1px solid #2a2a86;
   }
-  
+
   /* On mouse-over, add a grey background color */
   &:hover input ~ label {
     border: 1px solid #2a2a86;
   }
-  
+
   /* When the radio button is checked, add a blue background */
-   input:checked ~ label {
+  input:checked ~ label {
     background-color: #ffffff;
   }
-  
+
   /* Create the indicator (the dot/circle - hidden when not checked) */
   label:after {
     content: "";
     position: absolute;
     display: none;
   }
-  
+
   /* Show the indicator (dot/circle) when checked */
   input:checked ~ label:after {
     display: block;
   }
-  
+
   /* Style the indicator (dot/circle) */
   label:after {
     content: "";
@@ -1149,7 +1148,17 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background-color:#2a2a86;
+    background-color: #2a2a86;
   }
 }
 
+.orders-update-shipment {
+  .ant-collapse-content-box {
+    padding: 0;
+  }
+  .ant-collapse
+    > .ant-collapse-item.ant-collapse-no-arrow
+    > .ant-collapse-header {
+    padding-left: 0;
+  }
+}

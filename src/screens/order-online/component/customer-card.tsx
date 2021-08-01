@@ -86,7 +86,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
-  
+
   //#region Modal
   const ShowAddressModal = () => {
     setVisibleAddress(true);
@@ -491,6 +491,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             {customer.shipping_addresses.map((item, index) => (
                               <div
                                 className="shipping-address-row"
+                                key={item.id}
                                 // onClick={(e) =>
                                 //   SelectShippingAddress(item)
                                 // }
@@ -534,19 +535,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     className="font-weight-500"
                     style={{ paddingLeft: "34px", marginTop: "14px" }}
                   >
-                    <Form.Item name="customer_note">
-                      <label className="title-address">
-                        <img
-                          src={noteCustomer}
-                          alt=""
-                          style={{
-                            width: "20px",
-                            height: "20px",
-                            marginRight: "10px",
-                          }}
-                        />
-                        Ghi chú của khách:
-                      </label>
+                    <img
+                      src={noteCustomer}
+                      alt=""
+                      style={{
+                        width: "20px",
+                        height: "20px",
+                        marginRight: "10px",
+                      }}
+                    />
+                    <Form.Item name="customer_note" label="Ghi chú của khách:">
                       <Input.TextArea
                         placeholder="Điền ghi chú"
                         rows={4}
@@ -632,6 +630,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                                 (item, index) => (
                                   <div
                                     className="shipping-address-row"
+                                    key={item.id}
                                     // onClick={(e) =>
                                     //   SelectShippingAddress(item)
                                     // }
@@ -676,19 +675,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       className="font-weight-500"
                       style={{ paddingLeft: "34px", marginTop: "14px" }}
                     >
-                      <Form.Item name="customer_note">
-                        <label className="title-address">
-                          <img
-                            src={noteCustomer}
-                            alt=""
-                            style={{
-                              width: "20px",
-                              height: "20px",
-                              marginRight: "10px",
-                            }}
-                          />
-                          Email gửi hóa đơn:
-                        </label>
+                      <img
+                        src={noteCustomer}
+                        alt=""
+                        style={{
+                          width: "20px",
+                          height: "20px",
+                          marginRight: "10px",
+                        }}
+                      />
+                      <Form.Item name="Email_note" label="Email gửi hóa đơn:">
                         <Input
                           placeholder="Điền email"
                           maxLength={500}

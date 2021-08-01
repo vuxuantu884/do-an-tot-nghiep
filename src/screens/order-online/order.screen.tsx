@@ -455,7 +455,7 @@ export default function Order() {
     return () => {
       window.removeEventListener("scroll", scroll);
     };
-  }, []);
+  }, [scroll]);
   return (
     <ContentContainer
       title="Tạo mới đơn hàng"
