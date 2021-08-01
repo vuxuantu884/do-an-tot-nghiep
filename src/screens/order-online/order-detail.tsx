@@ -126,6 +126,7 @@ const OrderDetail = () => {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
+  const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
   //#endregion
   //#region Orther
   const ShowShipping = () => {
@@ -152,7 +153,6 @@ const OrderDetail = () => {
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
   );
-
   const stepsStatus = () => {
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
@@ -269,6 +269,7 @@ const OrderDetail = () => {
       checkPaymentStatusToShow(OrderDetail) !== 1
     ) {
       setPaymentType(PaymentMethodOption.COD);
+      setVisibleUpdatePayment(true)
     }
   };
 
@@ -376,7 +377,7 @@ const OrderDetail = () => {
   // shipping confirm
   const [isvibleShippingConfirm, setIsvibleShippingConfirm] =
     useState<boolean>(false);
-
+console.log(OrderDetail)
   const onOkShippingConfirm = () => {
     if (
       OrderDetail?.fulfillments &&
@@ -1163,11 +1164,10 @@ const OrderDetail = () => {
                         >
                           <Space size={10}>
                             {shipmentButton.map((button) => (
-                              <div>
+                              <div  key={button.value}>
                                 {shipmentMethod !== button.value ? (
                                   <div
                                     className="saleorder_shipment_button"
-                                    key={button.value}
                                     onClick={() =>
                                       ShipMethodOnChange(button.value)
                                     }
@@ -1444,7 +1444,7 @@ const OrderDetail = () => {
                       </Col>
                       <Col span={12}>
                         <span className="text-field margin-right-40">
-                          Còn phải trả
+                          Còn phải trả:
                         </span>
                         <b style={{ color: "red" }}>
                           {OrderDetail?.fulfillments &&
@@ -1651,6 +1651,8 @@ const OrderDetail = () => {
                       order_id={OrderDetail.id}
                       orderDetail={OrderDetail}
                       setTotalPaid={setTotalPaid}
+                      isVisibleUpdatePayment={isVisibleUpdatePayment}
+                      setVisibleUpdatePayment={setVisibleUpdatePayment}
                     />
                   )}
                   {(OrderDetail?.fulfillments &&
@@ -1831,6 +1833,8 @@ const OrderDetail = () => {
                   orderDetail={OrderDetail}
                   showPartialPayment={false}
                   setTotalPaid={setTotalPaid}
+                  isVisibleUpdatePayment={isVisibleUpdatePayment}
+                  setVisibleUpdatePayment={setVisibleUpdatePayment}
                 />
               )}
 

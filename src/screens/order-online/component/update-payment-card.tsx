@@ -56,6 +56,8 @@ type PaymentCardUpdateProps = {
   amount: any;
   order_id: number | null;
   showPartialPayment?: boolean;
+  isVisibleUpdatePayment: boolean;
+  setVisibleUpdatePayment: (value: boolean) => void;
 };
 
 const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
@@ -78,10 +80,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     Array<UpdateOrderPaymentRequest>
   >([]);
 
-  const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
-
   const ShowPayment = () => {
-    setVisibleUpdatePayment(true);
+    props.setVisibleUpdatePayment(true);
   };
 
   const ListMaymentMethods = useMemo(() => {
@@ -166,7 +166,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     }
     setVisibleConfirmPayment(true);
   };
-
+console.log(paymentData)
   const CreateFulFillmentRequest = () => {
     let request: UpdateFulFillmentRequest = {
       id: null,
@@ -197,7 +197,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const onOkConfirm = () => {
     let fulfillment = CreateFulFillmentRequest();
     let request: UpdatePaymentRequest = {
-      payments: paymentData,
+      payments: paymentData.filter((payment) => payment.amount > 0 ),
       fulfillments: fulfillment,
     };
     dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
@@ -220,7 +220,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   }, []);
 
   const canclePayment = () => {
-    setVisibleUpdatePayment(false);
+    props.setVisibleUpdatePayment(false);
   };
 
   useEffect(() => {
@@ -245,7 +245,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
             </div>
           }
         >
-          {isVisibleUpdatePayment === true && (
+          {props.isVisibleUpdatePayment === true && (
             <div className="padding-20 create-order-payment">
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <Radio.Group
@@ -264,10 +264,12 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   </Space>
                 </Radio.Group>
                 {props.paymentMethod === PaymentMethodOption.COD && (
-                  <i>
-                    Vui lòng chọn hình thức Đóng gói và Giao hàng để có thể nhập
-                    giá trị Tiền thu hộ *
-                  </i>
+                  <div className="order-cod-payment-footer">
+                  <span>
+                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có
+                    thể nhập giá trị Tiền thu hộ
+                  </span>
+                </div>
                 )}
               </div>
 
@@ -406,7 +408,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                               <Col
                                 className="point-spending"
                                 style={{ marginLeft: 6 }}
-                                lg={14} xxl={9}
+                                lg={14} xxl={13}
                               >
                                 <Input placeholder="Tham chiếu" />
                               </Col>
@@ -441,7 +443,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                           <Col
                             className="lbl-money"
                             lg={6}
-                            xxl={6}
+                            xxl={4}
                             style={{ padding: 8, textAlign: "right", marginLeft: 10 }}
                           >
                             <span
@@ -534,7 +536,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
             </div>
           )}
 
-          {isVisibleUpdatePayment === false && (
+          {props.isVisibleUpdatePayment === false && (
             <div className="padding-lef-right" style={{ paddingTop: "20px" }}>
               <label
                 className="text-left"
@@ -803,9 +805,12 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
             )}
 
             {props.paymentMethod === 1 && (
-              <Row>
-                <i>Vui lòng chọn đóng gói và giao hàng</i>
-              </Row>
+              <div className="order-cod-payment-footer">
+              <span>
+                Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có
+                thể nhập giá trị Tiền thu hộ
+              </span>
+            </div>
             )}
           </div>
         </div>

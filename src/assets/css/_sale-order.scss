@@ -956,8 +956,6 @@
     width: 650px;
     .ant-modal-body {
       div {
-        &:nth-child(1) {
-        }
         &:nth-child(2) {
           width: 100%;
           margin-bottom: 2px;
@@ -983,8 +981,6 @@
       width: 98px;
       height: 38px;
       border-radius: 3px;
-    }
-    &:nth-child(3) {
     }
   }
   div {
@@ -1015,6 +1011,22 @@
 }
 //custom radio
 .create-order-payment {
+  .order-cod-payment-footer{
+    border-radius: 5px;
+    border: 1px solid #2a2a86;
+    height: 54px;
+    padding: 17px 19px;
+    background-color: #F8F8FF;
+    &>span{
+      size: 14px;
+      line-height:18px;
+      letter-spacing: 0.2px;
+      color: #2a2a86;
+      span{
+        font-weight: 500;
+      }
+    }
+  }
   .ant {
     &-btn-lg {
       padding-top: 4px;
@@ -1049,11 +1061,11 @@
   }
   .ant-btn {
     color: #222222;
-    margin-right: 18px;
+    margin-right: 13px;
     span {
       svg {
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
       }
     }
   }
