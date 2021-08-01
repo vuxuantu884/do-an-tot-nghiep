@@ -57,7 +57,7 @@ import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import { useParams } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import { OrderResponse } from "model/response/order/order.response";
+import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
@@ -112,7 +112,7 @@ const OrderDetail = () => {
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
-  const [storeDetail, setStoreDetail] = useState<StoreResponse>();
+  const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
     null
