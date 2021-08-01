@@ -351,6 +351,7 @@ export default function Order() {
     setIsvibleSaveAndConfirm(false);
   };
 
+  console.log(payments)
   const showSaveAndConfirmModal = () => {
     if (shipmentMethod !== 4 || paymentMethod !== 3) {
       setIsvibleSaveAndConfirm(true);
@@ -359,7 +360,6 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
-
   const onFinish = (values: OrderRequest) => {
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
@@ -380,7 +380,7 @@ export default function Order() {
       //Nếu là đơn lưu và duyệt
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
-      values.payments = payments;
+      values.payments = payments.filter((payment)=> payment.amount > 0)
       values.total = orderAmount;
       if (
         values?.fulfillments &&
