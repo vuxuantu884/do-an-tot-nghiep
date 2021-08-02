@@ -138,12 +138,12 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     total();
   };
   const onChangePrice = (value: number | null, index: number) => {
-    let _items = [...items];
-    if (value !== null) {
-      _items[index].price = value;
-    }
-    setItems(_items);
-    total();
+    // let _items = [...items];
+    // if (value !== null) {
+    //   _items[index].price = value;
+    // }
+    // setItems(_items);
+    // total();
   };
 
   const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
@@ -949,9 +949,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             </div>
           </Col>
           <Col xs={24} lg={10}>
-            <Row className="payment-row">
+            <Row className="payment-row" style={{justifyContent: "space-between" }}>
               <div className="font-weight-500">Tổng tiền:</div>
-              <div className="font-weight-500 ">{formatCurrency(amount)}</div>
+              <div className="font-weight-500" style={{fontWeight: 500 }}>{formatCurrency(amount)}</div>
             </Row>
 
             <Row className="payment-row" justify="space-between" align="middle">

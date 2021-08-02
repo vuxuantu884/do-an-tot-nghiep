@@ -1,0 +1,135 @@
+import { LoadingOutlined, SettingOutlined } from "@ant-design/icons";
+import { Button, Spin, Table as ANTTable, TableProps } from "antd";
+import { ColumnType, TableLocale } from "antd/lib/table/interface";
+import { PageConfig } from "config/PageConfig";
+import React, { useCallback } from "react";
+import CustomPaginationStyle2 from "../CustomPaginationStyle2";
+import { StyledComponent } from "./styles";
+
+export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
+  pagination?: false | ICustomTablePaginationConfig;
+  onShowColumnSetting?: () => void;
+  onSelectedChange?: (selectedRows: any[]) => void;
+  isLoading?: boolean;
+  showColumnSetting?: boolean;
+  isRowSelection?: boolean;
+  isBordered?: boolean;
+}
+
+export interface ICustomTableColumType<T> extends ColumnType<T> {
+  visible: boolean;
+}
+
+export interface ICustomTablePaginationConfig {
+  total: number;
+  disabled?: boolean;
+  current?: number;
+  pageSize: number;
+  onChange?: (page: number, pageSize?: number) => void;
+  showSizeChanger?: boolean;
+  pageSizeOptions?: string[];
+  onShowSizeChange?: (current: number, size: number) => void;
+  style?: React.CSSProperties;
+  className?: string;
+}
+
+const defaultLocale: TableLocale = {
+  emptyText: "Không có bản ghi nào",
+  filterEmptyText: "Không tìm thấy bản ghi nào",
+  selectNone: "Bỏ chọn",
+  selectAll: "Chọn tất cả",
+  cancelSort: "Loại bỏ sắp xếp",
+  triggerAsc: "Sắp xếp tăng dần",
+  triggerDesc: "Sắp xếp giảm dần",
+};
+
+const defaultPagination: ICustomTablePaginationConfig = {
+  current: 1,
+  total: 1,
+  pageSize: 50,
+  showSizeChanger: true,
+  pageSizeOptions: PageConfig,
+};
+
+const CustomTableStyle2 = (props: ICustomTableProps) => {
+  const {
+    locale = defaultLocale,
+    pagination = defaultPagination,
+    columns,
+    onSelectedChange,
+    onShowColumnSetting,
+    showColumnSetting,
+    isLoading,
+    isRowSelection,
+    isBordered,
+  } = props;
+
+  const configSettingColumns: ICustomTableColumType<any>[] = [
+    {
+      title: (
+        <Button
+          className="custom-table-setting-column"
+          icon={<SettingOutlined />}
+          onClick={onShowColumnSetting}
+        />
+      ),
+      visible: true,
+      key: "configColumn",
+      width: 50,
+    },
+  ];
+  const onSelect = useCallback(
+    (item: any, selected: boolean, selectedRow: any[]) => {
+      onSelectedChange && onSelectedChange(selectedRow);
+    },
+    [onSelectedChange]
+  );
+  const onSelectAll = useCallback(
+    (selected, selectedRow: any[], changeRow: any[]) => {
+      onSelectedChange && onSelectedChange(selectedRow);
+    },
+    [onSelectedChange]
+  );
+  return (
+    <StyledComponent>
+      <div className="custom-table">
+        <ANTTable
+          bordered={isBordered ? true : false}
+          {...props}
+          rowSelection={
+            isRowSelection
+              ? {
+                  type: "checkbox",
+                  onSelect: onSelect,
+                  onSelectAll: onSelectAll,
+                }
+              : undefined
+          }
+          columns={
+            showColumnSetting ? columns?.concat(configSettingColumns) : columns
+          }
+          locale={locale}
+          loading={
+            isLoading
+              ? {
+                  indicator: (
+                    <Spin
+                      indicator={
+                        <LoadingOutlined style={{ fontSize: 24 }} spin />
+                      }
+                    />
+                  ),
+                }
+              : false
+          }
+          pagination={false}
+          // scroll={{ y: 700 }}
+          size="middle"
+        />
+        {pagination && <CustomPaginationStyle2 pagination={pagination} />}
+      </div>
+    </StyledComponent>
+  );
+};
+
+export default React.memo(CustomTableStyle2);

@@ -63,7 +63,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     []
   );
 
-  const ListMaymentMethods = useMemo(() => {
+  const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter(
       (item) => item.code !== PaymentMethodCode.CARD
     );
@@ -88,7 +88,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   }, [props.amount, totalAmountPaid]);
 
   const handlePickPaymentMethod = (code?: string) => {
-    let paymentMaster = ListMaymentMethods.find((p) => code === p.code);
+    let paymentMaster = ListPaymentMethods.find((p) => code === p.code);
     if (!paymentMaster) return;
     let indexPayment = paymentData.findIndex((p) => p.code === code);
     if (indexPayment === -1) {
@@ -146,13 +146,12 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     <Card
       className="margin-top-20"
       title={
-        <Space>
-          <CreditCardOutlined />
-          Thanh toán
-        </Space>
+        <div className="d-flex">
+          <span className="title-card">THANH TOÁN</span>
+        </div>
       }
     >
-      <div className="padding-20">
+      <div className="padding-20 create-order-payment">
         <Form.Item
           label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
           required
@@ -160,6 +159,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
           <Radio.Group
             value={props.paymentMethod}
             onChange={(e) => changePaymentMethod(e.target.value)}
+            style={{ margin: "18px 0" }}
           >
             <Space size={20}>
               <Radio value={PaymentMethodOption.COD}>COD</Radio>
@@ -167,16 +167,16 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 Thanh toán trước
               </Radio>
               <Radio value={PaymentMethodOption.POSTPAYMENT}>
-                Thanh toán sau
+                Chưa xác định
               </Radio>
             </Space>
           </Radio.Group>
           {props.paymentMethod === PaymentMethodOption.COD && (
-            <div style={{ marginTop: 10 }}>
-              <i>
-                Vui lòng chọn hình thức Đóng gói và Giao hàng để có thể nhập giá
-                trị Tiền thu hộ *
-              </i>
+            <div className="order-cod-payment-footer">
+              <span>
+                Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có
+                thể nhập giá trị Tiền thu hộ
+              </span>
             </div>
           )}
         </Form.Item>
@@ -192,13 +192,14 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
               ghost
             >
               <Panel
-                className="orders-timeline-custom"
+                className="orders-timeline-custom orders-dot-status"
                 header={
                   <span
                     style={{
                       textTransform: "uppercase",
                       fontWeight: 500,
                       color: "#222222",
+                      padding: "6px",
                     }}
                   >
                     Lựa chọn 1 hoặc nhiều phương thức thanh toán
@@ -208,7 +209,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 showArrow={false}
               >
                 <Row gutter={24}>
-                  <Col lg={12} className="margin-top-bottom-10">
+                  <Col lg={10} xxl={7} className="margin-top-bottom-10">
                     <div>
                       <span style={{ paddingRight: "20px" }}>
                         Tiền khách phải trả:{" "}
@@ -216,7 +217,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       <strong>{formatCurrency(props.amount)}</strong>
                     </div>
                   </Col>
-                  <Col lg={12} className="margin-top-bottom-10">
+                  <Col lg={10} xxl={7} className="margin-top-bottom-10">
                     <div>
                       <span style={{ paddingRight: "20px" }}>
                         Còn phải trả:{" "}
@@ -232,7 +233,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       align="middle"
                       style={{ marginLeft: 0, marginRight: 0 }}
                     >
-                      {ListMaymentMethods.map((method, index) => {
+                      {ListPaymentMethods.map((method, index) => {
                         let icon = null;
                         switch (method.code) {
                           case PaymentMethodCode.CASH:
@@ -263,7 +264,6 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                               }
                               value={method.id}
                               icon={icon}
-                              size="large"
                               onClick={() => {
                                 handlePickPaymentMethod(method.code);
                               }}
@@ -277,18 +277,24 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                     </Row>
                   </Col>
 
-                  <Col span={20}>
+                  <Col span={20} xs={20}>
                     <Row
                       gutter={24}
                       className="row-price"
-                      style={{ padding: "5px 0px" }}
+                      style={{ height: 38, margin: "10px 0" }}
                     >
-                      <Col xs={12} className="row-large-title">
-                        Khách cần trả
+                      <Col
+                        lg={14}
+                        xxl={9}
+                        className="row-large-title"
+                        style={{ padding: "8px 0", marginLeft: 2 }}
+                      >
+                        <b>Khách cần trả:</b>
                       </Col>
                       <Col
                         className="lbl-money"
-                        xs={5}
+                        lg={9}
+                        xxl={6}
                         style={{
                           textAlign: "right",
                           fontWeight: 500,
@@ -303,16 +309,16 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                     {paymentData.map((method, index) => {
                       return (
                         <Row
-                          gutter={24}
+                          gutter={20}
                           className="row-price"
-                          style={{ padding: "5px 0" }}
                           key={index}
+                          style={{ margin: "10px 0" }}
                         >
-                          <Col lg={12} style={{ display: "flex" }}>
+                          <Col lg={14} xxl={9} style={{ padding: "0" }}>
                             <Row align="middle">
-                              {method.name}
+                              <b style={{ padding: "8px 0" }}>{method.name}:</b>
                               {method.code === PaymentMethodCode.POINT ? (
-                                <div className="point-spending">
+                                <Col className="point-spending">
                                   <span
                                     style={{
                                       fontSize: 14,
@@ -325,8 +331,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                   <InputNumber
                                     value={method.point}
                                     style={{
-                                      width: 100,
-                                      marginLeft: 7,
+                                      width: 110,
+                                      marginLeft: 12,
                                       borderRadius: 5,
                                     }}
                                     className="hide-number-handle"
@@ -345,51 +351,71 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                       handleInputPoint(index, value);
                                     }}
                                   />
-                                </div>
+                                </Col>
+                              ) : null}
+
+                              {method.code ===
+                              PaymentMethodCode.BANK_TRANSFER ? (
+                                <Col
+                                  className="point-spending"
+                                  style={{ marginLeft: 12 }}
+                                  lg={14}
+                                  xxl={14}
+                                >
+                                  <Input placeholder="Tham chiếu" />
+                                </Col>
                               ) : null}
                             </Row>
                           </Col>
-
-                          <Col className="lbl-money" lg={5}>
-                            <InputNumber
-                              size="middle"
-                              min={0}
-                              max={caculateMax(props.amount, index)}
-                              value={method.amount}
-                              disabled={method.code === PaymentMethodCode.POINT}
-                              className="yody-payment-input hide-number-handle"
-                              formatter={(value) =>
-                                formatCurrency(value ? value : "0")
-                              }
-                              placeholder="Nhập tiền mặt"
+                          {method.code !== PaymentMethodCode.POINT ? (
+                            <Col
+                              className="lbl-money"
+                              lg={9}
+                              xxl={6}
+                              style={{ marginLeft: 10 }}
+                            >
+                              <InputNumber
+                                size="middle"
+                                min={0}
+                                max={caculateMax(props.amount, index)}
+                                value={method.amount}
+                                disabled={
+                                  method.code === PaymentMethodCode.POINT
+                                }
+                                className="yody-payment-input hide-number-handle"
+                                formatter={(value) =>
+                                  formatCurrency(value ? value : "0")
+                                }
+                                placeholder="Nhập tiền mặt"
+                                style={{
+                                  textAlign: "right",
+                                  width: "100%",
+                                  borderRadius: 5,
+                                }}
+                                onChange={(value) =>
+                                  handleInputMoney(index, value)
+                                }
+                                onFocus={(e) => e.target.select()}
+                              />
+                            </Col>
+                          ) : (
+                            <Col
+                              className="lbl-money"
+                              lg={9}
+                              xxl={6}
                               style={{
+                                padding: 8,
                                 textAlign: "right",
-                                width: "100%",
-                                borderRadius: 5,
-                              }}
-                              onChange={(value) =>
-                                handleInputMoney(index, value)
-                              }
-                              onFocus={(e) => e.target.select()}
-                            />
-                          </Col>
-                          <Col span={7} style={{ paddingLeft: 0 }}>
-                            {method.code === PaymentMethodCode.BANK_TRANSFER ? (
-                              <Input placeholder="Tham chiếu" />
-                            ) : null}
-                          </Col>
-
-                          {/* <Col span={2} style={{ paddingLeft: 0 }}>
-                            <Button
-                              type="text"
-                              className="p-0 m-0 ant-btn-custom"
-                              onClick={() => {
-                                handlePickPaymentMethod(method.code);
+                                marginLeft: 10,
                               }}
                             >
-                              <img src={deleteIcon} alt="" />
-                            </Button>
-                          </Col> */}
+                              <span
+                                style={{ padding: "14px 14px", lineHeight: 1 }}
+                              >
+                                {formatCurrency(method.amount)}
+                              </span>
+                            </Col>
+                          )}
                         </Row>
                       );
                     })}
@@ -397,22 +423,20 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                     <Row
                       gutter={20}
                       className="row-price total-customer-pay"
-                      style={{
-                        marginLeft: 0,
-                        marginRight: 0,
-                        padding: "10px 0",
-                      }}
+                      style={{ height: 38, margin: "10px 0" }}
                     >
                       <Col
-                        xs={12}
+                        lg={14}
+                        xxl={9}
                         className="row-large-title"
-                        style={{ paddingLeft: 0 }}
+                        style={{ padding: "8px 0" }}
                       >
-                        Tổng số tiền khách trả
+                        <b>Tổng số tiền khách trả:</b>
                       </Col>
                       <Col
                         className="lbl-money"
-                        xs={5}
+                        lg={9}
+                        xxl={6}
                         style={{
                           textAlign: "right",
                           fontWeight: 500,
@@ -425,14 +449,17 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                     <Row
                       gutter={20}
                       className="row-price"
-                      style={{ padding: "10px 5px 10px 0" }}
+                      style={{ height: 38, margin: "10px 0 0 0" }}
                     >
-                      <Col xs={12}>
-                        {moneyReturn > 0 ? "Còn phải trả" : "Tiền thừa"}
+                      <Col lg={14} xxl={9} style={{ padding: "8px 0" }}>
+                        <b>
+                          {moneyReturn > 0 ? "Còn phải trả:" : "Tiền thừa:"}
+                        </b>
                       </Col>
                       <Col
                         className="lbl-money"
-                        xs={5}
+                        lg={9}
+                        xxl={6}
                         style={{
                           textAlign: "right",
                           fontWeight: 500,
