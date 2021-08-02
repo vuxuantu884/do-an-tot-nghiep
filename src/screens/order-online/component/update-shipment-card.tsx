@@ -30,9 +30,7 @@ import {
   UpdateShipmentRequest,
 } from "model/request/order.request";
 import { AccountResponse } from "model/account/account.model";
-import {
-  ShipperGetListAction,
-} from "domain/actions/account/account.action";
+import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
@@ -49,9 +47,7 @@ import calendarOutlined from "assets/icon/calendar_outline.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import {
-  OrderResponse,
-} from "model/response/order/order.response";
+import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import {
   checkPaymentStatusToShow,
@@ -75,19 +71,18 @@ import { StoreResponse } from "model/core/store.model";
 const { Panel } = Collapse;
 //#endregion
 
-
 type UpdateShipmentCardProps = {
-    OrderDetail: OrderResponse | null;
-    storeDetail?: StoreResponse;
-    stepsStatusValue?: string;
-    shippingFeeInformedCustomer: (value: number | null) => void;
-    isVisibleUpdatePayment : (value: boolean) => void;
-    totalPaid?: number;
-  };
+  OrderDetail: OrderResponse | null;
+  storeDetail?: StoreResponse;
+  stepsStatusValue?: string;
+  shippingFeeInformedCustomer: (value: number | null) => void;
+  isVisibleUpdatePayment: (value: boolean) => void;
+  totalPaid?: number;
+};
 
-const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
-    props: UpdateShipmentCardProps
-  ) =>  {
+const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
+  props: UpdateShipmentCardProps
+) => {
   const formRef = createRef<FormInstance>();
   const copyRef = createRef<any>();
 
@@ -97,7 +92,7 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
   const [isVisibleShipping, setVisibleShipping] = useState(false);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
-  
+
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
     useState<number>(0);
   const [isvibleShippedConfirm, setIsvibleShippedConfirm] =
@@ -105,7 +100,6 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
   const [requirementName, setRequirementName] = useState<string | null>(null);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
-
 
   //#endregion
   //#region Orther
@@ -186,16 +180,15 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
     }
   };
 
-  const changeShippingFeeInformedCustomer = (value : any) => {
+  const changeShippingFeeInformedCustomer = (value: any) => {
     setShippingFeeInformedCustomer(value);
     props.shippingFeeInformedCustomer(value);
-  }
+  };
 
   //#endregion
   useLayoutEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
   }, [dispatch]);
-
 
   //#endregion
 
@@ -277,14 +270,42 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments &&
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+      props.OrderDetail?.fulfillments[0].status ===
+        FulFillmentStatus.UNSHIPPED &&
+      props.OrderDetail?.fulfillments[0].shipment
+        ?.delivery_service_provider_type !== "pick_at_store"
     ) {
       fulfillmentTypeOrderRequest(1);
-    } else if (props.stepsStatusValue === FulFillmentStatus.PICKED) {
+    } else if (
+      props.stepsStatusValue === FulFillmentStatus.PICKED ||
+      (props.OrderDetail?.fulfillments &&
+        props.OrderDetail?.fulfillments.length > 0 &&
+        props.OrderDetail?.fulfillments[0].shipment &&
+        props.OrderDetail?.fulfillments[0].status ===
+          FulFillmentStatus.UNSHIPPED &&
+        props.OrderDetail?.fulfillments[0].shipment
+          ?.delivery_service_provider_type === "pick_at_store")
+    ) {
       fulfillmentTypeOrderRequest(2);
-    } else if (props.stepsStatusValue === FulFillmentStatus.PACKED) {
+    } else if (
+      props.stepsStatusValue === FulFillmentStatus.PACKED &&
+      props.OrderDetail?.fulfillments &&
+      props.OrderDetail?.fulfillments.length > 0 &&
+      props.OrderDetail?.fulfillments[0].shipment &&
+      props.OrderDetail?.fulfillments[0].shipment
+        ?.delivery_service_provider_type !== "pick_at_store"
+    ) {
       fulfillmentTypeOrderRequest(3);
-    } else if (props.stepsStatusValue === FulFillmentStatus.SHIPPING) {
+    } else if (
+      props.stepsStatusValue === FulFillmentStatus.SHIPPING ||
+      (props.OrderDetail?.fulfillments &&
+        props.OrderDetail?.fulfillments.length > 0 &&
+        props.OrderDetail?.fulfillments[0].shipment &&
+        props.OrderDetail?.fulfillments[0].status ===
+          FulFillmentStatus.PACKED &&
+        props.OrderDetail?.fulfillments[0].shipment
+          ?.delivery_service_provider_type === "pick_at_store")
+    ) {
       fulfillmentTypeOrderRequest(4);
     }
   };
@@ -296,7 +317,20 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments &&
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+      props.OrderDetail?.fulfillments[0].shipment
+        .delivery_service_provider_type == "pick_at_store"
+    ) {
+      let money = props.OrderDetail.total;
+      props.OrderDetail?.payments?.map((p) => {
+        money = money - p.paid_amount;
+      });
+      return money;
+    } else if (
+      props.OrderDetail?.fulfillments &&
+      props.OrderDetail?.fulfillments.length > 0 &&
+      props.OrderDetail?.fulfillments[0].shipment &&
+      props.OrderDetail?.fulfillments[0].shipment
+        .shipping_fee_informed_to_customer
     ) {
       return (
         props.OrderDetail?.fulfillments[0].shipment
@@ -382,11 +416,18 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
     value.expected_received_date = value.dating_ship?.utc().format();
     value.requirements_name = requirementName;
     if (props.OrderDetail?.fulfillments) {
-      value.delivery_service_provider_type = "Shipper";
+      if (shipmentMethod == 4) {
+        value.delivery_service_provider_type = "Shipper";
+      } else if (shipmentMethod == 3) {
+        value.delivery_service_provider_type = "pick_at_store";
+      }
     }
     if (props.OrderDetail != null) {
       FulFillmentRequest.order_id = props.OrderDetail.id;
-      if (props.OrderDetail.fulfillments && props.OrderDetail.fulfillments.length !== 0) {
+      if (
+        props.OrderDetail.fulfillments &&
+        props.OrderDetail.fulfillments.length !== 0
+      ) {
         FulFillmentRequest.id = props.OrderDetail.fulfillments[0].id;
       }
     }
@@ -503,7 +544,9 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
         shippingFeeInformedCustomer -
         props.totalPaid! -
         (props.OrderDetail?.total_paid ? props.OrderDetail?.total_paid : 0) -
-        (props.OrderDetail?.total_discount ? props.OrderDetail?.total_discount : 0)
+        (props.OrderDetail?.total_discount
+          ? props.OrderDetail?.total_discount
+          : 0)
       );
     } else if (props.OrderDetail?.total_line_amount_after_line_discount) {
       return (
@@ -526,7 +569,7 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
     if (props.OrderDetail?.total_line_amount_after_line_discount) {
       return (
         props.OrderDetail?.total_line_amount_after_line_discount -
-        props.totalPaid! +
+          props.totalPaid! +
           shippingFeeInformedCustomer -
           (props.OrderDetail?.discounts &&
           props.OrderDetail?.discounts.length > 0 &&
@@ -554,7 +597,8 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments &&
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
+      props.OrderDetail?.fulfillments[0].shipment
+        .shipping_fee_informed_to_customer
     ) {
       return (
         props.OrderDetail?.fulfillments[0].shipment
@@ -583,8 +627,8 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
   const customerNeedToPayValue = customerNeedToPay();
 
   useEffect(() => {
-    getRequirementName()
-  }, [])
+    getRequirementName();
+  }, []);
 
   return (
     <div>
@@ -631,7 +675,8 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
                 <span style={{ color: "#222222", lineHeight: "16px" }}>
                   {props.OrderDetail?.fulfillments &&
                   props.OrderDetail?.fulfillments.length > 0 &&
-                  props.OrderDetail?.fulfillments[0].shipment?.expected_received_date
+                  props.OrderDetail?.fulfillments[0].shipment
+                    ?.expected_received_date
                     ? moment(
                         props.OrderDetail?.fulfillments[0].shipment
                           ?.expected_received_date
@@ -720,65 +765,112 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
                 }
                 key="1"
               >
-                <Row>
-                  <Col md={6}>
-                    <Col span={24}>
-                      <p className="text-field">Đối tác giao hàng:</p>
+                {props.OrderDetail?.fulfillments[0].shipment
+                  ?.delivery_service_provider_type == "pick_at_store" ? (
+                  <div>
+                    <Row gutter={24}>
+                      <Col md={24}>
+                        <Col span={24}>
+                          <b>
+                            <img src={storeBluecon} alt="" /> NHẬN TẠI CỬA HÀNG
+                          </b>
+                        </Col>
+                      </Col>
+                    </Row>
+                    <Row gutter={24} style={{ paddingTop: "15px" }}>
+                      <Col md={6}>
+                        <Col span={24}>
+                          <p className="text-field">Tên cửa hàng:</p>
+                        </Col>
+                        <Col span={24}>
+                          <b>{props.OrderDetail?.store}</b>
+                        </Col>
+                      </Col>
+
+                      <Col md={6}>
+                        <Col span={24}>
+                          <p className="text-field">Số điện thoại:</p>
+                        </Col>
+                        <Col span={24}>
+                          <b className="text-field">
+                            {props.OrderDetail?.store_phone_number}
+                          </b>
+                        </Col>
+                      </Col>
+
+                      <Col md={6}>
+                        <Col span={24}>
+                          <p className="text-field">Địa chỉ:</p>
+                        </Col>
+                        <Col span={24}>
+                          <b className="text-field">
+                            {props.OrderDetail?.store_full_address}
+                          </b>
+                        </Col>
+                      </Col>
+                    </Row>
+                  </div>
+                ) : (
+                  <Row gutter={24}>
+                    <Col md={6}>
+                      <Col span={24}>
+                        <p className="text-field">Đối tác giao hàng:</p>
+                      </Col>
+                      <Col span={24}>
+                        <b>
+                          {props.OrderDetail?.fulfillments &&
+                            props.OrderDetail.fulfillments.length &&
+                            shipper &&
+                            shipper.find(
+                              (s) =>
+                                props.OrderDetail &&
+                                props.OrderDetail.fulfillments &&
+                                props.OrderDetail.fulfillments[0].shipment
+                                  ?.shipper_code === s.code
+                            )?.full_name}
+                        </b>
+                      </Col>
                     </Col>
-                    <Col span={24}>
-                      <b>
-                        {props.OrderDetail && props.OrderDetail?.fulfillments &&
-                          props.OrderDetail.fulfillments.length &&
-                          shipper &&
-                          shipper.find(
-                            (s) => 
-                            props.OrderDetail &&
-                              props.OrderDetail.fulfillments &&
+
+                    <Col md={6}>
+                      <Col span={24}>
+                        <p className="text-field">Phí ship báo khách:</p>
+                      </Col>
+                      <Col span={24}>
+                        <b className="text-field">
+                          {props.OrderDetail?.fulfillments &&
+                            props.OrderDetail?.fulfillments.length > 0 &&
+                            formatCurrency(
                               props.OrderDetail.fulfillments[0].shipment
-                                ?.shipper_code === s.code
-                          )?.full_name}
-                      </b>
+                                ?.shipping_fee_informed_to_customer
+                                ? props.OrderDetail.fulfillments[0].shipment
+                                    ?.shipping_fee_informed_to_customer
+                                : 0
+                            )}
+                        </b>
+                      </Col>
                     </Col>
-                  </Col>
 
-                  <Col md={6}>
-                    <Col span={24}>
-                      <p className="text-field">Phí ship báo khách:</p>
+                    <Col md={6}>
+                      <Col span={24}>
+                        <p className="text-field">Phí ship trả đối tác:</p>
+                      </Col>
+                      <Col span={24}>
+                        <b className="text-field">
+                          {props.OrderDetail?.fulfillments &&
+                            formatCurrency(
+                              props.OrderDetail.fulfillments[0].shipment
+                                ?.shipping_fee_paid_to_three_pls
+                                ? props.OrderDetail.fulfillments[0].shipment
+                                    ?.shipping_fee_paid_to_three_pls
+                                : 0
+                            )}
+                        </b>
+                      </Col>
                     </Col>
-                    <Col span={24}>
-                      <b className="text-field">
-                        {props.OrderDetail?.fulfillments &&
-                          props.OrderDetail?.fulfillments.length > 0 &&
-                          formatCurrency(
-                            props.OrderDetail.fulfillments[0].shipment
-                              ?.shipping_fee_informed_to_customer
-                              ? props.OrderDetail.fulfillments[0].shipment
-                                  ?.shipping_fee_informed_to_customer
-                              : 0
-                          )}
-                      </b>
-                    </Col>
-                  </Col>
-
-                  <Col md={6}>
-                    <Col span={24}>
-                      <p className="text-field">Phí ship trả đối tác:</p>
-                    </Col>
-                    <Col span={24}>
-                      <b className="text-field">
-                        {props.OrderDetail?.fulfillments &&
-                          formatCurrency(
-                            props.OrderDetail.fulfillments[0].shipment
-                              ?.shipping_fee_paid_to_three_pls
-                              ? props.OrderDetail.fulfillments[0].shipment
-                                  ?.shipping_fee_paid_to_three_pls
-                              : 0
-                          )}
-                      </b>
-                    </Col>
-                  </Col>
-                </Row>
-                <Row style={{ marginTop: 12, marginBottom: 0 }}>
+                  </Row>
+                )}
+                <Row gutter={24} style={{ marginTop: 12, marginBottom: 0 }}>
                   <Col span={24}>
                     <p className="text-field">
                       {props.OrderDetail?.items.reduce(
@@ -1134,45 +1226,69 @@ const UpdateShipmentCard : React.FC<UpdateShipmentCardProps> = (
                     </Col>
                   </Row>
                 </div>
-              </Form>
-              {/*--- Nhận tại cửa hàng ----*/}
-              <div className="receive-at-store" hidden={shipmentMethod !== 3}>
-                <Row style={{ marginBottom: "10px" }}>Nhận tại cửa hàng</Row>
-                <Row className="row-info">
-                  <Space>
-                    <div className="row-info-icon">
-                      <img src={storeBluecon} alt="" width="20px" />
-                    </div>
-                    <div className="row-info-title">Cửa hàng</div>
-                    <div className="row-info-content">
-                      <Typography.Link>{props.storeDetail?.name}</Typography.Link>
-                    </div>
-                  </Space>
-                </Row>
-                <Row className="row-info">
-                  <Space>
-                    <div className="row-info-icon">
-                      <img src={callIcon} alt="" width="18px" />
-                    </div>
-                    <div className="row-info-title">Điện thoại</div>
-                    <div className="row-info-content">
-                      {props.storeDetail?.hotline}
-                    </div>
-                  </Space>
-                </Row>
-                <Row className="row-info">
-                  <Space>
-                    <div className="row-info-icon">
-                      <img src={locationIcon} alt="" width="18px" />
-                    </div>
-                    <div className="row-info-title">Địa chỉ</div>
-                    <div className="row-info-content">
-                      {props.storeDetail?.address}
-                    </div>
-                  </Space>
-                </Row>
-              </div>
 
+                {/*--- Nhận tại cửa hàng ----*/}
+                <div className="receive-at-store" hidden={shipmentMethod !== 3}>
+                  <b>
+                    <img src={storeBluecon} alt="" /> THÔNG TIN CỬA HÀNG
+                  </b>
+
+                  <Row style={{ paddingTop: "19px" }}>
+                    {/* <div className="row-info-icon">
+                  <img src={storeBluecon} alt="" width="20px" />
+                </div> */}
+                    <Col md={2}>
+                      <div>Tên cửa hàng:</div>
+                    </Col>
+                    <b className="row-info-content">
+                      <Typography.Link>
+                        {props.storeDetail?.name}
+                      </Typography.Link>
+                    </b>
+                  </Row>
+                  <Row className="row-info padding-top-10">
+                    {/* <div className="row-info-icon">
+                  <img src={callIcon} alt="" width="18px" />
+                </div> */}
+                    <Col md={2}>
+                      <div>Số điện thoại:</div>
+                    </Col>
+                    <b className="row-info-content">
+                      {props.storeDetail?.hotline}
+                    </b>
+                  </Row>
+                  <Row className="row-info padding-top-10">
+                    {/* <div className="row-info-icon">
+                  <img src={locationIcon} alt="" width="18px" />
+                </div> */}
+                    <Col md={2}>
+                      <div>Địa chỉ:</div>
+                    </Col>
+                    <b className="row-info-content">
+                      {props.storeDetail?.full_address}
+                    </b>
+                  </Row>
+                </div>
+                <Col md={24}>
+                  <div>
+                    <Button
+                      type="primary"
+                      className="create-button-custom"
+                      style={{ float: "right" }}
+                      htmlType="submit"
+                    >
+                      Lưu
+                    </Button>
+                    <Button
+                      className="ant-btn-outline fixed-button cancle-button create-button-custom"
+                      onClick={() => window.location.reload()}
+                      style={{ float: "right" }}
+                    >
+                      Huỷ
+                    </Button>
+                  </div>
+                </Col>
+              </Form>
               {/*--- Giao hàng sau ----*/}
               <Row
                 className="ship-later-box"
