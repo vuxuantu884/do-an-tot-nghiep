@@ -36,7 +36,7 @@ import PaymentCard from "./component/payment-card";
 import CustomerCard from "./component/customer-card";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import { OrderResponse } from "model/response/order/order.response";
+import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import {
   OrderStatus,
   ShipmentMethodOption,
@@ -50,7 +50,8 @@ import {
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/confirm-payment.modal";
-import { StoreDetailAction } from "domain/actions/core/store.action";
+import WarningIcon from "assets/icon/ydWarningIcon.svg";
+import { StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { request } from "https";
 //#endregion
@@ -76,6 +77,9 @@ export default function Order() {
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
     null
   );
+  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
+    null
+  );
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
@@ -84,7 +88,7 @@ export default function Order() {
     useState<boolean>(false);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
-  const [storeDetail, setStoreDetail] = useState<StoreResponse>();
+  const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   //#endregion
   //#region Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
@@ -104,6 +108,10 @@ export default function Order() {
 
   const ChangeShippingFeeCustomer = (value: number | null) => {
     setShippingFeeCustomer(value);
+  };
+
+  const ChangeShippingFeeCustomerHVC = (value: number | null) => {
+    setShippingFeeCustomerHVC(value);
   };
   //#endregion
 
@@ -181,7 +189,6 @@ export default function Order() {
   };
 
   //#region Order
-
   const initialForm: OrderRequest = {
     ...initialRequest,
     shipping_address: shippingAddress,
@@ -250,12 +257,7 @@ export default function Order() {
     }
     return listFullfillmentRequest;
   };
-  console.log(
-    orderAmount +
-      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-      getAmountPaymentRequest(payments) -
-      discountValue
-  );
+
   const createShipmentRequest = (value: OrderRequest) => {
     let objShipment: ShipmentRequest = {
       delivery_service_provider_id: null, //id người shipper
@@ -286,7 +288,8 @@ export default function Order() {
     if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
       objShipment.delivery_service_provider_id = 1;
       objShipment.delivery_service_provider_type = "external_service";
-      objShipment.sender_address = storeDetail;
+      objShipment.sender_address_id = storeId;
+      return objShipment;
     }
 
     if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
@@ -376,6 +379,7 @@ export default function Order() {
     setIsvibleSaveAndConfirm(false);
   };
 
+  console.log(payments)
   const showSaveAndConfirmModal = () => {
     if (shipmentMethod !== 4 || paymentMethod !== 3) {
       setIsvibleSaveAndConfirm(true);
@@ -384,7 +388,6 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
-  console.log(orderAmount);
   const onFinish = (values: OrderRequest) => {
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
@@ -405,7 +408,7 @@ export default function Order() {
       //Nếu là đơn lưu và duyệt
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
-      values.payments = payments;
+      values.payments = payments.filter((payment)=> payment.amount > 0)
       values.total = orderAmount;
       if (
         values?.fulfillments &&
@@ -467,7 +470,7 @@ export default function Order() {
 
   useEffect(() => {
     if (storeId != null) {
-      dispatch(StoreDetailAction(storeId, setStoreDetail));
+      dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
     }
   }, [dispatch, storeId]);
 
@@ -480,7 +483,7 @@ export default function Order() {
     return () => {
       window.removeEventListener("scroll", scroll);
     };
-  }, []);
+  }, [scroll]);
   return (
     <ContentContainer
       title="Tạo mới đơn hàng"
@@ -552,10 +555,12 @@ export default function Order() {
                 shipmentMethod={shipmentMethod}
                 storeDetail={storeDetail}
                 setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
+                setShippingFeeInformedCustomerHVC={ChangeShippingFeeCustomerHVC}
                 amount={orderAmount}
                 setPaymentMethod={setPaymentMethod}
                 paymentMethod={paymentMethod}
                 shippingFeeCustomer={shippingFeeCustomer}
+                shippingFeeCustomerHVC={shippingFeeCustomerHVC}
                 cusomerInfo={customer}
                 items={items}
                 discountValue={discountValue}
@@ -741,8 +746,9 @@ export default function Order() {
             onCancel={onCancelSaveAndConfirm}
             onOk={onOkSaveAndConfirm}
             visible={isvibleSaveAndConfirm}
-            title="Xác nhận đơn hàng"
-            text="Khi lưu nháp hệ thống sẽ tự xóa thông tin Giao hàng và Thanh toán. Bạn có chắc Lưu nháp đơn hàng này không?"
+            title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
+            text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
+            icon={WarningIcon}
           />
 
           <ConfirmPaymentModal
@@ -756,3 +762,5 @@ export default function Order() {
     </ContentContainer>
   );
 }
+
+

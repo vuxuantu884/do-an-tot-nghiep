@@ -33,6 +33,16 @@ const StoreUpdateScreen = React.lazy(
   () => import("screens/store/store-update.screen")
 );
 
+// fulfillment: quản lý đơn hàng
+const SettingFulfillmentScreen = React.lazy(
+  () => import("screens/order-online/settings/order-processing-status")
+);
+
+// order sources: quản lý nguồn đơn hàng
+const SettingOrderSourcesScreen = React.lazy(
+  () => import("screens/order-online/settings/order-sources")
+);
+
 const setting: Array<RouteMenu> = [
   {
     path: UrlConfig.ACCOUNTS,
@@ -159,6 +169,79 @@ const setting: Array<RouteMenu> = [
     ],
     type: 0,
     object: null,
+  },
+  {
+    path: UrlConfig.ORDER_PROCESSING_STATUS,
+    exact: true,
+    title: "Xử lý đơn hàng",
+    icon: "icon-dot",
+    component: SettingFulfillmentScreen,
+    key: "submenu95",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.ORDER_PROCESSING_STATUS}/create`,
+        exact: true,
+        title: "Thêm mới đơn hàng",
+        icon: "icon-dot",
+        component: SettingFulfillmentScreen,
+        key: "submenu261",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+    ],
+    type: HEADER_TYPE.BUTTON_CREATE,
+    object: {
+      pathCreate: `${UrlConfig.ORDER_PROCESSING_STATUS}/create`,
+    },
+  },
+  {
+    path: UrlConfig.ORDER_SOURCES,
+    exact: true,
+    title: "Nguồn đơn hàng",
+    subTitle: "Thêm và quản lý nguồn tạo ra đơn hàng",
+    icon: "icon-dot",
+    component: SettingOrderSourcesScreen,
+    key: "submenu96",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.ORDER_SOURCES}/create`,
+        exact: true,
+        title: "Thêm mới nguồn đơn hàng",
+        icon: "icon-dot",
+        component: AccountCreateScreen,
+        key: "submenu261",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+      {
+        path: `${UrlConfig.ORDER_SOURCES}/:id`,
+        exact: true,
+        title: "Chỉnh sửa nguồn đơn hàng",
+        icon: "icon-dot",
+        component: AccountUpdateScreen,
+        key: "account2",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore: ["create"],
+      },
+    ],
+    type: HEADER_TYPE.BUTTON_CREATE,
+    object: {
+      pathCreate: `${UrlConfig.ORDER_PROCESSING_STATUS}/create`,
+    },
   },
 ];
 

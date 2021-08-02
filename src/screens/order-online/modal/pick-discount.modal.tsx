@@ -53,7 +53,11 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
     const onchangeCounpon = (e: any) => {
         setCounpon(e.target.value);
     };
-
+    const handleEnterToSubmit = (key: any) => {
+        if(key === 13){
+            onSubmit()
+        }
+    }
     return (
         <Modal
             title=""
@@ -68,7 +72,7 @@ const PickDiscountModal: React.FC<PickDiscountModalProps> = (
                 </Button>,
             ]}
         >
-            <Form ref={formRef} layout="vertical">
+            <Form ref={formRef} layout="vertical" onKeyPress={(e) => handleEnterToSubmit(e.which)}>
                 <div className="site-input-group-wrapper saleorder-input-group-wrapper">
                     <Form.Item label="Chiết khấu đơn hàng">
                         <Input.Group size="large">

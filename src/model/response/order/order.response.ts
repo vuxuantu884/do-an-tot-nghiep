@@ -1,4 +1,5 @@
 import { BaseObject } from "model/base/base.response";
+import { StoreResponse } from "model/core/store.model";
 
 export interface OrderResponse extends BaseObject {
   company_id: number | null;
@@ -21,7 +22,7 @@ export interface OrderResponse extends BaseObject {
   assignee_code: string | null;
   assignee: string | null;
   channel_id: number | null;
-  channel: string| null;
+  channel: string | null;
   customer_id: number | null;
   customer: string | null;
   customer_phone_number: string | null;
@@ -124,36 +125,36 @@ export interface FulFillmentResponse {
 }
 
 export interface OrderDiscountResponse {
-  rate: number|null;
-  value: number|null;
+  rate: number | null;
+  value: number | null;
   amount: number | null;
-  promotion_id: number|null;
+  promotion_id: number | null;
   reason: string | null;
   source: string | null;
 }
 
 export interface OrderItemDiscountResponse {
-  rate: number|null;
+  rate: number | null;
   value: number;
-  amount: number|null;
+  amount: number | null;
   promotion_id?: number | null;
   reason: string | null;
 }
 
 export interface OrderPaymentResponse extends BaseObject {
-  payment_method_id: number,
-  payment_method: string,
-  amount: number,
-  reference: string,
-  source: string,
-  paid_amount: number,
-  return_amount: number,
-  status: string,
-  name?: string,
-  point?: number,
-  customer_id: number,
-  type: string,
-  note: string,
+  payment_method_id: number;
+  payment_method: string;
+  amount: number;
+  reference: string;
+  source: string;
+  paid_amount: number;
+  return_amount: number;
+  status: string;
+  name?: string;
+  point?: number;
+  customer_id: number;
+  type: string;
+  note: string;
 }
 
 export interface BillingAddress {
@@ -201,9 +202,9 @@ export interface ShipmentResponse extends BaseObject {
   fee_type: string | null;
   fee_base_on: string | null;
   delivery_fee: number | null;
-  shipping_fee_informed_to_customer: number|null;
-  shipping_fee_paid_to_three_pls: number|null;
-  expected_received_date:string|null;
+  shipping_fee_informed_to_customer: number | null;
+  shipping_fee_paid_to_three_pls: number | null;
+  expected_received_date: string | null;
   reference_status: string | null;
   reference_status_explanation: string | null;
   cancel_reason: string | null;
@@ -211,12 +212,13 @@ export interface ShipmentResponse extends BaseObject {
   tracking_url: string | null;
   received_date: string | null;
   sender_address_id: number | null;
+  sender_address?: StoreResponse;
   note_to_shipper: string | null;
   requirements: string | null;
   requirements_name: string | null;
   shipping_address: ShippingAddress | null;
-  fulfillment_id:string|null;
-  cod: number 
+  fulfillment_id: string | null;
+  cod: number;
 }
 
 export interface DeliveryServiceResponse {
@@ -231,4 +233,34 @@ export interface ShippingGHTKResponse {
   fee: number;
   insurance_fee: number;
   delivery_type: string;
+}
+
+export interface StoreCustomResponse extends BaseObject {
+  name: string,
+  rank: number,
+  rank_name: string,
+  square: number,
+  country_id: number,
+  country_name: string,
+  city_id: number,
+  city_name: string,
+  group_id: number,
+  group_name: string
+  status: string,
+  status_name: string,
+  zip_code: string,
+  district_id: number,
+  district_name: string,
+  ward_id: number,
+  ward_name: string,
+  address: string,
+  full_address: string,
+  hotline: string,
+  manager_code: string,
+  vm_code: string,
+  finder_code: string,
+  mail: string,
+  begin_date: string,
+  number_of_account: number,
+  accounts: Array<any>
 }

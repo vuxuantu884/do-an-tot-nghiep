@@ -1,4 +1,7 @@
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import BaseAxios from "base/BaseAxios";
+import BaseResponse from "base/BaseResponse";
+import { ApiConfig } from "config/ApiConfig";
+import { BaseQuery } from "model/base/base.query";
 import {
   OrderRequest,
   ShippingGHTKRequest,
@@ -6,11 +9,18 @@ import {
   UpdateLineFulFillment,
   UpdatePaymentRequest,
 } from "model/request/order.request";
-import BaseAxios from "base/BaseAxiosLocal";
-import BaseResponse from "base/BaseResponse";
-import { ApiConfig } from "config/ApiConfig";
+import {
+  OrderSourceCompanyModel,
+  OrderSourceModel,
+} from "model/response/order/order-source.response";
+import {
+  DeliveryServiceResponse,
+  OrderResponse,
+  ShippingGHTKResponse,
+} from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
-import { DeliveryServiceResponse, OrderResponse, ShippingGHTKResponse } from "model/response/order/order.response";
+import { generateQuery } from "utils/AppUtils";
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
@@ -33,7 +43,6 @@ export const getInfoDeliveryGHTK = (
 ): Promise<BaseResponse<ShippingGHTKResponse>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/shipping/ghtk/fees`, request);
 };
-
 
 export const getOrderDetail = (
   id: number
@@ -68,4 +77,27 @@ export const getDeliverieServices = (): Promise<
   BaseResponse<Array<DeliveryServiceResponse>>
 > => {
   return BaseAxios.get(`${ApiConfig.ORDER}/shipping/delivery-services`);
+};
+
+/**
+ * list Order Source: quản lý nguồn đơn hàng
+ */
+
+export const getSourcesWithParams = (
+  query: BaseQuery
+): Promise<BaseResponse<SourceResponse>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/sources?${queryString}`);
+};
+
+export const getListSourcesCompanies = (): Promise<
+  BaseResponse<SourceResponse>
+> => {
+  return BaseAxios.get(`${ApiConfig.CONTENT}/companies`);
+};
+
+export const createOrderSourceService = (
+  newOrderSource: OrderSourceModel
+): Promise<BaseResponse<OrderSourceCompanyModel>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/sources`, newOrderSource);
 };
