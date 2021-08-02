@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import FormOrderSource from "component/forms/FormOrderSource";
 import CustomModal from "component/modal/CustomModal";
 import { ICustomTableColumType } from "component/table/CustomTable";
-import CustomTableStyle2 from "component/table/CustomTableStyle2";
+import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import {
   actionAddOrderSource,
@@ -207,7 +207,7 @@ const OrderSources: React.FC = () => {
       >
         {listOrderSources && (
           <Card style={{ padding: 24 }}>
-            <CustomTableStyle2
+            <CustomTable
               isLoading={tableLoading}
               showColumnSetting={true}
               scroll={{ x: 1080 }}
@@ -224,7 +224,7 @@ const OrderSources: React.FC = () => {
               rowKey={(item: VariantResponse) => item.id}
               onRow={(record: OrderSourceModel) => {
                 return {
-                  onClick: (event) => {
+                  onClick: () => {
                     console.log("record", record);
                     setModalAction("edit");
                     setModalSingleOrderSource(record);
