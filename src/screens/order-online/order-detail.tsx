@@ -16,7 +16,7 @@ import {
   Select,
 } from "antd";
 import UpdatePaymentCard from "./component/update-payment-card";
-import {
+import React, {
   useState,
   useCallback,
   useLayoutEffect,
@@ -387,14 +387,27 @@ const OrderDetail = () => {
       OrderDetail?.fulfillments &&
       OrderDetail?.fulfillments.length > 0 &&
       OrderDetail?.fulfillments[0].shipment &&
-      OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+      OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED &&
+      OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type != "pick_at_store"
     ) {
       fulfillmentTypeOrderRequest(1);
-    } else if (stepsStatusValue === FulFillmentStatus.PICKED) {
+    } else if (stepsStatusValue === FulFillmentStatus.PICKED || (OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+      && OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type == "pick_at_store")) {
       fulfillmentTypeOrderRequest(2);
-    } else if (stepsStatusValue === FulFillmentStatus.PACKED) {
+    } else if (stepsStatusValue === FulFillmentStatus.PACKED && 
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type !== "pick_at_store") {
       fulfillmentTypeOrderRequest(3);
-    } else if (stepsStatusValue === FulFillmentStatus.SHIPPING) {
+    } else if (stepsStatusValue === FulFillmentStatus.SHIPPING || (OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].status === FulFillmentStatus.PACKED && 
+      OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type == "pick_at_store")) {
       fulfillmentTypeOrderRequest(4);
     }
   };
@@ -402,7 +415,20 @@ const OrderDetail = () => {
   const confirmExportAndFinishValue = () => {
     if (takeMoneyHelper) {
       return takeMoneyHelper;
-    } else if (
+    } 
+    else if(
+      OrderDetail?.fulfillments &&
+      OrderDetail?.fulfillments.length > 0 &&
+      OrderDetail?.fulfillments[0].shipment &&
+      OrderDetail?.fulfillments[0].shipment.delivery_service_provider_type=="pick_at_store"
+    ){
+      let money =  OrderDetail.total
+      OrderDetail?.payments?.map(p=>{
+        money = money-p.paid_amount
+      })
+      return money
+    }
+    else if (
       OrderDetail?.fulfillments &&
       OrderDetail?.fulfillments.length > 0 &&
       OrderDetail?.fulfillments[0].shipment &&
@@ -488,11 +514,18 @@ const OrderDetail = () => {
     shipping_fee_informed_to_customer: null,
   };
 
+
+  
+
   const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
     value.expected_received_date = value.dating_ship?.utc().format();
     value.requirements_name = requirementName;
     if (OrderDetail?.fulfillments) {
+      if(shipmentMethod==4){
       value.delivery_service_provider_type = "Shipper";
+      }else if(shipmentMethod==3){
+        value.delivery_service_provider_type = "pick_at_store";
+      }
     }
     if (OrderDetail != null) {
       FulFillmentRequest.order_id = OrderDetail.id;
@@ -857,7 +890,7 @@ const OrderDetail = () => {
                             >
                               {OrderDetail?.fulfillments &&
                                 OrderDetail?.fulfillments.map(
-                                  (item, index) => item.id
+                                  (item, index) => item.code
                                 )}
                             </p>
                             <div style={{ width: 30, padding: "0 4px" }}>
@@ -899,7 +932,57 @@ const OrderDetail = () => {
                       }
                       key="1"
                     >
-                      <Row>
+                      {OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type == "pick_at_store"?
+
+                    (
+                      <React.Fragment>
+                          <Row gutter={24}>
+                          <Col md={24}>
+                          <Col span={24}>
+                            <b><img src={storeBluecon} alt="" /> NHẬN TẠI CỬA HÀNG</b>
+                            </Col>
+                          </Col>
+                          </Row>
+                      <Row gutter={24} style={{paddingTop:"15px"}}>
+
+                        <Col md={6}>
+                          <Col span={24}>
+                            <p className="text-field">Tên cửa hàng:</p>
+                          </Col>
+                          <Col span={24}>
+                            <b>
+                              {OrderDetail?.store}
+                            </b>
+                          </Col>
+                        </Col>
+
+                        <Col md={6}>
+                          <Col span={24}>
+                            <p className="text-field">Số điện thoại:</p>
+                          </Col>
+                          <Col span={24}>
+                            <b className="text-field">
+                              {OrderDetail?.store_phone_number}
+                            </b>
+                          </Col>
+                        </Col>
+
+                        <Col md={6}>
+                          <Col span={24}>
+                            <p className="text-field">Địa chỉ:</p>
+                          </Col>
+                          <Col span={24}>
+                            <b className="text-field">
+                              {OrderDetail?.store_full_address}
+                            </b>
+                          </Col>
+                        </Col>
+                      </Row>
+                      </React.Fragment>
+                      ):
+
+
+                      (<Row gutter={24}>
                         <Col md={6}>
                           <Col span={24}>
                             <p className="text-field">Đối tác giao hàng:</p>
@@ -955,8 +1038,13 @@ const OrderDetail = () => {
                             </b>
                           </Col>
                         </Col>
-                      </Row>
-                      <Row style={{ marginTop: 12, marginBottom: 0 }}>
+                      </Row>)
+
+                      }
+                      <Row
+                        gutter={24}
+                        style={{ marginTop: 12, marginBottom: 0 }}
+                      >
                         <Col span={24}>
                           <p className="text-field">
                             {OrderDetail?.items.reduce(
@@ -981,7 +1069,18 @@ const OrderDetail = () => {
                     Hủy
                   </Button>
 
-                  {stepsStatusValue === OrderStatus.FINALIZED && (
+                  {stepsStatusValue === OrderStatus.FINALIZED && OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type == "pick_at_store" &&(
+                    <Button
+                      type="primary"
+                      style={{ marginLeft: "10px" }}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={onOkShippingConfirm}
+                    >
+                      Nhặt hàng và đóng gói
+                    </Button>
+                  )}
+
+                  {stepsStatusValue === OrderStatus.FINALIZED&& OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type != "pick_at_store" && (
                     <Button
                       type="primary"
                       style={{ marginLeft: "10px" }}
@@ -1002,7 +1101,7 @@ const OrderDetail = () => {
                       Đóng gói
                     </Button>
                   )}
-                  {stepsStatusValue === FulFillmentStatus.PACKED && (
+                  {stepsStatusValue === FulFillmentStatus.PACKED && OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type != "pick_at_store" && (
                     <Button
                       type="primary"
                       style={{ marginLeft: "10px" }}
@@ -1012,6 +1111,18 @@ const OrderDetail = () => {
                       Xuất kho
                     </Button>
                   )}
+
+                  {stepsStatusValue === FulFillmentStatus.PACKED && OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type == "pick_at_store" && (
+                    <Button
+                      type="primary"
+                      style={{ marginLeft: "10px" }}
+                      className="create-button-custom ant-btn-outline fixed-button"
+                      onClick={() => setIsvibleShippedConfirm(true)}
+                    >
+                      Xuất kho và giao hàng
+                    </Button>
+                  )}
+
                   {stepsStatusValue === FulFillmentStatus.SHIPPING && (
                     <Button
                       type="primary"
@@ -1206,7 +1317,7 @@ const OrderDetail = () => {
                               name="shipper_code"
                               rules={[
                                 {
-                                  required: true,
+                                  required: shipmentMethod==2,
                                   message: "Vui lòng chọn đối tác giao hàng",
                                 },
                               ]}
@@ -1302,7 +1413,60 @@ const OrderDetail = () => {
                               />
                             </Form.Item>
                           </Col>
-                          <Col md={24}>
+                          
+                        </Row>
+                      </div>
+                      
+                    {/*--- Nhận tại cửa hàng ----*/}
+                    <div
+                      className="receive-at-store"
+                      hidden={shipmentMethod !== 3}
+                    >
+                      <b><img src={storeBluecon} alt="" /> THÔNG TIN CỬA HÀNG</b>
+          
+          <Row style={{paddingTop:"19px"}}>
+  
+              
+              {/* <div className="row-info-icon">
+                <img src={storeBluecon} alt="" width="20px" />
+              </div> */}
+              <Col md={2}>
+              <div>Tên cửa hàng:</div>
+              </Col>
+              <b className="row-info-content">
+                <Typography.Link>{storeDetail?.name}</Typography.Link>
+              </b>
+        
+          </Row>
+          <Row className="row-info padding-top-10">
+              {/* <div className="row-info-icon">
+                <img src={callIcon} alt="" width="18px" />
+              </div> */}
+              <Col md={2}>
+              <div>Số điện thoại:</div>
+              </Col>
+              <b className="row-info-content">
+                {storeDetail?.hotline}
+              </b>
+            
+          </Row>
+          <Row className="row-info padding-top-10">
+              {/* <div className="row-info-icon">
+                <img src={locationIcon} alt="" width="18px" />
+              </div> */}
+              <Col md={2}>
+              <div>Địa chỉ:</div>
+              </Col>
+              <b className="row-info-content">
+                {storeDetail?.full_address}
+              </b>
+          </Row>
+          
+
+
+
+                    </div>
+                    <Col md={24}>
                             <div>
                               <Button
                                 type="primary"
@@ -1321,53 +1485,7 @@ const OrderDetail = () => {
                               </Button>
                             </div>
                           </Col>
-                        </Row>
-                      </div>
                     </Form>
-                    {/*--- Nhận tại cửa hàng ----*/}
-                    <div
-                      className="receive-at-store"
-                      hidden={shipmentMethod !== 3}
-                    >
-                      <Row style={{ marginBottom: "10px" }}>
-                        Nhận tại cửa hàng
-                      </Row>
-                      <Row className="row-info">
-                        <Space>
-                          <div className="row-info-icon">
-                            <img src={storeBluecon} alt="" width="20px" />
-                          </div>
-                          <div className="row-info-title">Cửa hàng</div>
-                          <div className="row-info-content">
-                            <Typography.Link>
-                              {storeDetail?.name}
-                            </Typography.Link>
-                          </div>
-                        </Space>
-                      </Row>
-                      <Row className="row-info">
-                        <Space>
-                          <div className="row-info-icon">
-                            <img src={callIcon} alt="" width="18px" />
-                          </div>
-                          <div className="row-info-title">Điện thoại</div>
-                          <div className="row-info-content">
-                            {storeDetail?.hotline}
-                          </div>
-                        </Space>
-                      </Row>
-                      <Row className="row-info">
-                        <Space>
-                          <div className="row-info-icon">
-                            <img src={locationIcon} alt="" width="18px" />
-                          </div>
-                          <div className="row-info-title">Địa chỉ</div>
-                          <div className="row-info-content">
-                            {storeDetail?.address}
-                          </div>
-                        </Space>
-                      </Row>
-                    </div>
 
                     {/*--- Giao hàng sau ----*/}
                     <Row
