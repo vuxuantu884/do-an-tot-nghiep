@@ -261,3 +261,14 @@ export interface StoreCustomResponse extends BaseObject {
   number_of_account: number,
   accounts: Array<any>
 }
+
+export interface OrderSubStatusResponse {
+  id: 6,
+  company_id: number,
+  company: string,
+  sub_status: string,
+  status: string,
+  note: string,
+  is_active: boolean,
+  is_delete?: boolean, 
+}

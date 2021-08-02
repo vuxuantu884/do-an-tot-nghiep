@@ -42,6 +42,7 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateCustomerCard from "./component/update-customer-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
+import SubStatusOrder from "component/main-sidebar/sub-status-order";
 const { Panel } = Collapse;
 //#endregion
 
@@ -800,6 +801,7 @@ const OrderDetail = () => {
                 </Row>
               </div>
             </Card>
+            <SubStatusOrder status={OrderDetail?.status} />
             <Card
               className="margin-top-20"
               title={

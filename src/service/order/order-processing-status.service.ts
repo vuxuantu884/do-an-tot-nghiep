@@ -13,14 +13,14 @@ import { generateQuery } from "utils/AppUtils";
  * list Order Processing Status: Xử lý đơn hàng
  */
 
-export const getOrderProcessingStatus = (
+export const getOrderProcessingStatusService = (
   query: BaseQuery
 ): Promise<BaseResponse<SourceResponse>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/subStatus?${queryString}`);
 };
 
-export const createOrderProcessingStatus = (
+export const createOrderProcessingStatusService = (
   newOrderProcessingStatus: OrderProcessingStatusModel
 ): Promise<BaseResponse<OrderProcessingStatusResponseModel>> => {
   return BaseAxios.post(
@@ -29,7 +29,7 @@ export const createOrderProcessingStatus = (
   );
 };
 
-export const editOrderProcessingStatus = (
+export const editOrderProcessingStatusService = (
   id: number,
   OrderProcessingStatus: OrderProcessingStatusModel
 ): Promise<BaseResponse<OrderProcessingStatusResponseModel>> => {
@@ -39,7 +39,7 @@ export const editOrderProcessingStatus = (
   );
 };
 
-export const deleteOrderProcessingStatus = (
+export const deleteOrderProcessingStatusService = (
   id: number
 ): Promise<BaseResponse<OrderProcessingStatusResponseModel>> => {
   return BaseAxios.delete(`${ApiConfig.ORDER}/subStatus/${id}`);
