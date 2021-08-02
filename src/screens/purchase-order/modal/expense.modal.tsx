@@ -113,7 +113,7 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
                   <Button
                     type="link"
                     className="padding-0"
-                    onClick={() => add()}
+                    onClick={() => add({ title: "", amount: null })}
                     icon={<PlusOutlined />}
                   >
                     Thêm chi phí

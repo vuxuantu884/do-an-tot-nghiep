@@ -42,6 +42,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
   const onChangeText = useCallback(
     (e) => {
       let newValue: string = e.target.value;
+      console.log(newValue);
       let value = format ? (replace ? replace(newValue) : newValue) : newValue;
       if (value === "") {
         onChange && onChange(null);
@@ -64,7 +65,6 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     (e) => {
       let temp = value?.toString();
       let valueTemp = temp;
-      console.log("temp", temp);
       if (temp !== undefined && value !== undefined) {
         if (temp.charAt(temp.length - 1) === "." || temp === "-") {
           valueTemp = temp.slice(0, -1);
@@ -87,18 +87,12 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     },
     [onBlur, onChange, props, value]
   );
-  // useEffect(() => {
-  //   inputRef.current!.focus({
-  //     cursor: "all",
-  //   });
-  // }, []);
   return (
     <Input
-      // ref={inputRef}
       className={className}
       placeholder={placeholder}
       value={value && format ? format(value.toString()) : value}
-      style={style}
+      style={{textAlign: 'right', ...style}}
       onBlur={onBlurEvent}
       onChange={onChangeText}
       suffix={suffix}

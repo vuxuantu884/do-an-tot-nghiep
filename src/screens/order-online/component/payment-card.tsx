@@ -63,7 +63,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     []
   );
 
-  const ListMaymentMethods = useMemo(() => {
+  const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter(
       (item) => item.code !== PaymentMethodCode.CARD
     );
@@ -88,7 +88,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   }, [props.amount, totalAmountPaid]);
 
   const handlePickPaymentMethod = (code?: string) => {
-    let paymentMaster = ListMaymentMethods.find((p) => code === p.code);
+    let paymentMaster = ListPaymentMethods.find((p) => code === p.code);
     if (!paymentMaster) return;
     let indexPayment = paymentData.findIndex((p) => p.code === code);
     if (indexPayment === -1) {
@@ -167,16 +167,16 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 Thanh toán trước
               </Radio>
               <Radio value={PaymentMethodOption.POSTPAYMENT}>
-                Thanh toán sau
+                Chưa xác định
               </Radio>
             </Space>
           </Radio.Group>
           {props.paymentMethod === PaymentMethodOption.COD && (
-            <div style={{ marginTop: 10 }}>
-              <i>
-                Vui lòng chọn hình thức Đóng gói và Giao hàng để có thể nhập giá
-                trị Tiền thu hộ *
-              </i>
+            <div className="order-cod-payment-footer">
+              <span>
+                Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có
+                thể nhập giá trị Tiền thu hộ
+              </span>
             </div>
           )}
         </Form.Item>
@@ -233,7 +233,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       align="middle"
                       style={{ marginLeft: 0, marginRight: 0 }}
                     >
-                      {ListMaymentMethods.map((method, index) => {
+                      {ListPaymentMethods.map((method, index) => {
                         let icon = null;
                         switch (method.code) {
                           case PaymentMethodCode.CASH:
@@ -287,7 +287,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         lg={14}
                         xxl={9}
                         className="row-large-title"
-                        style={{ padding: "8px 0" }}
+                        style={{ padding: "8px 0", marginLeft: 2 }}
                       >
                         <b>Khách cần trả:</b>
                       </Col>
@@ -331,7 +331,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                   <InputNumber
                                     value={method.point}
                                     style={{
-                                      width: 100,
+                                      width: 110,
                                       marginLeft: 12,
                                       borderRadius: 5,
                                     }}
@@ -358,7 +358,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                               PaymentMethodCode.BANK_TRANSFER ? (
                                 <Col
                                   className="point-spending"
-                                  style={{ marginLeft: 6 }}
+                                  style={{ marginLeft: 12 }}
                                   lg={14}
                                   xxl={14}
                                 >
@@ -368,7 +368,12 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                             </Row>
                           </Col>
                           {method.code !== PaymentMethodCode.POINT ? (
-                            <Col className="lbl-money" lg={9} xxl={6}>
+                            <Col
+                              className="lbl-money"
+                              lg={9}
+                              xxl={6}
+                              style={{ marginLeft: 10 }}
+                            >
                               <InputNumber
                                 size="middle"
                                 min={0}
@@ -398,7 +403,11 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                               className="lbl-money"
                               lg={9}
                               xxl={6}
-                              style={{ padding: 8, textAlign: "right" }}
+                              style={{
+                                padding: 8,
+                                textAlign: "right",
+                                marginLeft: 10,
+                              }}
                             >
                               <span
                                 style={{ padding: "14px 14px", lineHeight: 1 }}

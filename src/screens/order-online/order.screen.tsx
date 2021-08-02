@@ -50,6 +50,7 @@ import {
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/confirm-payment.modal";
+import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import { StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { request } from "https";
@@ -351,6 +352,7 @@ export default function Order() {
     setIsvibleSaveAndConfirm(false);
   };
 
+  console.log(payments)
   const showSaveAndConfirmModal = () => {
     if (shipmentMethod !== 4 || paymentMethod !== 3) {
       setIsvibleSaveAndConfirm(true);
@@ -359,7 +361,6 @@ export default function Order() {
       formRef.current?.submit();
     }
   };
-
   const onFinish = (values: OrderRequest) => {
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
@@ -380,7 +381,7 @@ export default function Order() {
       //Nếu là đơn lưu và duyệt
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
-      values.payments = payments;
+      values.payments = payments.filter((payment)=> payment.amount > 0)
       values.total = orderAmount;
       if (
         values?.fulfillments &&
@@ -455,7 +456,7 @@ export default function Order() {
     return () => {
       window.removeEventListener("scroll", scroll);
     };
-  }, []);
+  }, [scroll]);
   return (
     <ContentContainer
       title="Tạo mới đơn hàng"
@@ -718,8 +719,9 @@ export default function Order() {
             onCancel={onCancelSaveAndConfirm}
             onOk={onOkSaveAndConfirm}
             visible={isvibleSaveAndConfirm}
-            title="Xác nhận đơn hàng"
-            text="Khi lưu nháp hệ thống sẽ tự xóa thông tin Giao hàng và Thanh toán. Bạn có chắc Lưu nháp đơn hàng này không?"
+            title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
+            text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
+            icon={WarningIcon}
           />
 
           <ConfirmPaymentModal
@@ -733,3 +735,5 @@ export default function Order() {
     </ContentContainer>
   );
 }
+
+
