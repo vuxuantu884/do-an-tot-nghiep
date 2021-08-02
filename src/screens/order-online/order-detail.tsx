@@ -131,6 +131,7 @@ const OrderDetail = () => {
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
+  const [officeTime, setOfficeTime] = useState<boolean>(false);
   //#endregion
   //#region Orther
   const ShowShipping = () => {
@@ -309,7 +310,7 @@ const OrderDetail = () => {
   //#endregion
 
   //#region Update Fulfillment Status
-  let timeout = 500;
+  let timeout = 400;
   const onUpdateSuccess = (value: OrderResponse) => {
     showSuccess("Tạo đơn giao hàng thành công");
     setTimeout(() => {
@@ -464,6 +465,7 @@ const OrderDetail = () => {
     requirements: null,
     requirements_name: null,
     fulfillment_id: "",
+    office_time: officeTime,
   };
 
   let FulFillmentRequest: UpdateFulFillmentRequest = {
@@ -489,6 +491,7 @@ const OrderDetail = () => {
   };
 
   const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
+    console.log(value)
     value.expected_received_date = value.dating_ship?.utc().format();
     value.requirements_name = requirementName;
     if (OrderDetail?.fulfillments) {
@@ -520,7 +523,7 @@ const OrderDetail = () => {
     ) {
       value.cod = customerNeedToPayValue;
     }
-
+    value.office_time = officeTime
     FulFillmentRequest.shipment = value;
     if (shippingFeeInformedCustomer !== null) {
       FulFillmentRequest.shipping_fee_informed_to_customer =
@@ -811,19 +814,24 @@ const OrderDetail = () => {
                             ).format("DD/MM/YYYY")
                           : ""}
                       </span>
-                      <span
-                        style={{
-                          marginLeft: 6,
-                          color: "#737373",
-                          fontSize: "14px",
-                        }}
-                      >
-                        (Giờ hành chính)
-                      </span>
+                      {OrderDetail?.fulfillments &&
+                        OrderDetail?.fulfillments.length > 0 &&
+                        OrderDetail?.fulfillments[0].shipment &&
+                        OrderDetail?.fulfillments[0].shipment.office_time && (
+                          <span
+                            style={{
+                              marginLeft: 6,
+                              color: "#737373",
+                              fontSize: "14px",
+                            }}
+                          >
+                            (Giờ hành chính)
+                          </span>
+                        )}
                     </div>
                     <div className="text-menu">
                       <img src={eyeOutline} alt="eye"></img>
-                      <span style={{ marginLeft: "5px" }}>
+                      <span style={{ marginLeft: "5px", fontWeight: 500 }}>
                         {requirementName}
                       </span>
                     </div>
@@ -1106,8 +1114,8 @@ const OrderDetail = () => {
                         </Col>
 
                         <Col md={6}>
-                          <Form.Item>
-                            <Checkbox style={{ marginTop: "8px" }}>
+                          <Form.Item >
+                            <Checkbox style={{ marginTop: "8px" }} onChange={(e) => setOfficeTime(e.target.checked)}>
                               Giờ hành chính
                             </Checkbox>
                           </Form.Item>
@@ -1405,8 +1413,8 @@ const OrderDetail = () => {
 
             {/*--- payment ---*/}
             {OrderDetail !== null &&
-              OrderDetail.payments &&
-              OrderDetail.payments?.length > 0 && (
+              OrderDetail?.payments &&
+              OrderDetail?.payments?.length > 0 && (
                 <Card
                   className="margin-top-20"
                   title={
@@ -1863,37 +1871,42 @@ const OrderDetail = () => {
             >
               <div className="padding-24">
                 <Row className="" gutter={5}>
-                  <Col span={9}>Cửa hàng</Col>
+                  <Col span={9}>Cửa hàng:</Col>
                   <Col span={15}>
-                    <span className="text-focus">{OrderDetail?.store}</span>
+                    <span
+                      style={{ fontWeight: 500, color: "#2A2A86" }}
+                      className="text-focus"
+                    >
+                      {OrderDetail?.store}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Điện thoại</Col>
+                  <Col span={9}>Điện thoại:</Col>
                   <Col span={15}>
                     <span>{OrderDetail?.customer_phone_number}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Địa chỉ</Col>
+                  <Col span={9}>Địa chỉ:</Col>
                   <Col span={15}>
                     <span>{OrderDetail?.shipping_address?.full_address}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>NVBH</Col>
+                  <Col span={9}>NVBH:</Col>
                   <Col span={15}>
                     <span className="text-focus">{OrderDetail?.assignee}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Người tạo</Col>
+                  <Col span={9}>Người tạo:</Col>
                   <Col span={15}>
                     <span className="text-focus">{OrderDetail?.account}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Thời gian</Col>
+                  <Col span={9}>Thời gian:</Col>
                   <Col span={15}>
                     <span>
                       {moment(OrderDetail?.created_date).format(
@@ -1903,11 +1916,13 @@ const OrderDetail = () => {
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Đường dẫn</Col>
-                  <Col span={15}>
-                    <span className="text-focus">
-                      {OrderDetail?.url ? OrderDetail?.url : "Không"}
-                    </span>
+                  <Col span={9}>Đường dẫn:</Col>
+                  <Col span={15} style={{wordWrap: "break-word"}}>
+                    {OrderDetail?.url ? (
+                      <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
+                    ) : (
+                      <span className="text-focus">Không</span>
+                    )}
                   </Col>
                 </Row>
               </div>
@@ -1922,7 +1937,7 @@ const OrderDetail = () => {
             >
               <div className="padding-24">
                 <Row className="" gutter={5}>
-                  <Col span={9}>Ghi chú</Col>
+                  <Col span={9}>Ghi chú:</Col>
                   <Col span={15}>
                     <span className="text-focus">
                       {OrderDetail?.note !== ""
@@ -1933,7 +1948,7 @@ const OrderDetail = () => {
                 </Row>
 
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Tags</Col>
+                  <Col span={9}>Tags:</Col>
                   <Col span={15}>
                     <span className="text-focus">
                       {OrderDetail?.tags !== ""
