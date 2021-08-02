@@ -148,28 +148,32 @@ const SettingOrderProcessingStatus: React.FC = () => {
             modalSingleServiceSubStatus.id,
             formValue,
             () => {
-              setIsShowModal(false);
               dispatch(
                 actionFetchListOrderProcessingStatus(
                   params,
                   (data: OrderProcessingStatusResponseModel) => {
                     setListOrderProcessingStatus(data.items);
-                    setTotal(data.metadata.total);
                   }
                 )
               );
+              setIsShowModal(false);
             }
           )
         );
       }
     },
-    delete: (formValue: OrderProcessingStatusModel) => {
-      dispatch(
-        actionDeleteOrderProcessingStatus(formValue.id, () => {
-          setIsShowModal(false);
-          gotoFirstPage();
-        })
-      );
+    delete: () => {
+      if (modalSingleServiceSubStatus) {
+        dispatch(
+          actionDeleteOrderProcessingStatus(
+            modalSingleServiceSubStatus.id,
+            () => {
+              setIsShowModal(false);
+              gotoFirstPage();
+            }
+          )
+        );
+      }
     },
   };
 
@@ -227,7 +231,6 @@ const SettingOrderProcessingStatus: React.FC = () => {
               onRow={(record: OrderProcessingStatusModel) => {
                 return {
                   onClick: (event) => {
-                    console.log("record", record);
                     setModalSingleServiceSubStatus(record);
                     setModalAction("edit");
                     setIsShowModal(true);
@@ -245,9 +248,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
           onEdit={(formValue: OrderProcessingStatusModel) =>
             handleForm.edit(formValue)
           }
-          onDelete={(formValue: OrderProcessingStatusModel) =>
-            handleForm.delete(formValue)
-          }
+          onDelete={() => handleForm.delete()}
           onCancel={() => setIsShowModal(false)}
           modalAction={modalAction}
           modalTypeText="Trạng thái xử lý đơn hàng"

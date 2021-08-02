@@ -12,6 +12,7 @@ import {
 import {
   OrderSourceCompanyModel,
   OrderSourceModel,
+  OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import {
   DeliveryServiceResponse,
@@ -100,4 +101,17 @@ export const createOrderSourceService = (
   newOrderSource: OrderSourceModel
 ): Promise<BaseResponse<OrderSourceCompanyModel>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/sources`, newOrderSource);
+};
+
+export const editOrderSourceService = (
+  id: number,
+  orderSource: OrderSourceModel
+): Promise<BaseResponse<OrderSourceResponseModel>> => {
+  return BaseAxios.put(`${ApiConfig.ORDER}/sources/${id}`, orderSource);
+};
+
+export const deleteOrderSourceService = (
+  id: number
+): Promise<BaseResponse<OrderSourceResponseModel>> => {
+  return BaseAxios.delete(`${ApiConfig.ORDER}/sources222/${id}`);
 };

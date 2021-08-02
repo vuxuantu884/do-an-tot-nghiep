@@ -17,7 +17,7 @@ type FormValueType = {
 const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
   props: CustomModalFormModel
 ) => {
-  const { modalAction, formItem, form } = props;
+  const { modalAction, formItem, form, visible } = props;
   const isCreateForm = modalAction === "create";
   const initialFormValue: FormValueType =
     !isCreateForm && formItem
@@ -44,7 +44,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
 
   useEffect(() => {
     form.resetFields();
-  }, [form, formItem]);
+  }, [form, formItem, visible]);
 
   return (
     <StyledComponent>

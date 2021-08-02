@@ -7,6 +7,9 @@ import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTableStyle2 from "component/table/CustomTableStyle2";
 import UrlConfig from "config/UrlConfig";
 import {
+  actionAddOrderSource,
+  actionDeleteOrderSource,
+  actionEditOrderSource,
   actionFetchListOrderSourceCompanies,
   actionFetchListOrderSources,
 } from "domain/actions/settings/order-sources.action";
@@ -76,6 +79,8 @@ const OrderSources: React.FC = () => {
   let [params, setParams] = useState({
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
+    sort_type: "desc",
+    sort_column: "id",
   });
   const onPageChange = useCallback(
     (page, size) => {
@@ -117,39 +122,39 @@ const OrderSources: React.FC = () => {
 
   const handleForm = {
     create: (formValue: OrderSourceModel) => {
-      // dispatch(
-      //   actionAddOrderSource(value, () => {
-      //     setIsShowModal(false);
-      //     gotoFirstPage();
-      //   })
-      // );
-      console.log("create");
+      dispatch(
+        actionAddOrderSource(formValue, () => {
+          setIsShowModal(false);
+          gotoFirstPage();
+        })
+      );
     },
     edit: (formValue: OrderSourceModel) => {
-      console.log("edit");
-      // dispatch(
-      //   actionEditOrderSource(id, value, () => {
-      //     setIsShowModal(false);
-      //     dispatch(
-      //       actionFetchListOrderSources(
-      //         params,
-      //         (data: OrderSourceResponseModel) => {
-      //           setListOrderSources(data.items);
-      //           setTotal(data.metadata.total);
-      //         }
-      //       )
-      //     );
-      //   })
-      // );
+      if (modalSingleOrderSource) {
+        dispatch(
+          actionEditOrderSource(modalSingleOrderSource.id, formValue, () => {
+            dispatch(
+              actionFetchListOrderSources(
+                params,
+                (data: OrderSourceResponseModel) => {
+                  setListOrderSources(data.items);
+                }
+              )
+            );
+            setIsShowModal(false);
+          })
+        );
+      }
     },
-    delete: (formValue: OrderSourceModel) => {
-      console.log("delete");
-      // dispatch(
-      //   actionDeleteOrderSource(value.id, () => {
-      //     setIsShowModal(false);
-      //     gotoFirstPage();
-      //   })
-      // );
+    delete: () => {
+      if (modalSingleOrderSource) {
+        dispatch(
+          actionDeleteOrderSource(modalSingleOrderSource.id, () => {
+            setIsShowModal(false);
+            gotoFirstPage();
+          })
+        );
+      }
     },
   };
 
@@ -159,7 +164,6 @@ const OrderSources: React.FC = () => {
      */
     dispatch(
       actionFetchListOrderSources(params, (data: OrderSourceResponseModel) => {
-        console.log("data", data);
         setListOrderSources(data.items);
         setTotal(data.metadata.total);
       })
@@ -224,24 +228,13 @@ const OrderSources: React.FC = () => {
             />
           </Card>
         )}
-        {/* <ModalOrderSource
-          visible={isShowModal}
-          modalAction={modalAction}
-          onCreate={(value) => handleForm.create(value)}
-          onEdit={(id, value) => handleForm.edit(id, value)}
-          onDelete={(value) => handleForm.delete(value)}
-          onCancel={() => setIsShowModal(false)}
-          modalSingleOrderSource={modalSingleOrderSource}
-        /> */}
         <CustomModal
           visible={isShowModal}
           onCreate={(formValue: OrderSourceModel) =>
             handleForm.create(formValue)
           }
           onEdit={(formValue: OrderSourceModel) => handleForm.edit(formValue)}
-          onDelete={(formValue: OrderSourceModel) =>
-            handleForm.delete(formValue)
-          }
+          onDelete={() => handleForm.delete()}
           onCancel={() => setIsShowModal(false)}
           modalAction={modalAction}
           componentForm={FormOrderSource}

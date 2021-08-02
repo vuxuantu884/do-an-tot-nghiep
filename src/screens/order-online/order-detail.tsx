@@ -88,6 +88,7 @@ import { setTimeout } from "timers";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateCustomerCard from "./component/update-customer-card";
+import SubStatusOrder from "component/main-sidebar/sub-status-order";
 const { Panel } = Collapse;
 //#endregion
 
@@ -1889,6 +1890,7 @@ console.log(totalPaid)
                 </Row>
               </div>
             </Card>
+            <SubStatusOrder />
             <Card
               className="margin-top-20"
               title={

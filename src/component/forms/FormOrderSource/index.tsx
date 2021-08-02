@@ -1,42 +1,66 @@
 import { Checkbox, Form, Input, Select } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
 import { OrderSourceCompanyModel } from "model/response/order/order-source.response";
+import { useEffect } from "react";
 import { StyledComponent } from "./styles";
 
 type FormValueType = {
   channel_id: number;
-  company_id?: number;
-  id?: number;
-  name?: string;
-  is_active?: boolean;
-  is_default?: boolean;
+  channel: string;
+  company_id: number;
+  company: string;
+  name: string;
+  is_active: boolean;
+  is_default: boolean;
 };
 
 const FormOrderSource: React.FC<CustomModalFormModel> = (
   props: CustomModalFormModel
 ) => {
-  const { modalAction, formItem, form, ...args } = props;
+  const DEFAULT_PARAM = {
+    channel_id: 4,
+    channel: "Admin",
+  };
+  const { modalAction, formItem, form, visible, ...args } = props;
   const listOrderCompanies: OrderSourceCompanyModel[] =
     args.moreFormArguments.listOrderCompanies;
   const isCreateForm = modalAction === "create";
   const initialFormValue: FormValueType =
     !isCreateForm && formItem
       ? {
-          channel_id: 4,
+          channel_id: DEFAULT_PARAM.channel_id,
+          channel: DEFAULT_PARAM.channel,
           company_id: formItem.id,
-          id: formItem.id,
+          company: formItem.name,
           name: formItem.name,
           is_active: formItem.is_active,
           is_default: formItem.is_default,
         }
       : {
-          channel_id: 4,
+          channel_id: DEFAULT_PARAM.channel_id,
+          channel: DEFAULT_PARAM.channel,
           company_id: undefined,
-          id: undefined,
+          company: "",
           name: "",
           is_active: false,
           is_default: false,
         };
+
+  /**
+   * when change company, set company name
+   */
+  const handleChangeCompany = (value: number) => {
+    const selectedCompany = listOrderCompanies.find((singleCompany) => {
+      return singleCompany.id === value;
+    });
+    if (selectedCompany) {
+      form.setFieldsValue({ company: selectedCompany.name });
+    }
+  };
+
+  useEffect(() => {
+    form.resetFields();
+  }, [form, formItem, visible]);
 
   return (
     <StyledComponent>
@@ -53,6 +77,13 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
             style={{ width: "100%" }}
           />
         </Form.Item>
+        <Form.Item name="channel" label="channel" hidden>
+          <Input
+            type="number"
+            placeholder="channel"
+            style={{ width: "100%" }}
+          />
+        </Form.Item>
         {listOrderCompanies?.length && (
           <Form.Item
             name="company_id"
@@ -63,8 +94,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
           >
             <Select
               placeholder="Chọn doanh nghiệp"
-              // onChange={this.onGenderChange}
               allowClear
+              onChange={handleChangeCompany}
             >
               {listOrderCompanies &&
                 listOrderCompanies.map((singleOrderCompany) => {
@@ -80,6 +111,16 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
             </Select>
           </Form.Item>
         )}
+        <Form.Item name="company" label="company" hidden>
+          <Input type="string" style={{ width: "100%" }} />
+        </Form.Item>
+        <Form.Item name="channel" label="channel" hidden>
+          <Input
+            type="number"
+            placeholder="channel"
+            style={{ width: "100%" }}
+          />
+        </Form.Item>
         <Form.Item
           name="name"
           label="Tên nguồn đơn hàng"

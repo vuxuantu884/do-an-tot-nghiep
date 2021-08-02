@@ -1,7 +1,7 @@
 import { Button, Form, Modal } from "antd";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { CustomModalType } from "model/modal/modal.model";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyledComponent } from "./styles";
 
 const CustomModal = (props: CustomModalType) => {
@@ -21,9 +21,10 @@ const CustomModal = (props: CustomModalType) => {
   const [form] = Form.useForm();
   const isCreateModal = modalAction === "create";
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
-
+  const [visibleForm, setVisibleForm] = useState(false);
   const formAction = {
     exit: () => {
+      setVisibleForm(false);
       onCancel(form.getFieldsValue());
     },
     create: () => {
@@ -31,11 +32,19 @@ const CustomModal = (props: CustomModalType) => {
     },
     delete: () => {
       onDelete(form.getFieldsValue());
+      setIsShowConfirmDelete(false);
     },
     edit: () => {
       onEdit(form.getFieldsValue());
     },
   };
+
+  useEffect(() => {
+    if (visible) {
+      setVisibleForm(visible);
+    }
+  }, [visible]);
+
   const renderModalFooter = () => {
     const content = () => {
       if (isCreateModal) {
@@ -102,13 +111,14 @@ const CustomModal = (props: CustomModalType) => {
           : `Cập nhật ${modalTypeText}`
       }
       footer={renderModalFooter()}
-      onCancel={onCancel}
+      onCancel={formAction.exit}
     >
       <StyledComponent>
         <ComponentForm
           formItem={formItem}
           modalAction={modalAction}
           form={form}
+          visible={visibleForm}
           {...args}
         />
         <ModalDeleteConfirm

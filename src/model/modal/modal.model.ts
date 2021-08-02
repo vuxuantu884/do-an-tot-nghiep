@@ -3,6 +3,7 @@ import { FormInstance } from "antd";
 export type modalActionType = "edit" | "create";
 
 export interface CustomModalFormModel {
+  visible: boolean;
   modalAction: modalActionType;
   formItem: any;
   form: FormInstance<any>;

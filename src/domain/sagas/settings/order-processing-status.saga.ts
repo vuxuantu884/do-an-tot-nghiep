@@ -7,10 +7,10 @@ import { SETTING_TYPES } from "domain/types/settings.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
 import {
-  createOrderProcessingStatus,
-  deleteOrderProcessingStatus,
-  editOrderProcessingStatus,
-  getOrderProcessingStatus,
+  createOrderProcessingStatusService,
+  deleteOrderProcessingStatusService,
+  editOrderProcessingStatusService,
+  getOrderProcessingStatusService,
 } from "service/order/order-processing-status.service";
 import { showError, showSuccess } from "utils/ToastUtils";
 
@@ -19,7 +19,7 @@ function* listDataOrderProcessingStatusSaga(action: YodyAction) {
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
-    > = yield call(getOrderProcessingStatus, params);
+    > = yield call(getOrderProcessingStatusService, params);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -46,7 +46,7 @@ function* addOrderProcessingStatusSaga(action: YodyAction) {
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
-    > = yield call(createOrderProcessingStatus, item);
+    > = yield call(createOrderProcessingStatusService, item);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -72,7 +72,7 @@ function* editOrderProcessingStatusSaga(action: YodyAction) {
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
-    > = yield call(editOrderProcessingStatus, id, item);
+    > = yield call(editOrderProcessingStatusService, id, item);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -97,7 +97,7 @@ function* deleteOrderProcessingStatusSaga(action: YodyAction) {
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
-    > = yield call(deleteOrderProcessingStatus, id);
+    > = yield call(deleteOrderProcessingStatusService, id);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
