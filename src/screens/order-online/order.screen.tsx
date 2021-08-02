@@ -50,6 +50,7 @@ import {
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/confirm-payment.modal";
+import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import { StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { request } from "https";
@@ -718,8 +719,9 @@ export default function Order() {
             onCancel={onCancelSaveAndConfirm}
             onOk={onOkSaveAndConfirm}
             visible={isvibleSaveAndConfirm}
-            title="Xác nhận đơn hàng"
-            text="Khi lưu nháp hệ thống sẽ tự xóa thông tin Giao hàng và Thanh toán. Bạn có chắc Lưu nháp đơn hàng này không?"
+            title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
+            text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
+            icon={WarningIcon}
           />
 
           <ConfirmPaymentModal
@@ -733,3 +735,5 @@ export default function Order() {
     </ContentContainer>
   );
 }
+
+

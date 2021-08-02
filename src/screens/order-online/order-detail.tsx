@@ -57,7 +57,10 @@ import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import { useParams } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
+import {
+  OrderResponse,
+  StoreCustomResponse,
+} from "model/response/order/order.response";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
@@ -71,6 +74,7 @@ import {
   SumCOD,
 } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
+import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
@@ -269,7 +273,7 @@ const OrderDetail = () => {
       checkPaymentStatusToShow(OrderDetail) !== 1
     ) {
       setPaymentType(PaymentMethodOption.COD);
-      setVisibleUpdatePayment(true)
+      setVisibleUpdatePayment(true);
     }
   };
 
@@ -305,7 +309,7 @@ const OrderDetail = () => {
   //#endregion
 
   //#region Update Fulfillment Status
-  let timeout = 1000;
+  let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
     showSuccess("Tạo đơn giao hàng thành công");
     setTimeout(() => {
@@ -377,7 +381,7 @@ const OrderDetail = () => {
   // shipping confirm
   const [isvibleShippingConfirm, setIsvibleShippingConfirm] =
     useState<boolean>(false);
-console.log(OrderDetail)
+  console.log(OrderDetail);
   const onOkShippingConfirm = () => {
     if (
       OrderDetail?.fulfillments &&
@@ -707,14 +711,14 @@ console.log(OrderDetail)
     } else {
       setIsShowBillStep(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    window.addEventListener("scroll", scroll)
+    window.addEventListener("scroll", scroll);
     return () => {
-      window.removeEventListener("scroll", scroll)
+      window.removeEventListener("scroll", scroll);
     };
-  },[scroll])
+  }, [scroll]);
 
   return (
     <ContentContainer
@@ -1164,7 +1168,7 @@ console.log(OrderDetail)
                         >
                           <Space size={10}>
                             {shipmentButton.map((button) => (
-                              <div  key={button.value}>
+                              <div key={button.value}>
                                 {shipmentMethod !== button.value ? (
                                   <div
                                     className="saleorder_shipment_button"
@@ -1302,11 +1306,18 @@ console.log(OrderDetail)
                             <div>
                               <Button
                                 type="primary"
-                                className="ant-btn-outline fixed-button text-right"
+                                className="create-button-custom"
                                 style={{ float: "right" }}
                                 htmlType="submit"
                               >
-                                Tạo đơn giao hàng
+                                Lưu
+                              </Button>
+                              <Button
+                                className="ant-btn-outline fixed-button cancle-button create-button-custom"
+                                onClick={() => window.location.reload()}
+                                style={{ float: "right" }}
+                              >
+                                Huỷ
                               </Button>
                             </div>
                           </Col>
@@ -1966,6 +1977,7 @@ console.log(OrderDetail)
         onCancel={() => setIsvibleShippingConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
+        icon={WarningIcon}
         title="Xác nhận xuất kho"
         text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
@@ -1978,6 +1990,7 @@ console.log(OrderDetail)
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
+        icon={WarningIcon}
         title="Xác nhận giao hàng thành công"
         text={`Bạn có chắc đã giao đơn giao hàng này ${
           confirmExportAndFinishValue()
