@@ -174,6 +174,7 @@ const setting: Array<RouteMenu> = [
     path: UrlConfig.ORDER_PROCESSING_STATUS,
     exact: true,
     title: "Xử lý đơn hàng",
+    subTitle: "Thiết lập quy trình xử lý đơn hàng",
     icon: "icon-dot",
     component: SettingFulfillmentScreen,
     key: "submenu95",

@@ -24,6 +24,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
   const { modalAction, formItem, form, visible, ...args } = props;
   const listOrderCompanies: OrderSourceCompanyModel[] =
     args.moreFormArguments.listOrderCompanies;
+  const defaultCompanyIndex = 0;
   const isCreateForm = modalAction === "create";
   const initialFormValue: FormValueType =
     !isCreateForm && formItem
@@ -39,8 +40,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
       : {
           channel_id: DEFAULT_PARAM.channel_id,
           channel: DEFAULT_PARAM.channel,
-          company_id: undefined,
-          company: "",
+          company_id: listOrderCompanies[defaultCompanyIndex].id,
+          company: listOrderCompanies[defaultCompanyIndex].name,
           name: "",
           is_active: false,
           is_default: false,
