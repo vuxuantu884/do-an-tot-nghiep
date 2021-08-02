@@ -804,7 +804,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         <div
                           style={{
                             width: "100%",
-                            textAlign: "center",
+                            textAlign: "right",
                             flexDirection: "column",
                             display: "flex",
                           }}
@@ -822,11 +822,10 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       render: (value, item, index) => (
                         <NumberInput
                           isFloat={false}
-                          style={{ textAlign: "center" }}
                           value={value}
                           min={1}
                           default={1}
-                          maxLength={7}
+                          maxLength={6}
                           onChange={(quantity) => {
                             onQuantityChange(quantity, index);
                           }}
@@ -835,7 +834,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                     {
                       title: (
-                        <div style={{ width: "100%", textAlign: "center" }}>
+                        <div style={{ width: "100%", textAlign: "right" }}>
                           Giá nhập
                           <span
                             style={{
@@ -892,7 +891,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                     {
                       title: (
-                        <div style={{ width: "100%", textAlign: "center" }}>
+                        <div style={{ width: "100%", textAlign: "right" }}>
                           VAT
                         </div>
                       ),
@@ -906,6 +905,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             prefix={<div>%</div>}
                             onChange={(v) => onTaxChange(v, index)}
                             min={0}
+                            maxLength={3}
                             max={100}
                             onBlur={() => {
                               if (value === null) {
