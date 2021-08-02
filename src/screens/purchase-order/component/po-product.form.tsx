@@ -871,8 +871,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                                 }
                               />
                             }
+                            zIndex={199}
                             trigger="click"
-                            placement="bottom"
                           >
                             <Button className="product-item-price">
                               {formatCurrency(
@@ -934,7 +934,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         </Tooltip>
                       ),
                       align: "center",
-                      width: 120,
+                      width: 130,
                       render: (value: number) => formatCurrency(Math.round(value)),
                     },
                     {
