@@ -88,6 +88,7 @@ export interface OrderLineItemResponse {
 
 export interface FulFillmentResponse {
   id: number | null;
+  code:string | null;
   store_id: number|null;
   account_code: string | null;
   assignee_code: string | null;
