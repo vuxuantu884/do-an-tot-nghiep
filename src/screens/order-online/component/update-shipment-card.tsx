@@ -683,7 +683,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       ).format("DD/MM/YYYY")
                     : ""}
                 </span>
-                <span
+                {props.OrderDetail?.fulfillments[0].shipment?.office_time && <span
                   style={{
                     marginLeft: 6,
                     color: "#737373",
@@ -691,7 +691,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   }}
                 >
                   (Giờ hành chính)
-                </span>
+                </span>}
+                
               </div>
               <div className="text-menu">
                 <img src={eyeOutline} alt="eye"></img>
@@ -714,7 +715,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="orders-timeline-custom"
                 showArrow={false}
                 header={
-                  <Row>
+                  <Row style={{paddingLeft: 12}}>
                     <Col>
                       <p
                         ref={copyRef}
@@ -870,7 +871,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </Col>
                   </Row>
                 )}
-                <Row gutter={24} style={{ marginTop: 12, marginBottom: 0 }}>
+                <Row gutter={24} style={{ marginTop: 12, marginBottom: 0, padding: "0 12px" }}>
                   <Col span={24}>
                     <p className="text-field">
                       {props.OrderDetail?.items.reduce(
@@ -1269,7 +1270,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </b>
                   </Row>
                 </div>
-                <Col md={24}>
+                {/* <Col md={24}>
                   <div>
                     <Button
                       type="primary"
@@ -1284,10 +1285,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       onClick={() => window.location.reload()}
                       style={{ float: "right" }}
                     >
-                      Huỷ
+                      
                     </Button>
                   </div>
-                </Col>
+                </Col> */}
               </Form>
               {/*--- Giao hàng sau ----*/}
               <Row

@@ -455,7 +455,7 @@ const OrderDetail = () => {
                                           </b>
                                         </>
                                         {item.payment_method_id === 3 && (
-                                          <p>FA18TAMFIXCUNG</p>
+                                          <p>{item.reference}</p>
                                         )}
                                         {item.payment_method_id === 5 && (
                                           <p>
@@ -473,8 +473,7 @@ const OrderDetail = () => {
                             OrderDetail.fulfillments &&
                             OrderDetail.fulfillments.length > 0 &&
                             OrderDetail.fulfillments[0].shipment &&
-                            OrderDetail.fulfillments[0].shipment?.cod !==
-                              null && (
+                            OrderDetail.fulfillments[0].shipment.cod && (
                               <Panel
                                 className={
                                   OrderDetail?.fulfillments[0].status !==
@@ -822,7 +821,7 @@ const OrderDetail = () => {
                 <Row className="" gutter={5}>
                   <Col span={9}>Ghi chú:</Col>
                   <Col span={15}>
-                    <span className="text-focus">
+                    <span className="text-focus" style={{wordWrap: "break-word"}}>
                       {OrderDetail?.note !== ""
                         ? OrderDetail?.note
                         : "Không có ghi chú"}
