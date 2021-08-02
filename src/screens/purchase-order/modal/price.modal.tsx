@@ -39,12 +39,11 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
             }}
             min={0}
             default={0}
-            maxLength={12}
+            maxLength={15}
             style={{ textAlign: "right" }}
             format={(a) => formatCurrency(a)}
             replace={(a) => replaceFormatString(a)}
             placeholder="Nhập đơn giá"
-            autoFocus={true}
           />
         </Form.Item>
         <Form.Item label="Chiết khấu">
@@ -72,7 +71,6 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
                 onBlur={() => {
                   form.submit();
                 }}
-                maxLength={12}
                 isFloat={true}
                 default={0}
                 className="product-item-discount-input"
@@ -80,6 +78,7 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
                 placeholder="Nhập chiết khấu"
                 format={(a) => formatCurrency(a)}
                 replace={(a) => replaceFormatString(a)}
+                maxLength={type === "money" ? 15 : 3}
                 min={0}
                 max={type === "money" ? form.getFieldValue("price") : 100}
               />
