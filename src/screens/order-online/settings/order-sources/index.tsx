@@ -1,7 +1,8 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
-import ModalOrderSource from "component/modal/ModalOrderSource";
+import FormOrderSource from "component/forms/FormOrderSource";
+import CustomModal from "component/modal/CustomModal";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTableStyle2 from "component/table/CustomTableStyle2";
 import UrlConfig from "config/UrlConfig";
@@ -9,18 +10,21 @@ import {
   actionAddOrderSource,
   actionDeleteOrderSource,
   actionEditOrderSource,
+  actionFetchListOrderSourceCompanies,
   actionFetchListOrderSources,
 } from "domain/actions/settings/order-sources.action";
 import { modalActionType } from "model/modal/modal.model";
 import { VariantResponse } from "model/product/product.model";
 import {
+  OrderSourceCompanyModel,
   OrderSourceModel,
   OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
+import { useQuery } from "utils/useQuery";
 import iconChecked from "./images/iconChecked.svg";
 import { StyledComponent } from "./styles";
 
@@ -31,11 +35,10 @@ const OrderSources: React.FC = () => {
   const [listOrderSources, setListOrderSources] = useState<OrderSourceModel[]>(
     []
   );
-  const useQuery = () => {
-    return new URLSearchParams(useLocation().search);
-  };
+  const [listOrderCompanies, setListOrderCompanies] = useState<
+    OrderSourceCompanyModel[]
+  >([]);
   const query = useQuery();
-  console.log("query", query.get("page"));
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [modalSingleOrderSource, setModalSingleOrderSource] =
@@ -76,6 +79,8 @@ const OrderSources: React.FC = () => {
   let [params, setParams] = useState({
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
+    sort_type: "desc",
+    sort_column: "id",
   });
   const onPageChange = useCallback(
     (page, size) => {
@@ -116,38 +121,40 @@ const OrderSources: React.FC = () => {
   };
 
   const handleForm = {
-    create: (value: OrderSourceModel) => {
+    create: (formValue: OrderSourceModel) => {
       dispatch(
-        actionAddOrderSource(value, () => {
+        actionAddOrderSource(formValue, () => {
           setIsShowModal(false);
           gotoFirstPage();
         })
       );
     },
-    edit: (id: number, value: OrderSourceModel) => {
-      dispatch(
-        actionEditOrderSource(id, value, () => {
-          setIsShowModal(false);
-          dispatch(
-            actionFetchListOrderSources(
-              params,
-              (data: OrderSourceResponseModel) => {
-                setListOrderSources(data.items);
-                setTotal(data.metadata.total);
-              }
-            )
-          );
-        })
-      );
+    edit: (formValue: OrderSourceModel) => {
+      if (modalSingleOrderSource) {
+        dispatch(
+          actionEditOrderSource(modalSingleOrderSource.id, formValue, () => {
+            dispatch(
+              actionFetchListOrderSources(
+                params,
+                (data: OrderSourceResponseModel) => {
+                  setListOrderSources(data.items);
+                }
+              )
+            );
+            setIsShowModal(false);
+          })
+        );
+      }
     },
-    delete: (value: OrderSourceModel) => {
-      console.log("value", value);
-      dispatch(
-        actionDeleteOrderSource(value.id, () => {
-          setIsShowModal(false);
-          gotoFirstPage();
-        })
-      );
+    delete: () => {
+      if (modalSingleOrderSource) {
+        dispatch(
+          actionDeleteOrderSource(modalSingleOrderSource.id, () => {
+            setIsShowModal(false);
+            gotoFirstPage();
+          })
+        );
+      }
     },
   };
 
@@ -157,12 +164,20 @@ const OrderSources: React.FC = () => {
      */
     dispatch(
       actionFetchListOrderSources(params, (data: OrderSourceResponseModel) => {
-        console.log("data", data);
         setListOrderSources(data.items);
         setTotal(data.metadata.total);
       })
     );
   }, [dispatch, params]);
+
+  useEffect(() => {
+    dispatch(
+      actionFetchListOrderSourceCompanies((data: OrderSourceCompanyModel[]) => {
+        setListOrderCompanies(data);
+      })
+    );
+    // }
+  }, [dispatch]);
 
   return (
     <StyledComponent>
@@ -213,14 +228,20 @@ const OrderSources: React.FC = () => {
             />
           </Card>
         )}
-        <ModalOrderSource
+        <CustomModal
           visible={isShowModal}
-          modalAction={modalAction}
-          onCreate={(value) => handleForm.create(value)}
-          onEdit={(id, value) => handleForm.edit(id, value)}
-          onDelete={(value) => handleForm.delete(value)}
+          onCreate={(formValue: OrderSourceModel) =>
+            handleForm.create(formValue)
+          }
+          onEdit={(formValue: OrderSourceModel) => handleForm.edit(formValue)}
+          onDelete={() => handleForm.delete()}
           onCancel={() => setIsShowModal(false)}
-          modalSingleOrderSource={modalSingleOrderSource}
+          modalAction={modalAction}
+          componentForm={FormOrderSource}
+          formItem={modalSingleOrderSource}
+          deletedItemTitle={modalSingleOrderSource?.name}
+          modalTypeText="Nguồn đơn hàng"
+          moreFormArguments={{ listOrderCompanies }}
         />
       </ContentContainer>
     </StyledComponent>

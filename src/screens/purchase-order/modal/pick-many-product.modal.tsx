@@ -17,18 +17,21 @@ type PickManyProductModalType = {
   onSave: (result: Array<VariantResponse>) => void 
 };
 
+
+
 const PickManyProductModal: React.FC<PickManyProductModalType> = (
   props: PickManyProductModalType
 ) => {
-  const dispatch = useDispatch();
-  const [data, setData] = useState<PageResponse<VariantResponse> | null>(null);
-  const [selection, setSelection] = useState<Array<VariantResponse>>([]);
-  const [query, setQuery] = useState<VariantSearchQuery>({
+  let initQuery = {
     info: "",
     page: 1,
     limit: 10,
     status: "active",
-  });
+  }
+  const dispatch = useDispatch();
+  const [data, setData] = useState<PageResponse<VariantResponse> | null>(null);
+  const [selection, setSelection] = useState<Array<VariantResponse>>([]);
+  const [query, setQuery] = useState<VariantSearchQuery>(initQuery);
   const handleLastNextPage = (
     total: number, current: number, pageSize: number,
     type: number
@@ -105,6 +108,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       width={800}
       onCancel={() => {
         setSelection([]);
+        setQuery(initQuery);
         props.onCancle && props.onCancle();
       }}
       onOk={() => {

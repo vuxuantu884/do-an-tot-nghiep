@@ -1,7 +1,8 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
-import ModalOrderProcessingStatus from "component/modal/ModalOrderProcessingStatus";
+import FormOrderProcessingStatus from "component/forms/FormOrderProcessingStatus";
+import CustomModal from "component/modal/CustomModal";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTableStyle2 from "component/table/CustomTableStyle2";
 import UrlConfig from "config/UrlConfig";
@@ -132,38 +133,47 @@ const SettingOrderProcessingStatus: React.FC = () => {
   };
 
   const handleForm = {
-    create: (value: OrderProcessingStatusModel) => {
+    create: (formValue: OrderProcessingStatusModel) => {
       dispatch(
-        actionAddOrderProcessingStatus(value, () => {
+        actionAddOrderProcessingStatus(formValue, () => {
           setIsShowModal(false);
           gotoFirstPage();
         })
       );
     },
-    edit: (id: number, value: OrderProcessingStatusModel) => {
-      dispatch(
-        actionEditOrderProcessingStatus(id, value, () => {
-          setIsShowModal(false);
-          dispatch(
-            actionFetchListOrderProcessingStatus(
-              params,
-              (data: OrderProcessingStatusResponseModel) => {
-                setListOrderProcessingStatus(data.items);
-                setTotal(data.metadata.total);
-              }
-            )
-          );
-        })
-      );
+    edit: (formValue: OrderProcessingStatusModel) => {
+      if (modalSingleServiceSubStatus) {
+        dispatch(
+          actionEditOrderProcessingStatus(
+            modalSingleServiceSubStatus.id,
+            formValue,
+            () => {
+              dispatch(
+                actionFetchListOrderProcessingStatus(
+                  params,
+                  (data: OrderProcessingStatusResponseModel) => {
+                    setListOrderProcessingStatus(data.items);
+                  }
+                )
+              );
+              setIsShowModal(false);
+            }
+          )
+        );
+      }
     },
-    delete: (value: OrderProcessingStatusModel) => {
-      console.log("value", value);
-      dispatch(
-        actionDeleteOrderProcessingStatus(value.id, () => {
-          setIsShowModal(false);
-          gotoFirstPage();
-        })
-      );
+    delete: () => {
+      if (modalSingleServiceSubStatus) {
+        dispatch(
+          actionDeleteOrderProcessingStatus(
+            modalSingleServiceSubStatus.id,
+            () => {
+              setIsShowModal(false);
+              gotoFirstPage();
+            }
+          )
+        );
+      }
     },
   };
 
@@ -221,7 +231,6 @@ const SettingOrderProcessingStatus: React.FC = () => {
               onRow={(record: OrderProcessingStatusModel) => {
                 return {
                   onClick: (event) => {
-                    console.log("record", record);
                     setModalSingleServiceSubStatus(record);
                     setModalAction("edit");
                     setIsShowModal(true);
@@ -231,17 +240,22 @@ const SettingOrderProcessingStatus: React.FC = () => {
             />
           </Card>
         )}
-        {isShowModal && (
-          <ModalOrderProcessingStatus
-            visible={isShowModal}
-            modalAction={modalAction}
-            onCreate={(value) => handleForm.create(value)}
-            onEdit={(id, value) => handleForm.edit(id, value)}
-            onDelete={(value) => handleForm.delete(value)}
-            onCancel={() => setIsShowModal(false)}
-            modalSingleServiceSubStatus={modalSingleServiceSubStatus}
-          />
-        )}
+        <CustomModal
+          visible={isShowModal}
+          onCreate={(formValue: OrderProcessingStatusModel) =>
+            handleForm.create(formValue)
+          }
+          onEdit={(formValue: OrderProcessingStatusModel) =>
+            handleForm.edit(formValue)
+          }
+          onDelete={() => handleForm.delete()}
+          onCancel={() => setIsShowModal(false)}
+          modalAction={modalAction}
+          modalTypeText="Trạng thái xử lý đơn hàng"
+          componentForm={FormOrderProcessingStatus}
+          formItem={modalSingleServiceSubStatus}
+          deletedItemTitle={modalSingleServiceSubStatus?.sub_status}
+        />
       </ContentContainer>
     </StyledComponent>
   );

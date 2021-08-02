@@ -6,6 +6,8 @@ export interface OrderResponse extends BaseObject {
   company: string | null;
   store_id: number | null;
   store: string | null;
+  store_phone_number: string | null;
+  store_full_address: string | null;
   status: string | null;
   price_type: string | null;
   tax_treatment: string | null;
@@ -88,7 +90,8 @@ export interface OrderLineItemResponse {
 
 export interface FulFillmentResponse {
   id: number | null;
-  store_id: number | null;
+  code:string | null;
+  store_id: number|null;
   account_code: string | null;
   assignee_code: string | null;
   delivery_type: string | null;
@@ -262,4 +265,15 @@ export interface StoreCustomResponse extends BaseObject {
   begin_date: string,
   number_of_account: number,
   accounts: Array<any>
+}
+
+export interface OrderSubStatusResponse {
+  id: 6,
+  company_id: number,
+  company: string,
+  sub_status: string,
+  status: string,
+  note: string,
+  is_active: boolean,
+  is_delete?: boolean, 
 }

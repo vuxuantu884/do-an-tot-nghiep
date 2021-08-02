@@ -49,7 +49,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="reference" label="Mã tham chiếu">
+          <Form.Item name="reference" label="Số tham chiếu">
             <Input placeholder="Nhập số tham chiếu" />
           </Form.Item>
         </div>
@@ -72,9 +72,9 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               icon: <InfoCircleOutlined />,
             }}
             name="tags"
-            label="Từ khóa"
+            label="Tag"
           >
-            <HashTag />
+            <HashTag placeholder="Thêm tag" />
           </Form.Item>
         </div>
       </Card>

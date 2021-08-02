@@ -241,13 +241,17 @@ export default function Order() {
     };
 
     let listFullfillmentRequest = [];
-    if (paymentMethod !== 3 || shipmentMethod === 2) {
+    if (paymentMethod !== 3 || shipmentMethod === 2 || shipmentMethod==3) {
       listFullfillmentRequest.push(request);
+    }
+
+    if(shipmentMethod === 3){
+      request.delivery_type = "pick_at_store"
     }
 
     if (
       paymentMethod === 3 &&
-      shipmentMethod === 4 &&
+      ((shipmentMethod === 4)) &&
       typeButton === OrderStatus.FINALIZED
     ) {
       request.shipment = null;
@@ -311,7 +315,30 @@ export default function Order() {
       return objShipment;
     }
     if (shipmentMethod === 3) {
-      return null;
+      objShipment.delivery_service_provider_type = "pick_at_store";
+
+      if (takeMoneyHelper !== null) {
+        objShipment.cod = takeMoneyHelper;
+      } else {
+        if (shippingFeeCustomer !== null) {
+          if (
+            orderAmount +
+              shippingFeeCustomer -
+              getAmountPaymentRequest(payments) >
+            0
+          ) {
+            objShipment.cod =
+              orderAmount +
+              shippingFeeCustomer -
+              getAmountPaymentRequest(payments);
+          }
+        } else {
+          if (orderAmount - getAmountPaymentRequest(payments) > 0) {
+            objShipment.cod = orderAmount - getAmountPaymentRequest(payments);
+          }
+        }
+      }
+      return objShipment;
     }
     if (shipmentMethod === 4) {
       return null;

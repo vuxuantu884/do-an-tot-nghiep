@@ -18,9 +18,16 @@ export interface OrderSourceResponseModel {
 }
 
 export interface OrderSourceCompanyModel extends BaseObject {
-  company_id: number;
+  //   company_id: number;
+  //   id: number;
+  //   company: string;
+  //   name: string;
+  //   channel_id?: string;
+
+  code: string;
+  country?: string;
+  country_id?: number;
+  currency_code?: string;
   id: number;
-  company: string;
   name: string;
-  channel_id?: string;
 }
