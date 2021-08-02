@@ -97,6 +97,7 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
                         format={(a: string) => formatCurrency(a)}
                         replace={(a: string) => replaceFormatString(a)}
                         placeholder="VD: 100,000"
+                        maxLength={15}
                       />
                     </Form.Item>
                   </Col>

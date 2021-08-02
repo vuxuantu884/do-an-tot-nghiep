@@ -4,6 +4,7 @@ import { CSSProperties, useCallback } from "react";
 import { RegUtil } from "utils/RegUtils";
 
 interface NumberInputProps {
+  id?: string
   value?: number;
   isFloat?: boolean;
   onChange?: (v: number | null) => void;
@@ -38,6 +39,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     minLength,
     className,
     prefix,
+    id,
   } = props;
   const onChangeText = useCallback(
     (e) => {
@@ -89,6 +91,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
   );
   return (
     <Input
+      id={id}
       className={className}
       placeholder={placeholder}
       value={value && format ? format(value.toString()) : value}

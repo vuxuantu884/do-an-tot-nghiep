@@ -3,6 +3,7 @@ import { Select } from "antd";
 type HashTagProps = {
   value?: string;
   onChange?: (result: string) => void;
+  placeholder?: string,
 };
 
 const HashTag: React.FC<HashTagProps> = (props: HashTagProps) => {
@@ -13,7 +14,7 @@ const HashTag: React.FC<HashTagProps> = (props: HashTagProps) => {
       mode="tags"
       tokenSeparators={[",", " "]}
       value={props.value ? props.value.split(",") : []}
-      placeholder="Nhập từ khóa"
+      placeholder={props.placeholder}
       onChange={(value) => {
         let result = value.join(",");
         props.onChange && props.onChange(result);
