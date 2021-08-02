@@ -10,8 +10,8 @@ import {
   createOrderSourceService,
   deleteOrderSourceService,
   editOrderSourceService,
-  getListSourcesCompanies,
-  getSourcesWithParams,
+  getListSourcesCompaniesService,
+  getSourcesWithParamsService,
 } from "service/order/order.service";
 import { showError, showSuccess } from "utils/ToastUtils";
 
@@ -19,7 +19,7 @@ function* listAllOrderSourceSaga(action: YodyAction) {
   const { params, handleData } = action.payload;
   try {
     let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
-      yield call(getSourcesWithParams, params);
+      yield call(getSourcesWithParamsService, params);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -45,7 +45,7 @@ function* listAllOrderSourceCompaniesSaga(action: YodyAction) {
   const { handleData } = action.payload;
   try {
     let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
-      yield call(getListSourcesCompanies);
+      yield call(getListSourcesCompaniesService);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:

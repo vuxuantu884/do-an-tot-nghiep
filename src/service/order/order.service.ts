@@ -84,14 +84,14 @@ export const getDeliverieServices = (): Promise<
  * list Order Source: quản lý nguồn đơn hàng
  */
 
-export const getSourcesWithParams = (
+export const getSourcesWithParamsService = (
   query: BaseQuery
 ): Promise<BaseResponse<SourceResponse>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/sources?${queryString}`);
 };
 
-export const getListSourcesCompanies = (): Promise<
+export const getListSourcesCompaniesService = (): Promise<
   BaseResponse<SourceResponse>
 > => {
   return BaseAxios.get(`${ApiConfig.CONTENT}/companies`);
@@ -114,4 +114,13 @@ export const deleteOrderSourceService = (
   id: number
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
   return BaseAxios.delete(`${ApiConfig.ORDER}/sources222/${id}`);
+};
+
+/**
+ * sub status: sidebar phần xử lý đơn hàng
+ */
+export const getOrderSubStatusService = (
+  status: string
+): Promise<BaseResponse<SourceResponse>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/status/${status}/subStatus`);
 };

@@ -1890,7 +1890,7 @@ console.log(totalPaid)
                 </Row>
               </div>
             </Card>
-            <SubStatusOrder />
+            <SubStatusOrder status={OrderDetail?.status} />
             <Card
               className="margin-top-20"
               title={
