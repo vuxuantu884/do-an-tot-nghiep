@@ -44,7 +44,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
 
   useEffect(() => {
     form.resetFields();
-  }, [form, formItem, visible]);
+  }, [form, formItem, modalAction]);
 
   return (
     <StyledComponent>

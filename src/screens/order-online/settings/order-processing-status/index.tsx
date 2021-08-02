@@ -38,6 +38,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
+  const [visibleFormButtons, setVisibleFormButtons] = useState<boolean>(true);
   const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] =
     useState<OrderProcessingStatusModel | null>(null);
 
@@ -57,13 +58,13 @@ const SettingOrderProcessingStatus: React.FC = () => {
       dataIndex: "status",
       visible: true,
       render: (value, row, index) => {
-        const result = LIST_STATUS?.filter((singleStatus) => {
+        const result = LIST_STATUS?.find((singleStatus) => {
           return singleStatus.value === value;
         });
         if (result) {
-          return result[0].name;
+          return result.name;
         }
-        return;
+        return "";
       },
     },
     {
@@ -134,15 +135,18 @@ const SettingOrderProcessingStatus: React.FC = () => {
 
   const handleForm = {
     create: (formValue: OrderProcessingStatusModel) => {
+      setVisibleFormButtons(false);
       dispatch(
         actionAddOrderProcessingStatus(formValue, () => {
           setIsShowModal(false);
           gotoFirstPage();
+          setVisibleFormButtons(true);
         })
       );
     },
     edit: (formValue: OrderProcessingStatusModel) => {
       if (modalSingleServiceSubStatus) {
+        setVisibleFormButtons(false);
         dispatch(
           actionEditOrderProcessingStatus(
             modalSingleServiceSubStatus.id,
@@ -157,6 +161,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
                 )
               );
               setIsShowModal(false);
+              setVisibleFormButtons(true);
             }
           )
         );
@@ -164,12 +169,14 @@ const SettingOrderProcessingStatus: React.FC = () => {
     },
     delete: () => {
       if (modalSingleServiceSubStatus) {
+        setVisibleFormButtons(false);
         dispatch(
           actionDeleteOrderProcessingStatus(
             modalSingleServiceSubStatus.id,
             () => {
               setIsShowModal(false);
               gotoFirstPage();
+              setVisibleFormButtons(true);
             }
           )
         );
@@ -242,6 +249,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
         )}
         <CustomModal
           visible={isShowModal}
+          visibleButton={visibleFormButtons}
           onCreate={(formValue: OrderProcessingStatusModel) =>
             handleForm.create(formValue)
           }

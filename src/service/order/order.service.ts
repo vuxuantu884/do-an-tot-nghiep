@@ -113,7 +113,7 @@ export const editOrderSourceService = (
 export const deleteOrderSourceService = (
   id: number
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
-  return BaseAxios.delete(`${ApiConfig.ORDER}/sources222/${id}`);
+  return BaseAxios.delete(`${ApiConfig.ORDER}/sources/${id}`);
 };
 
 /**
