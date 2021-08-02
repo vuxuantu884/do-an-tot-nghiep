@@ -18,7 +18,10 @@ import {
   OrderLineItemResponse,
   OrderResponse,
 } from "model/response/order/order.response";
-import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
+import {
+  formatCurrency,
+  getTotalQuantity,
+} from "utils/AppUtils";
 //#endregion
 
 type ProductCardUpdateProps = {
@@ -26,10 +29,11 @@ type ProductCardUpdateProps = {
   OrderDetail: OrderResponse | null;
   customerNeedToPayValue: any;
 };
-
 const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
   props: ProductCardUpdateProps
 ) => {
+  
+console.log(props.OrderDetail);
   const ProductColumn = {
     title: () => (
       <div className="text-center">
@@ -40,12 +44,18 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     className: "yody-pos-name",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
-        <div className="w-100" style={{ overflow: "hidden", display: "flex",
-        flexDirection: "column" }}>
+        <div
+          className="w-100"
+          style={{
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <div className="d-flex align-items-center">
-            <div style={{ width: "calc(100% - 32px)", float: "left", }}>
+            <div style={{ width: "calc(100% - 32px)", float: "left" }}>
               <div className="yody-pos-sku">
-              <Typography.Link style={{ color: "#2A2A86" }}>
+                <Typography.Link style={{ color: "#2A2A86" }}>
                   {l.sku}
                 </Typography.Link>
               </div>
@@ -167,7 +177,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
         <Row>
           <Space>
             <div className="view-inventory-box">
-              <Button type="link" className="p-0" style={{ color: "#0080ff" }}>
+              <Button type="link" className="p-0" style={{ color: "#000000" }}>
                 <Space>
                   <img src={storeBluecon} alt="" />
                   YODY Kho Online
@@ -206,6 +216,53 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             className="sale-product-box-table w-100"
             tableLayout="fixed"
             pagination={false}
+            footer={() =>
+              props.OrderDetail && props.OrderDetail?.items.length > 0 ? (
+                <div className="row-footer-custom">
+                  <div
+                    className="yody-foot-total-text"
+                    style={{
+                      width: "38%",
+                      float: "left",
+                      fontWeight: 700,
+                    }}
+                  >
+                    TỔNG
+                  </div>
+                  <div
+                    style={{
+                      width: "20%",
+                      float: "left",
+                      textAlign: "right",
+                      fontWeight: 400,
+                    }}
+                  >
+                    {formatCurrency(props.OrderDetail?.items.reduce((a,b) => a + b.amount, 0))}
+                  </div>
+                  <div
+                    style={{
+                      width: "20.5%",
+                      float: "left",
+                      textAlign: "right",
+                      fontWeight: 400,
+                    }}
+                  >{formatCurrency(props.OrderDetail?.items.reduce((a,b) => a + (b.amount - b.line_amount_after_line_discount), 0))}</div>
+                  <div
+                    style={{
+                      width: "21%",
+                      float: "left",
+                      textAlign: "right",
+                      color: "#000000",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {formatCurrency(props.OrderDetail?.items.reduce((a,b) => a + b.line_amount_after_line_discount, 0))}
+                  </div>
+                </div>
+              ) : (
+                <div />
+              )
+            }
           />
         </Row>
 
