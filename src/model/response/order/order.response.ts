@@ -270,5 +270,5 @@ export interface OrderSubStatusResponse {
   status: string,
   note: string,
   is_active: boolean,
-  is_delete?: boolean,
+  is_delete?: boolean, 
 }
