@@ -267,7 +267,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                       dropdownMatchSelectWidth={456}
                       style={{ width: "100%" }}
                       showAdd={true}
-                      onClickAddNew={() => setVisibleAddressModal(true)}
+                      onClickAddNew={() => setVisibleSupplierAddModal(true)}
                       textAdd="Thêm mới nhà cung cấp"
                       onSelect={onSelect}
                       options={renderResult}
