@@ -138,12 +138,12 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     total();
   };
   const onChangePrice = (value: number | null, index: number) => {
-    // let _items = [...items];
-    // if (value !== null) {
-    //   _items[index].price = value;
-    // }
-    // setItems(_items);
-    // total();
+    let _items = [...items];
+    if (value !== null) {
+      _items[index].price = value;
+    }
+    setItems(_items);
+    total();
   };
 
   const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
