@@ -79,7 +79,7 @@ const POCreateScreen: React.FC = () => {
       setWinAccount(data.items);
       dispatch(
         AccountSearchAction(
-          { department_ids: [AppConfig.RD_DEPARTMENT] },
+          { department_ids: [AppConfig.RD_DEPARTMENT], status: 'active' },
           onResultRD
         )
       );
@@ -124,7 +124,7 @@ const POCreateScreen: React.FC = () => {
   useEffect(() => {
     dispatch(
       AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT] },
+        { department_ids: [AppConfig.WIN_DEPARTMENT], status: 'active'},
         onResultWin
       )
     );
