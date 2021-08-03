@@ -1,4 +1,4 @@
-import { DeliveryServiceResponse, OrderResponse, ShippingGHTKResponse } from 'model/response/order/order.response';
+import { DeliveryServiceResponse, OrderResponse, OrderSubStatusResponse, ShippingGHTKResponse } from 'model/response/order/order.response';
 import { PaymentMethodResponse } from 'model/response/order/paymentmethod.response';
 import { OrderRequest, ShippingGHTKRequest, UpdateFulFillmentStatusRequest, UpdateLineFulFillment, UpdatePaymentRequest } from 'model/request/order.request';
 import { OrderType } from '../../types/order.type';
@@ -34,4 +34,8 @@ export const UpdateShipmentAction = (request : UpdateLineFulFillment, setData: (
 
 export const DeliveryServicesGetList = (setData: (data: Array<DeliveryServiceResponse>) => void) => {
   return BaseAction(OrderType.GET_LIST_DELIVERY_SERVICE, { setData });
+}
+
+export const getListSubStatusAction = (status: string, handleData: (data: Array<OrderSubStatusResponse>) => void) => {
+  return BaseAction(OrderType.GET_LIST_SUB_STATUS, { status, handleData });
 }

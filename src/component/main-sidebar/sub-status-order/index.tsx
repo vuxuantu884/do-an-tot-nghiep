@@ -1,9 +1,30 @@
-import {
-	Card, Select
-} from "antd";
-import React from "react";
+import { Card, Select } from "antd";
+import { getListSubStatusAction } from "domain/actions/order/order.action";
+import { OrderSubStatusResponse } from "model/response/order/order.response";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
-function SubStatusOrder(): React.ReactElement {
+type PropType = {
+  status?: string | null;
+};
+
+function SubStatusOrder(props: PropType): React.ReactElement {
+  const { status } = props;
+  console.log("status", status);
+  const dispatch = useDispatch();
+  const [listOrderSubStatus, setListOrderSubStatus] = useState<
+    OrderSubStatusResponse[]
+  >([]);
+
+  useEffect(() => {
+    if (status) {
+      dispatch(
+        getListSubStatusAction(status, (data: OrderSubStatusResponse[]) => {
+          setListOrderSubStatus(data);
+        })
+      );
+    }
+  }, [dispatch, status]);
   return (
     <Card
       className="margin-top-20"
@@ -17,15 +38,20 @@ function SubStatusOrder(): React.ReactElement {
         <Select
           showSearch
           style={{ width: "100%" }}
-          placeholder="Select a person"
+          placeholder="Chọn trạng thái phụ"
           optionFilterProp="children"
           filterOption={(input, option) =>
             option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }
         >
-          <Select.Option value="jack">Jack</Select.Option>
-          <Select.Option value="lucy">Lucy</Select.Option>
-          <Select.Option value="tom">Tom</Select.Option>
+          {listOrderSubStatus &&
+            listOrderSubStatus.map((single) => {
+              return (
+                <Select.Option value={single.id} key={single.id}>
+                  {single.sub_status}
+                </Select.Option>
+              );
+            })}
         </Select>
       </div>
     </Card>
