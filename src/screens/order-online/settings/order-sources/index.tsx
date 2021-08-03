@@ -51,6 +51,7 @@ const OrderSources: React.FC = () => {
       dataIndex: "name",
       visible: true,
       className: "columnTitle",
+      width: 600,
       render: (value, row, index) => {
         if (value) {
           return (

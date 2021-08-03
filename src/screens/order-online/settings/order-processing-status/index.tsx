@@ -53,6 +53,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
       dataIndex: "sub_status",
       visible: true,
       className: "columnTitle",
+      width: 600,
       render: (value, row, index) => {
         if (value) {
           return (
