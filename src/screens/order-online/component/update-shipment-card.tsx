@@ -72,39 +72,56 @@ const { Panel } = Collapse;
 
 type UpdateShipmentCardProps = {
   shippingFeeInformedCustomer: (value: number | null) => void;
-  isVisibleUpdatePayment: (value: boolean) => void;
+  setVisibleUpdatePayment: (value: boolean) => void;
+  setShipmentMethod: (value: number) => void;
+  setPaymentType: (value: number) => void;
+  setVisibleShipping: (value: boolean) => void;
   setOfficeTime: (value: boolean) => void;
   OrderDetail: OrderResponse | null;
   storeDetail?: StoreResponse;
   stepsStatusValue?: string;
   totalPaid?: number;
   officeTime: boolean | undefined;
+  shipmentMethod: number | null;
+  isVisibleShipping: boolean | null;
+  paymentType: number | null;
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   props: UpdateShipmentCardProps
 ) => {
+  // props destructuring
+  const {
+    paymentType,
+    isVisibleShipping,
+    shipmentMethod,
+    setVisibleShipping,
+    setPaymentType,
+    setShipmentMethod,
+    setVisibleUpdatePayment,
+  } = props;
+
+  // node dom
   const formRef = createRef<FormInstance>();
   const copyRef = createRef<any>();
-  //#region state
+  // action
   const dispatch = useDispatch();
-  const [paymentType, setPaymentType] = useState<number>(3);
-  const [isVisibleShipping, setVisibleShipping] = useState(false);
-  const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
     useState<number>(0);
   const [isvibleShippedConfirm, setIsvibleShippedConfirm] =
     useState<boolean>(false);
   const [requirementName, setRequirementName] = useState<string | null>(null);
-  const [requirementNameView, setRequirementNameView] = useState<string | null>(null);
+  const [requirementNameView, setRequirementNameView] = useState<string | null>(
+    null
+  );
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
   );
-  
+
   //#endregion
   // show shipping
   const ShowShipping = () => {
@@ -173,8 +190,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       value === ShipmentMethodOption.SELFDELIVER &&
       checkPaymentStatusToShow(props.OrderDetail) !== 1
     ) {
+      props.setVisibleUpdatePayment(true);
       setPaymentType(PaymentMethodOption.COD);
-      props.isVisibleUpdatePayment(true);
     }
   };
 
@@ -412,7 +429,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
     value.expected_received_date = value.dating_ship?.utc().format();
     value.requirements_name = requirementName;
-    value.office_time = props.officeTime
+    value.office_time = props.officeTime;
     if (props.OrderDetail?.fulfillments) {
       if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
         value.delivery_service_provider_type = "Shipper";
@@ -512,20 +529,20 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     [setRequirementName, shipping_requirements]
   );
   // get req to view
-    const getRequirementName = useCallback(() => {
-      if (
-        props.OrderDetail &&
-        props.OrderDetail?.fulfillments &&
-        props.OrderDetail?.fulfillments.length > 0
-      ) {
-        let requirement =
-          props.OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
-        const reqObj = shipping_requirements?.find(
-          (r) => r.value === requirement
-        );
-        setRequirementNameView(reqObj ? reqObj?.name : "");
-      }
-    }, [props.OrderDetail, shipping_requirements]);
+  const getRequirementName = useCallback(() => {
+    if (
+      props.OrderDetail &&
+      props.OrderDetail?.fulfillments &&
+      props.OrderDetail?.fulfillments.length > 0
+    ) {
+      let requirement =
+        props.OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
+      const reqObj = shipping_requirements?.find(
+        (r) => r.value === requirement
+      );
+      setRequirementNameView(reqObj ? reqObj?.name : "");
+    }
+  }, [props.OrderDetail, shipping_requirements]);
 
   // Thu hộ
   const takeHelper: any = () => {
@@ -907,27 +924,31 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               Hủy
             </Button>
 
-            {props.stepsStatusValue === OrderStatus.FINALIZED && props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type !="pick_at_store" && (
-              <Button
-                type="primary"
-                style={{ marginLeft: "10px" }}
-                className="create-button-custom ant-btn-outline fixed-button"
-                onClick={onOkShippingConfirm}
-              >
-                Nhặt hàng
-              </Button>
-            )}
+            {props.stepsStatusValue === OrderStatus.FINALIZED &&
+              props.OrderDetail.fulfillments[0].shipment
+                ?.delivery_service_provider_type != "pick_at_store" && (
+                <Button
+                  type="primary"
+                  style={{ marginLeft: "10px" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={onOkShippingConfirm}
+                >
+                  Nhặt hàng
+                </Button>
+              )}
 
-            {props.stepsStatusValue === OrderStatus.FINALIZED && props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type=="pick_at_store" && (
-              <Button
-                type="primary"
-                style={{ marginLeft: "10px" }}
-                className="create-button-custom ant-btn-outline fixed-button"
-                onClick={onOkShippingConfirm}
-              >
-                Nhặt hàng và đóng gói
-              </Button>
-            )}
+            {props.stepsStatusValue === OrderStatus.FINALIZED &&
+              props.OrderDetail.fulfillments[0].shipment
+                ?.delivery_service_provider_type == "pick_at_store" && (
+                <Button
+                  type="primary"
+                  style={{ marginLeft: "10px" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={onOkShippingConfirm}
+                >
+                  Nhặt hàng và đóng gói
+                </Button>
+              )}
 
             {props.stepsStatusValue === FulFillmentStatus.PICKED && (
               <Button
@@ -939,16 +960,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 Đóng gói
               </Button>
             )}
-            {props.stepsStatusValue === FulFillmentStatus.PACKED && props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type !="pick_at_store" && (
-              <Button
-                type="primary"
-                style={{ marginLeft: "10px" }}
-                className="create-button-custom ant-btn-outline fixed-button"
-                onClick={() => setIsvibleShippingConfirm(true)}
-              >
-                Xuất kho
-              </Button>
-            )}
+            {props.stepsStatusValue === FulFillmentStatus.PACKED &&
+              props.OrderDetail.fulfillments[0].shipment
+                ?.delivery_service_provider_type != "pick_at_store" && (
+                <Button
+                  type="primary"
+                  style={{ marginLeft: "10px" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={() => setIsvibleShippingConfirm(true)}
+                >
+                  Xuất kho
+                </Button>
+              )}
             {props.stepsStatusValue === FulFillmentStatus.SHIPPING && (
               <Button
                 type="primary"
@@ -960,17 +983,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               </Button>
             )}
 
-            {props.stepsStatusValue === FulFillmentStatus.PACKED && props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type=="pick_at_store" && (
-              <Button
-                type="primary"
-                style={{ marginLeft: "10px" }}
-                className="create-button-custom ant-btn-outline fixed-button"
-                onClick={() => setIsvibleShippedConfirm(true)}
-              >
-                Xuất kho và giao hàng
-              </Button>
-            )}
-
+            {props.stepsStatusValue === FulFillmentStatus.PACKED &&
+              props.OrderDetail.fulfillments[0].shipment
+                ?.delivery_service_provider_type == "pick_at_store" && (
+                <Button
+                  type="primary"
+                  style={{ marginLeft: "10px" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={() => setIsvibleShippedConfirm(true)}
+                >
+                  Xuất kho và giao hàng
+                </Button>
+              )}
 
             {props.stepsStatusValue === FulFillmentStatus.SHIPPED && (
               <Button

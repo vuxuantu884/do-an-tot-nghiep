@@ -40,26 +40,20 @@ import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
+  setVisibleUpdatePayment: (value: boolean) => void;
   setPayments: (value: Array<UpdateOrderPaymentRequest>) => void;
   setTotalPaid: (value: number) => void;
   orderDetail: OrderResponse;
   paymentMethod: number;
-  amount: any;
   order_id: number | null;
   showPartialPayment?: boolean;
   isVisibleUpdatePayment: boolean;
-  setVisibleUpdatePayment: (value: boolean) => void;
+  amount: any;
 };
 
 const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   props: PaymentCardUpdateProps
 ) => {
-  const changePaymentMethod = (value: number) => {
-    props.setSelectedPaymentMethod(value);
-    if (value === PaymentMethodOption.PREPAYMENT) {
-      handlePickPaymentMethod(PaymentMethodCode.CASH);
-    }
-  };
   const dispatch = useDispatch();
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, settextValue] = useState<string>("");
@@ -70,10 +64,19 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     Array<UpdateOrderPaymentRequest>
   >([]);
 
-  const handleTransferReference  = (index: number, value: string) => {
-   const  _paymentData = [... paymentData]
-   _paymentData[index].reference = value
-   setPaymentData(_paymentData)
+  const changePaymentMethod = (value: number) => {
+    props.setSelectedPaymentMethod(value);
+    if (value === PaymentMethodOption.PREPAYMENT) {
+      handlePickPaymentMethod(PaymentMethodCode.CASH);
+    }
+    if (value === PaymentMethodOption.COD) {
+    }
+  };
+
+  const handleTransferReference = (index: number, value: string) => {
+    const _paymentData = [...paymentData];
+    _paymentData[index].reference = value;
+    setPaymentData(_paymentData);
   };
 
   const ShowPayment = () => {
@@ -162,7 +165,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     }
     setVisibleConfirmPayment(true);
   };
-  console.log(paymentData);
   const CreateFulFillmentRequest = () => {
     let request: UpdateFulFillmentRequest = {
       id: null,
@@ -265,7 +267,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 </Radio.Group>
                 {props.paymentMethod === PaymentMethodOption.COD && (
                   <div className="order-cod-payment-footer">
-                    <span >
+                    <span>
                       Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
                       để có thể nhập giá trị Tiền thu hộ
                     </span>
@@ -414,7 +416,12 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                               >
                                 <Input
                                   placeholder="Tham chiếu"
-                                  onChange={(e: any) => handleTransferReference(index, e.target.value)}
+                                  onChange={(e: any) =>
+                                    handleTransferReference(
+                                      index,
+                                      e.target.value
+                                    )
+                                  }
                                 />
                               </Col>
                             ) : null}
@@ -736,7 +743,9 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                           >
                             <Input
                               placeholder="Tham chiếu"
-                              onChange={(e: any) => handleTransferReference(index, e.target.value)}
+                              onChange={(e: any) =>
+                                handleTransferReference(index, e.target.value)
+                              }
                             />
                           </Col>
                         ) : null}

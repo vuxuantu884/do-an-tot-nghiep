@@ -441,6 +441,20 @@
 .saleorder-input-group-wrapper {
   padding: 0;
   min-height: 37px;
+  .ant-input-group.ant-input-group-compact
+    > .ant-cascader-picker:first-child
+    .ant-input,
+  .ant-input-group.ant-input-group-compact
+    > .ant-select-auto-complete:first-child
+    .ant-input,
+  .ant-input-group.ant-input-group-compact
+    > .ant-select:first-child
+    > .ant-select-selector,
+  .ant-input-group.ant-input-group-compact > :first-child {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    background: #f5f5f5;
+  }
   & > div {
     position: relative;
   }
@@ -467,7 +481,7 @@
     }
     .ant-select-selector {
       padding-left: 10px;
-      border-radius: $border-radius 0 0 $border-radius;
+      border-radius: 5px 0 0 5px;
       min-height: 37px;
     }
     .ant-select-selection-item {
@@ -745,8 +759,11 @@
     overflow-y: scroll;
     overflow-x: hidden;
     &::-webkit-scrollbar {
-      z-index: 1111;
-      background-color: rgb(236, 234, 234);
+      width: 2px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgb(223, 223, 223);
+      z-index: 11111;
     }
   }
 }
@@ -989,25 +1006,24 @@
   .ant-modal-title {
     & > div {
       display: flex;
-      div{
-      margin-left: 25px;
-      padding: 12px 0;
-      h4 {
-        font-family: Roboto;
-        font-style: normal;
-        font-weight: bold;
-        font-size: 16px;
-        line-height: 16px;
+      div {
+        margin-left: 25px;
+        padding: 12px 0;
+        h4 {
+          font-family: Roboto;
+          font-style: normal;
+          font-weight: bold;
+          font-size: 16px;
+          line-height: 16px;
+        }
+        span {
+          font-family: Roboto;
+          font-style: normal;
+          font-weight: normal;
+          font-size: 14px;
+          line-height: 16px;
+        }
       }
-      span {
-        font-family: Roboto;
-        font-style: normal;
-        font-weight: normal;
-        font-size: 14px;
-        line-height: 16px;
-      }
-      }
-      
     }
   }
   .ant-modal-body {
@@ -1137,7 +1153,6 @@
   }
 }
 
-
 .orders-update-shipment {
   .ant-collapse-content-box {
     padding: 0;
@@ -1149,3 +1164,24 @@
   }
 }
 
+.ant-steps-item-content {
+  .ant-steps-item-description {
+    font-size: 10px;
+  }
+}
+
+.ant-steps-item-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  color: #2a2a86;
+}
+.ant-steps-item-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-description {
+  color: #737373;
+}
+.ant-steps-item-process>.ant-steps-item-container>.ant-steps-item-content>.ant-steps-item-title {
+  color: #2a2a86;
+}

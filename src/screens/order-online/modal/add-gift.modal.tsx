@@ -132,7 +132,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     {
       title: "Số lượng",
       render: (a: OrderItemModel, b: any, index: number) => (
-        <div>
+        <div >
           <Input
             onChange={(e) => {
               const re = /^[0-9\b]+$/;
@@ -161,6 +161,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       title: "Thao tác",
       render: (a: any, b: any, index: number) => {
         return (
+          <div style={{textAlign:"center"}}>
           <Button
             type="text"
             onClick={() => deleteItem(index)}
@@ -168,6 +169,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
           >
             <img src={deleteIcon} alt="" />
           </Button>
+          </div>
         );
       },
     },

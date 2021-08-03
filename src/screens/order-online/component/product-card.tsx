@@ -326,7 +326,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const AmountColumnt = {
     title: () => (
       <div className="text-center">
-        <div style={{ textAlign: "right" }}>Số lượng</div>
+        <div style={{ textAlign: "center" }}>Số lượng</div>
         {getTotalQuantity(items) > 0 && (
           <span style={{ color: "#2A2A86" }}>({getTotalQuantity(items)})</span>
         )}
@@ -447,11 +447,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             <Button
               type="text"
               onClick={() => showAddGiftModal(index)}
-              className="p-0 ant-btn-custom"
+              className=""
+              style={{padding: 0, background: "transparent", border: "none"}}
             >
               Thêm quà tặng
             </Button>
           </Menu.Item>
+          <Divider style={{margin: "0"}}/>
           <Menu.Item key="1">
             <Button
               type="text"
@@ -460,7 +462,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 _items[index].show_note = true;
                 setItems(_items);
               }}
-              className="p-0 ant-btn-custom"
+              className=""
+              style={{padding: 0, background: "transparent", border: "none"}}
             >
               Thêm ghi chú
             </Button>
@@ -468,12 +471,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         </Menu>
       );
       return (
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div
             className="site-input-group-wrapper saleorder-input-group-wrapper"
             style={{
-              marginRight: 6,
-              padding: 0,
               borderRadius: 5,
             }}
           >
@@ -485,9 +486,9 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Button
                 type="text"
                 className="p-0 ant-btn-custom"
-                style={{ height: 36, width: 32 }}
+                style={{ height: 36, width: 32, border: "1px solid #E5E5E5" }}
               >
-                <img src={arrowDownIcon} alt="" />
+                <img src={arrowDownIcon} alt="" style={{width: 17}}/>
               </Button>
             </Dropdown>
           </div>
@@ -496,9 +497,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               type="text"
               className="p-0 ant-btn-custom"
               onClick={() => onDeleteItem(index)}
-              style={{ marginLeft: "8px" }}
             >
-              <img src={Xclosebtn} alt="" />
+              <img src={Xclosebtn} alt="" style={{width: 22}}/>
             </Button>
           </div>
         </div>

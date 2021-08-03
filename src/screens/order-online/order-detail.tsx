@@ -59,8 +59,13 @@ const OrderDetail = () => {
   const dispatch = useDispatch();
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  // update payment
   const [paymentType, setPaymentType] = useState<number>(3);
+  const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
+  // update shipment
+  const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [isVisibleShipping, setVisibleShipping] = useState(false);
+  // end
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
@@ -72,7 +77,6 @@ const OrderDetail = () => {
     useState<number>(0);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [totalPaid, setTotalPaid] = useState<number>(0);
-  const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   //#endregion
   //#region Orther
@@ -260,7 +264,7 @@ console.log(OrderDetail)
         },
       ]}
       extra={
-        <CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail} />
+        <CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail}/>
       }
     >
       <div className="orders">
@@ -283,14 +287,20 @@ console.log(OrderDetail)
 
             {/*--- shipment ---*/}
             <UpdateShipmentCard
-              OrderDetail={OrderDetail}
-              stepsStatusValue={stepsStatusValue}
-              storeDetail={storeDetail}
               shippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
-              totalPaid={totalPaid}
-              isVisibleUpdatePayment={setVisibleUpdatePayment}
-              officeTime={officeTime}
+              setVisibleUpdatePayment={setVisibleUpdatePayment}
+              setShipmentMethod={setShipmentMethod}
+              setPaymentType={setPaymentType}
               setOfficeTime={setOfficeTime}
+              setVisibleShipping={setVisibleShipping}
+              OrderDetail={OrderDetail}
+              storeDetail={storeDetail}
+              stepsStatusValue={stepsStatusValue}
+              totalPaid={totalPaid}
+              officeTime={officeTime}
+              shipmentMethod={shipmentMethod}
+              isVisibleShipping={isVisibleShipping}
+              paymentType={paymentType}
             />
 
             {/*--- end shipment ---*/}
@@ -538,9 +548,14 @@ console.log(OrderDetail)
                   {isShowPaymentPartialPayment && OrderDetail !== null && (
                     <UpdatePaymentCard
                       setSelectedPaymentMethod={onPaymentSelect}
+                      setVisibleUpdatePayment={setVisibleUpdatePayment}
                       setPayments={onPayments}
+                      setTotalPaid={setTotalPaid}
+                      orderDetail={OrderDetail}
                       paymentMethod={paymentType}
+                      order_id={OrderDetail.id}
                       showPartialPayment={true}
+                      isVisibleUpdatePayment={isVisibleUpdatePayment}
                       amount={
                         OrderDetail.total_line_amount_after_line_discount -
                         getAmountPayment(OrderDetail.payments) -
@@ -550,11 +565,6 @@ console.log(OrderDetail)
                           ? OrderDetail?.discounts[0].amount
                           : 0)
                       }
-                      order_id={OrderDetail.id}
-                      orderDetail={OrderDetail}
-                      setTotalPaid={setTotalPaid}
-                      isVisibleUpdatePayment={isVisibleUpdatePayment}
-                      setVisibleUpdatePayment={setVisibleUpdatePayment}
                     />
                   )}
                   {(OrderDetail?.fulfillments &&
@@ -767,33 +777,33 @@ console.log(OrderDetail)
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Điện thoại:</Col>
                   <Col span={15}>
-                    <span>{OrderDetail?.customer_phone_number}</span>
+                    <span style={{ fontWeight: 500, color: "#222222" }} >{OrderDetail?.customer_phone_number}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Địa chỉ:</Col>
                   <Col span={15}>
-                    <span>{OrderDetail?.shipping_address?.full_address}</span>
+                    <span style={{ fontWeight: 500, color: "#222222" }}>{OrderDetail?.shipping_address?.full_address}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>NVBH:</Col>
                   <Col span={15}>
-                    <span className="text-focus">{OrderDetail?.assignee}</span>
+                    <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">{OrderDetail?.assignee}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Người tạo:</Col>
                   <Col span={15}>
-                    <span className="text-focus">{OrderDetail?.account}</span>
+                    <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">{OrderDetail?.account}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Thời gian:</Col>
                   <Col span={15}>
-                    <span>
+                    <span style={{ fontWeight: 500, color: "#222222" }}>
                       {moment(OrderDetail?.created_date).format(
-                        "DD/MM/YYYY HH:mm a"
+                        "DD/MM/YYYY HH:mm"
                       )}
                     </span>
                   </Col>
@@ -836,7 +846,8 @@ console.log(OrderDetail)
                   <Col span={24}>
                     <span className="text-focus">
                       {OrderDetail?.tags
-                        ? OrderDetail?.tags.split(",").map((item) => <Tag
+                        ? OrderDetail?.tags.split(",").map((item, index) => <Tag
+                        key={index}
                         className="orders-tag"
                         style={{ backgroundColor: "#F5F5F5", color: "#737373", padding: "5px 10px" }}
                       >
