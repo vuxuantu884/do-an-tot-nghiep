@@ -39,7 +39,6 @@ const initQuery: VariantSearchQuery = {
   limit: 10,
   page: 1,
 };
-
 export interface AddGiftRef {
   setGifts: (items: Array<OrderLineItemRequest>) => void;
 }
@@ -90,7 +89,6 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
   props: AddGiftModalProps
 ) => {
   const { visible, onCancel, onOk } = props;
-
   const dispatch = useDispatch();
   const [keysearch, setKeysearch] = useState("");
   const [resultSearch, setResultSearch] = useState<
@@ -230,6 +228,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       tax_rate: taxRate,
       show_note: false,
       gifts: [],
+      position: undefined,
     };
     return orderLine;
   }, []);
@@ -241,9 +240,10 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       let indexSearch = resultSearch.items.findIndex((i) => i.id === newV);
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearch.items[indexSearch];
+      const item: OrderLineItemRequest = createItem(r);
       if (r.id === newV) {
         if (index === -1) {
-          const item: OrderLineItemRequest = createItem(r);
+          item.type = Type.GIFT
           _items.push(item);
         } else {
           let lastIndex = index;
@@ -311,7 +311,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
         pagination={false}
         dataSource={props.items}
         columns={columns}
-        // rowKey={(record) => record.id}
+        rowKey={(record) => record.id}
       />
     </Modal>
   );

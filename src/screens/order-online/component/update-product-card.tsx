@@ -29,7 +29,6 @@ type ProductCardUpdateProps = {
 const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
   props: ProductCardUpdateProps
 ) => {
-  console.log(props.OrderDetail);
   const ProductColumn = {
     title: () => (
       <div className="text-center">

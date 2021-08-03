@@ -26,7 +26,7 @@ import React, {
   useLayoutEffect,
   useState,
   useMemo,
-  createRef,
+  createRef,useEffect
 } from "react";
 import { SearchOutlined, EditOutlined } from "@ant-design/icons";
 import DiscountGroup from "./discount-group";
@@ -72,6 +72,7 @@ type ProductCardProps = {
   storeId: number | null;
   selectStore: (item: number) => void;
   shippingFeeCustomer: number | null;
+  setItemGift: (item: []) => void;
   changeInfo: (
     items: Array<OrderLineItemRequest>,
     amount: number,
@@ -112,6 +113,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [counpon, setCounpon] = useState<string>("");
   //Function
+  useEffect(() => {
+    let _itemGifts : any =  []
+    for (let i = 0; i < items.length; i++) {
+      _itemGifts =  [..._itemGifts, ... items[i].gifts]
+    }
+    props.setItemGift(_itemGifts)
+  }, [items])
+  
   const showAddGiftModal = useCallback(
     (index: number) => {
       setIndexItem(index);
@@ -120,7 +129,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     },
     [items]
   );
-
   const onChangeNote = (e: any, index: number) => {
     let value = e.target.value;
     let _items = [...items];
@@ -508,7 +516,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   ];
 
   const autoCompleteRef = createRef<RefSelectProps>();
-
   const createItem = (variant: VariantResponse) => {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
@@ -544,6 +551,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       tax_rate: taxRate,
       show_note: false,
       gifts: [],
+      position: undefined
     };
     return orderLine;
   };
@@ -576,9 +584,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       );
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
+      const item: OrderLineItemRequest = createItem(r);
+      item.position = items.length + 1
       if (r.id === newV) {
         if (splitLine || index === -1) {
-          const item: OrderLineItemRequest = createItem(r);
           _items.push(item);
           setAmount(amount + item.price);
           calculateChangeMoney(
@@ -693,6 +702,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     [items]
   );
 
+
   const onCancleConfirm = useCallback(() => {
     setVisibleGift(false);
   }, []);
@@ -700,6 +710,8 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const onOkConfirm = useCallback(() => {
     setVisibleGift(false);
     let _items = [...items];
+    let _itemGifts = [...itemGifts];
+    _itemGifts.forEach((itemGift) => itemGift.position = _items[indexItem].position);
     _items[indexItem].gifts = itemGifts;
     setItems(_items);
   }, [items, itemGifts, indexItem]);

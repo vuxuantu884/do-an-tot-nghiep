@@ -36,7 +36,10 @@ import PaymentCard from "./component/payment-card";
 import CustomerCard from "./component/customer-card";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
+import {
+  OrderResponse,
+  StoreCustomResponse,
+} from "model/response/order/order.response";
 import {
   OrderStatus,
   ShipmentMethodOption,
@@ -51,7 +54,10 @@ import {
 } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/confirm-payment.modal";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import { StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
+import {
+  StoreDetailAction,
+  StoreDetailCustomAction,
+} from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { request } from "https";
 //#endregion
@@ -68,6 +74,7 @@ export default function Order() {
     null
   );
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
+  const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
@@ -77,9 +84,9 @@ export default function Order() {
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
     null
   );
-  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
-    null
-  );
+  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
+    number | null
+  >(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
@@ -90,6 +97,7 @@ export default function Order() {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
+  const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
   //#region Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
@@ -110,12 +118,11 @@ export default function Order() {
   const ChangeShippingFeeCustomer = (value: number | null) => {
     setShippingFeeCustomer(value);
   };
-
   const ChangeShippingFeeCustomerHVC = (value: number | null) => {
     setShippingFeeCustomerHVC(value);
   };
   //#endregion
-
+console.log(items)
   //#region Product
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -187,7 +194,6 @@ export default function Order() {
     shipping_address: null,
     billing_address: null,
     payments: [],
-    
   };
 
   //#region Order
@@ -198,26 +204,10 @@ export default function Order() {
   };
 
   const onChangeTag = (value: []) => {
-    let strTag = "";
-    value.forEach((element, i) => {
-      if (i < 1) {
-        strTag = strTag + element;
-      } else {
-        strTag = strTag + "," + element;
-      }
-    });
-
+    const strTag = value.join(", ");
     setTag(strTag);
   };
-  let textValue = "";
-  const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
-
-  const onOkConfirmPayment = () => {};
-
-  const onCancleConfirmPayment = useCallback(() => {
-    setVisibleConfirmPayment(false);
-  }, []);
-
+console.log(items.concat(itemGifts))
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
     let shipmentRequest = createShipmentRequest(value);
@@ -241,17 +231,17 @@ export default function Order() {
     };
 
     let listFullfillmentRequest = [];
-    if (paymentMethod !== 3 || shipmentMethod === 2 || shipmentMethod==3) {
+    if (paymentMethod !== 3 || shipmentMethod === 2 || shipmentMethod == 3) {
       listFullfillmentRequest.push(request);
     }
 
-    if(shipmentMethod === 3){
-      request.delivery_type = "pick_at_store"
+    if (shipmentMethod === 3) {
+      request.delivery_type = "pick_at_store";
     }
 
     if (
       paymentMethod === 3 &&
-      ((shipmentMethod === 4)) &&
+      shipmentMethod === 4 &&
       typeButton === OrderStatus.FINALIZED
     ) {
       request.shipment = null;
@@ -382,7 +372,6 @@ export default function Order() {
     setIsvibleSaveAndConfirm(false);
   };
 
-  console.log(payments)
   const showSaveAndConfirmModal = () => {
     if (shipmentMethod !== 4 || paymentMethod !== 3) {
       setIsvibleSaveAndConfirm(true);
@@ -393,13 +382,13 @@ export default function Order() {
   };
   const onFinish = (values: OrderRequest) => {
     console.log(values)
+
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
       getTotalAmountAfferDiscount(items);
-
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
@@ -412,7 +401,7 @@ export default function Order() {
       //Nếu là đơn lưu và duyệt
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
-      values.payments = payments.filter((payment)=> payment.amount > 0)
+      values.payments = payments.filter((payment) => payment.amount > 0);
       values.total = orderAmount;
       if (
         values?.fulfillments &&
@@ -427,7 +416,7 @@ export default function Order() {
       }
     }
     values.tags = tags;
-    values.items = items;
+    values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
@@ -458,12 +447,15 @@ export default function Order() {
   };
   //#endregion
 
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
-    if(!data) {
-      return;
-    }
-    setAccounts(data.items);
-  }, []);
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
@@ -481,6 +473,7 @@ export default function Order() {
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
+  
   //windows offset
   useEffect(() => {
     window.addEventListener("scroll", scroll);
@@ -551,6 +544,7 @@ export default function Order() {
                 selectStore={onStoreSelect}
                 storeId={storeId}
                 shippingFeeCustomer={shippingFeeCustomer}
+                setItemGift={setItemGifts}
               />
               {/*--- end product ---*/}
               {/*--- shipment ---*/}
@@ -694,7 +688,7 @@ export default function Order() {
                       mode="tags"
                       placeholder="Thêm tag"
                       onChange={onChangeTag}
-                    />
+                    ></Select>
                   </Form.Item>
                 </div>
               </Card>
@@ -756,17 +750,8 @@ export default function Order() {
             text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
             icon={WarningIcon}
           />
-
-          <ConfirmPaymentModal
-            onCancel={onCancleConfirmPayment}
-            onOk={onOkConfirmPayment}
-            visible={isibleConfirmPayment}
-            text={textValue}
-          />
         </Form>
       </div>
     </ContentContainer>
   );
 }
-
-

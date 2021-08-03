@@ -71,7 +71,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   >([]);
 
   const handleTransferReference  = (index: number, value: string) => {
-    console.log(index)
    const  _paymentData = [... paymentData]
    _paymentData[index].reference = value
    setPaymentData(_paymentData)
@@ -266,7 +265,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 </Radio.Group>
                 {props.paymentMethod === PaymentMethodOption.COD && (
                   <div className="order-cod-payment-footer">
-                    <span>
+                    <span >
                       Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
                       để có thể nhập giá trị Tiền thu hộ
                     </span>

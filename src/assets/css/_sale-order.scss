@@ -1046,11 +1046,11 @@
     border-radius: 5px;
     border: 1px solid #2a2a86;
     height: 54px;
-    padding: 17px 19px;
     background-color: #f8f8ff;
+    padding: 0 19px;
     & > span {
       size: 14px;
-      line-height: 18px;
+      line-height: 54px;
       letter-spacing: 0.2px;
       color: #2a2a86;
       span {

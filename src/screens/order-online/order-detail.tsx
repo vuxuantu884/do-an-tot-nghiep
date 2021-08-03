@@ -86,7 +86,7 @@ const OrderDetail = () => {
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     setPayments(value);
   };
-
+console.log(OrderDetail)
   const changeShippingFeeInformedCustomer = (value: number | null) => {
     if (value) {
       setShippingFeeInformedCustomer(value);
