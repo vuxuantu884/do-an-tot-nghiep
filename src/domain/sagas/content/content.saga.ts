@@ -1,4 +1,4 @@
-import { getGroupsApi } from './../../../service/content/content.service';
+import { getCityByCountryApi, getDistrictByCityApi, getGroupsApi } from './../../../service/content/content.service';
 import { YodyAction } from "base/BaseAction";
 import { takeLatest, call } from "@redux-saga/core/effects";
 import BaseResponse from "base/BaseResponse";
@@ -40,6 +40,54 @@ function* districtGetSaga(action: YodyAction) {
     let response: BaseResponse<Array<DistrictResponse>> = yield call(
       getDistrictApi,
       countryId
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response.data);
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* cityByCountryGetSaga(action: YodyAction) {
+  const { countryId, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<any>> = yield call(
+      getCityByCountryApi,
+      countryId
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response.data);
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* districtByCityGetSaga(action: YodyAction) {
+  const { cityId, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<DistrictResponse>> = yield call(
+      getDistrictByCityApi,
+      cityId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -106,4 +154,6 @@ export function* contentSaga() {
   yield takeLatest(ContentType.GET_DISTRICT_REQUEST, districtGetSaga);
   yield takeLatest(ContentType.GET_WARD_REQUEST, wardGetSaga);
   yield takeLatest(ContentType.GET_GROUP_REQUEST, groupGetSaga);
+  yield takeLatest(ContentType.GET_CITY_BY_COUNTRY_REQUEST, cityByCountryGetSaga);
+  yield takeLatest(ContentType.GET_DISTRICT_BY_CITY_REQUEST, districtByCityGetSaga);
 }
