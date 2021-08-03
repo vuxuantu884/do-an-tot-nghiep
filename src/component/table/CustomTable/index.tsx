@@ -51,7 +51,7 @@ const defaultPagination: ICustomTablePaginationConfig = {
   pageSizeOptions: PageConfig,
 };
 
-const CustomTableStyle2 = (props: ICustomTableProps) => {
+const CustomTable = (props: ICustomTableProps) => {
   const {
     locale = defaultLocale,
     pagination = defaultPagination,
@@ -132,4 +132,4 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
   );
 };
 
-export default React.memo(CustomTableStyle2);
+export default React.memo(CustomTable);
