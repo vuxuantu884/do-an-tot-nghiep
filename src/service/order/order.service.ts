@@ -129,5 +129,5 @@ export const setSubStatusService = (
   order_id : number,
   statusId: number
 ): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.put(`${ApiConfig.ORDER}/${order_id}/subStatus/${statusId}`);
+  return BaseAxios.put(`${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusId}`);
 };
