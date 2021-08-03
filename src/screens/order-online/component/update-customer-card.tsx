@@ -1,20 +1,18 @@
 //#region Import
 import {
-    Button,
-    Card,
-    Row,
-    Col,
-    Space,
-    Typography,
-    Popover,
-    Divider,
-    Checkbox,
-    Avatar,
-    Tag,
+  Button,
+  Card,
+  Row,
+  Col,
+  Space,
+  Typography,
+  Popover,
+  Divider,
+  Checkbox,
+  Avatar,
+  Tag,
 } from "antd";
-import {
-  OrderResponse,
-} from "model/response/order/order.response";
+import { OrderResponse } from "model/response/order/order.response";
 import AddAddressModal from "../modal/add-address.modal";
 import EditCustomerModal from "../modal/add-address.modal";
 import bithdayIcon from "assets/img/bithday.svg";
@@ -62,7 +60,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
     setVisibleShippingAddress(false);
     setVisibleBillingAddress(false);
   };
-  
+
   const ShowBillingAddress = () => {
     setVisibleBilling(!isVisibleBilling);
   };
@@ -70,7 +68,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
   const handleVisibleBillingAddressChange = (value: boolean) => {
     setVisibleBillingAddress(value);
   };
-  let customerBirthday = moment(props.customerDetail?.birthday).format("DD/MM/YYYY");
+  let customerBirthday = moment(props.customerDetail?.birthday).format(
+    "DD/MM/YYYY"
+  );
   return (
     <Card
       className="card-block card-block-customer"
@@ -292,7 +292,9 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                   <span>{props.OrderDetail?.billing_address?.phone}</span>
                 </Row>
                 <Row className="customer-row-info">
-                  <span>{props.OrderDetail?.billing_address?.full_address}</span>
+                  <span>
+                    {props.OrderDetail?.billing_address?.full_address}
+                  </span>
                 </Row>
                 <Row>
                   <Popover

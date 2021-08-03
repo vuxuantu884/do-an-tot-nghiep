@@ -317,7 +317,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 </Form.Item>
               </Col>
               <Col md={12}>
-                <Form.Item label="Phí ship báo khách:" name="shipping_fee_informed_to_customer">
+                <Form.Item
+                  label="Phí ship báo khách:"
+                  name="shipping_fee_informed_to_customer"
+                >
                   <NumberInput
                     format={(a: string) => formatCurrency(a)}
                     replace={(a: string) => replaceFormatString(a)}
@@ -574,44 +577,40 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           className="receive-at-store"
           hidden={shipmentMethodState !== ShipmentMethodOption.PICKATSTORE}
         >
-          <b><img src={storeBluecon} alt="" /> THÔNG TIN CỬA HÀNG</b>
-          
-          <Row style={{paddingTop:"19px"}}>
-  
-              
-              {/* <div className="row-info-icon">
+          <b>
+            <img src={storeBluecon} alt="" /> THÔNG TIN CỬA HÀNG
+          </b>
+
+          <Row style={{ paddingTop: "19px" }}>
+            {/* <div className="row-info-icon">
                 <img src={storeBluecon} alt="" width="20px" />
               </div> */}
-              <Col md={2}>
+            <Col md={2}>
               <div>Tên cửa hàng:</div>
-              </Col>
-              <b className="row-info-content">
-                <Typography.Link>{props.storeDetail?.name}</Typography.Link>
-              </b>
-        
+            </Col>
+            <b className="row-info-content">
+              <Typography.Link>{props.storeDetail?.name}</Typography.Link>
+            </b>
           </Row>
           <Row className="row-info padding-top-10">
-              {/* <div className="row-info-icon">
+            {/* <div className="row-info-icon">
                 <img src={callIcon} alt="" width="18px" />
               </div> */}
-              <Col md={2}>
+            <Col md={2}>
               <div>Số điện thoại:</div>
-              </Col>
-              <b className="row-info-content">
-                {props.storeDetail?.hotline}
-              </b>
-            
+            </Col>
+            <b className="row-info-content">{props.storeDetail?.hotline}</b>
           </Row>
           <Row className="row-info padding-top-10">
-              {/* <div className="row-info-icon">
+            {/* <div className="row-info-icon">
                 <img src={locationIcon} alt="" width="18px" />
               </div> */}
-              <Col md={2}>
+            <Col md={2}>
               <div>Địa chỉ:</div>
-              </Col>
-              <b className="row-info-content">
-                {props.storeDetail?.full_address}
-              </b>
+            </Col>
+            <b className="row-info-content">
+              {props.storeDetail?.full_address}
+            </b>
           </Row>
         </div>
 
