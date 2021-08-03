@@ -1,9 +1,10 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
-import ModalOrderProcessingStatus from "component/modal/ModalOrderProcessingStatus";
+import FormOrderProcessingStatus from "component/forms/FormOrderProcessingStatus";
+import CustomModal from "component/modal/CustomModal";
 import { ICustomTableColumType } from "component/table/CustomTable";
-import CustomTableStyle2 from "component/table/CustomTableStyle2";
+import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import {
   actionAddOrderProcessingStatus,
@@ -37,6 +38,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
+  const [visibleFormButtons, setVisibleFormButtons] = useState<boolean>(true);
   const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] =
     useState<OrderProcessingStatusModel | null>(null);
 
@@ -56,13 +58,13 @@ const SettingOrderProcessingStatus: React.FC = () => {
       dataIndex: "status",
       visible: true,
       render: (value, row, index) => {
-        const result = LIST_STATUS?.filter((singleStatus) => {
+        const result = LIST_STATUS?.find((singleStatus) => {
           return singleStatus.value === value;
         });
         if (result) {
-          return result[0].name;
+          return result.name;
         }
-        return;
+        return "";
       },
     },
     {
@@ -132,38 +134,53 @@ const SettingOrderProcessingStatus: React.FC = () => {
   };
 
   const handleForm = {
-    create: (value: OrderProcessingStatusModel) => {
+    create: (formValue: OrderProcessingStatusModel) => {
+      setVisibleFormButtons(false);
       dispatch(
-        actionAddOrderProcessingStatus(value, () => {
+        actionAddOrderProcessingStatus(formValue, () => {
           setIsShowModal(false);
           gotoFirstPage();
+          setVisibleFormButtons(true);
         })
       );
     },
-    edit: (id: number, value: OrderProcessingStatusModel) => {
-      dispatch(
-        actionEditOrderProcessingStatus(id, value, () => {
-          setIsShowModal(false);
-          dispatch(
-            actionFetchListOrderProcessingStatus(
-              params,
-              (data: OrderProcessingStatusResponseModel) => {
-                setListOrderProcessingStatus(data.items);
-                setTotal(data.metadata.total);
-              }
-            )
-          );
-        })
-      );
+    edit: (formValue: OrderProcessingStatusModel) => {
+      if (modalSingleServiceSubStatus) {
+        setVisibleFormButtons(false);
+        dispatch(
+          actionEditOrderProcessingStatus(
+            modalSingleServiceSubStatus.id,
+            formValue,
+            () => {
+              dispatch(
+                actionFetchListOrderProcessingStatus(
+                  params,
+                  (data: OrderProcessingStatusResponseModel) => {
+                    setListOrderProcessingStatus(data.items);
+                  }
+                )
+              );
+              setIsShowModal(false);
+              setVisibleFormButtons(true);
+            }
+          )
+        );
+      }
     },
-    delete: (value: OrderProcessingStatusModel) => {
-      console.log("value", value);
-      dispatch(
-        actionDeleteOrderProcessingStatus(value.id, () => {
-          setIsShowModal(false);
-          gotoFirstPage();
-        })
-      );
+    delete: () => {
+      if (modalSingleServiceSubStatus) {
+        setVisibleFormButtons(false);
+        dispatch(
+          actionDeleteOrderProcessingStatus(
+            modalSingleServiceSubStatus.id,
+            () => {
+              setIsShowModal(false);
+              gotoFirstPage();
+              setVisibleFormButtons(true);
+            }
+          )
+        );
+      }
     },
   };
 
@@ -203,7 +220,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
       >
         {listOrderProcessingStatus && (
           <Card style={{ padding: 24 }}>
-            <CustomTableStyle2
+            <CustomTable
               isLoading={tableLoading}
               showColumnSetting={true}
               scroll={{ x: 1080 }}
@@ -221,7 +238,6 @@ const SettingOrderProcessingStatus: React.FC = () => {
               onRow={(record: OrderProcessingStatusModel) => {
                 return {
                   onClick: (event) => {
-                    console.log("record", record);
                     setModalSingleServiceSubStatus(record);
                     setModalAction("edit");
                     setIsShowModal(true);
@@ -231,17 +247,23 @@ const SettingOrderProcessingStatus: React.FC = () => {
             />
           </Card>
         )}
-        {isShowModal && (
-          <ModalOrderProcessingStatus
-            visible={isShowModal}
-            modalAction={modalAction}
-            onCreate={(value) => handleForm.create(value)}
-            onEdit={(id, value) => handleForm.edit(id, value)}
-            onDelete={(value) => handleForm.delete(value)}
-            onCancel={() => setIsShowModal(false)}
-            modalSingleServiceSubStatus={modalSingleServiceSubStatus}
-          />
-        )}
+        <CustomModal
+          visible={isShowModal}
+          visibleButton={visibleFormButtons}
+          onCreate={(formValue: OrderProcessingStatusModel) =>
+            handleForm.create(formValue)
+          }
+          onEdit={(formValue: OrderProcessingStatusModel) =>
+            handleForm.edit(formValue)
+          }
+          onDelete={() => handleForm.delete()}
+          onCancel={() => setIsShowModal(false)}
+          modalAction={modalAction}
+          modalTypeText="Trạng thái xử lý đơn hàng"
+          componentForm={FormOrderProcessingStatus}
+          formItem={modalSingleServiceSubStatus}
+          deletedItemTitle={modalSingleServiceSubStatus?.sub_status}
+        />
       </ContentContainer>
     </StyledComponent>
   );

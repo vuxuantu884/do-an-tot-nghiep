@@ -12,6 +12,7 @@ import {
 import {
   OrderSourceCompanyModel,
   OrderSourceModel,
+  OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import {
   DeliveryServiceResponse,
@@ -83,14 +84,14 @@ export const getDeliverieServices = (): Promise<
  * list Order Source: quản lý nguồn đơn hàng
  */
 
-export const getSourcesWithParams = (
+export const getSourcesWithParamsService = (
   query: BaseQuery
 ): Promise<BaseResponse<SourceResponse>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/sources?${queryString}`);
 };
 
-export const getListSourcesCompanies = (): Promise<
+export const getListSourcesCompaniesService = (): Promise<
   BaseResponse<SourceResponse>
 > => {
   return BaseAxios.get(`${ApiConfig.CONTENT}/companies`);
@@ -100,4 +101,26 @@ export const createOrderSourceService = (
   newOrderSource: OrderSourceModel
 ): Promise<BaseResponse<OrderSourceCompanyModel>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/sources`, newOrderSource);
+};
+
+export const editOrderSourceService = (
+  id: number,
+  orderSource: OrderSourceModel
+): Promise<BaseResponse<OrderSourceResponseModel>> => {
+  return BaseAxios.put(`${ApiConfig.ORDER}/sources/${id}`, orderSource);
+};
+
+export const deleteOrderSourceService = (
+  id: number
+): Promise<BaseResponse<OrderSourceResponseModel>> => {
+  return BaseAxios.delete(`${ApiConfig.ORDER}/sources/${id}`);
+};
+
+/**
+ * sub status: sidebar phần xử lý đơn hàng
+ */
+export const getOrderSubStatusService = (
+  status: string
+): Promise<BaseResponse<SourceResponse>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/status/${status}/subStatus`);
 };

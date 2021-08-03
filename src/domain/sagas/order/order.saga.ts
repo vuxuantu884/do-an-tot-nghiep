@@ -7,6 +7,7 @@ import {
   updatePayment,
   getDeliverieServices,
   getInfoDeliveryGHTK,
+  getOrderSubStatusService,
 } from "./../../../service/order/order.service";
 import { SourceResponse } from "./../../../model/response/order/source.response";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
@@ -23,6 +24,7 @@ import { showError } from "utils/ToastUtils";
 import {
   DeliveryServiceResponse,
   OrderResponse,
+  OrderSubStatusResponse,
   ShippingGHTKResponse,
 } from "model/response/order/order.response";
 import { getAmountPayment } from "utils/AppUtils";
@@ -195,6 +197,22 @@ function* ListDeliveryServicesSaga(action: YodyAction) {
   } catch (error) {}
 }
 
+function* getListSubStatusSaga(action: YodyAction) {
+  let { status, handleData } = action.payload;
+  try {
+    let response: BaseResponse<Array<OrderSubStatusResponse[]>> = yield call(
+      getOrderSubStatusService, status
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
 function* OrderOnlineSaga() {
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
@@ -211,6 +229,7 @@ function* OrderOnlineSaga() {
   );
   yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD, updatePaymentSaga);
   yield takeLatest(OrderType.GET_INFO_DELIVERY_GHTK, InfoGHTKSaga);
+  yield takeLatest(OrderType.GET_LIST_SUB_STATUS, getListSubStatusSaga);
 }
 
 export default OrderOnlineSaga;
