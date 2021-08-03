@@ -325,7 +325,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         return supplier_id ? (
                           <div>
                             <div className="title-address">
-                              Địa chỉ xuất hàng
+                              Địa chỉ xuất hàng :
                             </div>
                             <Row className="customer-row-info">
                               <span style={{ fontWeight: 500 }}>
@@ -502,7 +502,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                           return supplier_id ? (
                             <div>
                               <div className="title-address">
-                                Địa chỉ nhận hóa đơn
+                                Địa chỉ nhận hóa đơn :
                               </div>
                               <Row className="customer-row-info">
                                 <span style={{ fontWeight: 500 }}>
@@ -636,7 +636,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                           rules={[
                             {
                               required: true,
-                              message: "Vui lòng chọn ít nhất 1 danh mục",
+                              message: "Vui lòng nhập email",
                             },
                             {
                               pattern: RegUtil.EMAIL,
