@@ -13,7 +13,7 @@ export interface OrderRequest {
   account_code?: string | null;
   assignee_code: string | null;
   customer_id?: number | null;
-  reference: string | null;
+  reference_code: string | null;
   url: string | null;
   total_line_amount_after_line_discount: number | null;
   total: number | null;
@@ -141,6 +141,7 @@ export interface ShipmentRequest {
   requirements: string | null;
   sender_address?: string | null;
   shipping_address?: string | null;
+  office_time: boolean | null;
 }
 
 export interface UpdateShipmentRequest {
@@ -171,6 +172,7 @@ export interface UpdateShipmentRequest {
   requirements: string | null;
   requirements_name: string | null;
   fulfillment_id: string | null | undefined;
+  office_time?: boolean | null;
 }
 
 export interface OrderPaymentRequest {

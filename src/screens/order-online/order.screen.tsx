@@ -89,6 +89,7 @@ export default function Order() {
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+  const [officeTime, setOfficeTime] = useState<boolean>(false);
   //#endregion
   //#region Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
@@ -173,7 +174,7 @@ export default function Order() {
     account_code: userReducer.account?.code,
     assignee_code: null,
     customer_id: null,
-    reference: "",
+    reference_code: "",
     url: "",
     total_line_amount_after_line_discount: null,
     total: null,
@@ -186,6 +187,7 @@ export default function Order() {
     shipping_address: null,
     billing_address: null,
     payments: [],
+    
   };
 
   //#region Order
@@ -283,6 +285,7 @@ export default function Order() {
       note_to_shipper: "",
       requirements: value.requirements,
       sender_address: null,
+      office_time: officeTime,
     };
 
     if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
@@ -389,6 +392,7 @@ export default function Order() {
     }
   };
   const onFinish = (values: OrderRequest) => {
+    console.log(values)
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -564,6 +568,8 @@ export default function Order() {
                 cusomerInfo={customer}
                 items={items}
                 discountValue={discountValue}
+                setOfficeTime={setOfficeTime}
+                officeTime={officeTime}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
@@ -630,7 +636,7 @@ export default function Order() {
                   </Form.Item>
                   <Form.Item
                     label="Tham chiếu"
-                    name="reference"
+                    name="reference_code"
                     tooltip={{
                       title:
                         "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",

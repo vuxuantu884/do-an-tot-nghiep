@@ -47,6 +47,7 @@ const POUtils = {
         position: null,
         purchase_order_id: null,
         temp_id: newId,
+        showNote: false,
       };
       result.push(newItem);
     });

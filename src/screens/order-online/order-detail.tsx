@@ -41,8 +41,8 @@ import UrlConfig from "config/UrlConfig";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateCustomerCard from "./component/update-customer-card";
-import UpdateShipmentCard from "./component/update-shipment-card";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
+import UpdateShipmentCard from "./component/update-shipment-card";
 const { Panel } = Collapse;
 //#endregion
 
@@ -73,6 +73,7 @@ const OrderDetail = () => {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
+  const [officeTime, setOfficeTime] = useState<boolean>(false);
   //#endregion
   //#region Orther
   const onPaymentSelect = (paymentType: number) => {
@@ -294,8 +295,8 @@ const OrderDetail = () => {
 
             {/*--- payment ---*/}
             {OrderDetail !== null &&
-              OrderDetail.payments &&
-              OrderDetail.payments?.length > 0 && (
+              OrderDetail?.payments &&
+              OrderDetail?.payments?.length > 0 && (
                 <Card
                   className="margin-top-20"
                   title={
@@ -454,7 +455,7 @@ const OrderDetail = () => {
                                           </b>
                                         </>
                                         {item.payment_method_id === 3 && (
-                                          <p>FA18TAMFIXCUNG</p>
+                                          <p>{item.reference}</p>
                                         )}
                                         {item.payment_method_id === 5 && (
                                           <p>
@@ -472,8 +473,7 @@ const OrderDetail = () => {
                             OrderDetail.fulfillments &&
                             OrderDetail.fulfillments.length > 0 &&
                             OrderDetail.fulfillments[0].shipment &&
-                            OrderDetail.fulfillments[0].shipment?.cod !==
-                              null && (
+                            OrderDetail.fulfillments[0].shipment.cod && (
                               <Panel
                                 className={
                                   OrderDetail?.fulfillments[0].status !==
@@ -752,37 +752,42 @@ const OrderDetail = () => {
             >
               <div className="padding-24">
                 <Row className="" gutter={5}>
-                  <Col span={9}>Cửa hàng</Col>
+                  <Col span={9}>Cửa hàng:</Col>
                   <Col span={15}>
-                    <span className="text-focus">{OrderDetail?.store}</span>
+                    <span
+                      style={{ fontWeight: 500, color: "#2A2A86" }}
+                      className="text-focus"
+                    >
+                      {OrderDetail?.store}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Điện thoại</Col>
+                  <Col span={9}>Điện thoại:</Col>
                   <Col span={15}>
                     <span>{OrderDetail?.customer_phone_number}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Địa chỉ</Col>
+                  <Col span={9}>Địa chỉ:</Col>
                   <Col span={15}>
                     <span>{OrderDetail?.shipping_address?.full_address}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>NVBH</Col>
+                  <Col span={9}>NVBH:</Col>
                   <Col span={15}>
                     <span className="text-focus">{OrderDetail?.assignee}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Người tạo</Col>
+                  <Col span={9}>Người tạo:</Col>
                   <Col span={15}>
                     <span className="text-focus">{OrderDetail?.account}</span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Thời gian</Col>
+                  <Col span={9}>Thời gian:</Col>
                   <Col span={15}>
                     <span>
                       {moment(OrderDetail?.created_date).format(
@@ -792,11 +797,13 @@ const OrderDetail = () => {
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Đường dẫn</Col>
-                  <Col span={15}>
-                    <span className="text-focus">
-                      {OrderDetail?.url ? OrderDetail?.url : "Không"}
-                    </span>
+                  <Col span={9}>Đường dẫn:</Col>
+                  <Col span={15} style={{wordWrap: "break-word"}}>
+                    {OrderDetail?.url ? (
+                      <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
+                    ) : (
+                      <span className="text-focus">Không</span>
+                    )}
                   </Col>
                 </Row>
               </div>
@@ -812,9 +819,9 @@ const OrderDetail = () => {
             >
               <div className="padding-24">
                 <Row className="" gutter={5}>
-                  <Col span={9}>Ghi chú</Col>
+                  <Col span={9}>Ghi chú:</Col>
                   <Col span={15}>
-                    <span className="text-focus">
+                    <span className="text-focus" style={{wordWrap: "break-word"}}>
                       {OrderDetail?.note !== ""
                         ? OrderDetail?.note
                         : "Không có ghi chú"}
@@ -823,7 +830,7 @@ const OrderDetail = () => {
                 </Row>
 
                 <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Tags</Col>
+                  <Col span={9}>Tags:</Col>
                   <Col span={15}>
                     <span className="text-focus">
                       {OrderDetail?.tags !== ""
