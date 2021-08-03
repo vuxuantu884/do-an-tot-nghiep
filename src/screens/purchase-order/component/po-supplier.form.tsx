@@ -35,6 +35,7 @@ import { DistrictResponse } from "model/content/district.model";
 import { AddressType } from "utils/Constants";
 import SupplierAddModal from "screens/supllier/modal/supplier-add-modal.screen";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
+import { RegUtil } from "utils/RegUtils";
 
 type POSupplierFormProps = {
   listCountries: Array<CountryResponse>;
@@ -636,6 +637,10 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                             {
                               required: true,
                               message: "Vui lòng chọn ít nhất 1 danh mục",
+                            },
+                            {
+                              pattern: RegUtil.EMAIL,
+                              message: "Vui lòng nhập đúng định dạng email",
                             },
                           ]}
                         >
