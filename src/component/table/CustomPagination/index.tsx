@@ -65,7 +65,7 @@ const handleSizeChanger = (
   return onShowSizeChange && onShowSizeChange(current, value);
 };
 
-const CustomPaginationStyle2 = (props: ICustomPaginationProps) => {
+const CustomPagination = (props: ICustomPaginationProps) => {
   const { pagination = defaultPagination } = props;
 
   const totalPage = pagination
@@ -160,4 +160,4 @@ const CustomPaginationStyle2 = (props: ICustomPaginationProps) => {
   );
 };
 
-export default React.memo(CustomPaginationStyle2);
+export default React.memo(CustomPagination);

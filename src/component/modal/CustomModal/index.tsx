@@ -7,6 +7,7 @@ import { StyledComponent } from "./styles";
 const CustomModal = (props: CustomModalType) => {
   const {
     visible,
+    visibleButton,
     onCreate,
     onEdit,
     onDelete,
@@ -28,13 +29,18 @@ const CustomModal = (props: CustomModalType) => {
       onCancel(form.getFieldsValue());
     },
     create: () => {
-      onCreate(form.getFieldsValue());
+      form.validateFields().then(() => {
+        setVisibleForm(false);
+        onCreate(form.getFieldsValue());
+      });
     },
     delete: () => {
+      setVisibleForm(false);
       onDelete(form.getFieldsValue());
       setIsShowConfirmDelete(false);
     },
     edit: () => {
+      setVisibleForm(false);
       onEdit(form.getFieldsValue());
     },
   };
@@ -71,6 +77,7 @@ const CustomModal = (props: CustomModalType) => {
               type="primary"
               danger
               onClick={() => setIsShowConfirmDelete(true)}
+              disabled={!visibleButton}
             >
               Xóa
             </Button>
@@ -79,7 +86,12 @@ const CustomModal = (props: CustomModalType) => {
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Thoát
             </Button>
-            <Button key="save" type="primary" onClick={() => formAction.edit()}>
+            <Button
+              key="save"
+              type="primary"
+              onClick={() => formAction.edit()}
+              disabled={!visibleButton}
+            >
               Lưu
             </Button>
           </div>

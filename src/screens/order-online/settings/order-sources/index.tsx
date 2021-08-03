@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import FormOrderSource from "component/forms/FormOrderSource";
 import CustomModal from "component/modal/CustomModal";
 import { ICustomTableColumType } from "component/table/CustomTable";
-import CustomTableStyle2 from "component/table/CustomTableStyle2";
+import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import {
   actionAddOrderSource,
@@ -38,6 +38,7 @@ const OrderSources: React.FC = () => {
   const [listOrderCompanies, setListOrderCompanies] = useState<
     OrderSourceCompanyModel[]
   >([]);
+  const [visibleFormButtons, setVisibleFormButtons] = useState<boolean>(true);
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
@@ -122,15 +123,18 @@ const OrderSources: React.FC = () => {
 
   const handleForm = {
     create: (formValue: OrderSourceModel) => {
+      setVisibleFormButtons(false);
       dispatch(
         actionAddOrderSource(formValue, () => {
           setIsShowModal(false);
           gotoFirstPage();
+          setVisibleFormButtons(true);
         })
       );
     },
     edit: (formValue: OrderSourceModel) => {
       if (modalSingleOrderSource) {
+        setVisibleFormButtons(false);
         dispatch(
           actionEditOrderSource(modalSingleOrderSource.id, formValue, () => {
             dispatch(
@@ -142,16 +146,19 @@ const OrderSources: React.FC = () => {
               )
             );
             setIsShowModal(false);
+            setVisibleFormButtons(true);
           })
         );
       }
     },
     delete: () => {
       if (modalSingleOrderSource) {
+        setVisibleFormButtons(false);
         dispatch(
           actionDeleteOrderSource(modalSingleOrderSource.id, () => {
             setIsShowModal(false);
             gotoFirstPage();
+            setVisibleFormButtons(true);
           })
         );
       }
@@ -200,7 +207,7 @@ const OrderSources: React.FC = () => {
       >
         {listOrderSources && (
           <Card style={{ padding: 24 }}>
-            <CustomTableStyle2
+            <CustomTable
               isLoading={tableLoading}
               showColumnSetting={true}
               scroll={{ x: 1080 }}
@@ -217,7 +224,7 @@ const OrderSources: React.FC = () => {
               rowKey={(item: VariantResponse) => item.id}
               onRow={(record: OrderSourceModel) => {
                 return {
-                  onClick: (event) => {
+                  onClick: () => {
                     console.log("record", record);
                     setModalAction("edit");
                     setModalSingleOrderSource(record);
@@ -230,6 +237,7 @@ const OrderSources: React.FC = () => {
         )}
         <CustomModal
           visible={isShowModal}
+          visibleButton={visibleFormButtons}
           onCreate={(formValue: OrderSourceModel) =>
             handleForm.create(formValue)
           }

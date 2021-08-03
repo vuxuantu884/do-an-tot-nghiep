@@ -581,6 +581,24 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [formMain]
   );
+  const onToggleNote = useCallback(
+    (id: string, value: boolean, index: number) => {
+      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
+        POField.line_items
+      );
+      data[index].showNote = value;
+      formMain.setFieldsValue({
+        line_items: [...data],
+      });
+      if (value) {
+        setTimeout(() => {
+          let element: any = document.getElementById(id);
+          element?.focus();
+        }, 100);
+      }
+    },
+    [formMain]
+  );
   const onOkExpense = useCallback(
     (result: Array<CostLine>) => {
       let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
@@ -754,6 +772,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       title: "Sản phẩm",
                       width: "99%",
                       className: "ant-col-info",
+
                       dataIndex: "variant",
                       render: (
                         value: string,
@@ -763,20 +782,51 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         <div>
                           <div>
                             <div className="product-item-sku">{item.sku}</div>
-                            <div className="product-item-name">{value}</div>
+                            <div className="product-item-name">
+                              <span className="product-item-name-detail">
+                                {value}
+                              </span>
+                              {!item.showNote && (
+                                <Button
+                                  onClick={() => {
+                                    onToggleNote(
+                                      `note_${item.temp_id}`,
+                                      true,
+                                      index
+                                    );
+                                  }}
+                                  className={classNames(
+                                    "product-item-name-note",
+                                    item.note === "" && "product-item-note"
+                                  )}
+                                  type="link"
+                                >
+                                  <i> Thêm ghi chú</i>
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                          <Input
-                            addonBefore={<EditOutlined />}
-                            className={classNames(
-                              "product-item-note-input",
-                              item.note === "" && "product-item-note"
-                            )}
-                            placeholder="Nhập ghi chú"
-                            value={item.note}
-                            onChange={(e) =>
-                              onNoteChange(e.target.value, index)
-                            }
-                          />
+                          {item.showNote && (
+                            <Input
+                              id={`note_${item.temp_id}`}
+                              onBlur={(e) => {
+                                if (e.target.value === "") {
+                                  onToggleNote(
+                                    `note_${item.temp_id}`,
+                                    false,
+                                    index
+                                  );
+                                }
+                              }}
+                              addonBefore={<EditOutlined />}
+                              placeholder="Nhập ghi chú"
+                              value={item.note}
+                              className="product-item-note-input"
+                              onChange={(e) =>
+                                onNoteChange(e.target.value, index)
+                              }
+                            />
+                          )}
                         </div>
                       ),
                     },
@@ -807,6 +857,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             textAlign: "right",
                             flexDirection: "column",
                             display: "flex",
+                            padding: "7px 14px",
                           }}
                         >
                           SL
@@ -834,7 +885,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                     {
                       title: (
-                        <div style={{ width: "100%", textAlign: "right" }}>
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                            padding: "7px 14px",
+                          }}
+                        >
                           Giá nhập
                           <span
                             style={{
@@ -891,7 +948,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                     {
                       title: (
-                        <div style={{ width: "100%", textAlign: "right" }}>
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                            padding: "7px 14px",
+                          }}
+                        >
                           VAT
                         </div>
                       ),
@@ -920,26 +983,42 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       dataIndex: "line_amount_after_line_discount",
                       title: (
                         <Tooltip title="Thành tiền không bao gồm thuế VAT">
-                          Thành tiền
-                          <span
+                          <div
                             style={{
-                              color: "#737373",
-                              fontSize: "12px",
-                              fontWeight: "normal",
+                              width: "100%",
+                              textAlign: "right",
                             }}
                           >
-                            {" "}
-                            ₫
-                          </span>
+                            Thành tiền
+                            <span
+                              style={{
+                                color: "#737373",
+                                fontSize: "12px",
+                                fontWeight: "normal",
+                              }}
+                            >
+                              {" "}
+                              ₫
+                            </span>
+                          </div>
                         </Tooltip>
                       ),
                       align: "center",
                       width: 130,
-                      render: (value: number) => formatCurrency(Math.round(value)),
+                      render: (value: number) => (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                          }}
+                        >
+                          {formatCurrency(Math.round(value))}
+                        </div>
+                      ),
                     },
                     {
                       title: "",
-                      fixed: "right",
+                      fixed: items.length !== 0 && "right",
                       width: 40,
                       render: (value: string, item, index: number) => (
                         <Button
@@ -962,19 +1041,23 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             <div className="total">Tổng</div>
                           </Table.Summary.Cell>
                           <Table.Summary.Cell
-                            align="center"
+                            align="right"
                             index={2}
                             colSpan={1}
                           >
-                            {POUtils.totalQuantity(items)}
+                            <div style={{ width: "100%", padding: "7px 14px" }}>
+                              {POUtils.totalQuantity(items)}
+                            </div>
                           </Table.Summary.Cell>
                           <Table.Summary.Cell index={3} colSpan={2} />
                           <Table.Summary.Cell
                             index={4}
-                            align="center"
+                            align="right"
                             colSpan={1}
                           >
-                            {formatCurrency(Math.round(POUtils.totalAmount(items)))}
+                            {formatCurrency(
+                              Math.round(POUtils.totalAmount(items))
+                            )}
                           </Table.Summary.Cell>
                           <Table.Summary.Cell index={3} colSpan={1} />
                         </Table.Summary.Row>
@@ -1190,7 +1273,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   );
                 }}
               </Form.Item>
-              
+
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues[POField.total_cost_line] !==
@@ -1248,7 +1331,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   let total = getFieldValue(POField.total);
                   return (
                     <div className="po-payment-row">
-                      <strong className="po-payment-row-title">Tiền cần trả</strong>
+                      <strong className="po-payment-row-title">
+                        Tiền cần trả
+                      </strong>
                       <strong className="po-payment-row-success">
                         {formatCurrency(Math.round(total))}
                       </strong>

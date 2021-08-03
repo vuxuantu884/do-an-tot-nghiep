@@ -24,6 +24,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
   const { modalAction, formItem, form, visible, ...args } = props;
   const listOrderCompanies: OrderSourceCompanyModel[] =
     args.moreFormArguments.listOrderCompanies;
+  const defaultCompanyIndex = 0;
   const isCreateForm = modalAction === "create";
   const initialFormValue: FormValueType =
     !isCreateForm && formItem
@@ -31,7 +32,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
           channel_id: DEFAULT_PARAM.channel_id,
           channel: DEFAULT_PARAM.channel,
           company_id: formItem.id,
-          company: formItem.name,
+          company: formItem.company,
           name: formItem.name,
           is_active: formItem.is_active,
           is_default: formItem.is_default,
@@ -39,8 +40,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
       : {
           channel_id: DEFAULT_PARAM.channel_id,
           channel: DEFAULT_PARAM.channel,
-          company_id: undefined,
-          company: "",
+          company_id: listOrderCompanies[defaultCompanyIndex].id,
+          company: listOrderCompanies[defaultCompanyIndex].name,
           name: "",
           is_active: false,
           is_default: false,
@@ -49,18 +50,18 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
   /**
    * when change company, set company name
    */
-  const handleChangeCompany = (value: number) => {
+  const handleChangeCompany = (value: string) => {
     const selectedCompany = listOrderCompanies.find((singleCompany) => {
-      return singleCompany.id === value;
+      return singleCompany.name === value;
     });
     if (selectedCompany) {
-      form.setFieldsValue({ company: selectedCompany.name });
+      form.setFieldsValue({ company_id: selectedCompany.id });
     }
   };
 
   useEffect(() => {
     form.resetFields();
-  }, [form, formItem, visible]);
+  }, [form, formItem, modalAction]);
 
   return (
     <StyledComponent>
@@ -86,7 +87,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
         </Form.Item>
         {listOrderCompanies?.length && (
           <Form.Item
-            name="company_id"
+            name="company"
             label="Doanh nghiệp"
             rules={[
               { required: true, message: "Vui lòng chọn doanh nghiệp !" },
@@ -101,8 +102,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
                 listOrderCompanies.map((singleOrderCompany) => {
                   return (
                     <Select.Option
-                      value={singleOrderCompany.id}
-                      key={singleOrderCompany.id}
+                      value={singleOrderCompany.name}
+                      key={singleOrderCompany.name}
                     >
                       {singleOrderCompany.name}
                     </Select.Option>
@@ -111,8 +112,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
             </Select>
           </Form.Item>
         )}
-        <Form.Item name="company" label="company" hidden>
-          <Input type="string" style={{ width: "100%" }} />
+        <Form.Item name="company_id" label="company" hidden>
+          <Input type="number" style={{ width: "100%" }} />
         </Form.Item>
         <Form.Item name="channel" label="channel" hidden>
           <Input
