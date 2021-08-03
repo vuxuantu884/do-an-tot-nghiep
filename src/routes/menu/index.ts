@@ -10,6 +10,7 @@ const Product = React.lazy(() => import ("screens/product/product.search.screen"
 const Inventory = React.lazy(() => import ("screens/inverory"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
+const CustomerAdd = React.lazy(() => import ("screens/customer/add"));
 
 const menu: Array<RouteMenu> = [
   {

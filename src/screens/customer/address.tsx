@@ -17,18 +17,19 @@ interface AddressFormProps {
   field: any;
   remove: (index: number | number[]) => void;
   index: number;
+  title: string;
 }
 
 const { Option } = Select;
 
-const AddressForm = ({ countries, field, remove, index }: AddressFormProps) => {
+const AddressForm = ({ countries, field, remove, index, title }: AddressFormProps) => {
   const dispatch = useDispatch();
   const [cities, setCities] = React.useState<Array<any>>([]);
   const [districts, setDistricts] = React.useState<Array<DistrictResponse>>([]);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [cityId, setCityId] = React.useState<any>(null);
   const [districtId, setDistrictId] = React.useState<any>(null);
-  const [countryId, setCountryId] = React.useState<any>(null);
+  const [countryId, setCountryId] = React.useState<any>(233);
 
   React.useEffect(() => {
     if (countryId !== null) {
@@ -63,7 +64,7 @@ const AddressForm = ({ countries, field, remove, index }: AddressFormProps) => {
   return (
     <Row gutter={12}>
       <Col span={24}>
-        <h5>Địa chỉ giao hàng {index}</h5>
+        <h5>{title + ` ${index}`}</h5>
       </Col>
       <Col span={23}>
         <Row gutter={8}>
@@ -71,14 +72,8 @@ const AddressForm = ({ countries, field, remove, index }: AddressFormProps) => {
             <Form.Item
               {...field}
               name={[field.name, "country"]}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn quốc gia",
-                },
-              ]}
             >
-              <Select placeholder="Quốc gia" onChange={handleChangeCountry}>
+              <Select placeholder="Quốc gia" disabled onChange={handleChangeCountry} defaultValue={233}>
                 {countries.map((country) => (
                   <Option key={country.id} value={country.id}>
                     {country.name + ` - ${country.code}`}
@@ -147,7 +142,7 @@ const AddressForm = ({ countries, field, remove, index }: AddressFormProps) => {
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col span={6}>
             <Form.Item
               {...field}
               name={[field.name, "address"]}
@@ -158,7 +153,7 @@ const AddressForm = ({ countries, field, remove, index }: AddressFormProps) => {
                 },
               ]}
             >
-                <Input.TextArea placeholder="Địa chỉ" />
+                <Input placeholder="Địa chỉ" />
             </Form.Item>
           </Col>
         </Row>
@@ -174,7 +169,8 @@ AddressForm.propTypes = {
   countries: PropTypes.array.isRequired,
   field: PropTypes.object.isRequired,
   remove: PropTypes.func.isRequired,
-  index: PropTypes.number.isRequired
+  index: PropTypes.number.isRequired,
+  title: PropTypes.string.isRequired
 };
 
 export default AddressForm;
