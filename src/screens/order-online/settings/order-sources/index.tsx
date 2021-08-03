@@ -38,7 +38,6 @@ const OrderSources: React.FC = () => {
   const [listOrderCompanies, setListOrderCompanies] = useState<
     OrderSourceCompanyModel[]
   >([]);
-  const [visibleFormButtons, setVisibleFormButtons] = useState<boolean>(true);
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
@@ -138,18 +137,15 @@ const OrderSources: React.FC = () => {
 
   const handleForm = {
     create: (formValue: OrderSourceModel) => {
-      setVisibleFormButtons(false);
       dispatch(
         actionAddOrderSource(formValue, () => {
           setIsShowModal(false);
           gotoFirstPage();
-          setVisibleFormButtons(true);
         })
       );
     },
     edit: (formValue: OrderSourceModel) => {
       if (modalSingleOrderSource) {
-        setVisibleFormButtons(false);
         dispatch(
           actionEditOrderSource(modalSingleOrderSource.id, formValue, () => {
             dispatch(
@@ -161,19 +157,16 @@ const OrderSources: React.FC = () => {
               )
             );
             setIsShowModal(false);
-            setVisibleFormButtons(true);
           })
         );
       }
     },
     delete: () => {
       if (modalSingleOrderSource) {
-        setVisibleFormButtons(false);
         dispatch(
           actionDeleteOrderSource(modalSingleOrderSource.id, () => {
             setIsShowModal(false);
             gotoFirstPage();
-            setVisibleFormButtons(true);
           })
         );
       }
@@ -252,7 +245,6 @@ const OrderSources: React.FC = () => {
         )}
         <CustomModal
           visible={isShowModal}
-          visibleButton={visibleFormButtons}
           onCreate={(formValue: OrderSourceModel) =>
             handleForm.create(formValue)
           }
