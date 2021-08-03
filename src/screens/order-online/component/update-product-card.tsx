@@ -175,7 +175,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               <Button type="link" className="p-0" style={{ color: "#000000" }}>
                 <Space>
                   <img src={storeBluecon} alt="" />
-                  YODY Kho Online
+                  {props.OrderDetail?.store}
                 </Space>
               </Button>
             </div>

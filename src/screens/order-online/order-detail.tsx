@@ -640,7 +640,7 @@ console.log(OrderDetail)
                           Còn phải trả:
                         </span>
                         <b style={{ color: "red" }}>
-                          {OrderDetail && OrderDetail?.fulfillments
+                          {OrderDetail && OrderDetail?.fulfillments && OrderDetail.fulfillments[0].shipment?.cod !== 0
                             ? formatCurrency(
                                 OrderDetail.fulfillments[0].shipment?.cod
                               )
@@ -820,9 +820,9 @@ console.log(OrderDetail)
               }
             >
               <div className="padding-24">
-                <Row className="" gutter={5}>
-                  <Col span={9}>Ghi chú:</Col>
-                  <Col span={15}>
+                <Row className="" gutter={5} style={{flexDirection: "column"}}>
+                  <Col span={24} style={{marginBottom: 6}} ><b>Ghi chú nội bộ:</b></Col>
+                  <Col span={24}>
                     <span className="text-focus" style={{wordWrap: "break-word"}}>
                       {OrderDetail?.note !== ""
                         ? OrderDetail?.note
@@ -831,12 +831,17 @@ console.log(OrderDetail)
                   </Col>
                 </Row>
 
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Tags:</Col>
-                  <Col span={15}>
+                <Row className="margin-top-10" gutter={5} style={{flexDirection: "column"}}>
+                  <Col span={24} style={{marginBottom: 6}}><b>Tags:</b></Col>
+                  <Col span={24}>
                     <span className="text-focus">
-                      {OrderDetail?.tags !== ""
-                        ? OrderDetail?.tags
+                      {OrderDetail?.tags
+                        ? OrderDetail?.tags.split(",").map((item) => <Tag
+                        className="orders-tag"
+                        style={{ backgroundColor: "#F5F5F5", color: "#737373", padding: "5px 10px" }}
+                      >
+                       {item}
+                      </Tag>)
                         : "Không có tags"}
                     </span>
                   </Col>
