@@ -1,5 +1,4 @@
-import { CheckOutlined } from "@ant-design/icons";
-import { Button, Row, Col, Form, Steps } from "antd";
+import { Button, Row, Col, Form } from "antd";
 import POSupplierForm from "./component/po-supplier.form";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
@@ -26,6 +25,7 @@ import {
 } from "domain/actions/content/content.action";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
+import POStep from "./component/po-step";
 
 const POCreateScreen: React.FC = () => {
   let initPurchaseOrder = {
@@ -79,7 +79,7 @@ const POCreateScreen: React.FC = () => {
       setWinAccount(data.items);
       dispatch(
         AccountSearchAction(
-          { department_ids: [AppConfig.RD_DEPARTMENT], status: 'active' },
+          { department_ids: [AppConfig.RD_DEPARTMENT], status: "active" },
           onResultRD
         )
       );
@@ -112,7 +112,7 @@ const POCreateScreen: React.FC = () => {
         const y =
           element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
         window.scrollTo({ top: y, behavior: "smooth" });
-        showError('Vui lòng thêm sản phẩm');
+        showError("Vui lòng thêm sản phẩm");
         return;
       }
       setLoadingSaveButton(true);
@@ -124,7 +124,7 @@ const POCreateScreen: React.FC = () => {
   useEffect(() => {
     dispatch(
       AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT], status: 'active'},
+        { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         onResultWin
       )
     );
@@ -155,25 +155,7 @@ const POCreateScreen: React.FC = () => {
           name: "Tạo mới đơn đặt hàng",
         },
       ]}
-      extra={
-        <Steps
-          progressDot={(dot: any, { status, index }: any) => (
-            <div className="ant-steps-icon-dot">
-              {(status === "process" || status === "finish") && (
-                <CheckOutlined />
-              )}
-            </div>
-          )}
-          size="small"
-          current={0}
-        >
-          <Steps.Step title="Đặt hàng" />
-          <Steps.Step title="Xác nhận" />
-          <Steps.Step title="Phiếu nháp" />
-          <Steps.Step title="Nhập kho" />
-          <Steps.Step title="Hoàn thành" />
-        </Steps>
-      }
+      extra={<POStep status="draft" />}
     >
       <Form
         name={PoFormName.Main}
@@ -233,23 +215,7 @@ const POCreateScreen: React.FC = () => {
               zIndex: 100,
             }}
           >
-            <Steps
-              progressDot={(dot: any, { status, index }: any) => (
-                <div className="ant-steps-icon-dot">
-                  {(status === "process" || status === "finish") && (
-                    <CheckOutlined />
-                  )}
-                </div>
-              )}
-              size="small"
-              current={0}
-            >
-              <Steps.Step title="Đặt hàng" />
-              <Steps.Step title="Xác nhận" />
-              <Steps.Step title="Phiếu nháp" />
-              <Steps.Step title="Nhập kho" />
-              <Steps.Step title="Hoàn thành" />
-            </Steps>
+            <POStep status="draft" />
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>
