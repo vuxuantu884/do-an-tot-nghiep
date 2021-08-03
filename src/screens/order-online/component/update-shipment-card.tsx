@@ -66,6 +66,7 @@ import NumberInput from "component/custom/number-input.custom";
 import { setTimeout } from "timers";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { StoreResponse } from "model/core/store.model";
+import OrderDetail from "../order-detail";
 const { Panel } = Collapse;
 //#endregion
 
@@ -725,7 +726,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       >
                         {props.OrderDetail?.fulfillments &&
                           props.OrderDetail?.fulfillments.map(
-                            (item, index) => item.id
+                            (item, index) => item.code
                           )}
                       </p>
                       <div style={{ width: 30, padding: "0 4px" }}>
@@ -906,7 +907,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               Hủy
             </Button>
 
-            {props.stepsStatusValue === OrderStatus.FINALIZED && (
+            {props.stepsStatusValue === OrderStatus.FINALIZED && props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type !="pick_at_store" && (
               <Button
                 type="primary"
                 style={{ marginLeft: "10px" }}
@@ -914,6 +915,17 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 onClick={onOkShippingConfirm}
               >
                 Nhặt hàng
+              </Button>
+            )}
+
+            {props.stepsStatusValue === OrderStatus.FINALIZED && props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type=="pick_at_store" && (
+              <Button
+                type="primary"
+                style={{ marginLeft: "10px" }}
+                className="create-button-custom ant-btn-outline fixed-button"
+                onClick={onOkShippingConfirm}
+              >
+                Nhặt hàng và đóng gói
               </Button>
             )}
 
@@ -927,7 +939,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 Đóng gói
               </Button>
             )}
-            {props.stepsStatusValue === FulFillmentStatus.PACKED && (
+            {props.stepsStatusValue === FulFillmentStatus.PACKED && props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type !="pick_at_store" && (
               <Button
                 type="primary"
                 style={{ marginLeft: "10px" }}
@@ -947,6 +959,19 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 Đã giao hàng
               </Button>
             )}
+
+            {props.stepsStatusValue === FulFillmentStatus.PACKED && props.OrderDetail.fulfillments[0].shipment?.delivery_service_provider_type=="pick_at_store" && (
+              <Button
+                type="primary"
+                style={{ marginLeft: "10px" }}
+                className="create-button-custom ant-btn-outline fixed-button"
+                onClick={() => setIsvibleShippedConfirm(true)}
+              >
+                Xuất kho và giao hàng
+              </Button>
+            )}
+
+
             {props.stepsStatusValue === FulFillmentStatus.SHIPPED && (
               <Button
                 type="primary"
