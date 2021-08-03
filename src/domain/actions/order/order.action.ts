@@ -39,3 +39,7 @@ export const DeliveryServicesGetList = (setData: (data: Array<DeliveryServiceRes
 export const getListSubStatusAction = (status: string, handleData: (data: Array<OrderSubStatusResponse>) => void) => {
   return BaseAction(OrderType.GET_LIST_SUB_STATUS, { status, handleData });
 }
+
+export const setSubStatusAction = (order_id: number, statusId: number) => {
+  return BaseAction(OrderType.SET_SUB_STATUS, { order_id, statusId });
+}
