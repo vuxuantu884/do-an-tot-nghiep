@@ -235,15 +235,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                       <PhoneOutlined />
                       <label>{phone}</label>
                     </Space>
-                    {!isEdit && (
-                      <Space className="customer-detail-action">
-                        <Button
-                          type="text"
-                          className="p-0 ant-btn-custom"
-                          icon={<EditOutlined style={{ fontSize: "24px" }} />}
-                        ></Button>
-                      </Space>
-                    )}
+                 
                   </Row>
                   <Divider
                     className="margin-0"
@@ -325,7 +317,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         return supplier_id ? (
                           <div>
                             <div className="title-address">
-                              Địa chỉ xuất hàng
+                              Địa chỉ xuất hàng :
                             </div>
                             <Row className="customer-row-info">
                               <span style={{ fontWeight: 500 }}>
@@ -347,7 +339,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                                 <PhoneFilled />{" "}
                                 {supplier_address.phone !== ""
                                   ? supplier_address.phone
-                                  : "--"}
+                                  : "---"}
                               </span>
                             </Row>
                             <Row className="customer-row-info">
@@ -355,7 +347,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                                 <EnvironmentFilled />{" "}
                                 {supplier_address.full_address !== ""
                                   ? supplier_address.full_address
-                                  : "--"}
+                                  : "---"}
                               </span>
                             </Row>
                             <Row className="customer-row-info">
@@ -502,7 +494,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                           return supplier_id ? (
                             <div>
                               <div className="title-address">
-                                Địa chỉ nhận hóa đơn
+                                Địa chỉ nhận hóa đơn :
                               </div>
                               <Row className="customer-row-info">
                                 <span style={{ fontWeight: 500 }}>
@@ -516,7 +508,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                                   />{" "}
                                   {billing_address.name !== null
                                     ? billing_address.name
-                                    : "--"}
+                                    : "---"}
                                 </span>
                               </Row>
                               <Row className="customer-row-info">
@@ -524,7 +516,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                                   <PhoneFilled />{" "}
                                   {billing_address.phone !== ""
                                     ? billing_address.phone
-                                    : "--"}
+                                    : "---"}
                                 </span>
                               </Row>
                               <Row className="customer-row-info">
@@ -532,7 +524,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                                   <EnvironmentFilled />{" "}
                                   {billing_address.full_address !== ""
                                     ? billing_address.full_address
-                                    : "--"}
+                                    : "---"}
                                 </span>
                               </Row>
                               <Row className="customer-row-info">
@@ -636,7 +628,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                           rules={[
                             {
                               required: true,
-                              message: "Vui lòng chọn ít nhất 1 danh mục",
+                              message: "Vui lòng nhập email",
                             },
                             {
                               pattern: RegUtil.EMAIL,
