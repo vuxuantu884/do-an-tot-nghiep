@@ -76,7 +76,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
    _paymentData[index].reference = value
    setPaymentData(_paymentData)
   };
-console.log(paymentData)
 
   const ShowPayment = () => {
     props.setVisibleUpdatePayment(true);
@@ -415,7 +414,6 @@ console.log(paymentData)
                                 xxl={13}
                               >
                                 <Input
-                                  name="new_payment"
                                   placeholder="Tham chiếu"
                                   onChange={(e: any) => handleTransferReference(index, e.target.value)}
                                 />

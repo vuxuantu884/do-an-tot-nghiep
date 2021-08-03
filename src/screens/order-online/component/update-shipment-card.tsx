@@ -72,12 +72,14 @@ const { Panel } = Collapse;
 //#endregion
 
 type UpdateShipmentCardProps = {
+  shippingFeeInformedCustomer: (value: number | null) => void;
+  isVisibleUpdatePayment: (value: boolean) => void;
+  setOfficeTime: (value: boolean) => void;
   OrderDetail: OrderResponse | null;
   storeDetail?: StoreResponse;
   stepsStatusValue?: string;
-  shippingFeeInformedCustomer: (value: number | null) => void;
-  isVisibleUpdatePayment: (value: boolean) => void;
   totalPaid?: number;
+  officeTime: boolean | undefined;
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
@@ -683,16 +685,17 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       ).format("DD/MM/YYYY")
                     : ""}
                 </span>
-                {props.OrderDetail?.fulfillments[0].shipment?.office_time && <span
-                  style={{
-                    marginLeft: 6,
-                    color: "#737373",
-                    fontSize: "14px",
-                  }}
-                >
-                  (Giờ hành chính)
-                </span>}
-                
+                {props.OrderDetail?.fulfillments[0].shipment?.office_time && (
+                  <span
+                    style={{
+                      marginLeft: 6,
+                      color: "#737373",
+                      fontSize: "14px",
+                    }}
+                  >
+                    (Giờ hành chính)
+                  </span>
+                )}
               </div>
               <div className="text-menu">
                 <img src={eyeOutline} alt="eye"></img>
@@ -715,7 +718,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="orders-timeline-custom"
                 showArrow={false}
                 header={
-                  <Row style={{paddingLeft: 12}}>
+                  <Row style={{ paddingLeft: 12 }}>
                     <Col>
                       <p
                         ref={copyRef}
@@ -871,7 +874,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </Col>
                   </Row>
                 )}
-                <Row gutter={24} style={{ marginTop: 12, marginBottom: 0, padding: "0 12px" }}>
+                <Row
+                  gutter={24}
+                  style={{ marginTop: 12, marginBottom: 0, padding: "0 12px" }}
+                >
                   <Col span={24}>
                     <p className="text-field">
                       {props.OrderDetail?.items.reduce(
@@ -1019,7 +1025,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
                   <Col md={6}>
                     <Form.Item>
-                      <Checkbox style={{ marginTop: "8px" }}>
+                      <Checkbox
+                        style={{ marginTop: "8px" }}
+                        checked={props.officeTime}
+                        onChange={(e) => props.setOfficeTime(e.target.checked)}
+                      >
                         Giờ hành chính
                       </Checkbox>
                     </Form.Item>

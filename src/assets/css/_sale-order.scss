@@ -293,6 +293,10 @@
 }
 
 .orders {
+  .ant-form-item-label label .ant-form-item-tooltip {
+    cursor: pointer;
+    color: #2a2a86;
+  }
   .custom-select-suffix {
     .ant-btn-icon-only {
       background-color: rgba($primary-color, 0.1);
@@ -1201,3 +1205,4 @@
     padding-left: 0;
   }
 }
+

@@ -67,7 +67,7 @@ type ShipmentCardProps = {
   cusomerInfo: CustomerResponse | null;
   items?: Array<OrderLineItemRequest>;
   discountValue: number | null;
-  officeTime: boolean | null;
+  officeTime: boolean | undefined;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
@@ -205,6 +205,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           <Col md={6}>
             <Form.Item name="office_time">
               <Checkbox
+                checked={props.officeTime}
                 onChange={(e) => props.setOfficeTime(e.target.checked)}
                 style={{ marginTop: "8px" }}
               >

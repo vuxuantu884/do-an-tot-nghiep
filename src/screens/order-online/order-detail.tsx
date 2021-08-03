@@ -289,6 +289,8 @@ const OrderDetail = () => {
               shippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
               totalPaid={totalPaid}
               isVisibleUpdatePayment={setVisibleUpdatePayment}
+              officeTime={officeTime}
+              setOfficeTime={setOfficeTime}
             />
 
             {/*--- end shipment ---*/}
