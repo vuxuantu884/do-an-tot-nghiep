@@ -3,7 +3,7 @@ import { Button, Spin, Table as ANTTable, TableProps } from "antd";
 import { ColumnType, TableLocale } from "antd/lib/table/interface";
 import { PageConfig } from "config/PageConfig";
 import React, { useCallback } from "react";
-import CustomPaginationStyle2 from "../CustomPaginationStyle2";
+import CustomPagination from "../CustomPagination";
 import { StyledComponent } from "./styles";
 
 export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
@@ -126,7 +126,7 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
           // scroll={{ y: 700 }}
           size="middle"
         />
-        {pagination && <CustomPaginationStyle2 pagination={pagination} />}
+        {pagination && <CustomPagination pagination={pagination} />}
       </div>
     </StyledComponent>
   );

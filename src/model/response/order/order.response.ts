@@ -33,6 +33,7 @@ export interface OrderResponse extends BaseObject {
   payment_status: string | null;
   return_status: string | null;
   reference: string | null;
+  reference_code: string | null;
   url: string | null;
   total_line_amount_after_line_discount: number;
   shipping_fee_informed_to_customer: number | null;
@@ -219,6 +220,7 @@ export interface ShipmentResponse extends BaseObject {
   shipping_address: ShippingAddress | null;
   fulfillment_id: string | null;
   cod: number;
+  office_time: string | null;
 }
 
 export interface DeliveryServiceResponse {
@@ -263,4 +265,15 @@ export interface StoreCustomResponse extends BaseObject {
   begin_date: string,
   number_of_account: number,
   accounts: Array<any>
+}
+
+export interface OrderSubStatusResponse {
+  id: 6,
+  company_id: number,
+  company: string,
+  sub_status: string,
+  status: string,
+  note: string,
+  is_active: boolean,
+  is_delete?: boolean, 
 }
