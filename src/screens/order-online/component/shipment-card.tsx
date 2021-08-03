@@ -58,6 +58,7 @@ type ShipmentCardProps = {
   setShippingFeeInformedCustomer: (value: number | null) => void;
   setShippingFeeInformedCustomerHVC: (value: number | null) => void;
   setPaymentMethod: (value: number) => void;
+  setOfficeTime: (value: boolean) => void;
   storeDetail?: StoreCustomResponse | null;
   amount: number;
   paymentMethod: number;
@@ -66,6 +67,7 @@ type ShipmentCardProps = {
   cusomerInfo: CustomerResponse | null;
   items?: Array<OrderLineItemRequest>;
   discountValue: number | null;
+  officeTime: boolean | null;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
@@ -201,8 +203,13 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           </Col>
 
           <Col md={6}>
-            <Form.Item>
-              <Checkbox style={{ marginTop: "8px" }}>Giờ hành chính</Checkbox>
+            <Form.Item name="office_time">
+              <Checkbox
+                onChange={(e) => props.setOfficeTime(e.target.checked)}
+                style={{ marginTop: "8px" }}
+              >
+                Giờ hành chính
+              </Checkbox>
             </Form.Item>
           </Col>
           <Col md={9}>

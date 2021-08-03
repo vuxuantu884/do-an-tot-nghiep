@@ -66,10 +66,17 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
-
   const [paymentData, setPaymentData] = useState<
     Array<UpdateOrderPaymentRequest>
   >([]);
+
+  const handleTransferReference  = (index: number, value: string) => {
+    console.log(index)
+   const  _paymentData = [... paymentData]
+   _paymentData[index].reference = value
+   setPaymentData(_paymentData)
+  };
+console.log(paymentData)
 
   const ShowPayment = () => {
     props.setVisibleUpdatePayment(true);
@@ -407,7 +414,11 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                                 lg={14}
                                 xxl={13}
                               >
-                                <Input placeholder="Tham chiếu" />
+                                <Input
+                                  name="new_payment"
+                                  placeholder="Tham chiếu"
+                                  onChange={(e: any) => handleTransferReference(index, e.target.value)}
+                                />
                               </Col>
                             ) : null}
                           </Row>
@@ -726,7 +737,10 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                             lg={14}
                             xxl={13}
                           >
-                            <Input placeholder="Tham chiếu" />
+                            <Input
+                              placeholder="Tham chiếu"
+                              onChange={(e: any) => handleTransferReference(index, e.target.value)}
+                            />
                           </Col>
                         ) : null}
                       </Row>

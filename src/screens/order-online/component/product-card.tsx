@@ -703,11 +703,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     _items[indexItem].gifts = itemGifts;
     setItems(_items);
   }, [items, itemGifts, indexItem]);
-
+  
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
-
   return (
     <Card
       className="margin-top-20"
