@@ -1,14 +1,5 @@
 // @ts-ignore
-import {
-  Button,
-  Card,
-  Row,
-  Col,
-  Radio,
-  InputNumber,
-  Space,
-  Input,
-} from "antd";
+import { Button, Card, Row, Col, Radio, InputNumber, Space, Input } from "antd";
 
 import {
   BugOutlined,
@@ -75,10 +66,17 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
-
   const [paymentData, setPaymentData] = useState<
     Array<UpdateOrderPaymentRequest>
   >([]);
+
+  const handleTransferReference  = (index: number, value: string) => {
+    console.log(index)
+   const  _paymentData = [... paymentData]
+   _paymentData[index].reference = value
+   setPaymentData(_paymentData)
+  };
+console.log(paymentData)
 
   const ShowPayment = () => {
     props.setVisibleUpdatePayment(true);
@@ -106,7 +104,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   const moneyReturn = useMemo(() => {
     return props.amount - totalAmountPaid;
   }, [props.amount, totalAmountPaid]);
-  
+
   const handlePickPaymentMethod = (code?: string) => {
     let paymentMaster = ListMaymentMethods.find((p) => code === p.code);
     if (!paymentMaster) return;
@@ -166,7 +164,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     }
     setVisibleConfirmPayment(true);
   };
-console.log(paymentData)
+  console.log(paymentData);
   const CreateFulFillmentRequest = () => {
     let request: UpdateFulFillmentRequest = {
       id: null,
@@ -197,7 +195,7 @@ console.log(paymentData)
   const onOkConfirm = () => {
     let fulfillment = CreateFulFillmentRequest();
     let request: UpdatePaymentRequest = {
-      payments: paymentData.filter((payment) => payment.amount > 0 ),
+      payments: paymentData.filter((payment) => payment.amount > 0),
       fulfillments: fulfillment,
     };
     dispatch(UpdatePaymentAction(request, props.order_id, onUpdateSuccess));
@@ -226,7 +224,9 @@ console.log(paymentData)
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
-  useEffect(() => {props.setTotalPaid(totalAmountPaid)}, [])
+  useEffect(() => {
+    props.setTotalPaid(totalAmountPaid);
+  }, []);
   return (
     <div>
       <SaveAndConfirmOrder
@@ -267,11 +267,11 @@ console.log(paymentData)
                 </Radio.Group>
                 {props.paymentMethod === PaymentMethodOption.COD && (
                   <div className="order-cod-payment-footer">
-                  <span>
-                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có
-                    thể nhập giá trị Tiền thu hộ
-                  </span>
-                </div>
+                    <span>
+                      Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
+                      để có thể nhập giá trị Tiền thu hộ
+                    </span>
+                  </div>
                 )}
               </div>
 
@@ -338,7 +338,8 @@ console.log(paymentData)
                     style={{ height: 38, margin: "10px 0" }}
                   >
                     <Col
-                      lg={10} xxl={7}
+                      lg={10}
+                      xxl={7}
                       className="row-large-title"
                       style={{ padding: "8px 0" }}
                     >
@@ -410,15 +411,25 @@ console.log(paymentData)
                               <Col
                                 className="point-spending"
                                 style={{ marginLeft: 6 }}
-                                lg={14} xxl={13}
+                                lg={14}
+                                xxl={13}
                               >
-                                <Input placeholder="Tham chiếu" />
+                                <Input
+                                  name="new_payment"
+                                  placeholder="Tham chiếu"
+                                  onChange={(e: any) => handleTransferReference(index, e.target.value)}
+                                />
                               </Col>
                             ) : null}
                           </Row>
                         </Col>
                         {method.code !== PaymentMethodCode.POINT ? (
-                          <Col className="lbl-money" lg={6} xxl={4} style={{marginLeft: 10}}>
+                          <Col
+                            className="lbl-money"
+                            lg={6}
+                            xxl={4}
+                            style={{ marginLeft: 10 }}
+                          >
                             <InputNumber
                               size="middle"
                               min={0}
@@ -446,11 +457,13 @@ console.log(paymentData)
                             className="lbl-money"
                             lg={6}
                             xxl={4}
-                            style={{ padding: 8, textAlign: "right", marginLeft: 10 }}
+                            style={{
+                              padding: 8,
+                              textAlign: "right",
+                              marginLeft: 10,
+                            }}
                           >
-                            <span
-                              style={{ padding: "14px", lineHeight: 1 }}
-                            >
+                            <span style={{ padding: "14px", lineHeight: 1 }}>
                               {formatCurrency(method.amount)}
                             </span>
                           </Col>
@@ -465,7 +478,8 @@ console.log(paymentData)
                     style={{ height: 38, margin: "10px 0" }}
                   >
                     <Col
-                      lg={10} xxl={7}
+                      lg={10}
+                      xxl={7}
                       className="row-large-title"
                       style={{ padding: "8px 0" }}
                     >
@@ -510,7 +524,7 @@ console.log(paymentData)
                     </Col>
                   </Row>
 
-                  <Row gutter={24} style={{ marginTop: "20px"}}>
+                  <Row gutter={24} style={{ marginTop: "20px" }}>
                     <Col xs={24} lg={24}>
                       <div>
                         <Button
@@ -560,292 +574,301 @@ console.log(paymentData)
       )}
 
       {props.showPartialPayment && (
-            <div className="padding-20 create-order-payment">
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <Radio.Group
-                  value={props.paymentMethod}
-                  onChange={(e) => changePaymentMethod(e.target.value)}
-                  style={{ margin: "18px 0" }}
-                >
-                  <Space size={20}>
-                    <Radio value={PaymentMethodOption.COD}>COD</Radio>
-                    <Radio value={PaymentMethodOption.PREPAYMENT}>
-                      Thanh toán trước
-                    </Radio>
-                  </Space>
-                </Radio.Group>
-                {props.paymentMethod === PaymentMethodOption.COD && (
-                  <div className="order-cod-payment-footer">
-                  <span>
-                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có
-                    thể nhập giá trị Tiền thu hộ
-                  </span>
-                </div>
-                )}
+        <div className="padding-20 create-order-payment">
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <Radio.Group
+              value={props.paymentMethod}
+              onChange={(e) => changePaymentMethod(e.target.value)}
+              style={{ margin: "18px 0" }}
+            >
+              <Space size={20}>
+                <Radio value={PaymentMethodOption.COD}>COD</Radio>
+                <Radio value={PaymentMethodOption.PREPAYMENT}>
+                  Thanh toán trước
+                </Radio>
+              </Space>
+            </Radio.Group>
+            {props.paymentMethod === PaymentMethodOption.COD && (
+              <div className="order-cod-payment-footer">
+                <span>
+                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
+                  có thể nhập giá trị Tiền thu hộ
+                </span>
               </div>
+            )}
+          </div>
 
-              <Row gutter={24} hidden={props.paymentMethod !== 2}>
-                <Col xs={24} lg={24}>
-                  <div className="form-group form-group-with-search">
-                    <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
-                  </div>
-                </Col>
-                <Col xs={24} lg={24}>
-                  <Row
-                    className="btn-list-method"
-                    gutter={8}
-                    align="middle"
-                    style={{ marginLeft: 0, marginRight: 0 }}
-                  >
-                    {ListMaymentMethods.map((method, index) => {
-                      let icon = null;
-                      switch (method.code) {
-                        case PaymentMethodCode.CASH:
-                          icon = <Cash />;
-                          break;
-                        case PaymentMethodCode.CARD:
-                        case PaymentMethodCode.BANK_TRANSFER:
-                          icon = <CreditCardOutlined />;
-                          break;
-                        case PaymentMethodCode.QR_CODE:
-                          icon = <QrcodeOutlined />;
-                          break;
-                        case PaymentMethodCode.POINT:
-                          icon = <YdCoin />;
-                          break;
-                        default:
-                          icon = <BugOutlined />;
-                          break;
-                      }
-                      return (
-                        <Col key={method.code} className="btn-payment-method">
-                          <Button
-                            style={{ display: "flex" }}
-                            type={
-                              paymentData.some((p) => p.code === method.code)
-                                ? "primary"
-                                : "default"
-                            }
-                            value={method.id}
-                            icon={icon}
-                            onClick={() => {
-                              handlePickPaymentMethod(method.code);
-                            }}
-                            className=""
-                          >
-                            {method.name}
-                          </Button>
-                        </Col>
-                      );
-                    })}
-                  </Row>
-                </Col>
-                <Col span={24} xs={24}>
-                  <Row
-                    gutter={14}
-                    className="row-price"
-                    style={{ height: 38, margin: "10px 0" }}
-                  >
-                    <Col
-                      lg={10} xxl={7}
-                      className="row-large-title"
-                      style={{ padding: "8px 0" }}
-                    >
-                      <b>Khách cần trả:</b>
-                    </Col>
-                    <Col
-                      className="lbl-money"
-                      lg={9}
-                      xxl={6}
-                      style={{
-                        textAlign: "right",
-                        fontWeight: 500,
-                        fontSize: "20px",
-                      }}
-                    >
-                      <span className="t-result-blue">
-                        {formatCurrency(props.amount)}
-                      </span>
-                    </Col>
-                  </Row>
-
-                  {paymentData.map((method, index) => {
-                    return (
-                      <Row
-                        gutter={20}
-                        className="row-price"
-                        key={index}
-                        style={{ margin: "10px 0" }}
+          <Row gutter={24} hidden={props.paymentMethod !== 2}>
+            <Col xs={24} lg={24}>
+              <div className="form-group form-group-with-search">
+                <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
+              </div>
+            </Col>
+            <Col xs={24} lg={24}>
+              <Row
+                className="btn-list-method"
+                gutter={8}
+                align="middle"
+                style={{ marginLeft: 0, marginRight: 0 }}
+              >
+                {ListMaymentMethods.map((method, index) => {
+                  let icon = null;
+                  switch (method.code) {
+                    case PaymentMethodCode.CASH:
+                      icon = <Cash />;
+                      break;
+                    case PaymentMethodCode.CARD:
+                    case PaymentMethodCode.BANK_TRANSFER:
+                      icon = <CreditCardOutlined />;
+                      break;
+                    case PaymentMethodCode.QR_CODE:
+                      icon = <QrcodeOutlined />;
+                      break;
+                    case PaymentMethodCode.POINT:
+                      icon = <YdCoin />;
+                      break;
+                    default:
+                      icon = <BugOutlined />;
+                      break;
+                  }
+                  return (
+                    <Col key={method.code} className="btn-payment-method">
+                      <Button
+                        style={{ display: "flex" }}
+                        type={
+                          paymentData.some((p) => p.code === method.code)
+                            ? "primary"
+                            : "default"
+                        }
+                        value={method.id}
+                        icon={icon}
+                        onClick={() => {
+                          handlePickPaymentMethod(method.code);
+                        }}
+                        className=""
                       >
-                        <Col lg={13} xxl={9} style={{ padding: "0" }}>
-                          <Row align="middle">
-                            <b style={{ padding: "8px 0" }}>{method.name}:</b>
-                            {method.code === PaymentMethodCode.POINT ? (
-                              <Col className="point-spending">
-                                <span
-                                  style={{
-                                    fontSize: 14,
-                                    marginLeft: 5,
-                                  }}
-                                >
-                                  {" "}
-                                  (1 điểm = 1,000₫)
-                                </span>
-                                <InputNumber
-                                  value={method.point}
-                                  style={{
-                                    width: 140,
-                                    marginLeft: 12,
-                                    borderRadius: 5,
-                                  }}
-                                  className="hide-number-handle"
-                                  onFocus={(e) => e.target.select()}
-                                  formatter={(value) =>
-                                    formatSuffixPoint(value ? value : "0")
-                                  }
-                                  parser={(value) =>
-                                    replaceFormat(value ? value : "0")
-                                  }
-                                  min={0}
-                                  max={caculateMax(props.amount, index) / 1000}
-                                  onChange={(value) => {
-                                    handleInputPoint(index, value);
-                                  }}
-                                />
-                              </Col>
-                            ) : null}
-
-                            {method.code === PaymentMethodCode.BANK_TRANSFER ? (
-                              <Col
-                                className="point-spending"
-                                style={{ marginLeft: 6 }}
-                                lg={14} xxl={13}
-                              >
-                                <Input placeholder="Tham chiếu" />
-                              </Col>
-                            ) : null}
-                          </Row>
-                        </Col>
-                        {method.code !== PaymentMethodCode.POINT ? (
-                          <Col className="lbl-money" lg={6} xxl={4} style={{marginLeft: 10}}>
-                            <InputNumber
-                              size="middle"
-                              min={0}
-                              max={caculateMax(props.amount, index)}
-                              value={method.amount}
-                              disabled={method.code === PaymentMethodCode.POINT}
-                              className="yody-payment-input hide-number-handle"
-                              formatter={(value) =>
-                                formatCurrency(value ? value : "0")
-                              }
-                              placeholder="Nhập tiền mặt"
-                              style={{
-                                textAlign: "right",
-                                width: "100%",
-                                borderRadius: 5,
-                              }}
-                              onChange={(value) =>
-                                handleInputMoney(index, value)
-                              }
-                              onFocus={(e) => e.target.select()}
-                            />
-                          </Col>
-                        ) : (
-                          <Col
-                            className="lbl-money"
-                            lg={6}
-                            xxl={4}
-                            style={{ padding: 8, textAlign: "right", marginLeft: 10 }}
-                          >
-                            <span
-                              style={{ padding: "14px", lineHeight: 1 }}
-                            >
-                              {formatCurrency(method.amount)}
-                            </span>
-                          </Col>
-                        )}
-                      </Row>
-                    );
-                  })}
-
-                  <Row
-                    gutter={20}
-                    className="row-price total-customer-pay"
-                    style={{ height: 38, margin: "10px 0" }}
-                  >
-                    <Col
-                      lg={10} xxl={7}
-                      className="row-large-title"
-                      style={{ padding: "8px 0" }}
-                    >
-                      <b>Tổng số tiền khách trả:</b>
+                        {method.name}
+                      </Button>
                     </Col>
-                    <Col
-                      className="lbl-money"
-                      lg={9}
-                      xxl={6}
-                      style={{
-                        textAlign: "right",
-                        fontWeight: 500,
-                        fontSize: "20px",
-                      }}
-                    >
-                      <span>{formatCurrency(totalAmountPaid)}</span>
-                    </Col>
-                  </Row>
-                  <Row
-                    gutter={20}
-                    className="row-price"
-                    style={{ height: 38, margin: "10px 0 0 0" }}
-                  >
-                    <Col lg={10} xxl={7} style={{ padding: "8px 0" }}>
-                      <b>{moneyReturn > 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
-                    </Col>
-                    <Col
-                      className="lbl-money"
-                      lg={9}
-                      xxl={6}
-                      style={{
-                        textAlign: "right",
-                        fontWeight: 500,
-                        fontSize: "20px",
-                      }}
-                    >
-                      <span
-                        style={{ color: moneyReturn <= 0 ? "blue" : "red" }}
-                      >
-                        {formatCurrency(Math.abs(moneyReturn))}
-                      </span>
-                    </Col>
-                  </Row>
-
-                  <Row gutter={24} style={{ marginTop: "20px"}}>
-                    <Col xs={24} lg={24}>
-                      <div>
-                        <Button
-                          type="primary"
-                          className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right" }}
-                          htmlType="submit"
-                          onClick={ShowConfirmPayment}
-                        >
-                          Thêm thanh toán trước
-                        </Button>
-                        <Button
-                          type="default"
-                          className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right", marginRight: "10px" }}
-                          onClick={() => window.location.reload()}
-                        >
-                          Hủy
-                        </Button>
-                      </div>
-                    </Col>
-                  </Row>
+                  );
+                })}
+              </Row>
+            </Col>
+            <Col span={24} xs={24}>
+              <Row
+                gutter={14}
+                className="row-price"
+                style={{ height: 38, margin: "10px 0" }}
+              >
+                <Col
+                  lg={10}
+                  xxl={7}
+                  className="row-large-title"
+                  style={{ padding: "8px 0" }}
+                >
+                  <b>Khách cần trả:</b>
+                </Col>
+                <Col
+                  className="lbl-money"
+                  lg={9}
+                  xxl={6}
+                  style={{
+                    textAlign: "right",
+                    fontWeight: 500,
+                    fontSize: "20px",
+                  }}
+                >
+                  <span className="t-result-blue">
+                    {formatCurrency(props.amount)}
+                  </span>
                 </Col>
               </Row>
-            </div>
-          )}
+
+              {paymentData.map((method, index) => {
+                return (
+                  <Row
+                    gutter={20}
+                    className="row-price"
+                    key={index}
+                    style={{ margin: "10px 0" }}
+                  >
+                    <Col lg={13} xxl={9} style={{ padding: "0" }}>
+                      <Row align="middle">
+                        <b style={{ padding: "8px 0" }}>{method.name}:</b>
+                        {method.code === PaymentMethodCode.POINT ? (
+                          <Col className="point-spending">
+                            <span
+                              style={{
+                                fontSize: 14,
+                                marginLeft: 5,
+                              }}
+                            >
+                              {" "}
+                              (1 điểm = 1,000₫)
+                            </span>
+                            <InputNumber
+                              value={method.point}
+                              style={{
+                                width: 140,
+                                marginLeft: 12,
+                                borderRadius: 5,
+                              }}
+                              className="hide-number-handle"
+                              onFocus={(e) => e.target.select()}
+                              formatter={(value) =>
+                                formatSuffixPoint(value ? value : "0")
+                              }
+                              parser={(value) =>
+                                replaceFormat(value ? value : "0")
+                              }
+                              min={0}
+                              max={caculateMax(props.amount, index) / 1000}
+                              onChange={(value) => {
+                                handleInputPoint(index, value);
+                              }}
+                            />
+                          </Col>
+                        ) : null}
+
+                        {method.code === PaymentMethodCode.BANK_TRANSFER ? (
+                          <Col
+                            className="point-spending"
+                            style={{ marginLeft: 6 }}
+                            lg={14}
+                            xxl={13}
+                          >
+                            <Input
+                              placeholder="Tham chiếu"
+                              onChange={(e: any) => handleTransferReference(index, e.target.value)}
+                            />
+                          </Col>
+                        ) : null}
+                      </Row>
+                    </Col>
+                    {method.code !== PaymentMethodCode.POINT ? (
+                      <Col
+                        className="lbl-money"
+                        lg={6}
+                        xxl={4}
+                        style={{ marginLeft: 10 }}
+                      >
+                        <InputNumber
+                          size="middle"
+                          min={0}
+                          max={caculateMax(props.amount, index)}
+                          value={method.amount}
+                          disabled={method.code === PaymentMethodCode.POINT}
+                          className="yody-payment-input hide-number-handle"
+                          formatter={(value) =>
+                            formatCurrency(value ? value : "0")
+                          }
+                          placeholder="Nhập tiền mặt"
+                          style={{
+                            textAlign: "right",
+                            width: "100%",
+                            borderRadius: 5,
+                          }}
+                          onChange={(value) => handleInputMoney(index, value)}
+                          onFocus={(e) => e.target.select()}
+                        />
+                      </Col>
+                    ) : (
+                      <Col
+                        className="lbl-money"
+                        lg={6}
+                        xxl={4}
+                        style={{
+                          padding: 8,
+                          textAlign: "right",
+                          marginLeft: 10,
+                        }}
+                      >
+                        <span style={{ padding: "14px", lineHeight: 1 }}>
+                          {formatCurrency(method.amount)}
+                        </span>
+                      </Col>
+                    )}
+                  </Row>
+                );
+              })}
+
+              <Row
+                gutter={20}
+                className="row-price total-customer-pay"
+                style={{ height: 38, margin: "10px 0" }}
+              >
+                <Col
+                  lg={10}
+                  xxl={7}
+                  className="row-large-title"
+                  style={{ padding: "8px 0" }}
+                >
+                  <b>Tổng số tiền khách trả:</b>
+                </Col>
+                <Col
+                  className="lbl-money"
+                  lg={9}
+                  xxl={6}
+                  style={{
+                    textAlign: "right",
+                    fontWeight: 500,
+                    fontSize: "20px",
+                  }}
+                >
+                  <span>{formatCurrency(totalAmountPaid)}</span>
+                </Col>
+              </Row>
+              <Row
+                gutter={20}
+                className="row-price"
+                style={{ height: 38, margin: "10px 0 0 0" }}
+              >
+                <Col lg={10} xxl={7} style={{ padding: "8px 0" }}>
+                  <b>{moneyReturn > 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
+                </Col>
+                <Col
+                  className="lbl-money"
+                  lg={9}
+                  xxl={6}
+                  style={{
+                    textAlign: "right",
+                    fontWeight: 500,
+                    fontSize: "20px",
+                  }}
+                >
+                  <span style={{ color: moneyReturn <= 0 ? "blue" : "red" }}>
+                    {formatCurrency(Math.abs(moneyReturn))}
+                  </span>
+                </Col>
+              </Row>
+
+              <Row gutter={24} style={{ marginTop: "20px" }}>
+                <Col xs={24} lg={24}>
+                  <div>
+                    <Button
+                      type="primary"
+                      className="ant-btn-outline fixed-button text-right"
+                      style={{ float: "right" }}
+                      htmlType="submit"
+                      onClick={ShowConfirmPayment}
+                    >
+                      Thêm thanh toán trước
+                    </Button>
+                    <Button
+                      type="default"
+                      className="ant-btn-outline fixed-button text-right"
+                      style={{ float: "right", marginRight: "10px" }}
+                      onClick={() => window.location.reload()}
+                    >
+                      Hủy
+                    </Button>
+                  </div>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </div>
+      )}
     </div>
   );
 };

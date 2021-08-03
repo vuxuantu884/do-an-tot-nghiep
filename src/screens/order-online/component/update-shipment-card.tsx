@@ -35,8 +35,6 @@ import {
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
-import callIcon from "assets/img/call.svg";
-import locationIcon from "assets/img/location.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import deliveryIcon from "assets/icon/delivery.svg";
 import selfdeliver from "assets/icon/self_shipping.svg";
@@ -318,7 +316,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
       props.OrderDetail?.fulfillments[0].shipment
-        .delivery_service_provider_type == "pick_at_store"
+        .delivery_service_provider_type === "pick_at_store"
     ) {
       let money = props.OrderDetail.total;
       props.OrderDetail?.payments?.map((p) => {
@@ -416,9 +414,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     value.expected_received_date = value.dating_ship?.utc().format();
     value.requirements_name = requirementName;
     if (props.OrderDetail?.fulfillments) {
-      if (shipmentMethod == 4) {
+      if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
         value.delivery_service_provider_type = "Shipper";
-      } else if (shipmentMethod == 3) {
+      } else if (shipmentMethod === ShipmentMethodOption.PICKATSTORE) {
         value.delivery_service_provider_type = "pick_at_store";
       }
     }
@@ -683,7 +681,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       ).format("DD/MM/YYYY")
                     : ""}
                 </span>
-                <span
+                {props.OrderDetail?.fulfillments[0].shipment?.office_time && <span
                   style={{
                     marginLeft: 6,
                     color: "#737373",
@@ -691,7 +689,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   }}
                 >
                   (Giờ hành chính)
-                </span>
+                </span>}
+                
               </div>
               <div className="text-menu">
                 <img src={eyeOutline} alt="eye"></img>
@@ -714,7 +713,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="orders-timeline-custom"
                 showArrow={false}
                 header={
-                  <Row>
+                  <Row style={{paddingLeft: 12}}>
                     <Col>
                       <p
                         ref={copyRef}
@@ -766,7 +765,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 key="1"
               >
                 {props.OrderDetail?.fulfillments[0].shipment
-                  ?.delivery_service_provider_type == "pick_at_store" ? (
+                  ?.delivery_service_provider_type === "pick_at_store" ? (
                   <div>
                     <Row gutter={24}>
                       <Col md={24}>
@@ -818,6 +817,16 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       </Col>
                       <Col span={24}>
                         <b>
+                          {/* Lấy ra đối tác */}
+                          {props.OrderDetail &&
+                            props.OrderDetail.fulfillments &&
+                            props.OrderDetail.fulfillments.length > 0 &&
+                            props.OrderDetail.fulfillments[0].shipment
+                              ?.delivery_service_provider_type ===
+                              "external_service" &&
+                            props.OrderDetail.fulfillments[0].shipment
+                              .delivery_service_provider_id}
+
                           {props.OrderDetail?.fulfillments &&
                             props.OrderDetail.fulfillments.length &&
                             shipper &&
@@ -870,7 +879,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </Col>
                   </Row>
                 )}
-                <Row gutter={24} style={{ marginTop: 12, marginBottom: 0 }}>
+                <Row gutter={24} style={{ marginTop: 12, marginBottom: 0, padding: "0 12px" }}>
                   <Col span={24}>
                     <p className="text-field">
                       {props.OrderDetail?.items.reduce(
@@ -1228,7 +1237,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 </div>
 
                 {/*--- Nhận tại cửa hàng ----*/}
-                <div className="receive-at-store" hidden={shipmentMethod !== 3}>
+                <div
+                  className="receive-at-store"
+                  hidden={shipmentMethod !== ShipmentMethodOption.PICKATSTORE}
+                >
                   <b>
                     <img src={storeBluecon} alt="" /> THÔNG TIN CỬA HÀNG
                   </b>
@@ -1269,7 +1281,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </b>
                   </Row>
                 </div>
-                <Col md={24}>
+                {/* <Col md={24}>
                   <div>
                     <Button
                       type="primary"
@@ -1284,10 +1296,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       onClick={() => window.location.reload()}
                       style={{ float: "right" }}
                     >
-                      Huỷ
+                      
                     </Button>
                   </div>
-                </Col>
+                </Col> */}
               </Form>
               {/*--- Giao hàng sau ----*/}
               <Row

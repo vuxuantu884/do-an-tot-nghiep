@@ -18,10 +18,7 @@ import {
   OrderLineItemResponse,
   OrderResponse,
 } from "model/response/order/order.response";
-import {
-  formatCurrency,
-  getTotalQuantity,
-} from "utils/AppUtils";
+import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 //#endregion
 
 type ProductCardUpdateProps = {
@@ -32,8 +29,7 @@ type ProductCardUpdateProps = {
 const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
   props: ProductCardUpdateProps
 ) => {
-  
-console.log(props.OrderDetail);
+  console.log(props.OrderDetail);
   const ProductColumn = {
     title: () => (
       <div className="text-center">
@@ -237,7 +233,9 @@ console.log(props.OrderDetail);
                       fontWeight: 400,
                     }}
                   >
-                    {formatCurrency(props.OrderDetail?.items.reduce((a,b) => a + b.amount, 0))}
+                    {formatCurrency(
+                      props.OrderDetail?.items.reduce((a, b) => a + b.amount, 0)
+                    )}
                   </div>
                   <div
                     style={{
@@ -246,7 +244,15 @@ console.log(props.OrderDetail);
                       textAlign: "right",
                       fontWeight: 400,
                     }}
-                  >{formatCurrency(props.OrderDetail?.items.reduce((a,b) => a + (b.amount - b.line_amount_after_line_discount), 0))}</div>
+                  >
+                    {formatCurrency(
+                      props.OrderDetail?.items.reduce(
+                        (a, b) =>
+                          a + (b.amount - b.line_amount_after_line_discount),
+                        0
+                      )
+                    )}
+                  </div>
                   <div
                     style={{
                       width: "21%",
@@ -256,7 +262,12 @@ console.log(props.OrderDetail);
                       fontWeight: 700,
                     }}
                   >
-                    {formatCurrency(props.OrderDetail?.items.reduce((a,b) => a + b.line_amount_after_line_discount, 0))}
+                    {formatCurrency(
+                      props.OrderDetail?.items.reduce(
+                        (a, b) => a + b.line_amount_after_line_discount,
+                        0
+                      )
+                    )}
                   </div>
                 </div>
               ) : (

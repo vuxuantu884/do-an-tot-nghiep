@@ -23,7 +23,8 @@ export interface PurchaseOrderLineItem{
     discount_amount: number,
     position: number|null,
     purchase_order_id: number|null,
-    temp_id: string
+    temp_id: string,
+    showNote: boolean,
 }
 
 export interface Vat {
