@@ -85,35 +85,32 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 ) => {
   const formRef = createRef<FormInstance>();
   const copyRef = createRef<any>();
-
   //#region state
   const dispatch = useDispatch();
   const [paymentType, setPaymentType] = useState<number>(3);
   const [isVisibleShipping, setVisibleShipping] = useState(false);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
-
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
     useState<number>(0);
   const [isvibleShippedConfirm, setIsvibleShippedConfirm] =
     useState<boolean>(false);
   const [requirementName, setRequirementName] = useState<string | null>(null);
+  const [requirementNameView, setRequirementNameView] = useState<string | null>(null);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
-
-  //#endregion
-  //#region Orther
-  const ShowShipping = () => {
-    setVisibleShipping(true);
-  };
-
-  //#endregion
-  //#region Master
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
   );
-
+  
+  //#endregion
+  // show shipping
+  const ShowShipping = () => {
+    setVisibleShipping(true);
+  };
+  //#endregion
+  //#region Master
   interface statusTagObj {
     name: string;
     status: string;
@@ -189,8 +186,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   useLayoutEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
   }, [dispatch]);
-
-  //#endregion
 
   //#region Update Fulfillment Status
   let timeout = 500;
@@ -388,6 +383,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     requirements: null,
     requirements_name: null,
     fulfillment_id: "",
+    office_time: null,
   };
 
   let FulFillmentRequest: UpdateFulFillmentRequest = {
@@ -415,6 +411,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
     value.expected_received_date = value.dating_ship?.utc().format();
     value.requirements_name = requirementName;
+    value.office_time = props.officeTime
     if (props.OrderDetail?.fulfillments) {
       if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
         value.delivery_service_provider_type = "Shipper";
@@ -474,20 +471,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
     dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
   };
-  const getRequirementName = useCallback(() => {
-    if (
-      props.OrderDetail &&
-      props.OrderDetail?.fulfillments &&
-      props.OrderDetail?.fulfillments.length > 0
-    ) {
-      let requirement =
-        props.OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
-      const reqObj = shipping_requirements?.find(
-        (r) => r.value === requirement
-      );
-      setRequirementName(reqObj ? reqObj?.name : "");
-    }
-  }, [props.OrderDetail, shipping_requirements]);
 
   // shipment button action
   interface ShipmentButtonModel {
@@ -519,6 +502,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     },
   ];
 
+  //set req to request
   const setRequirementNameCallback = useCallback(
     (value) => {
       const reqObj = shipping_requirements?.find((r) => r.value === value);
@@ -526,9 +510,21 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     },
     [setRequirementName, shipping_requirements]
   );
-  //windows offset
-
-  //#endregion
+  // get req to view
+    const getRequirementName = useCallback(() => {
+      if (
+        props.OrderDetail &&
+        props.OrderDetail?.fulfillments &&
+        props.OrderDetail?.fulfillments.length > 0
+      ) {
+        let requirement =
+          props.OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
+        const reqObj = shipping_requirements?.find(
+          (r) => r.value === requirement
+        );
+        setRequirementNameView(reqObj ? reqObj?.name : "");
+      }
+    }, [props.OrderDetail, shipping_requirements]);
 
   // Thu hộ
   const takeHelper: any = () => {
@@ -628,7 +624,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   useEffect(() => {
     getRequirementName();
-  }, []);
+  }, [getRequirementName]);
 
   return (
     <div>
@@ -697,7 +693,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               </div>
               <div className="text-menu">
                 <img src={eyeOutline} alt="eye"></img>
-                <span style={{ marginLeft: "5px" }}>{requirementName}</span>
+                <span style={{ marginLeft: "5px" }}>{requirementNameView}</span>
               </div>
             </Space>
           }

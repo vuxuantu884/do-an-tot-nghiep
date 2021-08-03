@@ -1137,63 +1137,6 @@
   }
 }
 
-.custom-radio-checkbox {
-  position: relative;
-  cursor: pointer;
-  font-size: 22px;
-  user-select: none;
-  /* Hide the browser's default radio button */
-  input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-  }
-
-  /* Create a custom radio button */
-  label {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 18px;
-    width: 18px;
-    border-radius: 50%;
-    border: 1px solid #2a2a86;
-  }
-
-  /* On mouse-over, add a grey background color */
-  &:hover input ~ label {
-    border: 1px solid #2a2a86;
-  }
-
-  /* When the radio button is checked, add a blue background */
-  input:checked ~ label {
-    background-color: #ffffff;
-  }
-
-  /* Create the indicator (the dot/circle - hidden when not checked) */
-  label:after {
-    content: "";
-    position: absolute;
-    display: none;
-  }
-
-  /* Show the indicator (dot/circle) when checked */
-  input:checked ~ label:after {
-    display: block;
-  }
-
-  /* Style the indicator (dot/circle) */
-  label:after {
-    content: "";
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: #2a2a86;
-  }
-}
 
 .orders-update-shipment {
   .ant-collapse-content-box {
