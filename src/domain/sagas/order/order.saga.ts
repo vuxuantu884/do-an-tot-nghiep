@@ -29,6 +29,7 @@ import {
   ShippingGHTKResponse,
 } from "model/response/order/order.response";
 import { getAmountPayment } from "utils/AppUtils";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 function* orderCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
@@ -224,6 +225,7 @@ function* getListSubStatusSaga(action: YodyAction) {
 
 function* setSubStatusSaga(action: YodyAction) {
   let { order_id, statusId } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<Array<DeliveryServiceResponse>> = yield call(
       setSubStatusService, order_id, statusId
@@ -240,6 +242,8 @@ function* setSubStatusSaga(action: YodyAction) {
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
