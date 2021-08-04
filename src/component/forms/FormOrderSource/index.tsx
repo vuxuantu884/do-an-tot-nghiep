@@ -61,7 +61,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
 
   useEffect(() => {
     form.resetFields();
-  }, [form, formItem, modalAction]);
+  }, [form, formItem, visible]);
 
   return (
     <StyledComponent>

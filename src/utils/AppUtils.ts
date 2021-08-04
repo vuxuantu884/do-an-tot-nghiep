@@ -22,6 +22,7 @@ import {
 } from "model/product/product.model";
 import { PriceConfig } from "config/PriceConfig";
 import {
+  DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
@@ -704,7 +705,11 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
         ? items?.fulfillments[0].shipment &&
           items?.fulfillments[0].shipment.shipping_fee_informed_to_customer
         : 0) -
-      (items?.discounts && items?.discounts.length > 0 && items?.discounts[0].amount ? items?.discounts[0].amount : 0) ===
+      (items?.discounts &&
+      items?.discounts.length > 0 &&
+      items?.discounts[0].amount
+        ? items?.discounts[0].amount
+        : 0) ===
     value
   ) {
     return 1; //đã thanh toán
@@ -800,4 +805,86 @@ export const SumWeight = (items?: Array<OrderLineItemRequest>) => {
   }
 
   return totalWeight;
+};
+
+export const SumWeightResponse = (items?: Array<OrderLineItemResponse>) => {
+  let totalWeight = 0;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      switch (items[i].weight_unit) {
+        case "g":
+          totalWeight = totalWeight + items[i].weight;
+          break;
+        case "kg":
+          totalWeight = totalWeight + items[i].weight * 1000;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  return totalWeight;
+};
+
+export const InfoServiceDeliveryDetail = (
+  items: Array<DeliveryServiceResponse> | null,
+  delivery_id: number | null
+) => {
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].id === delivery_id) {
+        return items[i].logo;
+      }
+    }
+  }
+};
+
+export const CheckShipmentType = (item: OrderResponse) => {
+  if (item) {
+    if (item.fulfillments) {
+      if (item.fulfillments.length > 0) {
+        return item.fulfillments[0].shipment?.delivery_service_provider_type;
+      }
+    }
+  }
+};
+
+export const TrackingCode = (item: OrderResponse | null) => {
+  if (item) {
+    if (item.fulfillments) {
+      if (item.fulfillments.length > 0) {
+        if (item.fulfillments[0].shipment?.pushing_status === "waitting") {
+          return "Đang xử lý";
+        } else {
+          return item.fulfillments[0].shipment?.tracking_code;
+        }
+      }
+    }
+  }
+};
+
+export const getServiceName = (item: OrderResponse) => {
+  if (item) {
+    if (item.fulfillments) {
+      if (item.fulfillments.length > 0) {
+        if (
+          item.fulfillments[0].shipment?.delivery_service_provider_type ===
+          "external_service"
+        ) {
+          if (
+            item.fulfillments[0].shipment?.delivery_service_provider_id === 1
+          ) {
+            if (item.fulfillments[0].shipment?.service === "standard") {
+              return "Đường bộ";
+            } else {
+              return "Đường bay";
+            }
+          } else {
+            return "Chuyển phát nhanh PDE";
+          }
+        }
+      }
+    }
+  }
 };
