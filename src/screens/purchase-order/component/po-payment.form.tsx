@@ -1,3 +1,4 @@
+import { CheckCircleOutlined } from "@ant-design/icons";
 import { Card, Checkbox, Col, Form, Row, Space, Timeline } from "antd";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 
@@ -14,45 +15,50 @@ const POPaymentForm: React.FC = () => {
         }
       >
         <div className="padding-20">
-          <Row gutter={24}>
+          <Row gutter={24} className="margin-bottom-40">
             <Col md={12}>
-              <Form.Item label="Điều khoản thanh toán"> Sau 15 ngày</Form.Item>
+              {/* <Form.Item label="Điều khoản thanh toán"> Sau 15 ngày</Form.Item> */}
+              <span className="text-field margin-right-10">
+                Điều khoản thanh toán:
+              </span>
+              <span>
+                {" "}
+                <strong className="po-payment-row-title">Sau 15 ngày</strong>
+              </span>
             </Col>
             <Col md={12}>
-              <Form.Item label="Diễn giải">
-                {" "}
-                Thanh toán sau 15 nhận hàng
-              </Form.Item>
+              <span className="text-field margin-right-10">Diễn giải:</span>
+              <span>Sau 15 ngày</span>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col md={24}>
               <Timeline>
                 <Timeline.Item color="green">
-                  Create a services site 2015-09-01
-                </Timeline.Item>
-                <Timeline.Item color="green">
-                  Create a services site 2015-09-01
-                </Timeline.Item>
-                <Timeline.Item color="red">
-                  <p>Solve initial network problems 1</p>
-                  <p>Solve initial network problems 2</p>
-                  <p>Solve initial network problems 3 2015-09-01</p>
-                </Timeline.Item>
-                <Timeline.Item>
-                  <p>Technical testing 1</p>
-                  <p>Technical testing 2</p>
-                  <p>Technical testing 3 2015-09-01</p>
-                </Timeline.Item>
-                <Timeline.Item color="gray">
-                  <p>Technical testing 1</p>
-                  <p>Technical testing 2</p>
-                  <p>Technical testing 3 2015-09-01</p>
-                </Timeline.Item>
-                <Timeline.Item color="gray">
-                  <p>Technical testing 1</p>
-                  <p>Technical testing 2</p>
-                  <p>Technical testing 3 2015-09-01</p>
+                  <Row gutter={24}>
+                    <Col md={8}>
+                      {" "}
+                      <strong className="po-payment-row-title">
+                        Tiền cần trả
+                      </strong>
+                    </Col>
+                    <Col md={8}>
+                      {" "}
+                      <strong className="po-payment-row-title">
+                        1.000.000
+                      </strong>
+                    </Col>
+                    <Col md={8} style={{ color: "#27AE60" }}>
+                      {" "}
+                      <CheckCircleOutlined style={{ fontSize: "18px" }} /> Đã
+                      duyệt
+                    </Col>
+                  </Row>
+                  <Row gutter={24}>
+                    <Col md={8}>Tiền mặt</Col>
+                    <Col md={8}>1000.0000</Col>
+                    <Col md={8}> Đã duyệt</Col>
+                  </Row>
                 </Timeline.Item>
               </Timeline>
             </Col>
