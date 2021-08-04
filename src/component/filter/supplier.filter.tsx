@@ -1,6 +1,5 @@
 import {
   Button,
-  Card,
   Col,
   Form,
   Input,
@@ -95,7 +94,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
   }, [formAdvance, listDistrict, params.district_id, visible]);
 
   return (
-    <Card bordered={false}>
+    <div>
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} initialValues={params} layout="inline">
           <Form.Item name="info">
@@ -227,7 +226,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
           </Item>
         </Form>
       </BaseFilter>
-    </Card>
+    </div>
   );
 };
 

@@ -23,7 +23,6 @@ import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import NumberFormat from "react-number-format";
-import { StoreResponse } from "model/core/store.model";
 
 const PurchaseOrderListScreen: React.FC = () => {
   const query = useQuery();
@@ -32,7 +31,6 @@ const PurchaseOrderListScreen: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [listSupplier, setSupplier] = useState<Array<SupplierResponse>>();
-  const [listStore, setStores] = useState<Array<StoreResponse>>([]);
   let initQuery: PurchaseOrderQuery = {
     code: "",
   };
@@ -172,30 +170,33 @@ const PurchaseOrderListScreen: React.FC = () => {
       extra={<ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />}
     >
       <Card>
-        <PurchaseOrderFilter
-          params={params}
-          onMenuClick={onMenuClick}
-          actions={actions}
-          onFilter={onFilter}
-          listSupplier={listSupplier}
-        />
-        <CustomTable
-          isLoading={tableLoading}
-          showColumnSetting={true}
-          scroll={{ x: 1080 }}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          dataSource={data.items}
-          columns={columnFinal}
-          rowKey={(item: PurchaseOrder) => item.id}
-        />
+        <div className="padding-20">
+          <PurchaseOrderFilter
+            params={params}
+            onMenuClick={onMenuClick}
+            actions={actions}
+            onFilter={onFilter}
+            listSupplier={listSupplier}
+          />
+          <CustomTable
+            isRowSelection
+            isLoading={tableLoading}
+            showColumnSetting={true}
+            scroll={{ x: 1080 }}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(item: PurchaseOrder) => item.id}
+          />
+        </div>
       </Card>
       <ModalSettingColumn
         visible={showSettingColumn}
