@@ -6,4 +6,14 @@ export const StyledComponent = styled.div`
       cursor: pointer;
     }
   }
+  .columnTitle {
+    .title {
+      display: block;
+      font-size: 1em;
+      max-width: 600px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 `;

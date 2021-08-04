@@ -52,6 +52,20 @@ const SettingOrderProcessingStatus: React.FC = () => {
       title: "Trạng thái xử lý",
       dataIndex: "sub_status",
       visible: true,
+      className: "columnTitle",
+      render: (value, row, index) => {
+        if (value) {
+          return (
+            <span
+              title={value}
+              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+              className="title"
+            >
+              {value}
+            </span>
+          );
+        }
+      },
     },
     {
       title: "Trạng thái đơn hàng",

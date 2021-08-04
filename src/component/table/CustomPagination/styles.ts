@@ -5,12 +5,12 @@ export const StyledComponent = styled.div`
     color: #000;
     margin-top: 25px;
     .ant-row {
-      display: flex;
       align-items: center;
+      display: flex;
     }
     &__main {
-      display: flex;
       align-items: center;
+      display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
@@ -30,10 +30,10 @@ export const StyledComponent = styled.div`
       }
       .ant-select-selector {
         background: #e5e5e5;
-        border-radius: 23.5px;
         border: none;
-        transition: 0.3s ease;
+        border-radius: 23.5px;
         padding: 0 20px;
+        transition: 0.3s ease;
       }
       .ant-select-selection-item {
         transition: none;
@@ -44,9 +44,9 @@ export const StyledComponent = styled.div`
         background: #f5f5f5;
         border-radius: 2px;
         color: #222;
-        min-width: 35px;
-        line-height: 35px;
         height: 35px;
+        line-height: 35px;
+        min-width: 35px;
         &:not(.ant-pagination-disabled) {
           &:hover,
           &.ant-pagination-item-active {
@@ -62,9 +62,9 @@ export const StyledComponent = styled.div`
       .ant-pagination-jump-prev,
       .ant-pagination-next,
       .ant-pagination-prev {
-        min-width: 35px;
-        line-height: 35px;
         height: 35px;
+        line-height: 35px;
+        min-width: 35px;
         .ant-pagination-item-link {
           border-radius: 2px;
         }

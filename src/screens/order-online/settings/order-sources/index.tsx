@@ -50,6 +50,20 @@ const OrderSources: React.FC = () => {
       title: "Nguồn đơn hàng",
       dataIndex: "name",
       visible: true,
+      className: "columnTitle",
+      render: (value, row, index) => {
+        if (value) {
+          return (
+            <span
+              title={value}
+              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+              className="title"
+            >
+              {value}
+            </span>
+          );
+        }
+      },
     },
     {
       title: "Áp dụng cho đơn hàng",
