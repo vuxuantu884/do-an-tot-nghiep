@@ -1061,6 +1061,10 @@
   width: 18px;
   height: 18px;
 }
+
+.radio-delivery:checked{
+  border: 1px solid #2a2a86;
+}
 //custom radio
 .create-order-payment {
   .order-cod-payment-footer {
