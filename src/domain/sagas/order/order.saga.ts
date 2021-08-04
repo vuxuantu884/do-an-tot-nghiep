@@ -8,6 +8,7 @@ import {
   getDeliverieServices,
   getInfoDeliveryGHTK,
   getOrderSubStatusService,
+  getTrackingLogFulFillment,
 } from "./../../../service/order/order.service";
 import { SourceResponse } from "./../../../model/response/order/source.response";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
@@ -26,6 +27,7 @@ import {
   OrderResponse,
   OrderSubStatusResponse,
   ShippingGHTKResponse,
+  TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import { getAmountPayment } from "utils/AppUtils";
 
@@ -181,6 +183,27 @@ function* orderDetailSaga(action: YodyAction) {
   }
 }
 
+function* getTRackingLogFulfillmentSaga(action: YodyAction) {
+  const { fulfillment_code, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<TrackingLogFulfillmentResponse>> =
+      yield call(getTrackingLogFulFillment, fulfillment_code);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 function* ListDeliveryServicesSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
@@ -201,7 +224,8 @@ function* getListSubStatusSaga(action: YodyAction) {
   let { status, handleData } = action.payload;
   try {
     let response: BaseResponse<Array<OrderSubStatusResponse[]>> = yield call(
-      getOrderSubStatusService, status
+      getOrderSubStatusService,
+      status
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -230,6 +254,10 @@ function* OrderOnlineSaga() {
   yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD, updatePaymentSaga);
   yield takeLatest(OrderType.GET_INFO_DELIVERY_GHTK, InfoGHTKSaga);
   yield takeLatest(OrderType.GET_LIST_SUB_STATUS, getListSubStatusSaga);
+  yield takeLatest(
+    OrderType.GET_TRACKING_LOG_FULFILLMENT,
+    getTRackingLogFulfillmentSaga
+  );
 }
 
 export default OrderOnlineSaga;

@@ -36,8 +36,12 @@ import PaymentCard from "./component/payment-card";
 import CustomerCard from "./component/customer-card";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import {
+  OrderResponse,
+  StoreCustomResponse,
+} from "model/response/order/order.response";
+import {
+  MoneyPayThreePls,
   OrderStatus,
   ShipmentMethodOption,
   TaxTreatment,
@@ -51,9 +55,7 @@ import {
 } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/confirm-payment.modal";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import { StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { StoreResponse } from "model/core/store.model";
-import { request } from "https";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 //#endregion
 
 var typeButton = "";
@@ -74,12 +76,13 @@ export default function Order() {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
+  const [hvc, setHvc] = useState<number>(3);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
     null
   );
-  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
-    null
-  );
+  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
+    number | null
+  >(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
@@ -90,6 +93,7 @@ export default function Order() {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
+  const [serviceType, setServiceType] = useState<string>();
   //#endregion
   //#region Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
@@ -187,7 +191,6 @@ export default function Order() {
     shipping_address: null,
     billing_address: null,
     payments: [],
-    
   };
 
   //#region Order
@@ -241,17 +244,17 @@ export default function Order() {
     };
 
     let listFullfillmentRequest = [];
-    if (paymentMethod !== 3 || shipmentMethod === 2 || shipmentMethod==3) {
+    if (paymentMethod !== 3 || shipmentMethod === 2 || shipmentMethod === 3) {
       listFullfillmentRequest.push(request);
     }
 
-    if(shipmentMethod === 3){
-      request.delivery_type = "pick_at_store"
+    if (shipmentMethod === 3) {
+      request.delivery_type = "pick_at_store";
     }
 
     if (
       paymentMethod === 3 &&
-      ((shipmentMethod === 4)) &&
+      shipmentMethod === 4 &&
       typeButton === OrderStatus.FINALIZED
     ) {
       request.shipment = null;
@@ -262,7 +265,7 @@ export default function Order() {
 
   const createShipmentRequest = (value: OrderRequest) => {
     let objShipment: ShipmentRequest = {
-      delivery_service_provider_id: null, //id người shipper
+      delivery_service_provider_id: null, //id dtvc
       delivery_service_provider_type: "", //shipper
       shipper_code: "",
       shipper_name: "",
@@ -289,9 +292,11 @@ export default function Order() {
     };
 
     if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
-      objShipment.delivery_service_provider_id = 1;
+      objShipment.delivery_service_provider_id = hvc;
       objShipment.delivery_service_provider_type = "external_service";
       objShipment.sender_address_id = storeId;
+      objShipment.service = serviceType!;
+      objShipment.shipping_fee_paid_to_three_pls = MoneyPayThreePls.VALUE; //mặc định 20k
       return objShipment;
     }
 
@@ -382,7 +387,7 @@ export default function Order() {
     setIsvibleSaveAndConfirm(false);
   };
 
-  console.log(payments)
+  console.log(payments);
   const showSaveAndConfirmModal = () => {
     if (shipmentMethod !== 4 || paymentMethod !== 3) {
       setIsvibleSaveAndConfirm(true);
@@ -392,7 +397,7 @@ export default function Order() {
     }
   };
   const onFinish = (values: OrderRequest) => {
-    console.log(values)
+    console.log(values);
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -412,7 +417,7 @@ export default function Order() {
       //Nếu là đơn lưu và duyệt
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
-      values.payments = payments.filter((payment)=> payment.amount > 0)
+      values.payments = payments.filter((payment) => payment.amount > 0);
       values.total = orderAmount;
       if (
         values?.fulfillments &&
@@ -451,19 +456,29 @@ export default function Order() {
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
-          dispatch(orderCreateAction(values, createOrderCallback));
+          if (
+            shipmentMethod === ShipmentMethodOption.DELIVERPARNER &&
+            !serviceType
+          ) {
+            showError("Vui lòng chọn đơn vị vận chuyển");
+          } else {
+            dispatch(orderCreateAction(values, createOrderCallback));
+          }
         }
       }
     }
   };
   //#endregion
 
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
-    if(!data) {
-      return;
-    }
-    setAccounts(data.items);
-  }, []);
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
@@ -570,6 +585,8 @@ export default function Order() {
                 discountValue={discountValue}
                 setOfficeTime={setOfficeTime}
                 officeTime={officeTime}
+                setServiceType={setServiceType}
+                setHVC={setHvc}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
@@ -768,5 +785,3 @@ export default function Order() {
     </ContentContainer>
   );
 }
-
-

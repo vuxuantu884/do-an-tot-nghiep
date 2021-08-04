@@ -486,7 +486,7 @@ const OrderDetail = () => {
                                   <>
                                     <b
                                       style={{
-                                        paddingLeft: "4px",
+                                        paddingLeft: "14px",
                                         color: "#222222",
                                       }}
                                     >

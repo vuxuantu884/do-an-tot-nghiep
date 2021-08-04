@@ -9,11 +9,8 @@ import {
   Select,
   DatePicker,
   Checkbox,
-  Input,
 } from "antd";
 
-import callIcon from "assets/img/call.svg";
-import locationIcon from "assets/img/location.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import deliveryIcon from "assets/icon/delivery.svg";
 import selfdeliver from "assets/icon/self_shipping.svg";
@@ -22,7 +19,6 @@ import wallClock from "assets/icon/wall_clock.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useLayoutEffect, useState } from "react";
-import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import CustomSelect from "component/custom/select.custom";
@@ -58,7 +54,9 @@ type ShipmentCardProps = {
   setShippingFeeInformedCustomer: (value: number | null) => void;
   setShippingFeeInformedCustomerHVC: (value: number | null) => void;
   setPaymentMethod: (value: number) => void;
+  setHVC: (value: number) => void;
   setOfficeTime: (value: boolean) => void;
+  setServiceType: (value: string) => void;
   storeDetail?: StoreCustomResponse | null;
   amount: number;
   paymentMethod: number;
@@ -101,6 +99,11 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
   );
+
+  const changeServiceType = (id: number, code: string, item: any) => {
+    props.setHVC(id);
+    props.setServiceType(item);
+  };
 
   const getInfoDeliveryGHTK = useCallback(
     (type: string) => {
@@ -387,7 +390,14 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                           type="radio"
                                           name="tt"
                                           className="radio-delivery"
-                                          value="road"
+                                          value="standard"
+                                          onChange={(e) =>
+                                            changeServiceType(
+                                              single.id,
+                                              single.code,
+                                              "standard"
+                                            )
+                                          }
                                         />
                                         <label className="lblShip">
                                           Đường bộ
@@ -401,7 +411,14 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                           type="radio"
                                           name="tt"
                                           className="radio-delivery"
-                                          value="fly"
+                                          value="express"
+                                          onChange={(e) =>
+                                            changeServiceType(
+                                              single.id,
+                                              single.code,
+                                              "express"
+                                            )
+                                          }
                                         />
                                         <label className="lblShip">
                                           Đường bay
@@ -417,7 +434,14 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                         type="radio"
                                         name="tt"
                                         className="radio-delivery"
-                                        value="road"
+                                        value={`${single.code}_standard`}
+                                        onChange={(e) =>
+                                          changeServiceType(
+                                            single.id,
+                                            single.code,
+                                            "standard"
+                                          )
+                                        }
                                       />
                                       <label className="lblShip">
                                         Chuyển phát nhanh PDE

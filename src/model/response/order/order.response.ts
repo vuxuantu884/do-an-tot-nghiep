@@ -76,6 +76,8 @@ export interface OrderLineItemResponse {
   type: string;
   variant_image: string;
   unit: string;
+  weight: number;
+  weight_unit: string;
   warranty: string;
   tax_rate: number;
   tax_include: boolean;
@@ -90,8 +92,8 @@ export interface OrderLineItemResponse {
 
 export interface FulFillmentResponse {
   id: number | null;
-  code:string | null;
-  store_id: number|null;
+  code: string | null;
+  store_id: number | null;
   account_code: string | null;
   assignee_code: string | null;
   delivery_type: string | null;
@@ -198,7 +200,7 @@ export interface ShipmentResponse extends BaseObject {
   shipper_code: string | null;
   shipper_name: string | null;
   handover_id: number | null;
-  service: number | null;
+  service: string | null;
   who_paid: string | null;
   fee_type: string | null;
   fee_base_on: string | null;
@@ -211,6 +213,7 @@ export interface ShipmentResponse extends BaseObject {
   cancel_reason: string | null;
   tracking_code: string | null;
   tracking_url: string | null;
+  pushing_status: string | null;
   received_date: string | null;
   sender_address_id: number | null;
   sender_address?: StoreResponse;
@@ -238,42 +241,53 @@ export interface ShippingGHTKResponse {
 }
 
 export interface StoreCustomResponse extends BaseObject {
-  name: string,
-  rank: number,
-  rank_name: string,
-  square: number,
-  country_id: number,
-  country_name: string,
-  city_id: number,
-  city_name: string,
-  group_id: number,
-  group_name: string
-  status: string,
-  status_name: string,
-  zip_code: string,
-  district_id: number,
-  district_name: string,
-  ward_id: number,
-  ward_name: string,
-  address: string,
-  full_address: string,
-  hotline: string,
-  manager_code: string,
-  vm_code: string,
-  finder_code: string,
-  mail: string,
-  begin_date: string,
-  number_of_account: number,
-  accounts: Array<any>
+  name: string;
+  rank: number;
+  rank_name: string;
+  square: number;
+  country_id: number;
+  country_name: string;
+  city_id: number;
+  city_name: string;
+  group_id: number;
+  group_name: string;
+  status: string;
+  status_name: string;
+  zip_code: string;
+  district_id: number;
+  district_name: string;
+  ward_id: number;
+  ward_name: string;
+  address: string;
+  full_address: string;
+  hotline: string;
+  manager_code: string;
+  vm_code: string;
+  finder_code: string;
+  mail: string;
+  begin_date: string;
+  number_of_account: number;
+  accounts: Array<any>;
 }
 
 export interface OrderSubStatusResponse {
-  id: 6,
-  company_id: number,
-  company: string,
-  sub_status: string,
-  status: string,
-  note: string,
-  is_active: boolean,
-  is_delete?: boolean, 
+  id: 6;
+  company_id: number;
+  company: string;
+  sub_status: string;
+  status: string;
+  note: string;
+  is_active: boolean;
+  is_delete?: boolean;
+}
+
+export interface TrackingLogFulfillmentResponse extends BaseObject {
+  fulfillment_code: string;
+  shipment_id: string;
+  tracking_code: string;
+  response_code: string;
+  message: string;
+  raw_data: string;
+  action_date: string;
+  deleted: boolean;
 }

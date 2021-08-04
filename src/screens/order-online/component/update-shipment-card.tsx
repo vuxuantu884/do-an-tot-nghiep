@@ -32,6 +32,8 @@ import {
 import { AccountResponse } from "model/account/account.model";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
+  DeliveryServicesGetList,
+  getTrackingLogFulfillmentAction,
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
@@ -45,13 +47,22 @@ import calendarOutlined from "assets/icon/calendar_outline.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import { OrderResponse } from "model/response/order/order.response";
+import {
+  DeliveryServiceResponse,
+  OrderResponse,
+  TrackingLogFulfillmentResponse,
+} from "model/response/order/order.response";
 import moment from "moment";
 import {
   checkPaymentStatusToShow,
+  CheckShipmentType,
   formatCurrency,
   getAmountPayment,
+  getServiceName,
+  InfoServiceDeliveryDetail,
   replaceFormatString,
+  SumWeightResponse,
+  TrackingCode,
 } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -67,6 +78,8 @@ import { setTimeout } from "timers";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { StoreResponse } from "model/core/store.model";
 const { Panel } = Collapse;
+const { Link } = Typography;
+
 //#endregion
 
 type UpdateShipmentCardProps = {
@@ -98,6 +111,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [requirementName, setRequirementName] = useState<string | null>(null);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
+  const [deliveryServices, setDeliveryServices] =
+    useState<Array<DeliveryServiceResponse> | null>(null);
+  const [trackingLogFulfillment, setTrackingLogFulfillment] =
+    useState<Array<TrackingLogFulfillmentResponse> | null>(null);
+
+  useEffect(() => {
+    dispatch(DeliveryServicesGetList(setDeliveryServices));
+  }, [dispatch]);
 
   //#endregion
   //#region Orther
@@ -186,6 +207,24 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   //#endregion
   useLayoutEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
+  }, [dispatch]);
+
+  useLayoutEffect(() => {
+    if (TrackingCode(props.OrderDetail) !== "Đang xử lý") {
+      if (
+        props.OrderDetail &&
+        props.OrderDetail.fulfillments &&
+        props.OrderDetail.fulfillments.length > 0 &&
+        props.OrderDetail.fulfillments[0].code
+      ) {
+        dispatch(
+          getTrackingLogFulfillmentAction(
+            props.OrderDetail.fulfillments[0].code,
+            setTrackingLogFulfillment
+          )
+        );
+      }
+    }
   }, [dispatch]);
 
   //#endregion
@@ -681,16 +720,17 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       ).format("DD/MM/YYYY")
                     : ""}
                 </span>
-                {props.OrderDetail?.fulfillments[0].shipment?.office_time && <span
-                  style={{
-                    marginLeft: 6,
-                    color: "#737373",
-                    fontSize: "14px",
-                  }}
-                >
-                  (Giờ hành chính)
-                </span>}
-                
+                {props.OrderDetail?.fulfillments[0].shipment?.office_time && (
+                  <span
+                    style={{
+                      marginLeft: 6,
+                      color: "#737373",
+                      fontSize: "14px",
+                    }}
+                  >
+                    (Giờ hành chính)
+                  </span>
+                )}
               </div>
               <div className="text-menu">
                 <img src={eyeOutline} alt="eye"></img>
@@ -713,9 +753,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="orders-timeline-custom"
                 showArrow={false}
                 header={
-                  <Row style={{paddingLeft: 12}}>
+                  <Row style={{ paddingLeft: 12 }}>
                     <Col>
-                      <p
+                      <span
                         ref={copyRef}
                         className="text-field"
                         style={{
@@ -728,7 +768,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           props.OrderDetail?.fulfillments.map(
                             (item, index) => item.id
                           )}
-                      </p>
+                      </span>
                       <div style={{ width: 30, padding: "0 4px" }}>
                         <img
                           onClick={(e) => copyOrderID(e)}
@@ -811,7 +851,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   </div>
                 ) : (
                   <Row gutter={24}>
-                    <Col md={6}>
+                    <Col md={5}>
                       <Col span={24}>
                         <p className="text-field">Đối tác giao hàng:</p>
                       </Col>
@@ -823,12 +863,22 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             props.OrderDetail.fulfillments.length > 0 &&
                             props.OrderDetail.fulfillments[0].shipment
                               ?.delivery_service_provider_type ===
-                              "external_service" &&
-                            props.OrderDetail.fulfillments[0].shipment
-                              .delivery_service_provider_id}
+                              "external_service" && (
+                              <img
+                                style={{ width: "112px", height: 25 }}
+                                src={InfoServiceDeliveryDetail(
+                                  deliveryServices,
+                                  props.OrderDetail.fulfillments[0].shipment
+                                    .delivery_service_provider_id
+                                )}
+                                alt=""
+                              ></img>
+                            )}
 
                           {props.OrderDetail?.fulfillments &&
                             props.OrderDetail.fulfillments.length &&
+                            props.OrderDetail.fulfillments[0].shipment
+                              ?.delivery_service_provider_type === "Shipper" &&
                             shipper &&
                             shipper.find(
                               (s) =>
@@ -840,8 +890,21 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </b>
                       </Col>
                     </Col>
+                    {CheckShipmentType(props.OrderDetail) ===
+                      "external_service" && (
+                      <Col md={5}>
+                        <Col span={24}>
+                          <p className="text-field">Dịch vụ:</p>
+                        </Col>
+                        <Col span={24}>
+                          <b className="text-field">
+                            {getServiceName(props.OrderDetail)}
+                          </b>
+                        </Col>
+                      </Col>
+                    )}
 
-                    <Col md={6}>
+                    <Col md={5}>
                       <Col span={24}>
                         <p className="text-field">Phí ship báo khách:</p>
                       </Col>
@@ -860,7 +923,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       </Col>
                     </Col>
 
-                    <Col md={6}>
+                    <Col md={5}>
                       <Col span={24}>
                         <p className="text-field">Phí ship trả đối tác:</p>
                       </Col>
@@ -877,9 +940,32 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </b>
                       </Col>
                     </Col>
+
+                    {CheckShipmentType(props.OrderDetail) ===
+                      "external_service" && (
+                      <Col md={4}>
+                        <Col span={24}>
+                          <p className="text-field">Trọng lượng:</p>
+                        </Col>
+                        <Col span={24}>
+                          <b className="text-field">
+                            {props.OrderDetail?.fulfillments &&
+                              props.OrderDetail?.fulfillments.length > 0 &&
+                              formatCurrency(
+                                props.OrderDetail.items &&
+                                  SumWeightResponse(props.OrderDetail.items)
+                              )}
+                            g
+                          </b>
+                        </Col>
+                      </Col>
+                    )}
                   </Row>
                 )}
-                <Row gutter={24} style={{ marginTop: 12, marginBottom: 0, padding: "0 12px" }}>
+                <Row
+                  gutter={24}
+                  style={{ marginTop: 12, marginBottom: 0, padding: "0 12px" }}
+                >
                   <Col span={24}>
                     <p className="text-field">
                       {props.OrderDetail?.items.reduce(
@@ -890,6 +976,123 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </p>
                   </Col>
                 </Row>
+
+                {CheckShipmentType(props.OrderDetail) ===
+                  "external_service" && (
+                  <Row
+                    gutter={24}
+                    style={{
+                      marginTop: 12,
+                      marginBottom: 0,
+                      padding: "0 12px",
+                    }}
+                  >
+                    <Col span={24}>
+                      <Collapse ghost>
+                        <Panel
+                          header={
+                            <Row>
+                              <Col style={{ alignItems: "center" }}>
+                                <span
+                                  style={{
+                                    marginRight: "10px",
+                                    color: "#222222",
+                                  }}
+                                >
+                                  Mã vận đơn:{" "}
+                                </span>
+                                <Link
+                                  href={`https://i.ghtk.vn/${
+                                    props.OrderDetail?.fulfillments &&
+                                    props.OrderDetail?.fulfillments[0].shipment
+                                      ?.tracking_code
+                                  }`}
+                                  ref={copyRef}
+                                  className="text-field"
+                                  style={{
+                                    color: "#2A2A86",
+                                    fontWeight: 500,
+                                    fontSize: 16,
+                                  }}
+                                >
+                                  {TrackingCode(props.OrderDetail)}
+                                </Link>
+                                <div style={{ width: 30, padding: "0 4px" }}>
+                                  <img
+                                    onClick={(e) => copyOrderID(e)}
+                                    src={copyFileBtn}
+                                    alt=""
+                                    style={{ width: 23 }}
+                                  />
+                                </div>
+                              </Col>
+                              <Col>
+                                <span
+                                  style={{ color: "#000000d9", marginRight: 6 }}
+                                >
+                                  Mở rộng
+                                </span>
+                              </Col>
+                            </Row>
+                          }
+                          key="1"
+                          className="custom-css-collapse"
+                        >
+                          <Collapse
+                            className="orders-timeline"
+                            expandIcon={({ isActive }) => (
+                              <img
+                                src={doubleArrow}
+                                alt=""
+                                style={{
+                                  transform: isActive
+                                    ? "rotate(0deg)"
+                                    : "rotate(270deg)",
+                                  float: "right",
+                                }}
+                              />
+                            )}
+                            ghost
+                            defaultActiveKey={["0"]}
+                          >
+                            {trackingLogFulfillment?.map((item, index) => (
+                              <Panel
+                                className="orders-timeline-custom orders-dot-status"
+                                header={
+                                  <div>
+                                    <b
+                                      style={{
+                                        paddingLeft: "14px",
+                                        color: "#222222",
+                                      }}
+                                    >
+                                      {item.message}
+                                    </b>
+                                    <i
+                                      className="icon-dot"
+                                      style={{
+                                        fontSize: "4px",
+                                        margin: "16px 10px 10px 10px",
+                                        color: "#737373",
+                                      }}
+                                    ></i>{" "}
+                                    <span style={{ color: "#737373" }}>
+                                      {moment(item.created_date).format(
+                                        "DD/MM/YYYY HH:mm"
+                                      )}
+                                    </span>
+                                  </div>
+                                }
+                                key={index}
+                                showArrow={false}
+                              ></Panel>
+                            ))}
+                          </Collapse>
+                        </Panel>
+                      </Collapse>
+                    </Col>
+                  </Row>
+                )}
               </Panel>
             </Collapse>
           </div>
@@ -901,7 +1104,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               style={{ color: "#737373", border: "1px solid #E5E5E5" }}
               hidden={props.stepsStatusValue === FulFillmentStatus.SHIPPED}
             >
-              Hủy
+              Hủy giao hàng
             </Button>
 
             {props.stepsStatusValue === OrderStatus.FINALIZED && (
