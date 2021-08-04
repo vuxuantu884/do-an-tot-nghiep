@@ -3,7 +3,6 @@ import { Col, Pagination, Row, Select, TableProps } from "antd";
 import classNames from "classnames";
 import { PageConfig } from "config/PageConfig";
 import React from "react";
-import { StyledComponent } from "./styles";
 
 interface ICustomPaginationProps extends Omit<TableProps<any>, "pagination"> {
   pagination?: false | ICustomTablePaginationConfig;
@@ -72,18 +71,18 @@ const CustomPagination = (props: ICustomPaginationProps) => {
     ? Math.ceil((pagination.total || 1) / (pagination.pageSize || 1))
     : 1;
   return (
-    <StyledComponent>
+    <React.Fragment>
       {pagination && (
-        <div className="pagination">
+        <div className="custom-table-pagination">
           <Row>
             <Col span={7}>
-              <span className="pagination__showTotal">
+              <span className="custom-table-pagination__showTotal">
                 {showTotal(pagination)}
               </span>
             </Col>
             <Col span={7}>
               {pagination.showSizeChanger && (
-                <div className="pagination__sizeChange">
+                <div className="custom-table-pagination__sizeChange">
                   <label
                     htmlFor="custom-pagination-size-changer"
                     style={{ marginRight: 12 }}
@@ -109,7 +108,7 @@ const CustomPagination = (props: ICustomPaginationProps) => {
               )}
             </Col>
             <Col span={10}>
-              <div className="pagination__main">
+              <div className="custom-table-pagination__main">
                 <div title="Trang đầu" className="ant-pagination-first">
                   <button
                     onClick={() => handleLastNextPage(pagination, 0)}
@@ -156,7 +155,7 @@ const CustomPagination = (props: ICustomPaginationProps) => {
           </Row>
         </div>
       )}
-    </StyledComponent>
+    </React.Fragment>
   );
 };
 

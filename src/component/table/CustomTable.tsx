@@ -3,8 +3,7 @@ import { Button, Spin, Table as ANTTable, TableProps } from "antd";
 import { ColumnType, TableLocale } from "antd/lib/table/interface";
 import { PageConfig } from "config/PageConfig";
 import React, { useCallback } from "react";
-import CustomPagination from "../CustomPagination";
-import { StyledComponent } from "./styles";
+import CustomPagination from "./CustomPagination";
 
 export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   pagination?: false | ICustomTablePaginationConfig;
@@ -13,7 +12,6 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   isLoading?: boolean;
   showColumnSetting?: boolean;
   isRowSelection?: boolean;
-  isBordered?: boolean;
 }
 
 export interface ICustomTableColumType<T> extends ColumnType<T> {
@@ -51,7 +49,7 @@ const defaultPagination: ICustomTablePaginationConfig = {
   pageSizeOptions: PageConfig,
 };
 
-const CustomTableStyle2 = (props: ICustomTableProps) => {
+const CustomTable = (props: ICustomTableProps) => {
   const {
     locale = defaultLocale,
     pagination = defaultPagination,
@@ -61,7 +59,6 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
     showColumnSetting,
     isLoading,
     isRowSelection,
-    isBordered,
   } = props;
 
   const configSettingColumns: ICustomTableColumType<any>[] = [
@@ -91,45 +88,42 @@ const CustomTableStyle2 = (props: ICustomTableProps) => {
     [onSelectedChange]
   );
   return (
-    <StyledComponent>
-      <div className="custom-table">
-        <ANTTable
-          bordered={isBordered ? true : false}
-          {...props}
-          rowSelection={
-            isRowSelection
-              ? {
-                  type: "checkbox",
-                  onSelect: onSelect,
-                  onSelectAll: onSelectAll,
-                }
-              : undefined
-          }
-          columns={
-            showColumnSetting ? columns?.concat(configSettingColumns) : columns
-          }
-          locale={locale}
-          loading={
-            isLoading
-              ? {
-                  indicator: (
-                    <Spin
-                      indicator={
-                        <LoadingOutlined style={{ fontSize: 24 }} spin />
-                      }
-                    />
-                  ),
-                }
-              : false
-          }
-          pagination={false}
-          // scroll={{ y: 700 }}
-          size="middle"
-        />
-        {pagination && <CustomPagination pagination={pagination} />}
-      </div>
-    </StyledComponent>
+    <div className="custom-table">
+      <ANTTable
+        {...props}
+        rowSelection={
+          isRowSelection
+            ? {
+                type: "checkbox",
+                onSelect: onSelect,
+                onSelectAll: onSelectAll,
+              }
+            : undefined
+        }
+        columns={
+          showColumnSetting ? columns?.concat(configSettingColumns) : columns
+        }
+        locale={locale}
+        loading={
+          isLoading
+            ? {
+                indicator: (
+                  <Spin
+                    indicator={
+                      <LoadingOutlined style={{ fontSize: 24 }} spin />
+                    }
+                  />
+                ),
+              }
+            : false
+        }
+        pagination={false}
+        // scroll={{ y: 700 }}
+        size="middle"
+      />
+      {pagination && <CustomPagination pagination={pagination} />}
+    </div>
   );
 };
 
-export default React.memo(CustomTableStyle2);
+export default React.memo(CustomTable);

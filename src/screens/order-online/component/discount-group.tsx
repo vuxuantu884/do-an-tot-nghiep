@@ -46,7 +46,7 @@ const ChangeValueDiscount = useCallback(
   return (
     <div>
       <Input.Group compact>
-        <Select
+        <Select 
           onChange={(value: string) => changeDiscountType(value)}
           value={selected}
           
