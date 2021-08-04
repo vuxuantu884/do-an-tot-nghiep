@@ -653,7 +653,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           className="margin-top-20 orders-update-shipment"
           title={
             <Space>
-              <div className="d-flex" style={{ marginTop: "5px" }}>
+              <div className="d-flex" >
                 <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
               </div>
               {shipmentStatusTag.map((statusTag) => {
@@ -1013,7 +1013,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           className="margin-top-20"
           title={
             <Space>
-              <div className="d-flex" style={{ marginTop: "5px" }}>
+              <div className="d-flex" >
                 <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
               </div>
               {props.OrderDetail?.fulfillments &&

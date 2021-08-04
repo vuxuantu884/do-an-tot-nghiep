@@ -313,7 +313,7 @@ console.log(OrderDetail)
                   className="margin-top-20"
                   title={
                     <Space>
-                      <div className="d-flex" style={{ marginTop: "5px" }}>
+                      <div className="d-flex" >
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {checkPaymentStatusToShow(OrderDetail) === -1 && (
@@ -610,7 +610,7 @@ console.log(OrderDetail)
                   className="margin-top-20"
                   title={
                     <Space>
-                      <div className="d-flex" style={{ marginTop: "5px" }}>
+                      <div className="d-flex" >
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (

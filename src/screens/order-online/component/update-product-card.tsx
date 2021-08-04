@@ -19,6 +19,7 @@ import {
   OrderResponse,
 } from "model/response/order/order.response";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
+import { Type } from "config/TypeConfig";
 //#endregion
 
 type ProductCardUpdateProps = {
@@ -207,7 +208,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             }}
             rowKey={(record) => record.id}
             columns={columns}
-            dataSource={props.OrderDetail?.items}
+            dataSource={props.OrderDetail?.items.filter((item) => item.type === Type.NORMAL)}
             className="sale-product-box-table w-100"
             tableLayout="fixed"
             pagination={false}
