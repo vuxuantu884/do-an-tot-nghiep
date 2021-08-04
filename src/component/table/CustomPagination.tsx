@@ -1,4 +1,4 @@
-import { DoubleLeftOutlined, DoubleRightOutlined } from "@ant-design/icons";
+import { DoubleLeftOutlined, DoubleRightOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { Col, Pagination, Row, Select, TableProps } from "antd";
 import classNames from "classnames";
 import { PageConfig } from "config/PageConfig";
@@ -120,7 +120,7 @@ const CustomPagination = (props: ICustomPaginationProps) => {
                     )}
                     type="button"
                   >
-                    <DoubleLeftOutlined style={{ marginRight: 10 }} />
+                    <LeftOutlined style={{ marginRight: 5 }} />
                     Trang đầu
                   </button>
                 </div>
@@ -134,7 +134,6 @@ const CustomPagination = (props: ICustomPaginationProps) => {
                 <div
                   title="Trang cuối"
                   className="ant-pagination-last"
-                  style={{ marginLeft: 8 }}
                 >
                   <button
                     onClick={() => handleLastNextPage(pagination, 1)}
@@ -147,7 +146,7 @@ const CustomPagination = (props: ICustomPaginationProps) => {
                     type="button"
                   >
                     Trang cuối
-                    <DoubleRightOutlined style={{ marginLeft: 10 }} />
+                    <RightOutlined style={{ marginLeft: 5 }} />
                   </button>
                 </div>
               </div>

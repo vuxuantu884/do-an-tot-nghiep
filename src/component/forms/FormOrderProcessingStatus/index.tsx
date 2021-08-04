@@ -74,7 +74,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
                   required: true,
                   message: "Vui lòng điền tên nguồn đơn hàng !",
                 },
-                { max: 500, message: "Không được nhập quá 500 ký tự" },
+                { max: 255, message: "Không được nhập quá 255 ký tự" },
               ]}
             >
               <Input

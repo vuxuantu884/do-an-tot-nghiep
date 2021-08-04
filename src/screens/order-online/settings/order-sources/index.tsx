@@ -120,7 +120,7 @@ const OrderSources: React.FC = () => {
         }}
         icon={<PlusOutlined />}
       >
-        Thêm mới
+        Thêm nguồn đơn hàng
       </Button>
     );
   };
@@ -214,10 +214,10 @@ const OrderSources: React.FC = () => {
         extra={createOrderSourceHtml()}
       >
         {listOrderSources && (
-          <Card style={{ padding: 24 }}>
+          <Card style={{ padding: '35px 15px' }}>
             <CustomTable
               isLoading={tableLoading}
-              showColumnSetting={true}
+              showColumnSetting={false}
               scroll={{ x: 1080 }}
               pagination={{
                 pageSize: params.limit,

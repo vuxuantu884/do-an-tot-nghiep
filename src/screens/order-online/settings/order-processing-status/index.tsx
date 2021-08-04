@@ -85,6 +85,11 @@ const SettingOrderProcessingStatus: React.FC = () => {
       title: "Ghi chú",
       dataIndex: "note",
       visible: true,
+      render: (value, row, index) => {
+        return (
+          <span style={{color: '#666666'}}>{value}</span>
+        );
+      },
     },
     {
       title: "Áp dụng cho đơn hàng ",
@@ -227,10 +232,10 @@ const SettingOrderProcessingStatus: React.FC = () => {
         extra={createOrderServiceSubStatusHtml()}
       >
         {listOrderProcessingStatus && (
-          <Card style={{ padding: 24 }}>
+          <Card style={{ padding: '35px 15px' }}>
             <CustomTable
               isLoading={tableLoading}
-              showColumnSetting={true}
+              showColumnSetting={false}
               scroll={{ x: 1080 }}
               pagination={{
                 pageSize: params.limit,
