@@ -24,8 +24,11 @@ import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
+import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
+import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
+import POPaymentConditionsForm from "./component/po-payment-conditions.form";
 
 const POCreateScreen: React.FC = () => {
   let initPurchaseOrder = {
@@ -54,6 +57,9 @@ const POCreateScreen: React.FC = () => {
   const [formMain] = Form.useForm();
   const [isLoading, setLoading] = useState<boolean>(true);
   const [winAccount, setWinAccount] = useState<Array<AccountResponse>>([]);
+  const [listPaymentConditions, setListPaymentConditions] = useState<
+    Array<PoPaymentConditions>
+  >([]);
   const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
@@ -79,7 +85,7 @@ const POCreateScreen: React.FC = () => {
       setWinAccount(data.items);
       dispatch(
         AccountSearchAction(
-          { department_ids: [AppConfig.RD_DEPARTMENT], status: 'active' },
+          { department_ids: [AppConfig.RD_DEPARTMENT], status: "active" },
           onResultRD
         )
       );
@@ -112,7 +118,7 @@ const POCreateScreen: React.FC = () => {
         const y =
           element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
         window.scrollTo({ top: y, behavior: "smooth" });
-        showError('Vui lòng thêm sản phẩm');
+        showError("Vui lòng thêm sản phẩm");
         return;
       }
       setLoadingSaveButton(true);
@@ -124,13 +130,15 @@ const POCreateScreen: React.FC = () => {
   useEffect(() => {
     dispatch(
       AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT], status: 'active'},
+        { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" },
         onResultWin
       )
     );
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
+    dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
   }, [dispatch, onResultWin, onResultRD]);
+  
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
     return () => {
@@ -202,7 +210,8 @@ const POCreateScreen: React.FC = () => {
             />
             <POProductForm formMain={formMain} />
             <POInventoryForm />
-            <POPaymentForm />
+            {/* <POPaymentForm /> */}
+            <POPaymentConditionsForm listPayment={listPaymentConditions} />
           </Col>
           {/* Right Side */}
           <Col md={6}>
