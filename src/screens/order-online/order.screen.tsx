@@ -122,7 +122,7 @@ export default function Order() {
     setShippingFeeCustomerHVC(value);
   };
   //#endregion
-console.log(items)
+  console.log(items);
   //#region Product
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -207,7 +207,7 @@ console.log(items)
     const strTag = value.join(", ");
     setTag(strTag);
   };
-console.log(items.concat(itemGifts))
+  console.log(items.concat(itemGifts));
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
     let shipmentRequest = createShipmentRequest(value);
@@ -381,7 +381,7 @@ console.log(items.concat(itemGifts))
     }
   };
   const onFinish = (values: OrderRequest) => {
-    console.log(values)
+    console.log(values);
 
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
@@ -473,7 +473,7 @@ console.log(items.concat(itemGifts))
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
-  
+
   //windows offset
   useEffect(() => {
     window.addEventListener("scroll", scroll);
@@ -717,12 +717,14 @@ console.log(items.concat(itemGifts))
 
             <Col md={9} style={{ marginTop: "8px" }}>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => window.location.reload()}
               >
                 Huỷ
               </Button>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 className="create-button-custom ant-btn-outline fixed-button"
                 type="primary"
                 onClick={showSaveAndConfirmModal}
@@ -730,6 +732,7 @@ console.log(items.concat(itemGifts))
                 Lưu nháp
               </Button>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 type="primary"
                 className="create-button-custom"
                 id="save-and-confirm"

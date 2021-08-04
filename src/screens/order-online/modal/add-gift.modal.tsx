@@ -1,6 +1,6 @@
-import { Modal, Input, Table, Button, AutoComplete } from "antd";
-import deleteIcon from "assets/icon/delete.svg";
-import arrowDown from "assets/icon/arrow-down.svg";
+import { Modal, Input, Table, Button, AutoComplete, Badge } from "antd";
+import XCloseBtn from "assets/icon/X_close.svg";
+import searchGift from "assets/icon/search.svg";
 import React, { createRef, useCallback, useMemo, useState } from "react";
 import { RefSelectProps } from "antd/lib/select";
 import { useDispatch } from "react-redux";
@@ -122,10 +122,10 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       title: "Sản phẩm",
       render: (a: OrderItemModel, item: any, index: number) => (
         <div>
-          <div className="yody-pos-sku">
+          <div className="yody-pos-sku" >
             <Link to="">{a.sku}</Link>
           </div>
-          <span>{a.variant}</span>
+          <Badge status="default" text={a.variant} style={{marginLeft: 7, }}/>
         </div>
       ),
     },
@@ -148,17 +148,17 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
             minLength={1}
             maxLength={4}
             onFocus={(e) => e.target.select()}
-            style={{ width: 60, textAlign: "center"}}
+            style={{ width: 100, textAlign: "right"}}
           />
         </div>
       ),
     },
+    // {
+    //   title: "Đơn giá",
+    //   render: (a: OrderItemModel) => formatCurrency(a.price),
+    // },
     {
-      title: "Đơn giá",
-      render: (a: OrderItemModel) => formatCurrency(a.price),
-    },
-    {
-      title: "Thao tác",
+      title: "",
       render: (a: any, b: any, index: number) => {
         return (
           <div style={{textAlign:"center"}}>
@@ -167,7 +167,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
             onClick={() => deleteItem(index)}
             className="yody-pos-delete-item ant-btn-custom"
           >
-            <img src={deleteIcon} alt="" />
+            <img src={XCloseBtn} alt="" />
           </Button>
           </div>
         );
@@ -286,6 +286,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       visible={visible}
       cancelText="Hủy"
       okText="Lưu"
+      className="saleorder-product-modal"
     >
       <AutoComplete
         notFoundContent={
@@ -302,8 +303,8 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       >
         <Input
           className="yody-pos-gift-modal-input"
-          placeholder="Chọn quà tặng"
-          suffix={<img src={arrowDown} alt="" />}
+          placeholder="Tìm kiếm và chọn quà tặng"
+          prefix={<img src={searchGift} alt="" />}
         />
       </AutoComplete>
       <Table
