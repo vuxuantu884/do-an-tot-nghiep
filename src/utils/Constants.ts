@@ -71,3 +71,8 @@ export const TRANSPORTS = {
 export const PointConfig = {
   VALUE: 1000,
 };
+
+
+export const MoneyPayThreePls = {
+  VALUE: 20000,
+};

@@ -18,6 +18,7 @@ import {
   DeliveryServiceResponse,
   OrderResponse,
   ShippingGHTKResponse,
+  TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
@@ -114,6 +115,13 @@ export const deleteOrderSourceService = (
   id: number
 ): Promise<BaseResponse<OrderSourceResponseModel>> => {
   return BaseAxios.delete(`${ApiConfig.ORDER}/sources/${id}`);
+};
+
+// tracking_log: Lấy ra tracking_log của fulfillment
+export const getTrackingLogFulFillment = (
+  fulfillment_code: string
+): Promise<BaseResponse<Array<TrackingLogFulfillmentResponse>>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/shipping/tracking-log?fulfillment_code=${fulfillment_code}`);
 };
 
 /**

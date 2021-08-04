@@ -4,6 +4,7 @@ import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { OrderResponse } from "model/response/order/order.response";
 
+
 type StepStatusProps = {
   status?: string | null | undefined;
   orderDetail: OrderResponse | null;
@@ -104,3 +105,4 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
 };
 
 export default CreateBillStep;
+
