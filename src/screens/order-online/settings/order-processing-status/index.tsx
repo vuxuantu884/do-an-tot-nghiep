@@ -227,10 +227,10 @@ const SettingOrderProcessingStatus: React.FC = () => {
         extra={createOrderServiceSubStatusHtml()}
       >
         {listOrderProcessingStatus && (
-          <Card style={{ padding: 24 }}>
+          <Card style={{ padding: '35px 15px' }}>
             <CustomTable
               isLoading={tableLoading}
-              showColumnSetting={true}
+              showColumnSetting={false}
               scroll={{ x: 1080 }}
               pagination={{
                 pageSize: params.limit,
