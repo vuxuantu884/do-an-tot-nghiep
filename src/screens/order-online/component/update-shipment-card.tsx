@@ -77,38 +77,57 @@ import NumberInput from "component/custom/number-input.custom";
 import { setTimeout } from "timers";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { StoreResponse } from "model/core/store.model";
+import OrderDetail from "../order-detail";
 const { Panel } = Collapse;
 const { Link } = Typography;
 
 //#endregion
 
 type UpdateShipmentCardProps = {
+  shippingFeeInformedCustomer: (value: number | null) => void;
+  setVisibleUpdatePayment: (value: boolean) => void;
+  setShipmentMethod: (value: number) => void;
+  setPaymentType: (value: number) => void;
+  setVisibleShipping: (value: boolean) => void;
+  setOfficeTime: (value: boolean) => void;
   OrderDetail: OrderResponse | null;
   storeDetail?: StoreResponse;
   stepsStatusValue?: string;
-  shippingFeeInformedCustomer: (value: number | null) => void;
-  isVisibleUpdatePayment: (value: boolean) => void;
   totalPaid?: number;
+  officeTime: boolean | undefined;
+  shipmentMethod: number | null;
+  isVisibleShipping: boolean | null;
+  paymentType: number | null;
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   props: UpdateShipmentCardProps
 ) => {
+  // props destructuring
+  const {
+    paymentType,
+    isVisibleShipping,
+    shipmentMethod,
+    setVisibleShipping,
+    setPaymentType,
+    setShipmentMethod,
+    setVisibleUpdatePayment,
+  } = props;
+
+  // node dom
   const formRef = createRef<FormInstance>();
   const copyRef = createRef<any>();
-
-  //#region state
+  // action
   const dispatch = useDispatch();
-  const [paymentType, setPaymentType] = useState<number>(3);
-  const [isVisibleShipping, setVisibleShipping] = useState(false);
-  const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
-
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
     useState<number>(0);
   const [isvibleShippedConfirm, setIsvibleShippedConfirm] =
     useState<boolean>(false);
   const [requirementName, setRequirementName] = useState<string | null>(null);
+  const [requirementNameView, setRequirementNameView] = useState<string | null>(
+    null
+  );
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
   const [deliveryServices, setDeliveryServices] =
@@ -119,20 +138,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   useEffect(() => {
     dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
-
-  //#endregion
-  //#region Orther
-  const ShowShipping = () => {
-    setVisibleShipping(true);
-  };
-
-  //#endregion
-  //#region Master
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
   );
 
+  //#endregion
+  // show shipping
+  const ShowShipping = () => {
+    setVisibleShipping(true);
+  };
+  //#endregion
+  //#region Master
   interface statusTagObj {
     name: string;
     status: string;
@@ -194,8 +211,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       value === ShipmentMethodOption.SELFDELIVER &&
       checkPaymentStatusToShow(props.OrderDetail) !== 1
     ) {
+      props.setVisibleUpdatePayment(true);
       setPaymentType(PaymentMethodOption.COD);
-      props.isVisibleUpdatePayment(true);
     }
   };
 
@@ -425,6 +442,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     requirements: null,
     requirements_name: null,
     fulfillment_id: "",
+    office_time: null,
   };
 
   let FulFillmentRequest: UpdateFulFillmentRequest = {
@@ -452,6 +470,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const onFinishUpdateFulFillment = (value: UpdateShipmentRequest) => {
     value.expected_received_date = value.dating_ship?.utc().format();
     value.requirements_name = requirementName;
+    value.office_time = props.officeTime;
     if (props.OrderDetail?.fulfillments) {
       if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
         value.delivery_service_provider_type = "Shipper";
@@ -511,20 +530,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
     dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
   };
-  const getRequirementName = useCallback(() => {
-    if (
-      props.OrderDetail &&
-      props.OrderDetail?.fulfillments &&
-      props.OrderDetail?.fulfillments.length > 0
-    ) {
-      let requirement =
-        props.OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
-      const reqObj = shipping_requirements?.find(
-        (r) => r.value === requirement
-      );
-      setRequirementName(reqObj ? reqObj?.name : "");
-    }
-  }, [props.OrderDetail, shipping_requirements]);
 
   // shipment button action
   interface ShipmentButtonModel {
@@ -556,6 +561,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     },
   ];
 
+  //set req to request
   const setRequirementNameCallback = useCallback(
     (value) => {
       const reqObj = shipping_requirements?.find((r) => r.value === value);
@@ -563,9 +569,21 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     },
     [setRequirementName, shipping_requirements]
   );
-  //windows offset
-
-  //#endregion
+  // get req to view
+  const getRequirementName = useCallback(() => {
+    if (
+      props.OrderDetail &&
+      props.OrderDetail?.fulfillments &&
+      props.OrderDetail?.fulfillments.length > 0
+    ) {
+      let requirement =
+        props.OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
+      const reqObj = shipping_requirements?.find(
+        (r) => r.value === requirement
+      );
+      setRequirementNameView(reqObj ? reqObj?.name : "");
+    }
+  }, [props.OrderDetail, shipping_requirements]);
 
   // Thu hộ
   const takeHelper: any = () => {
@@ -665,7 +683,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   useEffect(() => {
     getRequirementName();
-  }, []);
+  }, [getRequirementName]);
 
   return (
     <div>
@@ -676,7 +694,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           className="margin-top-20 orders-update-shipment"
           title={
             <Space>
-              <div className="d-flex" style={{ marginTop: "5px" }}>
+              <div className="d-flex" >
                 <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
               </div>
               {shipmentStatusTag.map((statusTag) => {
@@ -734,7 +752,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               </div>
               <div className="text-menu">
                 <img src={eyeOutline} alt="eye"></img>
-                <span style={{ marginLeft: "5px" }}>{requirementName}</span>
+                <span style={{ marginLeft: "5px" }}>{requirementNameView}</span>
               </div>
             </Space>
           }
@@ -766,7 +784,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       >
                         {props.OrderDetail?.fulfillments &&
                           props.OrderDetail?.fulfillments.map(
-                            (item, index) => item.id
+                            (item, index) => item.code
                           )}
                       </span>
                       <div style={{ width: 30, padding: "0 4px" }}>
@@ -1107,16 +1125,31 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               Hủy giao hàng
             </Button>
 
-            {props.stepsStatusValue === OrderStatus.FINALIZED && (
-              <Button
-                type="primary"
-                style={{ marginLeft: "10px" }}
-                className="create-button-custom ant-btn-outline fixed-button"
-                onClick={onOkShippingConfirm}
-              >
-                Nhặt hàng
-              </Button>
-            )}
+            {props.stepsStatusValue === OrderStatus.FINALIZED &&
+              props.OrderDetail.fulfillments[0].shipment
+                ?.delivery_service_provider_type != "pick_at_store" && (
+                <Button
+                  type="primary"
+                  style={{ marginLeft: "10px" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={onOkShippingConfirm}
+                >
+                  Nhặt hàng
+                </Button>
+              )}
+
+            {props.stepsStatusValue === OrderStatus.FINALIZED &&
+              props.OrderDetail.fulfillments[0].shipment
+                ?.delivery_service_provider_type == "pick_at_store" && (
+                <Button
+                  type="primary"
+                  style={{ marginLeft: "10px" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={onOkShippingConfirm}
+                >
+                  Nhặt hàng và đóng gói
+                </Button>
+              )}
 
             {props.stepsStatusValue === FulFillmentStatus.PICKED && (
               <Button
@@ -1128,16 +1161,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 Đóng gói
               </Button>
             )}
-            {props.stepsStatusValue === FulFillmentStatus.PACKED && (
-              <Button
-                type="primary"
-                style={{ marginLeft: "10px" }}
-                className="create-button-custom ant-btn-outline fixed-button"
-                onClick={() => setIsvibleShippingConfirm(true)}
-              >
-                Xuất kho
-              </Button>
-            )}
+            {props.stepsStatusValue === FulFillmentStatus.PACKED &&
+              props.OrderDetail.fulfillments[0].shipment
+                ?.delivery_service_provider_type != "pick_at_store" && (
+                <Button
+                  type="primary"
+                  style={{ marginLeft: "10px" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={() => setIsvibleShippingConfirm(true)}
+                >
+                  Xuất kho
+                </Button>
+              )}
             {props.stepsStatusValue === FulFillmentStatus.SHIPPING && (
               <Button
                 type="primary"
@@ -1148,6 +1183,20 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 Đã giao hàng
               </Button>
             )}
+
+            {props.stepsStatusValue === FulFillmentStatus.PACKED &&
+              props.OrderDetail.fulfillments[0].shipment
+                ?.delivery_service_provider_type == "pick_at_store" && (
+                <Button
+                  type="primary"
+                  style={{ marginLeft: "10px" }}
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  onClick={() => setIsvibleShippedConfirm(true)}
+                >
+                  Xuất kho và giao hàng
+                </Button>
+              )}
+
             {props.stepsStatusValue === FulFillmentStatus.SHIPPED && (
               <Button
                 type="primary"
@@ -1165,7 +1214,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           className="margin-top-20"
           title={
             <Space>
-              <div className="d-flex" style={{ marginTop: "5px" }}>
+              <div className="d-flex" >
                 <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
               </div>
               {props.OrderDetail?.fulfillments &&
@@ -1230,7 +1279,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
                   <Col md={6}>
                     <Form.Item>
-                      <Checkbox style={{ marginTop: "8px" }}>
+                      <Checkbox
+                        style={{ marginTop: "8px" }}
+                        checked={props.officeTime}
+                        onChange={(e) => props.setOfficeTime(e.target.checked)}
+                      >
                         Giờ hành chính
                       </Checkbox>
                     </Form.Item>

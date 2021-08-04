@@ -1,5 +1,6 @@
 import { Form, Input, Select } from "antd";
 import NumberInput from "component/custom/number-input.custom";
+import { DiscountType } from "model/purchase-order/po-field";
 import { useEffect, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 
@@ -48,8 +49,8 @@ const DiscountModal: React.FC<DiscountModalProps> = (
                 }}
                 onBlur={() => form.submit()}
               >
-                <Select.Option value="percent">%</Select.Option>
-                <Select.Option value="money">₫</Select.Option>
+                <Select.Option value={DiscountType.percent}>%</Select.Option>
+                <Select.Option value={DiscountType.money}>₫</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item noStyle name="discount">

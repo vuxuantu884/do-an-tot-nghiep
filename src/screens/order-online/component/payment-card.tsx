@@ -138,6 +138,12 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     return total;
   };
 
+  const handleTransferReference  = (index: number, value: string) => {
+   const  _paymentData = [... paymentData]
+   _paymentData[index].reference = value
+   setPaymentData(_paymentData)
+  };
+
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
@@ -362,7 +368,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                   lg={14}
                                   xxl={14}
                                 >
-                                  <Input placeholder="Tham chiếu" />
+                                  <Input placeholder="Tham chiếu" 
+                                  onChange={(e: any) => handleTransferReference(index, e.target.value)}/>
                                 </Col>
                               ) : null}
                             </Row>
