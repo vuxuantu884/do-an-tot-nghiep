@@ -4,7 +4,6 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import POProductForm from "./component/po-product.form";
 import POInventoryForm from "./component/po-inventory.form";
-import POPaymentForm from "./component/po-payment.form";
 import POInfoForm from "./component/po-info.form";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useState } from "react";
@@ -23,12 +22,15 @@ import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
+import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import POStep from "./component/po-step";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { ConvertDateToUtc } from "utils/DateUtils";
+import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
+import POPaymentConditionsForm from "./component/po-payment-conditions.form";
 
 const POCreateScreen: React.FC = () => {
   let initPurchaseOrder = {
@@ -59,6 +61,9 @@ const POCreateScreen: React.FC = () => {
   const [formMain] = Form.useForm();
   const [isLoading, setLoading] = useState<boolean>(true);
   const [winAccount, setWinAccount] = useState<Array<AccountResponse>>([]);
+  const [listPaymentConditions, setListPaymentConditions] = useState<
+    Array<PoPaymentConditions>
+  >([]);
   const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
@@ -137,7 +142,9 @@ const POCreateScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
+    dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
   }, [dispatch, onResultWin, onResultRD]);
+  
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
     return () => {
@@ -191,7 +198,7 @@ const POCreateScreen: React.FC = () => {
             />
             <POProductForm formMain={formMain} />
             <POInventoryForm stores={listStore} />
-            <POPaymentForm />
+            <POPaymentConditionsForm listPayment={listPaymentConditions} />
           </Col>
           {/* Right Side */}
           <Col md={6}>

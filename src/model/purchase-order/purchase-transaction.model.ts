@@ -1,11 +1,14 @@
-export interface PurchaseTransaction
+import { BaseObject } from "model/base/base.response";
+
+export interface PurchasePayments extends BaseObject
 {
-    id:number,
     accountCode:string,
-    reference:string,
-    amount:string,
     payment_method_id:number,
-    status:string,
-    purchase_order_id:string,
+    amount:number,
+    reference:string,
     transaction_date:string,
+    note:string,
+    status:string,
+    status_name:string,
+    
 }

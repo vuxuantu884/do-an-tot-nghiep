@@ -235,7 +235,6 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                       <PhoneOutlined />
                       <label>{phone}</label>
                     </Space>
-                 
                   </Row>
                   <Divider
                     className="margin-0"

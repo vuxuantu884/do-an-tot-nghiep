@@ -1,7 +1,10 @@
-const POType = {
+export const POType = {
   CREATE_PO_REQUEST: 'CREATE_PO_REQUEST',
   DETAIL_PO_REQUEST: 'DETAIL_PO_REQUEST',
   SEARCH_PO_REQUEST: 'SEARCH_PO_REQUEST',
 }
 
-export {POType};
+export const PaymentConditionsType = {
+  GET_PAYMENT_CONDITIONS_REQUEST: 'GET_PAYMENT_CONDITIONS_REQUEST',
+}
+
