@@ -1147,7 +1147,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         name="shipper_code"
                         rules={[
                           {
-                            required: true,
+                            required: shipmentMethod == 2,
                             message: "Vui lòng chọn đối tác giao hàng",
                           },
                         ]}
@@ -1271,9 +1271,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   </b>
 
                   <Row style={{ paddingTop: "19px" }}>
-                    {/* <div className="row-info-icon">
-                  <img src={storeBluecon} alt="" width="20px" />
-                </div> */}
+
                     <Col md={2}>
                       <div>Tên cửa hàng:</div>
                     </Col>
@@ -1284,9 +1282,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </b>
                   </Row>
                   <Row className="row-info padding-top-10">
-                    {/* <div className="row-info-icon">
-                  <img src={callIcon} alt="" width="18px" />
-                </div> */}
+
                     <Col md={2}>
                       <div>Số điện thoại:</div>
                     </Col>
@@ -1295,9 +1291,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </b>
                   </Row>
                   <Row className="row-info padding-top-10">
-                    {/* <div className="row-info-icon">
-                  <img src={locationIcon} alt="" width="18px" />
-                </div> */}
+              
                     <Col md={2}>
                       <div>Địa chỉ:</div>
                     </Col>
@@ -1305,8 +1299,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       {props.storeDetail?.full_address}
                     </b>
                   </Row>
-                </div>
-                {/* <Col md={24}>
+                  <Row>
+                  <Col md={24}>
                   <div>
                     <Button
                       type="primary"
@@ -1324,7 +1318,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       
                     </Button>
                   </div>
-                </Col> */}
+                </Col>
+                </Row>
+                </div>
+                
               </Form>
               {/*--- Giao hàng sau ----*/}
               <Row
