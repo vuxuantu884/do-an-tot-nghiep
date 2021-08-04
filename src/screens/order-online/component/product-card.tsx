@@ -439,16 +439,16 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       </div>
     ),
     width: "12%",
-    className: "yody-table-action text-center",
+    className: "saleorder-product-card-action ",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const menu = (
-        <Menu className="yody-line-item-action-menu">
+        <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
           <Menu.Item key="0">
             <Button
               type="text"
               onClick={() => showAddGiftModal(index)}
               className=""
-              style={{padding: 0, background: "transparent", border: "none"}}
+              style={{paddingLeft: 24, background: "transparent", border: "none"}}
             >
               Thêm quà tặng
             </Button>
@@ -463,7 +463,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 setItems(_items);
               }}
               className=""
-              style={{padding: 0, background: "transparent", border: "none"}}
+              style={{paddingLeft: 24, background: "transparent", border: "none"}}
             >
               Thêm ghi chú
             </Button>
@@ -471,7 +471,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         </Menu>
       );
       return (
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "0 4px" }}>
           <div
             className="site-input-group-wrapper saleorder-input-group-wrapper"
             style={{
@@ -486,14 +486,15 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               <Button
                 type="text"
                 className="p-0 ant-btn-custom"
-                style={{ height: 36, width: 32, border: "1px solid #E5E5E5" }}
+                style={{  }}
               >
                 <img src={arrowDownIcon} alt="" style={{width: 17}}/>
               </Button>
             </Dropdown>
           </div>
-          <div>
+          <div className="saleorder-close-btn">
             <Button
+              style={{ background: "transparent" }}
               type="text"
               className="p-0 ant-btn-custom"
               onClick={() => onDeleteItem(index)}

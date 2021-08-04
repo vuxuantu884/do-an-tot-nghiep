@@ -1,3 +1,8 @@
+.ant-btn{
+  border-radius: 3px;
+  letter-spacing: 0.2px;
+  font-weight: 400;
+}
 .padding-bottom-5 {
   padding-bottom: 5px;
 }
@@ -1132,7 +1137,6 @@
     span {
       font-size: 14px;
       line-height: 18px;
-      padding: 4px 0;
       font-weight: 400;
     }
   }
@@ -1143,7 +1147,6 @@
     span {
       font-size: 14px;
       line-height: 18px;
-      padding: 4px 0;
       font-weight: 400;
       color: #2a2a86;
     }
@@ -1199,4 +1202,91 @@
   > .ant-steps-item-content
   > .ant-steps-item-title {
   color: #2a2a86;
+}
+
+.saleorder-product-modal {
+  
+  .ant-modal-body {
+    padding: 12px 24px;
+    .ant-table-cell {
+      &:nth-child(1){
+       width: 80%;
+       &>div{
+         display: flex;
+         
+       }
+      }
+      &:nth-child(2){
+        width: 20%;
+        text-align: right;
+      }
+      &:last-child{
+        min-width: 100px
+      }
+      
+    }
+    input{
+      font-weight: 400;
+      &::-webkit-input-placeholder{
+        font-weight: 400;
+      }
+    }
+
+    
+  }
+  .ant-modal-footer {
+    padding-bottom: 16px;
+    padding-right: 24px;
+    button {
+      border-radius: 3px;
+      font-weight: 400;
+      padding: 0 25px
+    }
+  }
+
+}
+.saleorder-product-card-action {
+  .saleorder-input-group-wrapper {
+    height: 28px;
+    button {
+      border: 1px solid #e5e5e5;
+      width: 34px;
+      height: 28px;
+      
+    }
+  }
+  .saleorder-close-btn {
+    button {
+      width: 34px;
+      height: 28px;
+    }
+  }
+}
+
+.saleorders-product-dropdown{
+  min-width: 160px;
+  border-radius: 4px ;
+  button{
+  font-weight: 400px;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: #222222;
+  padding-left: 24px;
+  }
+  .ant-btn-text{
+    line-height:1;
+    height: 30px;
+  }
+  .ant-dropdown-menu-title-content{
+    max-height: 30px;
+  }
+  ul{
+    width: 160px;
+  }
+  .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+    padding: 5px 0;
+  }
+  
 }

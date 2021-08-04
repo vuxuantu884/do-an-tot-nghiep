@@ -127,6 +127,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const copyRef = createRef<any>();
   // action
   const dispatch = useDispatch();
+
+  // state
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
     useState<number>(0);
@@ -828,7 +830,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               </div>
               <div className="text-menu">
                 <img src={eyeOutline} alt="eye"></img>
-                <span style={{ marginLeft: "5px" }}>{requirementNameView}</span>
+                <span style={{ marginLeft: "5px", fontWeight: 500 }}>
+                  {requirementNameView}
+                </span>
               </div>
             </Space>
           }
@@ -1660,7 +1664,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         <Button
                           type="primary"
                           className="create-button-custom"
-                          style={{ float: "right" }}
+                          style={{
+                            float: "right",
+                            padding: "0 25px",
+                            letterSpacing: "0.2px",
+                          }}
                           htmlType="submit"
                         >
                           Lưu
@@ -1668,7 +1676,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"
                           onClick={() => window.location.reload()}
-                          style={{ float: "right" }}
+                          style={{
+                            float: "right",
+                            padding: "0 25px",
+                            letterSpacing: "0.2px",
+                          }}
                         >
                           Huỷ
                         </Button>
@@ -1870,13 +1882,15 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               <label
                 className="text-left"
                 style={{ marginTop: "20px", lineHeight: "40px" }}
-              >
-                <i>Chưa tạo đơn giao hàng</i>{" "}
-              </label>
+              ></label>
               <Button
                 type="primary"
                 className="ant-btn-outline fixed-button text-right"
-                style={{ float: "right", marginBottom: "20px" }}
+                style={{
+                  float: "right",
+                  marginBottom: "20px",
+                  padding: "0 25px"
+                }}
                 onClick={ShowShipping}
               >
                 Giao hàng

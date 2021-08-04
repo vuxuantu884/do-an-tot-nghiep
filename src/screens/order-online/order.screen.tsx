@@ -735,12 +735,14 @@ export default function Order() {
 
             <Col md={9} style={{ marginTop: "8px" }}>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => window.location.reload()}
               >
                 Huỷ
               </Button>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 className="create-button-custom ant-btn-outline fixed-button"
                 type="primary"
                 onClick={showSaveAndConfirmModal}
@@ -748,6 +750,7 @@ export default function Order() {
                 Lưu nháp
               </Button>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 type="primary"
                 className="create-button-custom"
                 id="save-and-confirm"
