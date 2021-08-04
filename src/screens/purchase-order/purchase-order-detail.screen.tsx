@@ -1,5 +1,4 @@
-import { CheckOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Row, Steps } from "antd";
+import { Button, Col, Form, Row, } from "antd";
 import ContentContainer from "component/container/content.container";
 import { AppConfig } from "config/AppConfig";
 import UrlConfig from "config/UrlConfig";
@@ -24,6 +23,9 @@ import {
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import POStep from "./component/po-step";
+import { StoreResponse } from "model/core/store.model";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 
 
 type  PurchaseOrderParam = {
@@ -57,6 +59,7 @@ const PODetailScreen: React.FC = () => {
   const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
+  const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
   const collapse = useSelector(
@@ -94,6 +97,14 @@ const PODetailScreen: React.FC = () => {
     },
     [dispatch, onResultRD]
   );
+  const onStoreResult = useCallback(
+    (result: PageResponse<StoreResponse> | false) => {
+      if(!!result) {
+        setListStore(result.items);
+      }
+    },
+    []
+  );
   const onScroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
@@ -108,6 +119,7 @@ const PODetailScreen: React.FC = () => {
         onResultWin
       )
     );
+    dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
     if(!isNaN(idNumber)) {
@@ -116,7 +128,7 @@ const PODetailScreen: React.FC = () => {
       setError(true);
     }
     
-  }, [dispatch, idNumber, onDetail, onResultWin]);
+  }, [dispatch, idNumber, onDetail, onResultWin, onStoreResult]);
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
     return () => {
@@ -142,23 +154,7 @@ const PODetailScreen: React.FC = () => {
         },
       ]}
       extra={
-        <Steps
-          progressDot={(dot: any, { status, index }: any) => (
-            <div className="ant-steps-icon-dot">
-              {(status === "process" || status === "finish") && (
-                <CheckOutlined />
-              )}
-            </div>
-          )}
-          size="small"
-          current={0}
-        >
-          <Steps.Step title="Đặt hàng"  />
-          <Steps.Step title="Xác nhận" />
-          <Steps.Step title="Phiếu nháp" />
-          <Steps.Step title="Nhập kho" />
-          <Steps.Step title="Hoàn thành" />
-        </Steps>
+        <POStep status="" />
       }
     >
       <Form
@@ -187,7 +183,7 @@ const PODetailScreen: React.FC = () => {
               formMain={formMain}
             />
             <POProductForm formMain={formMain} />
-            <POInventoryForm />
+            <POInventoryForm stores={listStore} />
             <POPaymentForm />
           </Col>
           {/* Right Side */}
@@ -214,23 +210,7 @@ const PODetailScreen: React.FC = () => {
             md={10}
             style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px", zIndex: 100 }}
           >
-            <Steps
-              progressDot={(dot: any, { status, index }: any) => (
-                <div className="ant-steps-icon-dot">
-                  {(status === "process" || status === "finish") && (
-                    <CheckOutlined />
-                  )}
-                </div>
-              )}
-              size="small"
-              current={0}
-            >
-              <Steps.Step title="Đặt hàng" />
-              <Steps.Step title="Xác nhận" />
-              <Steps.Step title="Phiếu nháp" />
-              <Steps.Step title="Nhập kho" />
-              <Steps.Step title="Hoàn thành" />
-            </Steps>
+            <POStep status="" />
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>

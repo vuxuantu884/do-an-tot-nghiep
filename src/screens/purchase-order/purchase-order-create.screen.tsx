@@ -26,6 +26,9 @@ import {
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import POStep from "./component/po-step";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
+import { ConvertDateToUtc } from "utils/DateUtils";
 
 const POCreateScreen: React.FC = () => {
   let initPurchaseOrder = {
@@ -43,6 +46,8 @@ const POCreateScreen: React.FC = () => {
     cost_lines: [],
     tax_lines: [],
     supplier_id: 0,
+    expect_store_id: '',
+    expect_import_date: ConvertDateToUtc(new Date()),
   };
   const collapse = useSelector(
     (state: RootReducerType) => state.appSettingReducer.collapse
@@ -57,6 +62,7 @@ const POCreateScreen: React.FC = () => {
   const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
+  const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
   const onResultRD = useCallback(
@@ -128,6 +134,7 @@ const POCreateScreen: React.FC = () => {
         onResultWin
       )
     );
+    dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
   }, [dispatch, onResultWin, onResultRD]);
@@ -183,7 +190,7 @@ const POCreateScreen: React.FC = () => {
               formMain={formMain}
             />
             <POProductForm formMain={formMain} />
-            <POInventoryForm />
+            <POInventoryForm stores={listStore} />
             <POPaymentForm />
           </Col>
           {/* Right Side */}

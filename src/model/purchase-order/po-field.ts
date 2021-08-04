@@ -11,7 +11,8 @@ const POField = {
   total_cost_line: 'total_cost_line',
   untaxed_amount: 'untaxed_amount',
   tax_lines: 'tax_lines',
-
+  expect_store_id: 'expect_store_id',
+  expect_import_date: 'expect_import_date',
 }
 
 const CostLineField = {
