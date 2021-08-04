@@ -1,5 +1,16 @@
-import { MinusCircleOutlined } from "@ant-design/icons";
-import { Row, Col, Select, Form, Input } from "antd";
+import { ExclamationCircleOutlined, MinusCircleOutlined, SaveOutlined } from "@ant-design/icons";
+import {
+  Row,
+  Col,
+  Select,
+  Form,
+  Input,
+  Divider,
+  FormInstance,
+  Button,
+  Checkbox,
+  Modal
+} from "antd";
 import { DistrictResponse } from "model/content/district.model";
 import { WardResponse } from "model/content/ward.model";
 import React from "react";
@@ -12,42 +23,116 @@ import {
 } from "domain/actions/content/content.action";
 import { CountryResponse } from "model/content/country.model";
 import "./customer.scss";
+import { useParams } from "react-router-dom";
+import { CreateBillingAddress, CreateShippingAddress, DeleteBillingAddress, DeleteShippingAddress, UpdateBillingAddress, UpdateShippingAddress } from "domain/actions/customer/customer.action";
+import { showSuccess } from "utils/ToastUtils";
 interface AddressFormProps {
   countries: Array<CountryResponse>;
   field: any;
   remove: (index: number | number[]) => void;
   index: number;
   title: string;
+  form?: FormInstance<any>;
+  name: string;
+  isEdit: boolean;
+  reload?: () => void;
 }
 
 const { Option } = Select;
 
-const AddressForm = ({ countries, field, remove, index, title }: AddressFormProps) => {
+const { confirm } = Modal;
+
+const AddressForm = ({
+  countries,
+  field,
+  remove,
+  index,
+  title,
+  form,
+  name,
+  isEdit,
+  reload
+}: AddressFormProps) => {
   const dispatch = useDispatch();
+  const params: any = useParams();
   const [cities, setCities] = React.useState<Array<any>>([]);
   const [districts, setDistricts] = React.useState<Array<DistrictResponse>>([]);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
-  const [cityId, setCityId] = React.useState<any>(null);
-  const [districtId, setDistrictId] = React.useState<any>(null);
-  const [countryId, setCountryId] = React.useState<any>(233);
+  const [cityId, setCityId] = React.useState<any>(getCityIdValue());
+  const [districtId, setDistrictId] = React.useState<any>(getDistrictIdValue());
+  const [countryId, setCountryId] = React.useState<number>(233);
 
   React.useEffect(() => {
-    if (countryId !== null) {
-      dispatch(CityByCountryAction(countryId, setCities));
-    }
-  }, [countryId]);
+    dispatch(CityByCountryAction(countryId, setCities));
+  }, [dispatch, countryId]);
 
   React.useEffect(() => {
     if (cityId !== null) {
       dispatch(DistrictByCityAction(cityId, setDistricts));
     }
-  }, [cityId]);
+  }, [dispatch, cityId]);
 
   React.useEffect(() => {
     if (districtId !== null) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
     }
-  }, [districtId]);
+  }, [dispatch, districtId]);
+
+  const setResultCreate = React.useCallback(result => {
+    if (result) {
+      showSuccess('Thêm mới địa chỉ thành công')
+      if(reload) {reload()}
+    }
+  }, [])
+
+  const setResultUpdate = React.useCallback(result => {
+    if (result) {
+      showSuccess('Cập nhật địa chỉ thành công')
+      if(reload) {reload()}
+    }
+  }, [])
+
+  const setResultDelete = React.useCallback(result => {
+    if (result) {
+      showSuccess('Xóa địa chỉ thành công')
+      if(reload) {reload()}
+    }
+  }, [])
+
+  function getCityIdValue(): number | null {
+    if (form) {
+      const values: Array<any> = form?.getFieldValue(name);
+      const value = values.find((_, index) => index === field.key);
+      if (value) {
+        return value.city_id;
+      } else {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  function getDistrictIdValue(): number | null {
+    if (form) {
+      const values: Array<any> = form?.getFieldValue(name);
+      const value = values.find((_, index) => index === field.key);
+      if (value) {
+        return value.district_id;
+      } else {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  function isNew(): boolean {
+    if (form) {
+      const values: Array<any> = form?.getFieldValue(name);
+      const value = values.find((_, index) => index === field.key);
+      return value.id !== 0;
+    }
+    return false;
+  }
 
   const handleChangeCountry = (countryId: any) => {
     setCountryId(countryId);
@@ -61,19 +146,138 @@ const AddressForm = ({ countries, field, remove, index, title }: AddressFormProp
     setDistrictId(districtId);
   };
 
+  const handleSave = () => {
+    const values: Array<any> = form?.getFieldValue(name);
+    const value = values.find((_, index) => index === field.key);
+    if (name.indexOf('bill') > -1) {
+      if (value.id !== 0) {
+        let address = {...value, is_default: value.default};
+        delete address.default;
+        dispatch(UpdateBillingAddress(value.id, params.id, address, setResultUpdate ))
+      } else {
+        dispatch(CreateBillingAddress(params.id, value, setResultCreate ))
+      }
+    } else {
+      if (value.id !== 0) {
+        let address = {...value, is_default: value.default};
+        delete address.default;
+        dispatch(UpdateShippingAddress(value.id, params.id, address, setResultUpdate ))
+      } else {
+        dispatch(CreateShippingAddress(params.id, value, setResultCreate ))
+      }
+    }
+  }
+
+  const handleRemove = (callback: any, field: any) => {
+    const values: Array<any> = form?.getFieldValue(name);
+    const value = values.find((_, index) => index === field.key);
+    if (name.indexOf('bill') > -1) {
+      if (value.id !== 0) {
+        confirm({
+          title: <h4>Bạn có chắc chắn xóa địa chỉ có người nhận <span style={{color: 'blue'}}>{value.name}</span> này không?</h4>,
+          icon: <ExclamationCircleOutlined />,
+          content: '',
+          okText: 'Có',
+          okType: 'danger',
+          cancelText: 'Không',
+          onOk() {
+            dispatch(DeleteBillingAddress(value.id, params.id, setResultDelete ))
+          },
+          onCancel() {
+
+          }
+        })
+
+      } else {
+          callback(field.name)
+      }
+    } else {
+      if (value.id !== 0) {
+        console.log(value)
+        confirm({
+          title: <h4>Bạn có chắc chắn xóa địa chỉ có người nhận <span style={{color: 'blue'}}>{value.name}</span> này không?</h4>,
+          icon: <ExclamationCircleOutlined />,
+          content: '',
+          okText: 'Có',
+          okType: 'danger',
+          cancelText: 'Không',
+          onOk() {
+            dispatch(DeleteShippingAddress(value.id, params.id, setResultDelete ))
+          },
+          onCancel() {
+
+          }
+        })
+      } else {
+        callback(field.name)
+      }
+    }
+  }
+
   return (
     <Row gutter={12}>
       <Col span={24}>
-        <h5>{title + ` ${index}`}</h5>
+        <Divider orientation="left">{title + ` ${index}`}</Divider>
       </Col>
-      <Col span={23}>
+      <Col span={23} style={{ padding: "0 1rem" }}>
         <Row gutter={8}>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item
               {...field}
-              name={[field.name, "country"]}
+              label="Người nhận"
+              name={[field.name, "name"]}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập tên người nhận",
+                },
+              ]}
             >
-              <Select placeholder="Quốc gia" disabled onChange={handleChangeCountry} defaultValue={233}>
+              <Input placeholder="Người nhận" />
+            </Form.Item>
+          </Col>
+          <Col span={4}>
+            <Form.Item
+              {...field}
+              label="Số điện thoại"
+              name={[field.name, "phone"]}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập số điện thoại",
+                },
+              ]}
+            >
+              <Input placeholder="Số điện thoại" />
+            </Form.Item>
+          </Col>
+          <Col span={4}>
+            <Form.Item
+              {...field}
+              label="Email"
+              name={[field.name, "email"]}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập thư điện tử",
+                },
+              ]}
+            >
+              <Input placeholder="Thư điện tử" />
+            </Form.Item>
+          </Col>
+          <Col span={4}>
+            <Form.Item
+              {...field}
+              label="Quốc gia"
+              name={[field.name, "country_id"]}
+              initialValue={233}
+            >
+              <Select
+                placeholder="Quốc gia"
+                disabled
+                onChange={handleChangeCountry}
+              >
                 {countries.map((country) => (
                   <Option key={country.id} value={country.id}>
                     {country.name + ` - ${country.code}`}
@@ -82,10 +286,11 @@ const AddressForm = ({ countries, field, remove, index, title }: AddressFormProp
               </Select>
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item
               {...field}
-              name={[field.name, "city"]}
+              label="Tỉnh/TP"
+              name={[field.name, "city_id"]}
               rules={[
                 {
                   required: true,
@@ -102,10 +307,11 @@ const AddressForm = ({ countries, field, remove, index, title }: AddressFormProp
               </Select>
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item
               {...field}
-              name={[field.name, "district"]}
+              label="Quận/huyện"
+              name={[field.name, "district_id"]}
               rules={[
                 {
                   required: true,
@@ -122,10 +328,11 @@ const AddressForm = ({ countries, field, remove, index, title }: AddressFormProp
               </Select>
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item
               {...field}
-              name={[field.name, "ward"]}
+              label="Xã/phường"
+              name={[field.name, "ward_id"]}
               rules={[
                 {
                   required: true,
@@ -142,10 +349,11 @@ const AddressForm = ({ countries, field, remove, index, title }: AddressFormProp
               </Select>
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item
               {...field}
-              name={[field.name, "address"]}
+              label="Địa chỉ"
+              name={[field.name, "full_address"]}
               rules={[
                 {
                   required: true,
@@ -153,13 +361,55 @@ const AddressForm = ({ countries, field, remove, index, title }: AddressFormProp
                 },
               ]}
             >
-                <Input placeholder="Địa chỉ" />
+              <Input placeholder="Địa chỉ" />
             </Form.Item>
           </Col>
+          <Col span={4}>
+            <Form.Item
+              {...field}
+              label="Mã zip"
+              name={[field.name, "zip_code"]}
+            >
+              <Input placeholder="Mã zip" />
+            </Form.Item>
+          </Col>
+          {
+            name.indexOf('bill') > -1 &&  <Col span={4}>
+            <Form.Item
+              {...field}
+              label="Mã số thuế"
+              name={[field.name, "tax_code"]}
+            >
+              <Input placeholder="Mã số thuế" />
+            </Form.Item>
+          </Col>
+          }
+          <Col span={2}>
+            <Form.Item
+              {...field}
+              label="Mặc định"
+              name={[field.name, "default"]}
+              valuePropName="checked"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn",
+                },
+              ]}
+            >
+              <Checkbox onChange={() => {}}></Checkbox>
+            </Form.Item>
+          </Col>
+          {isEdit && (
+            <Col span={1} style={{display: 'flex', flexDirection: 'column',justifyContent: 'center'}}>
+              <Button title="Lưu" type="text" icon={<SaveOutlined/>} onClick={handleSave}>
+              </Button>
+            </Col>
+          )}
         </Row>
       </Col>
       <Col span={1}>
-        <MinusCircleOutlined onClick={() => remove(field.name)} />
+        <MinusCircleOutlined onClick={() => handleRemove(remove, field)} />
       </Col>
     </Row>
   );
@@ -170,7 +420,7 @@ AddressForm.propTypes = {
   field: PropTypes.object.isRequired,
   remove: PropTypes.func.isRequired,
   index: PropTypes.number.isRequired,
-  title: PropTypes.string.isRequired
+  title: PropTypes.string.isRequired,
 };
 
 export default AddressForm;

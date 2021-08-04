@@ -5,13 +5,22 @@ import { YodyAction } from "base/BaseAction";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { HttpStatus } from "config/HttpStatus";
 import {
+  createBillingAddress,
+  createContact,
   createCustomer,
+  createShippingAddress,
+  deleteBillingAddress,
+  deleteContact,
+  deleteShippingAddress,
   getCustomerGroups,
   getCustomerLevels,
   getCustomers,
   getCustomerTypes,
   getDetailCustomer,
+  updateBillingAddress,
+  updateContact,
   updateCustomer,
+  updateShippingAddress,
 } from "service/cusomer/customer.service";
 import { CustomerType } from "domain/types/customer.type";
 import { showError } from "utils/ToastUtils";
@@ -45,13 +54,13 @@ function* onKeySearchCustomerChange(action: YodyAction) {
 function* getCustomerList(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<CustomerResponse>> = yield call(
+    const response: BaseResponse<PageResponse<any>> = yield call(
       getCustomers,
       query
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data.items);
+        setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -155,7 +164,7 @@ function* CustomerTypes(action: YodyAction) {
 }
 
 function* CreateCustomer(action: YodyAction) {
-  const { customer, setData } = action.payload;
+  const { customer, setResult } = action.payload;
   try {
     const response: BaseResponse<any> = yield call(
       createCustomer,
@@ -163,12 +172,14 @@ function* CreateCustomer(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -178,7 +189,7 @@ function* CreateCustomer(action: YodyAction) {
 }
 
 function* UpdateCustomer(action: YodyAction) {
-  const { customer, id, setData } = action.payload;
+  const { customer, id, setResult } = action.payload;
   try {
     const response: BaseResponse<any> = yield call(
       updateCustomer,
@@ -187,12 +198,251 @@ function* UpdateCustomer(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
+        setResult(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* UpdateBillingAddress(action: YodyAction) {
+  const { customerId, id, address, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      updateBillingAddress,
+      id,
+      customerId,
+      address
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* CreateBillingAddress(action: YodyAction) {
+  const { customerId, address, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      createBillingAddress,
+      customerId,
+      address
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* UpdateShippingAddress(action: YodyAction) {
+  const { customerId, id, address, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      updateShippingAddress,
+      id,
+      customerId,
+      address
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* CreateShippingAddress(action: YodyAction) {
+  const { customerId, address, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      createShippingAddress,
+      customerId,
+      address
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* UpdateContact(action: YodyAction) {
+  const { customerId, id, contact, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      updateContact,
+      id,
+      customerId,
+      contact
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* CreateContact(action: YodyAction) {
+  const { customerId, contact, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      createContact,
+      customerId,
+      contact
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* DeleteBillingAddress(action: YodyAction) {
+  const { customerId, id, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      deleteBillingAddress,
+      id,
+      customerId,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* DeleteContact(action: YodyAction) {
+  const { customerId, id, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      deleteContact,
+      id,
+      customerId,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* DeleteShippingAddress(action: YodyAction) {
+  const { customerId, id, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      deleteShippingAddress,
+      id,
+      customerId,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -216,4 +466,13 @@ export default function* customerSagas() {
   yield takeLatest(CustomerType.CUSTOMER_GROUPS, CustomerGroups);
   yield takeLatest(CustomerType.CUSTOMER_LEVELS, CustomerLevels);
   yield takeLatest(CustomerType.CUSTOMER_TYPES, CustomerTypes);
+  yield takeLatest(CustomerType.CREATE_BILLING_ADDR, CreateBillingAddress);
+  yield takeLatest(CustomerType.UPDATE_BILLING_ADDR, UpdateBillingAddress);
+  yield takeLatest(CustomerType.CREATE_SHIPPING_ADDR, CreateShippingAddress);
+  yield takeLatest(CustomerType.UPDATE_SHIPPING_ADDR, UpdateShippingAddress);
+  yield takeLatest(CustomerType.CREATE_CONTACT, CreateContact);
+  yield takeLatest(CustomerType.UPDATE_CONTACT, UpdateContact);
+  yield takeLatest(CustomerType.DELETE_CONTACT, DeleteContact);
+  yield takeLatest(CustomerType.DELETE_BILLING_ADDR, DeleteBillingAddress);
+  yield takeLatest(CustomerType.DELETE_SHIPPING_ADDR, DeleteShippingAddress);
 }

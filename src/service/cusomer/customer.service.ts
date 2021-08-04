@@ -73,3 +73,18 @@ export const updateCustomer = (id: number,customer: CustomerRequest): Promise<Ba
   let url = `${ApiConfig.CUSTOMER}/customer/${id}`;
   return BaseAxios.put(url, customer);
 };
+
+export const deleteContact = (id: number, customerId: number): Promise<BaseResponse<any>> => {
+  let url = `${ApiConfig.CUSTOMER}/customer/${customerId}/contacts/${id}`;
+  return BaseAxios.delete(url);
+};
+
+export const deleteShippingAddress = (id: number, customerId: number): Promise<BaseResponse<any>> => {
+  let url = `${ApiConfig.CUSTOMER}/customer/${customerId}/shipping-address/${id}`;
+  return BaseAxios.delete(url);
+};
+
+export const deleteBillingAddress = (id: number, customerId: number): Promise<BaseResponse<any>> => {
+  let url = `${ApiConfig.CUSTOMER}/customer/${customerId}/billing-address/${id}`;
+  return BaseAxios.delete(url);
+};

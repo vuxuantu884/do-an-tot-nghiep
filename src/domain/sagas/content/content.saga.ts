@@ -8,7 +8,7 @@ import { countryGetApi, getDistrictApi, getWardApi } from "service/content/conte
 import { showError } from "utils/ToastUtils";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import { put } from "redux-saga/effects";
+import { put, takeEvery } from "redux-saga/effects";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { GroupResponse } from 'model/content/group.model';
 
@@ -43,7 +43,6 @@ function* districtGetSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response.data);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -67,7 +66,6 @@ function* cityByCountryGetSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response.data);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -91,7 +89,6 @@ function* districtByCityGetSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response.data);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -152,8 +149,8 @@ function* groupGetSaga(action: YodyAction) {
 export function* contentSaga() {
   yield takeLatest(ContentType.GET_COUNTRY_REQUEST, countryGetSaga);
   yield takeLatest(ContentType.GET_DISTRICT_REQUEST, districtGetSaga);
-  yield takeLatest(ContentType.GET_WARD_REQUEST, wardGetSaga);
   yield takeLatest(ContentType.GET_GROUP_REQUEST, groupGetSaga);
-  yield takeLatest(ContentType.GET_CITY_BY_COUNTRY_REQUEST, cityByCountryGetSaga);
-  yield takeLatest(ContentType.GET_DISTRICT_BY_CITY_REQUEST, districtByCityGetSaga);
+  yield takeEvery(ContentType.GET_WARD_REQUEST, wardGetSaga);
+  yield takeEvery(ContentType.GET_CITY_BY_COUNTRY_REQUEST, cityByCountryGetSaga);
+  yield takeEvery(ContentType.GET_DISTRICT_BY_CITY_REQUEST, districtByCityGetSaga);
 }

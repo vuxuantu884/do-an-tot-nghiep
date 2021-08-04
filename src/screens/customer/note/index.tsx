@@ -1,5 +1,5 @@
 import { MinusCircleOutlined } from "@ant-design/icons";
-import { Row, Col, Form, Input } from "antd";
+import { Row, Col, Form, Input, Divider } from "antd";
 import PropTypes from "prop-types";
 interface NoteFormProps {
   field: any;
@@ -11,16 +11,17 @@ const NoteForm = ({ field, remove, index }: NoteFormProps) => {
   return (
     <Row gutter={12}>
       <Col span={24}>
-        <h5>Ghi chú {index}</h5>
+        <Divider orientation="left">Ghi chú {index}</Divider>
       </Col>
-      <Col span={23}>
+      <Col span={23} style={{padding: '0 1rem'}}>
         <Row gutter={8}>
           <Col span={6}>
             <Form.Item
               {...field}
+              label="Nội dung"
               name={[field.name, "content"]}
             >
-              <Input placeholder="Nội dung" />
+              <Input.TextArea placeholder="Nội dung" />
             </Form.Item>
           </Col>
         </Row>

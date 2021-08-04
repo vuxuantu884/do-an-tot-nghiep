@@ -1,14 +1,18 @@
 import { PlusOutlined } from "@ant-design/icons"
-import { Card, Col, Row, Form, Button } from "antd"
+import { Card, Col, Row, Form, Button, FormInstance } from "antd"
+import { CustomerContactClass } from "model/request/customer.request"
 import React from "react"
 
 interface CardContactProps {
     component: React.FunctionComponent<any>;
     title: string;
     name: string;
+    form?: FormInstance<any>;
+    isEdit: boolean;
+    reload?: () => void;
 }
 
-const RenderCardContact = ({component: Component, title, name}: CardContactProps) => {
+const RenderCardContact = ({component: Component, title, name, form, isEdit, reload}: CardContactProps) => {
     return (
         <Card
         title={
@@ -30,6 +34,9 @@ const RenderCardContact = ({component: Component, title, name}: CardContactProps
                             index={index + 1}
                             remove={remove}
                             field={field}
+                            form={form}
+                            isEdit={isEdit}
+                            reload={reload}
                           />
                         )}
                       </Form.Item>
@@ -40,7 +47,7 @@ const RenderCardContact = ({component: Component, title, name}: CardContactProps
                       type="link"
                       size={"small"}
                       icon={<PlusOutlined />}
-                      onClick={() => add()}
+                      onClick={() => add(new CustomerContactClass())}
                     >
                       Thêm {title.toLowerCase()}
                     </Button>

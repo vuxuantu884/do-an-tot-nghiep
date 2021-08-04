@@ -1,5 +1,6 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Card, Col, Row, Form, Button } from "antd";
+import { Card, Col, Row, Form, Button, FormInstance } from "antd";
+import { CustomerBillingAddress, CustomerBillingAddressClass, CustomerShippingAddressClass } from "model/request/customer.request";
 import React from "react";
 
 interface CardAddressProps {
@@ -7,9 +8,21 @@ interface CardAddressProps {
   title: string;
   countries: Array<any>,
   name: string;
+  form?: FormInstance<any>;
+  isEdit: boolean;
+  reload?: () => void;
 }
 
-const RenderCardAdress = ({ component: Component, title, countries, name }: CardAddressProps) => {
+const RenderCardAdress = ({ component: Component, title, countries, name, form, isEdit, reload }: CardAddressProps) => {
+  const handleClick = (callback: any) => {
+      if (name.indexOf('bill') > -1) {
+        let billAdd = new CustomerBillingAddressClass();
+        callback(billAdd)
+      } else {
+        let shipAdd = new CustomerShippingAddressClass();
+        callback(shipAdd)
+      }
+  }
   return (
     <Card
       title={
@@ -33,6 +46,10 @@ const RenderCardAdress = ({ component: Component, title, countries, name }: Card
                           remove={remove}
                           field={field}
                           title={title.charAt(0) + title.slice(1, title.length).toLowerCase()}
+                          name={name}
+                          form={form}
+                          isEdit={isEdit}
+                          reload={reload}
                         />
                       )}
                     </Form.Item>
@@ -43,7 +60,7 @@ const RenderCardAdress = ({ component: Component, title, countries, name }: Card
                     type="link"
                     size={"small"}
                     icon={<PlusOutlined />}
-                    onClick={() => add()}
+                    onClick={() => handleClick(add)}
                   >
                     Thêm địa chỉ
                   </Button>
