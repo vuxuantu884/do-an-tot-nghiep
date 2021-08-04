@@ -9,6 +9,7 @@ import {
   getInfoDeliveryGHTK,
   getOrderSubStatusService,
   getTrackingLogFulFillment,
+  setSubStatusService,
 } from "./../../../service/order/order.service";
 import { SourceResponse } from "./../../../model/response/order/source.response";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
@@ -21,7 +22,7 @@ import BaseResponse from "base/BaseResponse";
 import { put, call, takeLatest } from "redux-saga/effects";
 import { HttpStatus } from "config/HttpStatus";
 import { YodyAction } from "../../../base/BaseAction";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import {
   DeliveryServiceResponse,
   OrderResponse,
@@ -30,6 +31,7 @@ import {
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import { getAmountPayment } from "utils/AppUtils";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 function* orderCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
@@ -214,10 +216,15 @@ function* ListDeliveryServicesSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
 }
 
 function* getListSubStatusSaga(action: YodyAction) {
@@ -231,10 +238,37 @@ function* getListSubStatusSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
         break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
       default:
         break;
     }
   } catch (error) {}
+}
+
+function* setSubStatusSaga(action: YodyAction) {
+  let { order_id, statusId } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<Array<DeliveryServiceResponse>> = yield call(
+      setSubStatusService, order_id, statusId
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        showSuccess("Cập nhật trạng thái thành công");
+        break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
+      default:
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
 }
 
 function* OrderOnlineSaga() {
@@ -258,6 +292,7 @@ function* OrderOnlineSaga() {
     OrderType.GET_TRACKING_LOG_FULFILLMENT,
     getTRackingLogFulfillmentSaga
   );
+  yield takeLatest(OrderType.SET_SUB_STATUS, setSubStatusSaga);
 }
 
 export default OrderOnlineSaga;

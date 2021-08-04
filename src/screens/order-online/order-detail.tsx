@@ -808,7 +808,7 @@ const OrderDetail = () => {
                 </Row>
               </div>
             </Card>
-            <SubStatusOrder status={OrderDetail?.status} />
+            <SubStatusOrder status={OrderDetail?.status} orderId={OrderId} />
             <Card
               className="margin-top-20"
               title={
