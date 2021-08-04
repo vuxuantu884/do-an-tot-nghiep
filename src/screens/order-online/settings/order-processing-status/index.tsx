@@ -85,6 +85,11 @@ const SettingOrderProcessingStatus: React.FC = () => {
       title: "Ghi chú",
       dataIndex: "note",
       visible: true,
+      render: (value, row, index) => {
+        return (
+          <span style={{color: '#666666'}}>{value}</span>
+        );
+      },
     },
     {
       title: "Áp dụng cho đơn hàng ",
