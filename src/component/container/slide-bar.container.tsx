@@ -1,4 +1,4 @@
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Tooltip } from "antd";
 import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
 import menu from "routes/menu";
@@ -56,9 +56,19 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
                         }
                         key={item.key}
                       >
-                        <Link to={item.path} title={item.subTitle}>
-                          {item.title}
-                        </Link>
+                        {
+                          item.subTitle ? (
+                            <Tooltip title={item.subTitle} color="#FCAF17" mouseEnterDelay={0} mouseLeaveDelay={0} overlayInnerStyle={{textAlign: "center", padding: '5px 10px'}}>
+                              <Link to={item.path}>
+                                {item.title}
+                              </Link>
+                            </Tooltip>
+                          ) : (
+                            <Link to={item.path}>
+                              {item.title}
+                            </Link>
+                          )
+                        }
                       </Menu.Item>
                     );
                   })}
