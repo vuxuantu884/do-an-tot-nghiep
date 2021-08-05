@@ -793,10 +793,11 @@ export const SumWeight = (items?: Array<OrderLineItemRequest>) => {
     for (let i = 0; i < items.length; i++) {
       switch (items[i].weight_unit) {
         case "g":
-          totalWeight = totalWeight + items[i].weight;
+          totalWeight = totalWeight + items[i].weight * items[i].quantity;
           break;
         case "kg":
-          totalWeight = totalWeight + items[i].weight * 1000;
+          totalWeight =
+            totalWeight + items[i].weight * 1000 * items[i].quantity;
           break;
         default:
           break;
@@ -813,10 +814,11 @@ export const SumWeightResponse = (items?: Array<OrderLineItemResponse>) => {
     for (let i = 0; i < items.length; i++) {
       switch (items[i].weight_unit) {
         case "g":
-          totalWeight = totalWeight + items[i].weight;
+          totalWeight = totalWeight + items[i].weight * items[i].quantity;
           break;
         case "kg":
-          totalWeight = totalWeight + items[i].weight * 1000;
+          totalWeight =
+            totalWeight + items[i].weight * 1000 * items[i].quantity;
           break;
         default:
           break;
