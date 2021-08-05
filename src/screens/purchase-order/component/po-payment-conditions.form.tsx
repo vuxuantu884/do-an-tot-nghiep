@@ -1,6 +1,7 @@
 import { Card, Col, Form, Input, Row, Select } from "antd";
+import { POField } from "model/purchase-order/po-field";
 import React from "react";
-import { PoPaymentConditions } from "../../../model/purchase-order/payment-conditions.model";
+import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 
 type POPaymentConditionsFormProps = {
   listPayment: Array<PoPaymentConditions>;
@@ -18,8 +19,8 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
       }
     >
       <div className="padding-20">
-        <Row gutter={24}>
-          <Col md={12}>
+        <Row gutter={50}>
+          <Col span={24} md={10}>
             <Form.Item
               rules={[
                 {
@@ -27,7 +28,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                   message: "Vui lòng chọn điều khoản thanh toán",
                 },
               ]}
-              name="payment_condition_id"
+              name={POField.payment_condition_id}
               label="Điều khoản thanh toán"
             >
               <Select
@@ -46,9 +47,9 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
               </Select>
             </Form.Item>
           </Col>
-          <Col md={12}>
-            <Form.Item name="payment_note" label="Diễn giải">
-              <Input.TextArea />
+          <Col span={24} md={10}>
+            <Form.Item name={POField.payment_note} label="Diễn giải">
+              <Input.TextArea placeholder="Nhập diễn giải" />
             </Form.Item>
           </Col>
         </Row>

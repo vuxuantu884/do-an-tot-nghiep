@@ -42,7 +42,7 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
   useEffect(() => {
     if (props.visible) {
       form.resetFields();
-      let cost_lines: Array<CostLine> = props.costLines;
+      let cost_lines: Array<CostLine> = [...props.costLines];
       if (cost_lines.length === 0) {
         cost_lines.push({ title: "", amount: null });
       }

@@ -1,4 +1,4 @@
-import { Button, Col, Form, Row, } from "antd";
+import { Button, Col, Form, Input, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import { AppConfig } from "config/AppConfig";
 import UrlConfig from "config/UrlConfig";
@@ -12,7 +12,7 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { PoFormName, VietNamId } from "utils/Constants";
+import { PoFormName, POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
 import POPaymentForm from "./component/po-payment.form";
@@ -26,9 +26,9 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import POStep from "./component/po-step";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
+import { ConvertDateToUtc } from "utils/DateUtils";
 
-
-type  PurchaseOrderParam = {
+type PurchaseOrderParam = {
   id: string;
 };
 const PODetailScreen: React.FC = () => {
@@ -47,6 +47,13 @@ const PODetailScreen: React.FC = () => {
     cost_lines: [],
     tax_lines: [],
     supplier_id: 0,
+    order_date: ConvertDateToUtc(new Date()),
+    status: POStatus.DRAFT,
+    receive_status: ProcumentStatus.DRAFT,
+    activated_date: null,
+    completed_stock_date: null,
+    cancelled_date: null,
+    completed_date: null,
   };
   const { id } = useParams<PurchaseOrderParam>();
   let idNumber = parseInt(id);
@@ -65,25 +72,31 @@ const PODetailScreen: React.FC = () => {
   const collapse = useSelector(
     (state: RootReducerType) => state.appSettingReducer.collapse
   );
-  const onDetail = useCallback((result: PurchaseOrder|null) => {
-    setLoading(false);
-    if (!result) {
-      setError(true);
-    } else {
-      formMain.setFieldsValue(result);
-    }
-  }, [formMain]);
-  const onResultRD = useCallback((data: PageResponse<AccountResponse>|false) => {
-    if(!data) {
-      setError(true);
-      return;
-    }
-    setRDAccount(data.items);
-    setLoading(false);
-  }, []);
+  const onDetail = useCallback(
+    (result: PurchaseOrder | null) => {
+      setLoading(false);
+      if (!result) {
+        setError(true);
+      } else {
+        formMain.setFieldsValue(result);
+      }
+    },
+    [formMain]
+  );
+  const onResultRD = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        setError(true);
+        return;
+      }
+      setRDAccount(data.items);
+      setLoading(false);
+    },
+    []
+  );
   const onResultWin = useCallback(
-    (data: PageResponse<AccountResponse>|false) => {
-      if(!data) {
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
         setError(true);
         return;
       }
@@ -99,7 +112,7 @@ const PODetailScreen: React.FC = () => {
   );
   const onStoreResult = useCallback(
     (result: PageResponse<StoreResponse> | false) => {
-      if(!!result) {
+      if (!!result) {
         setListStore(result.items);
       }
     },
@@ -122,12 +135,11 @@ const PODetailScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
-    if(!isNaN(idNumber)) {
+    if (!isNaN(idNumber)) {
       dispatch(PoDetailAction(idNumber, onDetail));
     } else {
       setError(true);
     }
-    
   }, [dispatch, idNumber, onDetail, onResultWin, onStoreResult]);
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
@@ -153,9 +165,7 @@ const PODetailScreen: React.FC = () => {
           name: `Đơn hàng ${id}`,
         },
       ]}
-      extra={
-        <POStep status="" />
-      }
+      extra={<POStep status="" />}
     >
       <Form
         name={PoFormName.Main}
@@ -173,7 +183,10 @@ const PODetailScreen: React.FC = () => {
         initialValues={initPurchaseOrder}
         layout="vertical"
       >
-       <Row gutter={24} style={{ paddingBottom: 80 }}>
+        <Form.Item name="status" noStyle hidden>
+          <Input />
+        </Form.Item>
+        <Row gutter={24} style={{ paddingBottom: 80 }}>
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm
@@ -182,7 +195,7 @@ const PODetailScreen: React.FC = () => {
               listDistrict={listDistrict}
               formMain={formMain}
             />
-            <POProductForm formMain={formMain} />
+            <POProductForm isEdit={true} formMain={formMain} />
             <POInventoryForm stores={listStore} />
             <POPaymentForm />
           </Col>
@@ -208,7 +221,12 @@ const PODetailScreen: React.FC = () => {
         >
           <Col
             md={10}
-            style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px", zIndex: 100 }}
+            style={{
+              marginLeft: "-20px",
+              marginTop: "3px",
+              padding: "3px",
+              zIndex: 100,
+            }}
           >
             <POStep status="" />
           </Col>
@@ -229,10 +247,10 @@ const PODetailScreen: React.FC = () => {
               Lưu
             </Button>
           </Col>
-        </Row> 
+        </Row>
       </Form>
     </ContentContainer>
-  )
-}
+  );
+};
 
 export default PODetailScreen;

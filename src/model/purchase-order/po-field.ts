@@ -13,6 +13,10 @@ const POField = {
   tax_lines: 'tax_lines',
   expect_store_id: 'expect_store_id',
   expect_import_date: 'expect_import_date',
+  payment_condition_id: 'payment_condition_id',
+  payment_note: 'payment_note',
+  policy_price_code: 'policy_price_code',
+  status: 'status',
 }
 
 const CostLineField = {
