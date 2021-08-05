@@ -52,7 +52,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
       dataIndex: "sub_status",
       visible: true,
       className: "columnTitle",
-      width: 600,
+      width: "25%",
       render: (value, row, index) => {
         if (value) {
           return (
@@ -71,6 +71,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
       title: "Trạng thái đơn hàng",
       dataIndex: "status",
       visible: true,
+      width: "25%",
       render: (value, row, index) => {
         const result = LIST_STATUS?.find((singleStatus) => {
           return singleStatus.value === value;
@@ -85,16 +86,16 @@ const SettingOrderProcessingStatus: React.FC = () => {
       title: "Ghi chú",
       dataIndex: "note",
       visible: true,
+      width: "25%",
       render: (value, row, index) => {
-        return (
-          <span style={{color: '#666666'}}>{value}</span>
-        );
+        return <span style={{ color: "#666666" }}>{value}</span>;
       },
     },
     {
       title: "Áp dụng cho đơn hàng ",
       dataIndex: "is_active",
       visible: true,
+      width: "25%",
       render: (value, row, index) => {
         if (value) {
           return <span style={{ color: "#27AE60" }}>Đang áp dụng</span>;
@@ -232,7 +233,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
         extra={createOrderServiceSubStatusHtml()}
       >
         {listOrderProcessingStatus && (
-          <Card style={{ padding: '35px 15px' }}>
+          <Card style={{ padding: "35px 15px" }}>
             <CustomTable
               isLoading={tableLoading}
               showColumnSetting={false}

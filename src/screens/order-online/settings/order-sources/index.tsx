@@ -50,7 +50,7 @@ const OrderSources: React.FC = () => {
       dataIndex: "name",
       visible: true,
       className: "columnTitle",
-      width: 600,
+      width: "20%",
       render: (value, row, index) => {
         if (value) {
           return (
@@ -69,6 +69,7 @@ const OrderSources: React.FC = () => {
       title: "Áp dụng cho đơn hàng",
       dataIndex: "is_active",
       visible: true,
+      width: "40%",
       render: (value, row, index) => {
         if (value) {
           return <span style={{ color: "#27AE60" }}>Đang áp dụng</span>;
@@ -80,6 +81,7 @@ const OrderSources: React.FC = () => {
       title: "Mặc định",
       dataIndex: "is_default",
       visible: true,
+      width: "20%",
       render: (value) => {
         if (value) {
           return <img src={iconChecked} alt="Mặc định" />;
@@ -214,7 +216,7 @@ const OrderSources: React.FC = () => {
         extra={createOrderSourceHtml()}
       >
         {listOrderSources && (
-          <Card style={{ padding: '35px 15px' }}>
+          <Card style={{ padding: "35px 15px" }}>
             <CustomTable
               isLoading={tableLoading}
               showColumnSetting={false}
