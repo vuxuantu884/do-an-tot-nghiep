@@ -9,12 +9,8 @@ import {
   Select,
   DatePicker,
   Checkbox,
-  Input,
-  Divider,
 } from "antd";
 
-import callIcon from "assets/img/call.svg";
-import locationIcon from "assets/img/location.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import deliveryIcon from "assets/icon/delivery.svg";
 import selfdeliver from "assets/icon/self_shipping.svg";
@@ -23,7 +19,6 @@ import wallClock from "assets/icon/wall_clock.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useLayoutEffect, useState } from "react";
-import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import CustomSelect from "component/custom/select.custom";
@@ -59,7 +54,9 @@ type ShipmentCardProps = {
   setShippingFeeInformedCustomer: (value: number | null) => void;
   setShippingFeeInformedCustomerHVC: (value: number | null) => void;
   setPaymentMethod: (value: number) => void;
+  setHVC: (value: number) => void;
   setOfficeTime: (value: boolean) => void;
+  setServiceType: (value: string) => void;
   storeDetail?: StoreCustomResponse | null;
   amount: number;
   paymentMethod: number;
@@ -69,6 +66,7 @@ type ShipmentCardProps = {
   items?: Array<OrderLineItemRequest>;
   discountValue: number | null;
   officeTime: boolean | undefined;
+  setFeeGhtk: (value: number) => void;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
@@ -76,7 +74,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
 ) => {
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
-  const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>();
+  const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
   const [deliveryServices, setDeliveryServices] =
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [shipmentMethodState, setshipmentMethod] = useState<number>(4);
@@ -103,13 +101,24 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       state.bootstrapReducer.data?.shipping_requirement
   );
 
+  const changeServiceType = (
+    id: number,
+    code: string,
+    item: any,
+    fee: number
+  ) => {
+    props.setHVC(id);
+    props.setServiceType(item);
+    props.setFeeGhtk(fee);
+  };
+
   const getInfoDeliveryGHTK = useCallback(
     (type: string) => {
       let request: ShippingGHTKRequest = {
         pick_address: props.storeDetail?.address,
         pick_province: props.storeDetail?.city_name,
         pick_district: props.storeDetail?.district_name,
-        province: getShipingAddresDefault(props.cusomerInfo)?.country,
+        province: getShipingAddresDefault(props.cusomerInfo)?.city,
         district: getShipingAddresDefault(props.cusomerInfo)?.district,
         address: getShipingAddresDefault(props.cusomerInfo)?.full_address,
         weight: SumWeight(props.items),
@@ -327,7 +336,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               </Col>
               <Col md={12}>
                 <Form.Item
-                  label="Phí ship báo khách:"
+                  label="Phí ship báo khách"
                   name="shipping_fee_informed_to_customer"
                 >
                   <NumberInput
@@ -341,7 +350,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                     }}
                     maxLength={15}
                     minLength={0}
-                    onChange={props.setShippingFeeInformedCustomerHVC}
+                    onChange={props.setShippingFeeInformedCustomer}
                   />
                 </Form.Item>
               </Col>
@@ -381,35 +390,69 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                 <td style={{ padding: 0 }}>
                                   {single.code === "ghtk" ? (
                                     <div>
-                                      <label className="radio-container">
+                                      <div
+                                        style={{ padding: "8px 16px", alignItems:"center" }}
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      >
                                         <input
                                           type="radio"
                                           name="tt"
-                                          className="radio"
-                                          value="road"
+                                          className="radio-delivery"
+                                          value="standard"
+                                          onChange={(e) =>
+                                            changeServiceType(
+                                              single.id,
+                                              single.code,
+                                              "standard",
+                                              infoGHTK.length > 1
+                                              ? infoGHTK[0].fee
+                                              : 0
+                                            )
+                                          }
                                         />
-                                        <span className="checkmark"></span>
-                                        Đường bộ
-                                      </label>
-                                      <Divider style={{ margin: "8px 0"}}/>
-                                      <label className="radio-container">
+                                        <span className="lblShip">
+                                          Đường bộ
+                                        </span>
+                                      </div>
+                                      <div
+                                        style={{ padding: "8px 16px" }}
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      >
                                         <input
                                           type="radio"
                                           name="tt"
-                                          className="radio"
-                                          value="fly"
+                                          className="radio-delivery"
+                                          value="express"
+                                          onChange={(e) =>
+                                            changeServiceType(
+                                              single.id,
+                                              single.code,
+                                              "express",
+                                              infoGHTK.length > 1
+                                                ? infoGHTK[1].fee
+                                                : 0
+                                            )
+                                          }
                                         />
                                         <span className="checkmark"></span>
                                         Đường bay
-                                      </label>
+                                      </div>
                                     </div>
                                   ) : (
                                     <label className="radio-container">
                                       <input
                                         type="radio"
                                         name="tt"
-                                        className="radio"
-                                        value="road"
+                                        className="radio-delivery"
+                                        value={`${single.code}_standard`}
+                                        onChange={(e) =>
+                                          changeServiceType(
+                                            single.id,
+                                            single.code,
+                                            "standard",
+                                            20000
+                                          )
+                                        }
                                       />
                                       <span className="checkmark"></span>
                                       Chuyển phát nhanh PDE
@@ -606,9 +649,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             <Col md={2}>
               <div>Địa chỉ:</div>
             </Col>
-            <b className="row-info-content">
-              {props.storeDetail?.full_address}
-            </b>
+            <b className="row-info-content">{props.storeDetail?.address}</b>
           </Row>
         </div>
 

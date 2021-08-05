@@ -15,7 +15,7 @@ import {
   FormInstance,
   Select,
 } from "antd";
-import {
+import React, {
   useState,
   useCallback,
   useLayoutEffect,
@@ -24,6 +24,7 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  ShippingGHTKRequest,
   UpdateFulFillmentRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
@@ -32,6 +33,9 @@ import {
 import { AccountResponse } from "model/account/account.model";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
+  DeliveryServicesGetList,
+  getTrackingLogFulfillmentAction,
+  InfoGHTKAction,
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
@@ -45,29 +49,45 @@ import calendarOutlined from "assets/icon/calendar_outline.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import { OrderResponse } from "model/response/order/order.response";
+import {
+  DeliveryServiceResponse,
+  OrderResponse,
+  ShippingGHTKResponse,
+  TrackingLogFulfillmentResponse,
+} from "model/response/order/order.response";
 import moment from "moment";
 import {
   checkPaymentStatusToShow,
+  CheckShipmentType,
   formatCurrency,
   getAmountPayment,
+  getServiceName,
+  getShipingAddresDefault,
+  InfoServiceDeliveryDetail,
   replaceFormatString,
+  SumWeight,
+  SumWeightResponse,
+  TrackingCode,
 } from "utils/AppUtils";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   FulFillmentStatus,
   OrderStatus,
   ShipmentMethodOption,
   PaymentMethodOption,
+  TRANSPORTS,
+  MoneyPayThreePls,
 } from "utils/Constants";
 import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { setTimeout } from "timers";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { StoreResponse } from "model/core/store.model";
-import OrderDetail from "../order-detail";
+import { CustomerResponse } from "model/response/customer/customer.response";
 const { Panel } = Collapse;
+const { Link } = Typography;
+
 //#endregion
 
 type UpdateShipmentCardProps = {
@@ -85,6 +105,7 @@ type UpdateShipmentCardProps = {
   shipmentMethod: number | null;
   isVisibleShipping: boolean | null;
   paymentType: number | null;
+  customerDetail: CustomerResponse | null;
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
@@ -119,6 +140,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   );
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
+  const [deliveryServices, setDeliveryServices] =
+    useState<Array<DeliveryServiceResponse> | null>(null);
+  const [trackingLogFulfillment, setTrackingLogFulfillment] =
+    useState<Array<TrackingLogFulfillmentResponse> | null>(null);
+  const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
+  const [hvc, setHvc] = useState<number | null>(null);
+  const [serviceType, setServiceType] = useState<string>();
+  const [feeGhtk, setFeeGhtk] = useState<number>(0);
+
+  useEffect(() => {
+    dispatch(DeliveryServicesGetList(setDeliveryServices));
+  }, [dispatch]);
   const shipping_requirements = useSelector(
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
@@ -195,6 +228,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.setVisibleUpdatePayment(true);
       setPaymentType(PaymentMethodOption.COD);
     }
+
+    if (value === ShipmentMethodOption.DELIVERPARNER) {
+      getInfoDeliveryGHTK(TRANSPORTS.ROAD);
+      getInfoDeliveryGHTK(TRANSPORTS.FLY);
+      setPaymentType(PaymentMethodOption.COD);
+      props.setVisibleUpdatePayment(true);
+    }
   };
 
   const changeShippingFeeInformedCustomer = (value: any) => {
@@ -202,10 +242,70 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     props.shippingFeeInformedCustomer(value);
   };
 
+  const getInfoDeliveryGHTK = useCallback(
+    (type: string) => {
+      let request: ShippingGHTKRequest = {
+        pick_address: props.storeDetail?.address,
+        pick_province: props.storeDetail?.city_name,
+        pick_district: props.storeDetail?.district_name,
+        province: getShipingAddresDefault(props.customerDetail)?.city,
+        district: getShipingAddresDefault(props.customerDetail)?.district,
+        address: getShipingAddresDefault(props.customerDetail)?.full_address,
+        weight: props.OrderDetail && SumWeightResponse(props.OrderDetail.items),
+        value: props.OrderDetail?.total,
+        transport: "",
+      };
+
+      if (
+        request.pick_address &&
+        request.pick_district &&
+        request.pick_province &&
+        request.address &&
+        request.province &&
+        request.weight &&
+        request.district
+      ) {
+        dispatch(InfoGHTKAction(request, setInfoGHTK));
+      }
+    },
+    [dispatch, props.OrderDetail, props.customerDetail, props.storeDetail]
+  );
+
+  const changeServiceType = (
+    id: number,
+    code: string,
+    item: any,
+    fee: number
+  ) => {
+    setHvc(id);
+    setServiceType(item);
+    setFeeGhtk(fee);
+  };
+
   //#endregion
   useLayoutEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
   }, [dispatch]);
+
+  useLayoutEffect(() => {
+    if (TrackingCode(props.OrderDetail) !== "Đang xử lý") {
+      if (
+        props.OrderDetail &&
+        props.OrderDetail.fulfillments &&
+        props.OrderDetail.fulfillments.length > 0 &&
+        props.OrderDetail.fulfillments[0].code
+      ) {
+        dispatch(
+          getTrackingLogFulfillmentAction(
+            props.OrderDetail.fulfillments[0].code,
+            setTrackingLogFulfillment
+          )
+        );
+      }
+    }
+  }, [dispatch]);
+
+  //#endregion
 
   //#region Update Fulfillment Status
   let timeout = 500;
@@ -435,8 +535,22 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     if (props.OrderDetail?.fulfillments) {
       if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
         value.delivery_service_provider_type = "Shipper";
-      } else if (shipmentMethod === ShipmentMethodOption.PICKATSTORE) {
+      }
+      if (shipmentMethod === ShipmentMethodOption.PICKATSTORE) {
         value.delivery_service_provider_type = "pick_at_store";
+      }
+
+      if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
+        value.delivery_service_provider_id = hvc;
+        value.delivery_service_provider_type = "external_service";
+        value.sender_address_id = props.OrderDetail.store_id;
+        value.service = serviceType!;
+
+        if (hvc === 1) {
+          value.shipping_fee_paid_to_three_pls = feeGhtk;
+        } else {
+          value.shipping_fee_paid_to_three_pls = MoneyPayThreePls.VALUE; //mặc định 20k
+        }
       }
     }
     if (props.OrderDetail != null) {
@@ -488,8 +602,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       order_id: FulFillmentRequest.order_id,
       fulfillment: FulFillmentRequest,
     };
-
-    dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
+    if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER && !serviceType) {
+      showError("Vui lòng chọn đơn vị vận chuyển");
+    } else {
+      dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
+    }
   };
 
   // shipment button action
@@ -736,7 +853,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 header={
                   <Row style={{ paddingLeft: 12 }}>
                     <Col>
-                      <p
+                      <span
                         ref={copyRef}
                         className="text-field"
                         style={{
@@ -747,9 +864,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       >
                         {props.OrderDetail?.fulfillments &&
                           props.OrderDetail?.fulfillments.map(
-                            (item, index) => item.code
+                            (item, index) => item.id
                           )}
-                      </p>
+                      </span>
                       <div style={{ width: 30, padding: "0 4px" }}>
                         <img
                           onClick={(e) => copyOrderID(e)}
@@ -832,7 +949,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   </div>
                 ) : (
                   <Row gutter={24}>
-                    <Col md={6}>
+                    <Col md={5}>
                       <Col span={24}>
                         <p className="text-field">Đối tác giao hàng:</p>
                       </Col>
@@ -844,12 +961,22 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             props.OrderDetail.fulfillments.length > 0 &&
                             props.OrderDetail.fulfillments[0].shipment
                               ?.delivery_service_provider_type ===
-                              "external_service" &&
-                            props.OrderDetail.fulfillments[0].shipment
-                              .delivery_service_provider_id}
+                              "external_service" && (
+                              <img
+                                style={{ width: "112px", height: 25 }}
+                                src={InfoServiceDeliveryDetail(
+                                  deliveryServices,
+                                  props.OrderDetail.fulfillments[0].shipment
+                                    .delivery_service_provider_id
+                                )}
+                                alt=""
+                              ></img>
+                            )}
 
                           {props.OrderDetail?.fulfillments &&
                             props.OrderDetail.fulfillments.length &&
+                            props.OrderDetail.fulfillments[0].shipment
+                              ?.delivery_service_provider_type === "Shipper" &&
                             shipper &&
                             shipper.find(
                               (s) =>
@@ -861,8 +988,21 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </b>
                       </Col>
                     </Col>
+                    {CheckShipmentType(props.OrderDetail) ===
+                      "external_service" && (
+                      <Col md={5}>
+                        <Col span={24}>
+                          <p className="text-field">Dịch vụ:</p>
+                        </Col>
+                        <Col span={24}>
+                          <b className="text-field">
+                            {getServiceName(props.OrderDetail)}
+                          </b>
+                        </Col>
+                      </Col>
+                    )}
 
-                    <Col md={6}>
+                    <Col md={5}>
                       <Col span={24}>
                         <p className="text-field">Phí ship báo khách:</p>
                       </Col>
@@ -881,7 +1021,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       </Col>
                     </Col>
 
-                    <Col md={6}>
+                    <Col md={5}>
                       <Col span={24}>
                         <p className="text-field">Phí ship trả đối tác:</p>
                       </Col>
@@ -898,6 +1038,26 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </b>
                       </Col>
                     </Col>
+
+                    {CheckShipmentType(props.OrderDetail) ===
+                      "external_service" && (
+                      <Col md={4}>
+                        <Col span={24}>
+                          <p className="text-field">Trọng lượng:</p>
+                        </Col>
+                        <Col span={24}>
+                          <b className="text-field">
+                            {props.OrderDetail?.fulfillments &&
+                              props.OrderDetail?.fulfillments.length > 0 &&
+                              formatCurrency(
+                                props.OrderDetail.items &&
+                                  SumWeightResponse(props.OrderDetail.items)
+                              )}
+                            g
+                          </b>
+                        </Col>
+                      </Col>
+                    )}
                   </Row>
                 )}
                 <Row
@@ -914,6 +1074,123 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </p>
                   </Col>
                 </Row>
+
+                {CheckShipmentType(props.OrderDetail) ===
+                  "external_service" && (
+                  <Row
+                    gutter={24}
+                    style={{
+                      marginTop: 12,
+                      marginBottom: 0,
+                      padding: "0 12px",
+                    }}
+                  >
+                    <Col span={24}>
+                      <Collapse ghost>
+                        <Panel
+                          header={
+                            <Row>
+                              <Col style={{ alignItems: "center" }}>
+                                <span
+                                  style={{
+                                    marginRight: "10px",
+                                    color: "#222222",
+                                  }}
+                                >
+                                  Mã vận đơn:{" "}
+                                </span>
+                                <Link
+                                  href={`https://i.ghtk.vn/${
+                                    props.OrderDetail?.fulfillments &&
+                                    props.OrderDetail?.fulfillments[0].shipment
+                                      ?.tracking_code
+                                  }`}
+                                  ref={copyRef}
+                                  className="text-field"
+                                  style={{
+                                    color: "#2A2A86",
+                                    fontWeight: 500,
+                                    fontSize: 16,
+                                  }}
+                                >
+                                  {TrackingCode(props.OrderDetail)}
+                                </Link>
+                                <div style={{ width: 30, padding: "0 4px" }}>
+                                  <img
+                                    onClick={(e) => copyOrderID(e)}
+                                    src={copyFileBtn}
+                                    alt=""
+                                    style={{ width: 23 }}
+                                  />
+                                </div>
+                              </Col>
+                              <Col>
+                                <span
+                                  style={{ color: "#000000d9", marginRight: 6 }}
+                                >
+                                  Mở rộng
+                                </span>
+                              </Col>
+                            </Row>
+                          }
+                          key="1"
+                          className="custom-css-collapse"
+                        >
+                          <Collapse
+                            className="orders-timeline"
+                            expandIcon={({ isActive }) => (
+                              <img
+                                src={doubleArrow}
+                                alt=""
+                                style={{
+                                  transform: isActive
+                                    ? "rotate(0deg)"
+                                    : "rotate(270deg)",
+                                  float: "right",
+                                }}
+                              />
+                            )}
+                            ghost
+                            defaultActiveKey={["0"]}
+                          >
+                            {trackingLogFulfillment?.map((item, index) => (
+                              <Panel
+                                className="orders-timeline-custom orders-dot-status"
+                                header={
+                                  <div>
+                                    <b
+                                      style={{
+                                        paddingLeft: "14px",
+                                        color: "#222222",
+                                      }}
+                                    >
+                                      {item.message}
+                                    </b>
+                                    <i
+                                      className="icon-dot"
+                                      style={{
+                                        fontSize: "4px",
+                                        margin: "16px 10px 10px 10px",
+                                        color: "#737373",
+                                      }}
+                                    ></i>{" "}
+                                    <span style={{ color: "#737373" }}>
+                                      {moment(item.created_date).format(
+                                        "DD/MM/YYYY HH:mm"
+                                      )}
+                                    </span>
+                                  </div>
+                                }
+                                key={index}
+                                showArrow={false}
+                              ></Panel>
+                            ))}
+                          </Collapse>
+                        </Panel>
+                      </Collapse>
+                    </Col>
+                  </Row>
+                )}
               </Panel>
             </Collapse>
           </div>
@@ -925,7 +1202,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               style={{ color: "#737373", border: "1px solid #E5E5E5" }}
               hidden={props.stepsStatusValue === FulFillmentStatus.SHIPPED}
             >
-              Hủy
+              Hủy giao hàng
             </Button>
 
             {props.stepsStatusValue === OrderStatus.FINALIZED &&
@@ -1173,49 +1450,33 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </Space>
                   </div>
                 </Row>
-                <div hidden={shipmentMethod !== 2}>
-                  <Row gutter={24}>
-                    <Col md={12}>
-                      <Form.Item
-                        label="Đối tác giao hàng"
-                        name="shipper_code"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn đối tác giao hàng",
-                          },
-                        ]}
-                      >
-                        <CustomSelect
-                          className="select-with-search"
-                          showSearch
-                          style={{ width: "100%" }}
-                          notFoundContent="Không tìm thấy kết quả"
-                          placeholder="Chọn đối tác giao hàng"
-                          filterOption={(input, option) => {
-                            if (option) {
-                              return (
-                                option.children
-                                  .toLowerCase()
-                                  .indexOf(input.toLowerCase()) >= 0
-                              );
-                            }
-                            return false;
-                          }}
+                {/*--- Chuyển hãng vận chuyển ----*/}
+                {shipmentMethod === ShipmentMethodOption.DELIVERPARNER && (
+                  <>
+                    <Row gutter={24}>
+                      <Col md={12}>
+                        <Form.Item label="Tiền thu hộ:">
+                          <NumberInput
+                            format={(a: string) => formatCurrency(a)}
+                            replace={(a: string) => replaceFormatString(a)}
+                            placeholder="0"
+                            value={props.OrderDetail?.total}
+                            onChange={(value: any) => setTakeMoneyHelper(value)}
+                            style={{
+                              textAlign: "right",
+                              width: "100%",
+                              color: "#222222",
+                            }}
+                            maxLength={999999999999}
+                            minLength={0}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col md={12}>
+                        <Form.Item
+                          label="Phí ship báo khách"
+                          name="shipping_fee_informed_to_customer"
                         >
-                          {shipper?.map((item, index) => (
-                            <CustomSelect.Option
-                              style={{ width: "100%" }}
-                              key={index.toString()}
-                              value={item.code}
-                            >
-                              {`${item.full_name} - ${item.mobile}`}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Form.Item>
-                      {isShowTakeHelper && (
-                        <Form.Item label="Tiền thu hộ">
                           <NumberInput
                             format={(a: string) => formatCurrency(a)}
                             replace={(a: string) => replaceFormatString(a)}
@@ -1227,53 +1488,178 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             }}
                             maxLength={15}
                             minLength={0}
-                            value={takeHelperValue}
-                            onChange={(value) => setTakeMoneyHelper(value)}
+                            onChange={(e: any) =>
+                              changeShippingFeeInformedCustomer(e)
+                            }
                           />
                         </Form.Item>
-                      )}
-                    </Col>
-                    <Col md={12}>
-                      <Form.Item
-                        name="shipping_fee_paid_to_three_pls"
-                        label="Phí ship trả đối tác giao hàng"
-                      >
-                        <NumberInput
-                          format={(a: string) => formatCurrency(a)}
-                          replace={(a: string) => replaceFormatString(a)}
-                          placeholder="0"
-                          style={{
-                            textAlign: "right",
-                            width: "100%",
-                            color: "#222222",
-                          }}
-                          maxLength={15}
-                          minLength={0}
-                          onChange={() => {}}
-                        />
-                      </Form.Item>
-                      <Form.Item
-                        name="shipping_fee_informed_to_customer"
-                        label="Phí ship báo khách"
-                      >
-                        <NumberInput
-                          format={(a: string) => formatCurrency(a)}
-                          replace={(a: string) => replaceFormatString(a)}
-                          placeholder="0"
-                          style={{
-                            textAlign: "right",
-                            width: "100%",
-                            color: "#222222",
-                          }}
-                          maxLength={15}
-                          minLength={0}
-                          onChange={(e: any) =>
-                            changeShippingFeeInformedCustomer(e)
-                          }
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col md={24}>
+                      </Col>
+                    </Row>
+                    <div className="ant-table ant-table-bordered custom-table">
+                      <div className="ant-table-container">
+                        <div className="ant-table-content">
+                          <table
+                            className="table-bordered"
+                            style={{ width: "100%", tableLayout: "auto" }}
+                          >
+                            <thead className="ant-table-thead">
+                              <tr>
+                                <th className="ant-table-cell">
+                                  Hãng vận chuyển
+                                </th>
+                                <th className="ant-table-cell">
+                                  Dịch vụ chuyển phát
+                                </th>
+                                <th
+                                  className="ant-table-cell"
+                                  style={{ textAlign: "right" }}
+                                >
+                                  Cước phí
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="ant-table-tbody">
+                              {deliveryServices &&
+                                deliveryServices.map((single, index) => {
+                                  return (
+                                    <React.Fragment key={index}>
+                                      <tr>
+                                        <td>
+                                          <img
+                                            src={single.logo ? single.logo : ""}
+                                            alt=""
+                                            style={{
+                                              width: "184px",
+                                              height: "41px",
+                                            }}
+                                          />
+                                        </td>
+                                        <td style={{ padding: 0 }}>
+                                          {single.code === "ghtk" ? (
+                                            <div>
+                                              <div
+                                                style={{ padding: "8px 16px" }}
+                                                className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                              >
+                                                <input
+                                                  type="radio"
+                                                  name="tt"
+                                                  className="radio-delivery"
+                                                  value="standard"
+                                                  onChange={(e) =>
+                                                    changeServiceType(
+                                                      single.id,
+                                                      single.code,
+                                                      "standard",
+                                                      infoGHTK.length > 1
+                                                        ? infoGHTK[0].fee
+                                                        : 0
+                                                    )
+                                                  }
+                                                />
+                                                <label className="lblShip">
+                                                  Đường bộ
+                                                </label>
+                                              </div>
+                                              <div
+                                                style={{ padding: "8px 16px" }}
+                                                className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                              >
+                                                <input
+                                                  type="radio"
+                                                  name="tt"
+                                                  className="radio-delivery"
+                                                  value="express"
+                                                  onChange={(e) =>
+                                                    changeServiceType(
+                                                      single.id,
+                                                      single.code,
+                                                      "express",
+                                                      infoGHTK.length > 1
+                                                        ? infoGHTK[1].fee
+                                                        : 0
+                                                    )
+                                                  }
+                                                />
+                                                <label className="lblShip">
+                                                  Đường bay
+                                                </label>
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            <div
+                                              style={{ padding: "8px 16px" }}
+                                              className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                            >
+                                              <input
+                                                type="radio"
+                                                name="tt"
+                                                className="radio-delivery"
+                                                value={`${single.code}_standard`}
+                                                onChange={(e) =>
+                                                  changeServiceType(
+                                                    single.id,
+                                                    single.code,
+                                                    "standard",
+                                                    0
+                                                  )
+                                                }
+                                              />
+                                              <label className="lblShip">
+                                                Chuyển phát nhanh PDE
+                                              </label>
+                                            </div>
+                                          )}
+                                        </td>
+                                        <td
+                                          style={{
+                                            padding: 0,
+                                            textAlign: "right",
+                                          }}
+                                        >
+                                          {single.code === "ghtk" ? (
+                                            <div>
+                                              <div
+                                                style={{ padding: "8px 16px" }}
+                                                className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                              >
+                                                {infoGHTK && infoGHTK.length > 0
+                                                  ? formatCurrency(
+                                                      infoGHTK[0].fee
+                                                    )
+                                                  : 0}
+                                              </div>
+                                              <div
+                                                style={{ padding: "8px 16px" }}
+                                                className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                              >
+                                                {infoGHTK && infoGHTK.length > 1
+                                                  ? formatCurrency(
+                                                      infoGHTK[1].fee
+                                                    )
+                                                  : 0}
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            <div
+                                              style={{ padding: "8px 16px" }}
+                                              className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                            >
+                                              100.000
+                                            </div>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </React.Fragment>
+                                  );
+                                })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Col md={24} style={{ padding: 0, margin: "20px 0" }}>
                       <div>
                         <Button
                           type="primary"
@@ -1300,73 +1686,188 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </Button>
                       </div>
                     </Col>
-                  </Row>
-                </div>
+                  </>
+                )}
+
+                {/* Tự vận chuyển */}
+                {shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+                  <div>
+                    <Row gutter={24}>
+                      <Col md={12}>
+                        <Form.Item
+                          label="Đối tác giao hàng"
+                          name="shipper_code"
+                          rules={[
+                            {
+                              required: shipmentMethod == 2,
+                              message: "Vui lòng chọn đối tác giao hàng",
+                            },
+                          ]}
+                        >
+                          <CustomSelect
+                            className="select-with-search"
+                            showSearch
+                            style={{ width: "100%" }}
+                            notFoundContent="Không tìm thấy kết quả"
+                            placeholder="Chọn đối tác giao hàng"
+                            filterOption={(input, option) => {
+                              if (option) {
+                                return (
+                                  option.children
+                                    .toLowerCase()
+                                    .indexOf(input.toLowerCase()) >= 0
+                                );
+                              }
+                              return false;
+                            }}
+                          >
+                            {shipper?.map((item, index) => (
+                              <CustomSelect.Option
+                                style={{ width: "100%" }}
+                                key={index.toString()}
+                                value={item.code}
+                              >
+                                {`${item.full_name} - ${item.mobile}`}
+                              </CustomSelect.Option>
+                            ))}
+                          </CustomSelect>
+                        </Form.Item>
+                        {isShowTakeHelper && (
+                          <Form.Item label="Tiền thu hộ">
+                            <NumberInput
+                              format={(a: string) => formatCurrency(a)}
+                              replace={(a: string) => replaceFormatString(a)}
+                              placeholder="0"
+                              style={{
+                                textAlign: "right",
+                                width: "100%",
+                                color: "#222222",
+                              }}
+                              maxLength={15}
+                              minLength={0}
+                              value={takeHelperValue}
+                              onChange={(value) => setTakeMoneyHelper(value)}
+                            />
+                          </Form.Item>
+                        )}
+                      </Col>
+                      <Col md={12}>
+                        <Form.Item
+                          name="shipping_fee_paid_to_three_pls"
+                          label="Phí ship trả đối tác giao hàng"
+                        >
+                          <NumberInput
+                            format={(a: string) => formatCurrency(a)}
+                            replace={(a: string) => replaceFormatString(a)}
+                            placeholder="0"
+                            style={{
+                              textAlign: "right",
+                              width: "100%",
+                              color: "#222222",
+                            }}
+                            maxLength={15}
+                            minLength={0}
+                            onChange={() => {}}
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          name="shipping_fee_informed_to_customer"
+                          label="Phí ship báo khách"
+                        >
+                          <NumberInput
+                            format={(a: string) => formatCurrency(a)}
+                            replace={(a: string) => replaceFormatString(a)}
+                            placeholder="0"
+                            style={{
+                              textAlign: "right",
+                              width: "100%",
+                              color: "#222222",
+                            }}
+                            maxLength={15}
+                            minLength={0}
+                            onChange={(e: any) =>
+                              changeShippingFeeInformedCustomer(e)
+                            }
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col md={24}>
+                        <div>
+                          <Button
+                            type="primary"
+                            className="create-button-custom"
+                            style={{ float: "right" }}
+                            htmlType="submit"
+                          >
+                            Lưu
+                          </Button>
+                          <Button
+                            className="ant-btn-outline fixed-button cancle-button create-button-custom"
+                            onClick={() => window.location.reload()}
+                            style={{ float: "right" }}
+                          >
+                            Huỷ
+                          </Button>
+                        </div>
+                      </Col>
+                    </Row>
+                  </div>
+                )}
 
                 {/*--- Nhận tại cửa hàng ----*/}
-                <div
-                  className="receive-at-store"
-                  hidden={shipmentMethod !== ShipmentMethodOption.PICKATSTORE}
-                >
-                  <b>
-                    <img src={storeBluecon} alt="" /> THÔNG TIN CỬA HÀNG
-                  </b>
+                {shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+                  <div className="receive-at-store">
+                    <b>
+                      <img src={storeBluecon} alt="" /> THÔNG TIN CỬA HÀNG
+                    </b>
 
-                  <Row style={{ paddingTop: "19px" }}>
-                    {/* <div className="row-info-icon">
-                  <img src={storeBluecon} alt="" width="20px" />
-                </div> */}
-                    <Col md={3}>
-                      <div>Tên cửa hàng:</div>
-                    </Col>
-                    <b className="row-info-content">
-                      <Typography.Link>
-                        {props.storeDetail?.name}
-                      </Typography.Link>
-                    </b>
-                  </Row>
-                  <Row className="row-info padding-top-10">
-                    {/* <div className="row-info-icon">
-                  <img src={callIcon} alt="" width="18px" />
-                </div> */}
-                    <Col md={3}>
-                      <div>Số điện thoại:</div>
-                    </Col>
-                    <b className="row-info-content"> 
-                      {props.storeDetail?.hotline}
-                    </b>
-                  </Row>
-                  <Row className="row-info padding-top-10">
-                    {/* <div className="row-info-icon">
-                  <img src={locationIcon} alt="" width="18px" />
-                </div> */}
-                    <Col md={3}>
-                      <div>Địa chỉ:</div>
-                    </Col>
-                    <b className="row-info-content">
-                      {props.storeDetail?.full_address}
-                    </b>
-                  </Row>
-                </div>
-                {/* <Col md={24}>
-                  <div>
-                    <Button
-                      type="primary"
-                      className="create-button-custom"
-                      style={{ float: "right" }}
-                      htmlType="submit"
-                    >
-                      Lưu
-                    </Button>
-                    <Button
-                      className="ant-btn-outline fixed-button cancle-button create-button-custom"
-                      onClick={() => window.location.reload()}
-                      style={{ float: "right" }}
-                    >
-                      
-                    </Button>
+                    <Row style={{ paddingTop: "19px" }}>
+                      <Col md={2}>
+                        <div>Tên cửa hàng:</div>
+                      </Col>
+                      <b className="row-info-content">
+                        <Typography.Link>
+                          {props.storeDetail?.name}
+                        </Typography.Link>
+                      </b>
+                    </Row>
+                    <Row className="row-info padding-top-10">
+                      <Col md={2}>
+                        <div>Số điện thoại:</div>
+                      </Col>
+                      <b className="row-info-content">
+                        {props.storeDetail?.hotline}
+                      </b>
+                    </Row>
+                    <Row className="row-info padding-top-10">
+                      <Col md={2}>
+                        <div>Địa chỉ:</div>
+                      </Col>
+                      <b className="row-info-content">
+                        {props.storeDetail?.full_address}
+                      </b>
+                    </Row>
+                    <Row>
+                      <Col md={24}>
+                        <div>
+                          <Button
+                            type="primary"
+                            className="create-button-custom"
+                            style={{ float: "right" }}
+                            htmlType="submit"
+                          >
+                            Lưu
+                          </Button>
+                          <Button
+                            className="ant-btn-outline fixed-button cancle-button create-button-custom"
+                            onClick={() => window.location.reload()}
+                            style={{ float: "right" }}
+                          ></Button>
+                        </div>
+                      </Col>
+                    </Row>
                   </div>
-                </Col> */}
+                )}
               </Form>
               {/*--- Giao hàng sau ----*/}
               <Row

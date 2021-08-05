@@ -18,6 +18,7 @@ import {
   DeliveryServiceResponse,
   OrderResponse,
   ShippingGHTKResponse,
+  TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
@@ -116,6 +117,13 @@ export const deleteOrderSourceService = (
   return BaseAxios.delete(`${ApiConfig.ORDER}/sources/${id}`);
 };
 
+// tracking_log: Lấy ra tracking_log của fulfillment
+export const getTrackingLogFulFillment = (
+  fulfillment_code: string
+): Promise<BaseResponse<Array<TrackingLogFulfillmentResponse>>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/shipping/tracking-log?fulfillment_code=${fulfillment_code}`);
+};
+
 /**
  * sub status: sidebar phần xử lý đơn hàng
  */
@@ -123,4 +131,11 @@ export const getOrderSubStatusService = (
   status: string
 ): Promise<BaseResponse<SourceResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/status/${status}/subStatus`);
+};
+
+export const setSubStatusService = (
+  order_id : number,
+  statusId: number
+): Promise<BaseResponse<SourceResponse>> => {
+  return BaseAxios.put(`${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusId}`);
 };

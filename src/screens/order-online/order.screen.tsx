@@ -41,6 +41,7 @@ import {
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import {
+  MoneyPayThreePls,
   OrderStatus,
   ShipmentMethodOption,
   TaxTreatment,
@@ -81,6 +82,8 @@ export default function Order() {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
+  const [hvc, setHvc] = useState<number | null>(null);
+  const [feeGhtk, setFeeGhtk] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
     null
   );
@@ -97,6 +100,7 @@ export default function Order() {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
+  const [serviceType, setServiceType] = useState<string>();
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
   //#region Customer
@@ -231,7 +235,7 @@ export default function Order() {
     };
 
     let listFullfillmentRequest = [];
-    if (paymentMethod !== 3 || shipmentMethod === 2 || shipmentMethod == 3) {
+    if (paymentMethod !== 3 || shipmentMethod === 2 || shipmentMethod === 3) {
       listFullfillmentRequest.push(request);
     }
 
@@ -252,7 +256,7 @@ export default function Order() {
 
   const createShipmentRequest = (value: OrderRequest) => {
     let objShipment: ShipmentRequest = {
-      delivery_service_provider_id: null, //id người shipper
+      delivery_service_provider_id: null, //id dtvc
       delivery_service_provider_type: "", //shipper
       shipper_code: "",
       shipper_name: "",
@@ -279,9 +283,15 @@ export default function Order() {
     };
 
     if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
-      objShipment.delivery_service_provider_id = 1;
+      objShipment.delivery_service_provider_id = hvc;
       objShipment.delivery_service_provider_type = "external_service";
       objShipment.sender_address_id = storeId;
+      objShipment.service = serviceType!;
+      if (hvc === 1) {
+        objShipment.shipping_fee_paid_to_three_pls = feeGhtk;
+      } else {
+        objShipment.shipping_fee_paid_to_three_pls = MoneyPayThreePls.VALUE;
+      }
       return objShipment;
     }
 
@@ -443,7 +453,14 @@ export default function Order() {
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
-          dispatch(orderCreateAction(values, createOrderCallback));
+          if (
+            shipmentMethod === ShipmentMethodOption.DELIVERPARNER &&
+            !serviceType
+          ) {
+            showError("Vui lòng chọn đơn vị vận chuyển");
+          } else {
+            dispatch(orderCreateAction(values, createOrderCallback));
+          }
         }
       }
     }
@@ -567,6 +584,9 @@ export default function Order() {
                 discountValue={discountValue}
                 setOfficeTime={setOfficeTime}
                 officeTime={officeTime}
+                setServiceType={setServiceType}
+                setHVC={setHvc}
+                setFeeGhtk={setFeeGhtk}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}

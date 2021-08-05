@@ -294,6 +294,7 @@ console.log(OrderDetail)
               setOfficeTime={setOfficeTime}
               setVisibleShipping={setVisibleShipping}
               OrderDetail={OrderDetail}
+              customerDetail={customerDetail}
               storeDetail={storeDetail}
               stepsStatusValue={stepsStatusValue}
               totalPaid={totalPaid}
@@ -498,7 +499,7 @@ console.log(OrderDetail)
                                   <>
                                     <b
                                       style={{
-                                        paddingLeft: "4px",
+                                        paddingLeft: "14px",
                                         color: "#222222",
                                       }}
                                     >
@@ -820,7 +821,7 @@ console.log(OrderDetail)
                 </Row>
               </div>
             </Card>
-            <SubStatusOrder status={OrderDetail?.status} />
+            <SubStatusOrder status={OrderDetail?.status} orderId={OrderId} />
             <Card
               className="margin-top-20"
               title={
