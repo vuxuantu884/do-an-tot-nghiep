@@ -8,7 +8,7 @@ import {
   Form,
   Select,
   DatePicker,
-  Checkbox,
+  Checkbox, Divider
 } from "antd";
 
 import storeBluecon from "assets/img/storeBlue.svg";
@@ -390,9 +390,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                 <td style={{ padding: 0 }}>
                                   {single.code === "ghtk" ? (
                                     <div>
-                                      <div
-                                        style={{ padding: "8px 16px", alignItems:"center" }}
-                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      <label
+                                        className="radio-container"
                                       >
                                         <input
                                           type="radio"
@@ -410,13 +409,13 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                             )
                                           }
                                         />
-                                        <span className="lblShip">
-                                          Đường bộ
+                                        <span className="checkmark">
                                         </span>
-                                      </div>
-                                      <div
-                                        style={{ padding: "8px 16px" }}
-                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                        Đường bộ
+                                      </label>
+                                      <Divider style={{margin: "8px 0"}}/>
+                                      <label
+                                        className="radio-container"
                                       >
                                         <input
                                           type="radio"
@@ -436,7 +435,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                         />
                                         <span className="checkmark"></span>
                                         Đường bay
-                                      </div>
+                                      </label>
                                     </div>
                                   ) : (
                                     <label className="radio-container">
