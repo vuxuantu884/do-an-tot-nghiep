@@ -165,7 +165,6 @@ const VariantUpdateScreen: React.FC = () => {
   }, [history]);
   const onGetDetail = useCallback(
     (detail: VariantResponse | null) => {
-      console.log(detail);
       if (detail == null) {
         setError(true);
       } else {

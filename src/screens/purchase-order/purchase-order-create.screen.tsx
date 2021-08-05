@@ -39,6 +39,7 @@ import POPaymentConditionsForm from "./component/po-payment-conditions.form";
 import { POField } from "model/purchase-order/po-field";
 
 const POCreateScreen: React.FC = () => {
+  let now = new Date();
   let initPurchaseOrder = {
     line_items: [],
     policy_price_code: AppConfig.import_price,
@@ -55,8 +56,8 @@ const POCreateScreen: React.FC = () => {
     tax_lines: [],
     supplier_id: 0,
     expect_store_id: "",
-    expect_import_date: ConvertDateToUtc(new Date()),
-    order_date: ConvertDateToUtc(new Date()),
+    expect_import_date: ConvertDateToUtc(now),
+    order_date: ConvertDateToUtc(now),
     status: POStatus.DRAFT,
     receive_status: ProcumentStatus.DRAFT,
     activated_date: null,
@@ -122,9 +123,10 @@ const POCreateScreen: React.FC = () => {
     (result: PurchaseOrder) => {
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
-        history.push(UrlConfig.PURCHASE_ORDER);
+        history.push(`${UrlConfig.PURCHASE_ORDER}/${result.id}`);
       } else {
         setLoadingSaveButton(false);
+        setLoadingDraftButton(false);
       }
     },
     [history]
@@ -221,12 +223,12 @@ const POCreateScreen: React.FC = () => {
               formMain={formMain}
             />
             <POProductForm isEdit={false} formMain={formMain} />
-            <POInventoryForm stores={listStore} />
+            <POInventoryForm isEdit={false} now={now} status={formMain.getFieldValue(POField.status)} stores={listStore} />
             <POPaymentConditionsForm listPayment={listPaymentConditions} />
           </Col>
           {/* Right Side */}
           <Col md={6}>
-            <POInfoForm winAccount={winAccount} rdAccount={rdAccount} />
+            <POInfoForm isEdit={false} winAccount={winAccount} rdAccount={rdAccount} />
           </Col>
         </Row>
 

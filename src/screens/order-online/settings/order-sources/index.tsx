@@ -233,7 +233,6 @@ const OrderSources: React.FC = () => {
               onRow={(record: OrderSourceModel) => {
                 return {
                   onClick: () => {
-                    console.log("record", record);
                     setModalAction("edit");
                     setModalSingleOrderSource(record);
                     setIsShowModal(true);

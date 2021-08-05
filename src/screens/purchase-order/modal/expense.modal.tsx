@@ -46,7 +46,6 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
       if (cost_lines.length === 0) {
         cost_lines.push({ title: "", amount: null });
       }
-      console.log(cost_lines);
       form.setFieldsValue({
         cost_lines: cost_lines,
       });
@@ -130,7 +129,6 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
                   >
                     {({ getFieldValue }) => {
                       let items = getFieldValue(POField.cost_lines);
-                      console.log(items);
                       return (
                         <div
                           style={{

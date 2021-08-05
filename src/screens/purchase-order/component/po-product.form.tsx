@@ -1462,7 +1462,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             textDecoration: "underline",
                             textDecorationColor: "#5D5D8A",
                             color: "#5D5D8A",
-                            cursor: 'default'
+                            cursor: "default",
                           }}
                         >
                           Chiết khấu thanh toán
@@ -1482,7 +1482,17 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                               type={type}
                             />
                           }
-                        ></Popover>
+                        >
+                          <Typography.Link
+                            style={{
+                              textDecoration: "underline",
+                              textDecorationColor: "#5D5D8A",
+                              color: "#5D5D8A",
+                            }}
+                          >
+                            Chiết khấu thanh toán
+                          </Typography.Link>
+                        </Popover>
                       )}
 
                       <div className="po-payment-row-result po-payment-row-result-discount">
@@ -1518,7 +1528,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           textDecoration: "underline",
                           textDecorationColor: "#5D5D8A",
                           color: "#5D5D8A",
-                          cursor: isEdit ? 'default' : 'pointer'
+                          cursor: isEdit ? "default" : "pointer",
                         }}
                       >
                         Chi phí
