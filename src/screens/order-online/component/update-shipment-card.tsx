@@ -545,7 +545,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         value.delivery_service_provider_type = "external_service";
         value.sender_address_id = props.OrderDetail.store_id;
         value.service = serviceType!;
-
+        value.shipping_fee_informed_to_customer = shippingFeeInformedCustomer;
         if (hvc === 1) {
           value.shipping_fee_paid_to_three_pls = feeGhtk;
         } else {
@@ -775,25 +775,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               <div className="d-flex">
                 <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
               </div>
-              {shipmentStatusTag.map((statusTag) => {
-                return (
-                  statusTag.status ===
-                    (props.OrderDetail &&
-                      props.OrderDetail?.fulfillments &&
-                      props.OrderDetail?.fulfillments[0].status) && (
-                    <Tag
-                      key={statusTag.name}
-                      className="orders-tag text-menu"
-                      style={{
-                        color: `${statusTag.color}`,
-                        backgroundColor: `${statusTag.backgroundColor}`,
-                      }}
-                    >
-                      {statusTag.name}
-                    </Tag>
-                  )
-                );
-              })}
             </Space>
           }
           extra={
@@ -864,17 +845,17 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       >
                         {props.OrderDetail?.fulfillments &&
                           props.OrderDetail?.fulfillments.map(
-                            (item, index) => item.id
+                            (item, index) => item.code
                           )}
                       </span>
-                      <div style={{ width: 30, padding: "0 4px" }}>
+                      {/* <div style={{ width: 30, padding: "0 4px" }}>
                         <img
                           onClick={(e) => copyOrderID(e)}
                           src={copyFileBtn}
                           alt=""
                           style={{ width: 23 }}
                         />
-                      </div>
+                      </div> */}
                       <img
                         src={doubleArrow}
                         alt=""
@@ -882,8 +863,28 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           transform: `${
                             isArrowRotation ? "rotate(270deg)" : "rotate(0deg)"
                           }`,
+                          padding: "0 5px",
                         }}
                       />
+                      {shipmentStatusTag.map((statusTag) => {
+                        return (
+                          statusTag.status ===
+                            (props.OrderDetail &&
+                              props.OrderDetail?.fulfillments &&
+                              props.OrderDetail?.fulfillments[0].status) && (
+                            <Tag
+                              key={statusTag.name}
+                              className="orders-tag text-menu"
+                              style={{
+                                color: `${statusTag.color}`,
+                                backgroundColor: `${statusTag.backgroundColor}`,
+                              }}
+                            >
+                              {statusTag.name}
+                            </Tag>
+                          )
+                        );
+                      })}
                     </Col>
                     <Col>
                       <span style={{ color: "#000000d9", marginRight: 6 }}>
