@@ -1,6 +1,5 @@
 import {
   Button,
-  Card,
   Col,
   DatePicker,
   Form,
@@ -78,7 +77,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (
   }, [formRef, visible]);
 
   return (
-    <Card bordered={false}>
+    <div>
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} initialValues={params} layout="inline">
           <Form.Item name="info">
@@ -189,7 +188,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (
           </Row>
         </Form>
       </BaseFilter>
-    </Card>
+    </div>
   );
 };
 

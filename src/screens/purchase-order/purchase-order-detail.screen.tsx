@@ -1,5 +1,4 @@
-import { CheckOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Row, Steps } from "antd";
+import { Button, Col, Form, Input, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import { AppConfig } from "config/AppConfig";
 import UrlConfig from "config/UrlConfig";
@@ -13,7 +12,7 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { PoFormName, VietNamId } from "utils/Constants";
+import { PoFormName, POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
 import POPaymentForm from "./component/po-payment.form";
@@ -24,9 +23,12 @@ import {
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import POStep from "./component/po-step";
+import { StoreResponse } from "model/core/store.model";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { ConvertDateToUtc } from "utils/DateUtils";
 
-
-type  PurchaseOrderParam = {
+type PurchaseOrderParam = {
   id: string;
 };
 const PODetailScreen: React.FC = () => {
@@ -45,6 +47,13 @@ const PODetailScreen: React.FC = () => {
     cost_lines: [],
     tax_lines: [],
     supplier_id: 0,
+    order_date: ConvertDateToUtc(new Date()),
+    status: POStatus.DRAFT,
+    receive_status: ProcumentStatus.DRAFT,
+    activated_date: null,
+    completed_stock_date: null,
+    cancelled_date: null,
+    completed_date: null,
   };
   const { id } = useParams<PurchaseOrderParam>();
   let idNumber = parseInt(id);
@@ -57,30 +66,37 @@ const PODetailScreen: React.FC = () => {
   const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
+  const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
   const collapse = useSelector(
     (state: RootReducerType) => state.appSettingReducer.collapse
   );
-  const onDetail = useCallback((result: PurchaseOrder|null) => {
-    setLoading(false);
-    if (!result) {
-      setError(true);
-    } else {
-      formMain.setFieldsValue(result);
-    }
-  }, [formMain]);
-  const onResultRD = useCallback((data: PageResponse<AccountResponse>|false) => {
-    if(!data) {
-      setError(true);
-      return;
-    }
-    setRDAccount(data.items);
-    setLoading(false);
-  }, []);
+  const onDetail = useCallback(
+    (result: PurchaseOrder | null) => {
+      setLoading(false);
+      if (!result) {
+        setError(true);
+      } else {
+        formMain.setFieldsValue(result);
+      }
+    },
+    [formMain]
+  );
+  const onResultRD = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        setError(true);
+        return;
+      }
+      setRDAccount(data.items);
+      setLoading(false);
+    },
+    []
+  );
   const onResultWin = useCallback(
-    (data: PageResponse<AccountResponse>|false) => {
-      if(!data) {
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
         setError(true);
         return;
       }
@@ -93,6 +109,14 @@ const PODetailScreen: React.FC = () => {
       );
     },
     [dispatch, onResultRD]
+  );
+  const onStoreResult = useCallback(
+    (result: PageResponse<StoreResponse> | false) => {
+      if (!!result) {
+        setListStore(result.items);
+      }
+    },
+    []
   );
   const onScroll = useCallback(() => {
     if (window.pageYOffset > 100) {
@@ -108,15 +132,15 @@ const PODetailScreen: React.FC = () => {
         onResultWin
       )
     );
+    dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
-    if(!isNaN(idNumber)) {
+    if (!isNaN(idNumber)) {
       dispatch(PoDetailAction(idNumber, onDetail));
     } else {
       setError(true);
     }
-    
-  }, [dispatch, idNumber, onDetail, onResultWin]);
+  }, [dispatch, idNumber, onDetail, onResultWin, onStoreResult]);
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
     return () => {
@@ -141,25 +165,7 @@ const PODetailScreen: React.FC = () => {
           name: `Đơn hàng ${id}`,
         },
       ]}
-      extra={
-        <Steps
-          progressDot={(dot: any, { status, index }: any) => (
-            <div className="ant-steps-icon-dot">
-              {(status === "process" || status === "finish") && (
-                <CheckOutlined />
-              )}
-            </div>
-          )}
-          size="small"
-          current={0}
-        >
-          <Steps.Step title="Đặt hàng"  />
-          <Steps.Step title="Xác nhận" />
-          <Steps.Step title="Phiếu nháp" />
-          <Steps.Step title="Nhập kho" />
-          <Steps.Step title="Hoàn thành" />
-        </Steps>
-      }
+      extra={<POStep status="" />}
     >
       <Form
         name={PoFormName.Main}
@@ -177,7 +183,10 @@ const PODetailScreen: React.FC = () => {
         initialValues={initPurchaseOrder}
         layout="vertical"
       >
-       <Row gutter={24} style={{ paddingBottom: 80 }}>
+        <Form.Item name="status" noStyle hidden>
+          <Input />
+        </Form.Item>
+        <Row gutter={24} style={{ paddingBottom: 80 }}>
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm
@@ -186,8 +195,8 @@ const PODetailScreen: React.FC = () => {
               listDistrict={listDistrict}
               formMain={formMain}
             />
-            <POProductForm formMain={formMain} />
-            <POInventoryForm />
+            <POProductForm isEdit={true} formMain={formMain} />
+            <POInventoryForm stores={listStore} />
             <POPaymentForm />
           </Col>
           {/* Right Side */}
@@ -212,25 +221,14 @@ const PODetailScreen: React.FC = () => {
         >
           <Col
             md={10}
-            style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px", zIndex: 100 }}
+            style={{
+              marginLeft: "-20px",
+              marginTop: "3px",
+              padding: "3px",
+              zIndex: 100,
+            }}
           >
-            <Steps
-              progressDot={(dot: any, { status, index }: any) => (
-                <div className="ant-steps-icon-dot">
-                  {(status === "process" || status === "finish") && (
-                    <CheckOutlined />
-                  )}
-                </div>
-              )}
-              size="small"
-              current={0}
-            >
-              <Steps.Step title="Đặt hàng" />
-              <Steps.Step title="Xác nhận" />
-              <Steps.Step title="Phiếu nháp" />
-              <Steps.Step title="Nhập kho" />
-              <Steps.Step title="Hoàn thành" />
-            </Steps>
+            <POStep status="" />
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>
@@ -249,10 +247,10 @@ const PODetailScreen: React.FC = () => {
               Lưu
             </Button>
           </Col>
-        </Row> 
+        </Row>
       </Form>
     </ContentContainer>
-  )
-}
+  );
+};
 
 export default PODetailScreen;

@@ -34,7 +34,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               <Select.Option value="">Chọn Merchandiser</Select.Option>
               {props.winAccount.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
-                  {item.full_name}
+                  {item.code} - {item.full_name}
                 </Select.Option>
               ))}
             </Select>
@@ -44,7 +44,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               <Select.Option value="">Chọn QC</Select.Option>
               {props.rdAccount.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
-                  {item.full_name}
+                  {item.code} - {item.full_name}
                 </Select.Option>
               ))}
             </Select>

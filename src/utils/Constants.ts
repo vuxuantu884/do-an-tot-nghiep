@@ -71,3 +71,24 @@ export const TRANSPORTS = {
 export const PointConfig = {
   VALUE: 1000,
 };
+
+
+export const MoneyPayThreePls = {
+  VALUE: 20000,
+};
+
+export const POStatus = {
+  DRAFT: 'draft',
+  FINALIZED: 'finalized',
+  COMPLETED: 'completed',
+  FINISHED: 'finished',
+  CANCELLED: 'cancelled',
+  PROCUREMENT_DRAFT: 'procurement_draft',
+  STOCK_IN: 'stock_in',
+}
+
+export const ProcumentStatus = {
+  DRAFT: 'DRAFT',
+  CONFIRMED: 'FINALIZED',
+  FINISHED: 'COMPLETED',
+}

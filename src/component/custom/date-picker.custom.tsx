@@ -1,5 +1,5 @@
 import { DatePicker } from "antd"
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { CSSProperties } from "react";
 import { isUndefinedOrNull } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -10,6 +10,7 @@ type CustomDatepickerProps = {
   style?: CSSProperties
   placeholder?: string,
   className?: string
+  disableDate?: (date: Moment) => boolean,
 }
 
 const CustomDatepicker: React.FC<CustomDatepickerProps> = (props: CustomDatepickerProps) => {
@@ -22,6 +23,7 @@ const CustomDatepicker: React.FC<CustomDatepickerProps> = (props: CustomDatepick
       onChange={(v, dateSring) => {
         onChange && onChange(v?.utc().format())
       }}
+      disabledDate={props.disableDate}
       className={props.className}
       format={DATE_FORMAT.DDMMYYY}
     />  

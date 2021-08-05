@@ -44,14 +44,14 @@ const DefaultCountry = 233;
 const initQuery: SupplierQuery = {
   goods: "",
   status: "",
-  district_id:"",
+  district_id: "",
   scorecard: "",
   note: "",
   type: "",
   contact: "",
-  pic:"",
-  from_created_date:"",
-  to_created_date:""
+  pic: "",
+  from_created_date: "",
+  to_created_date: "",
 };
 
 const ListSupplierScreen: React.FC = () => {
@@ -160,11 +160,7 @@ const ListSupplierScreen: React.FC = () => {
       title: "Ngày tạo",
       dataIndex: "created_date",
       visible: false,
-      render: (value: string) => (
-        <div>
-          {ConvertUtcToLocalDate(value)}
-        </div>
-      )
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
       title: "Trạng thái",
@@ -250,7 +246,7 @@ const ListSupplierScreen: React.FC = () => {
 
   useEffect(() => {
     setTableLoading(true);
-     dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
+    dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
     dispatch(SupplierSearchAction(params, searchSupplierCallback));
   }, [dispatch, params, searchSupplierCallback]);
   return (
@@ -272,56 +268,58 @@ const ListSupplierScreen: React.FC = () => {
       extra={<ButtonCreate path={`${UrlConfig.SUPPLIERS}/create`} />}
     >
       <Card>
-        <SupplierFilter
-          onMenuClick={onMenuClick}
-          listDistrict={listDistrict}
-          actions={actions}
-          onFilter={onFilter}
-          goods={goods}
-          supplierStatus={supplierStatus}
-          scorecard={scorecard}
-          params={params}
-          initValue={initQuery}
-          listSupplierType={listSupplierType}
-          
-        />
-        <CustomTable
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          isLoading={tableLoading}
-          showColumnSetting={true}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          columns={columnFinal}
-          onSelectedChange={onSelect}
-          dataSource={data.items}
-          rowKey={(item: SupplierResponse) => item.id}
-        />
-        <ModalSettingColumn
-          visible={showSettingColumn}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumn(data);
-          }}
-          data={columns}
-        />
-        <ModalDeleteConfirm
-          onCancel={() => setConfirmDelete(false)}
-          onOk={() => {
-            setConfirmDelete(false);
-            // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
-            onDelete();
-          }}
-          title="Bạn chắc chắn xóa màu sắc ?"
-          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
-          visible={isConfirmDelete}
-        />
+        <div className="padding-20">
+          <SupplierFilter
+            onMenuClick={onMenuClick}
+            listDistrict={listDistrict}
+            actions={actions}
+            onFilter={onFilter}
+            goods={goods}
+            supplierStatus={supplierStatus}
+            scorecard={scorecard}
+            params={params}
+            initValue={initQuery}
+            listSupplierType={listSupplierType}
+          />
+          <CustomTable
+            isRowSelection
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            isLoading={tableLoading}
+            showColumnSetting={true}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            columns={columnFinal}
+            onSelectedChange={onSelect}
+            dataSource={data.items}
+            rowKey={(item: SupplierResponse) => item.id}
+          />
+          <ModalSettingColumn
+            visible={showSettingColumn}
+            onCancel={() => setShowSettingColumn(false)}
+            onOk={(data) => {
+              setShowSettingColumn(false);
+              setColumn(data);
+            }}
+            data={columns}
+          />
+          <ModalDeleteConfirm
+            onCancel={() => setConfirmDelete(false)}
+            onOk={() => {
+              setConfirmDelete(false);
+              // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+              onDelete();
+            }}
+            title="Bạn chắc chắn xóa màu sắc ?"
+            subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+            visible={isConfirmDelete}
+          />
+        </div>
       </Card>
     </ContentContainer>
   );

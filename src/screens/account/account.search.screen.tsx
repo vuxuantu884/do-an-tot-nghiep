@@ -138,10 +138,10 @@ const ListAccountScreen: React.FC = () => {
     },
   ];
   const onSelect = useCallback((selectedRow: Array<AccountResponse>) => {
-    let selectData:Array<AccountResponse>=[];
-    selectedRow.forEach((x)=>{
-      if(x!==undefined){
-        selectData.push(x)
+    let selectData: Array<AccountResponse> = [];
+    selectedRow.forEach((x) => {
+      if (x !== undefined) {
+        selectData.push(x);
       }
     });
     setAccountSelected(selectData);
@@ -166,8 +166,8 @@ const ListAccountScreen: React.FC = () => {
     [history, params]
   );
   const setSearchResult = useCallback(
-    (listResult: PageResponse<AccountResponse>|false) => {
-      if(!listResult) {
+    (listResult: PageResponse<AccountResponse> | false) => {
+      if (!listResult) {
         return;
       }
       setTableLoading(false);
@@ -179,7 +179,7 @@ const ListAccountScreen: React.FC = () => {
     (result: boolean) => {
       if (result) {
         setAccountSelected([]);
-        showSuccess("Xóa dữ liệu thành công");    
+        showSuccess("Xóa dữ liệu thành công");
         setTableLoading(true);
         dispatch(AccountSearchAction(params, setSearchResult));
       }
@@ -188,10 +188,8 @@ const ListAccountScreen: React.FC = () => {
   );
 
   const onMenuClick = useCallback(
-  
     (index: number) => {
       if (accountSelected.length > 0) {
-        
         let id = accountSelected[0].id;
         switch (index) {
           case 1:
@@ -223,7 +221,7 @@ const ListAccountScreen: React.FC = () => {
       breadcrumb={[
         {
           name: "Tổng quản",
-         path: UrlConfig.HOME,
+          path: UrlConfig.HOME,
         },
         {
           name: "Quản lý người dùng",
@@ -232,31 +230,34 @@ const ListAccountScreen: React.FC = () => {
       extra={<ButtonCreate path={`${UrlConfig.ACCOUNTS}/create`} />}
     >
       <Card>
-        <AccountFilter
-          onMenuClick={onMenuClick}
-          actions={actions}
-          onFilter={onFilter}
-          params={params}
-          listDepartment={listDepartment}
-          listPosition={listPosition}
-          listStatus={listStatus}
-          listStore={listStore}
-        />
-        <CustomTable
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          onSelectedChange={onSelect}
-          isLoading={tableLoading}
-          dataSource={data.items}
-          columns={columns}
-          rowKey={(item: AccountResponse) => item.id}
-        />
+        <div className="padding-20">
+          <AccountFilter
+            onMenuClick={onMenuClick}
+            actions={actions}
+            onFilter={onFilter}
+            params={params}
+            listDepartment={listDepartment}
+            listPosition={listPosition}
+            listStatus={listStatus}
+            listStore={listStore}
+          />
+          <CustomTable
+            isRowSelection
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            onSelectedChange={onSelect}
+            isLoading={tableLoading}
+            dataSource={data.items}
+            columns={columns}
+            rowKey={(item: AccountResponse) => item.id}
+          />
+        </div>
       </Card>
     </ContentContainer>
   );

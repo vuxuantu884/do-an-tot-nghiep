@@ -12,7 +12,6 @@ export interface CustomModalFormModel {
 
 export interface CustomModalType {
   visible: boolean;
-  visibleButton: boolean;
   onCreate: (formValue: any) => void;
   onEdit: (formValue: any) => void;
   onDelete: (formValue: any) => void;
