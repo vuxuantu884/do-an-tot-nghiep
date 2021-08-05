@@ -856,7 +856,7 @@ export const TrackingCode = (item: OrderResponse | null) => {
   if (item) {
     if (item.fulfillments) {
       if (item.fulfillments.length > 0) {
-        if (item.fulfillments[0].shipment?.pushing_status === "waitting") {
+        if (item.fulfillments[0].shipment?.pushing_status === "waiting") {
           return "Đang xử lý";
         } else {
           return item.fulfillments[0].shipment?.tracking_code;
