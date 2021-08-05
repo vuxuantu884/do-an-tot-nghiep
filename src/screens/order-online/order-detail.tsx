@@ -11,9 +11,7 @@ import React, {
 import { useDispatch } from "react-redux";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { AccountResponse } from "model/account/account.model";
-import {
-  AccountSearchAction,
-} from "domain/actions/account/account.action";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderDetailAction } from "domain/actions/order/order.action";
 import doubleArrow from "assets/icon/double_arrow.svg";
@@ -90,7 +88,7 @@ const OrderDetail = () => {
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     setPayments(value);
   };
-console.log(OrderDetail)
+  console.log(OrderDetail);
   const changeShippingFeeInformedCustomer = (value: number | null) => {
     if (value) {
       setShippingFeeInformedCustomer(value);
@@ -264,7 +262,7 @@ console.log(OrderDetail)
         },
       ]}
       extra={
-        <CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail}/>
+        <CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail} />
       }
     >
       <div className="orders">
@@ -314,7 +312,7 @@ console.log(OrderDetail)
                   className="margin-top-20"
                   title={
                     <Space>
-                      <div className="d-flex" >
+                      <div className="d-flex">
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {checkPaymentStatusToShow(OrderDetail) === -1 && (
@@ -367,6 +365,9 @@ console.log(OrderDetail)
                                 customerNeedToPayValue -
                                   (OrderDetail?.total_paid
                                     ? OrderDetail?.total_paid
+                                    : 0) -
+                                  (OrderDetail?.fulfillments[0].shipment
+                                    ? OrderDetail?.fulfillments[0].shipment?.cod
                                     : 0)
                               )
                             : 0}
@@ -504,6 +505,12 @@ console.log(OrderDetail)
                                       }}
                                     >
                                       COD
+                                      {OrderDetail.fulfillments[0].status !== "shipped" && <Tag
+                                        className="orders-tag orders-tag-warning"
+                                        style={{ marginLeft: 10 }}
+                                      >
+                                        Đang chờ thu
+                                      </Tag>}
                                     </b>
                                     <b
                                       style={{
@@ -554,6 +561,7 @@ console.log(OrderDetail)
                       setTotalPaid={setTotalPaid}
                       orderDetail={OrderDetail}
                       paymentMethod={paymentType}
+                      shipmentMethod={shipmentMethod}
                       order_id={OrderDetail.id}
                       showPartialPayment={true}
                       isVisibleUpdatePayment={isVisibleUpdatePayment}
@@ -611,7 +619,7 @@ console.log(OrderDetail)
                   className="margin-top-20"
                   title={
                     <Space>
-                      <div className="d-flex" >
+                      <div className="d-flex">
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (
@@ -651,11 +659,12 @@ console.log(OrderDetail)
                           Còn phải trả:
                         </span>
                         <b style={{ color: "red" }}>
-                          {OrderDetail && OrderDetail?.fulfillments && OrderDetail.fulfillments[0].shipment?.cod !== 0
+                          0
+                          {/* {OrderDetail && OrderDetail?.fulfillments && OrderDetail.fulfillments[0].shipment?.cod !== 0
                             ? formatCurrency(
                                 OrderDetail.fulfillments[0].shipment?.cod
                               )
-                            : 0}
+                            : 0} */}
                         </b>
                       </Col>
                     </Row>
@@ -741,6 +750,7 @@ console.log(OrderDetail)
                   setSelectedPaymentMethod={onPaymentSelect}
                   setPayments={onPayments}
                   paymentMethod={paymentType}
+                  shipmentMethod={shipmentMethod}
                   amount={OrderDetail.total + shippingFeeInformedCustomer}
                   order_id={OrderDetail.id}
                   orderDetail={OrderDetail}
@@ -778,25 +788,39 @@ console.log(OrderDetail)
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Điện thoại:</Col>
                   <Col span={15}>
-                    <span style={{ fontWeight: 500, color: "#222222" }} >{OrderDetail?.customer_phone_number}</span>
+                    <span style={{ fontWeight: 500, color: "#222222" }}>
+                      {OrderDetail?.customer_phone_number}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Địa chỉ:</Col>
                   <Col span={15}>
-                    <span style={{ fontWeight: 500, color: "#222222" }}>{OrderDetail?.shipping_address?.full_address}</span>
+                    <span style={{ fontWeight: 500, color: "#222222" }}>
+                      {OrderDetail?.shipping_address?.full_address}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>NVBH:</Col>
                   <Col span={15}>
-                    <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">{OrderDetail?.assignee}</span>
+                    <span
+                      style={{ fontWeight: 500, color: "#222222" }}
+                      className="text-focus"
+                    >
+                      {OrderDetail?.assignee}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Người tạo:</Col>
                   <Col span={15}>
-                    <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">{OrderDetail?.account}</span>
+                    <span
+                      style={{ fontWeight: 500, color: "#222222" }}
+                      className="text-focus"
+                    >
+                      {OrderDetail?.account}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
@@ -811,7 +835,7 @@ console.log(OrderDetail)
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Đường dẫn:</Col>
-                  <Col span={15} style={{wordWrap: "break-word"}}>
+                  <Col span={15} style={{ wordWrap: "break-word" }}>
                     {OrderDetail?.url ? (
                       <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
                     ) : (
@@ -831,10 +855,19 @@ console.log(OrderDetail)
               }
             >
               <div className="padding-24">
-                <Row className="" gutter={5} style={{flexDirection: "column"}}>
-                  <Col span={24} style={{marginBottom: 6}} ><b>Ghi chú nội bộ:</b></Col>
+                <Row
+                  className=""
+                  gutter={5}
+                  style={{ flexDirection: "column" }}
+                >
+                  <Col span={24} style={{ marginBottom: 6 }}>
+                    <b>Ghi chú nội bộ:</b>
+                  </Col>
                   <Col span={24}>
-                    <span className="text-focus" style={{wordWrap: "break-word"}}>
+                    <span
+                      className="text-focus"
+                      style={{ wordWrap: "break-word" }}
+                    >
                       {OrderDetail?.note !== ""
                         ? OrderDetail?.note
                         : "Không có ghi chú"}
@@ -842,18 +875,30 @@ console.log(OrderDetail)
                   </Col>
                 </Row>
 
-                <Row className="margin-top-10" gutter={5} style={{flexDirection: "column"}}>
-                  <Col span={24} style={{marginBottom: 6}}><b>Tags:</b></Col>
+                <Row
+                  className="margin-top-10"
+                  gutter={5}
+                  style={{ flexDirection: "column" }}
+                >
+                  <Col span={24} style={{ marginBottom: 6 }}>
+                    <b>Tags:</b>
+                  </Col>
                   <Col span={24}>
                     <span className="text-focus">
                       {OrderDetail?.tags
-                        ? OrderDetail?.tags.split(",").map((item, index) => <Tag
-                        key={index}
-                        className="orders-tag"
-                        style={{ backgroundColor: "#F5F5F5", color: "#737373", padding: "5px 10px" }}
-                      >
-                       {item}
-                      </Tag>)
+                        ? OrderDetail?.tags.split(",").map((item, index) => (
+                            <Tag
+                              key={index}
+                              className="orders-tag"
+                              style={{
+                                backgroundColor: "#F5F5F5",
+                                color: "#737373",
+                                padding: "5px 10px",
+                              }}
+                            >
+                              {item}
+                            </Tag>
+                          ))
                         : "Không có tags"}
                     </span>
                   </Col>
