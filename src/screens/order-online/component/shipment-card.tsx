@@ -66,6 +66,7 @@ type ShipmentCardProps = {
   items?: Array<OrderLineItemRequest>;
   discountValue: number | null;
   officeTime: boolean | undefined;
+  setFeeGhtk: (value: number) => void;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
@@ -73,7 +74,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
 ) => {
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
-  const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>();
+  const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
   const [deliveryServices, setDeliveryServices] =
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [shipmentMethodState, setshipmentMethod] = useState<number>(4);
@@ -100,9 +101,15 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       state.bootstrapReducer.data?.shipping_requirement
   );
 
-  const changeServiceType = (id: number, code: string, item: any) => {
+  const changeServiceType = (
+    id: number,
+    code: string,
+    item: any,
+    fee: number
+  ) => {
     props.setHVC(id);
     props.setServiceType(item);
+    props.setFeeGhtk(fee);
   };
 
   const getInfoDeliveryGHTK = useCallback(
@@ -111,7 +118,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         pick_address: props.storeDetail?.address,
         pick_province: props.storeDetail?.city_name,
         pick_district: props.storeDetail?.district_name,
-        province: getShipingAddresDefault(props.cusomerInfo)?.country,
+        province: getShipingAddresDefault(props.cusomerInfo)?.city,
         district: getShipingAddresDefault(props.cusomerInfo)?.district,
         address: getShipingAddresDefault(props.cusomerInfo)?.full_address,
         weight: SumWeight(props.items),
@@ -329,7 +336,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               </Col>
               <Col md={12}>
                 <Form.Item
-                  label="Phí ship báo khách:"
+                  label="Phí ship báo khách"
                   name="shipping_fee_informed_to_customer"
                 >
                   <NumberInput
@@ -343,7 +350,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                     }}
                     maxLength={15}
                     minLength={0}
-                    onChange={props.setShippingFeeInformedCustomerHVC}
+                    onChange={props.setShippingFeeInformedCustomer}
                   />
                 </Form.Item>
               </Col>
@@ -384,7 +391,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                   {single.code === "ghtk" ? (
                                     <div>
                                       <div
-                                        style={{ padding: "8px 16px" }}
+                                        style={{ padding: "8px 16px", alignItems:"center" }}
                                         className="custom-table__has-border-bottom custom-table__has-select-radio"
                                       >
                                         <input
@@ -396,13 +403,16 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                             changeServiceType(
                                               single.id,
                                               single.code,
-                                              "standard"
+                                              "standard",
+                                              infoGHTK.length > 1
+                                              ? infoGHTK[0].fee
+                                              : 0
                                             )
                                           }
                                         />
-                                        <label className="lblShip">
+                                        <span className="lblShip">
                                           Đường bộ
-                                        </label>
+                                        </span>
                                       </div>
                                       <div
                                         style={{ padding: "8px 16px" }}
@@ -417,7 +427,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                             changeServiceType(
                                               single.id,
                                               single.code,
-                                              "express"
+                                              "express",
+                                              infoGHTK.length > 1
+                                                ? infoGHTK[1].fee
+                                                : 0
                                             )
                                           }
                                         />
@@ -440,7 +453,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                           changeServiceType(
                                             single.id,
                                             single.code,
-                                            "standard"
+                                            "standard",
+                                            20000
                                           )
                                         }
                                       />
@@ -640,9 +654,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             <Col md={2}>
               <div>Địa chỉ:</div>
             </Col>
-            <b className="row-info-content">
-              {props.storeDetail?.address}
-            </b>
+            <b className="row-info-content">{props.storeDetail?.address}</b>
           </Row>
         </div>
 
