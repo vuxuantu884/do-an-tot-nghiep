@@ -76,25 +76,25 @@ const CustomerEdit = (props: any) => {
       ...values,
       birthday: moment(values.birthday,'YYYY-MM-DD').format('YYYY-MM-DD'),
       wedding_date: values.wedding_date ? moment(values.wedding_date,'YYYY-MM-DD').format('YYYY-MM-DD'): null,
-      billing_addresses: values.billing_addresses.forEach((b: any) => {
+      billing_addresses: values.billing_addresses.map((b: any) => {
         if (b.hasOwnProperty('is_default')) {
-
+          return b
         } else {
-          b.is_default = b.default
+          return {...b, is_default: b.default}
         }
       }),
-      shipping_addresses: values.shipping_addresses.forEach((b: any) => {
+      shipping_addresses: values.shipping_addresses.map((b: any) => {
         if (b.hasOwnProperty('is_default')) {
-
+          return b
         } else {
-          b.is_default = b.default
+          return {...b, is_default: b.default}
         }
       })
     }
     dispatch(UpdateCustomer(params.id, {...customer, ...processValue}, setResult))
   };
   const handleSubmitFail = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
+    console.error("Failed:", errorInfo);
   };
   return (
     <Form

@@ -57,11 +57,17 @@ const CustomerAdd = (props: any) => {
       wedding_date: values.wedding_date
         ? new Date(values.wedding_date).toISOString()
         : null,
+      billing_addresses: values.billing_addresses.map((b: any) => {
+        return {...b, is_default: b.default}
+      }),
+      shipping_addresses: values.shipping_addresses.map((b: any) => {
+        return {...b, is_default: b.default}
+      })
     };
     dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
   };
   const handleSubmitFail = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
+    console.error("Failed:", errorInfo);
   };
   return (
     <Form

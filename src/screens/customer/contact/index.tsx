@@ -1,11 +1,12 @@
-import { MinusCircleOutlined, SaveOutlined } from "@ant-design/icons";
-import { Row, Col, Form, Input, Divider, Button, FormInstance } from "antd";
-import { CreateContact, UpdateContact } from "domain/actions/customer/customer.action";
+import { ExclamationCircleOutlined, MinusCircleOutlined, SaveOutlined } from "@ant-design/icons";
+import { Row, Col, Form, Input, Divider, Button, FormInstance, Modal } from "antd";
+import { CreateContact, DeleteContact, UpdateContact } from "domain/actions/customer/customer.action";
 import PropTypes from "prop-types";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { showSuccess } from "utils/ToastUtils";
+const { confirm } = Modal
 interface ContactFormProps {
   field: any;
   remove: (index: number | number[]) => void;
@@ -31,6 +32,14 @@ const ContactForm = ({ field, remove, index, form, isEdit, reload }: ContactForm
       if(reload) {reload()}
     }
   }, [])
+
+  const setResultDelete = React.useCallback(result => {
+    if (result) {
+      showSuccess('Xóa liên hệ thành công')
+      if(reload) {reload()}
+    }
+  }, [])
+
   const handleSave = () => {
     const values: Array<any> = form?.getFieldValue('contacts');
     const value = values.find((_, index) => index === field.key);
@@ -38,6 +47,29 @@ const ContactForm = ({ field, remove, index, form, isEdit, reload }: ContactForm
       dispatch(UpdateContact(value.id, params.id, value, setResultUpdate ))
     } else {
       dispatch(CreateContact(params.id, value, setResultCreate ))
+    }
+  }
+  const handleRemove = (callback: any, field: any) => {
+    const values: Array<any> = form?.getFieldValue('contacts');
+    const value = values.find((_, index) => index === field.key);
+    if (value.id !== 0) {
+      confirm({
+        title: <h4>Bạn có chắc chắn xóa địa chỉ liên hệ <span style={{color: 'blue'}}>{value.name}</span> này không?</h4>,
+        icon: <ExclamationCircleOutlined />,
+        content: '',
+        okText: 'Có',
+        okType: 'danger',
+        cancelText: 'Không',
+        onOk() {
+          dispatch(DeleteContact(value.id, params.id, setResultDelete ))
+        },
+        onCancel() {
+
+        }
+      })
+
+    } else {
+        callback(field.name)
     }
   }
   return (
@@ -113,7 +145,7 @@ const ContactForm = ({ field, remove, index, form, isEdit, reload }: ContactForm
         </Row>
       </Col>
       <Col span={1}>
-        <MinusCircleOutlined onClick={() => remove(field.name)} />
+        <MinusCircleOutlined onClick={() => handleRemove(remove, field)} />
       </Col>
     </Row>
   );

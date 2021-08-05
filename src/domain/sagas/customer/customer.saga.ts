@@ -383,7 +383,7 @@ function* DeleteBillingAddress(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setResult(response.data);
+        setResult(response.data || 'OK');
         break;
       case HttpStatus.UNAUTHORIZED:
         setResult(null)
@@ -409,7 +409,7 @@ function* DeleteContact(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setResult(response.data);
+        setResult(response.data || 'OK');
         break;
       case HttpStatus.UNAUTHORIZED:
         setResult(null)
@@ -435,7 +435,7 @@ function* DeleteShippingAddress(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setResult(response.data);
+        setResult(response.data || 'OK');
         break;
       case HttpStatus.UNAUTHORIZED:
         setResult(null)

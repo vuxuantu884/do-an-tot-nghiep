@@ -70,21 +70,21 @@ export const createCustomer = (customer: CustomerRequest): Promise<BaseResponse<
 };
 
 export const updateCustomer = (id: number,customer: CustomerRequest): Promise<BaseResponse<any>> => {
-  let url = `${ApiConfig.CUSTOMER}/customer/${id}`;
+  let url = `${ApiConfig.CUSTOMER}/customers/${id}`;
   return BaseAxios.put(url, customer);
 };
 
 export const deleteContact = (id: number, customerId: number): Promise<BaseResponse<any>> => {
-  let url = `${ApiConfig.CUSTOMER}/customer/${customerId}/contacts/${id}`;
+  let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/contacts/${id}`;
   return BaseAxios.delete(url);
 };
 
 export const deleteShippingAddress = (id: number, customerId: number): Promise<BaseResponse<any>> => {
-  let url = `${ApiConfig.CUSTOMER}/customer/${customerId}/shipping-address/${id}`;
+  let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/shipping-address/${id}`;
   return BaseAxios.delete(url);
 };
 
 export const deleteBillingAddress = (id: number, customerId: number): Promise<BaseResponse<any>> => {
-  let url = `${ApiConfig.CUSTOMER}/customer/${customerId}/billing-address/${id}`;
+  let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/billing-address/${id}`;
   return BaseAxios.delete(url);
 };

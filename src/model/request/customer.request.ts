@@ -192,3 +192,15 @@ export interface CustomerNote extends BaseObject {
     id:  number;
     content: string,
 }
+
+export class CustomerNoteClass implements CustomerNote {
+  id =  0;
+  content = '';
+  customer_id = 0;
+  created_by = null;
+  created_name = '';
+  updated_by = null;
+  updated_name = '';
+  request_id = ''
+  operator_kc_id = '';
+}

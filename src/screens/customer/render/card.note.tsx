@@ -1,5 +1,6 @@
 import { PlusOutlined } from "@ant-design/icons"
 import { Card, Col, Row, Form, Button } from "antd"
+import { CustomerNoteClass } from "model/request/customer.request"
 import React from "react"
 
 interface CardNoteProps {
@@ -40,7 +41,7 @@ const RenderCardNote = ({component: Component, title, name}: CardNoteProps) => {
                       type="link"
                       size={"small"}
                       icon={<PlusOutlined />}
-                      onClick={() => add()}
+                      onClick={() => add(new CustomerNoteClass())}
                     >
                       Thêm ghi chú
                     </Button>
