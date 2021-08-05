@@ -232,15 +232,17 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         onOk={onOkConfirm}
         visible={isibleConfirmPayment}
         icon={WarningIcon}
+        okText="Đồng ý"
+        cancelText="Hủy"
         title="Bạn muốn xác nhận thanh toán cho đơn hàng này?"
         text={textValue}
         order_id={props.order_id}
       />
       {props.showPartialPayment === false && (
         <Card
-          className="margin-top-20"
+          className="margin-top-20 orders-update-payment"
           title={
-            <div className="d-flex" style={{ marginTop: "5px" }}>
+            <div className="d-flex" style={{ marginTop: "5px", border: "none" }}>
               <span className="title-card">THANH TOÁN</span>
             </div>
           }

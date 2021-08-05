@@ -8,26 +8,28 @@ type SaveAndConfirmOrderModalProps = {
   text: string;
   title: string;
   icon: string;
+  cancelText: string
+  okText: string
 };
 
 const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
   props: SaveAndConfirmOrderModalProps
 ) => {
-  const { visible, onCancel, onOk, text, title, icon } = props;
+  const { visible, onCancel, onOk, text, title, icon, okText, cancelText } = props;
   return (
     <Modal
       onCancel={onCancel}
       onOk={onOk}
       visible={visible}
       centered
-      okText="Đồng ý"
-      cancelText="Hủy"
+      okText={okText}
+      cancelText={cancelText}
       title={[
-        <div>
+        <div >
           <img src={icon} />
           <div>
             <h4>{title}</h4>
-            <span>{text}</span>
+            <span style={title ?{fontWeight: 400} : {fontWeight: 600, fontSize: 16}}>{text}</span>
           </div>
         </div>,
       ]}

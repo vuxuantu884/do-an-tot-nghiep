@@ -10,6 +10,7 @@ import {
   DatePicker,
   Checkbox,
   Input,
+  Divider,
 } from "antd";
 
 import callIcon from "assets/img/call.svg";
@@ -80,7 +81,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [shipmentMethodState, setshipmentMethod] = useState<number>(4);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number>(0);
-
+  console.log(deliveryServices);
   const ShipMethodOnChange = (value: number) => {
     setshipmentMethod(value);
     props.setShipmentMethodProps(value);
@@ -177,7 +178,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         </div>
       }
     >
-      <div className="padding-24">
+      <div className="padding-24 orders-shipment">
         <Row gutter={24} style={{ justifyContent: "space-between" }}>
           <Col md={9}>
             <span
@@ -380,50 +381,39 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                 <td style={{ padding: 0 }}>
                                   {single.code === "ghtk" ? (
                                     <div>
-                                      <div
-                                        style={{ padding: "8px 16px" }}
-                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                      >
+                                      <label className="radio-container">
                                         <input
                                           type="radio"
                                           name="tt"
-                                          className="radio-delivery"
+                                          className="radio"
                                           value="road"
                                         />
-                                        <label className="lblShip">
-                                          Đường bộ
-                                        </label>
-                                      </div>
-                                      <div
-                                        style={{ padding: "8px 16px" }}
-                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                      >
+                                        <span className="checkmark"></span>
+                                        Đường bộ
+                                      </label>
+                                      <Divider style={{ margin: "8px 0"}}/>
+                                      <label className="radio-container">
                                         <input
                                           type="radio"
                                           name="tt"
-                                          className="radio-delivery"
+                                          className="radio"
                                           value="fly"
                                         />
-                                        <label className="lblShip">
-                                          Đường bay
-                                        </label>
-                                      </div>
+                                        <span className="checkmark"></span>
+                                        Đường bay
+                                      </label>
                                     </div>
                                   ) : (
-                                    <div
-                                      style={{ padding: "8px 16px" }}
-                                      className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                    >
+                                    <label className="radio-container">
                                       <input
                                         type="radio"
                                         name="tt"
-                                        className="radio-delivery"
+                                        className="radio"
                                         value="road"
                                       />
-                                      <label className="lblShip">
-                                        Chuyển phát nhanh PDE
-                                      </label>
-                                    </div>
+                                      <span className="checkmark"></span>
+                                      Chuyển phát nhanh PDE
+                                    </label>
                                   )}
                                 </td>
                                 <td style={{ padding: 0, textAlign: "right" }}>
