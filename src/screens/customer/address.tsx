@@ -401,12 +401,6 @@ const AddressForm = ({
               label="Mặc định"
               name={[field.name, "default"]}
               valuePropName="checked"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn",
-                },
-              ]}
             >
               <Checkbox onChange={handleChangeDefault}></Checkbox>
             </Form.Item>
