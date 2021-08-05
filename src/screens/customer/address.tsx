@@ -193,7 +193,6 @@ const AddressForm = ({
       }
     } else {
       if (value.id !== 0) {
-        console.log(value)
         confirm({
           title: <h4>Bạn có chắc chắn xóa địa chỉ có người nhận <span style={{color: 'blue'}}>{value.name}</span> này không?</h4>,
           icon: <ExclamationCircleOutlined />,
@@ -212,6 +211,18 @@ const AddressForm = ({
         callback(field.name)
       }
     }
+  }
+
+  const handleChangeDefault = () => {
+    let values: Array<any> = form?.getFieldValue(name);
+    values.forEach((value, index) => {
+      if(index !== field.key) {
+        value.default = false;
+        value.is_default = false;
+      }
+    })
+
+    form?.setFieldsValue({name: values})
   }
 
   return (
@@ -397,7 +408,7 @@ const AddressForm = ({
                 },
               ]}
             >
-              <Checkbox onChange={() => {}}></Checkbox>
+              <Checkbox onChange={handleChangeDefault}></Checkbox>
             </Form.Item>
           </Col>
           {isEdit && (

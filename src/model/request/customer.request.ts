@@ -46,7 +46,7 @@ export class CustomerModel implements CustomerRequest {
   full_name = '';
   phone = '';
   email = '';
-  customer_group_id = null;
+  customer_group_id = 1;
   customer_group  = '';
   customer_type_id = null;
   customer_type = '';
@@ -59,7 +59,7 @@ export class CustomerModel implements CustomerRequest {
   birthday = null;
   gender = '';
   website = '';
-  status = '';
+  status = 'active';
   tags = '';
   responsible_staff_code = '';
   billing_addresses: Array<CustomerBillingAddress> = [];
@@ -95,6 +95,7 @@ export interface CustomerBillingAddress extends BaseObject {
 export class CustomerBillingAddressClass implements CustomerBillingAddress {
   id = 0;
   is_default = false;
+  default = false;
   name = '';
   email = '';
   phone = '';
@@ -121,6 +122,7 @@ export class CustomerBillingAddressClass implements CustomerBillingAddress {
 export class CustomerShippingAddressClass implements CustomerShippingAddress {
   id = 0;
   is_default = false;
+  default = false;
   name = '';
   email = '';
   phone = '';

@@ -32,6 +32,10 @@ const CustomerAdd = (props: any) => {
   const [types, setTypes] = React.useState<Array<any>>([]);
   const [levels, setLevels] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
+  const statuses = [
+    { name: "Hoạt động", key: "1", value: "active" },
+    { name: "Không hoạt động", key: "2", value: "inactive" },
+  ];
   React.useEffect(() => {
     //dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
@@ -58,11 +62,11 @@ const CustomerAdd = (props: any) => {
         ? new Date(values.wedding_date).toISOString()
         : null,
       billing_addresses: values.billing_addresses.map((b: any) => {
-        return {...b, is_default: b.default}
+        return { ...b, is_default: b.default };
       }),
       shipping_addresses: values.shipping_addresses.map((b: any) => {
-        return {...b, is_default: b.default}
-      })
+        return { ...b, is_default: b.default };
+      }),
     };
     dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
   };
@@ -176,6 +180,21 @@ const CustomerAdd = (props: any) => {
                       <Input placeholder="Website" />
                     </Form.Item>
                   </Col>
+                  <Col span={4}>
+                    <Form.Item name="status" label="Trạng thái">
+                      <Select placeholder="Trạng thái" disabled>
+                        {statuses.map((status) => (
+                          <Option key={status.key} value={status.value}>
+                            {status.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Col>
+              <Col span={24}>
+                <Row gutter={12}>
                   <Col span={8}>
                     <Form.Item name="description" label="Mô tả">
                       <Input.TextArea placeholder="Mô tả" />

@@ -34,6 +34,10 @@ const CustomerEdit = (props: any) => {
   const [levels, setLevels] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
   const [companies, setCompanies] = React.useState<Array<any>>([]);
+  const statuses = [
+    { name: "Hoạt động", key: "1", value: "active" },
+    { name: "Không hoạt động", key: "2", value: "inactive" },
+  ];
   React.useEffect(() => {
     //dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
@@ -106,7 +110,7 @@ const CustomerEdit = (props: any) => {
       // initialValues={customerInit}
     >
       <Row gutter={24}>
-        <Col span={24}>
+      <Col span={24}>
           <Card
             title={
               <div className="d-flex">
@@ -204,6 +208,21 @@ const CustomerEdit = (props: any) => {
                       <Input placeholder="Website" />
                     </Form.Item>
                   </Col>
+                  <Col span={4}>
+                    <Form.Item name="status" label="Trạng thái">
+                      <Select placeholder="Trạng thái">
+                        {statuses.map((status) => (
+                          <Option key={status.key} value={status.value}>
+                            {status.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Col>
+              <Col span={24}>
+                <Row gutter={12}>
                   <Col span={8}>
                     <Form.Item name="description" label="Mô tả">
                       <Input.TextArea placeholder="Mô tả" />
