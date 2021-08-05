@@ -12,7 +12,12 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { PoFormName, POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
+import {
+  PoFormName,
+  POStatus,
+  ProcumentStatus,
+  VietNamId,
+} from "utils/Constants";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
 import POPaymentForm from "./component/po-payment.form";
@@ -27,6 +32,9 @@ import POStep from "./component/po-step";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { ConvertDateToUtc } from "utils/DateUtils";
+import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
+import POPaymentConditionsForm from "./component/po-payment-conditions.form";
+import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 
 type PurchaseOrderParam = {
   id: string;
@@ -69,6 +77,11 @@ const PODetailScreen: React.FC = () => {
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
+  const [listPaymentConditions, setListPaymentConditions] = useState<
+    Array<PoPaymentConditions>
+  >([]);
+  const [purchaseItem, setPurchaseItem] = useState<PurchaseOrder>();
+
   const collapse = useSelector(
     (state: RootReducerType) => state.appSettingReducer.collapse
   );
@@ -78,6 +91,7 @@ const PODetailScreen: React.FC = () => {
       if (!result) {
         setError(true);
       } else {
+        setPurchaseItem(result);
         formMain.setFieldsValue(result);
       }
     },
@@ -135,6 +149,7 @@ const PODetailScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
+    dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
     if (!isNaN(idNumber)) {
       dispatch(PoDetailAction(idNumber, onDetail));
     } else {
@@ -197,7 +212,12 @@ const PODetailScreen: React.FC = () => {
             />
             <POProductForm isEdit={true} formMain={formMain} />
             <POInventoryForm stores={listStore} />
-            <POPaymentForm />
+
+            {purchaseItem && purchaseItem.status !== POStatus.DRAFT ? (
+              <POPaymentForm purchaseItem={purchaseItem} />
+            ) : (
+              <POPaymentConditionsForm listPayment={listPaymentConditions} />
+            )}
           </Col>
           {/* Right Side */}
           <Col md={6}>

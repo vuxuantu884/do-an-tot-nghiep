@@ -1,7 +1,7 @@
 import { BaseQuery } from "model/base/base.query";
 import { PurchaseAddress } from "./purchase-address.model";
 import { PurchaseOrderLineItem, Vat } from "./purchase-item.model";
-import { PurchasePayments } from "./purchase-transaction.model";
+import { PurchasePayments } from "./purchase-payment.model";
 
 export interface PurchaseOrder {
   id: number;
@@ -19,7 +19,7 @@ export interface PurchaseOrder {
   tags: string;
   policy_price_code: string;
 
-  transactions: Array<PurchasePayments>;
+  payments: Array<PurchasePayments>;
   trade_discount_rate: number;
   trade_discount_value: number;
   trade_discount_amount: number;
@@ -29,6 +29,7 @@ export interface PurchaseOrder {
   untaxed_amount: number;
   tax: number;
   total: number;
+  total_paid:number;
   total_refunds: number;
   status: string;
   financial_status: string;
@@ -44,6 +45,7 @@ export interface PurchaseOrder {
   import_date: string;
   store_id: number;
   payment_condition_id: number;
+  payment_condition_name: string;
   payment_note: string;
 }
 
