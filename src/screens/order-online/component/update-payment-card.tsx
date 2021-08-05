@@ -1,15 +1,13 @@
 // @ts-ignore
 import { Button, Card, Row, Col, Radio, InputNumber, Space, Input } from "antd";
 
-import {
-  BugOutlined,
-  CreditCardOutlined,
-  QrcodeOutlined,
-} from "@ant-design/icons";
+import { BugOutlined } from "@ant-design/icons";
 
+import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
-import WarningIcon from "assets/icon/ydWarningIcon.svg";
+import CreditCardOutlined from "component/icon/CreditCardOutlined";
+import QrcodeOutlined from "component/icon/QrcodeOutlined";
 // @ts-ignore
 import {
   PaymentMethodGetList,
@@ -234,15 +232,17 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         onOk={onOkConfirm}
         visible={isibleConfirmPayment}
         icon={WarningIcon}
+        okText="Đồng ý"
+        cancelText="Hủy"
         title="Bạn muốn xác nhận thanh toán cho đơn hàng này?"
         text={textValue}
         order_id={props.order_id}
       />
       {props.showPartialPayment === false && (
         <Card
-          className="margin-top-20"
+          className="margin-top-20 orders-update-payment"
           title={
-            <div className="d-flex" style={{ marginTop: "5px" }}>
+            <div className="d-flex" style={{ marginTop: "5px", border: "none" }}>
               <span className="title-card">THANH TOÁN</span>
             </div>
           }
@@ -292,17 +292,31 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       let icon = null;
                       switch (method.code) {
                         case PaymentMethodCode.CASH:
-                          icon = <Cash />;
+                          icon = (
+                            <Cash paymentData={paymentData} method={method} />
+                          );
                           break;
                         case PaymentMethodCode.CARD:
                         case PaymentMethodCode.BANK_TRANSFER:
-                          icon = <CreditCardOutlined />;
+                          icon = (
+                            <CreditCardOutlined
+                              paymentData={paymentData}
+                              method={method}
+                            />
+                          );
                           break;
                         case PaymentMethodCode.QR_CODE:
-                          icon = <QrcodeOutlined />;
+                          icon = (
+                            <QrcodeOutlined
+                              paymentData={paymentData}
+                              method={method}
+                            />
+                          );
                           break;
                         case PaymentMethodCode.POINT:
-                          icon = <YdCoin />;
+                          icon = (
+                            <YdCoin paymentData={paymentData} method={method} />
+                          );
                           break;
                         default:
                           icon = <BugOutlined />;
@@ -311,7 +325,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       return (
                         <Col key={method.code} className="btn-payment-method">
                           <Button
-                            style={{ display: "flex" }}
+                            style={{ padding: 10, display: "flex" }}
                             type={
                               paymentData.some((p) => p.code === method.code)
                                 ? "primary"
@@ -534,16 +548,20 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         <Button
                           type="primary"
                           className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right" }}
+                          style={{ float: "right", padding: "0 25px" }}
                           htmlType="submit"
                           onClick={ShowConfirmPayment}
                         >
-                          Tạo thanh toán trước
+                          Tạo thanh toán
                         </Button>
                         <Button
                           type="default"
                           className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right", marginRight: "10px" }}
+                          style={{
+                            float: "right",
+                            marginRight: "10px",
+                            padding: "0 25px",
+                          }}
                           onClick={canclePayment}
                         >
                           Hủy
@@ -561,13 +579,11 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
               <label
                 className="text-left"
                 style={{ marginTop: "20px", lineHeight: "40px" }}
-              >
-                <i>Chưa tạo thanh toán</i>{" "}
-              </label>
+              ></label>
               <Button
                 type="primary"
                 className="ant-btn-outline fixed-button text-right"
-                style={{ float: "right", marginBottom: "20px" }}
+                style={{ float: "right", padding: "0 25px", marginBottom: 25 }}
                 onClick={ShowPayment}
               >
                 Thanh toán
@@ -619,17 +635,29 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   let icon = null;
                   switch (method.code) {
                     case PaymentMethodCode.CASH:
-                      icon = <Cash />;
+                      icon = <Cash paymentData={paymentData} method={method} />;
                       break;
                     case PaymentMethodCode.CARD:
                     case PaymentMethodCode.BANK_TRANSFER:
-                      icon = <CreditCardOutlined />;
+                      icon = (
+                        <CreditCardOutlined
+                          paymentData={paymentData}
+                          method={method}
+                        />
+                      );
                       break;
                     case PaymentMethodCode.QR_CODE:
-                      icon = <QrcodeOutlined />;
+                      icon = (
+                        <QrcodeOutlined
+                          paymentData={paymentData}
+                          method={method}
+                        />
+                      );
                       break;
                     case PaymentMethodCode.POINT:
-                      icon = <YdCoin />;
+                      icon = (
+                        <YdCoin paymentData={paymentData} method={method} />
+                      );
                       break;
                     default:
                       icon = <BugOutlined />;
@@ -638,7 +666,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   return (
                     <Col key={method.code} className="btn-payment-method">
                       <Button
-                        style={{ display: "flex" }}
+                        style={{ padding: 10, display: "flex" }}
                         type={
                           paymentData.some((p) => p.code === method.code)
                             ? "primary"
@@ -854,16 +882,21 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     <Button
                       type="primary"
                       className="ant-btn-outline fixed-button text-right"
-                      style={{ float: "right" }}
+                      style={{ float: "right", padding: "0 25px" }}
                       htmlType="submit"
                       onClick={ShowConfirmPayment}
                     >
-                      Thêm thanh toán trước
+                      Thanh toán
                     </Button>
+
                     <Button
                       type="default"
                       className="ant-btn-outline fixed-button text-right"
-                      style={{ float: "right", marginRight: "10px" }}
+                      style={{
+                        float: "right",
+                        marginRight: "10px",
+                        padding: "0 25px",
+                      }}
                       onClick={() => window.location.reload()}
                     >
                       Hủy

@@ -82,7 +82,8 @@ export default function Order() {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
-  const [hvc, setHvc] = useState<number>(3);
+  const [hvc, setHvc] = useState<number | null>(null);
+  const [feeGhtk, setFeeGhtk] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
     null
   );
@@ -125,7 +126,7 @@ export default function Order() {
     setShippingFeeCustomerHVC(value);
   };
   //#endregion
-console.log(items)
+  console.log(items);
   //#region Product
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -210,7 +211,7 @@ console.log(items)
     const strTag = value.join(", ");
     setTag(strTag);
   };
-console.log(items.concat(itemGifts))
+  console.log(items.concat(itemGifts));
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
     let shipmentRequest = createShipmentRequest(value);
@@ -286,7 +287,11 @@ console.log(items.concat(itemGifts))
       objShipment.delivery_service_provider_type = "external_service";
       objShipment.sender_address_id = storeId;
       objShipment.service = serviceType!;
-      objShipment.shipping_fee_paid_to_three_pls = MoneyPayThreePls.VALUE; //mặc định 20k
+      if (hvc === 1) {
+        objShipment.shipping_fee_paid_to_three_pls = feeGhtk;
+      } else {
+        objShipment.shipping_fee_paid_to_three_pls = MoneyPayThreePls.VALUE;
+      }
       return objShipment;
     }
 
@@ -360,8 +365,13 @@ console.log(items.concat(itemGifts))
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      showSuccess("Thêm đơn hàng thành công");
+      if(value.fulfillments && value.fulfillments.length > 0) {
+      showSuccess("Đơn được lưu và duyệt thành công");
       history.push(`${UrlConfig.ORDER}/${value.id}`);
+      }else{
+      showSuccess("Đơn được lưu nháp thành công");
+      history.push(`${UrlConfig.ORDER}/${value.id}`);
+      }
     },
     [history]
   );
@@ -483,7 +493,7 @@ console.log(items.concat(itemGifts))
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
-  
+
   //windows offset
   useEffect(() => {
     window.addEventListener("scroll", scroll);
@@ -576,6 +586,7 @@ console.log(items.concat(itemGifts))
                 officeTime={officeTime}
                 setServiceType={setServiceType}
                 setHVC={setHvc}
+                setFeeGhtk={setFeeGhtk}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
@@ -729,12 +740,14 @@ console.log(items.concat(itemGifts))
 
             <Col md={9} style={{ marginTop: "8px" }}>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => window.location.reload()}
               >
                 Huỷ
               </Button>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 className="create-button-custom ant-btn-outline fixed-button"
                 type="primary"
                 onClick={showSaveAndConfirmModal}
@@ -742,6 +755,7 @@ console.log(items.concat(itemGifts))
                 Lưu nháp
               </Button>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 type="primary"
                 className="create-button-custom"
                 id="save-and-confirm"
@@ -758,6 +772,8 @@ console.log(items.concat(itemGifts))
             onCancel={onCancelSaveAndConfirm}
             onOk={onOkSaveAndConfirm}
             visible={isvibleSaveAndConfirm}
+            okText="Đồng ý"
+            cancelText="Hủy"
             title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
             text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
             icon={WarningIcon}

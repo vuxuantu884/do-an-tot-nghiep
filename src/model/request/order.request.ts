@@ -152,7 +152,7 @@ export interface UpdateShipmentRequest {
   shipper_code: string | null;
   shipper_name: string | null;
   handover_id: number | null;
-  service: number | null;
+  service: string | null;
   fee_type: string | null;
   fee_base_on: string | null;
   delivery_fee: number | null;

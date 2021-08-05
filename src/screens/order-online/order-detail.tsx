@@ -294,6 +294,7 @@ console.log(OrderDetail)
               setOfficeTime={setOfficeTime}
               setVisibleShipping={setVisibleShipping}
               OrderDetail={OrderDetail}
+              customerDetail={customerDetail}
               storeDetail={storeDetail}
               stepsStatusValue={stepsStatusValue}
               totalPaid={totalPaid}

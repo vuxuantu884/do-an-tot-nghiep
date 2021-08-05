@@ -34,7 +34,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               <Select.Option value="">Chọn Merchandiser</Select.Option>
               {props.winAccount.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
-                  {item.full_name}
+                  {[item.code, item.full_name].join(' - ')}
                 </Select.Option>
               ))}
             </Select>
@@ -49,8 +49,15 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="reference" label="Số tham chiếu">
-            <Input placeholder="Nhập số tham chiếu" />
+          <Form.Item
+            tooltip={{
+              title: "Thêm số tham chiếu hoặc mã hợp đồng",
+              icon: <InfoCircleOutlined />,
+            }}
+            name="reference"
+            label="Số tham chiếu"
+          >
+            <Input type="text" maxLength={255} placeholder="Nhập số tham chiếu" />
           </Form.Item>
         </div>
       </Card>
@@ -64,7 +71,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
       >
         <div className="padding-20">
           <Form.Item label="Ghi chú nội bộ" name="note">
-            <Input.TextArea placeholder="Nhập ghi chú" />
+            <Input.TextArea maxLength={500} placeholder="Nhập ghi chú" />
           </Form.Item>
           <Form.Item
             tooltip={{
