@@ -38,7 +38,6 @@ const OrderSources: React.FC = () => {
   const [listOrderCompanies, setListOrderCompanies] = useState<
     OrderSourceCompanyModel[]
   >([]);
-  const [visibleFormButtons, setVisibleFormButtons] = useState<boolean>(true);
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
@@ -50,6 +49,21 @@ const OrderSources: React.FC = () => {
       title: "Nguồn đơn hàng",
       dataIndex: "name",
       visible: true,
+      className: "columnTitle",
+      width: 600,
+      render: (value, row, index) => {
+        if (value) {
+          return (
+            <span
+              title={value}
+              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+              className="title"
+            >
+              {value}
+            </span>
+          );
+        }
+      },
     },
     {
       title: "Áp dụng cho đơn hàng",
@@ -106,7 +120,7 @@ const OrderSources: React.FC = () => {
         }}
         icon={<PlusOutlined />}
       >
-        Thêm mới
+        Thêm nguồn đơn hàng
       </Button>
     );
   };
@@ -123,18 +137,15 @@ const OrderSources: React.FC = () => {
 
   const handleForm = {
     create: (formValue: OrderSourceModel) => {
-      setVisibleFormButtons(false);
       dispatch(
         actionAddOrderSource(formValue, () => {
           setIsShowModal(false);
           gotoFirstPage();
-          setVisibleFormButtons(true);
         })
       );
     },
     edit: (formValue: OrderSourceModel) => {
       if (modalSingleOrderSource) {
-        setVisibleFormButtons(false);
         dispatch(
           actionEditOrderSource(modalSingleOrderSource.id, formValue, () => {
             dispatch(
@@ -146,19 +157,16 @@ const OrderSources: React.FC = () => {
               )
             );
             setIsShowModal(false);
-            setVisibleFormButtons(true);
           })
         );
       }
     },
     delete: () => {
       if (modalSingleOrderSource) {
-        setVisibleFormButtons(false);
         dispatch(
           actionDeleteOrderSource(modalSingleOrderSource.id, () => {
             setIsShowModal(false);
             gotoFirstPage();
-            setVisibleFormButtons(true);
           })
         );
       }
@@ -206,10 +214,10 @@ const OrderSources: React.FC = () => {
         extra={createOrderSourceHtml()}
       >
         {listOrderSources && (
-          <Card style={{ padding: 24 }}>
+          <Card style={{ padding: '35px 15px' }}>
             <CustomTable
               isLoading={tableLoading}
-              showColumnSetting={true}
+              showColumnSetting={false}
               scroll={{ x: 1080 }}
               pagination={{
                 pageSize: params.limit,
@@ -237,7 +245,6 @@ const OrderSources: React.FC = () => {
         )}
         <CustomModal
           visible={isShowModal}
-          visibleButton={visibleFormButtons}
           onCreate={(formValue: OrderSourceModel) =>
             handleForm.create(formValue)
           }

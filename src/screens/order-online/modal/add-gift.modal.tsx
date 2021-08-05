@@ -1,6 +1,6 @@
-import { Modal, Input, Table, Button, AutoComplete } from "antd";
-import deleteIcon from "assets/icon/delete.svg";
-import arrowDown from "assets/icon/arrow-down.svg";
+import { Modal, Input, Table, Button, AutoComplete, Badge } from "antd";
+import XCloseBtn from "assets/icon/X_close.svg";
+import searchGift from "assets/icon/search.svg";
 import React, { createRef, useCallback, useMemo, useState } from "react";
 import { RefSelectProps } from "antd/lib/select";
 import { useDispatch } from "react-redux";
@@ -39,7 +39,6 @@ const initQuery: VariantSearchQuery = {
   limit: 10,
   page: 1,
 };
-
 export interface AddGiftRef {
   setGifts: (items: Array<OrderLineItemRequest>) => void;
 }
@@ -90,7 +89,6 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
   props: AddGiftModalProps
 ) => {
   const { visible, onCancel, onOk } = props;
-
   const dispatch = useDispatch();
   const [keysearch, setKeysearch] = useState("");
   const [resultSearch, setResultSearch] = useState<
@@ -124,17 +122,17 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       title: "Sản phẩm",
       render: (a: OrderItemModel, item: any, index: number) => (
         <div>
-          <div className="yody-pos-sku">
+          <div className="yody-pos-sku" >
             <Link to="">{a.sku}</Link>
           </div>
-          <span>{a.variant}</span>
+          <Badge status="default" text={a.variant} style={{marginLeft: 7, }}/>
         </div>
       ),
     },
     {
       title: "Số lượng",
       render: (a: OrderItemModel, b: any, index: number) => (
-        <div>
+        <div >
           <Input
             onChange={(e) => {
               const re = /^[0-9\b]+$/;
@@ -150,26 +148,28 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
             minLength={1}
             maxLength={4}
             onFocus={(e) => e.target.select()}
-            style={{ width: 60, textAlign: "center"}}
+            style={{ width: 100, textAlign: "right"}}
           />
         </div>
       ),
     },
+    // {
+    //   title: "Đơn giá",
+    //   render: (a: OrderItemModel) => formatCurrency(a.price),
+    // },
     {
-      title: "Đơn giá",
-      render: (a: OrderItemModel) => formatCurrency(a.price),
-    },
-    {
-      title: "Thao tác",
+      title: "",
       render: (a: any, b: any, index: number) => {
         return (
+          <div style={{textAlign:"center"}}>
           <Button
             type="text"
             onClick={() => deleteItem(index)}
             className="yody-pos-delete-item ant-btn-custom"
           >
-            <img src={deleteIcon} alt="" />
+            <img src={XCloseBtn} alt="" />
           </Button>
+          </div>
         );
       },
     },
@@ -230,6 +230,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       tax_rate: taxRate,
       show_note: false,
       gifts: [],
+      position: undefined,
     };
     return orderLine;
   }, []);
@@ -241,9 +242,10 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       let indexSearch = resultSearch.items.findIndex((i) => i.id === newV);
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearch.items[indexSearch];
+      const item: OrderLineItemRequest = createItem(r);
       if (r.id === newV) {
         if (index === -1) {
-          const item: OrderLineItemRequest = createItem(r);
+          item.type = Type.GIFT
           _items.push(item);
         } else {
           let lastIndex = index;
@@ -284,6 +286,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       visible={visible}
       cancelText="Hủy"
       okText="Lưu"
+      className="saleorder-product-modal"
     >
       <AutoComplete
         notFoundContent={
@@ -300,8 +303,8 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       >
         <Input
           className="yody-pos-gift-modal-input"
-          placeholder="Chọn quà tặng"
-          suffix={<img src={arrowDown} alt="" />}
+          placeholder="Tìm kiếm và chọn quà tặng"
+          prefix={<img src={searchGift} alt="" />}
         />
       </AutoComplete>
       <Table
@@ -311,7 +314,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
         pagination={false}
         dataSource={props.items}
         columns={columns}
-        // rowKey={(record) => record.id}
+        rowKey={(record) => record.id}
       />
     </Modal>
   );

@@ -153,7 +153,7 @@ const PODetailScreen: React.FC = () => {
           size="small"
           current={0}
         >
-          <Steps.Step title="Đặt hàng" />
+          <Steps.Step title="Đặt hàng"  />
           <Steps.Step title="Xác nhận" />
           <Steps.Step title="Phiếu nháp" />
           <Steps.Step title="Nhập kho" />

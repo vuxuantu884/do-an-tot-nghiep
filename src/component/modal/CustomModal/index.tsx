@@ -7,7 +7,6 @@ import { StyledComponent } from "./styles";
 const CustomModal = (props: CustomModalType) => {
   const {
     visible,
-    visibleButton,
     onCreate,
     onEdit,
     onDelete,
@@ -77,7 +76,6 @@ const CustomModal = (props: CustomModalType) => {
               type="primary"
               danger
               onClick={() => setIsShowConfirmDelete(true)}
-              disabled={!visibleButton}
             >
               Xóa
             </Button>
@@ -90,7 +88,6 @@ const CustomModal = (props: CustomModalType) => {
               key="save"
               type="primary"
               onClick={() => formAction.edit()}
-              disabled={!visibleButton}
             >
               Lưu
             </Button>

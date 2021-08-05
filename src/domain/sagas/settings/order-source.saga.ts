@@ -3,6 +3,7 @@ import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { SETTING_TYPES } from "domain/types/settings.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSourceResponseModel } from "model/response/order/order-source.response";
@@ -17,6 +18,7 @@ import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listAllOrderSourceSaga(action: YodyAction) {
   const { params, handleData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
       yield call(getSourcesWithParamsService, params);
@@ -38,11 +40,14 @@ function* listAllOrderSourceSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* listAllOrderSourceCompaniesSaga(action: YodyAction) {
   const { handleData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
       yield call(getListSourcesCompaniesService);
@@ -61,11 +66,14 @@ function* listAllOrderSourceCompaniesSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* addOrderSourceSaga(action: YodyAction) {
   const { item, handleData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
       yield call(createOrderSourceService, item);
@@ -85,11 +93,14 @@ function* addOrderSourceSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* editOrderSourceSaga(action: YodyAction) {
   const { id, item, handleData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
       yield call(editOrderSourceService, id, item);
@@ -109,11 +120,14 @@ function* editOrderSourceSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* deleteOrderSourceSaga(action: YodyAction) {
   const { id, handleData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
       yield call(deleteOrderSourceService, id);
@@ -133,6 +147,8 @@ function* deleteOrderSourceSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 

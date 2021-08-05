@@ -14,13 +14,13 @@ import {
 } from "antd";
 
 import {
-  BugOutlined,
-  CreditCardOutlined,
-  QrcodeOutlined,
+  BugOutlined
 } from "@ant-design/icons";
-
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
+import CreditCardOutlined from "component/icon/CreditCardOutlined";
+import QrcodeOutlined from "component/icon/QrcodeOutlined";
+
 // @ts-ignore
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -138,6 +138,12 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     return total;
   };
 
+  const handleTransferReference  = (index: number, value: string) => {
+   const  _paymentData = [... paymentData]
+   _paymentData[index].reference = value
+   setPaymentData(_paymentData)
+  };
+
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
@@ -237,17 +243,17 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         let icon = null;
                         switch (method.code) {
                           case PaymentMethodCode.CASH:
-                            icon = <Cash />;
+                            icon = <Cash paymentData={paymentData} method={method}/>;
                             break;
                           case PaymentMethodCode.CARD:
                           case PaymentMethodCode.BANK_TRANSFER:
-                            icon = <CreditCardOutlined />;
+                            icon = <CreditCardOutlined paymentData={paymentData} method={method}/>;
                             break;
                           case PaymentMethodCode.QR_CODE:
-                            icon = <QrcodeOutlined />;
+                            icon = <QrcodeOutlined paymentData={paymentData} method={method}/>;
                             break;
                           case PaymentMethodCode.POINT:
-                            icon = <YdCoin />;
+                            icon = <YdCoin paymentData={paymentData} method={method}/>;
                             break;
                           default:
                             icon = <BugOutlined />;
@@ -256,7 +262,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         return (
                           <Col key={method.code} className="btn-payment-method">
                             <Button
-                              style={{ display: "flex" }}
+                              style={{ display: "flex", padding: 10 }}
                               type={
                                 paymentData.some((p) => p.code === method.code)
                                   ? "primary"
@@ -362,7 +368,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                   lg={14}
                                   xxl={14}
                                 >
-                                  <Input placeholder="Tham chiếu" />
+                                  <Input placeholder="Tham chiếu" 
+                                  onChange={(e: any) => handleTransferReference(index, e.target.value)}/>
                                 </Col>
                               ) : null}
                             </Row>

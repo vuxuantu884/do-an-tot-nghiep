@@ -3,6 +3,7 @@ import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { SETTING_TYPES } from "domain/types/settings.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
@@ -16,6 +17,7 @@ import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listDataOrderProcessingStatusSaga(action: YodyAction) {
   const { params, handleData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
@@ -38,11 +40,14 @@ function* listDataOrderProcessingStatusSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* addOrderProcessingStatusSaga(action: YodyAction) {
   const { item, handleData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
@@ -63,12 +68,14 @@ function* addOrderProcessingStatusSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* editOrderProcessingStatusSaga(action: YodyAction) {
   const { id, item, handleData } = action.payload;
-  console.log("item", item);
+  yield put(showLoading());
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
@@ -89,11 +96,14 @@ function* editOrderProcessingStatusSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* deleteOrderProcessingStatusSaga(action: YodyAction) {
   const { id, handleData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
@@ -114,6 +124,8 @@ function* deleteOrderProcessingStatusSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
   }
 }
 

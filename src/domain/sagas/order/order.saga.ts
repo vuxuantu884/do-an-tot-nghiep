@@ -8,6 +8,8 @@ import {
   getDeliverieServices,
   getInfoDeliveryGHTK,
   getOrderSubStatusService,
+  getTrackingLogFulFillment,
+  setSubStatusService,
 } from "./../../../service/order/order.service";
 import { SourceResponse } from "./../../../model/response/order/source.response";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
@@ -20,14 +22,16 @@ import BaseResponse from "base/BaseResponse";
 import { put, call, takeLatest } from "redux-saga/effects";
 import { HttpStatus } from "config/HttpStatus";
 import { YodyAction } from "../../../base/BaseAction";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import {
   DeliveryServiceResponse,
   OrderResponse,
   OrderSubStatusResponse,
   ShippingGHTKResponse,
+  TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import { getAmountPayment } from "utils/AppUtils";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 function* orderCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
@@ -181,6 +185,27 @@ function* orderDetailSaga(action: YodyAction) {
   }
 }
 
+function* getTRackingLogFulfillmentSaga(action: YodyAction) {
+  const { fulfillment_code, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<TrackingLogFulfillmentResponse>> =
+      yield call(getTrackingLogFulFillment, fulfillment_code);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 function* ListDeliveryServicesSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
@@ -191,26 +216,59 @@ function* ListDeliveryServicesSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
       default:
         break;
     }
-  } catch (error) {}
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
 }
 
 function* getListSubStatusSaga(action: YodyAction) {
   let { status, handleData } = action.payload;
   try {
     let response: BaseResponse<Array<OrderSubStatusResponse[]>> = yield call(
-      getOrderSubStatusService, status
+      getOrderSubStatusService,
+      status
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
         break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
       default:
         break;
     }
   } catch (error) {}
+}
+
+function* setSubStatusSaga(action: YodyAction) {
+  let { order_id, statusId } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<Array<DeliveryServiceResponse>> = yield call(
+      setSubStatusService, order_id, statusId
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        showSuccess("Cập nhật trạng thái thành công");
+        break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          break;
+      default:
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
 }
 
 function* OrderOnlineSaga() {
@@ -230,6 +288,11 @@ function* OrderOnlineSaga() {
   yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD, updatePaymentSaga);
   yield takeLatest(OrderType.GET_INFO_DELIVERY_GHTK, InfoGHTKSaga);
   yield takeLatest(OrderType.GET_LIST_SUB_STATUS, getListSubStatusSaga);
+  yield takeLatest(
+    OrderType.GET_TRACKING_LOG_FULFILLMENT,
+    getTRackingLogFulfillmentSaga
+  );
+  yield takeLatest(OrderType.SET_SUB_STATUS, setSubStatusSaga);
 }
 
 export default OrderOnlineSaga;
