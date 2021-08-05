@@ -283,11 +283,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
 
   //#endregion
-  useLayoutEffect(() => {
+  useEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
   }, [dispatch]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (TrackingCode(props.OrderDetail) !== "Đang xử lý") {
       if (
         props.OrderDetail &&
@@ -303,7 +303,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         );
       }
     }
-  }, [dispatch]);
+  }, [dispatch, props.OrderDetail]);
 
   //#endregion
 
@@ -1889,7 +1889,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 style={{
                   float: "right",
                   marginBottom: "20px",
-                  padding: "0 25px"
+                  padding: "0 25px",
                 }}
                 onClick={ShowShipping}
               >
