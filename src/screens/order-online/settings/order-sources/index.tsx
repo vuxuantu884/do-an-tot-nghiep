@@ -106,6 +106,7 @@ const OrderSources: React.FC = () => {
       let queryParam = generateQuery(params);
       setParams({ ...params });
       history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
+      window.scrollTo(0, 0);
     },
     [history, params]
   );
@@ -135,6 +136,7 @@ const OrderSources: React.FC = () => {
     setParams({ ...newParams });
     let queryParam = generateQuery(newParams);
     history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
+    window.scrollTo(0, 0);
   };
 
   const handleForm = {
