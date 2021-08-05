@@ -1537,10 +1537,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                         <td style={{ padding: 0 }}>
                                           {single.code === "ghtk" ? (
                                             <div>
-                                              <div
-                                                style={{ padding: "8px 16px" }}
-                                                className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                              >
+                                              <label className="radio-container">
                                                 <input
                                                   type="radio"
                                                   name="tt"
@@ -1557,14 +1554,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                                     )
                                                   }
                                                 />
-                                                <label className="lblShip">
-                                                  Đường bộ
-                                                </label>
-                                              </div>
-                                              <div
-                                                style={{ padding: "8px 16px" }}
-                                                className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                              >
+                                                <span className="checkmark"></span>
+                                                Đường bộ
+                                              </label>
+                                              <Divider style={{margin: "8px 0"}}/>
+                                              <label className="radio-container">
                                                 <input
                                                   type="radio"
                                                   name="tt"
@@ -1581,16 +1575,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                                     )
                                                   }
                                                 />
-                                                <label className="lblShip">
-                                                  Đường bay
-                                                </label>
-                                              </div>
+                                                <span className="checkmark"></span>
+                                                Đường bay
+                                              </label>
                                             </div>
                                           ) : (
-                                            <div
-                                              style={{ padding: "8px 16px" }}
-                                              className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                            >
+                                            <label className="radio-container">
                                               <input
                                                 type="radio"
                                                 name="tt"
@@ -1605,10 +1595,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                                   )
                                                 }
                                               />
-                                              <label className="lblShip">
-                                                Chuyển phát nhanh PDE
-                                              </label>
-                                            </div>
+                                              <span className="checkmark"></span>
+                                              Chuyển phát nhanh PDE
+                                            </label>
                                           )}
                                         </td>
                                         <td
@@ -1889,7 +1878,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 style={{
                   float: "right",
                   marginBottom: "20px",
-                  padding: "0 25px"
+                  padding: "0 25px",
                 }}
                 onClick={ShowShipping}
               >
@@ -1909,8 +1898,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         title=""
         text={`Vui lòng xác nhận ${
           confirmExportAndFinishValue()
-            ? "thanh toán " +
-              formatCurrency(confirmExportAndFinishValue()!)
+            ? "thanh toán " + formatCurrency(confirmExportAndFinishValue()!)
             : ""
         } để giao hàng thành công?`}
       />
@@ -1924,8 +1912,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         title=""
         text={`Vui lòng xác nhận ${
           confirmExportAndFinishValue()
-            ? "thanh toán " +
-              formatCurrency(confirmExportAndFinishValue()!)
+            ? "thanh toán " + formatCurrency(confirmExportAndFinishValue()!)
             : ""
         } để giao hàng thành công?`}
       />
