@@ -1,4 +1,4 @@
-import { Card, Input, Row, Col } from "antd";
+import { Card, Input, Row, Col, AutoComplete } from "antd";
 import ContentContainer from "component/container/content.container";
 import { SearchOutlined } from "@ant-design/icons";
 import MorePopover from "./more";
@@ -8,21 +8,24 @@ import CustomerAdd from "./add";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig from "config/UrlConfig";
 import { useDispatch } from "react-redux";
-import {
-  CustomerList,
-} from "domain/actions/customer/customer.action";
+import { CustomerList } from "domain/actions/customer/customer.action";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 
+interface SearchResult {
+  items: Array<any>;
+  metadata?: any
+}
 
 const Customer = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const [query, setQuery] = React.useState<CustomerSearchQuery>({
     page: 1,
     limit: 10,
@@ -100,6 +103,8 @@ const Customer = () => {
 
   const [tableLoading, setTableLoading] = React.useState<boolean>(true);
 
+  const [options, setOptions] = React.useState<SearchResult>({items: []});
+
   const onPageChange = React.useCallback(
     (page, limit) => {
       setQuery({ ...query, page, limit });
@@ -119,12 +124,13 @@ const Customer = () => {
     }
   }, []);
 
-  const [showSettingColumn, setShowSettingColumn] = React.useState<boolean>(false);
+  const [showSettingColumn, setShowSettingColumn] =
+    React.useState<boolean>(false);
 
   React.useEffect(() => {
     dispatch(CustomerList(query, setResult));
   }, []);
-
+  
   const onRow = (record: any) => ({
     onContextMenu: (event: any) => {
       event.preventDefault();
@@ -138,6 +144,16 @@ const Customer = () => {
       setPopup({ visible: true, x: event.clientX, y: event.clientY });
     },
   });
+
+  const onSearch = (request: string) => {
+    const querySearch: CustomerSearchQuery = {page:1, limit: 15, request}
+    dispatch(CustomerList(querySearch, setOptions));
+  };
+
+  const onSelect = (value: any, option: any) => {
+    history.push(`/customer/${option.key}`)
+  };
+
   return (
     <ContentContainer
       title="Quản lý khách hàng"
@@ -157,11 +173,31 @@ const Customer = () => {
         <Col span={24}>
           <Card>
             <Row gutter={[10, 10]} style={{ padding: "5px 7px" }}>
-              <Col span={4}>
-                <Input
+              <Col span={5}>
+                <AutoComplete
+                  onSearch={onSearch}
+                  onSelect={(value, option) => onSelect(value, option)}
+                  allowClear={true}
+                  notFoundContent="Không tìm thấy"
+                  style={{width: '100%'}}
+                  placeholder="Tên khách hàng, số điện thoại,..."
+                >
+                  {/* <Input
+                    prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                    placeholder="Tên khách hàng, số điện thoại,..."
+                  /> */}
+                  {
+                    options.items.map(item => (
+                      <AutoComplete.Option key={item.id} value={item.full_name}>
+                        {item.full_name + ` - ${item.code}`}
+                      </AutoComplete.Option>
+                    ))
+                  }
+                </AutoComplete>
+                {/* <Input
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="Tên khách hàng, số điện thoại,..."
-                ></Input>
+                ></Input> */}
               </Col>
             </Row>
           </Card>
