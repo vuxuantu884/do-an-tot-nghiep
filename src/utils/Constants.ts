@@ -92,3 +92,9 @@ export const ProcumentStatus = {
   CONFIRMED: 'FINALIZED',
   FINISHED: 'COMPLETED',
 }
+
+export const PoPaymentStatus = {
+  DRAFT: 'draft',
+  CONFIRMED: 'finalized',
+}
+

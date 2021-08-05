@@ -33,6 +33,9 @@ import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { POField } from "model/purchase-order/po-field";
+import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
+import POPaymentConditionsForm from "./component/po-payment-conditions.form";
+import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 
 type PurchaseOrderParam = {
   id: string;
@@ -79,12 +82,19 @@ const PODetailScreen: React.FC = () => {
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [loadingConfirmButton, setLoadingConfirmButton] = useState(false);
+  const [loadingSaveButton, setLoadingSaveButton] = useState(false);
+  const [listPaymentConditions, setListPaymentConditions] = useState<
+    Array<PoPaymentConditions>
+  >([]);
+  const [purchaseItem, setPurchaseItem] = useState<PurchaseOrder>();
+
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
       setLoading(false);
       if (!result) {
         setError(true);
       } else {
+        setPurchaseItem(result);
         formMain.setFieldsValue(result);
         setStatus(result.status);
       }
@@ -188,6 +198,7 @@ const PODetailScreen: React.FC = () => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
+    dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
     if (!isNaN(idNumber)) {
       loadDetail(idNumber, true);
     } else {
@@ -261,7 +272,14 @@ const PODetailScreen: React.FC = () => {
               status={status}
               stores={listStore}
             />
-            <POPaymentForm />
+
+            {purchaseItem && purchaseItem.status !== POStatus.DRAFT ? (
+              <POPaymentForm 
+              // purchaseItem={purchaseItem} 
+              />
+            ) : (
+              <POPaymentConditionsForm listPayment={listPaymentConditions} />
+            )}
           </Col>
           {/* Right Side */}
           <Col md={6}>
