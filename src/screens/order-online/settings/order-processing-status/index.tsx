@@ -93,7 +93,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
     },
     {
       title: "Áp dụng cho đơn hàng ",
-      dataIndex: "is_active",
+      dataIndex: "active",
       visible: true,
       width: "25%",
       render: (value, row, index) => {

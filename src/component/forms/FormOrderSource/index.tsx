@@ -10,8 +10,8 @@ type FormValueType = {
   company_id: number;
   company: string;
   name: string;
-  is_active: boolean;
-  is_default: boolean;
+  active: boolean;
+  default: boolean;
 };
 
 const FormOrderSource: React.FC<CustomModalFormModel> = (
@@ -34,8 +34,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
           company_id: formItem.id,
           company: formItem.company,
           name: formItem.name,
-          is_active: formItem.is_active,
-          is_default: formItem.is_default,
+          active: formItem.active,
+          default: formItem.default,
         }
       : {
           channel_id: DEFAULT_PARAM.channel_id,
@@ -43,8 +43,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
           company_id: listOrderCompanies[defaultCompanyIndex].id,
           company: listOrderCompanies[defaultCompanyIndex].name,
           name: "",
-          is_active: false,
-          is_default: false,
+          active: false,
+          default: false,
         };
 
   /**
@@ -136,14 +136,14 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
           />
         </Form.Item>
         <Form.Item
-          name="is_active"
+          name="active"
           valuePropName="checked"
           style={{ marginBottom: 10 }}
         >
           <Checkbox>Áp dụng cho đơn hàng</Checkbox>
         </Form.Item>
         <Form.Item
-          name="is_default"
+          name="default"
           valuePropName="checked"
           style={{ marginBottom: 10 }}
         >

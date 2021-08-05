@@ -67,7 +67,7 @@ const OrderSources: React.FC = () => {
     },
     {
       title: "Áp dụng cho đơn hàng",
-      dataIndex: "is_active",
+      dataIndex: "active",
       visible: true,
       width: "40%",
       render: (value, row, index) => {
@@ -79,7 +79,7 @@ const OrderSources: React.FC = () => {
     },
     {
       title: "Mặc định",
-      dataIndex: "is_default",
+      dataIndex: "default",
       visible: true,
       width: "20%",
       render: (value) => {
