@@ -50,7 +50,7 @@ const OrderSources: React.FC = () => {
       dataIndex: "name",
       visible: true,
       className: "columnTitle",
-      width: "20%",
+      width: "40%",
       render: (value, row, index) => {
         if (value) {
           return (
