@@ -769,7 +769,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment !== null ? (
         <Card
-          className="margin-top-20 orders-update-shipment"
+          className="margin-top-20 orders-update-shipment "
           title={
             <Space>
               <div className="d-flex">
