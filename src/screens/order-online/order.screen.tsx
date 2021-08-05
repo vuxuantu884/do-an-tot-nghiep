@@ -594,6 +594,7 @@ export default function Order() {
                 setSelectedPaymentMethod={changePaymentMethod}
                 setPayments={onPayments}
                 paymentMethod={paymentMethod}
+                shipmentMethod={shipmentMethod}
                 amount={
                   orderAmount +
                   (shippingFeeCustomer ? shippingFeeCustomer : 0) -

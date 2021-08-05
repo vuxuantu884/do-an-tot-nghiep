@@ -561,6 +561,7 @@ const OrderDetail = () => {
                       setTotalPaid={setTotalPaid}
                       orderDetail={OrderDetail}
                       paymentMethod={paymentType}
+                      shipmentMethod={shipmentMethod}
                       order_id={OrderDetail.id}
                       showPartialPayment={true}
                       isVisibleUpdatePayment={isVisibleUpdatePayment}
@@ -749,6 +750,7 @@ const OrderDetail = () => {
                   setSelectedPaymentMethod={onPaymentSelect}
                   setPayments={onPayments}
                   paymentMethod={paymentType}
+                  shipmentMethod={shipmentMethod}
                   amount={OrderDetail.total + shippingFeeInformedCustomer}
                   order_id={OrderDetail.id}
                   orderDetail={OrderDetail}

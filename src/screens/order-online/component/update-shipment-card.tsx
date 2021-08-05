@@ -1228,7 +1228,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   className="create-button-custom ant-btn-outline fixed-button"
                   onClick={onOkShippingConfirm}
                 >
-                  Nhặt hàng và đóng gói
+                  Nhặt hàng & đóng gói
                 </Button>
               )}
 
@@ -1274,7 +1274,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   className="create-button-custom ant-btn-outline fixed-button"
                   onClick={() => setIsvibleShippedConfirm(true)}
                 >
-                  Xuất kho và giao hàng
+                  Xuất kho & giao hàng
                 </Button>
               )}
 
@@ -1846,13 +1846,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             style={{ float: "right" }}
                             htmlType="submit"
                           >
-                            Lưu
+                            Tạo đơn giao hàng
                           </Button>
                           <Button
                             className="ant-btn-outline fixed-button cancle-button create-button-custom"
                             onClick={() => window.location.reload()}
                             style={{ float: "right" }}
-                          ></Button>
+                          >Hủy</Button>
                         </div>
                       </Col>
                     </Row>
