@@ -1291,7 +1291,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         </Card>
       ) : (
         <Card
-          className="margin-top-20"
+          className="margin-top-20 orders-update-shipment"
           title={
             <Space>
               <div className="d-flex">
@@ -1904,26 +1904,30 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
         icon={WarningIcon}
-        title="Xác nhận xuất kho"
-        text={`Bạn có chắc xuất kho đơn giao hàng này ${
+        okText="Xác nhận thanh toán"
+        cancelText="Hủy"
+        title=""
+        text={`Vui lòng xác nhận ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " +
+            ? "thanh toán " +
               formatCurrency(confirmExportAndFinishValue()!)
             : ""
-        } không?`}
+        } để giao hàng thành công?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleShippedConfirm(false)}
         onOk={onOkShippingConfirm}
         visible={isvibleShippedConfirm}
         icon={WarningIcon}
-        title="Xác nhận giao hàng thành công"
-        text={`Bạn có chắc đã giao đơn giao hàng này ${
+        okText="Xác nhận thanh toán"
+        cancelText="Hủy"
+        title=""
+        text={`Vui lòng xác nhận ${
           confirmExportAndFinishValue()
-            ? "với tiền thu hộ là " +
+            ? "thanh toán " +
               formatCurrency(confirmExportAndFinishValue()!)
             : ""
-        } không?`}
+        } để giao hàng thành công?`}
       />
     </div>
   );

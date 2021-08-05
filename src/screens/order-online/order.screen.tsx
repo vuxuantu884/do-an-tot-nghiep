@@ -365,8 +365,13 @@ export default function Order() {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      showSuccess("Thêm đơn hàng thành công");
+      if(value.fulfillments && value.fulfillments.length > 0) {
+      showSuccess("Đơn được lưu và duyệt thành công");
       history.push(`${UrlConfig.ORDER}/${value.id}`);
+      }else{
+      showSuccess("Đơn được lưu nháp thành công");
+      history.push(`${UrlConfig.ORDER}/${value.id}`);
+      }
     },
     [history]
   );
@@ -767,6 +772,8 @@ export default function Order() {
             onCancel={onCancelSaveAndConfirm}
             onOk={onOkSaveAndConfirm}
             visible={isvibleSaveAndConfirm}
+            okText="Đồng ý"
+            cancelText="Hủy"
             title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
             text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
             icon={WarningIcon}
