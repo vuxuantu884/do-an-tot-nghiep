@@ -13,13 +13,12 @@ import {
   Input,
 } from "antd";
 
-import {
-  BugOutlined
-} from "@ant-design/icons";
+import { BugOutlined } from "@ant-design/icons";
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
+import Caculate from "assets/icon/caculate.svg";
 
 // @ts-ignore
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
@@ -30,6 +29,7 @@ import {
   PaymentMethodCode,
   PaymentMethodOption,
   PointConfig,
+  ShipmentMethodOption,
 } from "utils/Constants";
 import {
   formatCurrency,
@@ -44,6 +44,7 @@ type PaymentCardProps = {
   setPayments: (value: Array<OrderPaymentRequest>) => void;
   paymentMethod: number;
   amount: number;
+  shipmentMethod: number;
 };
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
@@ -138,10 +139,10 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     return total;
   };
 
-  const handleTransferReference  = (index: number, value: string) => {
-   const  _paymentData = [... paymentData]
-   _paymentData[index].reference = value
-   setPaymentData(_paymentData)
+  const handleTransferReference = (index: number, value: string) => {
+    const _paymentData = [...paymentData];
+    _paymentData[index].reference = value;
+    setPaymentData(_paymentData);
   };
 
   useEffect(() => {
@@ -177,14 +178,39 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
               </Radio>
             </Space>
           </Radio.Group>
-          {props.paymentMethod === PaymentMethodOption.COD && (
-            <div className="order-cod-payment-footer">
-              <span>
-                Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có
-                thể nhập giá trị Tiền thu hộ
-              </span>
-            </div>
-          )}
+          {props.paymentMethod === PaymentMethodOption.COD &&
+            props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+              <div className="order-cod-payment-footer">
+                <span>
+                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
+                  có thể nhập giá trị Tiền thu hộ
+                </span>
+              </div>
+            )}
+            {props.paymentMethod === PaymentMethodOption.COD &&
+            props.shipmentMethod === ShipmentMethodOption.DELIVERLATER && (
+              <div className="order-cod-payment-footer">
+                <span>
+                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
+                  có thể nhập giá trị Tiền thu hộ
+                </span>
+              </div>
+            )}
+          {props.paymentMethod === PaymentMethodOption.COD &&
+            props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+              <div className="order-cod-payment-footer" style={{ height: 83 }}>
+                <div>
+                  <div>
+                    <div>
+                      <img src={Caculate}></img>
+                    </div>
+                  </div>
+                </div>
+                <span>
+                  <span>Khách hàng sẽ thanh toán tại quầy!</span>
+                </span>
+              </div>
+            )}
         </Form.Item>
 
         <Row
@@ -243,17 +269,34 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         let icon = null;
                         switch (method.code) {
                           case PaymentMethodCode.CASH:
-                            icon = <Cash paymentData={paymentData} method={method}/>;
+                            icon = (
+                              <Cash paymentData={paymentData} method={method} />
+                            );
                             break;
                           case PaymentMethodCode.CARD:
                           case PaymentMethodCode.BANK_TRANSFER:
-                            icon = <CreditCardOutlined paymentData={paymentData} method={method}/>;
+                            icon = (
+                              <CreditCardOutlined
+                                paymentData={paymentData}
+                                method={method}
+                              />
+                            );
                             break;
                           case PaymentMethodCode.QR_CODE:
-                            icon = <QrcodeOutlined paymentData={paymentData} method={method}/>;
+                            icon = (
+                              <QrcodeOutlined
+                                paymentData={paymentData}
+                                method={method}
+                              />
+                            );
                             break;
                           case PaymentMethodCode.POINT:
-                            icon = <YdCoin paymentData={paymentData} method={method}/>;
+                            icon = (
+                              <YdCoin
+                                paymentData={paymentData}
+                                method={method}
+                              />
+                            );
                             break;
                           default:
                             icon = <BugOutlined />;
@@ -368,8 +411,15 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                   lg={14}
                                   xxl={14}
                                 >
-                                  <Input placeholder="Tham chiếu" 
-                                  onChange={(e: any) => handleTransferReference(index, e.target.value)}/>
+                                  <Input
+                                    placeholder="Tham chiếu"
+                                    onChange={(e: any) =>
+                                      handleTransferReference(
+                                        index,
+                                        e.target.value
+                                      )
+                                    }
+                                  />
                                 </Col>
                               ) : null}
                             </Row>
