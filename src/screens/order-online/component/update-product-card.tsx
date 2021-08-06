@@ -20,6 +20,7 @@ import {
 } from "model/response/order/order.response";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { Type } from "config/TypeConfig";
+import OrderDetail from "../order-detail";
 //#endregion
 
 type ProductCardUpdateProps = {
@@ -62,14 +63,15 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               </div>
             </div>
           </div>
-          {l.gifts?.map((a, index1) => (
-            <div key={index1} className="yody-pos-addition yody-pos-gift">
-              <div>
-                <img src={giftIcon} alt="" /> {a.variant}{" "}
-                <span>({a.quantity})</span>
+          {props.OrderDetail?.items
+            .filter((item) => item.position === l.position && item.type === Type.GIFT)
+            .map((gift) => (
+              <div className="yody-pos-addition yody-pos-gift">
+                <i>
+                  <img src={giftIcon} alt="" /> {gift.variant} ({gift.quantity})
+                </i>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       );
     },
@@ -208,7 +210,9 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             }}
             rowKey={(record) => record.id}
             columns={columns}
-            dataSource={props.OrderDetail?.items.filter((item) => item.type === Type.NORMAL)}
+            dataSource={props.OrderDetail?.items.filter(
+              (item) => item.type === Type.NORMAL
+            )}
             className="sale-product-box-table w-100"
             tableLayout="fixed"
             pagination={false}
