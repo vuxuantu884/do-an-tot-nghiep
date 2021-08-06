@@ -1,13 +1,13 @@
+import { BaseObject } from './../base/base.response';
 import { BaseQuery } from "model/base/base.query";
 import { PurchaseAddress } from "./purchase-address.model";
 import { PurchaseOrderLineItem, Vat } from "./purchase-item.model";
 import { PurchasePayments } from "./purchase-payment.model";
 
-export interface PurchaseOrder {
-  id: number;
+export interface PurchaseOrder extends BaseObject{
+
   companyId: number;
   assign_account_code: string;
-  code: string;
   supplier_id: number;
   supplier: string;
   supplier_note: string;
@@ -41,7 +41,6 @@ export interface PurchaseOrder {
   completed_date: string;
   payment_term_id: string;
   tax_lines: Array<Vat>;
-
   import_date: string;
   store_id: number;
   payment_condition_id: number;

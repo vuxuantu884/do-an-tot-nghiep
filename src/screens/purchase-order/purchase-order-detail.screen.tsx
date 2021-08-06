@@ -86,7 +86,7 @@ const PODetailScreen: React.FC = () => {
   const [listPaymentConditions, setListPaymentConditions] = useState<
     Array<PoPaymentConditions>
   >([]);
-  const [purchaseItem, setPurchaseItem] = useState<PurchaseOrder>();
+  const [poData, setPurchaseItem] = useState<PurchaseOrder>();
 
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
@@ -101,17 +101,20 @@ const PODetailScreen: React.FC = () => {
     },
     [formMain]
   );
-  const loadDetail = useCallback((id: number, isLoading) => {
-    if(isLoading) {
-      setLoading(true);
-    }
-    dispatch(PoDetailAction(idNumber, onDetail));
-  }, [dispatch, idNumber, onDetail]);
+  const loadDetail = useCallback(
+    (id: number, isLoading) => {
+      if (isLoading) {
+        setLoading(true);
+      }
+      dispatch(PoDetailAction(idNumber, onDetail));
+    },
+    [dispatch, idNumber, onDetail]
+  );
   const collapse = useSelector(
     (state: RootReducerType) => state.appSettingReducer.collapse
   );
   const onConfirmButton = useCallback(() => {
-    formMain.setFieldsValue({status: POStatus.FINALIZED});
+    formMain.setFieldsValue({ status: POStatus.FINALIZED });
     formMain.submit();
   }, [formMain]);
   const onResultRD = useCallback(
@@ -149,20 +152,26 @@ const PODetailScreen: React.FC = () => {
     },
     []
   );
-  const onUpdateCall = useCallback((result: PurchaseOrder|null) => {
-    setLoadingConfirmButton(false);
-    if(result !== null) {
-      loadDetail(idNumber, true);
-    }
-  }, [idNumber, loadDetail]);
-  const onFinish = useCallback((value: PurchaseOrder) => {
-    switch(value.status) {
-      case POStatus.FINALIZED:
-        setLoadingConfirmButton(true);
-        dispatch(PoUpdateAction(idNumber, value, onUpdateCall))
-        break;
-    }
-  }, [dispatch, idNumber, onUpdateCall]);
+  const onUpdateCall = useCallback(
+    (result: PurchaseOrder | null) => {
+      setLoadingConfirmButton(false);
+      if (result !== null) {
+        loadDetail(idNumber, true);
+      }
+    },
+    [idNumber, loadDetail]
+  );
+  const onFinish = useCallback(
+    (value: PurchaseOrder) => {
+      switch (value.status) {
+        case POStatus.FINALIZED:
+          setLoadingConfirmButton(true);
+          dispatch(PoUpdateAction(idNumber, value, onUpdateCall));
+          break;
+      }
+    },
+    [dispatch, idNumber, onUpdateCall]
+  );
   const onScroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
@@ -187,7 +196,7 @@ const PODetailScreen: React.FC = () => {
         return null;
     }
   }, [loadingConfirmButton, onConfirmButton, status]);
-  
+
   useEffect(() => {
     dispatch(
       AccountSearchAction(
@@ -273,10 +282,8 @@ const PODetailScreen: React.FC = () => {
               stores={listStore}
             />
 
-            {purchaseItem && purchaseItem.status !== POStatus.DRAFT ? (
-              <POPaymentForm 
-              // purchaseItem={purchaseItem} 
-              />
+            {poData && poData.status !== POStatus.DRAFT ? (
+              <POPaymentForm purchaseItem={poData} />
             ) : (
               <POPaymentConditionsForm listPayment={listPaymentConditions} />
             )}
