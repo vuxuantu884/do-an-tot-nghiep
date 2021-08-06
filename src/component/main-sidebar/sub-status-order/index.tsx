@@ -51,6 +51,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
             option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }
           onChange={handleChange}
+          notFoundContent="Không tìm thấy trạng thái phụ"
         >
           {listOrderSubStatus &&
             listOrderSubStatus.map((single) => {
