@@ -1678,7 +1678,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           }}
                           htmlType="submit"
                         >
-                          Lưu
+                          Tạo đơn giao hàng
                         </Button>
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"
@@ -1806,7 +1806,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             style={{ float: "right" }}
                             htmlType="submit"
                           >
-                            Lưu
+                            Tạo đơn giao hàng
                           </Button>
                           <Button
                             className="ant-btn-outline fixed-button cancle-button create-button-custom"

@@ -50,7 +50,7 @@ const OrderSources: React.FC = () => {
       dataIndex: "name",
       visible: true,
       className: "columnTitle",
-      width: 600,
+      width: "40%",
       render: (value, row, index) => {
         if (value) {
           return (
@@ -67,8 +67,9 @@ const OrderSources: React.FC = () => {
     },
     {
       title: "Áp dụng cho đơn hàng",
-      dataIndex: "is_active",
+      dataIndex: "active",
       visible: true,
+      width: "40%",
       render: (value, row, index) => {
         if (value) {
           return <span style={{ color: "#27AE60" }}>Đang áp dụng</span>;
@@ -78,8 +79,9 @@ const OrderSources: React.FC = () => {
     },
     {
       title: "Mặc định",
-      dataIndex: "is_default",
+      dataIndex: "default",
       visible: true,
+      width: "20%",
       render: (value) => {
         if (value) {
           return <img src={iconChecked} alt="Mặc định" />;
@@ -104,6 +106,7 @@ const OrderSources: React.FC = () => {
       let queryParam = generateQuery(params);
       setParams({ ...params });
       history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
+      window.scrollTo(0, 0);
     },
     [history, params]
   );
@@ -133,6 +136,7 @@ const OrderSources: React.FC = () => {
     setParams({ ...newParams });
     let queryParam = generateQuery(newParams);
     history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
+    window.scrollTo(0, 0);
   };
 
   const handleForm = {
@@ -214,7 +218,7 @@ const OrderSources: React.FC = () => {
         extra={createOrderSourceHtml()}
       >
         {listOrderSources && (
-          <Card style={{ padding: '35px 15px' }}>
+          <Card style={{ padding: "35px 15px" }}>
             <CustomTable
               isLoading={tableLoading}
               showColumnSetting={false}
