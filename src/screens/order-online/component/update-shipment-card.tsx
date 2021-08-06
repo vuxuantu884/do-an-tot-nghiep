@@ -241,7 +241,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setShippingFeeInformedCustomer(value);
     props.shippingFeeInformedCustomer(value);
   };
-console.log(props.stepsStatusValue)
+  console.log(props.stepsStatusValue);
   const getInfoDeliveryGHTK = useCallback(
     (type: string) => {
       let request: ShippingGHTKRequest = {
@@ -767,7 +767,7 @@ console.log(props.stepsStatusValue)
     <div>
       {props.OrderDetail?.fulfillments &&
       props.OrderDetail.fulfillments.length > 0 &&
-      props.OrderDetail?.fulfillments[0].shipment !== null ? (
+      props.OrderDetail?.fulfillments[0].shipment ? (
         <Card
           className="margin-top-20 orders-update-shipment "
           title={
@@ -775,6 +775,16 @@ console.log(props.stepsStatusValue)
               <div className="d-flex">
                 <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
               </div>
+              {props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.SHIPPED && <Tag
+                className="orders-tag text-menu"
+                style={{
+                  color: "#27AE60",
+                  backgroundColor: "rgba(39, 174, 96, 0.1)",
+                }}
+              >
+               Đã giao hàng
+              </Tag>}
+              
             </Space>
           }
           extra={
@@ -1819,17 +1829,17 @@ console.log(props.stepsStatusValue)
                     </b>
 
                     <Row style={{ paddingTop: "19px" }}>
-                      <Col md={2}>
+                      <Col md={3} lg={2}>
                         <div>Tên cửa hàng:</div>
                       </Col>
-                      <b className="row-info-content">
-                        <Typography.Link>
+                      <b className="row-info-content" >
+                        <Typography.Link style={{color: "#222222"}}>
                           {props.storeDetail?.name}
                         </Typography.Link>
                       </b>
                     </Row>
                     <Row className="row-info padding-top-10">
-                      <Col md={2}>
+                      <Col md={3} lg={2}>
                         <div>Số điện thoại:</div>
                       </Col>
                       <b className="row-info-content">
@@ -1837,7 +1847,7 @@ console.log(props.stepsStatusValue)
                       </b>
                     </Row>
                     <Row className="row-info padding-top-10">
-                      <Col md={2}>
+                      <Col md={3} lg={2}>
                         <div>Địa chỉ:</div>
                       </Col>
                       <b className="row-info-content">
