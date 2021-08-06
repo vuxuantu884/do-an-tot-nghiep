@@ -1296,7 +1296,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       <div>Địa chỉ:</div>
                     </Col>
                     <b className="row-info-content">
-                      {props.storeDetail?.full_address}
+                      {props.storeDetail?.address}
                     </b>
                   </Row>
                   <Row>

@@ -102,6 +102,9 @@ const OrderDetail = () => {
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
     }
+    if(OrderDetail?.status === OrderStatus.FINISHED){
+      return FulFillmentStatus.SHIPPED;;
+    }
     if (OrderDetail?.status === OrderStatus.FINALIZED) {
       if (
         OrderDetail.fulfillments === undefined ||
