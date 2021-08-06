@@ -527,7 +527,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     );
                   })}
 
-                  <Row
+                  {/* <Row
                     gutter={20}
                     className="row-price total-customer-pay"
                     style={{ height: 38, margin: "10px 0" }}
@@ -552,14 +552,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     >
                       <span>{formatCurrency(totalAmountPaid)}</span>
                     </Col>
-                  </Row>
+                  </Row> */}
                   <Row
                     gutter={20}
                     className="row-price"
                     style={{ height: 38, margin: "10px 0 0 0" }}
                   >
                     <Col lg={10} xxl={7} style={{ padding: "8px 0" }}>
-                      <b>{moneyReturn > 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
+                      <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                     </Col>
                     <Col
                       className="lbl-money"
@@ -572,7 +572,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       }}
                     >
                       <span
-                        style={{ color: moneyReturn <= 0 ? "blue" : "red" }}
+                        style={{ color: false ? "blue" : "red" }}
                       >
                         {formatCurrency(Math.abs(moneyReturn))}
                       </span>
@@ -891,7 +891,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 );
               })}
 
-              <Row
+              {/* <Row
                 gutter={20}
                 className="row-price total-customer-pay"
                 style={{ height: 38, margin: "10px 0" }}
@@ -916,14 +916,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 >
                   <span>{formatCurrency(totalAmountPaid)}</span>
                 </Col>
-              </Row>
+              </Row> */}
               <Row
                 gutter={20}
                 className="row-price"
                 style={{ height: 38, margin: "10px 0 0 0" }}
               >
                 <Col lg={10} xxl={7} style={{ padding: "8px 0" }}>
-                  <b>{moneyReturn > 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
+                  <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                 </Col>
                 <Col
                   className="lbl-money"
@@ -935,7 +935,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     fontSize: "20px",
                   }}
                 >
-                  <span style={{ color: moneyReturn <= 0 ? "blue" : "red" }}>
+                  <span style={{ color: false ? "blue" : "red" }}>
                     {formatCurrency(Math.abs(moneyReturn))}
                   </span>
                 </Col>

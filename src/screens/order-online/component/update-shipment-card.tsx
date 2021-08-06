@@ -196,7 +196,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       backgroundColor: "rgba(252, 175, 23, 0.1)",
     },
     {
-      name: "Giao thành công",
+      name: "Đã giao hàng",
       status: FulFillmentStatus.SHIPPED,
       color: "#27AE60",
       backgroundColor: "rgba(39, 174, 96, 0.1)",
@@ -782,7 +782,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   backgroundColor: "rgba(39, 174, 96, 0.1)",
                 }}
               >
-               Đã giao hàng
+              Giao thành công
               </Tag>}
               
             </Space>

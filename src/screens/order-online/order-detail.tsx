@@ -1,5 +1,5 @@
 //#region Import
-import { Button, Card, Row, Col, Space, Divider, Tag, Collapse } from "antd";
+import { Button, Card, Row, Col, Space, Divider, Tag, Collapse,Typography } from "antd";
 import UpdatePaymentCard from "./component/update-payment-card";
 import React, {
   useState,
@@ -33,6 +33,7 @@ import {
   getDateLastPayment,
   SumCOD,
 } from "utils/AppUtils";
+import historyAction from "assets/icon/action-history.svg";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
@@ -384,6 +385,7 @@ const OrderDetail = () => {
                       <div style={{ padding: "0 24px 24px 24px" }}>
                         <Collapse
                           className="orders-timeline"
+                          defaultActiveKey={["1", "2"]}
                           expandIcon={({ isActive }) => (
                             <img
                               src={doubleArrow}
@@ -496,7 +498,7 @@ const OrderDetail = () => {
                                   OrderDetail?.fulfillments[0].status !==
                                   "shipped"
                                     ? "orders-timeline-custom orders-dot-status"
-                                    : "orders-timeline-custom"
+                                    : "orders-timeline-custom "
                                 }
                                 showArrow={false}
                                 header={
@@ -826,7 +828,7 @@ const OrderDetail = () => {
                     </span>
                   </Col>
                 </Row>
-                <Row className="margin-top-10" gutter={5}>
+                {/* <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Thời gian:</Col>
                   <Col span={15}>
                     <span style={{ fontWeight: 500, color: "#222222" }}>
@@ -835,7 +837,7 @@ const OrderDetail = () => {
                       )}
                     </span>
                   </Col>
-                </Row>
+                </Row> */}
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Đường dẫn:</Col>
                   <Col span={15} style={{ wordWrap: "break-word" }}>
@@ -909,8 +911,12 @@ const OrderDetail = () => {
               </div>
             </Card>
             <Card className="margin-top-20">
-              <div className="padding-24">
-                <span className="text-focus">Lịch sử thao tác đơn hàng</span>
+              
+              <div className="" style={{padding: "13px 0 15px 22px", fontSize: "13px", height: 46}}>
+              <Typography.Link style={{display: "flex"}}>
+              <img src={historyAction} style={{width: 20, height: 20}}></img>
+              <span className="text-focus" style={{marginLeft: 10, color: "#5D5D8A", lineHeight: "20px"}}>Lịch sử thao tác đơn hàng</span>
+              </Typography.Link>
               </div>
             </Card>
           </Col>
