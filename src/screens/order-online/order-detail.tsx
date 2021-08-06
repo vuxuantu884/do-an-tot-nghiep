@@ -138,11 +138,14 @@ const OrderDetail = () => {
           }
         }
       }
+    }else if(OrderDetail?.status === OrderStatus.FINISHED){
+      return FulFillmentStatus.SHIPPED;
     }
   };
 
   // tag status
   let stepsStatusValue = stepsStatus();
+
   //#region Product
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {

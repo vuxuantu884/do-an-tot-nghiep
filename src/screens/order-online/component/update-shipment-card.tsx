@@ -174,8 +174,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     {
       name: "Chưa giao hàng",
       status: FulFillmentStatus.UNSHIPPED,
-      color: "#FCAF17",
-      backgroundColor: "rgba(252, 175, 23, 0.1)",
+      color: "#666666",
+      backgroundColor: "rgba(102, 102, 102, 0.1)",
     },
     {
       name: "Đã nhặt hàng",
@@ -241,7 +241,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setShippingFeeInformedCustomer(value);
     props.shippingFeeInformedCustomer(value);
   };
-
+  console.log(props.stepsStatusValue);
   const getInfoDeliveryGHTK = useCallback(
     (type: string) => {
       let request: ShippingGHTKRequest = {
@@ -767,7 +767,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     <div>
       {props.OrderDetail?.fulfillments &&
       props.OrderDetail.fulfillments.length > 0 &&
-      props.OrderDetail?.fulfillments[0].shipment !== null ? (
+      props.OrderDetail?.fulfillments[0].shipment ? (
         <Card
           className="margin-top-20 orders-update-shipment "
           title={
@@ -775,6 +775,16 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               <div className="d-flex">
                 <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
               </div>
+              {props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.SHIPPED && <Tag
+                className="orders-tag text-menu"
+                style={{
+                  color: "#27AE60",
+                  backgroundColor: "rgba(39, 174, 96, 0.1)",
+                }}
+              >
+               Đã giao hàng
+              </Tag>}
+              
             </Space>
           }
           extra={
@@ -1197,21 +1207,34 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
           </div>
           <Divider style={{ margin: "0px" }} />
           <div className="padding-24 text-right">
-            <Button
-              type="default"
-              className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
-              style={{ color: "#737373", border: "1px solid #E5E5E5" }}
-              hidden={props.stepsStatusValue === FulFillmentStatus.SHIPPED}
-            >
-              Hủy giao hàng
-            </Button>
-
+            {props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (
+              <Button
+                type="primary"
+                style={{ marginLeft: "10px", padding: "0 25px" }}
+                className="create-button-custom ant-btn-outline fixed-button"
+                // onClick={onOkShippingConfirm}
+              >
+                Đổi trả hàng
+              </Button>
+            ) : (
+              <Button
+                type="default"
+                className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
+                style={{
+                  color: "#737373",
+                  border: "1px solid #E5E5E5",
+                  padding: "0 25px",
+                }}
+              >
+                Hủy giao hàng
+              </Button>
+            )}
             {props.stepsStatusValue === OrderStatus.FINALIZED &&
               props.OrderDetail.fulfillments[0].shipment
                 ?.delivery_service_provider_type != "pick_at_store" && (
                 <Button
                   type="primary"
-                  style={{ marginLeft: "10px" }}
+                  style={{ marginLeft: "10px", padding: "0 25px" }}
                   className="create-button-custom ant-btn-outline fixed-button"
                   onClick={onOkShippingConfirm}
                 >
@@ -1277,17 +1300,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   Xuất kho & giao hàng
                 </Button>
               )}
-
-            {props.stepsStatusValue === FulFillmentStatus.SHIPPED && (
-              <Button
-                type="primary"
-                style={{ marginLeft: "10px" }}
-                className="create-button-custom ant-btn-outline fixed-button"
-                // onClick={onOkShippingConfirm}
-              >
-                Đổi trả hàng
-              </Button>
-            )}
           </div>
         </Card>
       ) : (
@@ -1558,7 +1570,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                                 <span className="checkmark"></span>
                                                 Đường bộ
                                               </label>
-                                              <Divider style={{margin: "8px 0"}}/>
+                                              <Divider
+                                                style={{ margin: "8px 0" }}
+                                              />
                                               <label className="radio-container">
                                                 <input
                                                   type="radio"
@@ -1649,7 +1663,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       </div>
                     </div>
 
-                    <Col md={24} style={{ padding: 0, margin: "20px 0" }}>
+                    <Col
+                      md={24}
+                      style={{ margin: "20px 0", padding: "20px 0 25px 0" }}
+                    >
                       <div>
                         <Button
                           type="primary"
@@ -1812,17 +1829,17 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     </b>
 
                     <Row style={{ paddingTop: "19px" }}>
-                      <Col md={2}>
+                      <Col md={3} lg={2}>
                         <div>Tên cửa hàng:</div>
                       </Col>
-                      <b className="row-info-content">
-                        <Typography.Link>
+                      <b className="row-info-content" >
+                        <Typography.Link style={{color: "#222222"}}>
                           {props.storeDetail?.name}
                         </Typography.Link>
                       </b>
                     </Row>
                     <Row className="row-info padding-top-10">
-                      <Col md={2}>
+                      <Col md={3} lg={2}>
                         <div>Số điện thoại:</div>
                       </Col>
                       <b className="row-info-content">
@@ -1830,7 +1847,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       </b>
                     </Row>
                     <Row className="row-info padding-top-10">
-                      <Col md={2}>
+                      <Col md={3} lg={2}>
                         <div>Địa chỉ:</div>
                       </Col>
                       <b className="row-info-content">
@@ -1852,7 +1869,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             className="ant-btn-outline fixed-button cancle-button create-button-custom"
                             onClick={() => window.location.reload()}
                             style={{ float: "right" }}
-                          >Hủy</Button>
+                          >
+                            Hủy
+                          </Button>
                         </div>
                       </Col>
                     </Row>
