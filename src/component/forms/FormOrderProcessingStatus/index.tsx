@@ -10,7 +10,7 @@ type FormValueType = {
   company: string;
   sub_status?: string;
   status?: string;
-  is_active?: boolean;
+  active?: boolean;
   note?: string;
 };
 
@@ -26,7 +26,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
           company: "YODY",
           sub_status: formItem?.sub_status,
           status: formItem?.status,
-          is_active: formItem?.is_active,
+          active: formItem?.active,
           note: formItem?.note,
         }
       : {
@@ -34,7 +34,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
           company: "YODY",
           sub_status: "",
           status: undefined,
-          is_active: false,
+          active: false,
           note: "",
         };
   const bootstrapReducer = useSelector(
@@ -108,7 +108,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
               </Select>
             </Form.Item>
             <Form.Item
-              name="is_active"
+              name="active"
               valuePropName="checked"
               style={{ marginBottom: 10 }}
             >

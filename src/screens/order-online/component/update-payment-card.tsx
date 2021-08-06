@@ -6,6 +6,7 @@ import { BugOutlined } from "@ant-design/icons";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
+import Caculate from "assets/icon/caculate.svg";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
 // @ts-ignore
@@ -21,6 +22,7 @@ import {
   PaymentMethodCode,
   PaymentMethodOption,
   PointConfig,
+  ShipmentMethodOption,
 } from "utils/Constants";
 import {
   formatCurrency,
@@ -43,6 +45,7 @@ type PaymentCardUpdateProps = {
   setTotalPaid: (value: number) => void;
   orderDetail: OrderResponse;
   paymentMethod: number;
+  shipmentMethod: number;
   order_id: number | null;
   showPartialPayment?: boolean;
   isVisibleUpdatePayment: boolean;
@@ -242,7 +245,10 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         <Card
           className="margin-top-20 orders-update-payment"
           title={
-            <div className="d-flex" style={{ marginTop: "5px", border: "none" }}>
+            <div
+              className="d-flex"
+              style={{ marginTop: "5px", border: "none" }}
+            >
               <span className="title-card">THANH TOÁN</span>
             </div>
           }
@@ -265,14 +271,45 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     </Radio>
                   </Space>
                 </Radio.Group>
-                {props.paymentMethod === PaymentMethodOption.COD && (
-                  <div className="order-cod-payment-footer">
-                    <span>
-                      Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
-                      để có thể nhập giá trị Tiền thu hộ
-                    </span>
-                  </div>
-                )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+                    <div className="order-cod-payment-footer">
+                      <span>
+                        Vui lòng chọn hình thức{" "}
+                        <span>Đóng gói và Giao hàng</span> để có thể nhập giá
+                        trị Tiền thu hộ
+                      </span>
+                    </div>
+                  )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod ===
+                    ShipmentMethodOption.DELIVERLATER && (
+                    <div className="order-cod-payment-footer">
+                      <span>
+                        Vui lòng chọn hình thức{" "}
+                        <span>Đóng gói và Giao hàng</span> để có thể nhập giá
+                        trị Tiền thu hộ
+                      </span>
+                    </div>
+                  )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+                    <div
+                      className="order-cod-payment-footer"
+                      style={{ height: 83 }}
+                    >
+                      <div>
+                        <div>
+                          <div>
+                            <img src={Caculate}></img>
+                          </div>
+                        </div>
+                      </div>
+                      <span>
+                        <span>Khách hàng sẽ thanh toán tại quầy!</span>
+                      </span>
+                    </div>
+                  )}
               </div>
 
               <Row gutter={24} hidden={props.paymentMethod !== 2}>
@@ -608,14 +645,42 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 </Radio>
               </Space>
             </Radio.Group>
-            {props.paymentMethod === PaymentMethodOption.COD && (
-              <div className="order-cod-payment-footer">
-                <span>
-                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
-                  có thể nhập giá trị Tiền thu hộ
-                </span>
-              </div>
-            )}
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+                <div className="order-cod-payment-footer">
+                  <span>
+                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
+                    để có thể nhập giá trị Tiền thu hộ
+                  </span>
+                </div>
+              )}
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.DELIVERLATER && (
+                <div className="order-cod-payment-footer">
+                  <span>
+                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
+                    để có thể nhập giá trị Tiền thu hộ
+                  </span>
+                </div>
+              )}
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+                <div
+                  className="order-cod-payment-footer"
+                  style={{ height: 83 }}
+                >
+                  <div>
+                    <div>
+                      <div>
+                        <img src={Caculate}></img>
+                      </div>
+                    </div>
+                  </div>
+                  <span>
+                    <span>Khách hàng sẽ thanh toán tại quầy!</span>
+                  </span>
+                </div>
+              )}
           </div>
 
           <Row gutter={24} hidden={props.paymentMethod !== 2}>

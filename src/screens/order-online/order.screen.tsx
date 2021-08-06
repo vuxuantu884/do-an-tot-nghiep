@@ -286,6 +286,8 @@ export default function Order() {
       objShipment.delivery_service_provider_id = hvc;
       objShipment.delivery_service_provider_type = "external_service";
       objShipment.sender_address_id = storeId;
+      objShipment.shipping_fee_informed_to_customer =
+        value.shipping_fee_informed_to_customer;
       objShipment.service = serviceType!;
       if (hvc === 1) {
         objShipment.shipping_fee_paid_to_three_pls = feeGhtk;
@@ -592,6 +594,7 @@ export default function Order() {
                 setSelectedPaymentMethod={changePaymentMethod}
                 setPayments={onPayments}
                 paymentMethod={paymentMethod}
+                shipmentMethod={shipmentMethod}
                 amount={
                   orderAmount +
                   (shippingFeeCustomer ? shippingFeeCustomer : 0) -
