@@ -19,6 +19,7 @@ import { poSaga } from "./po/po.saga";
 import { settingOrderProcessingStatusSaga } from "./settings/order-processing-status.saga";
 import { settingOrderSourceSaga } from "./settings/order-source.saga";
 import { paymentConditionsSaga } from "./po/payment-conditions.saga";
+import { poPaymentSaga } from "./po/po-payment.saga";
 function* rootSaga() {
   yield all([
     appSaga(),
@@ -40,7 +41,8 @@ function* rootSaga() {
     poSaga(),
     settingOrderProcessingStatusSaga(),
     settingOrderSourceSaga(),
-    paymentConditionsSaga()
+    paymentConditionsSaga(),
+    poPaymentSaga(),
   ]);
 }
 

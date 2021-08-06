@@ -11,6 +11,7 @@ const POField = {
   cost_lines: 'cost_lines',
   line_items: 'line_items',
   total: 'total',
+  total_paid:'total_paid',
   total_cost_line: 'total_cost_line',
   untaxed_amount: 'untaxed_amount',
   tax_lines: 'tax_lines',
@@ -18,6 +19,7 @@ const POField = {
   expect_store: 'expect_store',
   expect_import_date: 'expect_import_date',
   payment_condition_id: 'payment_condition_id',
+  payment_condition_name:'payment_condition_name',
   payment_note: 'payment_note',
   policy_price_code: 'policy_price_code',
   status: 'status',
@@ -28,6 +30,8 @@ const POField = {
   reference: 'reference',
   note: 'note',
   tags: 'tags',
+  payments:'payments'
+ 
 }
 
 const CostLineField = {

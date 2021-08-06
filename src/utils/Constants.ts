@@ -98,3 +98,7 @@ export const PoPaymentStatus = {
   CONFIRMED: 'finalized',
 }
 
+export const PoPaymentMethod ={
+  CASH:'cash',
+  BANK_TRANSFER:'bank_transfer'
+}
