@@ -40,6 +40,11 @@ export interface PurchaseOrder {
   completed_date: string,
   payment_term_id: string,
   tax_lines: Array<Vat>
+
+  import_date:string,
+  store_id:number,
+  payment_condition_id:number,
+  payment_note:string
 }
 
 export interface PurchaseOrderQuery extends BaseQuery{

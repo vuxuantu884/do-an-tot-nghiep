@@ -36,8 +36,12 @@ import PaymentCard from "./component/payment-card";
 import CustomerCard from "./component/customer-card";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import { OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import {
+  OrderResponse,
+  StoreCustomResponse,
+} from "model/response/order/order.response";
+import {
+  MoneyPayThreePls,
   OrderStatus,
   ShipmentMethodOption,
   TaxTreatment,
@@ -51,7 +55,10 @@ import {
 } from "utils/AppUtils";
 import ConfirmPaymentModal from "./modal/confirm-payment.modal";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import { StoreDetailAction, StoreDetailCustomAction } from "domain/actions/core/store.action";
+import {
+  StoreDetailAction,
+  StoreDetailCustomAction,
+} from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { request } from "https";
 //#endregion
@@ -68,18 +75,21 @@ export default function Order() {
     null
   );
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
+  const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
+  const [hvc, setHvc] = useState<number | null>(null);
+  const [feeGhtk, setFeeGhtk] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
     null
   );
-  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
-    null
-  );
+  const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
+    number | null
+  >(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
@@ -90,6 +100,8 @@ export default function Order() {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
+  const [serviceType, setServiceType] = useState<string>();
+  const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
   //#region Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
@@ -110,12 +122,11 @@ export default function Order() {
   const ChangeShippingFeeCustomer = (value: number | null) => {
     setShippingFeeCustomer(value);
   };
-
   const ChangeShippingFeeCustomerHVC = (value: number | null) => {
     setShippingFeeCustomerHVC(value);
   };
   //#endregion
-
+  console.log(items);
   //#region Product
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -187,7 +198,6 @@ export default function Order() {
     shipping_address: null,
     billing_address: null,
     payments: [],
-    
   };
 
   //#region Order
@@ -198,26 +208,10 @@ export default function Order() {
   };
 
   const onChangeTag = (value: []) => {
-    let strTag = "";
-    value.forEach((element, i) => {
-      if (i < 1) {
-        strTag = strTag + element;
-      } else {
-        strTag = strTag + "," + element;
-      }
-    });
-
+    const strTag = value.join(", ");
     setTag(strTag);
   };
-  let textValue = "";
-  const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
-
-  const onOkConfirmPayment = () => {};
-
-  const onCancleConfirmPayment = useCallback(() => {
-    setVisibleConfirmPayment(false);
-  }, []);
-
+  console.log(items.concat(itemGifts));
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
     let shipmentRequest = createShipmentRequest(value);
@@ -241,17 +235,17 @@ export default function Order() {
     };
 
     let listFullfillmentRequest = [];
-    if (paymentMethod !== 3 || shipmentMethod === 2 || shipmentMethod==3) {
+    if (paymentMethod !== 3 || shipmentMethod === 2 || shipmentMethod === 3) {
       listFullfillmentRequest.push(request);
     }
 
-    if(shipmentMethod === 3){
-      request.delivery_type = "pick_at_store"
+    if (shipmentMethod === 3) {
+      request.delivery_type = "pick_at_store";
     }
 
     if (
       paymentMethod === 3 &&
-      ((shipmentMethod === 4)) &&
+      shipmentMethod === 4 &&
       typeButton === OrderStatus.FINALIZED
     ) {
       request.shipment = null;
@@ -262,7 +256,7 @@ export default function Order() {
 
   const createShipmentRequest = (value: OrderRequest) => {
     let objShipment: ShipmentRequest = {
-      delivery_service_provider_id: null, //id người shipper
+      delivery_service_provider_id: null, //id dtvc
       delivery_service_provider_type: "", //shipper
       shipper_code: "",
       shipper_name: "",
@@ -289,9 +283,17 @@ export default function Order() {
     };
 
     if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
-      objShipment.delivery_service_provider_id = 1;
+      objShipment.delivery_service_provider_id = hvc;
       objShipment.delivery_service_provider_type = "external_service";
       objShipment.sender_address_id = storeId;
+      objShipment.shipping_fee_informed_to_customer =
+        value.shipping_fee_informed_to_customer;
+      objShipment.service = serviceType!;
+      if (hvc === 1) {
+        objShipment.shipping_fee_paid_to_three_pls = feeGhtk;
+      } else {
+        objShipment.shipping_fee_paid_to_three_pls = MoneyPayThreePls.VALUE;
+      }
       return objShipment;
     }
 
@@ -365,8 +367,13 @@ export default function Order() {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      showSuccess("Thêm đơn hàng thành công");
+      if(value.fulfillments && value.fulfillments.length > 0) {
+      showSuccess("Đơn được lưu và duyệt thành công");
       history.push(`${UrlConfig.ORDER}/${value.id}`);
+      }else{
+      showSuccess("Đơn được lưu nháp thành công");
+      history.push(`${UrlConfig.ORDER}/${value.id}`);
+      }
     },
     [history]
   );
@@ -382,7 +389,6 @@ export default function Order() {
     setIsvibleSaveAndConfirm(false);
   };
 
-  console.log(payments)
   const showSaveAndConfirmModal = () => {
     if (shipmentMethod !== 4 || paymentMethod !== 3) {
       setIsvibleSaveAndConfirm(true);
@@ -392,14 +398,12 @@ export default function Order() {
     }
   };
   const onFinish = (values: OrderRequest) => {
-    console.log(values)
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
       getTotalAmountAfferDiscount(items);
-
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
@@ -412,7 +416,7 @@ export default function Order() {
       //Nếu là đơn lưu và duyệt
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
-      values.payments = payments.filter((payment)=> payment.amount > 0)
+      values.payments = payments.filter((payment) => payment.amount > 0);
       values.total = orderAmount;
       if (
         values?.fulfillments &&
@@ -427,7 +431,7 @@ export default function Order() {
       }
     }
     values.tags = tags;
-    values.items = items;
+    values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
     values.shipping_address = shippingAddress;
     values.billing_address = billingAddress;
@@ -451,19 +455,29 @@ export default function Order() {
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
-          dispatch(orderCreateAction(values, createOrderCallback));
+          if (
+            shipmentMethod === ShipmentMethodOption.DELIVERPARNER &&
+            !serviceType
+          ) {
+            showError("Vui lòng chọn đơn vị vận chuyển");
+          } else {
+            dispatch(orderCreateAction(values, createOrderCallback));
+          }
         }
       }
     }
   };
   //#endregion
 
-  const setDataAccounts = useCallback((data: PageResponse<AccountResponse>|false) => {
-    if(!data) {
-      return;
-    }
-    setAccounts(data.items);
-  }, []);
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
       setIsShowBillStep(true);
@@ -481,6 +495,7 @@ export default function Order() {
   useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
+
   //windows offset
   useEffect(() => {
     window.addEventListener("scroll", scroll);
@@ -551,6 +566,7 @@ export default function Order() {
                 selectStore={onStoreSelect}
                 storeId={storeId}
                 shippingFeeCustomer={shippingFeeCustomer}
+                setItemGift={setItemGifts}
               />
               {/*--- end product ---*/}
               {/*--- shipment ---*/}
@@ -570,11 +586,15 @@ export default function Order() {
                 discountValue={discountValue}
                 setOfficeTime={setOfficeTime}
                 officeTime={officeTime}
+                setServiceType={setServiceType}
+                setHVC={setHvc}
+                setFeeGhtk={setFeeGhtk}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
                 setPayments={onPayments}
                 paymentMethod={paymentMethod}
+                shipmentMethod={shipmentMethod}
                 amount={
                   orderAmount +
                   (shippingFeeCustomer ? shippingFeeCustomer : 0) -
@@ -694,7 +714,7 @@ export default function Order() {
                       mode="tags"
                       placeholder="Thêm tag"
                       onChange={onChangeTag}
-                    />
+                    ></Select>
                   </Form.Item>
                 </div>
               </Card>
@@ -723,12 +743,14 @@ export default function Order() {
 
             <Col md={9} style={{ marginTop: "8px" }}>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => window.location.reload()}
               >
                 Huỷ
               </Button>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 className="create-button-custom ant-btn-outline fixed-button"
                 type="primary"
                 onClick={showSaveAndConfirmModal}
@@ -736,6 +758,7 @@ export default function Order() {
                 Lưu nháp
               </Button>
               <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
                 type="primary"
                 className="create-button-custom"
                 id="save-and-confirm"
@@ -752,21 +775,14 @@ export default function Order() {
             onCancel={onCancelSaveAndConfirm}
             onOk={onOkSaveAndConfirm}
             visible={isvibleSaveAndConfirm}
+            okText="Đồng ý"
+            cancelText="Hủy"
             title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
             text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
             icon={WarningIcon}
-          />
-
-          <ConfirmPaymentModal
-            onCancel={onCancleConfirmPayment}
-            onOk={onOkConfirmPayment}
-            visible={isibleConfirmPayment}
-            text={textValue}
           />
         </Form>
       </div>
     </ContentContainer>
   );
 }
-
-

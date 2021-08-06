@@ -1,15 +1,14 @@
 // @ts-ignore
 import { Button, Card, Row, Col, Radio, InputNumber, Space, Input } from "antd";
 
-import {
-  BugOutlined,
-  CreditCardOutlined,
-  QrcodeOutlined,
-} from "@ant-design/icons";
+import { BugOutlined } from "@ant-design/icons";
 
+import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
-import WarningIcon from "assets/icon/ydWarningIcon.svg";
+import Caculate from "assets/icon/caculate.svg";
+import CreditCardOutlined from "component/icon/CreditCardOutlined";
+import QrcodeOutlined from "component/icon/QrcodeOutlined";
 // @ts-ignore
 import {
   PaymentMethodGetList,
@@ -23,6 +22,7 @@ import {
   PaymentMethodCode,
   PaymentMethodOption,
   PointConfig,
+  ShipmentMethodOption,
 } from "utils/Constants";
 import {
   formatCurrency,
@@ -40,26 +40,21 @@ import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 
 type PaymentCardUpdateProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
+  setVisibleUpdatePayment: (value: boolean) => void;
   setPayments: (value: Array<UpdateOrderPaymentRequest>) => void;
   setTotalPaid: (value: number) => void;
   orderDetail: OrderResponse;
   paymentMethod: number;
-  amount: any;
+  shipmentMethod: number;
   order_id: number | null;
   showPartialPayment?: boolean;
   isVisibleUpdatePayment: boolean;
-  setVisibleUpdatePayment: (value: boolean) => void;
+  amount: any;
 };
 
 const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   props: PaymentCardUpdateProps
 ) => {
-  const changePaymentMethod = (value: number) => {
-    props.setSelectedPaymentMethod(value);
-    if (value === PaymentMethodOption.PREPAYMENT) {
-      handlePickPaymentMethod(PaymentMethodCode.CASH);
-    }
-  };
   const dispatch = useDispatch();
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, settextValue] = useState<string>("");
@@ -70,13 +65,20 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
     Array<UpdateOrderPaymentRequest>
   >([]);
 
-  const handleTransferReference  = (index: number, value: string) => {
-    console.log(index)
-   const  _paymentData = [... paymentData]
-   _paymentData[index].reference = value
-   setPaymentData(_paymentData)
+  const changePaymentMethod = (value: number) => {
+    props.setSelectedPaymentMethod(value);
+    if (value === PaymentMethodOption.PREPAYMENT) {
+      handlePickPaymentMethod(PaymentMethodCode.CASH);
+    }
+    if (value === PaymentMethodOption.COD) {
+    }
   };
-console.log(paymentData)
+
+  const handleTransferReference = (index: number, value: string) => {
+    const _paymentData = [...paymentData];
+    _paymentData[index].reference = value;
+    setPaymentData(_paymentData);
+  };
 
   const ShowPayment = () => {
     props.setVisibleUpdatePayment(true);
@@ -164,7 +166,6 @@ console.log(paymentData)
     }
     setVisibleConfirmPayment(true);
   };
-  console.log(paymentData);
   const CreateFulFillmentRequest = () => {
     let request: UpdateFulFillmentRequest = {
       id: null,
@@ -234,15 +235,20 @@ console.log(paymentData)
         onOk={onOkConfirm}
         visible={isibleConfirmPayment}
         icon={WarningIcon}
+        okText="Đồng ý"
+        cancelText="Hủy"
         title="Bạn muốn xác nhận thanh toán cho đơn hàng này?"
         text={textValue}
         order_id={props.order_id}
       />
       {props.showPartialPayment === false && (
         <Card
-          className="margin-top-20"
+          className="margin-top-20 orders-update-payment"
           title={
-            <div className="d-flex" style={{ marginTop: "5px" }}>
+            <div
+              className="d-flex"
+              style={{ marginTop: "5px", border: "none" }}
+            >
               <span className="title-card">THANH TOÁN</span>
             </div>
           }
@@ -265,14 +271,45 @@ console.log(paymentData)
                     </Radio>
                   </Space>
                 </Radio.Group>
-                {props.paymentMethod === PaymentMethodOption.COD && (
-                  <div className="order-cod-payment-footer">
-                    <span>
-                      Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
-                      để có thể nhập giá trị Tiền thu hộ
-                    </span>
-                  </div>
-                )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+                    <div className="order-cod-payment-footer">
+                      <span>
+                        Vui lòng chọn hình thức{" "}
+                        <span>Đóng gói và Giao hàng</span> để có thể nhập giá
+                        trị Tiền thu hộ
+                      </span>
+                    </div>
+                  )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod ===
+                    ShipmentMethodOption.DELIVERLATER && (
+                    <div className="order-cod-payment-footer">
+                      <span>
+                        Vui lòng chọn hình thức{" "}
+                        <span>Đóng gói và Giao hàng</span> để có thể nhập giá
+                        trị Tiền thu hộ
+                      </span>
+                    </div>
+                  )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+                    <div
+                      className="order-cod-payment-footer"
+                      style={{ height: 83 }}
+                    >
+                      <div>
+                        <div>
+                          <div>
+                            <img src={Caculate}></img>
+                          </div>
+                        </div>
+                      </div>
+                      <span>
+                        <span>Khách hàng sẽ thanh toán tại quầy!</span>
+                      </span>
+                    </div>
+                  )}
               </div>
 
               <Row gutter={24} hidden={props.paymentMethod !== 2}>
@@ -292,17 +329,31 @@ console.log(paymentData)
                       let icon = null;
                       switch (method.code) {
                         case PaymentMethodCode.CASH:
-                          icon = <Cash />;
+                          icon = (
+                            <Cash paymentData={paymentData} method={method} />
+                          );
                           break;
                         case PaymentMethodCode.CARD:
                         case PaymentMethodCode.BANK_TRANSFER:
-                          icon = <CreditCardOutlined />;
+                          icon = (
+                            <CreditCardOutlined
+                              paymentData={paymentData}
+                              method={method}
+                            />
+                          );
                           break;
                         case PaymentMethodCode.QR_CODE:
-                          icon = <QrcodeOutlined />;
+                          icon = (
+                            <QrcodeOutlined
+                              paymentData={paymentData}
+                              method={method}
+                            />
+                          );
                           break;
                         case PaymentMethodCode.POINT:
-                          icon = <YdCoin />;
+                          icon = (
+                            <YdCoin paymentData={paymentData} method={method} />
+                          );
                           break;
                         default:
                           icon = <BugOutlined />;
@@ -311,7 +362,7 @@ console.log(paymentData)
                       return (
                         <Col key={method.code} className="btn-payment-method">
                           <Button
-                            style={{ display: "flex" }}
+                            style={{ padding: 10, display: "flex" }}
                             type={
                               paymentData.some((p) => p.code === method.code)
                                 ? "primary"
@@ -415,9 +466,13 @@ console.log(paymentData)
                                 xxl={13}
                               >
                                 <Input
-                                  name="new_payment"
                                   placeholder="Tham chiếu"
-                                  onChange={(e: any) => handleTransferReference(index, e.target.value)}
+                                  onChange={(e: any) =>
+                                    handleTransferReference(
+                                      index,
+                                      e.target.value
+                                    )
+                                  }
                                 />
                               </Col>
                             ) : null}
@@ -530,16 +585,20 @@ console.log(paymentData)
                         <Button
                           type="primary"
                           className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right" }}
+                          style={{ float: "right", padding: "0 25px" }}
                           htmlType="submit"
                           onClick={ShowConfirmPayment}
                         >
-                          Tạo thanh toán trước
+                          Tạo thanh toán
                         </Button>
                         <Button
                           type="default"
                           className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right", marginRight: "10px" }}
+                          style={{
+                            float: "right",
+                            marginRight: "10px",
+                            padding: "0 25px",
+                          }}
                           onClick={canclePayment}
                         >
                           Hủy
@@ -557,13 +616,11 @@ console.log(paymentData)
               <label
                 className="text-left"
                 style={{ marginTop: "20px", lineHeight: "40px" }}
-              >
-                <i>Chưa tạo thanh toán</i>{" "}
-              </label>
+              ></label>
               <Button
                 type="primary"
                 className="ant-btn-outline fixed-button text-right"
-                style={{ float: "right", marginBottom: "20px" }}
+                style={{ float: "right", padding: "0 25px", marginBottom: 25 }}
                 onClick={ShowPayment}
               >
                 Thanh toán
@@ -588,14 +645,42 @@ console.log(paymentData)
                 </Radio>
               </Space>
             </Radio.Group>
-            {props.paymentMethod === PaymentMethodOption.COD && (
-              <div className="order-cod-payment-footer">
-                <span>
-                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
-                  có thể nhập giá trị Tiền thu hộ
-                </span>
-              </div>
-            )}
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+                <div className="order-cod-payment-footer">
+                  <span>
+                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
+                    để có thể nhập giá trị Tiền thu hộ
+                  </span>
+                </div>
+              )}
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.DELIVERLATER && (
+                <div className="order-cod-payment-footer">
+                  <span>
+                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
+                    để có thể nhập giá trị Tiền thu hộ
+                  </span>
+                </div>
+              )}
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+                <div
+                  className="order-cod-payment-footer"
+                  style={{ height: 83 }}
+                >
+                  <div>
+                    <div>
+                      <div>
+                        <img src={Caculate}></img>
+                      </div>
+                    </div>
+                  </div>
+                  <span>
+                    <span>Khách hàng sẽ thanh toán tại quầy!</span>
+                  </span>
+                </div>
+              )}
           </div>
 
           <Row gutter={24} hidden={props.paymentMethod !== 2}>
@@ -615,17 +700,29 @@ console.log(paymentData)
                   let icon = null;
                   switch (method.code) {
                     case PaymentMethodCode.CASH:
-                      icon = <Cash />;
+                      icon = <Cash paymentData={paymentData} method={method} />;
                       break;
                     case PaymentMethodCode.CARD:
                     case PaymentMethodCode.BANK_TRANSFER:
-                      icon = <CreditCardOutlined />;
+                      icon = (
+                        <CreditCardOutlined
+                          paymentData={paymentData}
+                          method={method}
+                        />
+                      );
                       break;
                     case PaymentMethodCode.QR_CODE:
-                      icon = <QrcodeOutlined />;
+                      icon = (
+                        <QrcodeOutlined
+                          paymentData={paymentData}
+                          method={method}
+                        />
+                      );
                       break;
                     case PaymentMethodCode.POINT:
-                      icon = <YdCoin />;
+                      icon = (
+                        <YdCoin paymentData={paymentData} method={method} />
+                      );
                       break;
                     default:
                       icon = <BugOutlined />;
@@ -634,7 +731,7 @@ console.log(paymentData)
                   return (
                     <Col key={method.code} className="btn-payment-method">
                       <Button
-                        style={{ display: "flex" }}
+                        style={{ padding: 10, display: "flex" }}
                         type={
                           paymentData.some((p) => p.code === method.code)
                             ? "primary"
@@ -739,7 +836,9 @@ console.log(paymentData)
                           >
                             <Input
                               placeholder="Tham chiếu"
-                              onChange={(e: any) => handleTransferReference(index, e.target.value)}
+                              onChange={(e: any) =>
+                                handleTransferReference(index, e.target.value)
+                              }
                             />
                           </Col>
                         ) : null}
@@ -848,16 +947,21 @@ console.log(paymentData)
                     <Button
                       type="primary"
                       className="ant-btn-outline fixed-button text-right"
-                      style={{ float: "right" }}
+                      style={{ float: "right", padding: "0 25px" }}
                       htmlType="submit"
                       onClick={ShowConfirmPayment}
                     >
-                      Thêm thanh toán trước
+                      Thanh toán
                     </Button>
+
                     <Button
                       type="default"
                       className="ant-btn-outline fixed-button text-right"
-                      style={{ float: "right", marginRight: "10px" }}
+                      style={{
+                        float: "right",
+                        marginRight: "10px",
+                        padding: "0 25px",
+                      }}
                       onClick={() => window.location.reload()}
                     >
                       Hủy

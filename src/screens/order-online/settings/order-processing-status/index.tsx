@@ -38,7 +38,6 @@ const SettingOrderProcessingStatus: React.FC = () => {
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
-  const [visibleFormButtons, setVisibleFormButtons] = useState<boolean>(true);
   const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] =
     useState<OrderProcessingStatusModel | null>(null);
 
@@ -52,11 +51,27 @@ const SettingOrderProcessingStatus: React.FC = () => {
       title: "Trạng thái xử lý",
       dataIndex: "sub_status",
       visible: true,
+      className: "columnTitle",
+      width: "25%",
+      render: (value, row, index) => {
+        if (value) {
+          return (
+            <span
+              title={value}
+              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+              className="title"
+            >
+              {value}
+            </span>
+          );
+        }
+      },
     },
     {
       title: "Trạng thái đơn hàng",
       dataIndex: "status",
       visible: true,
+      width: "25%",
       render: (value, row, index) => {
         const result = LIST_STATUS?.find((singleStatus) => {
           return singleStatus.value === value;
@@ -71,11 +86,16 @@ const SettingOrderProcessingStatus: React.FC = () => {
       title: "Ghi chú",
       dataIndex: "note",
       visible: true,
+      width: "25%",
+      render: (value, row, index) => {
+        return <span style={{ color: "#666666" }}>{value}</span>;
+      },
     },
     {
       title: "Áp dụng cho đơn hàng ",
-      dataIndex: "is_active",
+      dataIndex: "active",
       visible: true,
+      width: "25%",
       render: (value, row, index) => {
         if (value) {
           return <span style={{ color: "#27AE60" }}>Đang áp dụng</span>;
@@ -102,6 +122,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
       let queryParam = generateQuery(params);
       setParams({ ...params });
       history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
+      window.scrollTo(0, 0);
     },
     [history, params]
   );
@@ -131,22 +152,20 @@ const SettingOrderProcessingStatus: React.FC = () => {
     setParams({ ...newParams });
     let queryParam = generateQuery(newParams);
     history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
+    window.scrollTo(0, 0);
   };
 
   const handleForm = {
     create: (formValue: OrderProcessingStatusModel) => {
-      setVisibleFormButtons(false);
       dispatch(
         actionAddOrderProcessingStatus(formValue, () => {
           setIsShowModal(false);
           gotoFirstPage();
-          setVisibleFormButtons(true);
         })
       );
     },
     edit: (formValue: OrderProcessingStatusModel) => {
       if (modalSingleServiceSubStatus) {
-        setVisibleFormButtons(false);
         dispatch(
           actionEditOrderProcessingStatus(
             modalSingleServiceSubStatus.id,
@@ -161,7 +180,6 @@ const SettingOrderProcessingStatus: React.FC = () => {
                 )
               );
               setIsShowModal(false);
-              setVisibleFormButtons(true);
             }
           )
         );
@@ -169,14 +187,12 @@ const SettingOrderProcessingStatus: React.FC = () => {
     },
     delete: () => {
       if (modalSingleServiceSubStatus) {
-        setVisibleFormButtons(false);
         dispatch(
           actionDeleteOrderProcessingStatus(
             modalSingleServiceSubStatus.id,
             () => {
               setIsShowModal(false);
               gotoFirstPage();
-              setVisibleFormButtons(true);
             }
           )
         );
@@ -219,10 +235,10 @@ const SettingOrderProcessingStatus: React.FC = () => {
         extra={createOrderServiceSubStatusHtml()}
       >
         {listOrderProcessingStatus && (
-          <Card style={{ padding: 24 }}>
+          <Card style={{ padding: "35px 15px" }}>
             <CustomTable
               isLoading={tableLoading}
-              showColumnSetting={true}
+              showColumnSetting={false}
               scroll={{ x: 1080 }}
               pagination={{
                 pageSize: params.limit,
@@ -249,7 +265,6 @@ const SettingOrderProcessingStatus: React.FC = () => {
         )}
         <CustomModal
           visible={isShowModal}
-          visibleButton={visibleFormButtons}
           onCreate={(formValue: OrderProcessingStatusModel) =>
             handleForm.create(formValue)
           }

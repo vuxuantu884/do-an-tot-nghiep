@@ -11,9 +11,7 @@ import React, {
 import { useDispatch } from "react-redux";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { AccountResponse } from "model/account/account.model";
-import {
-  AccountSearchAction,
-} from "domain/actions/account/account.action";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderDetailAction } from "domain/actions/order/order.action";
 import doubleArrow from "assets/icon/double_arrow.svg";
@@ -59,8 +57,13 @@ const OrderDetail = () => {
   const dispatch = useDispatch();
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  // update payment
   const [paymentType, setPaymentType] = useState<number>(3);
+  const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
+  // update shipment
+  const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [isVisibleShipping, setVisibleShipping] = useState(false);
+  // end
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
@@ -72,7 +75,6 @@ const OrderDetail = () => {
     useState<number>(0);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [totalPaid, setTotalPaid] = useState<number>(0);
-  const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   //#endregion
   //#region Orther
@@ -86,7 +88,7 @@ const OrderDetail = () => {
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     setPayments(value);
   };
-
+  console.log(OrderDetail);
   const changeShippingFeeInformedCustomer = (value: number | null) => {
     if (value) {
       setShippingFeeInformedCustomer(value);
@@ -139,11 +141,14 @@ const OrderDetail = () => {
           }
         }
       }
+    }else if(OrderDetail?.status === OrderStatus.FINISHED){
+      return FulFillmentStatus.SHIPPED;
     }
   };
 
   // tag status
   let stepsStatusValue = stepsStatus();
+
   //#region Product
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -286,12 +291,21 @@ const OrderDetail = () => {
 
             {/*--- shipment ---*/}
             <UpdateShipmentCard
-              OrderDetail={OrderDetail}
-              stepsStatusValue={stepsStatusValue}
-              storeDetail={storeDetail}
               shippingFeeInformedCustomer={changeShippingFeeInformedCustomer}
+              setVisibleUpdatePayment={setVisibleUpdatePayment}
+              setShipmentMethod={setShipmentMethod}
+              setPaymentType={setPaymentType}
+              setOfficeTime={setOfficeTime}
+              setVisibleShipping={setVisibleShipping}
+              OrderDetail={OrderDetail}
+              customerDetail={customerDetail}
+              storeDetail={storeDetail}
+              stepsStatusValue={stepsStatusValue}
               totalPaid={totalPaid}
-              isVisibleUpdatePayment={setVisibleUpdatePayment}
+              officeTime={officeTime}
+              shipmentMethod={shipmentMethod}
+              isVisibleShipping={isVisibleShipping}
+              paymentType={paymentType}
             />
 
             {/*--- end shipment ---*/}
@@ -304,7 +318,7 @@ const OrderDetail = () => {
                   className="margin-top-20"
                   title={
                     <Space>
-                      <div className="d-flex" style={{ marginTop: "5px" }}>
+                      <div className="d-flex">
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {checkPaymentStatusToShow(OrderDetail) === -1 && (
@@ -357,6 +371,9 @@ const OrderDetail = () => {
                                 customerNeedToPayValue -
                                   (OrderDetail?.total_paid
                                     ? OrderDetail?.total_paid
+                                    : 0) -
+                                  (OrderDetail?.fulfillments[0].shipment
+                                    ? OrderDetail?.fulfillments[0].shipment?.cod
                                     : 0)
                               )
                             : 0}
@@ -489,11 +506,17 @@ const OrderDetail = () => {
                                   <>
                                     <b
                                       style={{
-                                        paddingLeft: "4px",
+                                        paddingLeft: "14px",
                                         color: "#222222",
                                       }}
                                     >
                                       COD
+                                      {OrderDetail.fulfillments[0].status !== "shipped" && <Tag
+                                        className="orders-tag orders-tag-warning"
+                                        style={{ marginLeft: 10 }}
+                                      >
+                                        Đang chờ thu
+                                      </Tag>}
                                     </b>
                                     <b
                                       style={{
@@ -539,9 +562,15 @@ const OrderDetail = () => {
                   {isShowPaymentPartialPayment && OrderDetail !== null && (
                     <UpdatePaymentCard
                       setSelectedPaymentMethod={onPaymentSelect}
+                      setVisibleUpdatePayment={setVisibleUpdatePayment}
                       setPayments={onPayments}
+                      setTotalPaid={setTotalPaid}
+                      orderDetail={OrderDetail}
                       paymentMethod={paymentType}
+                      shipmentMethod={shipmentMethod}
+                      order_id={OrderDetail.id}
                       showPartialPayment={true}
+                      isVisibleUpdatePayment={isVisibleUpdatePayment}
                       amount={
                         OrderDetail.total_line_amount_after_line_discount -
                         getAmountPayment(OrderDetail.payments) -
@@ -551,11 +580,6 @@ const OrderDetail = () => {
                           ? OrderDetail?.discounts[0].amount
                           : 0)
                       }
-                      order_id={OrderDetail.id}
-                      orderDetail={OrderDetail}
-                      setTotalPaid={setTotalPaid}
-                      isVisibleUpdatePayment={isVisibleUpdatePayment}
-                      setVisibleUpdatePayment={setVisibleUpdatePayment}
                     />
                   )}
                   {(OrderDetail?.fulfillments &&
@@ -601,7 +625,7 @@ const OrderDetail = () => {
                   className="margin-top-20"
                   title={
                     <Space>
-                      <div className="d-flex" style={{ marginTop: "5px" }}>
+                      <div className="d-flex">
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (
@@ -641,11 +665,12 @@ const OrderDetail = () => {
                           Còn phải trả:
                         </span>
                         <b style={{ color: "red" }}>
-                          {OrderDetail && OrderDetail?.fulfillments
+                          0
+                          {/* {OrderDetail && OrderDetail?.fulfillments && OrderDetail.fulfillments[0].shipment?.cod !== 0
                             ? formatCurrency(
                                 OrderDetail.fulfillments[0].shipment?.cod
                               )
-                            : 0}
+                            : 0} */}
                         </b>
                       </Col>
                     </Row>
@@ -731,6 +756,7 @@ const OrderDetail = () => {
                   setSelectedPaymentMethod={onPaymentSelect}
                   setPayments={onPayments}
                   paymentMethod={paymentType}
+                  shipmentMethod={shipmentMethod}
                   amount={OrderDetail.total + shippingFeeInformedCustomer}
                   order_id={OrderDetail.id}
                   orderDetail={OrderDetail}
@@ -768,40 +794,54 @@ const OrderDetail = () => {
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Điện thoại:</Col>
                   <Col span={15}>
-                    <span>{OrderDetail?.customer_phone_number}</span>
+                    <span style={{ fontWeight: 500, color: "#222222" }}>
+                      {OrderDetail?.customer_phone_number}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Địa chỉ:</Col>
                   <Col span={15}>
-                    <span>{OrderDetail?.shipping_address?.full_address}</span>
+                    <span style={{ fontWeight: 500, color: "#222222" }}>
+                      {OrderDetail?.shipping_address?.full_address}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>NVBH:</Col>
                   <Col span={15}>
-                    <span className="text-focus">{OrderDetail?.assignee}</span>
+                    <span
+                      style={{ fontWeight: 500, color: "#222222" }}
+                      className="text-focus"
+                    >
+                      {OrderDetail?.assignee}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Người tạo:</Col>
                   <Col span={15}>
-                    <span className="text-focus">{OrderDetail?.account}</span>
+                    <span
+                      style={{ fontWeight: 500, color: "#222222" }}
+                      className="text-focus"
+                    >
+                      {OrderDetail?.account}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Thời gian:</Col>
                   <Col span={15}>
-                    <span>
+                    <span style={{ fontWeight: 500, color: "#222222" }}>
                       {moment(OrderDetail?.created_date).format(
-                        "DD/MM/YYYY HH:mm a"
+                        "DD/MM/YYYY HH:mm"
                       )}
                     </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Đường dẫn:</Col>
-                  <Col span={15} style={{wordWrap: "break-word"}}>
+                  <Col span={15} style={{ wordWrap: "break-word" }}>
                     {OrderDetail?.url ? (
                       <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
                     ) : (
@@ -811,7 +851,7 @@ const OrderDetail = () => {
                 </Row>
               </div>
             </Card>
-            <SubStatusOrder status={OrderDetail?.status} />
+            <SubStatusOrder status={OrderDetail?.status} orderId={OrderId} />
             <Card
               className="margin-top-20"
               title={
@@ -821,10 +861,19 @@ const OrderDetail = () => {
               }
             >
               <div className="padding-24">
-                <Row className="" gutter={5}>
-                  <Col span={9}>Ghi chú:</Col>
-                  <Col span={15}>
-                    <span className="text-focus" style={{wordWrap: "break-word"}}>
+                <Row
+                  className=""
+                  gutter={5}
+                  style={{ flexDirection: "column" }}
+                >
+                  <Col span={24} style={{ marginBottom: 6 }}>
+                    <b>Ghi chú nội bộ:</b>
+                  </Col>
+                  <Col span={24}>
+                    <span
+                      className="text-focus"
+                      style={{ wordWrap: "break-word" }}
+                    >
                       {OrderDetail?.note !== ""
                         ? OrderDetail?.note
                         : "Không có ghi chú"}
@@ -832,12 +881,30 @@ const OrderDetail = () => {
                   </Col>
                 </Row>
 
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Tags:</Col>
-                  <Col span={15}>
+                <Row
+                  className="margin-top-10"
+                  gutter={5}
+                  style={{ flexDirection: "column" }}
+                >
+                  <Col span={24} style={{ marginBottom: 6 }}>
+                    <b>Tags:</b>
+                  </Col>
+                  <Col span={24}>
                     <span className="text-focus">
-                      {OrderDetail?.tags !== ""
-                        ? OrderDetail?.tags
+                      {OrderDetail?.tags
+                        ? OrderDetail?.tags.split(",").map((item, index) => (
+                            <Tag
+                              key={index}
+                              className="orders-tag"
+                              style={{
+                                backgroundColor: "#F5F5F5",
+                                color: "#737373",
+                                padding: "5px 10px",
+                              }}
+                            >
+                              {item}
+                            </Tag>
+                          ))
                         : "Không có tags"}
                     </span>
                   </Col>

@@ -38,7 +38,6 @@ const OrderSources: React.FC = () => {
   const [listOrderCompanies, setListOrderCompanies] = useState<
     OrderSourceCompanyModel[]
   >([]);
-  const [visibleFormButtons, setVisibleFormButtons] = useState<boolean>(true);
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
@@ -50,11 +49,27 @@ const OrderSources: React.FC = () => {
       title: "Nguồn đơn hàng",
       dataIndex: "name",
       visible: true,
+      className: "columnTitle",
+      width: "40%",
+      render: (value, row, index) => {
+        if (value) {
+          return (
+            <span
+              title={value}
+              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+              className="title"
+            >
+              {value}
+            </span>
+          );
+        }
+      },
     },
     {
       title: "Áp dụng cho đơn hàng",
-      dataIndex: "is_active",
+      dataIndex: "active",
       visible: true,
+      width: "40%",
       render: (value, row, index) => {
         if (value) {
           return <span style={{ color: "#27AE60" }}>Đang áp dụng</span>;
@@ -64,8 +79,9 @@ const OrderSources: React.FC = () => {
     },
     {
       title: "Mặc định",
-      dataIndex: "is_default",
+      dataIndex: "default",
       visible: true,
+      width: "20%",
       render: (value) => {
         if (value) {
           return <img src={iconChecked} alt="Mặc định" />;
@@ -90,6 +106,7 @@ const OrderSources: React.FC = () => {
       let queryParam = generateQuery(params);
       setParams({ ...params });
       history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
+      window.scrollTo(0, 0);
     },
     [history, params]
   );
@@ -106,7 +123,7 @@ const OrderSources: React.FC = () => {
         }}
         icon={<PlusOutlined />}
       >
-        Thêm mới
+        Thêm nguồn đơn hàng
       </Button>
     );
   };
@@ -119,22 +136,20 @@ const OrderSources: React.FC = () => {
     setParams({ ...newParams });
     let queryParam = generateQuery(newParams);
     history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
+    window.scrollTo(0, 0);
   };
 
   const handleForm = {
     create: (formValue: OrderSourceModel) => {
-      setVisibleFormButtons(false);
       dispatch(
         actionAddOrderSource(formValue, () => {
           setIsShowModal(false);
           gotoFirstPage();
-          setVisibleFormButtons(true);
         })
       );
     },
     edit: (formValue: OrderSourceModel) => {
       if (modalSingleOrderSource) {
-        setVisibleFormButtons(false);
         dispatch(
           actionEditOrderSource(modalSingleOrderSource.id, formValue, () => {
             dispatch(
@@ -146,19 +161,16 @@ const OrderSources: React.FC = () => {
               )
             );
             setIsShowModal(false);
-            setVisibleFormButtons(true);
           })
         );
       }
     },
     delete: () => {
       if (modalSingleOrderSource) {
-        setVisibleFormButtons(false);
         dispatch(
           actionDeleteOrderSource(modalSingleOrderSource.id, () => {
             setIsShowModal(false);
             gotoFirstPage();
-            setVisibleFormButtons(true);
           })
         );
       }
@@ -206,10 +218,10 @@ const OrderSources: React.FC = () => {
         extra={createOrderSourceHtml()}
       >
         {listOrderSources && (
-          <Card style={{ padding: 24 }}>
+          <Card style={{ padding: "35px 15px" }}>
             <CustomTable
               isLoading={tableLoading}
-              showColumnSetting={true}
+              showColumnSetting={false}
               scroll={{ x: 1080 }}
               pagination={{
                 pageSize: params.limit,
@@ -237,7 +249,6 @@ const OrderSources: React.FC = () => {
         )}
         <CustomModal
           visible={isShowModal}
-          visibleButton={visibleFormButtons}
           onCreate={(formValue: OrderSourceModel) =>
             handleForm.create(formValue)
           }

@@ -27,6 +27,7 @@ import React, {
   useState,
   useMemo,
   createRef,
+  useEffect,
 } from "react";
 import { SearchOutlined, EditOutlined } from "@ant-design/icons";
 import DiscountGroup from "./discount-group";
@@ -72,6 +73,7 @@ type ProductCardProps = {
   storeId: number | null;
   selectStore: (item: number) => void;
   shippingFeeCustomer: number | null;
+  setItemGift: (item: []) => void;
   changeInfo: (
     items: Array<OrderLineItemRequest>,
     amount: number,
@@ -112,6 +114,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [counpon, setCounpon] = useState<string>("");
   //Function
+  useEffect(() => {
+    let _itemGifts: any = [];
+    for (let i = 0; i < items.length; i++) {
+      _itemGifts = [..._itemGifts, ...items[i].gifts];
+    }
+    props.setItemGift(_itemGifts);
+  }, [items]);
+
   const showAddGiftModal = useCallback(
     (index: number) => {
       setIndexItem(index);
@@ -120,7 +130,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     },
     [items]
   );
-
   const onChangeNote = (e: any, index: number) => {
     let value = e.target.value;
     let _items = [...items];
@@ -282,12 +291,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               </div>
             </div>
           </div>
-          <div>
+          <div style={{marginTop: 2}}>
             {l.gifts.map((a, index1) => (
               <div key={index1} className="yody-pos-addition yody-pos-gift">
                 <div>
-                  <img src={giftIcon} alt="" /> {a.variant}{" "}
-                  <span>({a.quantity})</span>
+                  <img src={giftIcon} alt="" />
+                  <i style={{marginLeft: 7}}>
+                    {a.variant} ({a.quantity})
+                  </i>
                 </div>
               </div>
             ))}
@@ -318,7 +329,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const AmountColumnt = {
     title: () => (
       <div className="text-center">
-        <div style={{ textAlign: "right" }}>Số lượng</div>
+        <div style={{ textAlign: "center" }}>Số lượng</div>
         {getTotalQuantity(items) > 0 && (
           <span style={{ color: "#2A2A86" }}>({getTotalQuantity(items)})</span>
         )}
@@ -431,19 +442,25 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       </div>
     ),
     width: "12%",
-    className: "yody-table-action text-center",
+    className: "saleorder-product-card-action ",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const menu = (
-        <Menu className="yody-line-item-action-menu">
+        <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
           <Menu.Item key="0">
             <Button
               type="text"
               onClick={() => showAddGiftModal(index)}
-              className="p-0 ant-btn-custom"
+              className=""
+              style={{
+                paddingLeft: 24,
+                background: "transparent",
+                border: "none",
+              }}
             >
               Thêm quà tặng
             </Button>
           </Menu.Item>
+          <Divider style={{ margin: "0" }} />
           <Menu.Item key="1">
             <Button
               type="text"
@@ -452,7 +469,12 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 _items[index].show_note = true;
                 setItems(_items);
               }}
-              className="p-0 ant-btn-custom"
+              className=""
+              style={{
+                paddingLeft: 24,
+                background: "transparent",
+                border: "none",
+              }}
             >
               Thêm ghi chú
             </Button>
@@ -460,12 +482,16 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         </Menu>
       );
       return (
-        <div style={{ display: "flex" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "0 4px",
+          }}
+        >
           <div
             className="site-input-group-wrapper saleorder-input-group-wrapper"
             style={{
-              marginRight: 6,
-              padding: 0,
               borderRadius: 5,
             }}
           >
@@ -474,23 +500,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               trigger={["click"]}
               placement="bottomRight"
             >
-              <Button
-                type="text"
-                className="p-0 ant-btn-custom"
-                style={{ height: 36, width: 32 }}
-              >
-                <img src={arrowDownIcon} alt="" />
+              <Button type="text" className="p-0 ant-btn-custom" style={{}}>
+                <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
               </Button>
             </Dropdown>
           </div>
-          <div>
+          <div className="saleorder-close-btn">
             <Button
+              style={{ background: "transparent" }}
               type="text"
               className="p-0 ant-btn-custom"
               onClick={() => onDeleteItem(index)}
-              style={{ marginLeft: "8px" }}
             >
-              <img src={Xclosebtn} alt="" />
+              <img src={Xclosebtn} alt="" style={{ width: 22 }} />
             </Button>
           </div>
         </div>
@@ -508,7 +530,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   ];
 
   const autoCompleteRef = createRef<RefSelectProps>();
-
   const createItem = (variant: VariantResponse) => {
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
@@ -544,6 +565,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       tax_rate: taxRate,
       show_note: false,
       gifts: [],
+      position: undefined,
     };
     return orderLine;
   };
@@ -576,9 +598,10 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       );
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
+      const item: OrderLineItemRequest = createItem(r);
+      item.position = items.length + 1;
       if (r.id === newV) {
         if (splitLine || index === -1) {
-          const item: OrderLineItemRequest = createItem(r);
           _items.push(item);
           setAmount(amount + item.price);
           calculateChangeMoney(
@@ -700,10 +723,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const onOkConfirm = useCallback(() => {
     setVisibleGift(false);
     let _items = [...items];
+    let _itemGifts = [...itemGifts];
+    _itemGifts.forEach(
+      (itemGift) => (itemGift.position = _items[indexItem].position)
+    );
     _items[indexItem].gifts = itemGifts;
     setItems(_items);
   }, [items, itemGifts, indexItem]);
-  
+
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
@@ -948,9 +975,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             </div>
           </Col>
           <Col xs={24} lg={10}>
-            <Row className="payment-row" style={{justifyContent: "space-between" }}>
+            <Row
+              className="payment-row"
+              style={{ justifyContent: "space-between" }}
+            >
               <div className="font-weight-500">Tổng tiền:</div>
-              <div className="font-weight-500" style={{fontWeight: 500 }}>{formatCurrency(amount)}</div>
+              <div className="font-weight-500" style={{ fontWeight: 500 }}>
+                {formatCurrency(amount)}
+              </div>
             </Row>
 
             <Row className="payment-row" justify="space-between" align="middle">
