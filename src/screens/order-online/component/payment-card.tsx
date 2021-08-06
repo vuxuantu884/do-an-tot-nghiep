@@ -160,8 +160,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     >
       <div className="padding-20 create-order-payment">
         <Form.Item
-          label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
-          required
+          // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
+          // required
         >
           <Radio.Group
             value={props.paymentMethod}
@@ -477,7 +477,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       );
                     })}
 
-                    <Row
+                    {/* <Row
                       gutter={20}
                       className="row-price total-customer-pay"
                       style={{ height: 38, margin: "10px 0" }}
@@ -502,7 +502,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       >
                         <span>{formatCurrency(totalAmountPaid)}</span>
                       </Col>
-                    </Row>
+                    </Row> */}
                     <Row
                       gutter={20}
                       className="row-price"
@@ -510,7 +510,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                     >
                       <Col lg={14} xxl={9} style={{ padding: "8px 0" }}>
                         <b>
-                          {moneyReturn > 0 ? "Còn phải trả:" : "Tiền thừa:"}
+                          {true ? "Còn phải trả:" : "Tiền thừa:"}
                         </b>
                       </Col>
                       <Col
@@ -524,7 +524,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         }}
                       >
                         <span
-                          style={{ color: moneyReturn <= 0 ? "blue" : "red" }}
+                          style={{ color: false ? "blue" : "red" }}
                         >
                           {formatCurrency(Math.abs(moneyReturn))}
                         </span>
