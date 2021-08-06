@@ -1013,6 +1013,26 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       </Col>
                     )}
 
+                    
+
+                    <Col md={5}>
+                      <Col span={24}>
+                        <p className="text-field">Phí ship trả HVC:</p>
+                      </Col>
+                      <Col span={24}>
+                        <b className="text-field">
+                          {props.OrderDetail?.fulfillments &&
+                            formatCurrency(
+                              props.OrderDetail.fulfillments[0].shipment
+                                ?.shipping_fee_paid_to_three_pls
+                                ? props.OrderDetail.fulfillments[0].shipment
+                                    ?.shipping_fee_paid_to_three_pls
+                                : 0
+                            )}
+                        </b>
+                      </Col>
+                    </Col>
+
                     <Col md={5}>
                       <Col span={24}>
                         <p className="text-field">Phí ship báo khách:</p>
@@ -1026,24 +1046,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                 ?.shipping_fee_informed_to_customer
                                 ? props.OrderDetail.fulfillments[0].shipment
                                     ?.shipping_fee_informed_to_customer
-                                : 0
-                            )}
-                        </b>
-                      </Col>
-                    </Col>
-
-                    <Col md={5}>
-                      <Col span={24}>
-                        <p className="text-field">Phí ship trả đối tác:</p>
-                      </Col>
-                      <Col span={24}>
-                        <b className="text-field">
-                          {props.OrderDetail?.fulfillments &&
-                            formatCurrency(
-                              props.OrderDetail.fulfillments[0].shipment
-                                ?.shipping_fee_paid_to_three_pls
-                                ? props.OrderDetail.fulfillments[0].shipment
-                                    ?.shipping_fee_paid_to_three_pls
                                 : 0
                             )}
                         </b>
@@ -1076,13 +1078,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   style={{ marginTop: 12, marginBottom: 0, padding: "0 12px" }}
                 >
                   <Col span={24}>
-                    <p className="text-field">
+                    <b className="text-field">
                       {props.OrderDetail?.items.reduce(
                         (a: any, b: any) => a + b.quantity,
                         0
                       )}{" "}
-                      Sản phẩm giao hàng
-                    </p>
+                      Sản phẩm
+                    </b>
                   </Col>
                 </Row>
 
@@ -1139,7 +1141,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                 <span
                                   style={{ color: "#000000d9", marginRight: 6 }}
                                 >
-                                  Mở rộng
                                 </span>
                               </Col>
                             </Row>
