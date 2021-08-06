@@ -66,6 +66,7 @@ import { request } from "https";
 var typeButton = "";
 export default function Order() {
   //#region State
+  const {Option} = Select
   const dispatch = useDispatch();
   const history = useHistory();
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -503,6 +504,9 @@ export default function Order() {
       window.removeEventListener("scroll", scroll);
     };
   }, [scroll]);
+
+
+
   return (
     <ContentContainer
       title="Tạo mới đơn hàng"
@@ -714,7 +718,7 @@ export default function Order() {
                       mode="tags"
                       placeholder="Thêm tag"
                       onChange={onChangeTag}
-                    ></Select>
+                    >{Option}</Select>
                   </Form.Item>
                 </div>
               </Card>
