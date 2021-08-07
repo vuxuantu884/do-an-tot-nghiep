@@ -313,11 +313,11 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
               </div>
 
               <Row gutter={24} hidden={props.paymentMethod !== 2}>
-                <Col xs={24} lg={24}>
+                {/* <Col xs={24} lg={24}>
                   <div className="form-group form-group-with-search">
                     <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
                   </div>
-                </Col>
+                </Col> */}
                 <Col xs={24} lg={24}>
                   <Row
                     className="btn-list-method"
@@ -631,8 +631,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       )}
 
       {props.showPartialPayment && (
-        <div className="padding-20 create-order-payment">
-          <div style={{ display: "flex", flexDirection: "column" }}>
+        <div className="create-order-payment">
+          {/* <div style={{ display: "flex", flexDirection: "column" }}>
             <Radio.Group
               value={props.paymentMethod}
               onChange={(e) => changePaymentMethod(e.target.value)}
@@ -681,14 +681,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   </span>
                 </div>
               )}
-          </div>
+          </div> */}
 
-          <Row gutter={24} hidden={props.paymentMethod !== 2}>
-            <Col xs={24} lg={24}>
+          <Row gutter={24} hidden={props.paymentMethod === 2}>
+            {/* <Col xs={24} lg={24}>
               <div className="form-group form-group-with-search">
                 <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
               </div>
-            </Col>
+            </Col> */}
             <Col xs={24} lg={24}>
               <Row
                 className="btn-list-method"
@@ -951,7 +951,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       htmlType="submit"
                       onClick={ShowConfirmPayment}
                     >
-                      Thanh toán
+                      Tạo thanh toán
                     </Button>
 
                     <Button

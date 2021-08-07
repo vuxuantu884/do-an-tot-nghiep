@@ -762,12 +762,24 @@ export const checkPaymentAll = (items: OrderResponse) => {
   }
 };
 
-export const getDateLastPayment = (items: OrderResponse) => {
+// export const getDateLastPayment = (items: OrderResponse) => {
+//   let value: Date | undefined;
+//   if (items !== null) {
+//     if (items.payments !== null) {
+//       if (items.payments.length > 0) {
+//         items.payments.forEach((a) => (value = a.created_date));
+//       }
+//     }
+//   }
+//   return value;
+// };
+
+export const getDateLastPayment = (items: any) => {
   let value: Date | undefined;
   if (items !== null) {
-    if (items.payments !== null) {
-      if (items.payments.length > 0) {
-        items.payments.forEach((a) => (value = a.created_date));
+    if (items !== null) {
+      if (items.length > 0) {
+        items.forEach((a: any) => (value = a.created_date));
       }
     }
   }

@@ -85,6 +85,7 @@ import { setTimeout } from "timers";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { StoreResponse } from "model/core/store.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import OrderDetail from './../order-detail';
 const { Panel } = Collapse;
 const { Link } = Typography;
 
@@ -920,7 +921,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       <Col md={24}>
                         <Col span={24}>
                           <b>
-                            <img src={storeBluecon} alt="" /> NHẬN TẠI CỬA HÀNG
+                            <img style={{marginRight: 12}} src={storeBluecon} alt="" />NHẬN TẠI CỬA HÀNG
                           </b>
                         </Col>
                       </Col>
@@ -1218,7 +1219,17 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 Đổi trả hàng
               </Button>
             ) : (
-              <Button
+              <>{props.OrderDetail.fulfillments[0].shipment.delivery_service_provider_type === "pick_at_store" ? <Button
+              type="default"
+              className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
+              style={{
+                color: "#737373",
+                border: "1px solid #E5E5E5",
+                padding: "0 25px",
+              }}
+            >
+              Hủy
+            </Button> : <Button
                 type="default"
                 className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                 style={{
@@ -1228,7 +1239,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 }}
               >
                 Hủy giao hàng
-              </Button>
+              </Button>}</>
+              
             )}
             {props.stepsStatusValue === OrderStatus.FINALIZED &&
               props.OrderDetail.fulfillments[0].shipment
@@ -1271,7 +1283,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 ?.delivery_service_provider_type != "pick_at_store" && (
                 <Button
                   type="primary"
-                  style={{ marginLeft: "10px" }}
+                  style={{ marginLeft: "10px", padding: "0 25px" }}
                   className="create-button-custom ant-btn-outline fixed-button"
                   onClick={() => setIsvibleShippingConfirm(true)}
                 >
@@ -1294,7 +1306,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 ?.delivery_service_provider_type == "pick_at_store" && (
                 <Button
                   type="primary"
-                  style={{ marginLeft: "10px" }}
+                  style={{ marginLeft: "10px", padding: "0 25px" }}
                   className="create-button-custom ant-btn-outline fixed-button"
                   onClick={() => setIsvibleShippedConfirm(true)}
                 >
@@ -1311,20 +1323,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               <div className="d-flex">
                 <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
               </div>
-              {props.OrderDetail?.fulfillments &&
-                props.OrderDetail?.fulfillments.length > 0 && (
-                  <Tag
-                    className="orders-tag text-menu"
-                    style={{
-                      color: "#FCAF17",
-                      backgroundColor: "rgba(252, 175, 23, 0.1)",
-                    }}
-                  >
-                    {props.OrderDetail?.fulfillment_status !== null
-                      ? props.OrderDetail?.fulfillment_status
-                      : "Chưa giao hàng"}
-                  </Tag>
-                )}
+
             </Space>
           }
         >
@@ -1826,7 +1825,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 {shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
                   <div className="receive-at-store">
                     <b>
-                      <img src={storeBluecon} alt="" /> THÔNG TIN CỬA HÀNG
+                      <img  style={{marginRight: 12}} src={storeBluecon} alt="" /> THÔNG TIN CỬA HÀNG
                     </b>
 
                     <Row style={{ paddingTop: "19px" }}>
