@@ -5,30 +5,67 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { Button, Card, Col, Form, Progress, Row, Timeline } from "antd";
+import { PoPaymentUpdateAction } from "domain/actions/po/po-payment.action";
 import { POField } from "model/purchase-order/po-field";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import React, { useCallback, useState } from "react";
+import { AiOutlinePlus } from "react-icons/ai";
+import { useDispatch } from "react-redux";
 import PaymentModal from "screens/purchase-order/modal/payment.modal";
 import { formatCurrency } from "utils/AppUtils";
 import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
 
 type POPaymentFormProps = {
   poId: number;
+  loadDetail: (poId: number, isLoading: boolean) => void;
 };
 const POPaymentForm: React.FC<POPaymentFormProps> = (
   props: POPaymentFormProps
 ) => {
+  const dispatch = useDispatch();
   const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
+  const [loadingApproval,setLoaddingApproval]=useState<Array<boolean>>([]);
 
   const CancelPaymentModal = useCallback(() => {
     setVisiblePaymentModal(false);
   }, []);
-  const OkPaymentModal = useCallback(() => {
-    setVisiblePaymentModal(false);
-  }, []);
+  const OkPaymentModal = useCallback(
+    (isReload: boolean) => {
+      setVisiblePaymentModal(false);
+      if (isReload) {
+        props.loadDetail(props.poId, false);
+      }
+    },
+    [props]
+  );
+
+  const updateCallback = useCallback((result: PurchasePayments | null) => {
+    if (result !== null && result !== undefined) {
+      showSuccess("cập nhật dữ liệu thành công");
+      props.loadDetail(props.poId, false);
+    }
+  }, [props]);
+  const onApprovalPayment = useCallback(
+    (item: PurchasePayments,index:number) => {
+      if (item.id) {
+        const newLoadings = [...loadingApproval];
+        newLoadings[index] = true;
+        setLoaddingApproval(newLoadings);
+        let newItem={...item};
+        newItem.status = PoPaymentStatus.PAID;
+        dispatch(
+          PoPaymentUpdateAction(props.poId, item.id, newItem, updateCallback)
+        );
+
+      
+      }
+    },
+    [dispatch, loadingApproval, props.poId, updateCallback]
+  );
   const ShowPaymentModal = useCallback(() => {
     setPaymentItem(undefined);
     setVisiblePaymentModal(true);
@@ -48,8 +85,20 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           </div>
         }
         extra={
-          <Button onClick={ShowPaymentModal}>
-            <PlusOutlined style={{ fontSize: "18px" }} />
+          // <Button onClick={ShowPaymentModal}>
+          //   <PlusOutlined style={{ fontSize: "18px" }} />
+          //   Tạo thanh toán
+          // </Button>
+          <Button
+            onClick={ShowPaymentModal}
+            style={{
+              alignItems: "center",
+              display: "flex",
+            }}
+            icon={<AiOutlinePlus size={16} />}
+            type="primary"
+            className="create-button-custom ant-btn-outline fixed-button"
+          >
             Tạo thanh toán
           </Button>
         }
@@ -210,7 +259,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                     return (
                       payments && (
                         <Timeline>
-                          {payments.map((item) => (
+                          {payments.map((item,index) => (
                             <Timeline.Item
                               className={
                                 item.status === PoPaymentStatus.PAID
@@ -222,7 +271,10 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                 <Col md={8}>
                                   <div className="timeline__colTitle">
                                     <h3 className="po-payment-row-title">
-                                     {item.payment_method_code===PoPaymentMethod.BANK_TRANSFER?"Chuyển khoản":"Tiền mặt"}
+                                      {item.payment_method_code ===
+                                      PoPaymentMethod.BANK_TRANSFER
+                                        ? "Chuyển khoản"
+                                        : "Tiền mặt"}
                                     </h3>
                                     <div>
                                       Yêu cầu thanh toán: <br />
@@ -268,7 +320,11 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                         />{" "}
                                         Sửa
                                       </Button>
-                                      <Button type="primary">
+                                      <Button
+                                        type="primary"
+                                        onClick={() => onApprovalPayment(item,index)}
+                                        loading={loadingApproval[index]}
+                                      >
                                         <CheckCircleOutlined
                                           style={{ fontSize: "18px" }}
                                         />{" "}
