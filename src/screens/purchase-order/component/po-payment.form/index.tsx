@@ -213,7 +213,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                           {payments.map((item) => (
                             <Timeline.Item
                               className={
-                                item.status === PoPaymentStatus.CONFIRMED
+                                item.status === PoPaymentStatus.PAID
                                   ? "timeline__isFinished"
                                   : ""
                               }
@@ -242,7 +242,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                       : ""}
                                   </strong>
                                 </Col>
-                                {item.status === PoPaymentStatus.CONFIRMED ? (
+                                {item.status === PoPaymentStatus.PAID ? (
                                   <Col md={8}>
                                     <div className="timeline__status">
                                       <CheckCircleOutlined

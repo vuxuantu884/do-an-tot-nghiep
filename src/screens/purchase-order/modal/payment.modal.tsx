@@ -11,7 +11,7 @@ import {
   PoPaymentCreateAction,
   PoPaymentUpdateAction,
 } from "domain/actions/po/po-payment.action";
-import { PoPaymentMethod } from "utils/Constants";
+import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
 
 type PaymentModalProps = {
   visible: boolean;
@@ -25,9 +25,9 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   props: PaymentModalProps
 ) => {
   const dispatch = useDispatch();
-  const { poId,purchasePayment, visible, onCancel, onOk } = props;
+  const { poId, purchasePayment, visible, onCancel, onOk } = props;
   const [formPayment] = Form.useForm();
-
+ 
   const onOkPress = useCallback(() => {
     // onOk();
     formPayment.submit();
@@ -61,18 +61,10 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       let data = formPayment.getFieldsValue(true);
       debugger;
       if (data.id) {
-        dispatch(
-          PoPaymentUpdateAction(
-            poId,
-            data.id,
-            values,
-            updateCallback
-          )
-        );
+        dispatch(PoPaymentUpdateAction(poId, data.id, values, updateCallback));
       } else {
-        dispatch(
-          PoPaymentCreateAction(poId, values, createCallback)
-        );
+        values.status = PoPaymentStatus.UNPAID;
+        dispatch(PoPaymentCreateAction(poId, values, createCallback));
       }
     },
     [createCallback, dispatch, formPayment, poId, updateCallback]
@@ -128,7 +120,10 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               name="payment_method_code"
             >
               <Radio.Group>
-                <Radio value={PoPaymentMethod.BANK_TRANSFER} key={PoPaymentMethod.BANK_TRANSFER}>
+                <Radio
+                  value={PoPaymentMethod.BANK_TRANSFER}
+                  key={PoPaymentMethod.BANK_TRANSFER}
+                >
                   Chuyển khoản
                 </Radio>
                 <Radio value={PoPaymentMethod.CASH} key={PoPaymentMethod.CASH}>

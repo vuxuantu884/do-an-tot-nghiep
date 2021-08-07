@@ -94,8 +94,8 @@ export const ProcumentStatus = {
 }
 
 export const PoPaymentStatus = {
-  DRAFT: 'draft',
-  CONFIRMED: 'finalized',
+  UNPAID: 'unpaid',
+  PAID: 'paid',
 }
 
 export const PoPaymentMethod ={
