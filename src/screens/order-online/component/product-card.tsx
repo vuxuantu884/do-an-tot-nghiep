@@ -26,7 +26,8 @@ import React, {
   useLayoutEffect,
   useState,
   useMemo,
-  createRef,useEffect
+  createRef,
+  useEffect,
 } from "react";
 import { SearchOutlined, EditOutlined } from "@ant-design/icons";
 import DiscountGroup from "./discount-group";
@@ -114,13 +115,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
   const [counpon, setCounpon] = useState<string>("");
   //Function
   useEffect(() => {
-    let _itemGifts : any =  []
+    let _itemGifts: any = [];
     for (let i = 0; i < items.length; i++) {
-      _itemGifts =  [..._itemGifts, ... items[i].gifts]
+      _itemGifts = [..._itemGifts, ...items[i].gifts];
     }
-    props.setItemGift(_itemGifts)
-  }, [items])
-  
+    props.setItemGift(_itemGifts);
+  }, [items]);
+
   const showAddGiftModal = useCallback(
     (index: number) => {
       setIndexItem(index);
@@ -290,12 +291,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               </div>
             </div>
           </div>
-          <div>
+          <div style={{marginTop: 2}}>
             {l.gifts.map((a, index1) => (
               <div key={index1} className="yody-pos-addition yody-pos-gift">
                 <div>
-                  <img src={giftIcon} alt="" /> {a.variant}{" "}
-                  <span>({a.quantity})</span>
+                  <img src={giftIcon} alt="" />
+                  <i style={{marginLeft: 7}}>
+                    {a.variant} ({a.quantity})
+                  </i>
                 </div>
               </div>
             ))}
@@ -439,21 +442,25 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       </div>
     ),
     width: "12%",
-    className: "yody-table-action text-center",
+    className: "saleorder-product-card-action ",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const menu = (
-        <Menu className="yody-line-item-action-menu">
+        <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
           <Menu.Item key="0">
             <Button
               type="text"
               onClick={() => showAddGiftModal(index)}
               className=""
-              style={{padding: 0, background: "transparent", border: "none"}}
+              style={{
+                paddingLeft: 24,
+                background: "transparent",
+                border: "none",
+              }}
             >
               Thêm quà tặng
             </Button>
           </Menu.Item>
-          <Divider style={{margin: "0"}}/>
+          <Divider style={{ margin: "0" }} />
           <Menu.Item key="1">
             <Button
               type="text"
@@ -463,7 +470,11 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
                 setItems(_items);
               }}
               className=""
-              style={{padding: 0, background: "transparent", border: "none"}}
+              style={{
+                paddingLeft: 24,
+                background: "transparent",
+                border: "none",
+              }}
             >
               Thêm ghi chú
             </Button>
@@ -471,7 +482,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
         </Menu>
       );
       return (
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "0 4px",
+          }}
+        >
           <div
             className="site-input-group-wrapper saleorder-input-group-wrapper"
             style={{
@@ -483,22 +500,19 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               trigger={["click"]}
               placement="bottomRight"
             >
-              <Button
-                type="text"
-                className="p-0 ant-btn-custom"
-                style={{ height: 36, width: 32, border: "1px solid #E5E5E5" }}
-              >
-                <img src={arrowDownIcon} alt="" style={{width: 17}}/>
+              <Button type="text" className="p-0 ant-btn-custom" style={{}}>
+                <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
               </Button>
             </Dropdown>
           </div>
-          <div>
+          <div className="saleorder-close-btn">
             <Button
+              style={{ background: "transparent" }}
               type="text"
               className="p-0 ant-btn-custom"
               onClick={() => onDeleteItem(index)}
             >
-              <img src={Xclosebtn} alt="" style={{width: 22}}/>
+              <img src={Xclosebtn} alt="" style={{ width: 22 }} />
             </Button>
           </div>
         </div>
@@ -551,7 +565,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       tax_rate: taxRate,
       show_note: false,
       gifts: [],
-      position: undefined
+      position: undefined,
     };
     return orderLine;
   };
@@ -585,7 +599,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
       let index = _items.findIndex((i) => i.variant_id === newV);
       let r: VariantResponse = resultSearchVariant.items[indexSearch];
       const item: OrderLineItemRequest = createItem(r);
-      item.position = items.length + 1
+      item.position = items.length + 1;
       if (r.id === newV) {
         if (splitLine || index === -1) {
           _items.push(item);
@@ -702,7 +716,6 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     [items]
   );
 
-
   const onCancleConfirm = useCallback(() => {
     setVisibleGift(false);
   }, []);
@@ -711,11 +724,13 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     setVisibleGift(false);
     let _items = [...items];
     let _itemGifts = [...itemGifts];
-    _itemGifts.forEach((itemGift) => itemGift.position = _items[indexItem].position);
+    _itemGifts.forEach(
+      (itemGift) => (itemGift.position = _items[indexItem].position)
+    );
     _items[indexItem].gifts = itemGifts;
     setItems(_items);
   }, [items, itemGifts, indexItem]);
-  
+
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
@@ -960,9 +975,14 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
             </div>
           </Col>
           <Col xs={24} lg={10}>
-            <Row className="payment-row" style={{justifyContent: "space-between" }}>
+            <Row
+              className="payment-row"
+              style={{ justifyContent: "space-between" }}
+            >
               <div className="font-weight-500">Tổng tiền:</div>
-              <div className="font-weight-500" style={{fontWeight: 500 }}>{formatCurrency(amount)}</div>
+              <div className="font-weight-500" style={{ fontWeight: 500 }}>
+                {formatCurrency(amount)}
+              </div>
             </Row>
 
             <Row className="payment-row" justify="space-between" align="middle">

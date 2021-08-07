@@ -1,5 +1,15 @@
 //#region Import
-import { Button, Card, Row, Col, Space, Divider, Tag, Collapse } from "antd";
+import {
+  Button,
+  Card,
+  Row,
+  Col,
+  Space,
+  Divider,
+  Tag,
+  Collapse,
+  Typography,
+} from "antd";
 import UpdatePaymentCard from "./component/update-payment-card";
 import React, {
   useState,
@@ -11,9 +21,7 @@ import React, {
 import { useDispatch } from "react-redux";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { AccountResponse } from "model/account/account.model";
-import {
-  AccountSearchAction,
-} from "domain/actions/account/account.action";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderDetailAction } from "domain/actions/order/order.action";
 import doubleArrow from "assets/icon/double_arrow.svg";
@@ -35,6 +43,7 @@ import {
   getDateLastPayment,
   SumCOD,
 } from "utils/AppUtils";
+import historyAction from "assets/icon/action-history.svg";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import UrlConfig from "config/UrlConfig";
@@ -78,8 +87,10 @@ const OrderDetail = () => {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
+  const [paymentDataSorted, setPaymentDataSorted] = useState([]);
   //#endregion
   //#region Orther
+  console.log(paymentDataSorted);
   const onPaymentSelect = (paymentType: number) => {
     if (paymentType === 1) {
       setVisibleShipping(true);
@@ -90,7 +101,7 @@ const OrderDetail = () => {
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     setPayments(value);
   };
-console.log(OrderDetail)
+  console.log(OrderDetail);
   const changeShippingFeeInformedCustomer = (value: number | null) => {
     if (value) {
       setShippingFeeInformedCustomer(value);
@@ -105,6 +116,9 @@ console.log(OrderDetail)
   const stepsStatus = () => {
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
+    }
+    if(OrderDetail?.status === OrderStatus.FINISHED){
+      return FulFillmentStatus.SHIPPED;;
     }
     if (OrderDetail?.status === OrderStatus.FINALIZED) {
       if (
@@ -140,11 +154,14 @@ console.log(OrderDetail)
           }
         }
       }
+    } else if (OrderDetail?.status === OrderStatus.FINISHED) {
+      return FulFillmentStatus.SHIPPED;
     }
   };
 
   // tag status
   let stepsStatusValue = stepsStatus();
+
   //#region Product
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -246,6 +263,22 @@ console.log(OrderDetail)
     };
   }, [scroll]);
 
+  useEffect(() => {
+    let _paymentData: any = [];
+    let paymentData: any = OrderDetail?.payments?.filter(
+      (item) => item.payment_method !== "cod"
+    );
+    let obj = paymentData?.length > 0 && paymentData.reduce((res: any, curr: any) => {
+      if (res[curr.created_date.toString()])
+        res[curr.created_date.toString()].push(curr);
+      else Object.assign(res, { [curr.created_date.toString()]: [curr] });
+      return res;
+    }, {});
+    for (let key in obj) {
+      _paymentData.push(obj[key]);
+    }
+    setPaymentDataSorted(_paymentData);
+  }, [setPaymentDataSorted, OrderDetail]);
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -264,7 +297,7 @@ console.log(OrderDetail)
         },
       ]}
       extra={
-        <CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail}/>
+        <CreateBillStep status={stepsStatusValue} orderDetail={OrderDetail} />
       }
     >
       <div className="orders">
@@ -294,6 +327,7 @@ console.log(OrderDetail)
               setOfficeTime={setOfficeTime}
               setVisibleShipping={setVisibleShipping}
               OrderDetail={OrderDetail}
+              customerDetail={customerDetail}
               storeDetail={storeDetail}
               stepsStatusValue={stepsStatusValue}
               totalPaid={totalPaid}
@@ -313,7 +347,7 @@ console.log(OrderDetail)
                   className="margin-top-20"
                   title={
                     <Space>
-                      <div className="d-flex" >
+                      <div className="d-flex">
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {checkPaymentStatusToShow(OrderDetail) === -1 && (
@@ -366,6 +400,9 @@ console.log(OrderDetail)
                                 customerNeedToPayValue -
                                   (OrderDetail?.total_paid
                                     ? OrderDetail?.total_paid
+                                    : 0) -
+                                  (OrderDetail?.fulfillments[0].shipment
+                                    ? OrderDetail?.fulfillments[0].shipment?.cod
                                     : 0)
                               )
                             : 0}
@@ -379,6 +416,7 @@ console.log(OrderDetail)
                       <div style={{ padding: "0 24px 24px 24px" }}>
                         <Collapse
                           className="orders-timeline"
+                          defaultActiveKey={["1", "2","3","100"]}
                           expandIcon={({ isActive }) => (
                             <img
                               src={doubleArrow}
@@ -397,112 +435,172 @@ console.log(OrderDetail)
                           OrderDetail.total === OrderDetail.total_paid ? (
                             ""
                           ) : (
-                            <Panel
-                              className="orders-timeline-custom success-collapse"
-                              header={
-                                <span style={{ color: "#222222" }}>
-                                  <b>
-                                    {OrderDetail?.payments &&
-                                      OrderDetail?.payments
+                            <>
+                              {paymentDataSorted.map(
+                                (paymentData: any, index: number) => (
+                                  <Panel
+                                    className="orders-timeline-custom success-collapse"
+                                    header={
+                                      <span style={{ color: "#222222" }}>
+                                        <b>
+                                          {paymentData
+                                            .filter(
+                                              (payment: any) =>
+                                                payment.payment_method !==
+                                                  "cod" && payment.amount
+                                            )
+                                            .map(
+                                              (item: any, index: number) =>
+                                                item.payment_method +
+                                                (index ===
+                                                (item.length > 0
+                                                  ? item.length
+                                                  : 0) -
+                                                  1
+                                                  ? ""
+                                                  : ", ")
+                                            )}
+                                        </b>
+                                      </span>
+                                    }
+                                    key={index + 1}
+                                    extra={
+                                      <>
+                                        {paymentData && (
+                                          <div>
+                                            <span
+                                              className="fixed-time text-field"
+                                              style={{ color: "#737373" }}
+                                            >
+                                              {ConvertUtcToLocalDate(
+                                                getDateLastPayment(paymentData),
+                                                "DD/MM/YYYY HH:mm"
+                                              )}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </>
+                                    }
+                                  >
+                                    <Row gutter={24}>
+                                      {paymentData
                                         .filter(
-                                          (payment, index) =>
+                                          (payment: any) =>
                                             payment.payment_method !== "cod" &&
                                             payment.amount
                                         )
-                                        .map(
-                                          (item, index) =>
-                                            item.payment_method +
-                                            (index ===
-                                            (OrderDetail?.payments &&
-                                            OrderDetail?.payments.length > 0
-                                              ? OrderDetail?.payments.length
-                                              : 0) -
-                                              1
-                                              ? ""
-                                              : ", ")
-                                        )}
-                                  </b>
-                                </span>
+                                        .map((item: any) => (
+                                          <Col span={6} key={item.code}>
+                                            <>
+                                              <p
+                                                style={{
+                                                  color: "#737373",
+                                                  marginBottom: 10,
+                                                }}
+                                              >
+                                                {item.payment_method}
+                                              </p>
+                                              <b>
+                                                {formatCurrency(
+                                                  item.paid_amount
+                                                )}
+                                              </b>
+                                            </>
+                                            {item.payment_method_id === 3 && (
+                                              <p>{item.reference}</p>
+                                            )}
+                                            {item.payment_method_id === 5 && (
+                                              <p>
+                                                {Math.round(item.amount / 1000)}{" "}
+                                                điểm
+                                              </p>
+                                            )}
+                                          </Col>
+                                        ))}
+                                    </Row>
+                                  </Panel>
+                                )
+                              )}
+                            </>
+                          )}
+                          {isShowPaymentPartialPayment && OrderDetail !== null && (
+                            <Panel
+                              className="orders-timeline-custom orders-dot-status"
+                              showArrow={false}
+                              header={
+                                <b
+                                  style={{
+                                    paddingLeft: "14px",
+                                    color: "#222222",
+                                    textTransform: "uppercase",
+                                  }}
+                                >
+                                  Lựa chọn 1 hoặc nhiều phương thức thanh toán
+                                </b>
                               }
-                              key="1"
-                              extra={
-                                <>
-                                  {OrderDetail?.payments && (
-                                    <div>
-                                      <span
-                                        className="fixed-time text-field"
-                                        style={{ color: "#737373" }}
-                                      >
-                                        {ConvertUtcToLocalDate(
-                                          getDateLastPayment(OrderDetail),
-                                          "DD/MM/YYYY HH:mm"
-                                        )}
-                                      </span>
-                                    </div>
-                                  )}
-                                </>
-                              }
+                              key="2"
                             >
-                              <Row gutter={24}>
-                                {OrderDetail?.payments &&
-                                  OrderDetail?.payments
-                                    .filter(
-                                      (payment) =>
-                                        payment.payment_method !== "cod" &&
-                                        payment.amount
-                                    )
-                                    .map((item, index) => (
-                                      <Col span={6} key={item.code}>
-                                        <>
-                                          <p
-                                            style={{
-                                              color: "#737373",
-                                              marginBottom: 10,
-                                            }}
-                                          >
-                                            {item.payment_method}
-                                          </p>
-                                          <b>
-                                            {formatCurrency(item.paid_amount)}
-                                          </b>
-                                        </>
-                                        {item.payment_method_id === 3 && (
-                                          <p>{item.reference}</p>
-                                        )}
-                                        {item.payment_method_id === 5 && (
-                                          <p>
-                                            {Math.round(item.amount / 1000)}{" "}
-                                            điểm
-                                          </p>
-                                        )}
-                                      </Col>
-                                    ))}
-                              </Row>
+                              {isShowPaymentPartialPayment &&
+                                OrderDetail !== null && (
+                                  <UpdatePaymentCard
+                                    setSelectedPaymentMethod={onPaymentSelect}
+                                    setVisibleUpdatePayment={
+                                      setVisibleUpdatePayment
+                                    }
+                                    setPayments={onPayments}
+                                    setTotalPaid={setTotalPaid}
+                                    orderDetail={OrderDetail}
+                                    paymentMethod={paymentType}
+                                    shipmentMethod={shipmentMethod}
+                                    order_id={OrderDetail.id}
+                                    showPartialPayment={true}
+                                    isVisibleUpdatePayment={
+                                      isVisibleUpdatePayment
+                                    }
+                                    amount={
+                                      OrderDetail.total_line_amount_after_line_discount -
+                                      getAmountPayment(OrderDetail.payments) -
+                                      (OrderDetail?.discounts &&
+                                      OrderDetail?.discounts.length > 0 &&
+                                      OrderDetail?.discounts[0].amount
+                                        ? OrderDetail?.discounts[0].amount
+                                        : 0)
+                                    }
+                                  />
+                                )}
                             </Panel>
                           )}
-
-                          {OrderDetail &&
-                            OrderDetail.fulfillments &&
-                            OrderDetail.fulfillments.length > 0 &&
-                            OrderDetail.fulfillments[0].shipment &&
-                            OrderDetail.fulfillments[0].shipment.cod && (
+                          {OrderDetail?.fulfillments &&
+                            OrderDetail?.fulfillments.length > 0 &&
+                            OrderDetail?.fulfillments[0].shipment &&
+                            OrderDetail?.fulfillments[0].shipment.cod && (
                               <Panel
+                                
                                 className={
                                   OrderDetail?.fulfillments[0].status !==
                                   "shipped"
                                     ? "orders-timeline-custom orders-dot-status"
-                                    : "orders-timeline-custom"
+                                    : "orders-timeline-custom "
                                 }
                                 showArrow={false}
                                 header={
                                   <>
                                     <b
                                       style={{
-                                        paddingLeft: "14px",
+                                        paddingLeft: "4px",
                                         color: "#222222",
                                       }}
                                     >
                                       COD
+                                      {OrderDetail.fulfillments[0].status !==
+                                        "shipped" && (
+                                        <Tag
+                                          className="orders-tag orders-tag-warning"
+                                          style={{ marginLeft: 10 }}
+                                        >
+                                          Đang chờ thu
+                                        </Tag>
+                                      )}
                                     </b>
                                     <b
                                       style={{
@@ -530,7 +628,7 @@ console.log(OrderDetail)
                                           style={{ color: "#737373" }}
                                         >
                                           {ConvertUtcToLocalDate(
-                                            getDateLastPayment(OrderDetail),
+                                            OrderDetail?.updated_date,
                                             "DD/MM/YYYY HH:mm"
                                           )}
                                         </span>
@@ -538,35 +636,14 @@ console.log(OrderDetail)
                                     )}
                                   </>
                                 }
-                                key="2"
+                                key="100"
                               ></Panel>
                             )}
                         </Collapse>
                       </div>{" "}
                     </div>
                   )}
-                  {isShowPaymentPartialPayment && OrderDetail !== null && (
-                    <UpdatePaymentCard
-                      setSelectedPaymentMethod={onPaymentSelect}
-                      setVisibleUpdatePayment={setVisibleUpdatePayment}
-                      setPayments={onPayments}
-                      setTotalPaid={setTotalPaid}
-                      orderDetail={OrderDetail}
-                      paymentMethod={paymentType}
-                      order_id={OrderDetail.id}
-                      showPartialPayment={true}
-                      isVisibleUpdatePayment={isVisibleUpdatePayment}
-                      amount={
-                        OrderDetail.total_line_amount_after_line_discount -
-                        getAmountPayment(OrderDetail.payments) -
-                        (OrderDetail?.discounts &&
-                        OrderDetail?.discounts.length > 0 &&
-                        OrderDetail?.discounts[0].amount
-                          ? OrderDetail?.discounts[0].amount
-                          : 0)
-                      }
-                    />
-                  )}
+
                   {(OrderDetail?.fulfillments &&
                     OrderDetail?.fulfillments.length > 0 &&
                     OrderDetail?.fulfillments[0].shipment &&
@@ -610,7 +687,7 @@ console.log(OrderDetail)
                   className="margin-top-20"
                   title={
                     <Space>
-                      <div className="d-flex" >
+                      <div className="d-flex">
                         <span className="title-card">THANH TOÁN</span>
                       </div>
                       {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (
@@ -650,11 +727,12 @@ console.log(OrderDetail)
                           Còn phải trả:
                         </span>
                         <b style={{ color: "red" }}>
-                          {OrderDetail && OrderDetail?.fulfillments && OrderDetail.fulfillments[0].shipment?.cod !== 0
+                          0
+                          {/* {OrderDetail && OrderDetail?.fulfillments && OrderDetail.fulfillments[0].shipment?.cod !== 0
                             ? formatCurrency(
                                 OrderDetail.fulfillments[0].shipment?.cod
                               )
-                            : 0}
+                            : 0} */}
                         </b>
                       </Col>
                     </Row>
@@ -740,6 +818,7 @@ console.log(OrderDetail)
                   setSelectedPaymentMethod={onPaymentSelect}
                   setPayments={onPayments}
                   paymentMethod={paymentType}
+                  shipmentMethod={shipmentMethod}
                   amount={OrderDetail.total + shippingFeeInformedCustomer}
                   order_id={OrderDetail.id}
                   orderDetail={OrderDetail}
@@ -777,28 +856,42 @@ console.log(OrderDetail)
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Điện thoại:</Col>
                   <Col span={15}>
-                    <span style={{ fontWeight: 500, color: "#222222" }} >{OrderDetail?.customer_phone_number}</span>
+                    <span style={{ fontWeight: 500, color: "#222222" }}>
+                      {OrderDetail?.customer_phone_number}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Địa chỉ:</Col>
                   <Col span={15}>
-                    <span style={{ fontWeight: 500, color: "#222222" }}>{OrderDetail?.shipping_address?.full_address}</span>
+                    <span style={{ fontWeight: 500, color: "#222222" }}>
+                      {OrderDetail?.shipping_address?.full_address}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>NVBH:</Col>
                   <Col span={15}>
-                    <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">{OrderDetail?.assignee}</span>
+                    <span
+                      style={{ fontWeight: 500, color: "#222222" }}
+                      className="text-focus"
+                    >
+                      {OrderDetail?.assignee}
+                    </span>
                   </Col>
                 </Row>
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Người tạo:</Col>
                   <Col span={15}>
-                    <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">{OrderDetail?.account}</span>
+                    <span
+                      style={{ fontWeight: 500, color: "#222222" }}
+                      className="text-focus"
+                    >
+                      {OrderDetail?.account}
+                    </span>
                   </Col>
                 </Row>
-                <Row className="margin-top-10" gutter={5}>
+                {/* <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Thời gian:</Col>
                   <Col span={15}>
                     <span style={{ fontWeight: 500, color: "#222222" }}>
@@ -807,10 +900,10 @@ console.log(OrderDetail)
                       )}
                     </span>
                   </Col>
-                </Row>
+                </Row> */}
                 <Row className="margin-top-10" gutter={5}>
                   <Col span={9}>Đường dẫn:</Col>
-                  <Col span={15} style={{wordWrap: "break-word"}}>
+                  <Col span={15} style={{ wordWrap: "break-word" }}>
                     {OrderDetail?.url ? (
                       <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
                     ) : (
@@ -830,10 +923,19 @@ console.log(OrderDetail)
               }
             >
               <div className="padding-24">
-                <Row className="" gutter={5} style={{flexDirection: "column"}}>
-                  <Col span={24} style={{marginBottom: 6}} ><b>Ghi chú nội bộ:</b></Col>
+                <Row
+                  className=""
+                  gutter={5}
+                  style={{ flexDirection: "column" }}
+                >
+                  <Col span={24} style={{ marginBottom: 6 }}>
+                    <b>Ghi chú nội bộ:</b>
+                  </Col>
                   <Col span={24}>
-                    <span className="text-focus" style={{wordWrap: "break-word"}}>
+                    <span
+                      className="text-focus"
+                      style={{ wordWrap: "break-word" }}
+                    >
                       {OrderDetail?.note !== ""
                         ? OrderDetail?.note
                         : "Không có ghi chú"}
@@ -841,18 +943,30 @@ console.log(OrderDetail)
                   </Col>
                 </Row>
 
-                <Row className="margin-top-10" gutter={5} style={{flexDirection: "column"}}>
-                  <Col span={24} style={{marginBottom: 6}}><b>Tags:</b></Col>
+                <Row
+                  className="margin-top-10"
+                  gutter={5}
+                  style={{ flexDirection: "column" }}
+                >
+                  <Col span={24} style={{ marginBottom: 6 }}>
+                    <b>Tags:</b>
+                  </Col>
                   <Col span={24}>
                     <span className="text-focus">
                       {OrderDetail?.tags
-                        ? OrderDetail?.tags.split(",").map((item, index) => <Tag
-                        key={index}
-                        className="orders-tag"
-                        style={{ backgroundColor: "#F5F5F5", color: "#737373", padding: "5px 10px" }}
-                      >
-                       {item}
-                      </Tag>)
+                        ? OrderDetail?.tags.split(",").map((item, index) => (
+                            <Tag
+                              key={index}
+                              className="orders-tag"
+                              style={{
+                                backgroundColor: "#F5F5F5",
+                                color: "#737373",
+                                padding: "5px 10px",
+                              }}
+                            >
+                              {item}
+                            </Tag>
+                          ))
                         : "Không có tags"}
                     </span>
                   </Col>
@@ -860,8 +974,30 @@ console.log(OrderDetail)
               </div>
             </Card>
             <Card className="margin-top-20">
-              <div className="padding-24">
-                <span className="text-focus">Lịch sử thao tác đơn hàng</span>
+              <div
+                className=""
+                style={{
+                  padding: "13px 0 15px 22px",
+                  fontSize: "13px",
+                  height: 46,
+                }}
+              >
+                <Typography.Link style={{ display: "flex" }}>
+                  <img
+                    src={historyAction}
+                    style={{ width: 20, height: 20 }}
+                  ></img>
+                  <span
+                    className="text-focus"
+                    style={{
+                      marginLeft: 10,
+                      color: "#5D5D8A",
+                      lineHeight: "20px",
+                    }}
+                  >
+                    Lịch sử thao tác đơn hàng
+                  </span>
+                </Typography.Link>
               </div>
             </Card>
           </Col>

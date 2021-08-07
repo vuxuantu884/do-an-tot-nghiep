@@ -1,7 +1,8 @@
 import { Checkbox, Form, Input, Select } from "antd";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { CustomModalFormModel } from "model/modal/modal.model";
 import { OrderSourceCompanyModel } from "model/response/order/order-source.response";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { StyledComponent } from "./styles";
 
 type FormValueType = {
@@ -10,8 +11,8 @@ type FormValueType = {
   company_id: number;
   company: string;
   name: string;
-  is_active: boolean;
-  is_default: boolean;
+  active: boolean;
+  default: boolean;
 };
 
 const FormOrderSource: React.FC<CustomModalFormModel> = (
@@ -22,6 +23,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
     channel: "Admin",
   };
   const { modalAction, formItem, form, visible, ...args } = props;
+  const [isVisibleFieldDefault, setIsVisibleFieldDefault] = useState(false);
   const listOrderCompanies: OrderSourceCompanyModel[] =
     args.moreFormArguments.listOrderCompanies;
   const defaultCompanyIndex = 0;
@@ -34,8 +36,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
           company_id: formItem.id,
           company: formItem.company,
           name: formItem.name,
-          is_active: formItem.is_active,
-          is_default: formItem.is_default,
+          active: formItem.active,
+          default: formItem.default,
         }
       : {
           channel_id: DEFAULT_PARAM.channel_id,
@@ -43,8 +45,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
           company_id: listOrderCompanies[defaultCompanyIndex].id,
           company: listOrderCompanies[defaultCompanyIndex].name,
           name: "",
-          is_active: false,
-          is_default: false,
+          active: false,
+          default: false,
         };
 
   /**
@@ -56,6 +58,15 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
     });
     if (selectedCompany) {
       form.setFieldsValue({ company_id: selectedCompany.id });
+    }
+  };
+  /**
+   * when change company, set visible field Default
+   */
+  const handleChangeCheckFieldActive = (checkedValue: CheckboxChangeEvent) => {
+    setIsVisibleFieldDefault(checkedValue.target.checked);
+    if (!checkedValue.target.checked) {
+      form.setFieldsValue({ default: false });
     }
   };
 
@@ -136,16 +147,19 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
           />
         </Form.Item>
         <Form.Item
-          name="is_active"
+          name="active"
           valuePropName="checked"
           style={{ marginBottom: 10 }}
         >
-          <Checkbox>Áp dụng cho đơn hàng</Checkbox>
+          <Checkbox onChange={handleChangeCheckFieldActive}>
+            Áp dụng cho đơn hàng
+          </Checkbox>
         </Form.Item>
         <Form.Item
-          name="is_default"
+          name="default"
           valuePropName="checked"
           style={{ marginBottom: 10 }}
+          className={isVisibleFieldDefault ? "show" : "hidden"}
         >
           <Checkbox>Đặt làm mặc định</Checkbox>
         </Form.Item>
