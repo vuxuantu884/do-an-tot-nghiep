@@ -282,7 +282,7 @@ const PODetailScreen: React.FC = () => {
             />
 
             {poData && poData.status !== POStatus.DRAFT ? (
-              <POPaymentForm />
+              <POPaymentForm poId={parseInt(id)} />
             ) : (
               <POPaymentConditionsForm listPayment={listPaymentConditions} />
             )}
