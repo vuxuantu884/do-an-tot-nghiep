@@ -53,7 +53,7 @@ const OrderSources: React.FC = () => {
             <span
               title={value}
               style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-              className="title"
+              className="title text"
             >
               {value}
             </span>
