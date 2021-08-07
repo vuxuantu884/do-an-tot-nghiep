@@ -85,7 +85,7 @@ import { setTimeout } from "timers";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import { StoreResponse } from "model/core/store.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import OrderDetail from './../order-detail';
+import OrderDetail from "./../order-detail";
 const { Panel } = Collapse;
 const { Link } = Typography;
 
@@ -776,16 +776,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               <div className="d-flex">
                 <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
               </div>
-              {props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.SHIPPED && <Tag
-                className="orders-tag text-menu"
-                style={{
-                  color: "#27AE60",
-                  backgroundColor: "rgba(39, 174, 96, 0.1)",
-                }}
-              >
-              Giao thành công
-              </Tag>}
-              
+              {props.OrderDetail?.fulfillments[0].status ===
+                FulFillmentStatus.SHIPPED && (
+                <Tag
+                  className="orders-tag text-menu"
+                  style={{
+                    color: "#27AE60",
+                    backgroundColor: "rgba(39, 174, 96, 0.1)",
+                  }}
+                >
+                  Giao thành công
+                </Tag>
+              )}
             </Space>
           }
           extra={
@@ -843,7 +845,15 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 className="orders-timeline-custom"
                 showArrow={false}
                 header={
-                  <Row style={{ paddingLeft: 12 }}>
+                  <Row
+                    style={{ paddingLeft: 12 }}
+                    className={
+                      props.OrderDetail?.fulfillments[0].status ===
+                      FulFillmentStatus.SHIPPED
+                        ? "order-shipment-dot-active"
+                        : "order-shipment-dot"
+                    }
+                  >
                     <Col>
                       <span
                         ref={copyRef}
@@ -921,7 +931,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       <Col md={24}>
                         <Col span={24}>
                           <b>
-                            <img style={{marginRight: 12}} src={storeBluecon} alt="" />NHẬN TẠI CỬA HÀNG
+                            <img
+                              style={{ marginRight: 12 }}
+                              src={storeBluecon}
+                              alt=""
+                            />
+                            NHẬN TẠI CỬA HÀNG
                           </b>
                         </Col>
                       </Col>
@@ -1014,8 +1029,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       </Col>
                     )}
 
-                    
-
                     <Col md={5}>
                       <Col span={24}>
                         <p className="text-field">Phí ship trả HVC:</p>
@@ -1079,13 +1092,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   style={{ marginTop: 12, marginBottom: 0, padding: "0 12px" }}
                 >
                   <Col span={24}>
-                    <b className="text-field">
+                    <span className="text-field" style={{ color: "#222222" }}>
                       {props.OrderDetail?.items.reduce(
                         (a: any, b: any) => a + b.quantity,
                         0
                       )}{" "}
                       Sản phẩm
-                    </b>
+                    </span>
                   </Col>
                 </Row>
 
@@ -1141,8 +1154,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               <Col>
                                 <span
                                   style={{ color: "#000000d9", marginRight: 6 }}
-                                >
-                                </span>
+                                ></span>
                               </Col>
                             </Row>
                           }
@@ -1219,28 +1231,34 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 Đổi trả hàng
               </Button>
             ) : (
-              <>{props.OrderDetail.fulfillments[0].shipment.delivery_service_provider_type === "pick_at_store" ? <Button
-              type="default"
-              className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
-              style={{
-                color: "#737373",
-                border: "1px solid #E5E5E5",
-                padding: "0 25px",
-              }}
-            >
-              Hủy
-            </Button> : <Button
-                type="default"
-                className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
-                style={{
-                  color: "#737373",
-                  border: "1px solid #E5E5E5",
-                  padding: "0 25px",
-                }}
-              >
-                Hủy giao hàng
-              </Button>}</>
-              
+              <>
+                {props.OrderDetail.fulfillments[0].shipment
+                  .delivery_service_provider_type === "pick_at_store" ? (
+                  <Button
+                    type="default"
+                    className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
+                    style={{
+                      color: "#737373",
+                      border: "1px solid #E5E5E5",
+                      padding: "0 25px",
+                    }}
+                  >
+                    Hủy
+                  </Button>
+                ) : (
+                  <Button
+                    type="default"
+                    className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
+                    style={{
+                      color: "#737373",
+                      border: "1px solid #E5E5E5",
+                      padding: "0 25px",
+                    }}
+                  >
+                    Hủy giao hàng
+                  </Button>
+                )}
+              </>
             )}
             {props.stepsStatusValue === OrderStatus.FINALIZED &&
               props.OrderDetail.fulfillments[0].shipment
@@ -1323,7 +1341,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               <div className="d-flex">
                 <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
               </div>
-
             </Space>
           }
         >
@@ -1825,15 +1842,20 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 {shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
                   <div className="receive-at-store">
                     <b>
-                      <img  style={{marginRight: 12}} src={storeBluecon} alt="" /> THÔNG TIN CỬA HÀNG
+                      <img
+                        style={{ marginRight: 12 }}
+                        src={storeBluecon}
+                        alt=""
+                      />{" "}
+                      THÔNG TIN CỬA HÀNG
                     </b>
 
                     <Row style={{ paddingTop: "19px" }}>
                       <Col md={3} lg={2}>
                         <div>Tên cửa hàng:</div>
                       </Col>
-                      <b className="row-info-content" >
-                        <Typography.Link style={{color: "#222222"}}>
+                      <b className="row-info-content">
+                        <Typography.Link style={{ color: "#222222" }}>
                           {props.storeDetail?.name}
                         </Typography.Link>
                       </b>
