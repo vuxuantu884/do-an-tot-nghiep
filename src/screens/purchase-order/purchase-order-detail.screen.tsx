@@ -178,6 +178,9 @@ const PODetailScreen: React.FC = () => {
       setIsShowBillStep(false);
     }
   }, []);
+  const onAddProcumentSuccess = useCallback(() => {
+    loadDetail(idNumber, true);
+  }, [idNumber, loadDetail]);
   const renderButton = useMemo(() => {
     switch (status) {
       case POStatus.DRAFT:
@@ -195,7 +198,6 @@ const PODetailScreen: React.FC = () => {
         return null;
     }
   }, [loadingConfirmButton, onConfirmButton, status]);
-
   useEffect(() => {
     dispatch(
       AccountSearchAction(
@@ -275,6 +277,8 @@ const PODetailScreen: React.FC = () => {
             />
             <POProductForm isEdit={true} formMain={formMain} />
             <POInventoryForm
+              onAddProcumentSuccess={onAddProcumentSuccess}
+              idNumber={idNumber}
               isEdit={true}
               now={now}
               status={status}

@@ -371,3 +371,52 @@
     }
   }
 }
+
+.po-inven-view {
+  display: flex;
+  width: 100%;
+  height: 60px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  .active {
+    border: 1px solid #2a2a86;
+    border-bottom: none;
+    height: 55px;
+    padding: 10px;
+    border-radius: 3px 3px 0 0;
+    background-color: white;
+    margin-top: 6px;
+    flex: 1 1;
+    .tab {
+      border: none;
+      color: $primary-color;
+      cursor: default;
+      &-icon {
+        filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg)
+          brightness(66%) contrast(100%);
+      }
+
+    }
+  }
+  .tab {
+    border: 1px solid #e5e5e5;
+    padding: 0 10px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    height: 38px;
+    &-icon {
+      margin-right: 8px;
+    }
+  }
+  
+}
+
+.tab-content {
+  display: none;
+  padding: 22px 0;
+}
+.tab-content.active {
+  display: block;
+}
