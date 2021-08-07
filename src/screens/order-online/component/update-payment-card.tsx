@@ -1,15 +1,14 @@
 // @ts-ignore
 import { Button, Card, Row, Col, Radio, InputNumber, Space, Input } from "antd";
 
-import {
-  BugOutlined,
-  CreditCardOutlined,
-  QrcodeOutlined,
-} from "@ant-design/icons";
+import { BugOutlined } from "@ant-design/icons";
 
+import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
-import WarningIcon from "assets/icon/ydWarningIcon.svg";
+import Caculate from "assets/icon/caculate.svg";
+import CreditCardOutlined from "component/icon/CreditCardOutlined";
+import QrcodeOutlined from "component/icon/QrcodeOutlined";
 // @ts-ignore
 import {
   PaymentMethodGetList,
@@ -23,6 +22,7 @@ import {
   PaymentMethodCode,
   PaymentMethodOption,
   PointConfig,
+  ShipmentMethodOption,
 } from "utils/Constants";
 import {
   formatCurrency,
@@ -45,6 +45,7 @@ type PaymentCardUpdateProps = {
   setTotalPaid: (value: number) => void;
   orderDetail: OrderResponse;
   paymentMethod: number;
+  shipmentMethod: number;
   order_id: number | null;
   showPartialPayment?: boolean;
   isVisibleUpdatePayment: boolean;
@@ -234,15 +235,20 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         onOk={onOkConfirm}
         visible={isibleConfirmPayment}
         icon={WarningIcon}
+        okText="Đồng ý"
+        cancelText="Hủy"
         title="Bạn muốn xác nhận thanh toán cho đơn hàng này?"
         text={textValue}
         order_id={props.order_id}
       />
       {props.showPartialPayment === false && (
         <Card
-          className="margin-top-20"
+          className="margin-top-20 orders-update-payment"
           title={
-            <div className="d-flex" style={{ marginTop: "5px" }}>
+            <div
+              className="d-flex"
+              style={{ marginTop: "5px", border: "none" }}
+            >
               <span className="title-card">THANH TOÁN</span>
             </div>
           }
@@ -265,22 +271,53 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     </Radio>
                   </Space>
                 </Radio.Group>
-                {props.paymentMethod === PaymentMethodOption.COD && (
-                  <div className="order-cod-payment-footer">
-                    <span>
-                      Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
-                      để có thể nhập giá trị Tiền thu hộ
-                    </span>
-                  </div>
-                )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+                    <div className="order-cod-payment-footer">
+                      <span>
+                        Vui lòng chọn hình thức{" "}
+                        <span>Đóng gói và Giao hàng</span> để có thể nhập giá
+                        trị Tiền thu hộ
+                      </span>
+                    </div>
+                  )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod ===
+                    ShipmentMethodOption.DELIVERLATER && (
+                    <div className="order-cod-payment-footer">
+                      <span>
+                        Vui lòng chọn hình thức{" "}
+                        <span>Đóng gói và Giao hàng</span> để có thể nhập giá
+                        trị Tiền thu hộ
+                      </span>
+                    </div>
+                  )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+                    <div
+                      className="order-cod-payment-footer"
+                      style={{ height: 83 }}
+                    >
+                      <div>
+                        <div>
+                          <div>
+                            <img src={Caculate}></img>
+                          </div>
+                        </div>
+                      </div>
+                      <span>
+                        <span>Khách hàng sẽ thanh toán tại quầy!</span>
+                      </span>
+                    </div>
+                  )}
               </div>
 
               <Row gutter={24} hidden={props.paymentMethod !== 2}>
-                <Col xs={24} lg={24}>
+                {/* <Col xs={24} lg={24}>
                   <div className="form-group form-group-with-search">
                     <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
                   </div>
-                </Col>
+                </Col> */}
                 <Col xs={24} lg={24}>
                   <Row
                     className="btn-list-method"
@@ -292,17 +329,31 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       let icon = null;
                       switch (method.code) {
                         case PaymentMethodCode.CASH:
-                          icon = <Cash />;
+                          icon = (
+                            <Cash paymentData={paymentData} method={method} />
+                          );
                           break;
                         case PaymentMethodCode.CARD:
                         case PaymentMethodCode.BANK_TRANSFER:
-                          icon = <CreditCardOutlined />;
+                          icon = (
+                            <CreditCardOutlined
+                              paymentData={paymentData}
+                              method={method}
+                            />
+                          );
                           break;
                         case PaymentMethodCode.QR_CODE:
-                          icon = <QrcodeOutlined />;
+                          icon = (
+                            <QrcodeOutlined
+                              paymentData={paymentData}
+                              method={method}
+                            />
+                          );
                           break;
                         case PaymentMethodCode.POINT:
-                          icon = <YdCoin />;
+                          icon = (
+                            <YdCoin paymentData={paymentData} method={method} />
+                          );
                           break;
                         default:
                           icon = <BugOutlined />;
@@ -311,7 +362,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       return (
                         <Col key={method.code} className="btn-payment-method">
                           <Button
-                            style={{ display: "flex" }}
+                            style={{ padding: 10, display: "flex" }}
                             type={
                               paymentData.some((p) => p.code === method.code)
                                 ? "primary"
@@ -476,7 +527,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     );
                   })}
 
-                  <Row
+                  {/* <Row
                     gutter={20}
                     className="row-price total-customer-pay"
                     style={{ height: 38, margin: "10px 0" }}
@@ -501,14 +552,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     >
                       <span>{formatCurrency(totalAmountPaid)}</span>
                     </Col>
-                  </Row>
+                  </Row> */}
                   <Row
                     gutter={20}
                     className="row-price"
                     style={{ height: 38, margin: "10px 0 0 0" }}
                   >
                     <Col lg={10} xxl={7} style={{ padding: "8px 0" }}>
-                      <b>{moneyReturn > 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
+                      <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                     </Col>
                     <Col
                       className="lbl-money"
@@ -521,7 +572,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       }}
                     >
                       <span
-                        style={{ color: moneyReturn <= 0 ? "blue" : "red" }}
+                        style={{ color: false ? "blue" : "red" }}
                       >
                         {formatCurrency(Math.abs(moneyReturn))}
                       </span>
@@ -534,16 +585,20 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         <Button
                           type="primary"
                           className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right" }}
+                          style={{ float: "right", padding: "0 25px" }}
                           htmlType="submit"
                           onClick={ShowConfirmPayment}
                         >
-                          Tạo thanh toán trước
+                          Tạo thanh toán
                         </Button>
                         <Button
                           type="default"
                           className="ant-btn-outline fixed-button text-right"
-                          style={{ float: "right", marginRight: "10px" }}
+                          style={{
+                            float: "right",
+                            marginRight: "10px",
+                            padding: "0 25px",
+                          }}
                           onClick={canclePayment}
                         >
                           Hủy
@@ -561,13 +616,11 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
               <label
                 className="text-left"
                 style={{ marginTop: "20px", lineHeight: "40px" }}
-              >
-                <i>Chưa tạo thanh toán</i>{" "}
-              </label>
+              ></label>
               <Button
                 type="primary"
                 className="ant-btn-outline fixed-button text-right"
-                style={{ float: "right", marginBottom: "20px" }}
+                style={{ float: "right", padding: "0 25px", marginBottom: 25 }}
                 onClick={ShowPayment}
               >
                 Thanh toán
@@ -578,8 +631,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       )}
 
       {props.showPartialPayment && (
-        <div className="padding-20 create-order-payment">
-          <div style={{ display: "flex", flexDirection: "column" }}>
+        <div className="create-order-payment">
+          {/* <div style={{ display: "flex", flexDirection: "column" }}>
             <Radio.Group
               value={props.paymentMethod}
               onChange={(e) => changePaymentMethod(e.target.value)}
@@ -592,22 +645,50 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 </Radio>
               </Space>
             </Radio.Group>
-            {props.paymentMethod === PaymentMethodOption.COD && (
-              <div className="order-cod-payment-footer">
-                <span>
-                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
-                  có thể nhập giá trị Tiền thu hộ
-                </span>
-              </div>
-            )}
-          </div>
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+                <div className="order-cod-payment-footer">
+                  <span>
+                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
+                    để có thể nhập giá trị Tiền thu hộ
+                  </span>
+                </div>
+              )}
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.DELIVERLATER && (
+                <div className="order-cod-payment-footer">
+                  <span>
+                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
+                    để có thể nhập giá trị Tiền thu hộ
+                  </span>
+                </div>
+              )}
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+                <div
+                  className="order-cod-payment-footer"
+                  style={{ height: 83 }}
+                >
+                  <div>
+                    <div>
+                      <div>
+                        <img src={Caculate}></img>
+                      </div>
+                    </div>
+                  </div>
+                  <span>
+                    <span>Khách hàng sẽ thanh toán tại quầy!</span>
+                  </span>
+                </div>
+              )}
+          </div> */}
 
-          <Row gutter={24} hidden={props.paymentMethod !== 2}>
-            <Col xs={24} lg={24}>
+          <Row gutter={24} hidden={props.paymentMethod === 2}>
+            {/* <Col xs={24} lg={24}>
               <div className="form-group form-group-with-search">
                 <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
               </div>
-            </Col>
+            </Col> */}
             <Col xs={24} lg={24}>
               <Row
                 className="btn-list-method"
@@ -619,17 +700,29 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   let icon = null;
                   switch (method.code) {
                     case PaymentMethodCode.CASH:
-                      icon = <Cash />;
+                      icon = <Cash paymentData={paymentData} method={method} />;
                       break;
                     case PaymentMethodCode.CARD:
                     case PaymentMethodCode.BANK_TRANSFER:
-                      icon = <CreditCardOutlined />;
+                      icon = (
+                        <CreditCardOutlined
+                          paymentData={paymentData}
+                          method={method}
+                        />
+                      );
                       break;
                     case PaymentMethodCode.QR_CODE:
-                      icon = <QrcodeOutlined />;
+                      icon = (
+                        <QrcodeOutlined
+                          paymentData={paymentData}
+                          method={method}
+                        />
+                      );
                       break;
                     case PaymentMethodCode.POINT:
-                      icon = <YdCoin />;
+                      icon = (
+                        <YdCoin paymentData={paymentData} method={method} />
+                      );
                       break;
                     default:
                       icon = <BugOutlined />;
@@ -638,7 +731,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   return (
                     <Col key={method.code} className="btn-payment-method">
                       <Button
-                        style={{ display: "flex" }}
+                        style={{ padding: 10, display: "flex" }}
                         type={
                           paymentData.some((p) => p.code === method.code)
                             ? "primary"
@@ -798,7 +891,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 );
               })}
 
-              <Row
+              {/* <Row
                 gutter={20}
                 className="row-price total-customer-pay"
                 style={{ height: 38, margin: "10px 0" }}
@@ -823,14 +916,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 >
                   <span>{formatCurrency(totalAmountPaid)}</span>
                 </Col>
-              </Row>
+              </Row> */}
               <Row
                 gutter={20}
                 className="row-price"
                 style={{ height: 38, margin: "10px 0 0 0" }}
               >
                 <Col lg={10} xxl={7} style={{ padding: "8px 0" }}>
-                  <b>{moneyReturn > 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
+                  <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                 </Col>
                 <Col
                   className="lbl-money"
@@ -842,7 +935,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     fontSize: "20px",
                   }}
                 >
-                  <span style={{ color: moneyReturn <= 0 ? "blue" : "red" }}>
+                  <span style={{ color: false ? "blue" : "red" }}>
                     {formatCurrency(Math.abs(moneyReturn))}
                   </span>
                 </Col>
@@ -854,16 +947,21 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     <Button
                       type="primary"
                       className="ant-btn-outline fixed-button text-right"
-                      style={{ float: "right" }}
+                      style={{ float: "right", padding: "0 25px" }}
                       htmlType="submit"
                       onClick={ShowConfirmPayment}
                     >
-                      Thêm thanh toán trước
+                      Tạo thanh toán
                     </Button>
+
                     <Button
                       type="default"
                       className="ant-btn-outline fixed-button text-right"
-                      style={{ float: "right", marginRight: "10px" }}
+                      style={{
+                        float: "right",
+                        marginRight: "10px",
+                        padding: "0 25px",
+                      }}
                       onClick={() => window.location.reload()}
                     >
                       Hủy
