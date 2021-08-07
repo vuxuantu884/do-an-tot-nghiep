@@ -104,7 +104,8 @@ export default function Order() {
   const [serviceType, setServiceType] = useState<string>();
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
-  //#region Customer
+  //#rgion Customer
+
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
@@ -150,7 +151,6 @@ export default function Order() {
   };
 
   //#endregion
-
   //#region Payment
   const changePaymentMethod = (value: number) => {
     setPaymentMethod(value);
@@ -718,7 +718,7 @@ export default function Order() {
                       mode="tags"
                       placeholder="Thêm tag"
                       onChange={onChangeTag}
-                    >{Option}</Select>
+                    ></Select>
                   </Form.Item>
                 </div>
               </Card>
