@@ -1,44 +1,44 @@
-import {Button, Card, Form, Input, Select, Tooltip} from 'antd';
-import {Link, useHistory} from 'react-router-dom';
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import { Button, Card, Form, Input, Select, Tooltip } from "antd";
+import { Link, useHistory } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   categoryDeleteAction,
   getCategoryRequestAction,
-} from 'domain/actions/product/category.action';
-import {RootReducerType} from 'model/reducers/RootReducerType';
-import {getQueryParams, useQuery} from 'utils/useQuery';
-import search from 'assets/img/search.svg';
-import {CategoryParent, CategoryView} from 'model/product/category.model';
-import {MenuAction} from 'component/table/ActionButton';
-import {CategoryResponse, CategoryQuery} from 'model/product/category.model';
-import {convertCategory, generateQuery} from 'utils/AppUtils';
-import CustomTable from 'component/table/CustomTable';
-import UrlConfig from 'config/UrlConfig';
-import CustomFilter from 'component/table/custom.filter';
-import {StarOutlined} from '@ant-design/icons';
-import ContentContainer from 'component/container/content.container';
-import ButtonCreate from 'component/header/ButtonCreate';
-import { showSuccess, showWarning } from 'utils/ToastUtils';
-import { hideLoading, showLoading } from 'domain/actions/loading.action';
-import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm';
+} from "domain/actions/product/category.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import search from "assets/img/search.svg";
+import { CategoryParent, CategoryView } from "model/product/category.model";
+import { MenuAction } from "component/table/ActionButton";
+import { CategoryResponse, CategoryQuery } from "model/product/category.model";
+import { convertCategory, generateQuery } from "utils/AppUtils";
+import CustomTable from "component/table/CustomTable";
+import UrlConfig from "config/UrlConfig";
+import CustomFilter from "component/table/custom.filter";
+import { StarOutlined } from "@ant-design/icons";
+import ContentContainer from "component/container/content.container";
+import ButtonCreate from "component/header/ButtonCreate";
+import { showSuccess, showWarning } from "utils/ToastUtils";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 const actions: Array<MenuAction> = [
   {
     id: 1,
-    name: 'Chỉnh sửa',
+    name: "Chỉnh sửa",
   },
   {
     id: 2,
-    name: 'Xóa',
+    name: "Xóa",
   },
   {
     id: 3,
-    name: 'Export',
+    name: "Export",
   },
 ];
 
-const {Item} = Form;
+const { Item } = Form;
 
 var idDelete = -1;
 const Category = () => {
@@ -47,7 +47,7 @@ const Category = () => {
   const query = useQuery();
   let getParams: CategoryQuery = getQueryParams(query);
   if (!getParams.goods) {
-    getParams.goods = '';
+    getParams.goods = "";
   }
   const [params, setPrams] = useState<CategoryQuery>(getParams);
   const [data, setData] = useState<Array<CategoryView>>([]);
@@ -128,7 +128,7 @@ const Category = () => {
   const onDeleteSuccess = useCallback(() => {
     setSelected([]);
     dispatch(hideLoading());
-    showSuccess('Xóa danh mục thành công');
+    showSuccess("Xóa danh mục thành công");
     dispatch(getCategoryRequestAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params]);
   const onMenuClick = useCallback(
@@ -147,8 +147,8 @@ const Category = () => {
             break;
         }
       } else {
-        if(index !== 3) {
-          showWarning('Vui lòng chọn ít nhất 1 danh mục để thao tác')
+        if (index !== 3) {
+          showWarning("Vui lòng chọn ít nhất 1 danh mục để thao tác");
         }
       }
     },
@@ -175,67 +175,70 @@ const Category = () => {
       title="Quản lý danh mục"
       breadcrumb={[
         {
-          name: 'Tổng quản',
+          name: "Tổng quản",
           path: UrlConfig.HOME,
         },
         {
-          name: 'Sản phẩm',
+          name: "Sản phẩm",
           path: `${UrlConfig.PRODUCT}`,
         },
         {
-          name: 'Danh mục',
+          name: "Danh mục",
           path: `${UrlConfig.CATEGORIES}`,
         },
       ]}
       extra={<ButtonCreate path={`${UrlConfig.CATEGORIES}/create`} />}
     >
       <Card>
-        <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
-          <Form onFinish={onFinish} layout="inline" initialValues={params}>
-            <Item name="query">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{width: 200}}
-                placeholder="Tên/Mã danh mục"
-              />
-            </Item>
-            <Item name="goods">
-              <Select
-                style={{
-                  width: 200,
-                }}
-              >
-                <Select.Option value="">Ngành hàng</Select.Option>
-                {goods.map((item, index) => (
-                  <Select.Option key={index} value={item.value}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Item>
-            <Item>
-              <Button htmlType="submit" type="primary">
-                Lọc
-              </Button>
-            </Item>
-            <Item>
-              <Tooltip overlay="Lưu bộ lọc" placement="top">
-                <Button icon={<StarOutlined />} />
-              </Tooltip>
-            </Item>
-          </Form>
-        </CustomFilter>
-        <CustomTable
-          isLoading={loading}
-          onSelectedChange={onSelect}
-          pagination={false}
-          dataSource={data}
-          columns={columns}
-          rowKey={(item: CategoryResponse) => item.id}
-        />
+        <div className="padding-20">
+          <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
+            <Form onFinish={onFinish} layout="inline" initialValues={params}>
+              <Item name="query">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  style={{ width: 200 }}
+                  placeholder="Tên/Mã danh mục"
+                />
+              </Item>
+              <Item name="goods">
+                <Select
+                  style={{
+                    width: 200,
+                  }}
+                >
+                  <Select.Option value="">Ngành hàng</Select.Option>
+                  {goods.map((item, index) => (
+                    <Select.Option key={index} value={item.value}>
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Item>
+              <Item>
+                <Button htmlType="submit" type="primary">
+                  Lọc
+                </Button>
+              </Item>
+              <Item>
+                <Tooltip overlay="Lưu bộ lọc" placement="top">
+                  <Button icon={<StarOutlined />} />
+                </Tooltip>
+              </Item>
+            </Form>
+          </CustomFilter>
+          <CustomTable
+            isRowSelection
+            isLoading={loading}
+            onSelectedChange={onSelect}
+            pagination={false}
+            dataSource={data}
+            columns={columns}
+            rowKey={(item: CategoryResponse) => item.id}
+          />
+        </div>
       </Card>
-      <ModalDeleteConfirm 
-        onCancel={() => setConfirmDelete(false)} 
+      <ModalDeleteConfirm
+        onCancel={() => setConfirmDelete(false)}
         onOk={() => {
           setConfirmDelete(false);
           dispatch(showLoading());
@@ -243,7 +246,7 @@ const Category = () => {
         }}
         title="Bạn chắc chắn xóa danh mục ?"
         subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
-        visible={isConfirmDelete} 
+        visible={isConfirmDelete}
       />
     </ContentContainer>
   );

@@ -6,6 +6,7 @@ import {
   PurchaseOrderLineItem,
   Vat,
 } from "model/purchase-order/purchase-item.model";
+import { PurchaseProcumentLineItem } from "model/purchase-order/purchase-procument";
 import { Products } from "./AppUtils";
 
 const POUtils = {
@@ -48,6 +49,8 @@ const POUtils = {
         purchase_order_id: null,
         temp_id: newId,
         showNote: false,
+        accepted_quantity: 0,
+        planned_quantity: 0,
       };
       result.push(newItem);
     });
@@ -144,20 +147,22 @@ const POUtils = {
     tax_rate: number,
     data: Array<PurchaseOrderLineItem>,
     tradeDiscountRate: number | null,
-    tradeDiscountValue: number | null,
+    tradeDiscountValue: number | null
   ): PurchaseOrderLineItem => {
     let total = POUtils.totalAmount(data);
     let amount_after_discount = item.line_amount_after_line_discount;
-        if (tradeDiscountRate !== null) {
-          amount_after_discount =
-            amount_after_discount -
-            (amount_after_discount * tradeDiscountRate) / 100;
-        } else if (tradeDiscountValue !== null) {
-          amount_after_discount =
-            amount_after_discount -
-            (amount_after_discount / total) * tradeDiscountValue;
-        }
-    let tax = parseFloat(((amount_after_discount * item.tax_rate) / 100).toFixed(2));
+    if (tradeDiscountRate !== null) {
+      amount_after_discount =
+        amount_after_discount -
+        (amount_after_discount * tradeDiscountRate) / 100;
+    } else if (tradeDiscountValue !== null) {
+      amount_after_discount =
+        amount_after_discount -
+        (amount_after_discount / total) * tradeDiscountValue;
+    }
+    let tax = parseFloat(
+      ((amount_after_discount * item.tax_rate) / 100).toFixed(2)
+    );
     return { ...item, tax_rate: tax_rate, tax: tax };
   },
   caculatePrice: (
@@ -182,7 +187,9 @@ const POUtils = {
     let total = POUtils.totalAmount(data);
     data.forEach((item) => {
       if (item.tax_rate > 0) {
-        let index = result.findIndex((vatItem) => vatItem.rate === item.tax_rate);
+        let index = result.findIndex(
+          (vatItem) => vatItem.rate === item.tax_rate
+        );
         let amount_after_discount = item.line_amount_after_line_discount;
         if (tradeDiscountRate !== null) {
           amount_after_discount =
@@ -193,7 +200,9 @@ const POUtils = {
             amount_after_discount -
             (amount_after_discount / total) * tradeDiscountValue;
         }
-        let amountTax = parseFloat(((amount_after_discount * item.tax_rate) / 100).toFixed(2));
+        let amountTax = parseFloat(
+          ((amount_after_discount * item.tax_rate) / 100).toFixed(2)
+        );
         if (index === -1) {
           result.push({
             rate: item.tax_rate,
@@ -239,7 +248,8 @@ const POUtils = {
     total_cost_line: number,
     vats: Array<Vat>
   ): number => {
-    let sum = total - trade_discount_total - payment_discount_total + total_cost_line;
+    let sum =
+      total - trade_discount_total - payment_discount_total + total_cost_line;
     vats.forEach((item) => {
       sum = sum + item.amount;
     });
@@ -248,18 +258,40 @@ const POUtils = {
   getTotaExpense: (data: Array<CostLine>): number => {
     let sum = 0;
     data.forEach((item) => {
-      if(item && item.amount !== undefined && item.amount !== null) {
+      if (item && item.amount !== undefined && item.amount !== null) {
         sum = sum + item.amount;
       }
     });
     return sum;
   },
-  getTotalAfterTax: (total: number, trade_discount_amount: number, vats: Array<Vat>) => {
+  getTotalAfterTax: (
+    total: number,
+    trade_discount_amount: number,
+    vats: Array<Vat>
+  ) => {
     let sum = total - trade_discount_amount;
     vats.forEach((item) => {
       sum = sum + item.amount;
     });
     return sum;
+  },
+  getPOProcumentItem: (data: Array<PurchaseOrderLineItem>) => {
+    let result: Array<PurchaseProcumentLineItem> = [];
+    data.forEach((item) => {
+      result.push({
+        line_item_id: item.id ? item.id : new Date().getTime(),
+        sku: item.sku,
+        variant_name: item.variant,
+        variant_image: item.variant_image,
+        ordered_quantity: item.quantity,
+        accepted_quantity: item.accepted_quantity,
+        planned_quantity: item.planned_quantity,
+        quantity: 0,
+        real_quantity: 0,
+        note: '',
+      });
+    });
+    return result;
   },
 };
 

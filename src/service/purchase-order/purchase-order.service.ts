@@ -11,6 +11,17 @@ export const createPurchaseOrder = (
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.post(`${ApiConfig.PURCHASE_ORDER}/purchase-orders`, data);
 };
+
+export const updatePurchaseOrder = (
+  id: number,
+  data: PurchaseOrder
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.put(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}`,
+    data
+  );
+};
+
 export const searchPurchaseOrderApi = (
   query: PurchaseOrderQuery
 ): Promise<BaseResponse<PageResponse<PurchaseOrderQuery>>> => {
