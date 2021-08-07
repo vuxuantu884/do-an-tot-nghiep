@@ -11,7 +11,7 @@ import { DistrictResponse } from "model/content/district.model";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   PoFormName,
   POStatus,
@@ -70,7 +70,7 @@ const PODetailScreen: React.FC = () => {
   const { id } = useParams<PurchaseOrderParam>();
   let idNumber = parseInt(id);
   const dispatch = useDispatch();
-  const history = useHistory();
+  // const history = useHistory();
   const [formMain] = Form.useForm();
   const [isError, setError] = useState(false);
   const [status, setStatus] = useState<string>(initPurchaseOrder.status);
@@ -82,7 +82,6 @@ const PODetailScreen: React.FC = () => {
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [loadingConfirmButton, setLoadingConfirmButton] = useState(false);
-  const [loadingSaveButton, setLoadingSaveButton] = useState(false);
   const [listPaymentConditions, setListPaymentConditions] = useState<
     Array<PoPaymentConditions>
   >([]);
@@ -283,7 +282,7 @@ const PODetailScreen: React.FC = () => {
             />
 
             {poData && poData.status !== POStatus.DRAFT ? (
-              <POPaymentForm purchaseItem={poData} />
+              <POPaymentForm />
             ) : (
               <POPaymentConditionsForm listPayment={listPaymentConditions} />
             )}
@@ -325,12 +324,12 @@ const PODetailScreen: React.FC = () => {
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>
-            <Button
+            {/* <Button
               className="ant-btn-outline fixed-button cancle-button"
               onClick={() => history.goBack()}
             >
               Trở về
-            </Button>
+            </Button> */}
             {renderButton}
           </Col>
         </Row>

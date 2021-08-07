@@ -1,7 +1,6 @@
 const POInventoryView = () => {
   return (
     <div>
-
     </div>
   )
 }
