@@ -34,6 +34,7 @@ const POField = {
   procurements: 'procurements',
   receipt_quantity: 'receipt_quantity',
   ordered_quantity: 'ordered_quantity',
+  financial_status:'financial_status'
  
 }
 
