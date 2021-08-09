@@ -207,6 +207,7 @@ const StoreUpdateScreen: React.FC = () => {
                       },
                     ]}
                     label="Số điện thoại"
+                    name="hotline"
                   >
                     <Input placeholder="Nhập số điện thoại" />
                   </Item>
