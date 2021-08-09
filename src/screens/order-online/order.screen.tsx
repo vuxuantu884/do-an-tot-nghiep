@@ -66,6 +66,7 @@ import { request } from "https";
 var typeButton = "";
 export default function Order() {
   //#region State
+  const {Option} = Select
   const dispatch = useDispatch();
   const history = useHistory();
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -103,7 +104,8 @@ export default function Order() {
   const [serviceType, setServiceType] = useState<string>();
   const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
-  //#region Customer
+  //#rgion Customer
+
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
@@ -149,7 +151,6 @@ export default function Order() {
   };
 
   //#endregion
-
   //#region Payment
   const changePaymentMethod = (value: number) => {
     setPaymentMethod(value);
@@ -286,6 +287,8 @@ export default function Order() {
       objShipment.delivery_service_provider_id = hvc;
       objShipment.delivery_service_provider_type = "external_service";
       objShipment.sender_address_id = storeId;
+      objShipment.shipping_fee_informed_to_customer =
+        value.shipping_fee_informed_to_customer;
       objShipment.service = serviceType!;
       if (hvc === 1) {
         objShipment.shipping_fee_paid_to_three_pls = feeGhtk;
@@ -365,8 +368,13 @@ export default function Order() {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      showSuccess("Thêm đơn hàng thành công");
+      if(value.fulfillments && value.fulfillments.length > 0) {
+      showSuccess("Đơn được lưu và duyệt thành công");
       history.push(`${UrlConfig.ORDER}/${value.id}`);
+      }else{
+      showSuccess("Đơn được lưu nháp thành công");
+      history.push(`${UrlConfig.ORDER}/${value.id}`);
+      }
     },
     [history]
   );
@@ -496,6 +504,9 @@ export default function Order() {
       window.removeEventListener("scroll", scroll);
     };
   }, [scroll]);
+
+
+
   return (
     <ContentContainer
       title="Tạo mới đơn hàng"
@@ -587,6 +598,7 @@ export default function Order() {
                 setSelectedPaymentMethod={changePaymentMethod}
                 setPayments={onPayments}
                 paymentMethod={paymentMethod}
+                shipmentMethod={shipmentMethod}
                 amount={
                   orderAmount +
                   (shippingFeeCustomer ? shippingFeeCustomer : 0) -
@@ -767,6 +779,8 @@ export default function Order() {
             onCancel={onCancelSaveAndConfirm}
             onOk={onOkSaveAndConfirm}
             visible={isvibleSaveAndConfirm}
+            okText="Đồng ý"
+            cancelText="Hủy"
             title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
             text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
             icon={WarningIcon}

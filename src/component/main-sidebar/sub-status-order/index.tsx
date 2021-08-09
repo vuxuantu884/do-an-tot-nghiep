@@ -1,5 +1,8 @@
 import { Card, Select } from "antd";
-import { getListSubStatusAction, setSubStatusAction } from "domain/actions/order/order.action";
+import {
+  getListSubStatusAction,
+  setSubStatusAction,
+} from "domain/actions/order/order.action";
 import { OrderSubStatusResponse } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -17,7 +20,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   >([]);
 
   const handleChange = (statusId: number) => {
-    dispatch(setSubStatusAction(orderId, statusId))
+    dispatch(setSubStatusAction(orderId, statusId));
   };
 
   useEffect(() => {
@@ -34,7 +37,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       className="margin-top-20"
       title={
         <div className="d-flex">
-          <span className="title-card">Xử lý đơn hàng 1</span>
+          <span className="title-card">Xử lý đơn hàng</span>
         </div>
       }
     >
@@ -48,6 +51,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
             option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }
           onChange={handleChange}
+          notFoundContent="Không tìm thấy trạng thái phụ"
         >
           {listOrderSubStatus &&
             listOrderSubStatus.map((single) => {

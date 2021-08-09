@@ -197,6 +197,7 @@ const ListMaterial: React.FC = () => {
       }
     >
       <Card>
+        <div className="padding-20">
         <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
           <Form
             onFinish={onFinish}
@@ -240,6 +241,7 @@ const ListMaterial: React.FC = () => {
           </Form>
         </CustomFilter>
         <CustomTable
+          isRowSelection
           isLoading={loading}
           pagination={{
             pageSize: data.metadata.limit,
@@ -254,6 +256,7 @@ const ListMaterial: React.FC = () => {
           onSelectedChange={onSelect}
           rowKey={(item: MaterialResponse) => item.id}
         />
+        </div>
       </Card>
     </ContentContainer>
   );

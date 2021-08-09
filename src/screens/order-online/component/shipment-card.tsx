@@ -8,7 +8,7 @@ import {
   Form,
   Select,
   DatePicker,
-  Checkbox,
+  Checkbox, Divider
 } from "antd";
 
 import storeBluecon from "assets/img/storeBlue.svg";
@@ -79,7 +79,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [shipmentMethodState, setshipmentMethod] = useState<number>(4);
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number>(0);
-
+  console.log(deliveryServices);
   const ShipMethodOnChange = (value: number) => {
     setshipmentMethod(value);
     props.setShipmentMethodProps(value);
@@ -187,7 +187,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         </div>
       }
     >
-      <div className="padding-24">
+      <div className="padding-24 orders-shipment">
         <Row gutter={24} style={{ justifyContent: "space-between" }}>
           <Col md={9}>
             <span
@@ -390,9 +390,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                 <td style={{ padding: 0 }}>
                                   {single.code === "ghtk" ? (
                                     <div>
-                                      <div
-                                        style={{ padding: "8px 16px", alignItems:"center" }}
-                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      <label
+                                        className="radio-container"
                                       >
                                         <input
                                           type="radio"
@@ -410,13 +409,13 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                             )
                                           }
                                         />
-                                        <span className="lblShip">
-                                          Đường bộ
+                                        <span className="checkmark">
                                         </span>
-                                      </div>
-                                      <div
-                                        style={{ padding: "8px 16px" }}
-                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                        Đường bộ
+                                      </label>
+                                      <Divider style={{margin: "8px 0"}}/>
+                                      <label
+                                        className="radio-container"
                                       >
                                         <input
                                           type="radio"
@@ -434,16 +433,12 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                             )
                                           }
                                         />
-                                        <label className="lblShip">
-                                          Đường bay
-                                        </label>
-                                      </div>
+                                        <span className="checkmark"></span>
+                                        Đường bay
+                                      </label>
                                     </div>
                                   ) : (
-                                    <div
-                                      style={{ padding: "8px 16px" }}
-                                      className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                    >
+                                    <label className="radio-container">
                                       <input
                                         type="radio"
                                         name="tt"
@@ -458,10 +453,9 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                           )
                                         }
                                       />
-                                      <label className="lblShip">
-                                        Chuyển phát nhanh PDE
-                                      </label>
-                                    </div>
+                                      <span className="checkmark"></span>
+                                      Chuyển phát nhanh PDE
+                                    </label>
                                   )}
                                 </td>
                                 <td style={{ padding: 0, textAlign: "right" }}>
@@ -631,18 +625,18 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             {/* <div className="row-info-icon">
                 <img src={storeBluecon} alt="" width="20px" />
               </div> */}
-            <Col md={2}>
+            <Col md={3} lg={3} xxl={2}>
               <div>Tên cửa hàng:</div>
             </Col>
-            <b className="row-info-content">
-              <Typography.Link>{props.storeDetail?.name}</Typography.Link>
+            <b className="row-info-content" >
+              <Typography.Link style={{ color: "#222222"}}>{props.storeDetail?.name}</Typography.Link>
             </b>
           </Row>
           <Row className="row-info padding-top-10">
             {/* <div className="row-info-icon">
                 <img src={callIcon} alt="" width="18px" />
               </div> */}
-            <Col md={2}>
+            <Col md={3} lg={3} xxl={2}>
               <div>Số điện thoại:</div>
             </Col>
             <b className="row-info-content">{props.storeDetail?.hotline}</b>
@@ -651,7 +645,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             {/* <div className="row-info-icon">
                 <img src={locationIcon} alt="" width="18px" />
               </div> */}
-            <Col md={2}>
+            <Col md={3} lg={3} xxl={2}>
               <div>Địa chỉ:</div>
             </Col>
             <b className="row-info-content">{props.storeDetail?.address}</b>
@@ -659,13 +653,13 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         </div>
 
         {/*--- Giao hàng sau ----*/}
-        <Row className="ship-later-box" hidden={shipmentMethodState !== 4}>
+        {/* <Row className="ship-later-box" hidden={shipmentMethodState !== 4}>
           <div className="form-group m-0">
             <label htmlFor="">
               <i>Bạn có thể xử lý giao hàng sau khi tạo và duyệt đơn hàng.</i>
             </label>
           </div>
-        </Row>
+        </Row> */}
       </div>
     </Card>
   );

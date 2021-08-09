@@ -1,4 +1,4 @@
-.ant-btn{
+.ant-btn {
   border-radius: 3px;
   letter-spacing: 0.2px;
   font-weight: 400;
@@ -302,10 +302,12 @@
     cursor: pointer;
     color: #2a2a86;
   }
+
   .ant-tag {
     font-size: 12px;
     font-weight: 500;
     margin-top: 0px;
+    margin-bottom: 4px;
   }
   .custom-select-suffix {
     .ant-btn-icon-only {
@@ -1047,6 +1049,7 @@
   .ant-btn {
     border-radius: 3px;
     margin-left: 10px;
+    padding: 0 25px;
   }
   .ant-modal-footer .ant-btn + .ant-btn:not(.ant-dropdown-trigger) {
     margin-left: 10px;
@@ -1067,7 +1070,7 @@
   height: 18px;
 }
 
-.radio-delivery:checked{
+.radio-delivery:checked {
   border: 1px solid #2a2a86;
 }
 //custom radio
@@ -1078,6 +1081,8 @@
     height: 54px;
     background-color: #f8f8ff;
     padding: 0 19px;
+    display: flex;
+    align-items: center;
     & > span {
       size: 14px;
       line-height: 54px;
@@ -1085,6 +1090,30 @@
       color: #2a2a86;
       span {
         font-weight: 500;
+      }
+    }
+    & > div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 54px;
+      height: 54px;
+      margin-right: 12px;
+      &>div{
+        border: 1px solid #2a2a86;
+        border-radius: 50%;
+        div {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 44px;
+          height: 44px;
+          background: #2a2a86;
+          border: 2px solid white;
+          border-radius: 50%;
+          img {
+          }
+      }
       }
     }
   }
@@ -1166,6 +1195,12 @@
 }
 
 .orders-update-shipment {
+  .ant-card-head {
+    border: none;
+    .ant-card-head-wrapper {
+      border-bottom: 1px solid #e5e5e5;
+    }
+  }
   .ant-collapse-content-box {
     padding: 0;
   }
@@ -1173,6 +1208,62 @@
     > .ant-collapse-item.ant-collapse-no-arrow
     > .ant-collapse-header {
     padding-left: 0;
+  }
+  .ant-table-tbody {
+    tr {
+      td {
+        &:nth-child(2) {
+          .radio-container {
+            cursor: pointer;
+            display: block;
+            position: relative;
+            padding-left: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #222222;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            margin-left: 27px;
+          }
+
+          .radio-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+          }
+          .checkmark {
+            position: absolute;
+            top: 1px;
+            left: 0;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            border: 1px solid #2a2a86;
+          }
+          .radio-container input:checked ~ .checkmark {
+            border: 1px solid #2a2a86;
+          }
+          .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+          }
+          .radio-container input:checked ~ .checkmark:after {
+            display: block;
+          }
+          .radio-container .checkmark:after {
+            top: 3px;
+            left: 3px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2a2a86;
+          }
+        }
+      }
+    }
   }
 }
 
@@ -1205,34 +1296,29 @@
 }
 
 .saleorder-product-modal {
-  
   .ant-modal-body {
     padding: 12px 24px;
     .ant-table-cell {
-      &:nth-child(1){
-       width: 80%;
-       &>div{
-         display: flex;
-         
-       }
+      &:nth-child(1) {
+        width: 80%;
+        & > div {
+          display: flex;
+        }
       }
-      &:nth-child(2){
+      &:nth-child(2) {
         width: 20%;
         text-align: right;
       }
-      &:last-child{
-        min-width: 100px
+      &:last-child {
+        min-width: 100px;
       }
-      
     }
-    input{
+    input {
       font-weight: 400;
-      &::-webkit-input-placeholder{
+      &::-webkit-input-placeholder {
         font-weight: 400;
       }
     }
-
-    
   }
   .ant-modal-footer {
     padding-bottom: 16px;
@@ -1240,10 +1326,9 @@
     button {
       border-radius: 3px;
       font-weight: 400;
-      padding: 0 25px
+      padding: 0 25px;
     }
   }
-
 }
 .saleorder-product-card-action {
   .saleorder-input-group-wrapper {
@@ -1252,7 +1337,6 @@
       border: 1px solid #e5e5e5;
       width: 34px;
       height: 28px;
-      
     }
   }
   .saleorder-close-btn {
@@ -1263,30 +1347,100 @@
   }
 }
 
-.saleorders-product-dropdown{
+.saleorders-product-dropdown {
   min-width: 160px;
-  border-radius: 4px ;
-  button{
-  font-weight: 400px;
-  background: transparent;
-  border: none;
-  width: 100%;
-  text-align: left;
-  color: #222222;
-  padding-left: 24px;
+  border-radius: 4px;
+  button {
+    font-weight: 400px;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    color: #222222;
+    padding-left: 24px;
   }
-  .ant-btn-text{
-    line-height:1;
+  .ant-btn-text {
+    line-height: 1;
     height: 30px;
   }
-  .ant-dropdown-menu-title-content{
+  .ant-dropdown-menu-title-content {
     max-height: 30px;
   }
-  ul{
+  ul {
     width: 160px;
   }
-  .ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+  .ant-dropdown-menu-item,
+  .ant-dropdown-menu-submenu-title {
     padding: 5px 0;
   }
-  
+}
+// update payment
+.orders-update-payment {
+  .ant-card-head {
+    border: none;
+  }
+  .ant-card-head-wrapper {
+    border-bottom: 1px solid #e5e5e5;
+  }
+}
+
+/// orders shipment
+
+.orders-shipment {
+  .ant-table-tbody {
+    tr {
+      td {
+        &:nth-child(2) {
+          .radio-container {
+            cursor: pointer;
+            display: block;
+            position: relative;
+            padding-left: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #222222;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            margin-left: 27px;
+          }
+
+          .radio-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+          }
+          .checkmark {
+            position: absolute;
+            top: 1px;
+            left: 0;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            border: 1px solid #2a2a86;
+          }
+          .radio-container input:checked ~ .checkmark {
+            border: 1px solid #2a2a86;
+          }
+          .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+          }
+          .radio-container input:checked ~ .checkmark:after {
+            display: block;
+          }
+          .radio-container .checkmark:after {
+            top: 3px;
+            left: 3px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2a2a86;
+          }
+        }
+      }
+    }
+  }
 }

@@ -1,6 +1,5 @@
 import {
   Button,
-  Card,
   Col,
   DatePicker,
   Form,
@@ -82,7 +81,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   }, [formRef, visible]);
 
   return (
-    <Card bordered={false}>
+    <div>
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form
           className="form-search"
@@ -178,7 +177,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           </Row>
         </Form>
       </BaseFilter>
-    </Card>
+    </div>
   );
 };
 

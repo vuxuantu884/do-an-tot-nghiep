@@ -762,12 +762,24 @@ export const checkPaymentAll = (items: OrderResponse) => {
   }
 };
 
-export const getDateLastPayment = (items: OrderResponse) => {
+// export const getDateLastPayment = (items: OrderResponse) => {
+//   let value: Date | undefined;
+//   if (items !== null) {
+//     if (items.payments !== null) {
+//       if (items.payments.length > 0) {
+//         items.payments.forEach((a) => (value = a.created_date));
+//       }
+//     }
+//   }
+//   return value;
+// };
+
+export const getDateLastPayment = (items: any) => {
   let value: Date | undefined;
   if (items !== null) {
-    if (items.payments !== null) {
-      if (items.payments.length > 0) {
-        items.payments.forEach((a) => (value = a.created_date));
+    if (items !== null) {
+      if (items.length > 0) {
+        items.forEach((a: any) => (value = a.created_date));
       }
     }
   }
@@ -793,10 +805,11 @@ export const SumWeight = (items?: Array<OrderLineItemRequest>) => {
     for (let i = 0; i < items.length; i++) {
       switch (items[i].weight_unit) {
         case "g":
-          totalWeight = totalWeight + items[i].weight;
+          totalWeight = totalWeight + items[i].weight * items[i].quantity;
           break;
         case "kg":
-          totalWeight = totalWeight + items[i].weight * 1000;
+          totalWeight =
+            totalWeight + items[i].weight * 1000 * items[i].quantity;
           break;
         default:
           break;
@@ -813,10 +826,11 @@ export const SumWeightResponse = (items?: Array<OrderLineItemResponse>) => {
     for (let i = 0; i < items.length; i++) {
       switch (items[i].weight_unit) {
         case "g":
-          totalWeight = totalWeight + items[i].weight;
+          totalWeight = totalWeight + items[i].weight * items[i].quantity;
           break;
         case "kg":
-          totalWeight = totalWeight + items[i].weight * 1000;
+          totalWeight =
+            totalWeight + items[i].weight * 1000 * items[i].quantity;
           break;
         default:
           break;
@@ -854,7 +868,7 @@ export const TrackingCode = (item: OrderResponse | null) => {
   if (item) {
     if (item.fulfillments) {
       if (item.fulfillments.length > 0) {
-        if (item.fulfillments[0].shipment?.pushing_status === "waitting") {
+        if (item.fulfillments[0].shipment?.pushing_status === "waiting") {
           return "Đang xử lý";
         } else {
           return item.fulfillments[0].shipment?.tracking_code;

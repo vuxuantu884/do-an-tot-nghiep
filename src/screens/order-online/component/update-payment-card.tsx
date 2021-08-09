@@ -6,6 +6,7 @@ import { BugOutlined } from "@ant-design/icons";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
+import Caculate from "assets/icon/caculate.svg";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
 // @ts-ignore
@@ -21,6 +22,7 @@ import {
   PaymentMethodCode,
   PaymentMethodOption,
   PointConfig,
+  ShipmentMethodOption,
 } from "utils/Constants";
 import {
   formatCurrency,
@@ -43,6 +45,7 @@ type PaymentCardUpdateProps = {
   setTotalPaid: (value: number) => void;
   orderDetail: OrderResponse;
   paymentMethod: number;
+  shipmentMethod: number;
   order_id: number | null;
   showPartialPayment?: boolean;
   isVisibleUpdatePayment: boolean;
@@ -232,15 +235,20 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         onOk={onOkConfirm}
         visible={isibleConfirmPayment}
         icon={WarningIcon}
+        okText="Đồng ý"
+        cancelText="Hủy"
         title="Bạn muốn xác nhận thanh toán cho đơn hàng này?"
         text={textValue}
         order_id={props.order_id}
       />
       {props.showPartialPayment === false && (
         <Card
-          className="margin-top-20"
+          className="margin-top-20 orders-update-payment"
           title={
-            <div className="d-flex" style={{ marginTop: "5px" }}>
+            <div
+              className="d-flex"
+              style={{ marginTop: "5px", border: "none" }}
+            >
               <span className="title-card">THANH TOÁN</span>
             </div>
           }
@@ -263,22 +271,53 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     </Radio>
                   </Space>
                 </Radio.Group>
-                {props.paymentMethod === PaymentMethodOption.COD && (
-                  <div className="order-cod-payment-footer">
-                    <span>
-                      Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
-                      để có thể nhập giá trị Tiền thu hộ
-                    </span>
-                  </div>
-                )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+                    <div className="order-cod-payment-footer">
+                      <span>
+                        Vui lòng chọn hình thức{" "}
+                        <span>Đóng gói và Giao hàng</span> để có thể nhập giá
+                        trị Tiền thu hộ
+                      </span>
+                    </div>
+                  )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod ===
+                    ShipmentMethodOption.DELIVERLATER && (
+                    <div className="order-cod-payment-footer">
+                      <span>
+                        Vui lòng chọn hình thức{" "}
+                        <span>Đóng gói và Giao hàng</span> để có thể nhập giá
+                        trị Tiền thu hộ
+                      </span>
+                    </div>
+                  )}
+                {props.paymentMethod === PaymentMethodOption.COD &&
+                  props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+                    <div
+                      className="order-cod-payment-footer"
+                      style={{ height: 83 }}
+                    >
+                      <div>
+                        <div>
+                          <div>
+                            <img src={Caculate}></img>
+                          </div>
+                        </div>
+                      </div>
+                      <span>
+                        <span>Khách hàng sẽ thanh toán tại quầy!</span>
+                      </span>
+                    </div>
+                  )}
               </div>
 
               <Row gutter={24} hidden={props.paymentMethod !== 2}>
-                <Col xs={24} lg={24}>
+                {/* <Col xs={24} lg={24}>
                   <div className="form-group form-group-with-search">
                     <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
                   </div>
-                </Col>
+                </Col> */}
                 <Col xs={24} lg={24}>
                   <Row
                     className="btn-list-method"
@@ -488,7 +527,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     );
                   })}
 
-                  <Row
+                  {/* <Row
                     gutter={20}
                     className="row-price total-customer-pay"
                     style={{ height: 38, margin: "10px 0" }}
@@ -513,14 +552,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     >
                       <span>{formatCurrency(totalAmountPaid)}</span>
                     </Col>
-                  </Row>
+                  </Row> */}
                   <Row
                     gutter={20}
                     className="row-price"
                     style={{ height: 38, margin: "10px 0 0 0" }}
                   >
                     <Col lg={10} xxl={7} style={{ padding: "8px 0" }}>
-                      <b>{moneyReturn > 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
+                      <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                     </Col>
                     <Col
                       className="lbl-money"
@@ -533,7 +572,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       }}
                     >
                       <span
-                        style={{ color: moneyReturn <= 0 ? "blue" : "red" }}
+                        style={{ color: false ? "blue" : "red" }}
                       >
                         {formatCurrency(Math.abs(moneyReturn))}
                       </span>
@@ -592,8 +631,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
       )}
 
       {props.showPartialPayment && (
-        <div className="padding-20 create-order-payment">
-          <div style={{ display: "flex", flexDirection: "column" }}>
+        <div className="create-order-payment">
+          {/* <div style={{ display: "flex", flexDirection: "column" }}>
             <Radio.Group
               value={props.paymentMethod}
               onChange={(e) => changePaymentMethod(e.target.value)}
@@ -606,22 +645,50 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 </Radio>
               </Space>
             </Radio.Group>
-            {props.paymentMethod === PaymentMethodOption.COD && (
-              <div className="order-cod-payment-footer">
-                <span>
-                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
-                  có thể nhập giá trị Tiền thu hộ
-                </span>
-              </div>
-            )}
-          </div>
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+                <div className="order-cod-payment-footer">
+                  <span>
+                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
+                    để có thể nhập giá trị Tiền thu hộ
+                  </span>
+                </div>
+              )}
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.DELIVERLATER && (
+                <div className="order-cod-payment-footer">
+                  <span>
+                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span>{" "}
+                    để có thể nhập giá trị Tiền thu hộ
+                  </span>
+                </div>
+              )}
+            {props.paymentMethod === PaymentMethodOption.COD &&
+              props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+                <div
+                  className="order-cod-payment-footer"
+                  style={{ height: 83 }}
+                >
+                  <div>
+                    <div>
+                      <div>
+                        <img src={Caculate}></img>
+                      </div>
+                    </div>
+                  </div>
+                  <span>
+                    <span>Khách hàng sẽ thanh toán tại quầy!</span>
+                  </span>
+                </div>
+              )}
+          </div> */}
 
-          <Row gutter={24} hidden={props.paymentMethod !== 2}>
-            <Col xs={24} lg={24}>
+          <Row gutter={24} hidden={props.paymentMethod === 2}>
+            {/* <Col xs={24} lg={24}>
               <div className="form-group form-group-with-search">
                 <i>Lựa chọn 1 hoặc nhiều phương thức thanh toán trước *</i>
               </div>
-            </Col>
+            </Col> */}
             <Col xs={24} lg={24}>
               <Row
                 className="btn-list-method"
@@ -824,7 +891,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 );
               })}
 
-              <Row
+              {/* <Row
                 gutter={20}
                 className="row-price total-customer-pay"
                 style={{ height: 38, margin: "10px 0" }}
@@ -849,14 +916,14 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                 >
                   <span>{formatCurrency(totalAmountPaid)}</span>
                 </Col>
-              </Row>
+              </Row> */}
               <Row
                 gutter={20}
                 className="row-price"
                 style={{ height: 38, margin: "10px 0 0 0" }}
               >
                 <Col lg={10} xxl={7} style={{ padding: "8px 0" }}>
-                  <b>{moneyReturn > 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
+                  <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                 </Col>
                 <Col
                   className="lbl-money"
@@ -868,7 +935,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     fontSize: "20px",
                   }}
                 >
-                  <span style={{ color: moneyReturn <= 0 ? "blue" : "red" }}>
+                  <span style={{ color: false ? "blue" : "red" }}>
                     {formatCurrency(Math.abs(moneyReturn))}
                   </span>
                 </Col>
@@ -884,7 +951,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       htmlType="submit"
                       onClick={ShowConfirmPayment}
                     >
-                      Thanh toán
+                      Tạo thanh toán
                     </Button>
 
                     <Button

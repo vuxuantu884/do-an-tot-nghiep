@@ -192,7 +192,7 @@ function* getTRackingLogFulfillmentSaga(action: YodyAction) {
       yield call(getTrackingLogFulFillment, fulfillment_code);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data);
+        setData(response.data.sort((a,b)=>{ return  b.id - a.id}));
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());

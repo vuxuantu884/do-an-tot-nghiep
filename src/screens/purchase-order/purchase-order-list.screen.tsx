@@ -170,30 +170,33 @@ const PurchaseOrderListScreen: React.FC = () => {
       extra={<ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />}
     >
       <Card>
-        <PurchaseOrderFilter
-          params={params}
-          onMenuClick={onMenuClick}
-          actions={actions}
-          onFilter={onFilter}
-          listSupplier={listSupplier}
-        />
-        <CustomTable
-          isLoading={tableLoading}
-          showColumnSetting={true}
-          scroll={{ x: 1080 }}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          dataSource={data.items}
-          columns={columnFinal}
-          rowKey={(item: PurchaseOrder) => item.id}
-        />
+        <div className="padding-20">
+          <PurchaseOrderFilter
+            params={params}
+            onMenuClick={onMenuClick}
+            actions={actions}
+            onFilter={onFilter}
+            listSupplier={listSupplier}
+          />
+          <CustomTable
+            isRowSelection
+            isLoading={tableLoading}
+            showColumnSetting={true}
+            scroll={{ x: 1080 }}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(item: PurchaseOrder) => item.id}
+          />
+        </div>
       </Card>
       <ModalSettingColumn
         visible={showSettingColumn}
