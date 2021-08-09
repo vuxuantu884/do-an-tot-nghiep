@@ -89,7 +89,6 @@ const CustomerAdd = (props: any) => {
         },
         {
           name: "Thêm khách hàng",
-          path: `/customer/create`,
         },
       ]}
     >

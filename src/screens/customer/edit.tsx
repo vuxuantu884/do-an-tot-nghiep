@@ -120,7 +120,6 @@ const CustomerEdit = (props: any) => {
         },
         {
           name: "Sửa khách hàng",
-          path: `/customer/edit`,
         },
       ]}
     >
