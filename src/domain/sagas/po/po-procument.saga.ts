@@ -1,18 +1,19 @@
-import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
+import { updatePurchaseProcumentService } from 'service/purchase-order/purchase-procument.service';
+import { createPurchaseProcumentService } from 'service/purchase-order/purchase-procument.service';
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { POPaymentType } from "domain/types/purchase-order.type";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { showError } from "utils/ToastUtils";
-import { createPurchasePaymentService, updatePurchasePaymentService } from "service/purchase-order/purchase-payment.service";
+import { POProcumentType } from "domain/types/purchase-order.type";
+import { PurchaseProcument } from 'model/purchase-order/purchase-procument';
 
-function* poPaymentCreateSaga(action: YodyAction) {
+function* poProcumentCreateSaga(action: YodyAction) {
   const { poId, request, createCallback } = action.payload;
   try {
-    let response: BaseResponse<BaseResponse<PurchasePayments>> = yield call(
-      createPurchasePaymentService,
+    let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
+      createPurchaseProcumentService,
       poId,
       request
     );
@@ -36,13 +37,13 @@ function* poPaymentCreateSaga(action: YodyAction) {
   }
 }
 
-function* poPaymentUpdateSaga(action: YodyAction) {
-  const { poId, paymentId, request, updateCallback } = action.payload;
+function* poProcumentUpdateSaga(action: YodyAction) {
+  const { poId, procumentId, request, updateCallback } = action.payload;
   try {
-    let response: BaseResponse<BaseResponse<PurchasePayments>> = yield call(
-      updatePurchasePaymentService,
+    let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
+      updatePurchaseProcumentService,
       poId,
-      paymentId,
+      procumentId,
       request
     );
     switch (response.code) {
@@ -65,7 +66,7 @@ function* poPaymentUpdateSaga(action: YodyAction) {
   }
 }
 
-export function* poPaymentSaga() {
-  yield takeLatest(POPaymentType.CREATE_PO_PAYMENT_REQUEST, poPaymentCreateSaga);
-  yield takeLatest(POPaymentType.UPDATE_PO_PAYMENT_REQUEST, poPaymentUpdateSaga);
+export function* poProcumentSaga() {
+  yield takeLatest(POProcumentType.CREATE_PO_PROCUMENT_REQUEST, poProcumentCreateSaga);
+  yield takeLatest(POProcumentType.UPDATE_PO_PROCUMENT_REQUEST, poProcumentUpdateSaga);
 }

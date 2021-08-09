@@ -49,8 +49,8 @@ const POUtils = {
         purchase_order_id: null,
         temp_id: newId,
         showNote: false,
-        accepted_quantity: 0,
         planned_quantity: 0,
+        receipt_quantity: 0,
       };
       result.push(newItem);
     });
@@ -105,6 +105,11 @@ const POUtils = {
   totalQuantity: (data: Array<PurchaseOrderLineItem>): number => {
     let total = 0;
     data.forEach((item) => (total = total + item.quantity));
+    return total;
+  },
+  totalReceipt: (data: Array<PurchaseOrderLineItem>): number => {
+    let total = 0;
+    data.forEach((item) => (total = total + item.receipt_quantity));
     return total;
   },
   totalDiscount: (data: Array<PurchaseOrderLineItem>): number => {
@@ -281,11 +286,11 @@ const POUtils = {
       result.push({
         line_item_id: item.id ? item.id : new Date().getTime(),
         sku: item.sku,
-        variant_name: item.variant,
+        variant: item.variant,
         variant_image: item.variant_image,
         ordered_quantity: item.quantity,
-        accepted_quantity: item.accepted_quantity,
         planned_quantity: item.planned_quantity,
+        accepted_quantity: 0,
         quantity: 0,
         real_quantity: 0,
         note: '',
@@ -293,6 +298,21 @@ const POUtils = {
     });
     return result;
   },
+  totalQuantityProcument: (data: Array<PurchaseProcumentLineItem>) => {
+    let total = 0;
+    data.forEach((item) => total = total + item.quantity);
+    return total;
+  },
+  totalAccpectQuantityProcument: (data: Array<PurchaseProcumentLineItem>) => {
+    let total = 0;
+    data.forEach((item) => total = total + item.accepted_quantity);
+    return total;
+  },
+  totalRealQuantityProcument: (data: Array<PurchaseProcumentLineItem>) => {
+    let total = 0;
+    data.forEach((item) => total = total + item.real_quantity);
+    return total;
+  }
 };
 
 export { POUtils };

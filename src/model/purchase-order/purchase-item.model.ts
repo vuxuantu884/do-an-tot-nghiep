@@ -25,7 +25,7 @@ export interface PurchaseOrderLineItem{
     purchase_order_id: number|null,
     temp_id: string,
     showNote: boolean,
-    accepted_quantity: number,
+    receipt_quantity: number,
     planned_quantity: number,
 }
 
