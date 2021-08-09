@@ -17,16 +17,18 @@ export interface PurchaseProcumentLineItem {
   id?: number,
   line_item_id: number,
   sku: string,
-  variant_name: string,
+  variant: string,
   variant_image: string|null,
   ordered_quantity: number,
   planned_quantity: number,
+  accepted_quantity: number,
   quantity: number,
   real_quantity: number,
   note: string,
 }
 
 const POProcumentField = {
+  id: 'id',
   code: 'code',
   reference: 'reference',
   store_code: 'store_code',
@@ -44,7 +46,7 @@ const POProcumentLineItemField = {
   id: 'id',
   line_item_id: 'line_item_id',
   sku: 'sku',
-  variant_name: 'variant_name',
+  variant: 'variant',
   variant_image: 'variant_image',
   ordered_quantity: 'ordered_quantity',
   accepted_quantity: 'accepted_quantity',
@@ -52,6 +54,8 @@ const POProcumentLineItemField = {
   quantity: 'quantity',
   real_quantity: 'real_quantity',
   note: 'note',
+  activated_date: 'activated_date',
+  activated_by: 'activated_by'
 }
 
 export {POProcumentField, POProcumentLineItemField};

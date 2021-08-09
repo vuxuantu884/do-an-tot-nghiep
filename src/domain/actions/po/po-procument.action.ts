@@ -15,13 +15,13 @@ export const PoProcumentCreateAction = (
 };
 export const PoProcumentUpdateAction = (
   poId: number,
-  paymentId: number,
+  procumentId: number,
   request: PurchaseProcument,
   updateCallback: (result: PurchaseProcument | null) => void
 ) => {
   return BaseAction(POProcumentType.UPDATE_PO_PROCUMENT_REQUEST, {
     poId,
-    paymentId,
+    procumentId,
     request,
     updateCallback,
   });

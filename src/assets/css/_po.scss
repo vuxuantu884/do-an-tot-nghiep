@@ -420,3 +420,28 @@
 .tab-content.active {
   display: block;
 }
+
+.progress-view {
+  margin: 25px 0;
+  width: 100%;
+  position: relative;
+  display: inline-block;
+  &-info {
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    bottom: 0;
+    color: #222222;
+    display: flex;
+    line-height: 22px;
+    font-size: 14px;
+    left: 0;
+    padding: 0 15px;
+    position: absolute;
+    text-transform: uppercase;
+    align-items: center;
+    top: 0;
+    white-space: nowrap;
+    z-index: 1;
+  }
+}

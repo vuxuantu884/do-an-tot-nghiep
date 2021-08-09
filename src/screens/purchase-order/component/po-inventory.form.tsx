@@ -1,6 +1,6 @@
 import { Card, Form } from "antd";
 import { Button } from "antd";
-import { PoProcumentCreateAction } from "domain/actions/po/po-procument.action";
+import { PoProcumentCreateAction, PoProcumentUpdateAction } from "domain/actions/po/po-procument.action";
 import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -10,6 +10,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { POStatus } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
+import ProcumentConfirmModal from "../modal/procument-confirm.modal";
 import ProcumentModal from "../modal/procument.modal";
 import POInventoryDraft from "./po-inventory/po-intentory.draft";
 import POInventoryView from "./po-inventory/po-inventory.view";
@@ -28,8 +29,11 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
 ) => {
   const dispatch = useDispatch();
   const [visible, setVisible] = useState(false);
+  const [visibleDraft, setVisibleDraft] = useState(false);
   const [loaddingCreate, setLoadingCreate] = useState(false);
+  const [loadingConfirm, setLoadingConfirm] = useState(false);
   const [poItems, setPOItem] = useState<Array<PurchaseOrderLineItem>>([]);
+  const [procumentDraft, setProcumentDraft] = useState<PurchaseProcument|null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
   const { stores, status, now, idNumber, onAddProcumentSuccess } = props;
   const onAddProcumentCallback = useCallback((value: PurchaseProcument|null) => {
@@ -48,6 +52,22 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       dispatch(PoProcumentCreateAction(idNumber, value, onAddProcumentCallback))
     }
   }, [dispatch, idNumber, onAddProcumentCallback])
+  const onConfirmProcumentCallback = useCallback((value: PurchaseProcument|null) => {
+    setLoadingConfirm(false);
+    if(value === null) {
+    
+    } else {
+      showSuccess('Thêm phiếu nháp kho thành công');
+      setVisible(false);
+      onAddProcumentSuccess && onAddProcumentSuccess();
+    }
+  }, [onAddProcumentSuccess]);
+  const onConfirmProcument = useCallback((value: PurchaseProcument) => {
+    if(idNumber && value.id) {
+      setLoadingConfirm(true);
+      dispatch(PoProcumentUpdateAction(idNumber, value.id, value, onConfirmProcumentCallback))
+    }
+  }, [dispatch, idNumber, onConfirmProcumentCallback])
   return (
     <Card
       className="po-form margin-top-20"
@@ -96,8 +116,11 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     >
       <div className="padding-20">
         <POInventoryDraft isEdit={props.isEdit} stores={stores} now={now} />
-        {status !== POStatus.DRAFT && status !== POStatus.COMPLETED && (
-          <POInventoryView />
+        {status && status !== POStatus.DRAFT && status !== POStatus.COMPLETED && (
+          <POInventoryView confirmDraft={(value: PurchaseProcument) => {
+            setProcumentDraft(value);
+            setVisibleDraft(true);
+          }} />
         )}
       </div>
       <ProcumentModal
@@ -111,7 +134,21 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         items={poItems}
         defaultStore={storeExpect}
         onOk={(value: PurchaseProcument) => {
-          onAddProcument && onAddProcument(value);
+          onAddProcument(value);
+        }}
+      />
+      <ProcumentConfirmModal 
+        stores={stores}
+        now={now}
+        visible={visibleDraft}
+        item={procumentDraft}
+        onOk={(value: PurchaseProcument) => {
+          onConfirmProcument(value);
+        }}
+        loading={loadingConfirm}
+        defaultStore={storeExpect}
+        onCancle={() => {
+          setVisibleDraft(false);
         }}
       />
     </Card>

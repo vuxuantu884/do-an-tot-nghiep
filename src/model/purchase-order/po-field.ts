@@ -30,7 +30,10 @@ const POField = {
   reference: 'reference',
   note: 'note',
   tags: 'tags',
-  payments:'payments'
+  payments:'payments',
+  procurements: 'procurements',
+  receipt_quantity: 'receipt_quantity',
+  ordered_quantity: 'ordered_quantity',
  
 }
 
