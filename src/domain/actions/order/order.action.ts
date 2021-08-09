@@ -53,6 +53,16 @@ export const getTrackingLogFulfillmentAction = (
   });
 };
 
+export const getTrackingLogError = (
+  fulfillment_code: string,
+  setData: (data: Array<TrackingLogFulfillmentResponse> | null) => void
+) => {
+  return BaseAction(OrderType.GET_TRACKING_LOG_ERROR, {
+    fulfillment_code,
+    setData,
+  });
+};
+
 export const UpdateFulFillmentStatusAction = (
   request: UpdateFulFillmentStatusRequest,
   setData: (data: OrderResponse) => void

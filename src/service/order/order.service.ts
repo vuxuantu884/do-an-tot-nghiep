@@ -124,6 +124,13 @@ export const getTrackingLogFulFillment = (
   return BaseAxios.get(`${ApiConfig.ORDER}/shipping/tracking-log?fulfillment_code=${fulfillment_code}`);
 };
 
+// tracking_log: Lấy ra tracking_log_error của fulfillment
+export const getTrackingLogFulFillmentError = (
+  fulfillment_code: string
+): Promise<BaseResponse<Array<TrackingLogFulfillmentResponse>>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/shipping/error-log?fulfillment_code=${fulfillment_code}`);
+};
+
 /**
  * sub status: sidebar phần xử lý đơn hàng
  */

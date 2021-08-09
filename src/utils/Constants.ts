@@ -28,10 +28,9 @@ export const AddressType = {
 export const PoFormName = {
   Main: "formMain",
   Supplier: "formSupplier",
-  Product:"formPoProduct",
-  Info:"formInfo"
+  Product: "formPoProduct",
+  Info: "formInfo",
 };
-
 
 export const FulFillmentStatus = {
   UNSHIPPED: "unshipped",
@@ -65,14 +64,18 @@ export const ShipmentMethodOption = {
 
 export const TRANSPORTS = {
   ROAD: "road",
-  FLY: "fly"
-}
+  FLY: "fly",
+};
 
 export const PointConfig = {
   VALUE: 1000,
 };
 
-
 export const MoneyPayThreePls = {
   VALUE: 20000,
+};
+
+export const ErrorGHTK = {
+  ERRORAPI: "Lỗi tích hợp API",
+  WAITTING: "Đang xử lý",
 };

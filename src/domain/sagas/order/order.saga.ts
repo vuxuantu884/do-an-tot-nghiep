@@ -10,6 +10,7 @@ import {
   getOrderSubStatusService,
   getTrackingLogFulFillment,
   setSubStatusService,
+  getTrackingLogFulFillmentError,
 } from "./../../../service/order/order.service";
 import { SourceResponse } from "./../../../model/response/order/source.response";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
@@ -189,6 +190,27 @@ function* getTRackingLogFulfillmentSaga(action: YodyAction) {
   const { fulfillment_code, setData } = action.payload;
   try {
     let response: BaseResponse<Array<TrackingLogFulfillmentResponse>> =
+      yield call(getTrackingLogFulFillmentError, fulfillment_code);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data.sort((a,b)=>{ return  b.id - a.id}));
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getTRackingLogErrorSaga(action: YodyAction) {
+  const { fulfillment_code, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<TrackingLogFulfillmentResponse>> =
       yield call(getTrackingLogFulFillment, fulfillment_code);
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -291,6 +313,10 @@ function* OrderOnlineSaga() {
   yield takeLatest(
     OrderType.GET_TRACKING_LOG_FULFILLMENT,
     getTRackingLogFulfillmentSaga
+  );
+  yield takeLatest(
+    OrderType.GET_TRACKING_LOG_ERROR,
+    getTRackingLogErrorSaga
   );
   yield takeLatest(OrderType.SET_SUB_STATUS, setSubStatusSaga);
 }
