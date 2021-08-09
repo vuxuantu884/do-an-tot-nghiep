@@ -49,6 +49,8 @@ import calendarOutlined from "assets/icon/calendar_outline.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+
 import {
   DeliveryServiceResponse,
   OrderResponse,
@@ -83,6 +85,7 @@ import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { setTimeout } from "timers";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
+import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import { StoreResponse } from "model/core/store.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import OrderDetail from "./../order-detail";
@@ -311,6 +314,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   //#region Update Fulfillment Status
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
+    console.log(value);
     showSuccess("Tạo đơn giao hàng thành công");
     setTimeout(() => {
       window.location.reload();
@@ -343,7 +347,18 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       window.location.reload();
     }, timeout);
   };
-
+  const onCancelSuccess = (value: OrderResponse) => {
+    showSuccess(
+      `Bạn đã hủy đơn giao hàng ${
+        value?.fulfillments &&
+        value?.fulfillments.length > 0 &&
+        value?.fulfillments[0].id
+      } thành công`
+    );
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
+  };
   //fulfillmentTypeOrderRequest
   const fulfillmentTypeOrderRequest = (type: number) => {
     let value: UpdateFulFillmentStatusRequest = {
@@ -374,6 +389,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         value.status = FulFillmentStatus.SHIPPED;
         dispatch(UpdateFulFillmentStatusAction(value, onShipedSuccess));
         break;
+      case 5:
+        value.status = FulFillmentStatus.CANCELLED;
+        dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
+        break;
+        case 6:
+          value.status = FulFillmentStatus.RETURNED;
+          dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
+          break;  
       default:
         return;
     }
@@ -759,7 +782,38 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
 
   const customerNeedToPayValue = customerNeedToPay();
+  // Cancel fulfillments
+  const [isvibleCancelFullfilment, setIsvibleCancelFullfilment] =
+    useState<boolean>(false);
+  const [isvibleCancelandGetGoodsBack, setIsvibleCancelandGetGoodsBack] =
+    useState<boolean>(false);
+  const cancelFullfilment = useCallback(() => {
+    if (
+      props.OrderDetail?.fulfillments &&
+      props.OrderDetail?.fulfillments.length > 0 &&
+      props.OrderDetail?.fulfillments[0].status !== FulFillmentStatus.SHIPPING
+    ) {
+      setIsvibleCancelFullfilment(true);
+    } else {
+      setIsvibleCancelandGetGoodsBack(true);
+    }
+  }, [
+    setIsvibleCancelFullfilment,
+    isvibleCancelFullfilment,
+    props.OrderDetail,
+  ]);
 
+  const onOKCancelFullfilment = () => {
+    fulfillmentTypeOrderRequest(5);
+    setIsvibleCancelandGetGoodsBack(false);
+  };
+  // cancel fulfillment 3 button modal
+  const onOkCancelandGetGoodsBack = () => {
+    fulfillmentTypeOrderRequest(6);
+    setIsvibleCancelandGetGoodsBack(false);
+  };
+
+  // end
   useEffect(() => {
     getRequirementName();
   }, [getRequirementName]);
@@ -1247,6 +1301,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   </Button>
                 ) : (
                   <Button
+                    onClick={cancelFullfilment}
                     type="default"
                     className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                     style={{
@@ -1957,6 +2012,29 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             ? "thanh toán " + formatCurrency(confirmExportAndFinishValue()!)
             : ""
         } để giao hàng thành công?`}
+      />
+      {/* Huy fulfillment pick, pack, unship */}
+      <SaveAndConfirmOrder
+        onCancel={() => setIsvibleCancelFullfilment(false)}
+        onOk={onOKCancelFullfilment}
+        visible={isvibleCancelFullfilment}
+        icon={DeleteIcon}
+        okText="Hủy đơn giao"
+        cancelText="Hủy"
+        title="Bạn có chắc chắn hủy đơn giao hàng này không?"
+        text="Tiền thu hộ nếu có cũng sẽ bị hủy"
+      />
+      {/* Huy fulfillment shiping */}
+      <CancelFullfilmentModal
+        onCancel={() => setIsvibleCancelandGetGoodsBack(false)}
+        onOk={onOKCancelFullfilment}
+        onOkandMore={onOkCancelandGetGoodsBack}
+        visible={isvibleCancelandGetGoodsBack}
+        icon={DeleteIcon}
+        okText="Hủy đơn giao"
+        cancelText="Hủy"
+        title="Bạn có chắc chắn hủy đơn giao hàng này không?"
+        text="Tiền thu hộ nếu có cũng sẽ bị hủy"
       />
     </div>
   );
