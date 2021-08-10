@@ -190,7 +190,7 @@ function* getTRackingLogFulfillmentSaga(action: YodyAction) {
   const { fulfillment_code, setData } = action.payload;
   try {
     let response: BaseResponse<Array<TrackingLogFulfillmentResponse>> =
-      yield call(getTrackingLogFulFillmentError, fulfillment_code);
+      yield call(getTrackingLogFulFillment, fulfillment_code);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.sort((a,b)=>{ return  b.id - a.id}));
@@ -211,7 +211,7 @@ function* getTRackingLogErrorSaga(action: YodyAction) {
   const { fulfillment_code, setData } = action.payload;
   try {
     let response: BaseResponse<Array<TrackingLogFulfillmentResponse>> =
-      yield call(getTrackingLogFulFillment, fulfillment_code);
+      yield call(getTrackingLogFulFillmentError, fulfillment_code);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.sort((a,b)=>{ return  b.id - a.id}));
