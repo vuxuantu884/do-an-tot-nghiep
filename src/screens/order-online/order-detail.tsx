@@ -593,14 +593,22 @@ const OrderDetail = () => {
                                     >
                                       COD
                                       {OrderDetail.fulfillments[0].status !==
-                                        "shipped" && (
+                                        "shipped" ? (
                                         <Tag
                                           className="orders-tag orders-tag-warning"
                                           style={{ marginLeft: 10 }}
                                         >
                                           Đang chờ thu
                                         </Tag>
-                                      )}
+                                      ): <Tag
+                                      className="orders-tag orders-tag-success"
+                                      style={{
+                                        backgroundColor: "rgba(39, 174, 96, 0.1)",
+                                        color: "#27AE60", marginLeft: 10
+                                      }}
+                                    >
+                                      Đã thu COD
+                                    </Tag>}
                                     </b>
                                     <b
                                       style={{
@@ -720,7 +728,7 @@ const OrderDetail = () => {
                         <span className="text-field margin-right-40">
                           Đã thanh toán:
                         </span>
-                        <span>0</span>
+                        <b>0</b>
                       </Col>
                       <Col span={12}>
                         <span className="text-field margin-right-40">
