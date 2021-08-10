@@ -312,6 +312,11 @@ const POUtils = {
     let total = 0;
     data.forEach((item) => total = total + item.real_quantity);
     return total;
+  },
+  totalOrderQuantityProcument: (data: Array<PurchaseProcumentLineItem>) => {
+    let total = 0;
+    data.forEach((item) => total = total + item.ordered_quantity);
+    return total;
   }
 };
 

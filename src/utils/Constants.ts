@@ -88,9 +88,10 @@ export const POStatus = {
 }
 
 export const ProcumentStatus = {
-  DRAFT: 'DRAFT',
-  CONFIRMED: 'FINALIZED',
-  FINISHED: 'COMPLETED',
+  DRAFT: 'draft',
+  CONFIRMED: 'not_received',
+  RECEIVED: 'received',
+  CANCELLED: 'cancelled '
 }
 
 export const PoPaymentStatus = {
