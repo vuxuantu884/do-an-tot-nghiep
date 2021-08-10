@@ -22,6 +22,12 @@ export const updatePurchaseOrder = (
   );
 };
 
+export const deletePurchaseOrder = (
+  id: number
+): Promise<BaseResponse<string>> => {
+  return BaseAxios.delete(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}`);
+};
+
 export const searchPurchaseOrderApi = (
   query: PurchaseOrderQuery
 ): Promise<BaseResponse<PageResponse<PurchaseOrderQuery>>> => {

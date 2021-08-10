@@ -23,9 +23,7 @@ const CustomFilter: React.FC<CustomFilterProps> = (
           />
         </div>
         <div className="page-filter-right">
-          <Space size={12}>
-            {children}
-          </Space>
+          <Space size={12}>{children}</Space>
         </div>
       </div>
     </div>

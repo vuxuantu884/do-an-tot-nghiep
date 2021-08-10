@@ -16,7 +16,7 @@ export const PoCreateAction = (
 export const PoUpdateAction = (
   id: number,
   request: PurchaseOrder | null,
-  updateCallback: (result: PurchaseOrder|null) => void
+  updateCallback: (result: PurchaseOrder | null) => void
 ) => {
   return BaseAction(POType.UPDATE_PO_REQUEST, {
     id,
@@ -42,3 +42,12 @@ export const PoSearchAction = (
   });
 };
 
+export const PODeleteAction = (
+  id: number,
+  deleteCallback: (result: any | null) => void
+) => {
+  return BaseAction(POType.DELETE_PO_REQUEST, {
+    id,
+    deleteCallback,
+  });
+};
