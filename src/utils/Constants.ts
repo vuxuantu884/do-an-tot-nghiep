@@ -103,3 +103,12 @@ export const PoPaymentMethod ={
   CASH:'cash',
   BANK_TRANSFER:'bank_transfer'
 }
+
+export const PoFinancialStatus = {
+  DRAFT: 'draft',
+  UNPAID: 'unpaid',
+  PARTIAL_PAID:'unpaid',
+  PAID:'paid',
+  FINISHED:'finished',
+  CANCELLED:'cancelled',  
+}
