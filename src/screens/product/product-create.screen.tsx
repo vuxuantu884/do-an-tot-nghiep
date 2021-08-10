@@ -317,7 +317,6 @@ const ProductCreateScreen: React.FC = () => {
       item: VariantRequestView,
       index: number
     ) => {
-      console.log(images);
       let image = Products.findAvatar(images);
       return (
         <ImageProduct
@@ -438,7 +437,6 @@ const ProductCreateScreen: React.FC = () => {
             variant_images: [],
           });
         }
-        console.log(newVariants);
         setVariants([...newVariants]);
       }
     },

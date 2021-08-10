@@ -168,8 +168,8 @@
 .product-table {
   .ant-table-cell {
     padding: 10px 5px !important;
-    .ant-table-expanded-row-fixed { 
-      margin: -10px !important
+    .ant-table-expanded-row-fixed {
+      margin: -10px !important;
     }
   }
   .product-item-note-input {
@@ -332,5 +332,116 @@
 .modal-product-list {
   .custom-table-pagination {
     padding: 20px 0px;
+  }
+}
+
+.row-view {
+  display: flex;
+  width: 100%;
+  &-title {
+    min-width: 70px;
+    width: 30%;
+    flex-wrap: wrap;
+    line-height: 16px;
+    color: #737373;
+    margin-right: 16px;
+  }
+  &-hash-tag {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background: #f5f5f5;
+    border-radius: 100px;
+    color: #737373;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 15px;
+    margin-right: 10px;
+  }
+  &-result {
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 16px;
+    color: #222222;
+    display: flex;
+    &-id {
+      color: #2a2a86;
+    }
+    &-empty {
+      color: #e24343;
+    }
+  }
+}
+
+.po-inven-view {
+  display: flex;
+  width: 100%;
+  height: 60px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  .active {
+    border: 1px solid #2a2a86;
+    border-bottom: none;
+    height: 55px;
+    padding: 10px;
+    border-radius: 3px 3px 0 0;
+    background-color: white;
+    margin-top: 6px;
+    flex: 1 1;
+    .tab {
+      border: none;
+      color: $primary-color;
+      cursor: default;
+      &-icon {
+        filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg)
+          brightness(66%) contrast(100%);
+      }
+
+    }
+  }
+  .tab {
+    border: 1px solid #e5e5e5;
+    padding: 0 10px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    height: 38px;
+    &-icon {
+      margin-right: 8px;
+    }
+  }
+  
+}
+
+.tab-content {
+  display: none;
+  padding: 22px 0;
+}
+.tab-content.active {
+  display: block;
+}
+
+.progress-view {
+  margin: 25px 0;
+  width: 100%;
+  position: relative;
+  display: inline-block;
+  &-info {
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    bottom: 0;
+    color: #222222;
+    display: flex;
+    line-height: 22px;
+    font-size: 14px;
+    left: 0;
+    padding: 0 15px;
+    position: absolute;
+    text-transform: uppercase;
+    align-items: center;
+    top: 0;
+    white-space: nowrap;
+    z-index: 1;
   }
 }

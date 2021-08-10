@@ -220,7 +220,6 @@ const ListProductScreen: React.FC = () => {
       let variantRequet: VariantUpdateRequest = Products.converVariantResponseToRequest(variantResponse);
       variantRequet.variant_images = variant_images;
       dispatch(variantUpdateAction(variantResponse.id, variantRequet, (result) => {
-        console.log(result);
         dispatch(hideLoading());
       }))
     }
@@ -255,6 +254,7 @@ const ListProductScreen: React.FC = () => {
       extra={<ButtonCreate path={`${UrlConfig.PRODUCT}/create`} />}
     >
       <Card>
+        <div className="padding-20">
         <ProductFilter
           onMenuClick={onMenuClick}
           actions={actions}
@@ -270,6 +270,7 @@ const ListProductScreen: React.FC = () => {
           listCountries={listCountry}
         />
         <CustomTable
+          isRowSelection
           isLoading={tableLoading}
           showColumnSetting={true}
           scroll={{ x: 1080 }}
@@ -286,6 +287,7 @@ const ListProductScreen: React.FC = () => {
           columns={columnFinal}
           rowKey={(item: VariantResponse) => item.id}
         />
+        </div>
       </Card>
       <UploadImageModal
         onCancle={() => setUploadVisible(false)} 
