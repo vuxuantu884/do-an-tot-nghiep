@@ -19,6 +19,7 @@ import PropTypes from "prop-types";
 import {
   CityByCountryAction,
   DistrictByCityAction,
+  DistrictGetByCountryAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import { CountryResponse } from "model/content/country.model";
@@ -55,22 +56,14 @@ const AddressForm = ({
 }: AddressFormProps) => {
   const dispatch = useDispatch();
   const params: any = useParams();
-  const [cities, setCities] = React.useState<Array<any>>([]);
-  const [districts, setDistricts] = React.useState<Array<DistrictResponse>>([]);
+  const [areas, setAreas] = React.useState<Array<any>>([]);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
-  const [cityId, setCityId] = React.useState<any>(getCityIdValue());
   const [districtId, setDistrictId] = React.useState<any>(getDistrictIdValue());
   const [countryId, setCountryId] = React.useState<number>(233);
 
   React.useEffect(() => {
-    dispatch(CityByCountryAction(countryId, setCities));
+    dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
-
-  React.useEffect(() => {
-    if (cityId !== null) {
-      dispatch(DistrictByCityAction(cityId, setDistricts));
-    }
-  }, [dispatch, cityId]);
 
   React.useEffect(() => {
     if (districtId !== null) {
@@ -99,18 +92,18 @@ const AddressForm = ({
     }
   }, [])
 
-  function getCityIdValue(): number | null {
-    if (form) {
-      const values: Array<any> = form?.getFieldValue(name);
-      const value = values.find((_, index) => index === field.key);
-      if (value) {
-        return value.city_id;
-      } else {
-        return null;
-      }
-    }
-    return null;
-  }
+  // function getCityIdValue(): number | null {
+  //   if (form) {
+  //     const values: Array<any> = form?.getFieldValue(name);
+  //     const value = values.find((_, index) => index === field.key);
+  //     if (value) {
+  //       return value.city_id;
+  //     } else {
+  //       return null;
+  //     }
+  //   }
+  //   return null;
+  // }
 
   function getDistrictIdValue(): number | null {
     if (form) {
@@ -125,25 +118,46 @@ const AddressForm = ({
     return null;
   }
 
-  function isNew(): boolean {
-    if (form) {
-      const values: Array<any> = form?.getFieldValue(name);
-      const value = values.find((_, index) => index === field.key);
-      return value.id !== 0;
-    }
-    return false;
-  }
-
   const handleChangeCountry = (countryId: any) => {
     setCountryId(countryId);
   };
 
-  const handleChangeCity = (cityId: any) => {
-    setCityId(cityId);
+  // const handleChangeCity = (cityId: any) => {
+  //   setCityId(cityId);
+  // };
+
+  const handleChangeArea = (districtId: any) => {
+    if (districtId) {
+      setDistrictId(districtId);
+      let area = areas.find(area => area.id === districtId);
+      let values: Array<any> = form?.getFieldValue(name);
+      values.forEach((value, index) => {
+        if(index === field.key) {
+          value.city_id = area.city_id;
+          value.city = area.city_name;
+          value.district_id = districtId;
+          value.district = area.name;
+          value.ward_id = null;
+          value.ward = '';
+        }
+      })
+
+      form?.setFieldsValue({name: values})
+    }
   };
 
-  const handleChangeDistrict = (districtId: any) => {
-    setDistrictId(districtId);
+  const handleChangeWard = (wardId: any) => {
+    if (wardId) {
+      let ward = wards.find(ward => ward.id === wardId);
+      let values: Array<any> = form?.getFieldValue(name);
+      values.forEach((value, index) => {
+        if(index === field.key) {
+          value.ward = ward?.name;
+        }
+      })
+
+      form?.setFieldsValue({name: values})
+    }
   };
 
   const handleSave = () => {
@@ -288,6 +302,9 @@ const AddressForm = ({
                 placeholder="Quốc gia"
                 disabled
                 onChange={handleChangeCountry}
+                showSearch
+                allowClear
+                optionFilterProp="children"
               >
                 {countries.map((country) => (
                   <Option key={country.id} value={country.id}>
@@ -300,25 +317,31 @@ const AddressForm = ({
           <Col span={4}>
             <Form.Item
               {...field}
-              label="Tỉnh/TP"
-              name={[field.name, "city_id"]}
+              label="Khu vực"
+              name={[field.name, "district_id"]}
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn thành phố",
+                  message: "Vui lòng chọn khu vực",
                 },
               ]}
             >
-              <Select placeholder="Tỉnh/thành phố" onChange={handleChangeCity}>
-                {cities.map((city) => (
-                  <Option key={city.id} value={city.id}>
-                    {city.name}
+              <Select
+              showSearch
+               placeholder="Khu vực"
+               onChange={handleChangeArea}
+               allowClear
+               optionFilterProp="children"
+               >
+                {areas.map((area) => (
+                  <Option key={area.id} value={area.id}>
+                    {area.city_name + ` - ${area.name}`}
                   </Option>
                 ))}
               </Select>
             </Form.Item>
           </Col>
-          <Col span={4}>
+          {/* <Col span={4}>
             <Form.Item
               {...field}
               label="Quận/huyện"
@@ -338,7 +361,7 @@ const AddressForm = ({
                 ))}
               </Select>
             </Form.Item>
-          </Col>
+          </Col> */}
           <Col span={4}>
             <Form.Item
               {...field}
@@ -351,7 +374,12 @@ const AddressForm = ({
                 },
               ]}
             >
-              <Select placeholder="Xã/Phường">
+              <Select
+              showSearch
+              allowClear
+              optionFilterProp="children"
+              placeholder="Xã/Phường"
+              onChange={handleChangeWard}>
                 {wards.map((ward) => (
                   <Option key={ward.id} value={ward.id}>
                     {ward.name}

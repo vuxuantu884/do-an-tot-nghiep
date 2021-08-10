@@ -148,7 +148,7 @@ function* groupGetSaga(action: YodyAction) {
 
 export function* contentSaga() {
   yield takeLatest(ContentType.GET_COUNTRY_REQUEST, countryGetSaga);
-  yield takeLatest(ContentType.GET_DISTRICT_REQUEST, districtGetSaga);
+  yield takeEvery(ContentType.GET_DISTRICT_REQUEST, districtGetSaga);
   yield takeLatest(ContentType.GET_GROUP_REQUEST, groupGetSaga);
   yield takeEvery(ContentType.GET_WARD_REQUEST, wardGetSaga);
   yield takeEvery(ContentType.GET_CITY_BY_COUNTRY_REQUEST, cityByCountryGetSaga);

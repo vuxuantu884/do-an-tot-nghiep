@@ -7,71 +7,6 @@ interface BaseObject {
     operator_kc_id: string | null;
 }
 
-export interface CustomerRequest extends BaseObject {
-
-  code: string | null;
-  full_name: string;
-  phone: string;
-  email: string;
-  customer_group_id: number | null;
-  customer_group: string | null;
-  customer_type_id: number | null;
-  customer_type: string | null;
-  customer_level_id: number | null;
-  customer_level: string | null; 
-  company_id: number | null;
-  company: string | null;
-  description: string | null,
-  wedding_date: string | null;
-  birthday: string | null;
-  gender: string;
-  website: string;
-  status: string;
-  tags: string;
-  responsible_staff_code: string | null;
-  billing_addresses: Array<CustomerBillingAddress>;
-  shipping_addresses: Array<CustomerShippingAddress>;
-  contacts: Array<CustomerContact>;
-  notes: Array<CustomerNote>;
-}
-
-export class CustomerModel implements CustomerRequest {
-  created_name = '';
-  created_by = null;
-  updated_name= '';
-  updated_by = null;
-  operator_kc_id = '';
-  request_id = '';
-  code = '';
-  full_name = '';
-  phone = '';
-  email = '';
-  customer_group_id = 1;
-  customer_group  = '';
-  customer_type_id = null;
-  customer_type = '';
-  customer_level_id = null;
-  customer_level = ''; 
-  company_id = 1;
-  company = '';
-  description = '';
-  wedding_date = null;
-  birthday = null;
-  gender = '';
-  website = '';
-  status = 'active';
-  tags = '';
-  responsible_staff_code = '';
-  billing_addresses: Array<CustomerBillingAddress> = [];
-  shipping_addresses: Array<CustomerShippingAddress> = [];
-  contacts: Array<CustomerContact> = [];
-  notes: Array<CustomerNote> = [];
-}
-
-export interface CustomerUpdateRequest extends CustomerRequest{
-    shopping_histories: Array<any>;
-  }
-
 export interface CustomerBillingAddress extends BaseObject {
   id:  number;
   is_default: boolean;
@@ -205,4 +140,70 @@ export class CustomerNoteClass implements CustomerNote {
   updated_name = '';
   request_id = ''
   operator_kc_id = '';
+}
+
+
+export interface CustomerRequest extends BaseObject {
+
+  code: string | null;
+  full_name: string;
+  phone: string;
+  email: string;
+  customer_group_id: number | null;
+  customer_group: string | null;
+  customer_type_id: number | null;
+  customer_type: string | null;
+  customer_level_id: number | null;
+  customer_level: string | null; 
+  company_id: number | null;
+  company: string | null;
+  description: string | null,
+  wedding_date: string | null;
+  birthday: string | null;
+  gender: string;
+  website: string;
+  status: string;
+  tags: string;
+  responsible_staff_code: string | null;
+  billing_addresses: Array<CustomerBillingAddress>;
+  shipping_addresses: Array<CustomerShippingAddress>;
+  contacts: Array<CustomerContact>;
+  notes: Array<CustomerNote>;
+}
+
+export class CustomerModel implements CustomerRequest {
+  created_name = '';
+  created_by = null;
+  updated_name= '';
+  updated_by = null;
+  operator_kc_id = '';
+  request_id = '';
+  code = '';
+  full_name = '';
+  phone = '';
+  email = '';
+  customer_group_id = 1;
+  customer_group  = '';
+  customer_type_id = null;
+  customer_type = '';
+  customer_level_id = null;
+  customer_level = ''; 
+  company_id = 1;
+  company = '';
+  description = '';
+  wedding_date = null;
+  birthday = null;
+  gender = '';
+  website = '';
+  status = 'active';
+  tags = '';
+  responsible_staff_code = '';
+  billing_addresses: Array<CustomerBillingAddress> = [];
+  shipping_addresses: Array<CustomerShippingAddress> = [];
+  contacts: Array<CustomerContact> = [];
+  notes: Array<CustomerNote> = [];
+}
+
+export interface CustomerUpdateRequest extends CustomerRequest{
+    shopping_histories: Array<any>;
 }

@@ -41,7 +41,7 @@ const CustomerEdit = (props: any) => {
     { name: "Không hoạt động", key: "2", value: "inactive" },
   ];
   React.useEffect(() => {
-    //dispatch(CustomerGroups(setGroups));
+    dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(CustomerTypes(setTypes));
     dispatch(CustomerLevels(setLevels));
@@ -213,7 +213,12 @@ const CustomerEdit = (props: any) => {
                   <Row gutter={12}>
                     <Col span={4}>
                       <Form.Item name="company_id" label="Công ty">
-                        <Select placeholder="Công ty">
+                        <Select
+                        showSearch
+                        placeholder="Công ty"
+                        allowClear
+                        optionFilterProp="children"
+                        >
                           {companies.map((company) => (
                             <Option key={company.id} value={company.id}>
                               {company.name}
@@ -281,7 +286,12 @@ const CustomerEdit = (props: any) => {
                     //   },
                     // ]}
                   >
-                    <Select placeholder="Phân loại khách hàng">
+                    <Select
+                    showSearch
+                    placeholder="Phân loại khách hàng"
+                    allowClear
+                    optionFilterProp="children"
+                    >
                       {types.map((type) => (
                         <Option key={type.id} value={type.id}>
                           {type.name}
@@ -301,7 +311,12 @@ const CustomerEdit = (props: any) => {
                     //   },
                     // ]}
                   >
-                    <Select placeholder="Phân loại nhóm khách hàng">
+                    <Select 
+                    showSearch 
+                    placeholder="Phân loại nhóm khách hàng"
+                    allowClear
+                    optionFilterProp="children"
+                    >
                       {groups.map((group) => (
                         <Option key={group.id} value={group.id}>
                           {group.name + ` - ${group.code}`}
@@ -321,7 +336,12 @@ const CustomerEdit = (props: any) => {
                     //   },
                     // ]}
                   >
-                    <Select placeholder="Phân loại cấp độ khách hàng">
+                    <Select
+                    showSearch
+                    placeholder="Phân loại cấp độ khách hàng"
+                    allowClear
+                    optionFilterProp="children"
+                    >
                       {levels.map((level) => (
                         <Option key={level.id} value={level.id}>
                           {level.name}

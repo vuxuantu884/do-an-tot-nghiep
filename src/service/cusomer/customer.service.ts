@@ -25,7 +25,7 @@ export const getCustomerTypes = (): Promise<BaseResponse<any>> => {
 };
 
 export const getCustomerGroups = (): Promise<BaseResponse<any>> => {
-  let link = `${ApiConfig.CUSTOMER}`;
+  let link = `${ApiConfig.CUSTOMER}/customer-groups`;
   return BaseAxios.get(link);
 };
 
