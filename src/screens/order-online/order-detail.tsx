@@ -78,6 +78,7 @@ const OrderDetail = () => {
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
+  const [OrderDetailAllFullfilment, setOrderDetailAllFullfilment] = useState<OrderResponse | null>(null);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
     null
@@ -129,10 +130,10 @@ const OrderDetail = () => {
       } else {
         if (
           OrderDetail.fulfillments !== undefined &&
-          OrderDetail.fulfillments !== null
+          OrderDetail.fulfillments !== null && OrderDetail.fulfillments.length > 0
         ) {
           if (
-            OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+            OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
           ) {
             return OrderStatus.FINALIZED;
           }
@@ -179,7 +180,10 @@ const OrderDetail = () => {
     if (!data) {
       setError(true);
     } else {
-      setOrderDetail(data);
+      let _data = {...data}
+      _data.fulfillments = _data.fulfillments?.filter((f) => f.status !== FulFillmentStatus.CANCELLED )
+      setOrderDetail(_data);
+      setOrderDetailAllFullfilment(data)
     }
   }, []);
 
@@ -203,7 +207,7 @@ const OrderDetail = () => {
   //#region Update Fulfillment Status
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail.customer_id, setCustomerDetail));
+      dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomerDetail));
     }
   }, [dispatch, OrderDetail]);
 
@@ -335,6 +339,7 @@ const OrderDetail = () => {
               shipmentMethod={shipmentMethod}
               isVisibleShipping={isVisibleShipping}
               paymentType={paymentType}
+              OrderDetailAllFullfilment={OrderDetailAllFullfilment}
             />
 
             {/*--- end shipment ---*/}
@@ -381,7 +386,7 @@ const OrderDetail = () => {
                           Đã thanh toán:
                         </span>
                         <b>
-                          {(OrderDetail?.fulfillments &&
+                          {(OrderDetail?.fulfillments && OrderDetail?.fulfillments.length > 0 &&
                             OrderDetail?.fulfillments[0].status === "shipped" &&
                             formatCurrency(customerNeedToPayValue)) ||
                             formatCurrency(
@@ -394,7 +399,7 @@ const OrderDetail = () => {
                           Còn phải trả:
                         </span>
                         <b style={{ color: "red" }}>
-                          {OrderDetail?.fulfillments &&
+                          {OrderDetail?.fulfillments && OrderDetail?.fulfillments.length > 0 &&
                           OrderDetail?.fulfillments[0].status !== "shipped"
                             ? formatCurrency(
                                 customerNeedToPayValue -
