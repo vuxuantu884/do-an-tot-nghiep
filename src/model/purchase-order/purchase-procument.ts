@@ -2,7 +2,7 @@ export interface PurchaseProcument {
   id?: number
   code: string,
   reference: string,
-  store_code: string,
+  store_id: string,
   expect_receipt_date: string,
   procurement_items: Array<PurchaseProcumentLineItem>,
   status: string,
@@ -31,13 +31,14 @@ const POProcumentField = {
   id: 'id',
   code: 'code',
   reference: 'reference',
-  store_code: 'store_code',
+  store_id: 'store_id',
+  store: 'store',
   expect_receipt_date: 'expect_receipt_date',
   procurement_items: 'procurement_items',
   status: 'status',
   note: 'note',
-  actived_date: 'actived_date',
-  actived_by: 'actived_by',
+  activated_date: 'activated_date',
+  activated_by: 'activated_by',
   stock_in_date: 'stock_in_date',
   stock_in_by: 'stock_in_by',
 }
@@ -54,8 +55,6 @@ const POProcumentLineItemField = {
   quantity: 'quantity',
   real_quantity: 'real_quantity',
   note: 'note',
-  activated_date: 'activated_date',
-  activated_by: 'activated_by'
 }
 
 export {POProcumentField, POProcumentLineItemField};

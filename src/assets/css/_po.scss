@@ -291,6 +291,27 @@
       line-height: 18px;
     }
   }
+  .row-expand {
+    margin-left: 12px;
+    .item {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      &-col {
+        padding: 10px 5px;
+      }
+      &-col-name {
+        flex: 1;
+      }
+      &-col-number {
+        width: 200px;
+        text-align: right;
+      }
+      &-col-empty {
+        width: 40px;
+      }
+    }
+  }
 }
 .product-item-discount {
   &-select {

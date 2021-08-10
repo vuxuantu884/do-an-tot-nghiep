@@ -90,9 +90,10 @@ export const POStatus = {
 }
 
 export const ProcumentStatus = {
-  DRAFT: 'DRAFT',
-  CONFIRMED: 'FINALIZED',
-  FINISHED: 'COMPLETED',
+  DRAFT: 'draft',
+  CONFIRMED: 'not_received',
+  RECEIVED: 'received',
+  CANCELLED: 'cancelled '
 }
 
 export const PoPaymentStatus = {
@@ -103,4 +104,13 @@ export const PoPaymentStatus = {
 export const PoPaymentMethod ={
   CASH:'cash',
   BANK_TRANSFER:'bank_transfer'
+}
+
+export const PoFinancialStatus = {
+  DRAFT: 'draft',
+  UNPAID: 'unpaid',
+  PARTIAL_PAID:'unpaid',
+  PAID:'paid',
+  FINISHED:'finished',
+  CANCELLED:'cancelled',  
 }

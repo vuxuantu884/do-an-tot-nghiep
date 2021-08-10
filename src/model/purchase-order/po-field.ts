@@ -33,7 +33,8 @@ const POField = {
   payments:'payments',
   procurements: 'procurements',
   receipt_quantity: 'receipt_quantity',
-  ordered_quantity: 'ordered_quantity',
+  planned_quantity: 'planned_quantity',
+  financial_status:'financial_status'
  
 }
 
