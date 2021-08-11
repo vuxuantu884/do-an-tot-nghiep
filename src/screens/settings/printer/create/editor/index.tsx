@@ -1,9 +1,16 @@
+import { PrintEditorModel } from "model/other/Print/print-model";
 import React, { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-const Editor: React.FC = () => {
-  const [value, setValue] = useState("");
+const Editor: React.FC<PrintEditorModel> = (props: PrintEditorModel) => {
+  const { initialValue, onChange } = props;
+  const [value, setValue] = useState(initialValue);
+  const handleOnChange = (value: string) => {
+    console.log("value", value);
+    setValue(value);
+    onChange(value);
+  };
   const editorConfig = {
     modules: {
       toolbar: [
@@ -47,7 +54,7 @@ const Editor: React.FC = () => {
       <ReactQuill
         theme={editorConfig.theme}
         value={value}
-        onChange={setValue}
+        onChange={handleOnChange}
         modules={editorConfig.modules}
         formats={editorConfig.formats}
       />
