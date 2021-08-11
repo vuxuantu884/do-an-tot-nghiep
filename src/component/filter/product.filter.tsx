@@ -1,6 +1,5 @@
 import {
   Button,
-  Card,
   Col,
   DatePicker,
   Form,
@@ -95,7 +94,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
   }, [formRef, visible]);
 
   return (
-    <Card bordered={false}>
+    <div>
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} initialValues={params} layout="inline">
           <Item name="info">
@@ -315,7 +314,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
           </Row>
         </Form>
       </BaseFilter>
-    </Card>
+    </div>
   );
 };
 

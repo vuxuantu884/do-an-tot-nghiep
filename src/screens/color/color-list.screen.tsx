@@ -219,82 +219,85 @@ const ColorListScreen: React.FC = () => {
       extra={<ButtonCreate path={`${UrlConfig.COLORS}/create`} />}
     >
       <Card>
-        <CustomFilter menu={action} onMenuClick={onMenuClick}>
-          <Form
-            className="form-search"
-            size="middle"
-            onFinish={onFinish}
-            initialValues={params}
-            layout="inline"
-          >
-            <Form.Item name="info">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Tên/Mã màu sắc"
-              />
-            </Form.Item>
-            <Form.Item name="parent_id">
-              <Select placeholder="Chọn màu chủ đạo" style={{ width: 200 }}>
-                <Option value="">Chọn màu chủ đạo</Option>
-                {listMainColor.items.map((item) => (
-                  <Option key={item.id} value={item.id}>
-                    {item.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <Form.Item name="hex_code">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{ width: 200 }}
-                placeholder="Mã hex"
-              />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Form.Item>
-          </Form>
-        </CustomFilter>
-        <CustomTable
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          isLoading={tableLoading}
-          dataSource={data.items}
-          showColumnSetting={true}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          columns={columnFinal}
-          onSelectedChange={onSelect}
-          rowKey={(item: ColorResponse) => item.id}
-        />
-        <ModalSettingColumn
-          visible={showSettingColumn}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumn(data);
-          }}
-          data={columns}
-        />
-        <ModalDeleteConfirm
-          onCancel={() => setConfirmDelete(false)}
-          onOk={() => {
-            setConfirmDelete(false);
-            // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
-            onDelete();
-          }}
-          title="Bạn chắc chắn xóa màu sắc ?"
-          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
-          visible={isConfirmDelete}
-        />
+        <div className="padding-20">
+          <CustomFilter menu={action} onMenuClick={onMenuClick}>
+            <Form
+              className="form-search"
+              size="middle"
+              onFinish={onFinish}
+              initialValues={params}
+              layout="inline"
+            >
+              <Form.Item name="info">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  style={{ width: 200 }}
+                  placeholder="Tên/Mã màu sắc"
+                />
+              </Form.Item>
+              <Form.Item name="parent_id">
+                <Select placeholder="Chọn màu chủ đạo" style={{ width: 200 }}>
+                  <Option value="">Chọn màu chủ đạo</Option>
+                  {listMainColor.items.map((item) => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item name="hex_code">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  style={{ width: 200 }}
+                  placeholder="Mã hex"
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Form.Item>
+            </Form>
+          </CustomFilter>
+          <CustomTable
+            isRowSelection
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            isLoading={tableLoading}
+            dataSource={data.items}
+            showColumnSetting={true}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            columns={columnFinal}
+            onSelectedChange={onSelect}
+            rowKey={(item: ColorResponse) => item.id}
+          />
+          <ModalSettingColumn
+            visible={showSettingColumn}
+            onCancel={() => setShowSettingColumn(false)}
+            onOk={(data) => {
+              setShowSettingColumn(false);
+              setColumn(data);
+            }}
+            data={columns}
+          />
+          <ModalDeleteConfirm
+            onCancel={() => setConfirmDelete(false)}
+            onOk={() => {
+              setConfirmDelete(false);
+              // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+              onDelete();
+            }}
+            title="Bạn chắc chắn xóa màu sắc ?"
+            subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+            visible={isConfirmDelete}
+          />
+        </div>
       </Card>
     </ContentContainer>
   );

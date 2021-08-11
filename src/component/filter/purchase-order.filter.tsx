@@ -1,4 +1,4 @@
-import { Button, Card, Col, Form, Input, Row, Select, Tooltip } from "antd";
+import { Button, Col, Form, Input, Row, Select, Tooltip } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { useCallback, useLayoutEffect, useState } from "react";
 import BaseFilter from "./base.filter";
@@ -86,7 +86,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   }, [formAdvanceFilter, formBaseFilter, visible]);
 
   return (
-    <Card bordered={false}>
+    <div>
       <Form.Provider
         onFormFinish={(name, { values, forms }) => {
           debugger;
@@ -163,7 +163,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           </Form>
         </BaseFilter>
       </Form.Provider>
-    </Card>
+    </div>
   );
 };
 

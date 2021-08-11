@@ -1,4 +1,4 @@
-import { DoubleLeftOutlined, DoubleRightOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { Col, Pagination, Row, Select, TableProps } from "antd";
 import classNames from "classnames";
 import { PageConfig } from "config/PageConfig";

@@ -1,7 +1,9 @@
 import { Card, Tooltip } from "antd";
 import StoreFilter from "component/filter/store.filter";
 import { MenuAction } from "component/table/ActionButton";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import {
   StoreRankAction,
@@ -27,15 +29,15 @@ import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 
 const initQuery: StoreQuery = {
-  info: '',
-  status: '',
-  rank: '',
-  hotline: '',
-  group_id: '',
-  from_begin_date: '',
-  to_begin_date: '',
-  from_square: '',
-  to_square: '',
+  info: "",
+  status: "",
+  rank: "",
+  hotline: "",
+  group_id: "",
+  from_begin_date: "",
+  to_begin_date: "",
+  from_square: "",
+  to_square: "",
 };
 
 const actions: Array<MenuAction> = [
@@ -79,7 +81,9 @@ const StoreListScreen: React.FC = () => {
   });
   const isFirstLoad = useRef(true);
   const [loading, setLoading] = useState(false);
-  const [columns, setColumn] = useState<Array<ICustomTableColumType<StoreResponse>>>([
+  const [columns, setColumn] = useState<
+    Array<ICustomTableColumType<StoreResponse>>
+  >([
     {
       title: "Mã cửa hàng",
       width: 120,
@@ -93,7 +97,7 @@ const StoreListScreen: React.FC = () => {
       title: "Tên cửa hàng",
       dataIndex: "name",
       sorter: true,
-      visible: true
+      visible: true,
     },
     {
       title: "Số điện thoại",
@@ -103,31 +107,31 @@ const StoreListScreen: React.FC = () => {
     {
       title: "Thành phố",
       dataIndex: "city_name",
-      visible: true
+      visible: true,
     },
     {
       title: "Địa chỉ",
       dataIndex: "address",
-      visible: true
+      visible: true,
     },
     {
       title: "Phân cấp",
       dataIndex: "rank_name",
       width: 100,
-      align: 'center',
-      visible: true
+      align: "center",
+      visible: true,
     },
     {
       title: "Người tạo",
       dataIndex: "created_name",
-      align: 'center',
+      align: "center",
       width: 150,
-      visible: false
+      visible: false,
     },
     {
       title: "Ngày tạo",
       dataIndex: "created_date",
-      align: 'left',
+      align: "left",
       width: 130,
       visible: false,
       render: (value: string) => {
@@ -137,7 +141,7 @@ const StoreListScreen: React.FC = () => {
     {
       title: "Ngày sửa",
       dataIndex: "updated_date",
-      align: 'center',
+      align: "center",
       width: 130,
       visible: false,
       render: (value: string) => {
@@ -147,9 +151,9 @@ const StoreListScreen: React.FC = () => {
     {
       title: "Người sửa",
       dataIndex: "updated_name",
-      align: 'center',
+      align: "center",
       width: 150,
-      visible: false
+      visible: false,
     },
     {
       title: "Trạng thái",
@@ -204,11 +208,14 @@ const StoreListScreen: React.FC = () => {
   const onGetDataSuccess = useCallback((data: PageResponse<StoreResponse>) => {
     setLoading(false);
     setData(data);
-  }, [])
+  }, []);
   const onMenuClick = useCallback((index: number) => {}, []);
-  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
+  const columnFinal = useMemo(
+    () => columns.filter((item) => item.visible === true),
+    [columns]
+  );
   useEffect(() => {
-    if(isFirstLoad.current) {
+    if (isFirstLoad.current) {
       dispatch(StoreRankAction(setStoreRank));
       dispatch(GroupGetAction(setGroups));
     }
@@ -221,56 +228,57 @@ const StoreListScreen: React.FC = () => {
       title="Quản lý cửa hàng"
       breadcrumb={[
         {
-          name: 'Tổng quản',
+          name: "Tổng quản",
           path: UrlConfig.HOME,
         },
         {
-          name: 'Cửa hàng',
+          name: "Cửa hàng",
         },
       ]}
-      extra={
-        <ButtonCreate path={`${UrlConfig.STORE}/create`} />
-      }
+      extra={<ButtonCreate path={`${UrlConfig.STORE}/create`} />}
     >
       <Card>
-        <StoreFilter
-          initValue={initQuery}
-          storeStatusList={storeStatusList}
-          onMenuClick={onMenuClick}
-          actions={actions}
-          onFilter={onFilter}
-          params={params}
-          storeRanks={storeRanks}
-          groups={groups}
-        />
-        <CustomTable
-          showColumnSetting={true}
-          isLoading={loading}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          scroll={{ x: 1080 }}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          dataSource={data.items}
-          columns={columnFinal}
-          rowKey={(item: StoreResponse) => item.id}
-        />
-        <ModalSettingColumn
-          visible={showSettingColumn}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumn(data)
-          }}
-          data={columns}
-        />
+        <div className="padding-20">
+          <StoreFilter
+            initValue={initQuery}
+            storeStatusList={storeStatusList}
+            onMenuClick={onMenuClick}
+            actions={actions}
+            onFilter={onFilter}
+            params={params}
+            storeRanks={storeRanks}
+            groups={groups}
+          />
+          <CustomTable
+            isRowSelection
+            showColumnSetting={true}
+            isLoading={loading}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            scroll={{ x: 1080 }}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(item: StoreResponse) => item.id}
+          />
+          <ModalSettingColumn
+            visible={showSettingColumn}
+            onCancel={() => setShowSettingColumn(false)}
+            onOk={(data) => {
+              setShowSettingColumn(false);
+              setColumn(data);
+            }}
+            data={columns}
+          />
+        </div>
       </Card>
-      </ContentContainer>
+    </ContentContainer>
   );
 };
 

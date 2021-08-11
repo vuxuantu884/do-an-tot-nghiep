@@ -45,7 +45,6 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
         return false;
       }
       let listWinAccount = data.items;
-      console.log(listWinAccount);
       setAccounts(listWinAccount);
       let checkUser = listWinAccount.findIndex(
         (val) => val.code === currentUserCode

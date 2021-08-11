@@ -2,13 +2,178 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Select } from "antd";
 import HashTag from "component/custom/hashtag";
 import { AccountResponse } from "model/account/account.model";
+import { POField } from "model/purchase-order/po-field";
 
 type POInfoFormProps = {
   winAccount: Array<AccountResponse>;
   rdAccount: Array<AccountResponse>;
+  isEdit: boolean;
 };
 
 const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
+  const { winAccount, rdAccount, isEdit } = props;
+  if (isEdit) {
+    return (
+      <div>
+        <Card
+          className="po-form"
+          title={
+            <div className="d-flex">
+              <span className="title-card">THÔNG TIN ĐƠN MUA HÀNG</span>
+            </div>
+          }
+        >
+          <div className="padding-20">
+            <Form.Item name={POField.code} noStyle hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.merchandiser_code} noStyle hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item name={POField.merchandiser} noStyle hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item
+              shouldUpdate={(prev, current) =>
+                prev[POField.code] !== current[POField.code]
+              }
+            >
+              {({ getFieldValue }) => {
+                let code = getFieldValue(POField.code);
+                return (
+                  <div className="row-view">
+                    <div className="row-view-title">Mã đơn mua hàng:</div>
+                    <div className="row-view-result row-view-result-id">
+                      {code}
+                    </div>
+                  </div>
+                );
+              }}
+            </Form.Item>
+            <Form.Item
+              shouldUpdate={(prev, current) =>
+                prev[POField.merchandiser] !== current[POField.merchandiser]
+              }
+            >
+              {({ getFieldValue }) => {
+                let merchandiser = getFieldValue(POField.merchandiser);
+                let merchandiser_code = getFieldValue(
+                  POField.merchandiser_code
+                );
+                return (
+                  <div className="row-view">
+                    <div className="row-view-title">Merchandiser:</div>
+                    <div className="row-view-result">
+                      {merchandiser_code} - {merchandiser}
+                    </div>
+                  </div>
+                );
+              }}
+            </Form.Item>
+            <Form.Item
+              shouldUpdate={(prev, current) =>
+                prev[POField.qc] !== current[POField.qc]
+              }
+            >
+              {({ getFieldValue }) => {
+                let qc = getFieldValue(POField.qc);
+                let qc_code = getFieldValue(POField.qc_code);
+                return (
+                  <div className="row-view">
+                    <div className="row-view-title">QC:</div>
+
+                    {qc_code !== null ? (
+                      <div className="row-view-result">
+                        {`${qc_code} - ${qc}`}
+                      </div>
+                    ) : (
+                      <div className="row-view-result row-view-result-empty">
+                        Không có QC
+                      </div>
+                    )}
+                  </div>
+                );
+              }}
+            </Form.Item>
+            <Form.Item name={POField.reference} noStyle hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item
+              shouldUpdate={(prev, current) =>
+                prev[POField.reference] !== current[POField.reference]
+              }
+            >
+              {({ getFieldValue }) => {
+                let reference = getFieldValue(POField.reference);
+                return (
+                  <div className="row-view">
+                    <div className="row-view-title">Mã tham chiếu:</div>
+
+                    {reference !== null ? (
+                      <div className="row-view-result">{`${reference}`}</div>
+                    ) : (
+                      <div className="row-view-result row-view-result-empty">
+                        Không có mã tham chiếu
+                      </div>
+                    )}
+                  </div>
+                );
+              }}
+            </Form.Item>
+          </div>
+        </Card>
+        <Card
+          className="po-form margin-top-20"
+          title={
+            <div className="d-flex">
+              <span className="title-card">THÔNG TIN BỔ SUNG</span>
+            </div>
+          }
+        >
+          <div className="padding-20">
+            <Form.Item noStyle hidden name={POField.note}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Ghi chú nội bộ" shouldUpdate={(prev, current) => prev[POField.note] !== current[POField.note]}>
+            {({ getFieldValue }) => {
+                let note = getFieldValue(POField.note);
+                return (
+                  <div className="row-view">
+                    {note!== null && note !== '' ? note : 'Không có ghi chú' }
+                  </div>
+                );
+              }}
+            </Form.Item>
+            <Form.Item noStyle hidden name={POField.tags}>
+              <Input />
+            </Form.Item>
+            <Form.Item
+              tooltip={{
+                title: "Thẻ ngày giúp tìm kiếm đơn hàng",
+                icon: <InfoCircleOutlined />,
+              }}
+              shouldUpdate={(prev, current) => prev[POField.tags] !== current[POField.tags]}
+              label="Tag"
+            >
+              {({ getFieldValue }) => {
+                let tags: string = getFieldValue(POField.tags);
+                let listTag= tags && tags !== null ? tags.split(',') : [];
+                return (
+                  <div style={{flexWrap: 'wrap'}} className="row-view">
+                    {listTag.map((value, index) => (
+                      <div className="row-view-hash-tag" key={index.toString()}>
+                        {value}
+                      </div>
+                    ))}
+                  </div>
+                );
+              }}
+            </Form.Item>
+          </div>
+        </Card>
+      </div>
+    );
+  }
   return (
     <div>
       <Card
@@ -27,37 +192,33 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                 message: "Vui lòng chọn Merchandiser",
               },
             ]}
-            name="merchandiser_code"
+            name={POField.merchandiser_code}
             label="Merchandiser"
           >
             <Select showArrow showSearch placeholder="Chọn Merchandiser">
               <Select.Option value="">Chọn Merchandiser</Select.Option>
-              {props.winAccount.map((item) => (
+              {winAccount.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
                   {[item.code, item.full_name].join(' - ')}
                 </Select.Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="qc_code" label="QC">
+          <Form.Item name={POField.qc_code} label="QC">
             <Select showArrow showSearch placeholder="Chọn QC">
               <Select.Option value="">Chọn QC</Select.Option>
-              {props.rdAccount.map((item) => (
+              {rdAccount.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
-                  {item.full_name}
+                  {item.code} - {item.full_name}
                 </Select.Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item
-            tooltip={{
+          <Form.Item  tooltip={{
               title: "Thêm số tham chiếu hoặc mã hợp đồng",
               icon: <InfoCircleOutlined />,
-            }}
-            name="reference"
-            label="Số tham chiếu"
-          >
-            <Input type="text" maxLength={255} placeholder="Nhập số tham chiếu" />
+            }} name={POField.reference} label="Số tham chiếu">
+            <Input placeholder="Nhập số tham chiếu" />
           </Form.Item>
         </div>
       </Card>

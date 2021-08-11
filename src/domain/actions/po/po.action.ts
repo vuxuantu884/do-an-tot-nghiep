@@ -13,6 +13,17 @@ export const PoCreateAction = (
     createCallback,
   });
 };
+export const PoUpdateAction = (
+  id: number,
+  request: PurchaseOrder | null,
+  updateCallback: (result: PurchaseOrder|null) => void
+) => {
+  return BaseAction(POType.UPDATE_PO_REQUEST, {
+    id,
+    request,
+    updateCallback,
+  });
+};
 
 export const PoDetailAction = (
   id: number,
