@@ -291,3 +291,14 @@ export interface TrackingLogFulfillmentResponse extends BaseObject {
   action_date: string;
   deleted: boolean;
 }
+
+
+export interface ErrorLogResponse extends BaseObject {
+  fulfillment_code: string;
+  shipment_id: string;
+  tracking_code: string;
+  response_body: string;
+  action: string;
+  request_body: string;
+  deleted: boolean;
+}

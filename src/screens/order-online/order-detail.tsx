@@ -34,7 +34,6 @@ import {
 } from "model/response/order/order.response";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import moment from "moment";
 import {
   checkPaymentAll,
   checkPaymentStatusToShow,

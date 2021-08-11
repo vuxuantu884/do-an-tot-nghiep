@@ -34,6 +34,7 @@ import { AccountResponse } from "model/account/account.model";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   DeliveryServicesGetList,
+  getTrackingLogError,
   getTrackingLogFulfillmentAction,
   InfoGHTKAction,
   UpdateFulFillmentStatusAction,
@@ -53,6 +54,7 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 import {
   DeliveryServiceResponse,
+  ErrorLogResponse,
   OrderResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
@@ -67,7 +69,6 @@ import {
   getShipingAddresDefault,
   InfoServiceDeliveryDetail,
   replaceFormatString,
-  SumWeight,
   SumWeightResponse,
   TrackingCode,
 } from "utils/AppUtils";
@@ -88,7 +89,6 @@ import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import { StoreResponse } from "model/core/store.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import OrderDetail from "./../order-detail";
 const { Panel } = Collapse;
 const { Link } = Typography;
 
@@ -123,7 +123,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setVisibleShipping,
     setPaymentType,
     setShipmentMethod,
-    setVisibleUpdatePayment,
   } = props;
 
   // node dom
@@ -148,6 +147,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
+  const [errorLogFulfillment, setErrorLogFulfillment] =
+    useState<Array<ErrorLogResponse> | null>(null);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
   const [hvc, setHvc] = useState<number | null>(null);
   const [serviceType, setServiceType] = useState<string>();
@@ -307,8 +308,25 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         );
       }
     }
-  }, [dispatch, props.OrderDetail]);
+  }, [dispatch, props.OrderDetail]); //logne
 
+  useEffect(() => {
+    if (
+      props.OrderDetail &&
+      props.OrderDetail.fulfillments &&
+      props.OrderDetail.fulfillments.length > 0 &&
+      props.OrderDetail.fulfillments[0].code &&
+      props.OrderDetail.fulfillments[0].shipment &&
+      props.OrderDetail.fulfillments[0].shipment.pushing_status === "failed"
+    ) {
+      dispatch(
+        getTrackingLogError(
+          props.OrderDetail.fulfillments[0].code,
+          setErrorLogFulfillment
+        )
+      );
+    }
+  }, [dispatch, props.OrderDetail]);
   //#endregion
 
   //#region Update Fulfillment Status
@@ -393,10 +411,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         value.status = FulFillmentStatus.CANCELLED;
         dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
         break;
-        case 6:
-          value.status = FulFillmentStatus.RETURNED;
-          dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
-          break;  
+      case 6:
+        value.status = FulFillmentStatus.RETURNED;
+        dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
+        break;
       default:
         return;
     }
@@ -797,11 +815,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     } else {
       setIsvibleCancelandGetGoodsBack(true);
     }
-  }, [
-    setIsvibleCancelFullfilment,
-    isvibleCancelFullfilment,
-    props.OrderDetail,
-  ]);
+  }, [setIsvibleCancelFullfilment, props.OrderDetail]);
 
   const onOKCancelFullfilment = () => {
     fulfillmentTypeOrderRequest(5);
@@ -1196,6 +1210,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                 >
                                   {TrackingCode(props.OrderDetail)}
                                 </Link>
+                                  {errorLogFulfillment &&
+                                    errorLogFulfillment.length > 0 &&
+                                    errorLogFulfillment?.map((item, index) => (
+                                      <span>{item.response_body}</span>
+                                    ))}
                                 <div style={{ width: 30, padding: "0 4px" }}>
                                   <img
                                     onClick={(e) => copyOrderID(e)}
@@ -1317,7 +1336,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             )}
             {props.stepsStatusValue === OrderStatus.FINALIZED &&
               props.OrderDetail.fulfillments[0].shipment
-                ?.delivery_service_provider_type != "pick_at_store" && (
+                ?.delivery_service_provider_type !== "pick_at_store" && (
                 <Button
                   type="primary"
                   style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1330,7 +1349,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
             {props.stepsStatusValue === OrderStatus.FINALIZED &&
               props.OrderDetail.fulfillments[0].shipment
-                ?.delivery_service_provider_type == "pick_at_store" && (
+                ?.delivery_service_provider_type === "pick_at_store" && (
                 <Button
                   type="primary"
                   style={{ marginLeft: "10px" }}
@@ -1353,7 +1372,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             )}
             {props.stepsStatusValue === FulFillmentStatus.PACKED &&
               props.OrderDetail.fulfillments[0].shipment
-                ?.delivery_service_provider_type != "pick_at_store" && (
+                ?.delivery_service_provider_type !== "pick_at_store" && (
                 <Button
                   type="primary"
                   style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1376,7 +1395,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
             {props.stepsStatusValue === FulFillmentStatus.PACKED &&
               props.OrderDetail.fulfillments[0].shipment
-                ?.delivery_service_provider_type == "pick_at_store" && (
+                ?.delivery_service_provider_type === "pick_at_store" && (
                 <Button
                   type="primary"
                   style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1778,7 +1797,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           name="shipper_code"
                           rules={[
                             {
-                              required: shipmentMethod == 2,
+                              required: shipmentMethod === 2,
                               message: "Vui lòng chọn đối tác giao hàng",
                             },
                           ]}
