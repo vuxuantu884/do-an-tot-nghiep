@@ -106,7 +106,7 @@ export const PoPaymentMethod ={
 export const PoFinancialStatus = {
   DRAFT: 'draft',
   UNPAID: 'unpaid',
-  PARTIAL_PAID:'unpaid',
+  PARTIAL_PAID:'partial_paid',
   PAID:'paid',
   FINISHED:'finished',
   CANCELLED:'cancelled',  
