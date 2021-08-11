@@ -52,6 +52,7 @@ import doubleArrow from "assets/icon/double_arrow.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import AlertIcon from "assets/icon/ydAlertIcon.svg";
 
 import {
   DeliveryServiceResponse,
@@ -372,8 +373,30 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const onCancelSuccess = (value: OrderResponse) => {
     showSuccess(
       `Bạn đã hủy đơn giao hàng ${
-        props.OrderDetail?.fulfillments && props.OrderDetail?.fulfillments.length > 0 && props.OrderDetail?.fulfillments.filter((fulfillment) => fulfillment.status !== FulFillmentStatus.CANCELLED)[0].id
+        props.OrderDetail?.fulfillments &&
+        props.OrderDetail?.fulfillments.length > 0 &&
+        props.OrderDetail?.fulfillments.filter(
+          (fulfillment) =>
+            fulfillment.status !== FulFillmentStatus.CANCELLED &&
+            fulfillment.status !== FulFillmentStatus.RETURNING &&
+            fulfillment.status !== FulFillmentStatus.RETURNED
+        )[0].id
       } thành công`
+    );
+    setTimeout(() => {
+      window.location.reload();
+    }, timeout);
+  };
+  const onReturnSuccess = (value: OrderResponse) => {
+    showSuccess(
+      `Bạn đã nhận hàng trả lại của đơn giao hàng ${
+        value.fulfillments &&
+        value.fulfillments.length > 0 &&
+        value.fulfillments.filter(
+          (fulfillment) =>
+            fulfillment.id === fullfilmentIdGoodReturn
+        )[0].id
+      }`
     );
     setTimeout(() => {
       window.location.reload();
@@ -414,6 +437,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
         break;
       case 6:
+        value.status = FulFillmentStatus.RETURNING;
+        dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
+        break;
+      case 7:
         value.status = FulFillmentStatus.RETURNED;
         dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
         break;
@@ -807,6 +834,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     useState<boolean>(false);
   const [isvibleCancelandGetGoodsBack, setIsvibleCancelandGetGoodsBack] =
     useState<boolean>(false);
+  const [isvibleGoodsReturn, setIsvibleGoodsReturn] = useState<boolean>(false);
+  const [fullfilmentIdGoodReturn, setFullfilmentIdGoodReturn] = useState<
+    number | null
+  >(null);
+
   const cancelFullfilment = useCallback(() => {
     if (
       props.OrderDetail?.fulfillments &&
@@ -825,10 +857,28 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
   // cancel fulfillment 3 button modal
   const onOkCancelAndGetGoodsBack = () => {
-    fulfillmentTypeOrderRequest(6);
+    fulfillmentTypeOrderRequest(7);
     setIsvibleCancelandGetGoodsBack(false);
   };
-
+  // return goods
+  const onOKGoodsReturn = () => {
+    setIsvibleGoodsReturn(false);
+    let value: UpdateFulFillmentStatusRequest = {
+      order_id: null,
+      fulfillment_id: null,
+      status: "",
+    };
+    value.order_id = props.OrderDetail?.id;
+    value.fulfillment_id = fullfilmentIdGoodReturn;
+    value.status = FulFillmentStatus.RETURNED;
+    dispatch(UpdateFulFillmentStatusAction(value, onReturnSuccess));
+  };
+  const goodsReturnCallback = useCallback(
+    (id: number | null) => (
+      setFullfilmentIdGoodReturn(id), setIsvibleGoodsReturn(true)
+    ),
+    [setFullfilmentIdGoodReturn, setIsvibleGoodsReturn]
+  );
   // end
   useEffect(() => {
     getRequirementName();
@@ -923,7 +973,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     <Row
                       style={{ paddingLeft: 12 }}
                       className={
-                        fulfillment.status === FulFillmentStatus.CANCELLED
+                        fulfillment.status === FulFillmentStatus.CANCELLED ||
+                        fulfillment.status === FulFillmentStatus.RETURNING ||
+                        fulfillment.status === FulFillmentStatus.RETURNED
                           ? "order-shipment-dot order-shipment-dot-cancelled"
                           : fulfillment.status === FulFillmentStatus.SHIPPED
                           ? "order-shipment-dot order-shipment-dot-active"
@@ -955,6 +1007,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           }}
                         />
                         {fulfillment.status !== FulFillmentStatus.CANCELLED &&
+                          fulfillment.status !== FulFillmentStatus.RETURNING &&
+                          fulfillment.status !== FulFillmentStatus.RETURNED &&
                           shipmentStatusTag.map((statusTag) => {
                             return (
                               statusTag.status ===
@@ -977,8 +1031,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           })}
                         {fulfillment.status_before_cancellation !==
                           FulFillmentStatus.SHIPPING &&
-                          fulfillment.status ===
-                            FulFillmentStatus.CANCELLED && (
+                          fulfillment.status === FulFillmentStatus.RETURNED && (
                             <Tag
                               className="orders-tag text-menu"
                               style={{
@@ -991,8 +1044,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           )}
                         {fulfillment.status_before_cancellation ===
                           FulFillmentStatus.SHIPPING &&
-                          fulfillment.status ===
-                            FulFillmentStatus.CANCELLED && (
+                          fulfillment.status !== FulFillmentStatus.RETURNED && (
                             <Tag
                               className="orders-tag text-menu"
                               style={{
@@ -1001,6 +1053,19 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               }}
                             >
                               Hủy giao hàng - Chưa nhận hàng
+                            </Tag>
+                          )}
+                        {fulfillment.status_before_cancellation ===
+                          FulFillmentStatus.SHIPPING &&
+                          fulfillment.status === FulFillmentStatus.RETURNED && (
+                            <Tag
+                              className="orders-tag text-menu"
+                              style={{
+                                color: "#E24343",
+                                backgroundColor: "rgba(226, 67, 67, 0.1)",
+                              }}
+                            >
+                              Hủy giao hàng - Đã nhận hàng
                             </Tag>
                           )}
                       </Col>
@@ -1176,125 +1241,142 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     style={{
                       marginTop: 12,
                       marginBottom: 0,
-                      padding: "0 12px",
+                      padding: "0 24px",
                     }}
                   >
-                    <Col span={24}>
-                      <Collapse ghost>
-                        <Panel
-                          header={
-                            <Row>
-                              <Col style={{ alignItems: "center" }}>
-                                <span
-                                  style={{
-                                    marginRight: "10px",
-                                    color: "#222222",
-                                  }}
-                                >
-                                  Mã vận đơn:{" "}
-                                </span>
-                                <Link
-                                  href={`https://i.ghtk.vn/${
-                                    props.OrderDetail?.fulfillments &&
-                                    props.OrderDetail?.fulfillments[0].shipment
-                                      ?.tracking_code
-                                  }`}
-                                  ref={copyRef}
-                                  className="text-field"
-                                  style={{
-                                    color: "#2A2A86",
-                                    fontWeight: 500,
-                                    fontSize: 16,
-                                  }}
-                                >
-                                  {TrackingCode(props.OrderDetail)}
-                                </Link>
-                                  {errorLogFulfillment &&
-                                    errorLogFulfillment.length > 0 &&
-                                    errorLogFulfillment?.map((item, index) => (
-                                      <span>{item.response_body}</span>
-                                    ))}
-                                <div style={{ width: 30, padding: "0 4px" }}>
-                                  <img
-                                    onClick={(e) => copyOrderID(e)}
-                                    src={copyFileBtn}
-                                    alt=""
-                                    style={{ width: 23 }}
-                                  />
-                                </div>
-                              </Col>
-                              <Col>
-                                <span
-                                  style={{ color: "#000000d9", marginRight: 6 }}
-                                ></span>
-                              </Col>
-                            </Row>
-                          }
-                          key="1"
-                          className="custom-css-collapse"
-                        >
-                          <Collapse
-                            className="orders-timeline"
-                            expandIcon={({ isActive }) => (
-                              <img
-                                src={doubleArrow}
-                                alt=""
-                                style={{
-                                  transform: isActive
-                                    ? "rotate(0deg)"
-                                    : "rotate(270deg)",
-                                  float: "right",
-                                }}
-                              />
-                            )}
-                            ghost
-                            defaultActiveKey={["0"]}
-                          >
-                            {trackingLogFulfillment?.map((item, index) => (
-                              <Panel
-                                className="orders-timeline-custom orders-dot-status"
-                                header={
-                                  <div>
-                                    <b
+                    <span className="text-field" style={{ color: "#222222" }}>
+                      {props.OrderDetail?.items.reduce(
+                        (a: any, b: any) => a + b.quantity,
+                        0
+                      )}{" "}
+                      Sản phẩm
+                    </span>
+                  </Row>
+                  {CheckShipmentType(props.OrderDetail!) ===
+                    "external_service" &&
+                    fulfillment.status !== FulFillmentStatus.CANCELLED &&
+                    fulfillment.status !== FulFillmentStatus.RETURNING &&
+                    fulfillment.status !== FulFillmentStatus.RETURNED && (
+                      <Row
+                        gutter={24}
+                        style={{
+                          marginTop: 12,
+                          marginBottom: 0,
+                          padding: "0 12px",
+                        }}
+                      >
+                        <Col span={24}>
+                          <Collapse ghost>
+                            <Panel
+                              header={
+                                <Row>
+                                  <Col style={{ alignItems: "center" }}>
+                                    <span
                                       style={{
-                                        paddingLeft: "14px",
+                                        marginRight: "10px",
                                         color: "#222222",
                                       }}
                                     >
-                                      {item.message}
-                                    </b>
-                                    <i
-                                      className="icon-dot"
-                                      style={{
-                                        fontSize: "4px",
-                                        margin: "16px 10px 10px 10px",
-                                        color: "#737373",
-                                      }}
-                                    ></i>{" "}
-                                    <span style={{ color: "#737373" }}>
-                                      {moment(item.created_date).format(
-                                        "DD/MM/YYYY HH:mm"
-                                      )}
+                                      Mã vận đơn:
                                     </span>
-                                  </div>
-                                }
-                                key={index}
-                                showArrow={false}
-                              ></Panel>
-                            ))}
+                                    <Link
+                                      href={`https://i.ghtk.vn/${
+                                        props.OrderDetail?.fulfillments &&
+                                        props.OrderDetail?.fulfillments[0]
+                                          .shipment?.tracking_code
+                                      }`}
+                                      ref={copyRef}
+                                      className="text-field"
+                                      style={{
+                                        color: "#2A2A86",
+                                        fontWeight: 500,
+                                        fontSize: 16,
+                                      }}
+                                    >
+                                      {TrackingCode(props.OrderDetail)}
+                                    </Link>
+                                    <div
+                                      style={{ width: 30, padding: "0 4px" }}
+                                    >
+                                      <img
+                                        onClick={(e) => copyOrderID(e)}
+                                        src={copyFileBtn}
+                                        alt=""
+                                        style={{ width: 23 }}
+                                      />
+                                    </div>
+                                  </Col>
+                                  <Col>
+                                    <span
+                                      style={{
+                                        color: "#000000d9",
+                                        marginRight: 6,
+                                      }}
+                                    ></span>
+                                  </Col>
+                                </Row>
+                              }
+                              key="1"
+                              className="custom-css-collapse"
+                            >
+                              <Collapse
+                                className="orders-timeline"
+                                expandIcon={({ isActive }) => (
+                                  <img
+                                    src={doubleArrow}
+                                    alt=""
+                                    style={{
+                                      transform: isActive
+                                        ? "rotate(0deg)"
+                                        : "rotate(270deg)",
+                                      float: "right",
+                                    }}
+                                  />
+                                )}
+                                ghost
+                                defaultActiveKey={["0"]}
+                              >
+                                {trackingLogFulfillment?.map((item, index) => (
+                                  <Panel
+                                    className="orders-timeline-custom orders-dot-status"
+                                    header={
+                                      <div>
+                                        <b
+                                          style={{
+                                            paddingLeft: "14px",
+                                            color: "#222222",
+                                          }}
+                                        >
+                                          {item.message}
+                                        </b>
+                                        <i
+                                          className="icon-dot"
+                                          style={{
+                                            fontSize: "4px",
+                                            margin: "16px 10px 10px 10px",
+                                            color: "#737373",
+                                          }}
+                                        ></i>{" "}
+                                        <span style={{ color: "#737373" }}>
+                                          {moment(item.created_date).format(
+                                            "DD/MM/YYYY HH:mm"
+                                          )}
+                                        </span>
+                                      </div>
+                                    }
+                                    key={index}
+                                    showArrow={false}
+                                  ></Panel>
+                                ))}
+                              </Collapse>
+                            </Panel>
                           </Collapse>
-                        </Panel>
-                      </Collapse>
-                      <span className="text-field" style={{ color: "#222222" }}>
-                        {props.OrderDetail?.items.reduce(
-                          (a: any, b: any) => a + b.quantity,
-                          0
-                        )}{" "}
-                        Sản phẩm
-                      </span>
-                    </Col>
-                  </Row>
-                  {fulfillment.status === FulFillmentStatus.CANCELLED && (
+                        </Col>
+                      </Row>
+                    )}
+                  {fulfillment.status === FulFillmentStatus.CANCELLED ||
+                  fulfillment.status === FulFillmentStatus.RETURNING ||
+                  fulfillment.status === FulFillmentStatus.RETURNED ? (
                     <div className="saleorder-custom-steps">
                       <div className="saleorder-steps-one saleorder-steps dot-active">
                         <span>Ngày tạo</span>
@@ -1306,7 +1388,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       </div>
                       {fulfillment.status_before_cancellation ===
                         FulFillmentStatus.SHIPPING && (
-                        <div className="saleorder-steps-two saleorder-steps dot-active">
+                        <div
+                          className={
+                            fulfillment.status === FulFillmentStatus.RETURNED
+                              ? "saleorder-steps-two saleorder-steps dot-active hide-steps-two-line"
+                              : "saleorder-steps-two saleorder-steps dot-active"
+                          }
+                        >
                           <span>Ngày hủy</span>
                           <span>
                             {moment(fulfillment?.cancel_date).format(
@@ -1327,164 +1415,54 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         </div>
                       )}
                       {fulfillment.status_before_cancellation ===
-                        FulFillmentStatus.SHIPPING && (
-                        <div className="saleorder-steps-three saleorder-steps dot-active">
-                          <span>Ngày nhận lại</span>
-                          <span>
-                            {moment(fulfillment?.cancel_date).format(
-                              "DD/MM/YYYY HH:mm"
-                            )}
-                          </span>
-                        </div>
-                      )}
+                        FulFillmentStatus.SHIPPING &&
+                        fulfillment.status === FulFillmentStatus.RETURNED && (
+                          <div className="saleorder-steps-three saleorder-steps dot-active">
+                            <span>Ngày nhận lại</span>
+                            <span>
+                              {moment(
+                                fulfillment?.receive_cancellation_on
+                              ).format("DD/MM/YYYY HH:mm")}
+                            </span>
+                          </div>
+                        )}
                     </div>
-                  )}
-                  {isVisibleShipping === false &&
-                    fulfillment.status_before_cancellation ===
-                      FulFillmentStatus.SHIPPING && (
+                  ) : null}
+                  {(fulfillment.status_before_cancellation ===
+                    FulFillmentStatus.SHIPPING &&
+                    fulfillment.status === FulFillmentStatus.CANCELLED) ||
+                  fulfillment.status === FulFillmentStatus.RETURNING ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        padding: "14px 0 7px 0",
+                      }}
+                    >
                       <Button
                         key={fulfillment.id}
                         type="primary"
                         className="ant-btn-outline fixed-button text-right"
                         style={{
-                          float: "right",
-                          marginBottom: "20px",
                           padding: "0 25px",
                         }}
-                        onClick={ShowShipping}
+                        onClick={() => goodsReturnCallback(fulfillment.id)}
                       >
                         Nhận hàng
                       </Button>
-                    )}
-                  {CheckShipmentType(props.OrderDetail!) ===
-                    "external_service" && (
-                    <Row
-                      gutter={24}
-                      style={{
-                        marginTop: 12,
-                        marginBottom: 0,
-                        padding: "0 12px",
-                      }}
-                    >
-                      <Col span={24}>
-                        <Collapse ghost>
-                          <Panel
-                            header={
-                              <Row>
-                                <Col style={{ alignItems: "center" }}>
-                                  <span
-                                    style={{
-                                      marginRight: "10px",
-                                      color: "#222222",
-                                    }}
-                                  >
-                                    Mã vận đơn:{" "}
-                                  </span>
-                                  <Link
-                                    href={`https://i.ghtk.vn/${
-                                      props.OrderDetail?.fulfillments &&
-                                      props.OrderDetail?.fulfillments[0]
-                                        .shipment?.tracking_code
-                                    }`}
-                                    ref={copyRef}
-                                    className="text-field"
-                                    style={{
-                                      color: "#2A2A86",
-                                      fontWeight: 500,
-                                      fontSize: 16,
-                                    }}
-                                  >
-                                    {TrackingCode(props.OrderDetail)}
-                                  </Link>
-                                  <div style={{ width: 30, padding: "0 4px" }}>
-                                    <img
-                                      onClick={(e) => copyOrderID(e)}
-                                      src={copyFileBtn}
-                                      alt=""
-                                      style={{ width: 23 }}
-                                    />
-                                  </div>
-                                </Col>
-                                <Col>
-                                  <span
-                                    style={{
-                                      color: "#000000d9",
-                                      marginRight: 6,
-                                    }}
-                                  ></span>
-                                </Col>
-                              </Row>
-                            }
-                            key="1"
-                            className="custom-css-collapse"
-                          >
-                            <Collapse
-                              className="orders-timeline"
-                              expandIcon={({ isActive }) => (
-                                <img
-                                  src={doubleArrow}
-                                  alt=""
-                                  style={{
-                                    transform: isActive
-                                      ? "rotate(0deg)"
-                                      : "rotate(270deg)",
-                                    float: "right",
-                                  }}
-                                />
-                              )}
-                              ghost
-                              defaultActiveKey={["0"]}
-                            >
-                              {trackingLogFulfillment?.map((item, index) => (
-                                <Panel
-                                  className="orders-timeline-custom orders-dot-status"
-                                  header={
-                                    <div>
-                                      <b
-                                        style={{
-                                          paddingLeft: "14px",
-                                          color: "#222222",
-                                        }}
-                                      >
-                                        {item.message}
-                                      </b>
-                                      <i
-                                        className="icon-dot"
-                                        style={{
-                                          fontSize: "4px",
-                                          margin: "16px 10px 10px 10px",
-                                          color: "#737373",
-                                        }}
-                                      ></i>{" "}
-                                      <span style={{ color: "#737373" }}>
-                                        {moment(item.created_date).format(
-                                          "DD/MM/YYYY HH:mm"
-                                        )}
-                                      </span>
-                                    </div>
-                                  }
-                                  key={index}
-                                  showArrow={false}
-                                ></Panel>
-                              ))}
-                            </Collapse>
-                          </Panel>
-                        </Collapse>
-                      </Col>
-                    </Row>
-                  )}
+                    </div>
+                  ) : null}
                 </Panel>
               </Collapse>
             </div>
           ))}
 
-        <Divider style={{ margin: "0px" }} />
         <div
           className=""
           style={{
-            padding: "14px 24px 19px 24px",
             display: "flex",
             justifyContent: "flex-end",
+            margin: "14px 25px 19px 0",
           }}
         >
           {props.stepsStatusValue === FulFillmentStatus.SHIPPED ? (
@@ -1618,14 +1596,15 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             props.OrderDetailAllFullfilment?.fulfillments &&
             !props.OrderDetailAllFullfilment?.fulfillments.some(
               (fulfillment) =>
-                fulfillment.status !== FulFillmentStatus.CANCELLED
+                fulfillment.status !== FulFillmentStatus.CANCELLED &&
+                fulfillment.status !== FulFillmentStatus.RETURNING &&
+                fulfillment.status !== FulFillmentStatus.RETURNED
             ) && (
               <Button
                 type="primary"
                 className="ant-btn-outline fixed-button text-right"
                 style={{
                   float: "right",
-                  marginBottom: "20px",
                   padding: "0 25px",
                 }}
                 onClick={ShowShipping}
@@ -2200,14 +2179,15 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         onOk={onOkShippingConfirm}
         visible={isvibleShippingConfirm}
         icon={WarningIcon}
-        okText="Xác nhận thanh toán"
+        okText="Đồng ý"
         cancelText="Hủy"
         title=""
-        text={`Vui lòng xác nhận ${
+        text={`Bạn có chắc xuất kho đơn giao hàng này ${
           confirmExportAndFinishValue()
-            ? "thanh toán " + formatCurrency(confirmExportAndFinishValue()!)
+            ? "với tiền thu hộ là " +
+              formatCurrency(confirmExportAndFinishValue()!)
             : ""
-        } để giao hàng thành công?`}
+        } không?`}
       />
       <SaveAndConfirmOrder
         onCancel={() => setIsvibleShippedConfirm(false)}
@@ -2230,7 +2210,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         visible={isvibleCancelFullfilment}
         icon={DeleteIcon}
         okText="Hủy đơn giao"
-        cancelText="Hủy"
+        cancelText="Thoát"
         title="Bạn có chắc chắn hủy đơn giao hàng này không?"
         text="Tiền thu hộ nếu có cũng sẽ bị hủy"
       />
@@ -2242,9 +2222,21 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         visible={isvibleCancelandGetGoodsBack}
         icon={DeleteIcon}
         okText="Hủy đơn giao"
-        cancelText="Hủy"
+        cancelText="Thoát"
         title="Bạn có chắc chắn hủy đơn giao hàng này không?"
         text="Tiền thu hộ nếu có cũng sẽ bị hủy"
+      />
+
+      {/* Nhận hàng trả lại */}
+      <SaveAndConfirmOrder
+        onCancel={() => setIsvibleGoodsReturn(false)}
+        onOk={onOKGoodsReturn}
+        visible={isvibleGoodsReturn}
+        icon={AlertIcon}
+        okText="Nhận hàng trả lại"
+        cancelText="Thoát"
+        title=""
+        text="Bạn có chắc chắn nhận hàng trả lại của đơn giao hàng này không?"
       />
     </div>
   );
