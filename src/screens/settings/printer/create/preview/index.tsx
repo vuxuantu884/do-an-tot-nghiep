@@ -1,11 +1,16 @@
 import { PrintPreviewModel } from "model/other/Print/print-model";
-import React, { useState } from "react";
-import ReactQuill from "react-quill";
+import React from "react";
 import "react-quill/dist/quill.snow.css";
 
 const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   const { htmlContent } = props;
-  return <div>{htmlContent}</div>;
+  return (
+    <div
+      dangerouslySetInnerHTML={{
+        __html: htmlContent,
+      }}
+    ></div>
+  );
 };
 
 export default Preview;

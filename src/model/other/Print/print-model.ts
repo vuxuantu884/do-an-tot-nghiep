@@ -4,5 +4,5 @@ export interface PrintEditorModel {
 }
 
 export interface PrintPreviewModel {
-  htmlContent?: string;
+  htmlContent: string;
 }

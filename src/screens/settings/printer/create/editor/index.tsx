@@ -7,7 +7,6 @@ const Editor: React.FC<PrintEditorModel> = (props: PrintEditorModel) => {
   const { initialValue, onChange } = props;
   const [value, setValue] = useState(initialValue);
   const handleOnChange = (value: string) => {
-    console.log("value", value);
     setValue(value);
     onChange(value);
   };

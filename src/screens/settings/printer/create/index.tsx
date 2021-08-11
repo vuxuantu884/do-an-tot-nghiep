@@ -3,13 +3,17 @@ import { Button, Card, Col, Form, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
+import { useState } from "react";
 import Editor from "./editor";
+import Preview from "./preview";
 import { StyledComponent } from "./styles";
 
 const SettingCreatePrinter: React.FC = () => {
   const [form] = Form.useForm();
+  const [htmlContent, setHtmlContent] = useState("");
   const handleOnChange = (value: string) => {
     console.log("value", value);
+    setHtmlContent(value);
   };
   const sprintConfigure = {
     danhSachMauIn: [
@@ -156,7 +160,10 @@ const SettingCreatePrinter: React.FC = () => {
               </Card>
             </Col>
             <Col span={12}>
-              <Card style={{ padding: "35px 15px" }}>Preview</Card>
+              <Card style={{ padding: "35px 15px" }}>
+                Preview
+                <Preview htmlContent={htmlContent} />
+              </Card>
             </Col>
           </Row>
         </Form>
