@@ -43,12 +43,14 @@ import ExpenseModal from "../modal/expense.modal";
 import { DiscountType, POField } from "model/purchase-order/po-field";
 import { CostLine } from "model/purchase-order/cost-line.model";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
+import { AppConfig } from "config/AppConfig";
 type POProductProps = {
   formMain: FormInstance;
+  isEdit: boolean;
 };
 const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
-  const { formMain } = props;
+  const { formMain, isEdit } = props;
   const productSearchRef = createRef<CustomAutoComplete>();
   const product_units = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
@@ -657,48 +659,66 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         }
         extra={
           <Space size={20}>
-            <Checkbox
-              checked={splitLine}
-              onChange={() => setSplitLine(!splitLine)}
-            >
-              Tách dòng
-            </Checkbox>
-            <span>Chính sách giá:</span>
-            <Form.Item name="policy_price_code" style={{ margin: "0px" }}>
-              <Select
-                style={{ minWidth: 145, height: 38 }}
-                placeholder="Chính sách giá"
+            {!isEdit && (
+              <Checkbox
+                checked={splitLine}
+                onChange={() => setSplitLine(!splitLine)}
               >
-                <Select.Option value="import_price" color="#222222">
-                  Giá nhập
-                </Select.Option>
-              </Select>
-            </Form.Item>
+                Tách dòng
+              </Checkbox>
+            )}
+
+            <span>Chính sách giá:</span>
+            {isEdit ? (
+              <div>
+                <span style={{ fontWeight: 700 }}>Giá nhập</span>
+                <Form.Item name={POField.policy_price_code} noStyle hidden>
+                  <Input />
+                </Form.Item>
+              </div>
+            ) : (
+              <Form.Item
+                name={POField.policy_price_code}
+                style={{ margin: "0px" }}
+              >
+                <Select
+                  style={{ minWidth: 145, height: 38 }}
+                  placeholder="Chính sách giá"
+                >
+                  <Select.Option value={AppConfig.import_price} color="#222222">
+                    Giá nhập
+                  </Select.Option>
+                </Select>
+              </Form.Item>
+            )}
           </Space>
         }
       >
         <div className="padding-20">
-          <Input.Group className="display-flex">
-            <CustomAutoComplete
-              id="#product_search"
-              dropdownClassName="product"
-              placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
-              onSearch={onSearch}
-              dropdownMatchSelectWidth={456}
-              style={{ width: "100%" }}
-              showAdd={true}
-              textAdd="Thêm mới sản phẩm"
-              onSelect={onSelectProduct}
-              options={renderResult}
-              ref={productSearchRef}
-            />
-            <Button
-              onClick={() => setVisibleManyProduct(true)}
-              style={{ width: 132, marginLeft: 10 }}
-            >
-              Chọn nhiều
-            </Button>
-          </Input.Group>
+          {!isEdit && (
+            <Input.Group className="display-flex">
+              <CustomAutoComplete
+                id="#product_search"
+                dropdownClassName="product"
+                placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
+                onSearch={onSearch}
+                dropdownMatchSelectWidth={456}
+                style={{ width: "100%" }}
+                showAdd={true}
+                textAdd="Thêm mới sản phẩm"
+                onSelect={onSelectProduct}
+                options={renderResult}
+                ref={productSearchRef}
+              />
+              <Button
+                onClick={() => setVisibleManyProduct(true)}
+                style={{ width: 132, marginLeft: 10 }}
+              >
+                Chọn nhiều
+              </Button>
+            </Input.Group>
+          )}
+
           <Form.Item noStyle name={POField.line_items} hidden>
             <Input />
           </Form.Item>
@@ -714,7 +734,219 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 ? getFieldValue(POField.line_items)
                 : [];
 
-              return (
+              return isEdit ? (
+                <Table
+                  className="product-table"
+                  rowKey={(record: PurchaseOrderLineItem) =>
+                    record.id ? record.id : record.temp_id
+                  }
+                  rowClassName="product-table-row"
+                  dataSource={items}
+                  tableLayout="fixed"
+                  scroll={{ y: 300, x: 950 }}
+                  pagination={false}
+                  columns={[
+                    {
+                      title: "STT",
+                      align: "center",
+                      width: 60,
+                      render: (value, record, index) => index + 1,
+                    },
+                    {
+                      title: "Ảnh",
+                      width: 60,
+                      dataIndex: "variant_image",
+                      render: (value) => (
+                        <div className="product-item-image">
+                          <img
+                            src={value === null ? imgDefIcon : value}
+                            alt=""
+                            className=""
+                          />
+                        </div>
+                      ),
+                    },
+                    {
+                      title: "Sản phẩm",
+                      width: "99%",
+                      className: "ant-col-info",
+
+                      dataIndex: "variant",
+                      render: (
+                        value: string,
+                        item: PurchaseOrderLineItem,
+                        index: number
+                      ) => (
+                        <div>
+                          <div>
+                            <div className="product-item-sku">{item.sku}</div>
+                            <div className="product-item-name">
+                              <span className="product-item-name-detail">
+                                {value}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      align: "center",
+                      title: "Đơn vị",
+                      width: 100,
+                      dataIndex: "unit",
+                      render: (value) => {
+                        let result = "---";
+                        let index = -1;
+                        if (product_units) {
+                          index = product_units.findIndex(
+                            (item) => item.value === value
+                          );
+                          if (index !== -1) {
+                            result = product_units[index].name;
+                          }
+                        }
+                        return result;
+                      },
+                    },
+                    {
+                      title: (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                            flexDirection: "column",
+                            display: "flex",
+                          }}
+                        >
+                          SL
+                          <div
+                            style={{ color: "#2A2A86", fontWeight: "normal" }}
+                          >
+                            ({POUtils.totalQuantity(items)})
+                          </div>
+                        </div>
+                      ),
+                      width: 100,
+                      dataIndex: "quantity",
+                      render: (value, item, index) => (
+                        <div style={{ textAlign: "right" }}>{value}</div>
+                      ),
+                    },
+                    {
+                      title: (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                          }}
+                        >
+                          Giá nhập
+                          <span
+                            style={{
+                              color: "#737373",
+                              fontSize: "12px",
+                              fontWeight: "normal",
+                            }}
+                          >
+                            {" "}
+                            ₫
+                          </span>
+                        </div>
+                      ),
+                      width: 140,
+                      dataIndex: "price",
+                      render: (value, item, index) => {
+                        return (
+                          <div
+                            style={{
+                              width: "100%",
+                              textAlign: "right",
+                            }}
+                          >
+                            {formatCurrency(
+                              Math.round(
+                                POUtils.caculatePrice(
+                                  value,
+                                  item.discount_rate,
+                                  item.discount_value
+                                )
+                              )
+                            )}
+                          </div>
+                        );
+                      },
+                    },
+                    {
+                      title: (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                          }}
+                        >
+                          VAT
+                        </div>
+                      ),
+                      width: 90,
+                      dataIndex: "tax_rate",
+                      render: (value, item, index) => {
+                        return (
+                          <div
+                            style={{
+                              width: "100%",
+                              textAlign: "right",
+                            }}
+                          >
+                            {value} %
+                          </div>
+                        );
+                      },
+                    },
+                    {
+                      dataIndex: "line_amount_after_line_discount",
+                      title: (
+                        <Tooltip title="Thành tiền không bao gồm thuế VAT">
+                          <div
+                            style={{
+                              width: "100%",
+                              textAlign: "right",
+                            }}
+                          >
+                            Thành tiền
+                            <span
+                              style={{
+                                color: "#737373",
+                                fontSize: "12px",
+                                fontWeight: "normal",
+                              }}
+                            >
+                              {" "}
+                              ₫
+                            </span>
+                          </div>
+                        </Tooltip>
+                      ),
+                      align: "center",
+                      width: 130,
+                      render: (value: number) => (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                          }}
+                        >
+                          {formatCurrency(Math.round(value))}
+                        </div>
+                      ),
+                    },
+                    {
+                      title: "",
+                      width: 40,
+                      render: (value: string, item, index: number) => "",
+                    },
+                  ]}
+                />
+              ) : (
                 <Table
                   className="product-table"
                   locale={{
@@ -1033,37 +1265,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   tableLayout="fixed"
                   pagination={false}
                   scroll={{ y: 300, x: 950 }}
-                  summary={(data) =>
-                    data.length === 0 ? null : (
-                      <Table.Summary fixed>
-                        <Table.Summary.Row className="product-table-sumary">
-                          <Table.Summary.Cell index={1} colSpan={4}>
-                            <div className="total">Tổng</div>
-                          </Table.Summary.Cell>
-                          <Table.Summary.Cell
-                            align="right"
-                            index={2}
-                            colSpan={1}
-                          >
-                            <div style={{ width: "100%", padding: "7px 14px" }}>
-                              {POUtils.totalQuantity(items)}
-                            </div>
-                          </Table.Summary.Cell>
-                          <Table.Summary.Cell index={3} colSpan={2} />
-                          <Table.Summary.Cell
-                            index={4}
-                            align="right"
-                            colSpan={1}
-                          >
-                            {formatCurrency(
-                              Math.round(POUtils.totalAmount(items))
-                            )}
-                          </Table.Summary.Cell>
-                          <Table.Summary.Cell index={3} colSpan={1} />
-                        </Table.Summary.Row>
-                      </Table.Summary>
-                    )
-                  }
                 />
               );
             }}
@@ -1147,31 +1348,45 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   }
                   return (
                     <div className="po-payment-row">
-                      <Popover
-                        trigger="click"
-                        content={
-                          <DiscountModal
-                            price={untaxed_amount}
-                            discount={
-                              type === DiscountType.money
-                                ? discount_value
-                                : discount_rate
-                            }
-                            onChange={onTradeDiscountChange}
-                            type={type}
-                          />
-                        }
-                      >
+                      {isEdit ? (
                         <Typography.Link
                           style={{
                             textDecoration: "underline",
                             textDecorationColor: "#5D5D8A",
                             color: "#5D5D8A",
+                            cursor: "default",
                           }}
                         >
                           Chiết khấu thương mại
                         </Typography.Link>
-                      </Popover>
+                      ) : (
+                        <Popover
+                          trigger="click"
+                          content={
+                            <DiscountModal
+                              price={untaxed_amount}
+                              discount={
+                                type === DiscountType.money
+                                  ? discount_value
+                                  : discount_rate
+                              }
+                              onChange={onTradeDiscountChange}
+                              type={type}
+                            />
+                          }
+                        >
+                          <Typography.Link
+                            style={{
+                              textDecoration: "underline",
+                              textDecorationColor: "#5D5D8A",
+                              color: "#5D5D8A",
+                            }}
+                          >
+                            Chiết khấu thương mại
+                          </Typography.Link>
+                        </Popover>
+                      )}
+
                       <div className="po-payment-row-result po-payment-row-result-discount">
                         {trade_discount_amount === 0
                           ? "-"
@@ -1241,29 +1456,45 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   }
                   return (
                     <div className="po-payment-row">
-                      <Popover
-                        trigger="click"
-                        content={
-                          <DiscountModal
-                            price={total_after_tax}
-                            discount={
-                              type === "money" ? discount_value : discount_rate
-                            }
-                            onChange={onPaymentDiscountChange}
-                            type={type}
-                          />
-                        }
-                      >
+                      {isEdit ? (
                         <Typography.Link
                           style={{
                             textDecoration: "underline",
                             textDecorationColor: "#5D5D8A",
                             color: "#5D5D8A",
+                            cursor: "default",
                           }}
                         >
                           Chiết khấu thanh toán
                         </Typography.Link>
-                      </Popover>
+                      ) : (
+                        <Popover
+                          trigger="click"
+                          content={
+                            <DiscountModal
+                              price={total_after_tax}
+                              discount={
+                                type === "money"
+                                  ? discount_value
+                                  : discount_rate
+                              }
+                              onChange={onPaymentDiscountChange}
+                              type={type}
+                            />
+                          }
+                        >
+                          <Typography.Link
+                            style={{
+                              textDecoration: "underline",
+                              textDecorationColor: "#5D5D8A",
+                              color: "#5D5D8A",
+                            }}
+                          >
+                            Chiết khấu thanh toán
+                          </Typography.Link>
+                        </Popover>
+                      )}
+
                       <div className="po-payment-row-result po-payment-row-result-discount">
                         {payment_discount_amount === 0
                           ? "-"
@@ -1288,13 +1519,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     <div className="po-payment-row">
                       <Typography.Link
                         onClick={() => {
-                          setCostLines(cost_lines);
-                          setVisibleExpense(true);
+                          if (!isEdit) {
+                            setCostLines(cost_lines);
+                            setVisibleExpense(true);
+                          }
                         }}
                         style={{
                           textDecoration: "underline",
                           textDecorationColor: "#5D5D8A",
                           color: "#5D5D8A",
+                          cursor: isEdit ? "default" : "pointer",
                         }}
                       >
                         Chi phí

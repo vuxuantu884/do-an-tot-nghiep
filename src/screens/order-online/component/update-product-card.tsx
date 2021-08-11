@@ -66,7 +66,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
           {props.OrderDetail?.items
             .filter((item) => item.position === l.position && item.type === Type.GIFT)
             .map((gift) => (
-              <div className="yody-pos-addition yody-pos-gift">
+              <div key={gift.sku} className="yody-pos-addition yody-pos-gift">
                 <i>
                   <img src={giftIcon} alt="" /> {gift.variant} ({gift.quantity})
                 </i>

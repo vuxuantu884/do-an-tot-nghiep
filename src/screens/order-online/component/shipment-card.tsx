@@ -318,8 +318,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                     placeholder="0"
                     value={
                       props.amount +
-                      (props.shippingFeeCustomerHVC
-                        ? props.shippingFeeCustomerHVC
+                      (props.shippingFeeCustomer
+                        ? props.shippingFeeCustomer
                         : 0) -
                       (props.discountValue ? props.discountValue : 0)
                     }

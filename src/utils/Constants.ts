@@ -75,6 +75,36 @@ export const MoneyPayThreePls = {
   VALUE: 20000,
 };
 
+export const ErrorGHTK = {
+  ERRORAPI: "Lỗi tích hợp API",
+  WAITTING: "Đang xử lý",
+};
+export const POStatus = {
+  DRAFT: 'draft',
+  FINALIZED: 'finalized',
+  COMPLETED: 'completed',
+  FINISHED: 'finished',
+  CANCELLED: 'cancelled',
+  PROCUREMENT_DRAFT: 'procurement_draft',
+  STOCK_IN: 'stock_in',
+}
+
+export const ProcumentStatus = {
+  DRAFT: 'DRAFT',
+  CONFIRMED: 'FINALIZED',
+  FINISHED: 'COMPLETED',
+}
+
+export const PoPaymentStatus = {
+  UNPAID: 'unpaid',
+  PAID: 'paid',
+}
+
+export const PoPaymentMethod ={
+  CASH:'cash',
+  BANK_TRANSFER:'bank_transfer'
+}
+
 export const MODAL_ACTION_TYPE = {
   create: "create",
   edit: "edit",
