@@ -1,15 +1,15 @@
 import { DatePicker, Row, Col, Button } from "antd";
 import moment, { Moment } from "moment";
-import { CSSProperties, Fragment, ReactNode } from "react";
-import { SettingOutlined } from "@ant-design/icons";
-import { isUndefinedOrNull } from "utils/AppUtils";
+import { CSSProperties, Fragment, ReactNode, useCallback } from "react";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { SettingOutlined } from "@ant-design/icons";
+import _ from "lodash";
 
 const { RangePicker } = DatePicker;
 
 type CustomRangepickerProps = {
-  value?: string;
-  onChange?: (value: string | undefined) => void;
+  value?: Array<string | null>;
+  onChange?: (dates: Array<string | null> | undefined) => void;
   style?: CSSProperties;
   placeholder?: string;
   className?: string;
@@ -19,12 +19,14 @@ type CustomRangepickerProps = {
 
 type BtnProps = {
   children?: ReactNode;
+  className?: string;
   onClick?: (value: any | undefined) => void;
 };
 
-const StyledButton = ({ children, onClick }: BtnProps) => {
+const StyledButton = ({ children, className, onClick }: BtnProps) => {
   return (
     <Button
+      className={className}
       onClick={onClick}
       type="default"
       style={{ width: "100%", textAlign: "center", padding: 0 }}
@@ -34,30 +36,84 @@ const StyledButton = ({ children, onClick }: BtnProps) => {
   );
 };
 
+const getRange = (distance: number, unit: "day" | "month" | "week") => {
+  let from = moment().subtract(distance, unit).startOf(unit),
+    to = moment().subtract(distance, unit).endOf(unit);
+  return [from.utc().format(), to.utc().format()];
+};
+
 const CustomRangepicker: React.FC<CustomRangepickerProps> = (
   props: CustomRangepickerProps
 ) => {
-  const { value, onChange, style, showTime } = props;
+  const { value, onChange, style } = props;
   return (
     <Fragment>
       <Row gutter={[5, 5]}>
         <Col span="8">
-          <StyledButton>Hôm qua</StyledButton>
+          <StyledButton
+            className={_.isEqual(getRange(1, "day"), value) ? "active" : ""}
+            onClick={() => {
+              let [start, end] = getRange(1, "day");
+              onChange && onChange([start, end]);
+            }}
+          >
+            Hôm qua
+          </StyledButton>
         </Col>
         <Col span="8">
-          <StyledButton>Hôm nay</StyledButton>
+          <StyledButton
+            className={_.isEqual(getRange(0, "day"), value) ? "active" : ""}
+            onClick={() => {
+              let [start, end] = getRange(0, "day");
+              onChange && onChange([start, end]);
+            }}
+          >
+            Hôm nay
+          </StyledButton>
         </Col>
         <Col span="8">
-          <StyledButton>Tuần này</StyledButton>
+          <StyledButton
+            className={_.isEqual(getRange(0, "week"), value) ? "active" : ""}
+            onClick={() => {
+              let [start, end] = getRange(0, "week");
+              onChange && onChange([start, end]);
+            }}
+          >
+            Tuần này
+          </StyledButton>
         </Col>
         <Col span="8">
-          <StyledButton>Tuần trước</StyledButton>
+          <StyledButton
+            className={_.isEqual(getRange(1, "week"), value) ? "active" : ""}
+            onClick={() => {
+              let [start, end] = getRange(1, "week");
+              onChange && onChange([start, end]);
+            }}
+          >
+            Tuần trước
+          </StyledButton>
         </Col>
         <Col span="8">
-          <StyledButton>Tháng này</StyledButton>
+          <StyledButton
+            className={_.isEqual(getRange(0, "month"), value) ? "active" : ""}
+            onClick={() => {
+              let [start, end] = getRange(0, "month");
+              onChange && onChange([start, end]);
+            }}
+          >
+            Tháng này
+          </StyledButton>
         </Col>
         <Col span="8">
-          <StyledButton>Tháng trước</StyledButton>
+          <StyledButton
+            className={_.isEqual(getRange(1, "month"), value) ? "active" : ""}
+            onClick={() => {
+              let [start, end] = getRange(1, "month");
+              onChange && onChange([start, end]);
+            }}
+          >
+            Tháng trước
+          </StyledButton>
         </Col>
       </Row>
       <div style={{ margin: "12px 0" }}>
@@ -66,13 +122,17 @@ const CustomRangepicker: React.FC<CustomRangepickerProps> = (
       </div>
       <RangePicker
         style={{ ...style, width: "100%" }}
-        showTime={showTime}
-        //   value={!isUndefinedOrNull(value) ? moment(value) : undefined}
-        onCalendarChange={(dates, dateStrings, info) => {
-          // onChange && onChange(v?.utc().format());
-        }}
         disabledDate={props.disableDate}
         className={props.className}
+        onChange={(dates, dateStrings) => {
+          let from = null,
+            to = null;
+          if (dates && dates.length > 0) {
+            from = dates[0] ? dates[0].startOf("day").utc().format() : null;
+            to = dates[1] ? dates[1].endOf("day").utc().format() : null;
+          }
+          onChange && onChange([from, to]);
+        }}
         format={DATE_FORMAT.DDMMYYY}
       />
     </Fragment>

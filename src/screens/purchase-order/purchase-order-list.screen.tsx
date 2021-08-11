@@ -204,7 +204,6 @@ const PurchaseOrderListScreen: React.FC = () => {
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
-          prefix={"$"}
         />
       ),
       visible: true,
@@ -212,6 +211,14 @@ const PurchaseOrderListScreen: React.FC = () => {
     {
       title: "Chi phí",
       dataIndex: "total_cost_line",
+      render: (value: number) => (
+        <NumberFormat
+          value={value}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+        />
+      ),
       visible: true,
     },
     {

@@ -98,7 +98,7 @@ export const PoPaymentStatus = {
   DRAFT: "draft",
   UNPAID: "unpaid",
   PAID: "paid",
-  PARTIAL_PAID: "unpaid",
+  PARTIAL_PAID: "partial_paid",
   FINISHED: "finished",
   CANCELLED: "cancelled",
 };

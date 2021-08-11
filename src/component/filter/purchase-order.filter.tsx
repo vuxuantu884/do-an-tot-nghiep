@@ -1,7 +1,14 @@
-import { Button, Row, Col, Form, Input, Collapse } from "antd";
+import { Button, Row, Col, Form, Input, Collapse, Tag, Space } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { ReactNode, useCallback, useLayoutEffect, useState } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useState,
+  useMemo,
+  Fragment,
+} from "react";
+import moment from "moment";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import CustomFilter from "component/table/custom.filter";
@@ -11,8 +18,11 @@ import CustomSelect from "component/custom/select.custom";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { SwapRightOutlined } from "@ant-design/icons";
+import { POStatus, ProcumentStatus, PoPaymentStatus } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
 
 const { Panel } = Collapse;
+const { Item } = Form;
 
 type PurchaseOrderFilterProps = {
   params: PurchaseOrderQuery;
@@ -25,30 +35,151 @@ type PurchaseOrderFilterProps = {
   onClearFilter?: () => void;
 };
 
-const { Item } = Form;
-
 const listPOStatus = [
   {
-    key: "draft",
+    key: POStatus.DRAFT,
     value: "Nháp",
   },
   {
-    key: "finalized",
+    key: POStatus.FINALIZED,
     value: "Đã xác nhận",
   },
   {
-    key: "completed",
+    key: POStatus.COMPLETED,
     value: "Đã hoàn thành",
   },
   {
-    key: "finished",
+    key: POStatus.FINISHED,
     value: "Đã kết thúc",
   },
   {
-    key: "cancelled",
+    key: POStatus.CANCELLED,
     value: "Đã hủy",
   },
 ];
+const listProcumentStatus = [
+  {
+    key: ProcumentStatus.NOT_RECEIVED,
+    value: "Chưa nhận hàng",
+  },
+  {
+    key: ProcumentStatus.PARTIAL_RECEIVED,
+    value: "Nhận hàng 1 phần",
+  },
+  {
+    key: ProcumentStatus.RECEIVED,
+    value: "Đã nhận hàng",
+  },
+];
+const listPaymentStatus = [
+  {
+    key: PoPaymentStatus.UNPAID,
+    value: "Chưa thanh toán",
+  },
+  {
+    key: PoPaymentStatus.PARTIAL_PAID,
+    value: "Thanh toán 1 phần",
+  },
+  {
+    key: PoPaymentStatus.PAID,
+    value: "Đã thanh toán",
+  },
+];
+
+const filterFields = {
+  import_date: "import_date",
+  activated_date: "activated_date",
+  completed_date: "completed_date",
+  canceled_date: "canceled_date_range",
+  status: "status",
+  import: "import",
+  payments: "payments",
+  qc: "qc",
+  cost: "cost",
+  vat: "vat",
+  expected_import_date: "expected_import_date",
+  expected_import_store: "expected_import_store",
+  note: "note",
+  note_ncc: "note_ncc",
+  tag: "tag",
+  ref: "ref",
+};
+
+const filterFieldsMapping: any = {
+  [filterFields.import_date]: "Ngày nhập kho",
+  [filterFields.activated_date]: "Ngày duyệt đơn",
+  [filterFields.completed_date]: "Ngày hoàn tất đơn",
+  [filterFields.canceled_date]: "Ngày hủy đơn",
+  [filterFields.status]: "Trạng thái đơn",
+  [filterFields.import]: "Nhập kho",
+  [filterFields.payments]: "Thanh toán",
+  [filterFields.qc]: "qc",
+  [filterFields.cost]: "cost",
+  [filterFields.vat]: "vat",
+  [filterFields.expected_import_date]: "Ngày nhận hàng dự kiên",
+  [filterFields.expected_import_store]: "Kho nhận hàng dự kiên",
+  [filterFields.note]: "Ghi chú nội bộ",
+  [filterFields.note_ncc]: "Ghi chú nhà cung cấp",
+  [filterFields.tag]: "Tag",
+  [filterFields.ref]: "Mã tham chiếu",
+};
+
+type FilterHeaderProps = {
+  title?: string;
+};
+const FilterHeader = ({ title }: FilterHeaderProps) => {
+  return <span>{title}</span>;
+};
+
+const FilterList = ({ filters }: any) => {
+  let filtersKeys = Object.keys(filters);
+  return (
+    <Space style={{ marginBottom: 20 }}>
+      {filtersKeys.map((filterKey) => {
+        let value = filters[filterKey];
+        if (!value) return;
+        switch (filterKey) {
+          case filterFields.import_date:
+          case filterFields.activated_date:
+            let [from, to] = value;
+            from = moment.utc(from).format(DATE_FORMAT.DDMMYYY);
+            to = moment.utc(to).format(DATE_FORMAT.DDMMYYY);
+            return (
+              <Tag
+                key={filterKey}
+                className="fade"
+                closable
+              >{`${filterFieldsMapping[filterKey]} : ${from} - ${to}`}</Tag>
+            );
+        }
+      })}
+    </Space>
+  );
+};
+
+const AdvanceFormItem = () => {
+  Object.keys(filterFields).map((field) => {
+    switch (field) {
+      case filterFields.import_date:
+      case filterFields.activated_date:
+      case filterFields.completed_date:
+      case filterFields.canceled_date:
+      case filterFields.expected_import_date:
+        return (
+          <Collapse>
+            <Panel
+              header={<FilterHeader title={filterFieldsMapping[field]} />}
+              key="1"
+            >
+              <Item name={filterFields.import_date}>
+                <CustomRangepicker />
+              </Item>
+            </Panel>
+          </Collapse>
+        );
+    }
+  });
+};
 
 const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   props: PurchaseOrderFilterProps
@@ -67,6 +198,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
+  const currentFilters = formBaseFilter.getFieldsValue(true);
   const onBaseFinish = useCallback(
     (values: PurchaseOrderQuery) => {
       debugger;
@@ -75,10 +207,21 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     },
     [formBaseFilter, onFilter]
   );
+  console.log("huynvq::=============>", formAdvanceFilter);
   const onAdvanceFinish = useCallback(
     (values: PurchaseOrderQuery) => {
       debugger;
       let data = formAdvanceFilter.getFieldsValue(true);
+      let importDate = data[filterFields.import_date],
+        activatedDate = data[filterFields.activated_date];
+      data = {
+        ...data,
+        import_from_date: importDate ? importDate[0] : null,
+        import_to_date: importDate ? importDate[1] : null,
+        activate_from_date: activatedDate ? activatedDate[0] : null,
+        activate_to_date: activatedDate ? activatedDate[1] : null,
+      };
+      formAdvanceFilter.setFieldsValue(data);
       onFilter && onFilter(data);
     },
     [formAdvanceFilter, onFilter]
@@ -96,7 +239,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   }, [formAdvanceFilter]);
   const onResetFilter = useCallback(() => {
     debugger;
-    formAdvanceFilter.setFieldsValue({ supplier_id: undefined });
+    formAdvanceFilter.resetFields();
     setVisible(false);
     formAdvanceFilter.submit();
   }, [formAdvanceFilter]);
@@ -144,34 +287,52 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             <Item name="code">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{ width: 400 }}
+                style={{ width: 376 }}
                 placeholder="Tìm kiếm theo ID đơn mua, tên số điện thoại ncc"
               />
             </Item>
-            <Item name="code">
+            <Item name="status">
               <CustomSelect
                 placeholder="Trạng thái đơn hàng"
                 notFoundContent="Không tìm thấy kết quả"
+                style={{ width: 178 }}
               >
                 <CustomSelect.Option value="">
                   Trạng thái đơn hàng
                 </CustomSelect.Option>
+                {listPOStatus?.map((poStatus, index) => (
+                  <CustomSelect.Option key={index} value={poStatus.value}>
+                    {poStatus.value}
+                  </CustomSelect.Option>
+                ))}
               </CustomSelect>
             </Item>
-            <Item name="code">
+            <Item name="receive_status">
               <CustomSelect
                 placeholder="Nhập kho"
                 notFoundContent="Không tìm thấy kết quả"
+                style={{ width: 178 }}
               >
                 <CustomSelect.Option value="">Nhập kho</CustomSelect.Option>
+                {listProcumentStatus?.map((poStatus, index) => (
+                  <CustomSelect.Option key={index} value={poStatus.value}>
+                    {poStatus.value}
+                  </CustomSelect.Option>
+                ))}
               </CustomSelect>
             </Item>
-            <Item name="code">
+            <Item name="financial_status">
               <CustomSelect
                 placeholder="Thanh toán"
                 notFoundContent="Không tìm thấy kết quả"
+                style={{ width: 178 }}
               >
                 <CustomSelect.Option value="">Thanh toán</CustomSelect.Option>
+                {listPaymentStatus?.map((poStatus, index) => (
+                  <CustomSelect.Option key={index} value={poStatus.value}>
+                    {poStatus.value}
+                  </CustomSelect.Option>
+                ))}
               </CustomSelect>
             </Item>
             <Item>
@@ -184,7 +345,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             </Item>
           </Form>
         </CustomFilter>
-
+        <FilterList filters={currentFilters} />
         <BaseFilter
           onClearFilter={onResetFilter}
           onFilter={onFilterClick}
@@ -198,184 +359,215 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             initialValues={params}
             layout="vertical"
           >
-            <Collapse>
-              <Panel header="Ngày tạo đơn" key="1">
-                <CustomRangepicker />
-              </Panel>
-              <Panel header="Ngày duyệt đơn" key="2">
-                <CustomRangepicker />
-              </Panel>
-              <Panel header="Ngày hoàn tất đơn" key="3">
-                <CustomRangepicker />
-              </Panel>
-              <Panel header="Ngày hủy đơn" key="4">
-                <CustomRangepicker />
-              </Panel>
-              <Panel header="Trạng thái đơn" key="5">
-                <CustomSelect
-                  placeholder="Chọn 1 hoặc nhiều trạng thái"
-                  mode="multiple"
-                  style={{
-                    width: "100%",
-                  }}
-                  notFoundContent="Không tìm thấy kết quả"
+            <Space direction="vertical" style={{ width: "100%" }}>
+              <Collapse>
+                <Panel header={<FilterHeader title="NGÀY NHẬP KHO" />} key="1">
+                  <Item name={filterFields.import_date}>
+                    <CustomRangepicker />
+                  </Item>
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="NGÀY DUỴỆT ĐƠN" />} key="1">
+                  <Item name={filterFields.activated_date}>
+                    <CustomRangepicker />
+                  </Item>
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel
+                  header={<FilterHeader title="NGÀY HOÀN TẤT ĐƠN" />}
+                  key="1"
                 >
-                  {listPOStatus?.map((poStatus, index) => (
-                    <CustomSelect.Option key={index} value={poStatus.value}>
-                      {poStatus.value}
-                    </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
-              </Panel>
-              <Panel header="Nhập kho" key="6">
-                <CustomSelect
-                  placeholder="Chọn 1 hoặc nhiều trạng thái"
-                  mode="multiple"
-                  style={{
-                    width: "100%",
-                  }}
-                  notFoundContent="Không tìm thấy kết quả"
-                >
-                  {listPOStatus?.map((poStatus, index) => (
-                    <CustomSelect.Option key={index} value={poStatus.value}>
-                      {poStatus.value}
-                    </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
-              </Panel>
-              <Panel header="Thanh toán" key="7">
-                <CustomSelect
-                  placeholder="Chọn 1 hoặc nhiều trạng thái"
-                  mode="multiple"
-                  style={{
-                    width: "100%",
-                  }}
-                  notFoundContent="Không tìm thấy kết quả"
-                >
-                  {listPOStatus?.map((poStatus, index) => (
-                    <CustomSelect.Option key={index} value={poStatus.value}>
-                      {poStatus.value}
-                    </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
-              </Panel>
-              <Panel header="Merchandiser" key="8">
-                <CustomSelect
-                  placeholder="Chọn 1 hoặc nhiều merchandiser"
-                  mode="multiple"
-                  style={{
-                    width: "100%",
-                  }}
-                  notFoundContent="Không tìm thấy kết quả"
-                  maxTagCount="responsive"
-                >
-                  {listSupplierAccount?.map((item) => (
-                    <CustomSelect.Option key={item.id} value={item.id}>
-                      {item.full_name}
-                    </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
-              </Panel>
-              <Panel header="QC" key="9">
-                <CustomSelect
-                  placeholder="Chọn 1 hoặc nhiều qc"
-                  mode="multiple"
-                  style={{
-                    width: "100%",
-                  }}
-                  notFoundContent="Không tìm thấy kết quả"
-                  maxTagCount="responsive"
-                >
-                  {listRdAccount?.map((item) => (
-                    <CustomSelect.Option key={item.id} value={item.id}>
-                      {item.full_name}
-                    </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
-              </Panel>
-              <Panel header="Tổng tiền" key="10">
-                <Row
-                  style={{ border: "1px #E5E5E5 solid", borderRadius: "5px" }}
-                >
-                  <Col span="11">
-                    <Input placeholder="Từ" bordered={false} />
-                  </Col>
-                  <Col
-                    span="2"
-                    style={{ display: "flex", alignItems: "center" }}
+                  <Item name={filterFields.completed_date}>
+                    <CustomRangepicker />
+                  </Item>
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="NGÀY HỦY ĐƠN" />} key="1">
+                  <CustomRangepicker />
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="TRẠNG THÁI ĐƠN" />} key="1">
+                  <CustomSelect
+                    placeholder="Chọn 1 hoặc nhiều trạng thái"
+                    mode="multiple"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
                   >
-                    <SwapRightOutlined style={{ color: "#71767B" }} />
-                  </Col>
-                  <Col span="11">
-                    <Input placeholder="Đến" bordered={false} />
-                  </Col>
-                </Row>
-              </Panel>
-              <Panel header="Chi phí" key="11">
-                <CustomSelect
-                  placeholder="Chọn 1 trong 2 đk"
-                  style={{
-                    width: "100%",
-                  }}
-                  notFoundContent="Không tìm thấy kết quả"
-                >
-                  <CustomSelect.Option key="1" value="0">
-                    Có chi phí
-                  </CustomSelect.Option>
-                  <CustomSelect.Option key="2" value="1">
-                    Không chi phí
-                  </CustomSelect.Option>
-                </CustomSelect>
-              </Panel>
-              <Panel header="VAT" key="12">
-                <CustomSelect
-                  placeholder="Chọn 1 trong 2 đk"
-                  style={{
-                    width: "100%",
-                  }}
-                  notFoundContent="Không tìm thấy kết quả"
-                >
-                  <CustomSelect.Option key="1" value="0">
-                    Có VAT
-                  </CustomSelect.Option>
-                  <CustomSelect.Option key="2" value="1">
-                    Không VAT
-                  </CustomSelect.Option>
-                </CustomSelect>
-              </Panel>
-              <Panel header="Ngày nhận hàng dự kiến" key="13">
-                <CustomRangepicker />
-              </Panel>
-              <Panel header="Kho nhận hàng dự kiến" key="15">
-                <CustomSelect
-                  placeholder="Kho nhận hàng dự kiến"
-                  style={{
-                    width: "100%",
-                  }}
-                  notFoundContent="Không tìm thấy kết quả"
-                  mode="multiple"
-                  maxTagCount="responsive"
-                >
-                  {listStore?.map((item) => (
-                    <CustomSelect.Option key={item.id} value={item.id}>
-                      {item.name}
+                    {listPOStatus?.map((poStatus, index) => (
+                      <CustomSelect.Option key={index} value={poStatus.value}>
+                        {poStatus.value}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="NHẬP KHO" />} key="1">
+                  <CustomSelect
+                    placeholder="Chọn 1 hoặc nhiều trạng thái"
+                    mode="multiple"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                  >
+                    {listProcumentStatus?.map((poStatus, index) => (
+                      <CustomSelect.Option key={index} value={poStatus.value}>
+                        {poStatus.value}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="THANH TOÁN" />} key="1">
+                  <CustomSelect
+                    placeholder="Chọn 1 hoặc nhiều trạng thái"
+                    mode="multiple"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                  >
+                    {listPaymentStatus?.map((poStatus, index) => (
+                      <CustomSelect.Option key={index} value={poStatus.value}>
+                        {poStatus.value}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="MERCHANDISER" />} key="1">
+                  <CustomSelect
+                    placeholder="Chọn 1 hoặc nhiều merchandiser"
+                    mode="multiple"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                    maxTagCount="responsive"
+                  >
+                    {listSupplierAccount?.map((item) => (
+                      <CustomSelect.Option key={item.id} value={item.id}>
+                        {item.full_name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="QC" />} key="1">
+                  <CustomSelect
+                    placeholder="Chọn 1 hoặc nhiều qc"
+                    mode="multiple"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                    maxTagCount="responsive"
+                  >
+                    {listRdAccount?.map((item) => (
+                      <CustomSelect.Option key={item.id} value={item.id}>
+                        {item.full_name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="CHI PHÍ" />} key="1">
+                  <CustomSelect
+                    placeholder="Chọn 1 trong 2 đk"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                  >
+                    <CustomSelect.Option key="1" value="0">
+                      Có chi phí
                     </CustomSelect.Option>
-                  ))}
-                </CustomSelect>
-              </Panel>
-              <Panel header="Ghi chú nội bộ" key="15">
-                <Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
-              </Panel>
-              <Panel header="Ghi chú nhà cung cấp" key="16">
-                <Input placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />
-              </Panel>
-              <Panel header="Tag" key="17">
-                <Input placeholder="Tìm kiếm theo tag" />
-              </Panel>
-              <Panel header="Mã tham chiếu" key="18">
-                <Input placeholder="Tìm kiếm theo mã tham chiếu" />
-              </Panel>
-            </Collapse>
+                    <CustomSelect.Option key="2" value="1">
+                      Không chi phí
+                    </CustomSelect.Option>
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="VAT" />} key="1">
+                  <CustomSelect
+                    placeholder="Chọn 1 trong 2 đk"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                  >
+                    <CustomSelect.Option key="1" value="0">
+                      Có VAT
+                    </CustomSelect.Option>
+                    <CustomSelect.Option key="2" value="1">
+                      Không VAT
+                    </CustomSelect.Option>
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel
+                  header={<FilterHeader title="NGÀY NHẬN HÀNG DỰ KIẾN" />}
+                  key="1"
+                >
+                  <CustomRangepicker />
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header="Kho nhận hàng dự kiến" key="1">
+                  <CustomSelect
+                    placeholder="Kho nhận hàng dự kiến"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                    mode="multiple"
+                    maxTagCount="responsive"
+                  >
+                    {listStore?.map((item) => (
+                      <CustomSelect.Option key={item.id} value={item.id}>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="GHI CHÚ NỘI BỘ" />} key="1">
+                  <Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel
+                  header={<FilterHeader title="GHI CHÚ NHÀ CUNG CẤP" />}
+                  key="1"
+                >
+                  <Input placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="TAG" />} key="1">
+                  <Input placeholder="Tìm kiếm theo tag" />
+                </Panel>
+              </Collapse>
+              <Collapse>
+                <Panel header={<FilterHeader title="MÃ THAM CHIẾU" />} key="1">
+                  <Input placeholder="Tìm kiếm theo mã tham chiếu" />
+                </Panel>
+              </Collapse>
+            </Space>
           </Form>
         </BaseFilter>
       </Form.Provider>

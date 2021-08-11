@@ -326,7 +326,8 @@
       border-color: $gray-e5;
       background-color: $gray-f5;
       &:hover,
-      &:focus {
+      &:focus,
+      &.active {
         color: $white;
         background-color: $primary-color;
         border-color: $primary-color;
@@ -536,6 +537,10 @@
         border-color: rgba($secondary-color, 0.2);
         background-color: rgba($secondary-color, 0.2);
       }
+    }
+    &.fade {
+      background-color: rgba(42, 42, 134, 0.05);
+      color: $text-muted;
     }
   }
   //Drawer
@@ -832,6 +837,15 @@
           &-box {
             padding: 0;
           }
+        }
+      }
+    }
+
+    & > .ant-collapse-item {
+      &.active {
+        background-color: #efeffc;
+        .ant-collapse-header {
+          color: $primary-color;
         }
       }
     }
