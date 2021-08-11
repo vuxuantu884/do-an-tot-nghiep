@@ -59,7 +59,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
             <span
               title={value}
               style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-              className="title"
+              className="title text"
             >
               {value}
             </span>
@@ -88,7 +88,11 @@ const SettingOrderProcessingStatus: React.FC = () => {
       visible: true,
       width: "25%",
       render: (value, row, index) => {
-        return <span style={{ color: "#666666" }}>{value}</span>;
+        return (
+          <span className="text" title={value} style={{ color: "#666666" }}>
+            {value}
+          </span>
+        );
       },
     },
     {

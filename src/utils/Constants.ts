@@ -104,3 +104,9 @@ export const PoPaymentMethod ={
   CASH:'cash',
   BANK_TRANSFER:'bank_transfer'
 }
+
+export const MODAL_ACTION_TYPE = {
+  create: "create",
+  edit: "edit",
+  delete: "delete",
+};
