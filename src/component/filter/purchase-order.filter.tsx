@@ -37,7 +37,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   const [formAdvanceFilter] = Form.useForm();
   const onBaseFinish = useCallback(
     (values: PurchaseOrderQuery) => {
-      debugger;
+      
       let data = formBaseFilter.getFieldsValue(true);
       onFilter && onFilter(data);
     },
@@ -45,7 +45,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   );
   const onAdvanceFinish = useCallback(
     (values: PurchaseOrderQuery) => {
-      debugger;
+      
       let data = formAdvanceFilter.getFieldsValue(true);
       onFilter && onFilter(data);
     },
@@ -63,7 +63,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     setVisible(false);
   }, [formAdvanceFilter]);
   const onResetFilter = useCallback(() => {
-    debugger;
+    
     formAdvanceFilter.setFieldsValue({ supplier_id: undefined });
     setVisible(false);
     formAdvanceFilter.submit();
@@ -89,7 +89,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     <div>
       <Form.Provider
         onFormFinish={(name, { values, forms }) => {
-          debugger;
+          
           const { formBaseFilter, formAdvanceFilter } = forms;
           let baseValues = formBaseFilter.getFieldsValue();
           let advanceValues = formAdvanceFilter?.getFieldsValue();
