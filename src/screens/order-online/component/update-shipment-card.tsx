@@ -2127,7 +2127,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   </Row>
                 </div>
               )}
-
               {/*--- Nhận tại cửa hàng ----*/}
               {shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
                 <div className="receive-at-store">
