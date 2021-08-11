@@ -34,6 +34,7 @@ import {
 import { RegUtil } from "./RegUtils";
 import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import { ErrorGHTK } from "./Constants";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -869,7 +870,7 @@ export const TrackingCode = (item: OrderResponse | null) => {
     if (item.fulfillments) {
       if (item.fulfillments.length > 0) {
         if (item.fulfillments[0].shipment?.pushing_status === "waiting") {
-          return "Đang xử lý";
+          return ErrorGHTK.WAITTING;
         } else {
           return item.fulfillments[0].shipment?.tracking_code;
         }

@@ -467,7 +467,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                               }}
                             >
                               <span
-                                style={{ padding: "14px 14px", lineHeight: 1 }}
+                                style={{ padding: "14px", lineHeight: 1 }}
                               >
                                 {formatCurrency(method.amount)}
                               </span>

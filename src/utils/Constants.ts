@@ -28,10 +28,9 @@ export const AddressType = {
 export const PoFormName = {
   Main: "formMain",
   Supplier: "formSupplier",
-  Product:"formPoProduct",
-  Info:"formInfo"
+  Product: "formPoProduct",
+  Info: "formInfo",
 };
-
 
 export const FulFillmentStatus = {
   UNSHIPPED: "unshipped",
@@ -65,18 +64,21 @@ export const ShipmentMethodOption = {
 
 export const TRANSPORTS = {
   ROAD: "road",
-  FLY: "fly"
-}
+  FLY: "fly",
+};
 
 export const PointConfig = {
   VALUE: 1000,
 };
 
-
 export const MoneyPayThreePls = {
   VALUE: 20000,
 };
 
+export const ErrorGHTK = {
+  ERRORAPI: "Lỗi tích hợp API",
+  WAITTING: "Đang xử lý",
+};
 export const POStatus = {
   DRAFT: 'draft',
   FINALIZED: 'finalized',
@@ -88,9 +90,10 @@ export const POStatus = {
 }
 
 export const ProcumentStatus = {
-  DRAFT: 'DRAFT',
-  CONFIRMED: 'FINALIZED',
-  FINISHED: 'COMPLETED',
+  DRAFT: 'draft',
+  CONFIRMED: 'not_received',
+  RECEIVED: 'received',
+  CANCELLED: 'cancelled '
 }
 
 export const PoPaymentStatus = {
