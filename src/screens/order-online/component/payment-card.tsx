@@ -202,7 +202,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 <div>
                   <div>
                     <div>
-                      <img src={Caculate}></img>
+                      <img src={Caculate} alt=""></img>
                     </div>
                   </div>
                 </div>

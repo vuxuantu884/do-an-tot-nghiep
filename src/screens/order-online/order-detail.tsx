@@ -997,7 +997,7 @@ const OrderDetail = () => {
                 <Typography.Link style={{ display: "flex" }}>
                   <img
                     src={historyAction}
-                    style={{ width: 20, height: 20 }}
+                    style={{ width: 20, height: 20 }} alt=""
                   ></img>
                   <span
                     className="text-focus"
