@@ -5,7 +5,7 @@ import { PoPaymentConditions } from "model/purchase-order/payment-conditions.mod
 export const PaymentConditionsGetAllAction = (
   setData: (result: Array<PoPaymentConditions>) => void
 ) => {
-  debugger;
+  
   return BaseAction(PaymentConditionsType.GET_PAYMENT_CONDITIONS_REQUEST, {
     setData,
   });

@@ -35,12 +35,13 @@ const TAB = [
 
 type POInventoryViewProps = {
   confirmDraft: (item: PurchaseProcument) => void;
+  confirmInventory: (item: PurchaseProcument) => void;
 };
 
 const POInventoryView: React.FC<POInventoryViewProps> = (
   props: POInventoryViewProps
 ) => {
-  let { confirmDraft } = props;
+  let { confirmDraft, confirmInventory } = props;
   const [activeTab, setActiveTab] = useState(TAB[0].id);
   const getComponent = useCallback(
     (id: number) => {
@@ -50,26 +51,28 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
         case 2:
           return <TabInvetory />;
         case 3:
-          return <TabConfirmed />;
+          return <TabConfirmed confirmInventory={confirmInventory} />;
         case 4:
           return <TabDraft confirmDraft={confirmDraft} />;
       }
     },
-    [confirmDraft]
+    [confirmDraft, confirmInventory]
   );
   return (
     <React.Fragment>
       <Form.Item
         noStyle
         shouldUpdate={(prev, current) =>
-          prev[POField.ordered_quantity] !==
-            current[POField.ordered_quantity] &&
+          prev[POField.planned_quantity] !==
+            current[POField.planned_quantity] &&
           prev[POField.receipt_quantity] !== current[POField.receipt_quantity]
         }
       >
         {({ getFieldValue }) => {
-          let ordered_quantity = getFieldValue(POField.ordered_quantity);
+          let planned_quantity = getFieldValue(POField.planned_quantity);
           let receipt_quantity = getFieldValue(POField.receipt_quantity);
+          console.log('planned_quantity', planned_quantity);
+          console.log('receipt_quantity', receipt_quantity);
           return (
             <Row align="middle">
               <Col span={24} md={18}>
@@ -78,7 +81,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
                     style={{ width: "100%" }}
                     type="line"
                     percent={Math.round(
-                      (receipt_quantity / ordered_quantity) * 100
+                      (receipt_quantity / planned_quantity) * 100
                     )}
                     showInfo={false}
                     strokeWidth={21}
@@ -93,7 +96,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
                     </div>
                     <div className="progress-view-order">
                       <span>
-                        Tổng: {ordered_quantity ? ordered_quantity : 0}
+                        Tổng: {planned_quantity ? planned_quantity : 0}
                       </span>
                     </div>
                   </div>
@@ -101,7 +104,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
               </Col>
               <Col span={24} md={6}>
                 <div style={{textAlign: 'center'}}>
-                  <span>SL còn lại: {ordered_quantity - receipt_quantity}</span>
+                  <span>SL còn lại: {planned_quantity - receipt_quantity}</span>
                 </div>
               </Col>
             </Row>
