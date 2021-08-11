@@ -47,6 +47,9 @@ const SettingOrderSourcesScreen = React.lazy(
 const SettingPrinterScreen = React.lazy(
   () => import("screens/settings/printer")
 );
+const SettingCreatePrinterScreen = React.lazy(
+  () => import("screens/settings/printer/create")
+);
 
 const setting: Array<RouteMenu> = [
   {
@@ -144,7 +147,21 @@ const setting: Array<RouteMenu> = [
     key: "submenu93",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: [
+      {
+        path: `${UrlConfig.PRINTER}/create`,
+        exact: true,
+        title: "Thêm mới mẫu in",
+        icon: "icon-dot",
+        component: SettingCreatePrinterScreen,
+        key: "submenu262",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+    ],
     type: 0,
     object: null,
   },
