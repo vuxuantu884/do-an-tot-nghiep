@@ -41,7 +41,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     };
     if (status) {
       let resultStatus = status;
-      if (status === OrderStatus.FINALIZED && fulfillments) {
+      if (status === OrderStatus.FINALIZED && fulfillments && fulfillments.length > 0) {
         switch (fulfillments[0].status) {
           case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
             resultStatus = listFulfillmentMapSubStatus.packed.subStatus;

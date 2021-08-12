@@ -2,7 +2,6 @@ import { Modal } from "antd";
 
 type SaveAndConfirmOrderModalProps = {
   visible: boolean;
-  order_id?: number | null;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (e: React.MouseEvent<HTMLElement>) => void;
   text: string;
@@ -25,7 +24,7 @@ const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
       okText={okText}
       cancelText={cancelText}
       title={[
-        <div >
+        <div key="1">
           <img src={icon} alt="" />
           <div>
             <h4>{title}</h4>

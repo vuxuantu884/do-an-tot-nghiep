@@ -91,7 +91,6 @@ const OrderDetail = () => {
   const [paymentDataSorted, setPaymentDataSorted] = useState([]);
   //#endregion
   //#region Orther
-  console.log(paymentDataSorted);
   const onPaymentSelect = (paymentType: number) => {
     if (paymentType === 1) {
       setVisibleShipping(true);
@@ -102,13 +101,11 @@ const OrderDetail = () => {
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     setPayments(value);
   };
-  console.log(OrderDetail);
   const changeShippingFeeInformedCustomer = (value: number | null) => {
     if (value) {
       setShippingFeeInformedCustomer(value);
     }
   };
-
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] =
     useState(false);
 
