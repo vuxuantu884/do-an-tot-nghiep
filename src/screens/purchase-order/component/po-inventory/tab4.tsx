@@ -1,6 +1,6 @@
 import { Button, Form, Table, Typography } from "antd";
 import { POField } from "model/purchase-order/po-field";
-import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { POProcumentField, PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
@@ -62,7 +62,7 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
               },
               {
                 title: "Kho nhận hàng",
-                dataIndex: "store_code",
+                dataIndex: POProcumentField.store,
                 align: "center",
                 render: (value, item, index) => <div>{value}</div>,
               },

@@ -13,10 +13,22 @@ export const PoCreateAction = (
     createCallback,
   });
 };
+export const PoUpdateFinancialStatusAction = (
+  id: number,
+  financialstatus: string,
+  updateCallback: (result: PurchaseOrder | null) => void
+) => {
+  return BaseAction(POType.UPDATE_PO_FINANCIAL_STATUS_REQUEST, {
+    id,
+    financialstatus,
+    updateCallback,
+  });
+};
+
 export const PoUpdateAction = (
   id: number,
   request: PurchaseOrder | null,
-  updateCallback: (result: PurchaseOrder|null) => void
+  updateCallback: (result: PurchaseOrder | null) => void
 ) => {
   return BaseAction(POType.UPDATE_PO_REQUEST, {
     id,
@@ -24,7 +36,6 @@ export const PoUpdateAction = (
     updateCallback,
   });
 };
-
 export const PoDetailAction = (
   id: number,
   setData: (data: PurchaseOrder | null) => void
@@ -42,3 +53,12 @@ export const PoSearchAction = (
   });
 };
 
+export const PODeleteAction = (
+  id: number,
+  deleteCallback: (result: any | null) => void
+) => {
+  return BaseAction(POType.DELETE_PO_REQUEST, {
+    id,
+    deleteCallback,
+  });
+};

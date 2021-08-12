@@ -322,6 +322,18 @@
         }
       }
     }
+    &-default {
+      color: $text-body-color;
+      border-color: $gray-e5;
+      background-color: $gray-f5;
+      &:hover,
+      &:focus,
+      &.active {
+        color: $white;
+        background-color: $primary-color;
+        border-color: $primary-color;
+      }
+    }
   }
   //Card
   &-card {
@@ -527,6 +539,21 @@
         background-color: rgba($secondary-color, 0.2);
       }
     }
+    &.fade {
+      background-color: rgba(42, 42, 134, 0.05);
+      color: $text-muted;
+    }
+    &.primary-bg {
+      .ant-tag-close-icon {
+        color: white;
+      }
+      background-color: $primary-color;
+      color: $white;
+    }
+    &.primary-txt {
+      background-color: rgba(42, 42, 134, 0.1);
+      color: $primary-color;
+    }
   }
   //Drawer
   &-drawer {
@@ -609,7 +636,7 @@
       //   background-color: rgba($background-color-secondary, 0.5);
       // }
       & > tr.ant-table-row-selected > td {
-        background-color: inherit;
+        // background-color: inherit;
       }
     }
     @for $i from 1 through 5 {
@@ -825,11 +852,32 @@
         }
       }
     }
+
+    & > .ant-collapse-item {
+      &.active {
+        background-color: #efeffc;
+        .ant-collapse-header {
+          color: $primary-color;
+        }
+      }
+    }
     .custom-header > .ant-collapse-header {
       padding-left: 0px;
       color: #2a2a86;
       font-weight: 500;
       font-size: 14px;
+    }
+  }
+  //drawer
+  &-drawer {
+    .ant-drawer-content-wrapper {
+      .ant-drawer-content {
+        .ant-drawer-wrapper-body {
+          .ant-drawer-header {
+            background-color: $gray-f5;
+          }
+        }
+      }
     }
   }
 }

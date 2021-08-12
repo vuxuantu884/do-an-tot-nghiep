@@ -1,7 +1,6 @@
-import {
-  QuestionCircleOutlined,
-} from "@ant-design/icons";
+import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
+import { TiWarningOutline } from "react-icons/ti";
 
 type ModalConfirmProps = {
   visible?: boolean;
@@ -31,8 +30,17 @@ const ModalConfirm: React.FC<ModalConfirmProps> = (
     >
       <div className="modal-confirm-container">
         <div>
-          <div style={{ color: "#2A2A86" }} className="modal-confirm-icon">
-            <QuestionCircleOutlined />
+          <div
+            style={{
+              color: "#FFFFFF",
+              backgroundColor: "#FCAF17",
+              fontSize: "45px",
+            }}
+            className="modal-confirm-icon"
+          >
+            <TiWarningOutline />
+
+            {/* <QuestionCircleOutlined /> */}
           </div>
         </div>
         <div className="modal-confirm-right margin-left-20">

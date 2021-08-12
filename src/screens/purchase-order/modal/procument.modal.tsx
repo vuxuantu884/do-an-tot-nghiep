@@ -69,7 +69,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
       <Form
         initialValues={{
           procurement_items: [],
-          store_code: defaultStore,
+          store_id: defaultStore,
           status: ProcumentStatus.DRAFT,
           expect_receipt_date: ConvertDateToUtc(now),
         }}
@@ -89,7 +89,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
         <Row gutter={50}>
           <Col span={24} md={12}>
             <Form.Item
-              name={POProcumentField.store_code}
+              name={POProcumentField.store_id}
               rules={[
                 {
                   required: true,
@@ -233,7 +233,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                       </div>
                     ),
                     width: 150,
-                    dataIndex: POProcumentLineItemField.accepted_quantity,
+                    dataIndex: POProcumentLineItemField.planned_quantity,
                     render: (value, item, index) => (
                       <div style={{ textAlign: "right" }}>
                         {value ? value : 0}

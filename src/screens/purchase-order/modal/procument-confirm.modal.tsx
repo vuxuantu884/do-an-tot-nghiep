@@ -17,7 +17,7 @@ type ProcumentConfirmProps = {
   visible: boolean;
   now: Date;
   stores: Array<StoreResponse>;
-  onCancle: () => void;
+  onCancel: () => void;
   item: PurchaseProcument|null;
   defaultStore: number;
   onOk: (value: PurchaseProcument) => void;
@@ -27,7 +27,7 @@ type ProcumentConfirmProps = {
 const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
   props: ProcumentConfirmProps
 ) => {
-  const { visible, now, stores, onCancle, item, defaultStore, onOk, loading } =
+  const { visible, now, stores, onCancel, item, defaultStore, onOk, loading } =
     props;
   const [code, setCode] = useState<string|undefined>('');
   const [form] = Form.useForm();
@@ -41,24 +41,27 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
     (quantity, index: number) => {
       let procurement_items: Array<PurchaseProcumentLineItem> =
         form.getFieldValue(POProcumentField.procurement_items);
-      procurement_items[index].accepted_quantity = quantity;
+      procurement_items[index] = {...procurement_items[index], quantity: quantity};
       form.setFieldsValue({ procurement_items: [...procurement_items] });
     },
     [form]
   );
+  const onCancelClick = useCallback(() => {
+    form.setFieldsValue(JSON.parse(JSON.stringify(item)));
+    onCancel();
+  }, [form, item, onCancel]);
   useEffect(() => {
-    item?.procurement_items.forEach((item) => item.accepted_quantity = item.quantity);
-    form.setFieldsValue(item);
+    form.setFieldsValue(JSON.parse(JSON.stringify(item)));
     setCode(item?.code);
   }, [form, item]);
   return (
     <Modal
-      onCancel={onCancle}
+      onCancel={onCancelClick}
       width={900}
       visible={visible}
       cancelText="Hủy"
       onOk={() => {
-        form.setFieldsValue({status: ProcumentStatus.CONFIRMED})
+        form.setFieldsValue({status: ProcumentStatus.NOT_RECEIVED})
         form.submit();
       }}
       confirmLoading={loading}
@@ -68,7 +71,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
       <Form
         initialValues={{
           procurement_items: [],
-          store_code: defaultStore,
+          store_id: defaultStore,
           status: ProcumentStatus.DRAFT,
           expect_receipt_date: ConvertDateToUtc(now),
         }}
@@ -88,13 +91,16 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
         <Form.Item hidden noStyle name={POProcumentField.code}>
           <Input />
         </Form.Item>
+        <Form.Item hidden noStyle name={POProcumentField.store}>
+          <Input />
+        </Form.Item>
         <Form.Item hidden noStyle name={POProcumentField.id}>
           <Input />
         </Form.Item>
         <Row gutter={50}>
           <Col span={24} md={12}>
             <Form.Item
-              name={POProcumentField.store_code}
+              name={POProcumentField.store_id}
               rules={[
                 {
                   required: true,
@@ -281,7 +287,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                       </div>
                     ),
                     width: 150,
-                    dataIndex: POProcumentLineItemField.accepted_quantity,
+                    dataIndex: POProcumentLineItemField.quantity,
                     render: (value, item, index) => (
                       <NumberInput
                         placeholder="Kế hoạch nhận"

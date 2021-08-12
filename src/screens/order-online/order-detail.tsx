@@ -939,7 +939,7 @@ const OrderDetail = () => {
                 </Row>
               </div>
             </Card>
-            <SubStatusOrder status={OrderDetail?.status} orderId={OrderId} />
+            <SubStatusOrder status={OrderDetail?.status} orderId={OrderId} fulfillments={OrderDetail?.fulfillments} />
             <Card
               className="margin-top-20"
               title={
@@ -1011,7 +1011,7 @@ const OrderDetail = () => {
                 <Typography.Link style={{ display: "flex" }}>
                   <img
                     src={historyAction}
-                    style={{ width: 20, height: 20 }}
+                    style={{ width: 20, height: 20 }} alt=""
                   ></img>
                   <span
                     className="text-focus"

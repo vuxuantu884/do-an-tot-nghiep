@@ -43,6 +43,14 @@ const SettingOrderSourcesScreen = React.lazy(
   () => import("screens/order-online/settings/order-sources")
 );
 
+// printer: quản lý mẫu in
+const SettingPrinterScreen = React.lazy(
+  () => import("screens/settings/printer")
+);
+const SettingCreatePrinterScreen = React.lazy(
+  () => import("screens/settings/printer/create")
+);
+
 const setting: Array<RouteMenu> = [
   {
     path: UrlConfig.ACCOUNTS,
@@ -131,15 +139,29 @@ const setting: Array<RouteMenu> = [
     },
   },
   {
-    path: "/printers",
+    path: UrlConfig.PRINTER,
     exact: true,
     title: "Quản lý mẫu in",
     icon: "icon-dot",
-    component: ManageStoreScreen,
+    component: SettingPrinterScreen,
     key: "submenu93",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: [
+      {
+        path: `${UrlConfig.PRINTER}/create`,
+        exact: true,
+        title: "Thêm mới mẫu in",
+        icon: "icon-dot",
+        component: SettingCreatePrinterScreen,
+        key: "submenu262",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+    ],
     type: 0,
     object: null,
   },

@@ -80,25 +80,32 @@ export const ErrorGHTK = {
   WAITTING: "Đang xử lý",
 };
 export const POStatus = {
-  DRAFT: 'draft',
-  FINALIZED: 'finalized',
-  COMPLETED: 'completed',
-  FINISHED: 'finished',
-  CANCELLED: 'cancelled',
-  PROCUREMENT_DRAFT: 'procurement_draft',
-  STOCK_IN: 'stock_in',
-}
+  DRAFT: "draft",
+  FINALIZED: "finalized",
+  COMPLETED: "completed",
+  FINISHED: "finished",
+  CANCELLED: "cancelled",
+  PROCUREMENT_DRAFT: "procurement_draft",
+  STOCK_IN: "stock_in",
+};
 
 export const ProcumentStatus = {
-  DRAFT: 'DRAFT',
-  CONFIRMED: 'FINALIZED',
-  FINISHED: 'COMPLETED',
-}
+  DRAFT: "draft",
+  NOT_RECEIVED: "not_received",
+  PARTIAL_RECEIVED: "partial_received",
+  RECEIVED: "received",
+  FINISHED: "finished",
+  CANCELLED: "cancelled",
+};
 
 export const PoPaymentStatus = {
-  UNPAID: 'unpaid',
-  PAID: 'paid',
-}
+  DRAFT: "draft",
+  UNPAID: "unpaid",
+  PAID: "paid",
+  PARTIAL_PAID: "partial_paid",
+  FINISHED: "finished",
+  CANCELLED: "cancelled",
+};
 
 export const PoPaymentMethod ={
   CASH:'cash',
@@ -110,3 +117,11 @@ export const MODAL_ACTION_TYPE = {
   edit: "edit",
   delete: "delete",
 };
+export const PoFinancialStatus = {
+  DRAFT: 'draft',
+  UNPAID: 'unpaid',
+  PARTIAL_PAID:'partial_paid',
+  PAID:'paid',
+  FINISHED:'finished',
+  CANCELLED:'cancelled',  
+}
