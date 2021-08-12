@@ -49,6 +49,26 @@ export interface PurchaseOrder extends BaseObject{
 }
 
 export interface PurchaseOrderQuery extends BaseQuery {
-  code: string;
-  supplier_id?: number;
+  infor?: string;
+  from_order_date?: Date;
+  to_order_date?: Date;
+  from_cancelled_date?: Date;
+  to_cancelled_date?: Date;
+  from_activated_date?: Date;
+  to_activated_date?: Date;
+  from_completed_date?: Date;
+  to_completed_date?: Date;
+  from_expect_import_date?:Date;
+  to_expect_import_date?:Date;
+  status?: string;
+  financial_status?: string;
+  receive_status?: string;
+  merchandiser?: string;
+  qc?: string;
+  cost_included?: boolean;
+  tax_included?: boolean;
+  note?: string;
+  supplier_note?: string;
+  tags?: string;
+  reference?: string;
 }
