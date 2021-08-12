@@ -61,7 +61,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
       visible={visible}
       cancelText="Hủy"
       onOk={() => {
-        form.setFieldsValue({status: ProcumentStatus.CONFIRMED})
+        form.setFieldsValue({status: ProcumentStatus.NOT_RECEIVED})
         form.submit();
       }}
       confirmLoading={loading}
