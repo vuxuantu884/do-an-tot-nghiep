@@ -970,21 +970,7 @@
       }
     }
   }
-  .ant-collapse-header {
-    width: 100%;
-    .ant-row {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      .ant-col {
-        display: flex;
-        justify-content: space-between;
-        p {
-          line-height: 2;
-        }
-      }
-    }
-  }
+  
 }
 
 .margin-top-bottom-10 {
@@ -1280,39 +1266,55 @@
     }
   }
   .ant-card-body{
-    .ant-collapse-header{
-      // border-top: 1px solid #E5E5E5;
-      .order-shipment-dot{
-        position: relative;
-        margin-left: 20px;
-        &::before{
-          position: absolute;
-          content: "";
-          width: 14px;
-          height:14px;
-          top:6px;
-          left: -18px;
-          border-radius: 50%;
-         } 
+    .orders-timeline-custom{
+      position: relative;
+      margin-left: 20px;
+      &::before{
+        position: absolute;
+        content: "";
+        width: 14px;
+        height:14px;
+        top: 20px;
+        left: -4px;
+        border-radius: 50%;
+       }
+    }
+    .orders-timeline-custom.order-shipment-dot-default{
+      &::before{
+        background-color: #E5E5E5;
+       } 
+    }
+    .orders-timeline-custom.order-shipment-dot-active{
+      &::before{
+        background-color: #27ae60;
+       } 
+    }
+    .orders-timeline-custom.order-shipment-dot-cancelled{
+      &::before{
+        background-color: #E24343;
+       } 
+    }
+    .ant-collapse-header {
+      display: flex;
+      flex-direction: row;
+      .saleorder-header-arrow{
+        width: 30px;
+        margin: 0;
       }
-      .order-shipment-dot-default{
-        &::before{
-          background-color: #E5E5E5;
-         } 
+      div{
+        display: flex;
+        width: 100%;
+        padding: 0;
+        &>div{
+          &:first-child{
+          }
+          &:last-child{
+            display: flex;
+            justify-content: flex-end;
+          }
+        }
       }
-      .order-shipment-dot-active{
-        &::before{
-          background-color: #27ae60;
-         } 
-      }
-      .order-shipment-dot-cancelled{
-        &::before{
-          background-color: #E24343;
-         } 
-      }
-    }  
-
-   
+    } 
   }
   .ant-card-head {
     border: none;
