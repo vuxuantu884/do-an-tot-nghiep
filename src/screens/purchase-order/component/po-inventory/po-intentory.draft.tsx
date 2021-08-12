@@ -28,7 +28,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
             ]}
             label="Kho nhập hàng"
           >
-            <Select>
+            <Select showSearch optionFilterProp="children">
               <Select.Option value="">Chọn kho nhập</Select.Option>
               {stores.map((item) => (
                 <Select.Option key={item.id} value={item.id}>
