@@ -118,7 +118,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn loại nhà cung cấp",
+                  message: "Vui lòng chọn phương thức thanh toán",
                 },
               ]}
               label="Hình thức thanh toán"
@@ -160,6 +160,8 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
+                min={0}
+                default={0}
                 placeholder=""
               />
             </Item>
