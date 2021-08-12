@@ -227,7 +227,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   }, [dispatch]);
   useEffect(() => {
     props.setTotalPaid(totalAmountPaid);
-  }, []);
+  }, [props, totalAmountPaid]);
   return (
     <div>
       <SaveAndConfirmOrder
@@ -301,7 +301,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       <div>
                         <div>
                           <div>
-                            <img src={Caculate}></img>
+                            <img src={Caculate} alt=""></img>
                           </div>
                         </div>
                       </div>

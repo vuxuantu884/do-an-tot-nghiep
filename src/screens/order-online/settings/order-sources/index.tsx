@@ -190,6 +190,7 @@ const OrderSources: React.FC = () => {
   }, [dispatch, params]);
 
   useEffect(() => {
+    setTableLoading(true);
     dispatch(
       actionFetchListOrderSourceCompanies((data: OrderSourceCompanyModel[]) => {
         setListOrderCompanies(data);

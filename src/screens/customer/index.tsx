@@ -1,7 +1,5 @@
-import { Card, Input, Row, Col, AutoComplete } from "antd";
+import { Card, Row, Col, AutoComplete } from "antd";
 import ContentContainer from "component/container/content.container";
-import { SearchOutlined } from "@ant-design/icons";
-import MorePopover from "./more";
 import React from "react";
 import Popup from "./popup";
 import CustomerAdd from "./add";
@@ -129,21 +127,21 @@ const Customer = () => {
 
   React.useEffect(() => {
     dispatch(CustomerList(query, setResult));
-  }, []);
+  }, [dispatch, query, setResult]);
   
-  const onRow = (record: any) => ({
-    onContextMenu: (event: any) => {
-      event.preventDefault();
-      if (!popup.visible) {
-        document.addEventListener(`click`, function onClickOutside() {
-          setPopup({ ...popup, visible: false });
-          document.removeEventListener(`click`, onClickOutside);
-        });
-      }
+  // const onRow = (record: any) => ({
+  //   onContextMenu: (event: any) => {
+  //     event.preventDefault();
+  //     if (!popup.visible) {
+  //       document.addEventListener(`click`, function onClickOutside() {
+  //         setPopup({ ...popup, visible: false });
+  //         document.removeEventListener(`click`, onClickOutside);
+  //       });
+  //     }
 
-      setPopup({ visible: true, x: event.clientX, y: event.clientY });
-    },
-  });
+  //     setPopup({ visible: true, x: event.clientX, y: event.clientY });
+  //   },
+  // });
 
   const onSearch = (request: string) => {
     const querySearch: CustomerSearchQuery = {page:1, limit: 15, request}

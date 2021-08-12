@@ -19,7 +19,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
   const dispatch = useDispatch();
   const userMenu = (
     <Menu>
-      <Menu.Item key="logout">
+      <Menu.Item key="info">
         <Link to="#" type="text">
           <span>Thông tin cá nhân</span>
         </Link>

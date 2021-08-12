@@ -49,7 +49,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
           </Col>
           <Col span={24} md={10}>
             <Form.Item name={POField.payment_note} label="Diễn giải">
-              <Input.TextArea placeholder="Nhập diễn giải" />
+              <Input.TextArea maxLength={255} placeholder="Nhập diễn giải" />
             </Form.Item>
           </Col>
         </Row>

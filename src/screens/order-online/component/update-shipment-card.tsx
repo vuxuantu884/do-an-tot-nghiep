@@ -18,7 +18,6 @@ import {
 import React, {
   useState,
   useCallback,
-  useLayoutEffect,
   useEffect,
   createRef,
 } from "react";
@@ -67,7 +66,6 @@ import {
   getShipingAddresDefault,
   InfoServiceDeliveryDetail,
   replaceFormatString,
-  SumWeight,
   SumWeightResponse,
   TrackingCode,
 } from "utils/AppUtils";
@@ -88,7 +86,6 @@ import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import { StoreResponse } from "model/core/store.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import OrderDetail from "./../order-detail";
 const { Panel } = Collapse;
 const { Link } = Typography;
 
@@ -123,7 +120,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setVisibleShipping,
     setPaymentType,
     setShipmentMethod,
-    setVisibleUpdatePayment,
   } = props;
 
   // node dom
@@ -460,7 +456,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         .delivery_service_provider_type === "pick_at_store"
     ) {
       let money = props.OrderDetail.total;
-      props.OrderDetail?.payments?.map((p) => {
+      props.OrderDetail?.payments?.forEach((p) => {
         money = money - p.paid_amount;
       });
       return money;
@@ -797,11 +793,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     } else {
       setIsvibleCancelandGetGoodsBack(true);
     }
-  }, [
-    setIsvibleCancelFullfilment,
-    isvibleCancelFullfilment,
-    props.OrderDetail,
-  ]);
+  }, [setIsvibleCancelFullfilment, props.OrderDetail]);
 
   const onOKCancelFullfilment = () => {
     fulfillmentTypeOrderRequest(5);
@@ -1317,7 +1309,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             )}
             {props.stepsStatusValue === OrderStatus.FINALIZED &&
               props.OrderDetail.fulfillments[0].shipment
-                ?.delivery_service_provider_type != "pick_at_store" && (
+                ?.delivery_service_provider_type !== "pick_at_store" && (
                 <Button
                   type="primary"
                   style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1330,7 +1322,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
             {props.stepsStatusValue === OrderStatus.FINALIZED &&
               props.OrderDetail.fulfillments[0].shipment
-                ?.delivery_service_provider_type == "pick_at_store" && (
+                ?.delivery_service_provider_type === "pick_at_store" && (
                 <Button
                   type="primary"
                   style={{ marginLeft: "10px" }}
@@ -1353,7 +1345,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             )}
             {props.stepsStatusValue === FulFillmentStatus.PACKED &&
               props.OrderDetail.fulfillments[0].shipment
-                ?.delivery_service_provider_type != "pick_at_store" && (
+                ?.delivery_service_provider_type !== "pick_at_store" && (
                 <Button
                   type="primary"
                   style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1376,7 +1368,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
             {props.stepsStatusValue === FulFillmentStatus.PACKED &&
               props.OrderDetail.fulfillments[0].shipment
-                ?.delivery_service_provider_type == "pick_at_store" && (
+                ?.delivery_service_provider_type === "pick_at_store" && (
                 <Button
                   type="primary"
                   style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1778,7 +1770,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           name="shipper_code"
                           rules={[
                             {
-                              required: shipmentMethod == 2,
+                              required: shipmentMethod === 2,
                               message: "Vui lòng chọn đối tác giao hàng",
                             },
                           ]}
