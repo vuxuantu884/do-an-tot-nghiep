@@ -23,7 +23,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (props: TabConfirmedProps) => 
           POField.procurements
         );
         let items = procurements !== undefined ? procurements.filter(
-          (item) => item.status === ProcumentStatus.CONFIRMED
+          (item) => item.status === ProcumentStatus.NOT_RECEIVED
         ) : [];
         return (
           <Table
