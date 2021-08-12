@@ -939,7 +939,7 @@ const OrderDetail = () => {
                 </Row>
               </div>
             </Card>
-            <SubStatusOrder status={OrderDetail?.status} orderId={OrderId} />
+            <SubStatusOrder status={OrderDetail?.status} orderId={OrderId} fulfillments={OrderDetail?.fulfillments} />
             <Card
               className="margin-top-20"
               title={
