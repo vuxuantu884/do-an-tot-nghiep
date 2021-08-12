@@ -26,6 +26,7 @@ import { YodyAction } from "../../../base/BaseAction";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {
   DeliveryServiceResponse,
+  ErrorLogResponse,
   OrderResponse,
   OrderSubStatusResponse,
   ShippingGHTKResponse,
@@ -210,7 +211,7 @@ function* getTRackingLogFulfillmentSaga(action: YodyAction) {
 function* getTRackingLogErrorSaga(action: YodyAction) {
   const { fulfillment_code, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<TrackingLogFulfillmentResponse>> =
+    let response: BaseResponse<Array<ErrorLogResponse>> =
       yield call(getTrackingLogFulFillmentError, fulfillment_code);
     switch (response.code) {
       case HttpStatus.SUCCESS:

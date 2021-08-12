@@ -446,7 +446,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const menu = (
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-          <Menu.Item key="0">
+          <Menu.Item key="1">
             <Button
               type="text"
               onClick={() => showAddGiftModal(index)}
@@ -460,8 +460,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               Thêm quà tặng
             </Button>
           </Menu.Item>
-          <Divider style={{ margin: "0" }} />
-          <Menu.Item key="1">
+          <Menu.Item key="2">
             <Button
               type="text"
               onClick={() => {
@@ -500,7 +499,7 @@ const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
               trigger={["click"]}
               placement="bottomRight"
             >
-              <Button type="text" className="p-0 ant-btn-custom" style={{}}>
+              <Button type="text" className="p-0 ant-btn-custom">
                 <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
               </Button>
             </Dropdown>

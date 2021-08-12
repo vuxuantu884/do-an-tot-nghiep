@@ -11,7 +11,7 @@ import { PoPaymentConditions } from "model/purchase-order/payment-conditions.mod
 function* paymentConditionsGetAll(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    debugger;
+    
     let response: BaseResponse<Array<PoPaymentConditions>> = yield call(
       getPaymentConditionsrApi
     );

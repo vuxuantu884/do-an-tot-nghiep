@@ -34,7 +34,6 @@ import {
 } from "model/response/order/order.response";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import moment from "moment";
 import {
   checkPaymentAll,
   checkPaymentStatusToShow,
@@ -78,6 +77,8 @@ const OrderDetail = () => {
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
+  const [OrderDetailAllFullfilment, setOrderDetailAllFullfilment] =
+    useState<OrderResponse | null>(null);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
     null
@@ -117,8 +118,8 @@ const OrderDetail = () => {
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
     }
-    if(OrderDetail?.status === OrderStatus.FINISHED){
-      return FulFillmentStatus.SHIPPED;;
+    if (OrderDetail?.status === OrderStatus.FINISHED) {
+      return FulFillmentStatus.SHIPPED;
     }
     if (OrderDetail?.status === OrderStatus.FINALIZED) {
       if (
@@ -129,10 +130,11 @@ const OrderDetail = () => {
       } else {
         if (
           OrderDetail.fulfillments !== undefined &&
-          OrderDetail.fulfillments !== null
+          OrderDetail.fulfillments !== null &&
+          OrderDetail.fulfillments.length > 0
         ) {
           if (
-            OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+            OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
           ) {
             return OrderStatus.FINALIZED;
           }
@@ -179,7 +181,15 @@ const OrderDetail = () => {
     if (!data) {
       setError(true);
     } else {
-      setOrderDetail(data);
+      let _data = { ...data };
+      _data.fulfillments = _data.fulfillments?.filter(
+        (f) =>
+          f.status !== FulFillmentStatus.CANCELLED &&
+          f.status !== FulFillmentStatus.RETURNED &&
+          f.status !== FulFillmentStatus.RETURNING
+      );
+      setOrderDetail(_data);
+      setOrderDetailAllFullfilment(data);
     }
   }, []);
 
@@ -203,7 +213,7 @@ const OrderDetail = () => {
   //#region Update Fulfillment Status
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(CustomerDetail(OrderDetail.customer_id, setCustomerDetail));
+      dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomerDetail));
     }
   }, [dispatch, OrderDetail]);
 
@@ -268,12 +278,14 @@ const OrderDetail = () => {
     let paymentData: any = OrderDetail?.payments?.filter(
       (item) => item.payment_method !== "cod"
     );
-    let obj = paymentData?.length > 0 && paymentData.reduce((res: any, curr: any) => {
-      if (res[curr.created_date.toString()])
-        res[curr.created_date.toString()].push(curr);
-      else Object.assign(res, { [curr.created_date.toString()]: [curr] });
-      return res;
-    }, {});
+    let obj =
+      paymentData?.length > 0 &&
+      paymentData.reduce((res: any, curr: any) => {
+        if (res[curr.created_date.toString()])
+          res[curr.created_date.toString()].push(curr);
+        else Object.assign(res, { [curr.created_date.toString()]: [curr] });
+        return res;
+      }, {});
     for (let key in obj) {
       _paymentData.push(obj[key]);
     }
@@ -335,6 +347,7 @@ const OrderDetail = () => {
               shipmentMethod={shipmentMethod}
               isVisibleShipping={isVisibleShipping}
               paymentType={paymentType}
+              OrderDetailAllFullfilment={OrderDetailAllFullfilment}
             />
 
             {/*--- end shipment ---*/}
@@ -382,6 +395,7 @@ const OrderDetail = () => {
                         </span>
                         <b>
                           {(OrderDetail?.fulfillments &&
+                            OrderDetail?.fulfillments.length > 0 &&
                             OrderDetail?.fulfillments[0].status === "shipped" &&
                             formatCurrency(customerNeedToPayValue)) ||
                             formatCurrency(
@@ -395,6 +409,7 @@ const OrderDetail = () => {
                         </span>
                         <b style={{ color: "red" }}>
                           {OrderDetail?.fulfillments &&
+                          OrderDetail?.fulfillments.length > 0 &&
                           OrderDetail?.fulfillments[0].status !== "shipped"
                             ? formatCurrency(
                                 customerNeedToPayValue -
@@ -416,7 +431,7 @@ const OrderDetail = () => {
                       <div style={{ padding: "0 24px 24px 24px" }}>
                         <Collapse
                           className="orders-timeline"
-                          defaultActiveKey={["1", "2","3","100"]}
+                          defaultActiveKey={["1", "2", "3", "100"]}
                           expandIcon={({ isActive }) => (
                             <img
                               src={doubleArrow}
@@ -575,7 +590,6 @@ const OrderDetail = () => {
                             OrderDetail?.fulfillments[0].shipment &&
                             OrderDetail?.fulfillments[0].shipment.cod && (
                               <Panel
-                                
                                 className={
                                   OrderDetail?.fulfillments[0].status !==
                                   "shipped"
@@ -593,22 +607,26 @@ const OrderDetail = () => {
                                     >
                                       COD
                                       {OrderDetail.fulfillments[0].status !==
-                                        "shipped" ? (
+                                      "shipped" ? (
                                         <Tag
                                           className="orders-tag orders-tag-warning"
                                           style={{ marginLeft: 10 }}
                                         >
                                           Đang chờ thu
                                         </Tag>
-                                      ): <Tag
-                                      className="orders-tag orders-tag-success"
-                                      style={{
-                                        backgroundColor: "rgba(39, 174, 96, 0.1)",
-                                        color: "#27AE60", marginLeft: 10
-                                      }}
-                                    >
-                                      Đã thu COD
-                                    </Tag>}
+                                      ) : (
+                                        <Tag
+                                          className="orders-tag orders-tag-success"
+                                          style={{
+                                            backgroundColor:
+                                              "rgba(39, 174, 96, 0.1)",
+                                            color: "#27AE60",
+                                            marginLeft: 10,
+                                          }}
+                                        >
+                                          Đã thu COD
+                                        </Tag>
+                                      )}
                                     </b>
                                     <b
                                       style={{
@@ -993,7 +1011,7 @@ const OrderDetail = () => {
                 <Typography.Link style={{ display: "flex" }}>
                   <img
                     src={historyAction}
-                    style={{ width: 20, height: 20 }}
+                    style={{ width: 20, height: 20 }} alt=""
                   ></img>
                   <span
                     className="text-focus"
@@ -1020,7 +1038,7 @@ const OrderDetail = () => {
             height: "55px",
             bottom: "0%",
             backgroundColor: "#FFFFFF",
-            marginLeft: "-31px",
+            marginLeft: "-30px",
             display: `${isShowBillStep ? "" : "none"}`,
           }}
         >

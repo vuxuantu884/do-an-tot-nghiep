@@ -1,9 +1,17 @@
 import { Form, Table, Typography } from "antd";
 import { POField } from "model/purchase-order/po-field";
-import { POProcumentLineItemField, PurchaseProcument } from "model/purchase-order/purchase-procument";
+import {
+  POProcumentField,
+  PurchaseProcument,
+} from "model/purchase-order/purchase-procument";
 import { ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
+import {
+  HiChevronDoubleRight,
+  HiOutlineChevronDoubleDown,
+} from "react-icons/hi";
+import imgDefIcon from "assets/img/img-def.svg";
 
 const TabInvetory = () => {
   return (
@@ -17,13 +25,16 @@ const TabInvetory = () => {
         let procurements: Array<PurchaseProcument> = getFieldValue(
           POField.procurements
         );
-        let items = procurements !== undefined ? procurements.filter(
-          (item) => item.status === ProcumentStatus.FINISHED
-        ) : [];
+        let items =
+          procurements !== undefined
+            ? procurements.filter(
+                (item) => item.status === ProcumentStatus.RECEIVED
+              )
+            : [];
         return (
           <Table
             locale={{
-              emptyText: 'Không có phiếu nhập kho'
+              emptyText: "Không có phiếu nhập kho",
             }}
             className="product-table"
             rowKey={(record: PurchaseProcument) =>
@@ -34,9 +45,64 @@ const TabInvetory = () => {
             tableLayout="fixed"
             scroll={{ y: 250, x: 845 }}
             pagination={false}
+            expandable={{
+              expandIcon: (props) => {
+                let icon = <HiChevronDoubleRight size={12} />;
+                if (props.expanded) {
+                  icon = (
+                    <HiOutlineChevronDoubleDown size={12} color="#2A2A86" />
+                  );
+                }
+                return (
+                  <div
+                    style={{ cursor: "pointer" }}
+                    onClick={(event) => props.onExpand(props.record, event)}
+                  >
+                    {icon}
+                  </div>
+                );
+              },
+              expandedRowRender: (record) => (
+                <div className="row-expand">
+                  {record.procurement_items.map((item, index) => (
+                    <div className="item">
+                      <div className="item-col">{index + 1}</div>
+                      <div className="item-col item-col-img">
+                        <div className="product-item-image">
+                          <img
+                            src={
+                              item.variant_image === null
+                                ? imgDefIcon
+                                : item.variant_image
+                            }
+                            alt=""
+                            className=""
+                          />
+                        </div>
+                      </div>
+                      <div className="item-col item-col-name">
+                        <div className="product-item-sku">{item.sku}</div>
+                        <div className="product-item-name">
+                          <span className="product-item-name-detail">
+                            {item.variant}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="item-col item-col-number">
+                        {item.quantity}
+                      </div>
+                      <div style={{ color: "#27AE60", fontWeight: 700 }} className="item-col item-col-number">
+                        {item.real_quantity}
+                      </div>
+                      <div className="item-col item-col-empty"/>
+                    </div>
+                  ))}
+                </div>
+              ),
+            }}
             columns={[
               {
-                align: "center",
+                align: "left",
                 title: (
                   <div
                     style={{
@@ -58,31 +124,36 @@ const TabInvetory = () => {
               },
               {
                 title: "Kho nhận hàng",
-                dataIndex: "store_code",
-                align: "center",
+                dataIndex: POProcumentField.store,
+                align: "left",
                 render: (value, item, index) => <div>{value}</div>,
               },
               {
                 title: "Ngày nhận hàng thực tế",
-                dataIndex: POProcumentLineItemField.activated_date,
+                dataIndex: POProcumentField.stock_in_date,
                 align: "center",
                 render: (value: string, item, index: number) =>
                   ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
               },
-              
+
               {
                 align: "right",
+                width: 200,
                 title: "SL Nhận hàng được duyệt",
                 dataIndex: "procurement_items",
                 render: (value, item, index: number) =>
-                  POUtils.totalAccpectQuantityProcument(value),
+                  POUtils.totalQuantity(value),
               },
               {
                 align: "right",
-                title: <div style={{color: '#27AE60'}}>SL Thực nhận</div>,
+                width: 200,
+                title: <div style={{ color: "#27AE60" }}>SL Thực nhận</div>,
                 dataIndex: "procurement_items",
-                render: (value, item, index: number) =>
-                  <div style={{color: '#27AE60'}}>{POUtils.totalRealQuantityProcument(value)}</div>,
+                render: (value, item, index: number) => (
+                  <div style={{ color: "#27AE60", fontWeight: 700 }}>
+                    {POUtils.totalRealQuantityProcument(value)}
+                  </div>
+                ),
               },
               {
                 title: "",
@@ -96,6 +167,6 @@ const TabInvetory = () => {
       }}
     </Form.Item>
   );
-}
+};
 
 export default TabInvetory;

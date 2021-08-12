@@ -301,7 +301,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       <div>
                         <div>
                           <div>
-                            <img src={Caculate}></img>
+                            <img src={Caculate} alt=""></img>
                           </div>
                         </div>
                       </div>

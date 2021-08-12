@@ -90,9 +90,10 @@ export const POStatus = {
 }
 
 export const ProcumentStatus = {
-  DRAFT: 'DRAFT',
-  CONFIRMED: 'FINALIZED',
-  FINISHED: 'COMPLETED',
+  DRAFT: 'draft',
+  CONFIRMED: 'not_received',
+  RECEIVED: 'received',
+  CANCELLED: 'cancelled '
 }
 
 export const PoPaymentStatus = {
@@ -110,3 +111,11 @@ export const MODAL_ACTION_TYPE = {
   edit: "edit",
   delete: "delete",
 };
+export const PoFinancialStatus = {
+  DRAFT: 'draft',
+  UNPAID: 'unpaid',
+  PARTIAL_PAID:'partial_paid',
+  PAID:'paid',
+  FINISHED:'finished',
+  CANCELLED:'cancelled',  
+}

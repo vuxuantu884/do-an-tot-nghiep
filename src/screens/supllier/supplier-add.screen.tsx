@@ -131,7 +131,7 @@ const CreateSupplierScreen: React.FC = () => {
 
   const onSelectDistrict = useCallback(
     (value: number) => {
-      debugger;
+      
       let cityId = -1;
       listDistrict.forEach((item) => {
         if (item.id === value) {
@@ -151,7 +151,7 @@ const CreateSupplierScreen: React.FC = () => {
   }, [history]);
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
-      debugger;
+      
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
     [dispatch, onCreateSuccess]

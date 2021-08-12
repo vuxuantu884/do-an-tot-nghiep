@@ -1,5 +1,4 @@
-import { Col, Form, Input, Modal, Row, Select, Table } from "antd";
-import CustomDatepicker from "component/custom/date-picker.custom";
+import { Col, Form, Input, Modal, Row, Table } from "antd";
 import { StoreResponse } from "model/core/store.model";
 import {
   POProcumentField,
@@ -9,27 +8,28 @@ import {
 } from "model/purchase-order/purchase-procument";
 import { useCallback, useEffect, useState } from "react";
 import { ProcumentStatus } from "utils/Constants";
-import { ConvertDateToUtc } from "utils/DateUtils";
+import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
+import { POUtils } from "utils/POUtils";
 
-type ProcumentConfirmProps = {
+type ProducmentInventoryModalProps = {
   visible: boolean;
   now: Date;
   stores: Array<StoreResponse>;
   onCancel: () => void;
-  item: PurchaseProcument|null;
+  item: PurchaseProcument | null;
   defaultStore: number;
   onOk: (value: PurchaseProcument) => void;
   loading: boolean;
 };
 
-const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
-  props: ProcumentConfirmProps
+const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
+  props: ProducmentInventoryModalProps
 ) => {
-  const { visible, now, stores, onCancel, item, defaultStore, onOk, loading } =
+  const { visible, now, onCancel, item, defaultStore, onOk, loading } =
     props;
-  const [code, setCode] = useState<string|undefined>('');
+  const [code, setCode] = useState<string | undefined>("");
   const [form] = Form.useForm();
   const onFinish = useCallback(
     (value: PurchaseProcument) => {
@@ -41,17 +41,19 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
     (quantity, index: number) => {
       let procurement_items: Array<PurchaseProcumentLineItem> =
         form.getFieldValue(POProcumentField.procurement_items);
-      procurement_items[index] = {...procurement_items[index], quantity: quantity};
+      procurement_items[index].real_quantity = quantity;
       form.setFieldsValue({ procurement_items: [...procurement_items] });
     },
     [form]
   );
   const onCancelClick = useCallback(() => {
-    form.setFieldsValue(JSON.parse(JSON.stringify(item)));
+    let result: PurchaseProcument = JSON.parse(JSON.stringify(item));
+    form.setFieldsValue(result);
     onCancel();
   }, [form, item, onCancel]);
   useEffect(() => {
-    form.setFieldsValue(JSON.parse(JSON.stringify(item)));
+    let result: PurchaseProcument = JSON.parse(JSON.stringify(item));
+    form.setFieldsValue(result);
     setCode(item?.code);
   }, [form, item]);
   return (
@@ -61,12 +63,17 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
       visible={visible}
       cancelText="Hủy"
       onOk={() => {
-        form.setFieldsValue({status: ProcumentStatus.CONFIRMED})
+        form.setFieldsValue({ status: ProcumentStatus.RECEIVED });
         form.submit();
       }}
       confirmLoading={loading}
-      title={<div>Duyệt phiếu nháp <span style={{color: '#2A2A86'}}>"{code}"</span></div>}
-      okText="Duyệt phiếu nháp"
+      title={
+        <div>
+          Xác nhận nhập kho phiếu nháp{" "}
+          <span style={{ color: "#2A2A86" }}>"{code}"</span>
+        </div>
+      }
+      okText="Xác nhận nhập"
     >
       <Form
         initialValues={{
@@ -91,49 +98,51 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
         <Form.Item hidden noStyle name={POProcumentField.code}>
           <Input />
         </Form.Item>
+        <Form.Item hidden noStyle name={POProcumentField.id}>
+          <Input />
+        </Form.Item>
         <Form.Item hidden noStyle name={POProcumentField.store}>
           <Input />
         </Form.Item>
-        <Form.Item hidden noStyle name={POProcumentField.id}>
+        <Form.Item hidden noStyle name={POProcumentField.store_id}>
+          <Input />
+        </Form.Item>
+        <Form.Item hidden noStyle name={POProcumentField.expect_receipt_date}>
           <Input />
         </Form.Item>
         <Row gutter={50}>
           <Col span={24} md={12}>
             <Form.Item
-              name={POProcumentField.store_id}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn kho nhận hàng",
-                },
-              ]}
-              label="Kho nhận hàng"
+              shouldUpdate={(prev, current) =>
+                prev[POProcumentField.store_id] !==
+                current[POProcumentField.store_id]
+              }
             >
-              <Select>
-                <Select.Option value="">Chọn kho nhận</Select.Option>
-                {stores.map((item) => (
-                  <Select.Option key={item.id} value={item.id}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-              </Select>
+              {({ getFieldValue }) => {
+                let store = getFieldValue(POProcumentField.store);
+                return (
+                  <div>
+                    Về kho: <strong>{store}</strong>
+                  </div>
+                );
+              }}
             </Form.Item>
           </Col>
           <Col span={24} md={12}>
             <Form.Item
-              name={POProcumentField.expect_receipt_date}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn ngày nhận dự kiến",
-                },
-              ]}
-              label="Ngày nhận dự kiến"
+              shouldUpdate={(prev, current) =>
+                prev[POProcumentField.expect_receipt_date] !==
+                current[POProcumentField.expect_receipt_date]
+              }
             >
-              <CustomDatepicker
-                disableDate={(date) => date.valueOf() < now.getTime()}
-                style={{ width: "100%" }}
-              />
+               {({ getFieldValue }) => {
+                let expect_receipt_date = getFieldValue(POProcumentField.expect_receipt_date);
+                return (
+                  <div>
+                    Ngày dự kiến <strong>{ConvertUtcToLocalDate(expect_receipt_date)}</strong>
+                  </div>
+                );
+              }}
             </Form.Item>
           </Col>
         </Row>
@@ -220,7 +229,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                       >
                         SL Đặt hàng
                         <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
-                          {/* ({POUtils.totalQuantity(items)}) */}
+                          ({POUtils.totalOrderQuantityProcument(line_items)})
                         </div>
                       </div>
                     ),
@@ -240,14 +249,11 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                           display: "flex",
                         }}
                       >
-                        SL đã nhận
-                        <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
-                          {/* ({POUtils.totalQuantity(items)}) */}
-                        </div>
+                        SL Nhận được duyệt
                       </div>
                     ),
                     width: 130,
-                    dataIndex: POProcumentLineItemField.real_quantity,
+                    dataIndex: POProcumentLineItemField.quantity,
                     render: (value, item, index) => (
                       <div style={{ textAlign: "right" }}>{value}</div>
                     ),
@@ -262,32 +268,11 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                           display: "flex",
                         }}
                       >
-                        SL Nhận theo kế hoạch
-                      </div>
-                    ),
-                    width: 160,
-                    dataIndex: POProcumentLineItemField.planned_quantity,
-                    render: (value, item, index) => (
-                      <div style={{ textAlign: "right" }}>
-                        {value ? value : 0}
-                      </div>
-                    ),
-                  },
-                  {
-                    title: (
-                      <div
-                        style={{
-                          width: "100%",
-                          textAlign: "right",
-                          flexDirection: "column",
-                          display: "flex",
-                        }}
-                      >
-                        Kế hoạch nhận
+                        SL thực nhận
                       </div>
                     ),
                     width: 150,
-                    dataIndex: POProcumentLineItemField.quantity,
+                    dataIndex: POProcumentLineItemField.real_quantity,
                     render: (value, item, index) => (
                       <NumberInput
                         placeholder="Kế hoạch nhận"
@@ -313,4 +298,4 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
   );
 };
 
-export default ProcumentConfirmModal;
+export default ProducmentInventoryModal;
