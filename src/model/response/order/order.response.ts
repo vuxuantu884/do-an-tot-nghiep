@@ -125,6 +125,7 @@ export interface FulFillmentResponse {
   items: Array<OrderLineItemResponse>;
   payments: Array<OrderPaymentResponse>;
   created_date: string | null;
+  cancel_date: string | null;
 }
 
 export interface OrderDiscountResponse {
@@ -289,5 +290,16 @@ export interface TrackingLogFulfillmentResponse extends BaseObject {
   message: string;
   raw_data: string;
   action_date: string;
+  deleted: boolean;
+}
+
+
+export interface ErrorLogResponse extends BaseObject {
+  fulfillment_code: string;
+  shipment_id: string;
+  tracking_code: string;
+  response_body: string;
+  action: string;
+  request_body: string;
   deleted: boolean;
 }

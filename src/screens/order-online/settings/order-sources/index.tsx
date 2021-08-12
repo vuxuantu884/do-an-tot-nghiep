@@ -3,20 +3,19 @@ import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import FormOrderSource from "component/forms/FormOrderSource";
 import CustomModal from "component/modal/CustomModal";
-import { ICustomTableColumType } from "component/table/CustomTable";
-import CustomTable from "component/table/CustomTable";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import {
   actionAddOrderSource,
   actionDeleteOrderSource,
   actionEditOrderSource,
-  actionFetchListOrderSourceCompanies,
   actionFetchListOrderSources,
 } from "domain/actions/settings/order-sources.action";
 import { modalActionType } from "model/modal/modal.model";
 import { VariantResponse } from "model/product/product.model";
 import {
-  OrderSourceCompanyModel,
   OrderSourceModel,
   OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
@@ -35,9 +34,6 @@ const OrderSources: React.FC = () => {
   const [listOrderSources, setListOrderSources] = useState<OrderSourceModel[]>(
     []
   );
-  const [listOrderCompanies, setListOrderCompanies] = useState<
-    OrderSourceCompanyModel[]
-  >([]);
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
@@ -57,7 +53,7 @@ const OrderSources: React.FC = () => {
             <span
               title={value}
               style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-              className="title"
+              className="title text"
             >
               {value}
             </span>
@@ -181,6 +177,7 @@ const OrderSources: React.FC = () => {
     /**
      * when dispatch action, call function (handleData) to handle data
      */
+    // setTableLoading(true);
     dispatch(
       actionFetchListOrderSources(params, (data: OrderSourceResponseModel) => {
         setListOrderSources(data.items);
@@ -188,16 +185,6 @@ const OrderSources: React.FC = () => {
       })
     );
   }, [dispatch, params]);
-
-  useEffect(() => {
-    setTableLoading(true);
-    dispatch(
-      actionFetchListOrderSourceCompanies((data: OrderSourceCompanyModel[]) => {
-        setListOrderCompanies(data);
-      })
-    );
-    // }
-  }, [dispatch]);
 
   return (
     <StyledComponent>
@@ -260,7 +247,6 @@ const OrderSources: React.FC = () => {
           formItem={modalSingleOrderSource}
           deletedItemTitle={modalSingleOrderSource?.name}
           modalTypeText="Nguồn đơn hàng"
-          moreFormArguments={{ listOrderCompanies }}
         />
       </ContentContainer>
     </StyledComponent>

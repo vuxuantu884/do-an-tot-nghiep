@@ -16,6 +16,7 @@ import {
 } from "model/response/order/order-source.response";
 import {
   DeliveryServiceResponse,
+  ErrorLogResponse,
   OrderResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
@@ -127,7 +128,7 @@ export const getTrackingLogFulFillment = (
 // tracking_log: Lấy ra tracking_log_error của fulfillment
 export const getTrackingLogFulFillmentError = (
   fulfillment_code: string
-): Promise<BaseResponse<Array<TrackingLogFulfillmentResponse>>> => {
+): Promise<BaseResponse<Array<ErrorLogResponse>>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/shipping/error-log?fulfillment_code=${fulfillment_code}`);
 };
 

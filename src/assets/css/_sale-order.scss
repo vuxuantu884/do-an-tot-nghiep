@@ -970,21 +970,7 @@
       }
     }
   }
-  .ant-collapse-header {
-    width: 100%;
-    .ant-row {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      .ant-col {
-        display: flex;
-        justify-content: space-between;
-        p {
-          line-height: 2;
-        }
-      }
-    }
-  }
+  
 }
 
 .margin-top-bottom-10 {
@@ -1195,39 +1181,140 @@
 }
 
 .orders-update-shipment {
+  .orders-timeline-custom{
+    border-bottom: 1px solid #E5E5E5;
+  }
+  .saleorder-custom-steps{
+    display: flex;
+    margin-top: 26px;
+    margin-bottom: 22px;
+    .saleorder-steps{
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      width: 157px;
+      height: 16px;
+      span{
+        &:first-child{
+          color: #000000;
+          font-weight: 400;
+        }
+        &:last-child{
+          color: #737373
+        }
+      }
+    }
+    .saleorder-steps-one{
+      position: relative;
+      &:before{
+        content: "";
+        position: absolute;
+        width: 147px;
+        height:2px;
+        background-color: #E5E5E5;
+        top: -12px;
+        left: 82px;
+      }
+    }
+    .saleorder-steps-one.dot-active:after,
+    .saleorder-steps-two.dot-active:after,
+    .saleorder-steps-three.dot-active:after{
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: #2A2A86;
+      border-radius: 50%;
+      top: -15px;
+      left: 73px;
+    }
+    .saleorder-steps-one.dot-de-active:after,
+    .saleorder-steps-two.dot-de-active:after,
+    .saleorder-steps-three.dot-de-active:after{
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 9px;
+      background-color: #E5E5E5;
+      border-radius: 50%;
+      top: -15px;
+      left: 73px;
+    }
+    .saleorder-steps-two{
+      position: relative;
+      // &:before{
+      //   content: "";
+      //   position: absolute;
+      //   width: 147px;
+      //   height:2px;
+      //   background-color: #E5E5E5;
+      //   top: -12px;
+      //   left: 82px;
+      // }
+    }
+    .saleorder-steps-two.hide-steps-two-line:before{
+        content: "";
+        position: absolute;
+        width: 147px;
+        height:2px;
+        background-color: #E5E5E5;
+        top: -12px;
+        left: 82px;
+    }
+    .saleorder-steps-three{
+      position: relative;
+    }
+  }
   .ant-card-body{
-    .ant-collapse-header{
-      .order-shipment-dot{
-        position: relative;
-        margin-left: 20px;
-        &::before{
-          position: absolute;
-          content: "";
-          width: 14px;
-          height:14px;
-          top:6px;
-          left: -18px;
-          background-color: #E5E5E5;
-          border-radius: 50%;
-         } 
+    .orders-timeline-custom{
+      position: relative;
+      margin-left: 20px;
+      &::before{
+        position: absolute;
+        content: "";
+        width: 14px;
+        height:14px;
+        top: 20px;
+        left: -4px;
+        border-radius: 50%;
+       }
+    }
+    .orders-timeline-custom.order-shipment-dot-default{
+      &::before{
+        background-color: #E5E5E5;
+       } 
+    }
+    .orders-timeline-custom.order-shipment-dot-active{
+      &::before{
+        background-color: #27ae60;
+       } 
+    }
+    .orders-timeline-custom.order-shipment-dot-cancelled{
+      &::before{
+        background-color: #E24343;
+       } 
+    }
+    .ant-collapse-header {
+      display: flex;
+      flex-direction: row;
+      .saleorder-header-arrow{
+        width: 30px;
+        margin: 0;
       }
-      .order-shipment-dot-active{
-        position: relative;
-        margin-left: 20px;
-        &::before{
-          position: absolute;
-          content: "";
-          width: 14px;
-          height:14px;
-          top:6px;
-          left: -18px;
-          background-color: #27ae60;
-          border-radius: 50%;
-         } 
+      div{
+        display: flex;
+        width: 100%;
+        padding: 0;
+        &>div{
+          &:first-child{
+          }
+          &:last-child{
+            display: flex;
+            justify-content: flex-end;
+          }
+        }
       }
-    }  
-
-   
+    } 
   }
   .ant-card-head {
     border: none;
@@ -1478,3 +1565,4 @@
     }
   }
 }
+

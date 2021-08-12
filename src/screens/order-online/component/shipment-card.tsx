@@ -78,8 +78,6 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   const [deliveryServices, setDeliveryServices] =
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [shipmentMethodState, setshipmentMethod] = useState<number>(4);
-  const [takeMoneyHelper, setTakeMoneyHelper] = useState<number>(0);
-  console.log(deliveryServices);
   const ShipMethodOnChange = (value: number) => {
     setshipmentMethod(value);
     props.setShipmentMethodProps(value);
@@ -323,7 +321,6 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                         : 0) -
                       (props.discountValue ? props.discountValue : 0)
                     }
-                    onChange={(value: any) => setTakeMoneyHelper(value)}
                     style={{
                       textAlign: "right",
                       width: "100%",
@@ -560,7 +557,6 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                         : 0) -
                       (props.discountValue ? props.discountValue : 0)
                     }
-                    onChange={(value: any) => setTakeMoneyHelper(value)}
                     style={{
                       textAlign: "right",
                       width: "100%",

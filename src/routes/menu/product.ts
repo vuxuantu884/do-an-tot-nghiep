@@ -8,7 +8,7 @@ import UpdateSupplierScreen from "../../screens/supllier/supplier-update.screen"
 const Category = React.lazy(() => import ("screens/category/category-list.screen"));
 const ProductCreateScreen = React.lazy(() => import ("screens/product/product-create.screen"));
 const ColorListScreen = React.lazy(() => import ("screens/color/color-list.screen"));
-const UpdateMaterial = React.lazy(() => import ("screens/materials/ material-update.screen"));
+const UpdateMaterial = React.lazy(() => import ("screens/materials/material-update.screen"));
 const ListMaterial = React.lazy(() => import ("screens/materials/materials-list.screen"));
 const AddMaterial = React.lazy(() => import ("screens/materials/material-add.screen"));
 const SizeListScreen = React.lazy(() => import ("screens/size/size-list.screen"));

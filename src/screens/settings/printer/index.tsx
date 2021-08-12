@@ -25,7 +25,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
-const SettingOrderProcessingStatus: React.FC = () => {
+const SettingPrinter: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
   const [isShowModal, setIsShowModal] = useState(false);
   const dispatch = useDispatch();
@@ -45,71 +45,6 @@ const SettingOrderProcessingStatus: React.FC = () => {
     (state: RootReducerType) => state.bootstrapReducer
   );
   const LIST_STATUS = bootstrapReducer.data?.order_main_status;
-
-  const columns: Array<ICustomTableColumType<VariantResponse>> = [
-    {
-      title: "Trạng thái xử lý",
-      dataIndex: "sub_status",
-      visible: true,
-      className: "columnTitle",
-      width: "25%",
-      render: (value, row, index) => {
-        if (value) {
-          return (
-            <span
-              title={value}
-              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-              className="title text"
-            >
-              {value}
-            </span>
-          );
-        }
-      },
-    },
-    {
-      title: "Trạng thái đơn hàng",
-      dataIndex: "status",
-      visible: true,
-      width: "25%",
-      render: (value, row, index) => {
-        const result = LIST_STATUS?.find((singleStatus) => {
-          return singleStatus.value === value;
-        });
-        if (result) {
-          return result.name;
-        }
-        return "";
-      },
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "note",
-      visible: true,
-      width: "25%",
-      render: (value, row, index) => {
-        return (
-          <span className="text" title={value} style={{ color: "#666666" }}>
-            {value}
-          </span>
-        );
-      },
-    },
-    {
-      title: "Áp dụng cho đơn hàng ",
-      dataIndex: "active",
-      visible: true,
-      width: "25%",
-      render: (value, row, index) => {
-        if (value) {
-          return <span style={{ color: "#27AE60" }}>Đang áp dụng</span>;
-        }
-        return <span style={{ color: "#E24343" }}>Ngưng áp dụng</span>;
-      },
-    },
-  ];
-
-  const columnFinal = () => columns.filter((item) => item.visible === true);
 
   const history = useHistory();
 
@@ -131,7 +66,79 @@ const SettingOrderProcessingStatus: React.FC = () => {
     [history, params]
   );
 
-  const createOrderServiceSubStatusHtml = () => {
+  const columns: Array<ICustomTableColumType<VariantResponse>> = [
+    {
+      title: "STT",
+      visible: true,
+      render: (value, row, index) => {
+        return <span>{(params.page - 1) * params.limit + index + 1}</span>;
+      },
+    },
+    {
+      title: "Tên mẫu in",
+      dataIndex: "sub_status",
+      visible: true,
+      className: "columnTitle",
+      width: "25%",
+      render: (value, row, index) => {
+        if (value) {
+          return (
+            <span
+              title={value}
+              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+              className="title text"
+            >
+              {value}
+            </span>
+          );
+        }
+      },
+    },
+    {
+      title: "Chi nhánh áp dụng",
+      dataIndex: "status",
+      visible: true,
+      width: "25%",
+      render: (value, row, index) => {
+        const result = LIST_STATUS?.find((singleStatus) => {
+          return singleStatus.value === value;
+        });
+        if (result) {
+          return result.name;
+        }
+        return "";
+      },
+    },
+    {
+      title: "Khổ in",
+      dataIndex: "note",
+      visible: true,
+      width: "25%",
+      render: (value, row, index) => {
+        return (
+          <span className="text" title={value} style={{ color: "#666666" }}>
+            {value}
+          </span>
+        );
+      },
+    },
+    {
+      title: "Thao tác ",
+      dataIndex: "active",
+      visible: true,
+      width: "25%",
+      render: (value, row, index) => {
+        if (value) {
+          return <span style={{ color: "#27AE60" }}>Đang áp dụng</span>;
+        }
+        return <span style={{ color: "#E24343" }}>Ngưng áp dụng</span>;
+      },
+    },
+  ];
+
+  const columnFinal = () => columns.filter((item) => item.visible === true);
+
+  const createPrinterHtml = () => {
     return (
       <Button
         type="primary"
@@ -143,7 +150,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
         }}
         icon={<PlusOutlined />}
       >
-        Thêm trạng thái xử lý
+        Thêm mẫu in
       </Button>
     );
   };
@@ -208,7 +215,6 @@ const SettingOrderProcessingStatus: React.FC = () => {
     /**
      * when dispatch action, call function (handleData) to handle data
      */
-    setTableLoading(true);
     dispatch(
       actionFetchListOrderProcessingStatus(
         params,
@@ -234,59 +240,42 @@ const SettingOrderProcessingStatus: React.FC = () => {
             path: UrlConfig.ACCOUNTS,
           },
           {
-            name: "Xử lý đơn hàng",
+            name: "Danh sách mẫu in",
           },
         ]}
-        extra={createOrderServiceSubStatusHtml()}
+        extra={createPrinterHtml()}
       >
-        {listOrderProcessingStatus && (
-          <Card style={{ padding: "35px 15px" }}>
-            <CustomTable
-              isLoading={tableLoading}
-              showColumnSetting={false}
-              scroll={{ x: 1080 }}
-              pagination={{
-                pageSize: params.limit,
-                total: total,
-                current: params.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }}
-              dataSource={listOrderProcessingStatus}
-              columns={columnFinal()}
-              rowKey={(item: VariantResponse) => item.id}
-              onRow={(record: OrderProcessingStatusModel) => {
-                return {
-                  onClick: (event) => {
-                    setModalSingleServiceSubStatus(record);
-                    setModalAction("edit");
-                    setIsShowModal(true);
-                  }, // click row
-                };
-              }}
-            />
-          </Card>
-        )}
-        <CustomModal
-          visible={isShowModal}
-          onCreate={(formValue: OrderProcessingStatusModel) =>
-            handleForm.create(formValue)
-          }
-          onEdit={(formValue: OrderProcessingStatusModel) =>
-            handleForm.edit(formValue)
-          }
-          onDelete={() => handleForm.delete()}
-          onCancel={() => setIsShowModal(false)}
-          modalAction={modalAction}
-          modalTypeText="Trạng thái xử lý đơn hàng"
-          componentForm={FormOrderProcessingStatus}
-          formItem={modalSingleServiceSubStatus}
-          deletedItemTitle={modalSingleServiceSubStatus?.sub_status}
-        />
+        printer
+        <Card style={{ padding: "35px 15px" }}>
+          <CustomTable
+            isLoading={tableLoading}
+            showColumnSetting={false}
+            scroll={{ x: 1080 }}
+            pagination={{
+              pageSize: params.limit,
+              total: total,
+              current: params.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            dataSource={listOrderProcessingStatus}
+            columns={columnFinal()}
+            rowKey={(item: VariantResponse) => item.id}
+            onRow={(record: OrderProcessingStatusModel) => {
+              return {
+                onClick: (event) => {
+                  setModalSingleServiceSubStatus(record);
+                  setModalAction("edit");
+                  setIsShowModal(true);
+                }, // click row
+              };
+            }}
+          />
+        </Card>
       </ContentContainer>
     </StyledComponent>
   );
 };
 
-export default SettingOrderProcessingStatus;
+export default SettingPrinter;
