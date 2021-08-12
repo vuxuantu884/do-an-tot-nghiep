@@ -136,10 +136,11 @@ const FilterHeader = ({ title }: FilterHeaderProps) => {
 const FilterList = ({ filters }: any) => {
   let filtersKeys = Object.keys(filters);
   return (
-    <Space style={{ marginBottom: 20 }}>
+    <Space wrap={true} style={{ marginBottom: 20 }}>
       {filtersKeys.map((filterKey) => {
         let value = filters[filterKey];
         if (!value) return;
+        if (!filterFieldsMapping[filterKey]) return;
         switch (filterKey) {
           case filterFields.import_date:
           case filterFields.activated_date:
@@ -169,6 +170,24 @@ const FilterList = ({ filters }: any) => {
     </Space>
   );
 };
+
+function tagRender(props: any) {
+  const { label, value, closable, onClose } = props;
+  const onPreventMouseDown = (event: any) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+  return (
+    <Tag
+      className="primary"
+      onMouseDown={onPreventMouseDown}
+      closable={closable}
+      onClose={onClose}
+    >
+      {label}
+    </Tag>
+  );
+}
 
 const AdvanceFormItems = ({
   listSupplierAccount,
@@ -204,6 +223,7 @@ const AdvanceFormItems = ({
                     <CustomSelect
                       placeholder="Chọn 1 hoặc nhiều trạng thái"
                       mode="multiple"
+                      tagRender={tagRender}
                       style={{
                         width: "100%",
                       }}
@@ -227,6 +247,7 @@ const AdvanceFormItems = ({
                     <CustomSelect
                       placeholder="Chọn 1 hoặc nhiều trạng thái"
                       mode="multiple"
+                      tagRender={tagRender}
                       style={{
                         width: "100%",
                       }}
@@ -250,6 +271,7 @@ const AdvanceFormItems = ({
                     <CustomSelect
                       placeholder="Chọn 1 hoặc nhiều trạng thái"
                       mode="multiple"
+                      tagRender={tagRender}
                       style={{
                         width: "100%",
                       }}
@@ -273,6 +295,7 @@ const AdvanceFormItems = ({
                     <CustomSelect
                       placeholder="Chọn 1 hoặc nhiều merchandiser"
                       mode="multiple"
+                      tagRender={tagRender}
                       style={{
                         width: "100%",
                       }}
@@ -293,21 +316,24 @@ const AdvanceFormItems = ({
             return (
               <Collapse>
                 <Panel header={<FilterHeader title="QC" />} key="1">
-                  <CustomSelect
-                    placeholder="Chọn 1 hoặc nhiều qc"
-                    mode="multiple"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                    maxTagCount="responsive"
-                  >
-                    {listRdAccount?.map((item) => (
-                      <CustomSelect.Option key={item.id} value={item.id}>
-                        {item.full_name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
+                  <Item name={field}>
+                    <CustomSelect
+                      placeholder="Chọn 1 hoặc nhiều qc"
+                      mode="multiple"
+                      tagRender={tagRender}
+                      style={{
+                        width: "100%",
+                      }}
+                      notFoundContent="Không tìm thấy kết quả"
+                      maxTagCount="responsive"
+                    >
+                      {listRdAccount?.map((item) => (
+                        <CustomSelect.Option key={item.id} value={item.id}>
+                          {item.full_name}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
                 </Panel>
               </Collapse>
             );
@@ -315,20 +341,23 @@ const AdvanceFormItems = ({
             return (
               <Collapse>
                 <Panel header={<FilterHeader title="CHI PHÍ" />} key="1">
-                  <CustomSelect
-                    placeholder="Chọn 1 trong 2 đk"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                  >
-                    <CustomSelect.Option key="1" value="0">
-                      Có chi phí
-                    </CustomSelect.Option>
-                    <CustomSelect.Option key="2" value="1">
-                      Không chi phí
-                    </CustomSelect.Option>
-                  </CustomSelect>
+                  <Item name={field}>
+                    <CustomSelect
+                      placeholder="Chọn 1 trong 2 đk"
+                      tagRender={tagRender}
+                      style={{
+                        width: "100%",
+                      }}
+                      notFoundContent="Không tìm thấy kết quả"
+                    >
+                      <CustomSelect.Option key="1" value="0">
+                        Có chi phí
+                      </CustomSelect.Option>
+                      <CustomSelect.Option key="2" value="1">
+                        Không chi phí
+                      </CustomSelect.Option>
+                    </CustomSelect>
+                  </Item>
                 </Panel>
               </Collapse>
             );
@@ -336,20 +365,23 @@ const AdvanceFormItems = ({
             return (
               <Collapse>
                 <Panel header={<FilterHeader title="VAT" />} key="1">
-                  <CustomSelect
-                    placeholder="Chọn 1 trong 2 đk"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                  >
-                    <CustomSelect.Option key="1" value="0">
-                      Có VAT
-                    </CustomSelect.Option>
-                    <CustomSelect.Option key="2" value="1">
-                      Không VAT
-                    </CustomSelect.Option>
-                  </CustomSelect>
+                  <Item name={field}>
+                    <CustomSelect
+                      placeholder="Chọn 1 trong 2 đk"
+                      tagRender={tagRender}
+                      style={{
+                        width: "100%",
+                      }}
+                      notFoundContent="Không tìm thấy kết quả"
+                    >
+                      <CustomSelect.Option key="1" value="0">
+                        Có VAT
+                      </CustomSelect.Option>
+                      <CustomSelect.Option key="2" value="1">
+                        Không VAT
+                      </CustomSelect.Option>
+                    </CustomSelect>
+                  </Item>
                 </Panel>
               </Collapse>
             );
@@ -357,21 +389,24 @@ const AdvanceFormItems = ({
             return (
               <Collapse>
                 <Panel header="Kho nhận hàng dự kiến" key="1">
-                  <CustomSelect
-                    placeholder="Kho nhận hàng dự kiến"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                    mode="multiple"
-                    maxTagCount="responsive"
-                  >
-                    {listStore?.map((item) => (
-                      <CustomSelect.Option key={item.id} value={item.id}>
-                        {item.name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
+                  <Item name={field}>
+                    <CustomSelect
+                      placeholder="Kho nhận hàng dự kiến"
+                      style={{
+                        width: "100%",
+                      }}
+                      tagRender={tagRender}
+                      notFoundContent="Không tìm thấy kết quả"
+                      mode="multiple"
+                      maxTagCount="responsive"
+                    >
+                      {listStore?.map((item) => (
+                        <CustomSelect.Option key={item.id} value={item.id}>
+                          {item.name}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
                 </Panel>
               </Collapse>
             );
@@ -379,7 +414,9 @@ const AdvanceFormItems = ({
             return (
               <Collapse>
                 <Panel header={<FilterHeader title="GHI CHÚ NỘI BỘ" />} key="1">
-                  <Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
+                  <Item name={field}>
+                    <Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
+                  </Item>
                 </Panel>
               </Collapse>
             );
@@ -390,7 +427,9 @@ const AdvanceFormItems = ({
                   header={<FilterHeader title="GHI CHÚ NHÀ CUNG CẤP" />}
                   key="1"
                 >
-                  <Input placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />
+                  <Item name={field}>
+                    <Input placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />
+                  </Item>
                 </Panel>
               </Collapse>
             );
@@ -398,7 +437,9 @@ const AdvanceFormItems = ({
             return (
               <Collapse>
                 <Panel header={<FilterHeader title="TAG" />} key="1">
-                  <Input placeholder="Tìm kiếm theo tag" />
+                  <Item name={field}>
+                    <Input placeholder="Tìm kiếm theo tag" />
+                  </Item>
                 </Panel>
               </Collapse>
             );
@@ -406,7 +447,9 @@ const AdvanceFormItems = ({
             return (
               <Collapse>
                 <Panel header={<FilterHeader title="MÃ THAM CHIẾU" />} key="1">
-                  <Input placeholder="Tìm kiếm theo mã tham chiếu" />
+                  <Item name={field}>
+                    <Input placeholder="Tìm kiếm theo mã tham chiếu" />
+                  </Item>
                 </Panel>
               </Collapse>
             );
@@ -442,7 +485,6 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     },
     [formBaseFilter, onFilter]
   );
-  console.log("huynvq::=============>", formAdvanceFilter);
   const onAdvanceFinish = useCallback(
     (values: PurchaseOrderQuery) => {
       debugger;
