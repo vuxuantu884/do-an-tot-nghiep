@@ -1,20 +1,23 @@
-$primary-color: #2A2A86;
+$primary-color: #2a2a86;
 $sider-color: #222247;
-$menu-color:rgba(0, 0, 0, 1);
-$secondary-color: #FCAF17;
-$background-color: #F3F3F7;
-$background-color-secondary: #F4F4F7;
-$green: #27AE60;
-$red: #E24343;
+$menu-color: rgba(0, 0, 0, 1);
+$secondary-color: #fcaf17;
+$background-color: #f3f3f7;
+$background-color-secondary: #f4f4f7;
+$green: #27ae60;
+$text-muted: #666666;
+$gray-f5: #f5f5f5;
+$gray-e5: #e5e5e5;
+$red: #e24343;
 $white: #ffffff;
-$text-body-color: #37394D;
+$text-body-color: #37394d;
 $text-menu-color: #404040;
 $label-color: #737373;
-$column-header-color:rgba(0, 0, 0, 0.7);
-$placeholder-color: #ABB4BD;
-$focus-border-color: #2A2A86;
-$border-color: #DFDFDF;
-$border-secondary-color: #7B61FF;
+$column-header-color: rgba(0, 0, 0, 0.7);
+$placeholder-color: #abb4bd;
+$focus-border-color: #2a2a86;
+$border-color: #dfdfdf;
+$border-secondary-color: #7b61ff;
 $border-radius: 5px;
 $font-size: 14px;
 $font-size-medium: 18px;
@@ -24,19 +27,19 @@ $tablet-width: 992px;
 $desktop-width: 1400px;
 $black: #000000;
 @mixin mobile {
-    @media (max-width: #{$mobile-width}) {
-        @content;
-    }
+  @media (max-width: #{$mobile-width}) {
+    @content;
+  }
 }
 
 @mixin tablet {
-    @media (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 1px}) {
-        @content;
-    }
+  @media (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 1px}) {
+    @content;
+  }
 }
 
 @mixin desktop {
-    @media (min-width: #{$desktop-width}) {
-        @content;
-    }
+  @media (min-width: #{$desktop-width}) {
+    @content;
+  }
 }
