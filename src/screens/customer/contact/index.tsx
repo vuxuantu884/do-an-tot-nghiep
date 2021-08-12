@@ -24,21 +24,21 @@ const ContactForm = ({ field, remove, index, form, isEdit, reload }: ContactForm
       showSuccess('Thêm mới liên hệ thành công')
       if(reload) {reload()}
     }
-  }, [])
+  }, [reload])
 
   const setResultUpdate = React.useCallback(result => {
     if (result) {
       showSuccess('Cập nhật liên hệ thành công')
       if(reload) {reload()}
     }
-  }, [])
+  }, [reload])
 
   const setResultDelete = React.useCallback(result => {
     if (result) {
       showSuccess('Xóa liên hệ thành công')
       if(reload) {reload()}
     }
-  }, [])
+  }, [reload])
 
   const handleSave = () => {
     const values: Array<any> = form?.getFieldValue('contacts');

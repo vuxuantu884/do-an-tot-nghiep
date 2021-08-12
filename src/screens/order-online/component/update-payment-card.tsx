@@ -227,7 +227,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   }, [dispatch]);
   useEffect(() => {
     props.setTotalPaid(totalAmountPaid);
-  }, []);
+  }, [props, totalAmountPaid]);
   return (
     <div>
       <SaveAndConfirmOrder

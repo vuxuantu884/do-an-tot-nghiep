@@ -19,7 +19,6 @@ import {
 import React, {
   useState,
   useCallback,
-  useLayoutEffect,
   useEffect,
   createRef,
 } from "react";
@@ -500,7 +499,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         .delivery_service_provider_type === "pick_at_store"
     ) {
       let money = props.OrderDetail.total;
-      props.OrderDetail?.payments?.map((p) => {
+      props.OrderDetail?.payments?.forEach((p) => {
         money = money - p.paid_amount;
       });
       return money;

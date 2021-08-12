@@ -11,7 +11,7 @@ import {
   Typography,
 } from "antd";
 import UpdatePaymentCard from "./component/update-payment-card";
-import React, {
+import {
   useState,
   useCallback,
   useLayoutEffect,

@@ -290,7 +290,7 @@ const POUtils = {
         variant_image: item.variant_image,
         ordered_quantity: item.quantity,
         planned_quantity: item.planned_quantity,
-        accepted_quantity: 0,
+        accepted_quantity: item.receipt_quantity,
         quantity: 0,
         real_quantity: 0,
         note: '',
