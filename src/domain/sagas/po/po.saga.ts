@@ -1,4 +1,4 @@
-import { searchPurchaseOrderApi, updatePurchaseOrder } from "service/purchase-order/purchase-order.service";
+import { searchPurchaseOrderApi, updatePurchaseOrder, updatePurchaseOrderFinancialStatus } from "service/purchase-order/purchase-order.service";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
@@ -68,6 +68,34 @@ function* poUpdateSaga(action: YodyAction) {
   }
 }
 
+function* poUpdateFinancialStatusSaga(action: YodyAction) {
+  const {id, financialstatus, updateCallback } = action.payload;
+  try {
+    let response: BaseResponse<BaseResponse<PurchaseOrder>> = yield call(
+      updatePurchaseOrderFinancialStatus,
+      id,
+      financialstatus
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response.data);
+        updateCallback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        updateCallback(null);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        updateCallback(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    updateCallback(null);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+} 
+
 function* poDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
@@ -96,7 +124,7 @@ function* poDetailSaga(action: YodyAction) {
 function* poSearchSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    debugger;
+    
     let response: BaseResponse<PageResponse<PurchaseOrder>> = yield call(
       searchPurchaseOrderApi,
       query
@@ -123,4 +151,5 @@ export function* poSaga() {
   yield takeLatest(POType.DETAIL_PO_REQUEST, poDetailSaga);
   yield takeLatest(POType.SEARCH_PO_REQUEST, poSearchSaga);
   yield takeLatest(POType.UPDATE_PO_REQUEST, poUpdateSaga);
+  yield takeLatest(POType.UPDATE_PO_FINANCIAL_STATUS_REQUEST, poUpdateFinancialStatusSaga);
 }

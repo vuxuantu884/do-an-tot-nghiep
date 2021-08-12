@@ -63,7 +63,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     (values: PurchasePayments) => {
       setConfirmLoading(true);
       let data = formPayment.getFieldsValue(true);
-      debugger;
+      
       if (data.id) {
         dispatch(PoPaymentUpdateAction(poId, data.id, data, updateCallback));
       } else {
@@ -81,13 +81,13 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   const prevVisible = prevVisibleRef.current;
   useEffect(() => {
     if (!visible && prevVisible) {
-      debugger;
+      
       formPayment.resetFields();
     }
   }, [formPayment, prevVisible, visible]);
   useEffect(() => {
     if (visible) {
-      debugger;
+      
       if (purchasePayment) {
         formPayment.setFieldsValue(purchasePayment);
       }
@@ -118,7 +118,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn loại nhà cung cấp",
+                  message: "Vui lòng chọn phương thức thanh toán",
                 },
               ]}
               label="Hình thức thanh toán"
@@ -160,6 +160,8 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
+                min={0}
+                default={0}
                 placeholder=""
               />
             </Item>
