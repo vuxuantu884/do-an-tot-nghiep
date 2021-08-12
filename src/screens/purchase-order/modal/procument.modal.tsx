@@ -14,10 +14,11 @@ import { ConvertDateToUtc } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
+import { Moment } from "moment";
 
 type ProcumentModalProps = {
   visible: boolean;
-  now: Date;
+  now: Moment;
   stores: Array<StoreResponse>;
   onCancle: () => void;
   items: Array<PurchaseOrderLineItem>;
@@ -120,7 +121,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
               label="Ngày nhận dự kiến"
             >
               <CustomDatepicker
-                disableDate={(date) => date.valueOf() < now.getTime()}
+                disableDate={(date) => date < now}
                 style={{ width: "100%" }}
               />
             </Form.Item>
@@ -213,7 +214,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                         </div>
                       </div>
                     ),
-                    width: 150,
+                    width: 120,
                     dataIndex: POProcumentLineItemField.ordered_quantity,
                     render: (value, item, index) => (
                       <div style={{ textAlign: "right" }}>{value}</div>
@@ -229,10 +230,31 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                           display: "flex",
                         }}
                       >
-                        SL Nhận được duyệt
+                        SL Đã nhận
                       </div>
                     ),
-                    width: 150,
+                    width: 100,
+                    dataIndex: POProcumentLineItemField.accepted_quantity,
+                    render: (value, item, index) => (
+                      <div style={{ textAlign: "right" }}>
+                        {value ? value : 0}
+                      </div>
+                    ),
+                  },
+                  {
+                    title: (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                          flexDirection: "column",
+                          display: "flex",
+                        }}
+                      >
+                        SL Đã lên kế hoạch
+                      </div>
+                    ),
+                    width: 100,
                     dataIndex: POProcumentLineItemField.planned_quantity,
                     render: (value, item, index) => (
                       <div style={{ textAlign: "right" }}>
@@ -253,7 +275,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                         Kế hoạch nhận
                       </div>
                     ),
-                    width: 150,
+                    width: 100,
                     dataIndex: POProcumentLineItemField.quantity,
                     render: (value, item, index) => (
                       <NumberInput
@@ -272,7 +294,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                   },
                   {
                     title: "",
-                    width: 40,
+                    width: 20,
                     render: (value: string, item, index: number) => "",
                   },
                 ]}

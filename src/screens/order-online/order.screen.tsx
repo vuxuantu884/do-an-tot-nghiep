@@ -53,20 +53,15 @@ import {
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
-import ConfirmPaymentModal from "./modal/confirm-payment.modal";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import {
-  StoreDetailAction,
   StoreDetailCustomAction,
 } from "domain/actions/core/store.action";
-import { StoreResponse } from "model/core/store.model";
-import { request } from "https";
 //#endregion
 
 var typeButton = "";
 export default function Order() {
   //#region State
-  const {Option} = Select
   const dispatch = useDispatch();
   const history = useHistory();
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -102,7 +97,7 @@ export default function Order() {
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
-  const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
+  // const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
   //#rgion Customer
 

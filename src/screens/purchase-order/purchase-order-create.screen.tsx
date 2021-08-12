@@ -37,9 +37,10 @@ import { ConvertDateToUtc } from "utils/DateUtils";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import POPaymentConditionsForm from "./component/po-payment-conditions.form";
 import { POField } from "model/purchase-order/po-field";
+import moment from "moment";
 
 const POCreateScreen: React.FC = () => {
-  let now = new Date();
+  let now = moment().startOf('days');
   let initPurchaseOrder = {
     line_items: [],
     policy_price_code: AppConfig.import_price,

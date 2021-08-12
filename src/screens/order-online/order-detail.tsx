@@ -11,7 +11,7 @@ import {
   Typography,
 } from "antd";
 import UpdatePaymentCard from "./component/update-payment-card";
-import React, {
+import {
   useState,
   useCallback,
   useLayoutEffect,
@@ -34,7 +34,6 @@ import {
 } from "model/response/order/order.response";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import moment from "moment";
 import {
   checkPaymentAll,
   checkPaymentStatusToShow,

@@ -2,7 +2,6 @@ import {
   CheckCircleOutlined,
   EditOutlined,
   MinusCircleOutlined,
-  PlusOutlined,
 } from "@ant-design/icons";
 import {
   Button,

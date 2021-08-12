@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment, { Moment } from "moment";
 
 export const DATE_FORMAT = {
   DDMMYYY: "DD/MM/YYYY",
@@ -18,6 +18,6 @@ export const ConvertUtcToLocalDate = (
   return "";
 };
 
-export const ConvertDateToUtc = (date: Date | string | number) => {
+export const ConvertDateToUtc = (date: Date | string | number | Moment) => {
   return moment(date).utc().format();
 };

@@ -26,7 +26,7 @@ const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
       cancelText={cancelText}
       title={[
         <div >
-          <img src={icon} />
+          <img src={icon} alt="" />
           <div>
             <h4>{title}</h4>
             <span style={title ?{fontWeight: 400} : {fontWeight: 600, fontSize: 16}}>{text}</span>
