@@ -542,12 +542,16 @@
       background-color: rgba(42, 42, 134, 0.05);
       color: $text-muted;
     }
-    &.primary {
+    &.primary-bg {
       .ant-tag-close-icon {
         color: white;
       }
       background-color: $primary-color;
       color: $white;
+    }
+    &.primary-txt {
+      background-color: rgba(42, 42, 134, 0.1);
+      color: $primary-color;
     }
   }
   //Drawer

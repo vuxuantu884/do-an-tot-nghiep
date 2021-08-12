@@ -179,7 +179,7 @@ function tagRender(props: any) {
   };
   return (
     <Tag
-      className="primary"
+      className="primary-bg"
       onMouseDown={onPreventMouseDown}
       closable={closable}
       onClose={onClose}

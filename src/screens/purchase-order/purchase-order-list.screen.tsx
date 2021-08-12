@@ -1,4 +1,4 @@
-import { Card } from "antd";
+import { Card, Tag } from "antd";
 import NumberFormat from "react-number-format";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import ContentContainer from "component/container/content.container";
@@ -123,6 +123,9 @@ const PurchaseOrderListScreen: React.FC = () => {
     {
       title: "Trạng thái đơn",
       dataIndex: "status_name",
+      render: (value: string) => {
+        return <Tag className="primary-txt">{value}</Tag>;
+      },
       visible: true,
     },
     {
