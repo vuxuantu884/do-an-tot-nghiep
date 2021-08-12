@@ -5,12 +5,19 @@ import React from "react";
 import { Route, Switch } from "react-router-dom";
 import Login from "screens/login";
 import menu from "./menu";
+import extra from "./menu/extra";
 
 const  NotFoundScreen = React.lazy(() => import ('screens/notfound.screen'));
 
 const listMenu = () => {
   let list: Array<RouteMenu> = [];
   menu.forEach((item) => list = [...list, ...getAllRoute(item)]);
+  return list;
+}
+
+const listExtraMenu = () => {
+  let list: Array<RouteMenu> = [];
+  extra.forEach((item) => list = [...list, ...getAllRoute(item)]);
   return list;
 }
 
@@ -33,6 +40,11 @@ const MainRoute = () => {
     <Switch>
       {
         listMenu().map((item: RouteMenu) => (
+          <AuthRoute type={item.type} object={item.object} key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
+        ))
+      }
+      {
+        listExtraMenu().map((item: RouteMenu) => (
           <AuthRoute type={item.type} object={item.object} key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
         ))
       }

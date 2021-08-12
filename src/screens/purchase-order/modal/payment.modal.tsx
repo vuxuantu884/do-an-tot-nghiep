@@ -18,7 +18,7 @@ type PaymentModalProps = {
   poId: number;
   purchasePayment?: PurchasePayments;
   onCancel: () => void;
-  onOk: () => void;
+  onOk: (isLoad: boolean) => void;
 };
 const { Item } = Form;
 const PaymentModal: React.FC<PaymentModalProps> = (
@@ -27,7 +27,8 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   const dispatch = useDispatch();
   const { poId, purchasePayment, visible, onCancel, onOk } = props;
   const [formPayment] = Form.useForm();
- 
+  const [confirmLoading, setConfirmLoading] = React.useState(false);
+
   const onOkPress = useCallback(() => {
     // onOk();
     formPayment.submit();
@@ -39,8 +40,9 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   const createCallback = useCallback(
     (result: PurchasePayments | null) => {
       if (result !== null && result !== undefined) {
+        setConfirmLoading(false);
         showSuccess("Thêm mới dữ liệu thành công");
-        onOk();
+        onOk(true);
         formPayment.resetFields();
       }
     },
@@ -49,8 +51,9 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   const updateCallback = useCallback(
     (result: PurchasePayments | null) => {
       if (result !== null && result !== undefined) {
+        setConfirmLoading(false);
         showSuccess("cập nhật dữ liệu thành công");
-        onOk();
+        onOk(true);
         formPayment.resetFields();
       }
     },
@@ -58,10 +61,11 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   );
   const onFinish = useCallback(
     (values: PurchasePayments) => {
+      setConfirmLoading(true);
       let data = formPayment.getFieldsValue(true);
-      debugger;
+      
       if (data.id) {
-        dispatch(PoPaymentUpdateAction(poId, data.id, values, updateCallback));
+        dispatch(PoPaymentUpdateAction(poId, data.id, data, updateCallback));
       } else {
         values.status = PoPaymentStatus.UNPAID;
         dispatch(PoPaymentCreateAction(poId, values, createCallback));
@@ -77,13 +81,13 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   const prevVisible = prevVisibleRef.current;
   useEffect(() => {
     if (!visible && prevVisible) {
-      debugger;
+      
       formPayment.resetFields();
     }
   }, [formPayment, prevVisible, visible]);
   useEffect(() => {
     if (visible) {
-      debugger;
+      
       if (purchasePayment) {
         formPayment.setFieldsValue(purchasePayment);
       }
@@ -99,6 +103,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       className="update-customer-modal"
       onOk={onOkPress}
       width={700}
+      confirmLoading={confirmLoading}
       onCancel={handleCancel}
     >
       <Form

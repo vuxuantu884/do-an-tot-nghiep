@@ -21,3 +21,11 @@ export const WardGetByDistrictAction = (districtId: number, setData: (data: Arra
 export const GroupGetAction = (setData: (data: Array<GroupResponse>) => void) => {
   return BaseAction(ContentType.GET_GROUP_REQUEST, {setData})
 }
+
+export const DistrictByCityAction = (cityId: number, setData: (data: Array<DistrictResponse>) => void) => {
+  return BaseAction(ContentType.GET_DISTRICT_BY_CITY_REQUEST, {cityId, setData})
+}
+
+export const CityByCountryAction = (countryId: number, setData: (data: Array<any>) => void) => {
+  return BaseAction(ContentType.GET_CITY_BY_COUNTRY_REQUEST, {countryId, setData})
+}

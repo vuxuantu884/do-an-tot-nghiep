@@ -134,12 +134,17 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             <Form.Item noStyle hidden name={POField.note}>
               <Input />
             </Form.Item>
-            <Form.Item label="Ghi chú nội bộ" shouldUpdate={(prev, current) => prev[POField.note] !== current[POField.note]}>
-            {({ getFieldValue }) => {
+            <Form.Item
+              label="Ghi chú nội bộ"
+              shouldUpdate={(prev, current) =>
+                prev[POField.note] !== current[POField.note]
+              }
+            >
+              {({ getFieldValue }) => {
                 let note = getFieldValue(POField.note);
                 return (
                   <div className="row-view">
-                    {note!== null && note !== '' ? note : 'Không có ghi chú' }
+                    {note !== null && note !== "" ? note : "Không có ghi chú"}
                   </div>
                 );
               }}
@@ -152,14 +157,16 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                 title: "Thẻ ngày giúp tìm kiếm đơn hàng",
                 icon: <InfoCircleOutlined />,
               }}
-              shouldUpdate={(prev, current) => prev[POField.tags] !== current[POField.tags]}
+              shouldUpdate={(prev, current) =>
+                prev[POField.tags] !== current[POField.tags]
+              }
               label="Tag"
             >
               {({ getFieldValue }) => {
                 let tags: string = getFieldValue(POField.tags);
-                let listTag= tags && tags !== null ? tags.split(',') : [];
+                let listTag = tags && tags !== null ? tags.split(",") : [];
                 return (
-                  <div style={{flexWrap: 'wrap'}} className="row-view">
+                  <div style={{ flexWrap: "wrap" }} className="row-view">
                     {listTag.map((value, index) => (
                       <div className="row-view-hash-tag" key={index.toString()}>
                         {value}
@@ -199,7 +206,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               <Select.Option value="">Chọn Merchandiser</Select.Option>
               {winAccount.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
-                  {[item.code, item.full_name].join(' - ')}
+                  {[item.code, item.full_name].join(" - ")}
                 </Select.Option>
               ))}
             </Select>
@@ -214,11 +221,15 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item  tooltip={{
+          <Form.Item
+            tooltip={{
               title: "Thêm số tham chiếu hoặc mã hợp đồng",
               icon: <InfoCircleOutlined />,
-            }} name={POField.reference} label="Số tham chiếu">
-            <Input placeholder="Nhập số tham chiếu" />
+            }}
+            name={POField.reference}
+            label="Số tham chiếu"
+          >
+            <Input placeholder="Nhập số tham chiếu" maxLength={255} />
           </Form.Item>
         </div>
       </Card>

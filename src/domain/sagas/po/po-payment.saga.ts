@@ -1,4 +1,4 @@
-import { PurchasePayments } from "./../../../model/purchase-order/purchase-payment.model";
+import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";

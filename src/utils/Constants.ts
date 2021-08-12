@@ -75,6 +75,10 @@ export const MoneyPayThreePls = {
   VALUE: 20000,
 };
 
+export const ErrorGHTK = {
+  ERRORAPI: "Lỗi tích hợp API",
+  WAITTING: "Đang xử lý",
+};
 export const POStatus = {
   DRAFT: "draft",
   FINALIZED: "finalized",
@@ -103,7 +107,16 @@ export const PoPaymentStatus = {
   CANCELLED: "cancelled",
 };
 
-export const PoPaymentMethod = {
-  CASH: "cash",
-  BANK_TRANSFER: "bank_transfer",
-};
+export const PoPaymentMethod ={
+  CASH:'cash',
+  BANK_TRANSFER:'bank_transfer'
+}
+
+export const PoFinancialStatus = {
+  DRAFT: 'draft',
+  UNPAID: 'unpaid',
+  PARTIAL_PAID:'partial_paid',
+  PAID:'paid',
+  FINISHED:'finished',
+  CANCELLED:'cancelled',  
+}

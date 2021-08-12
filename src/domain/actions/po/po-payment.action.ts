@@ -1,7 +1,6 @@
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import { POPaymentType } from "domain/types/purchase-order.type";
 import BaseAction from "base/BaseAction";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
 export const PoPaymentCreateAction = (
   poId: number,
