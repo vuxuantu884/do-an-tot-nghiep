@@ -94,6 +94,7 @@ const filterFields = {
   status: "status",
   import: "import",
   payments: "payments",
+  merchandisers: "merchandisers",
   qc: "qc",
   cost: "cost",
   vat: "vat",
@@ -113,6 +114,7 @@ const filterFieldsMapping: any = {
   [filterFields.status]: "Trạng thái đơn",
   [filterFields.import]: "Nhập kho",
   [filterFields.payments]: "Thanh toán",
+  [filterFields.merchandisers]: "Merchandisers",
   [filterFields.qc]: "qc",
   [filterFields.cost]: "cost",
   [filterFields.vat]: "vat",
@@ -141,6 +143,9 @@ const FilterList = ({ filters }: any) => {
         switch (filterKey) {
           case filterFields.import_date:
           case filterFields.activated_date:
+          case filterFields.completed_date:
+          case filterFields.canceled_date:
+          case filterFields.expected_import_date:
             let [from, to] = value;
             from = moment.utc(from).format(DATE_FORMAT.DDMMYYY);
             to = moment.utc(to).format(DATE_FORMAT.DDMMYYY);
@@ -151,34 +156,264 @@ const FilterList = ({ filters }: any) => {
                 closable
               >{`${filterFieldsMapping[filterKey]} : ${from} - ${to}`}</Tag>
             );
+          default:
+            return (
+              <Tag
+                key={filterKey}
+                className="fade"
+                closable
+              >{`${filterFieldsMapping[filterKey]} : ${value}`}</Tag>
+            );
         }
       })}
     </Space>
   );
 };
 
-const AdvanceFormItem = () => {
-  Object.keys(filterFields).map((field) => {
-    switch (field) {
-      case filterFields.import_date:
-      case filterFields.activated_date:
-      case filterFields.completed_date:
-      case filterFields.canceled_date:
-      case filterFields.expected_import_date:
-        return (
-          <Collapse>
-            <Panel
-              header={<FilterHeader title={filterFieldsMapping[field]} />}
-              key="1"
-            >
-              <Item name={filterFields.import_date}>
-                <CustomRangepicker />
-              </Item>
-            </Panel>
-          </Collapse>
-        );
-    }
-  });
+const AdvanceFormItems = ({
+  listSupplierAccount,
+  listRdAccount,
+  listStore,
+}: Partial<PurchaseOrderFilterProps>) => {
+  return (
+    <Space direction="vertical" style={{ width: "100%" }}>
+      {Object.keys(filterFields).map((field) => {
+        switch (field) {
+          case filterFields.import_date:
+          case filterFields.activated_date:
+          case filterFields.completed_date:
+          case filterFields.canceled_date:
+          case filterFields.expected_import_date:
+            return (
+              <Collapse>
+                <Panel
+                  header={<FilterHeader title={filterFieldsMapping[field]} />}
+                  key="1"
+                >
+                  <Item name={field}>
+                    <CustomRangepicker />
+                  </Item>
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.status:
+            return (
+              <Collapse>
+                <Panel header={<FilterHeader title="TRẠNG THÁI ĐƠN" />} key="1">
+                  <Item name={field}>
+                    <CustomSelect
+                      placeholder="Chọn 1 hoặc nhiều trạng thái"
+                      mode="multiple"
+                      style={{
+                        width: "100%",
+                      }}
+                      notFoundContent="Không tìm thấy kết quả"
+                    >
+                      {listPOStatus?.map((poStatus, index) => (
+                        <CustomSelect.Option key={index} value={poStatus.value}>
+                          {poStatus.value}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.import:
+            return (
+              <Collapse>
+                <Panel header={<FilterHeader title="NHẬP KHO" />} key="1">
+                  <Item name={field}>
+                    <CustomSelect
+                      placeholder="Chọn 1 hoặc nhiều trạng thái"
+                      mode="multiple"
+                      style={{
+                        width: "100%",
+                      }}
+                      notFoundContent="Không tìm thấy kết quả"
+                    >
+                      {listProcumentStatus?.map((poStatus, index) => (
+                        <CustomSelect.Option key={index} value={poStatus.value}>
+                          {poStatus.value}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.payments:
+            return (
+              <Collapse>
+                <Panel header={<FilterHeader title="THANH TOÁN" />} key="1">
+                  <Item name={field}>
+                    <CustomSelect
+                      placeholder="Chọn 1 hoặc nhiều trạng thái"
+                      mode="multiple"
+                      style={{
+                        width: "100%",
+                      }}
+                      notFoundContent="Không tìm thấy kết quả"
+                    >
+                      {listPaymentStatus?.map((poStatus, index) => (
+                        <CustomSelect.Option key={index} value={poStatus.value}>
+                          {poStatus.value}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.merchandisers:
+            return (
+              <Collapse>
+                <Panel header={<FilterHeader title="MERCHANDISER" />} key="1">
+                  <Item name={field}>
+                    <CustomSelect
+                      placeholder="Chọn 1 hoặc nhiều merchandiser"
+                      mode="multiple"
+                      style={{
+                        width: "100%",
+                      }}
+                      notFoundContent="Không tìm thấy kết quả"
+                      maxTagCount="responsive"
+                    >
+                      {listSupplierAccount?.map((item) => (
+                        <CustomSelect.Option key={item.id} value={item.id}>
+                          {item.full_name}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.qc:
+            return (
+              <Collapse>
+                <Panel header={<FilterHeader title="QC" />} key="1">
+                  <CustomSelect
+                    placeholder="Chọn 1 hoặc nhiều qc"
+                    mode="multiple"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                    maxTagCount="responsive"
+                  >
+                    {listRdAccount?.map((item) => (
+                      <CustomSelect.Option key={item.id} value={item.id}>
+                        {item.full_name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.cost:
+            return (
+              <Collapse>
+                <Panel header={<FilterHeader title="CHI PHÍ" />} key="1">
+                  <CustomSelect
+                    placeholder="Chọn 1 trong 2 đk"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                  >
+                    <CustomSelect.Option key="1" value="0">
+                      Có chi phí
+                    </CustomSelect.Option>
+                    <CustomSelect.Option key="2" value="1">
+                      Không chi phí
+                    </CustomSelect.Option>
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.vat:
+            return (
+              <Collapse>
+                <Panel header={<FilterHeader title="VAT" />} key="1">
+                  <CustomSelect
+                    placeholder="Chọn 1 trong 2 đk"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                  >
+                    <CustomSelect.Option key="1" value="0">
+                      Có VAT
+                    </CustomSelect.Option>
+                    <CustomSelect.Option key="2" value="1">
+                      Không VAT
+                    </CustomSelect.Option>
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.expected_import_store:
+            return (
+              <Collapse>
+                <Panel header="Kho nhận hàng dự kiến" key="1">
+                  <CustomSelect
+                    placeholder="Kho nhận hàng dự kiến"
+                    style={{
+                      width: "100%",
+                    }}
+                    notFoundContent="Không tìm thấy kết quả"
+                    mode="multiple"
+                    maxTagCount="responsive"
+                  >
+                    {listStore?.map((item) => (
+                      <CustomSelect.Option key={item.id} value={item.id}>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.note:
+            return (
+              <Collapse>
+                <Panel header={<FilterHeader title="GHI CHÚ NỘI BỘ" />} key="1">
+                  <Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.note_ncc:
+            return (
+              <Collapse>
+                <Panel
+                  header={<FilterHeader title="GHI CHÚ NHÀ CUNG CẤP" />}
+                  key="1"
+                >
+                  <Input placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.tag:
+            return (
+              <Collapse>
+                <Panel header={<FilterHeader title="TAG" />} key="1">
+                  <Input placeholder="Tìm kiếm theo tag" />
+                </Panel>
+              </Collapse>
+            );
+          case filterFields.ref:
+            return (
+              <Collapse>
+                <Panel header={<FilterHeader title="MÃ THAM CHIẾU" />} key="1">
+                  <Input placeholder="Tìm kiếm theo mã tham chiếu" />
+                </Panel>
+              </Collapse>
+            );
+        }
+      })}
+    </Space>
+  );
 };
 
 const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
@@ -212,14 +447,17 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     (values: PurchaseOrderQuery) => {
       debugger;
       let data = formAdvanceFilter.getFieldsValue(true);
-      let importDate = data[filterFields.import_date],
-        activatedDate = data[filterFields.activated_date];
+      // let importDate = data[filterFields.import_date],
+      //   activatedDate = data[filterFields.activated_date]
+      // completedDate = data[filterFields.completed_date],
+      // canceledDate = data[filterFields.canceled_date],
+      // expectedImportDate = data[filterFields.expected_import_date];
       data = {
         ...data,
-        import_from_date: importDate ? importDate[0] : null,
-        import_to_date: importDate ? importDate[1] : null,
-        activate_from_date: activatedDate ? activatedDate[0] : null,
-        activate_to_date: activatedDate ? activatedDate[1] : null,
+        // import_from_date: importDate ? importDate[0] : null,
+        // import_to_date: importDate ? importDate[1] : null,
+        // activate_from_date: activatedDate ? activatedDate[0] : null,
+        // activate_to_date: activatedDate ? activatedDate[1] : null,
       };
       formAdvanceFilter.setFieldsValue(data);
       onFilter && onFilter(data);
@@ -359,215 +597,11 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             initialValues={params}
             layout="vertical"
           >
-            <Space direction="vertical" style={{ width: "100%" }}>
-              <Collapse>
-                <Panel header={<FilterHeader title="NGÀY NHẬP KHO" />} key="1">
-                  <Item name={filterFields.import_date}>
-                    <CustomRangepicker />
-                  </Item>
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="NGÀY DUỴỆT ĐƠN" />} key="1">
-                  <Item name={filterFields.activated_date}>
-                    <CustomRangepicker />
-                  </Item>
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel
-                  header={<FilterHeader title="NGÀY HOÀN TẤT ĐƠN" />}
-                  key="1"
-                >
-                  <Item name={filterFields.completed_date}>
-                    <CustomRangepicker />
-                  </Item>
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="NGÀY HỦY ĐƠN" />} key="1">
-                  <CustomRangepicker />
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="TRẠNG THÁI ĐƠN" />} key="1">
-                  <CustomSelect
-                    placeholder="Chọn 1 hoặc nhiều trạng thái"
-                    mode="multiple"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                  >
-                    {listPOStatus?.map((poStatus, index) => (
-                      <CustomSelect.Option key={index} value={poStatus.value}>
-                        {poStatus.value}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="NHẬP KHO" />} key="1">
-                  <CustomSelect
-                    placeholder="Chọn 1 hoặc nhiều trạng thái"
-                    mode="multiple"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                  >
-                    {listProcumentStatus?.map((poStatus, index) => (
-                      <CustomSelect.Option key={index} value={poStatus.value}>
-                        {poStatus.value}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="THANH TOÁN" />} key="1">
-                  <CustomSelect
-                    placeholder="Chọn 1 hoặc nhiều trạng thái"
-                    mode="multiple"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                  >
-                    {listPaymentStatus?.map((poStatus, index) => (
-                      <CustomSelect.Option key={index} value={poStatus.value}>
-                        {poStatus.value}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="MERCHANDISER" />} key="1">
-                  <CustomSelect
-                    placeholder="Chọn 1 hoặc nhiều merchandiser"
-                    mode="multiple"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                    maxTagCount="responsive"
-                  >
-                    {listSupplierAccount?.map((item) => (
-                      <CustomSelect.Option key={item.id} value={item.id}>
-                        {item.full_name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="QC" />} key="1">
-                  <CustomSelect
-                    placeholder="Chọn 1 hoặc nhiều qc"
-                    mode="multiple"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                    maxTagCount="responsive"
-                  >
-                    {listRdAccount?.map((item) => (
-                      <CustomSelect.Option key={item.id} value={item.id}>
-                        {item.full_name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="CHI PHÍ" />} key="1">
-                  <CustomSelect
-                    placeholder="Chọn 1 trong 2 đk"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                  >
-                    <CustomSelect.Option key="1" value="0">
-                      Có chi phí
-                    </CustomSelect.Option>
-                    <CustomSelect.Option key="2" value="1">
-                      Không chi phí
-                    </CustomSelect.Option>
-                  </CustomSelect>
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="VAT" />} key="1">
-                  <CustomSelect
-                    placeholder="Chọn 1 trong 2 đk"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                  >
-                    <CustomSelect.Option key="1" value="0">
-                      Có VAT
-                    </CustomSelect.Option>
-                    <CustomSelect.Option key="2" value="1">
-                      Không VAT
-                    </CustomSelect.Option>
-                  </CustomSelect>
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel
-                  header={<FilterHeader title="NGÀY NHẬN HÀNG DỰ KIẾN" />}
-                  key="1"
-                >
-                  <CustomRangepicker />
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header="Kho nhận hàng dự kiến" key="1">
-                  <CustomSelect
-                    placeholder="Kho nhận hàng dự kiến"
-                    style={{
-                      width: "100%",
-                    }}
-                    notFoundContent="Không tìm thấy kết quả"
-                    mode="multiple"
-                    maxTagCount="responsive"
-                  >
-                    {listStore?.map((item) => (
-                      <CustomSelect.Option key={item.id} value={item.id}>
-                        {item.name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="GHI CHÚ NỘI BỘ" />} key="1">
-                  <Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel
-                  header={<FilterHeader title="GHI CHÚ NHÀ CUNG CẤP" />}
-                  key="1"
-                >
-                  <Input placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="TAG" />} key="1">
-                  <Input placeholder="Tìm kiếm theo tag" />
-                </Panel>
-              </Collapse>
-              <Collapse>
-                <Panel header={<FilterHeader title="MÃ THAM CHIẾU" />} key="1">
-                  <Input placeholder="Tìm kiếm theo mã tham chiếu" />
-                </Panel>
-              </Collapse>
-            </Space>
+            <AdvanceFormItems
+              listSupplierAccount={listSupplierAccount}
+              listStore={listStore}
+              listRdAccount={listRdAccount}
+            />
           </Form>
         </BaseFilter>
       </Form.Provider>
