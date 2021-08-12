@@ -58,7 +58,6 @@ const PurchaseOrderListScreen: React.FC = () => {
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
 
   let initQuery: PurchaseOrderQuery = {
-    code: "",
   };
 
   let dataQuery: PurchaseOrderQuery = {
@@ -90,11 +89,6 @@ const PurchaseOrderListScreen: React.FC = () => {
     {
       title: "Nhà cung cấp",
       dataIndex: "supplier",
-      visible: true,
-    },
-    {
-      title: "Số điện thoại",
-      dataIndex: "phone",
       visible: true,
     },
     {
