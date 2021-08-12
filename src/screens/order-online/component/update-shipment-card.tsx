@@ -94,10 +94,10 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import CancelSteps from "../component/cancel-steps";
 import OrderDetail from "./../order-detail";
 import steps from "antd/lib/steps";
+import { CaretRightOutlined } from "@ant-design/icons";
 const { Panel } = Collapse;
 const { Link } = Typography;
 //#endregion
-
 type UpdateShipmentCardProps = {
   shippingFeeInformedCustomer: (value: number | null) => void;
   setVisibleUpdatePayment: (value: boolean) => void;
@@ -251,7 +251,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setShippingFeeInformedCustomer(value);
     props.shippingFeeInformedCustomer(value);
   };
-  console.log(props.stepsStatusValue);
   const getInfoDeliveryGHTK = useCallback(
     (type: string) => {
       let request: ShippingGHTKRequest = {
@@ -393,8 +392,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         value.fulfillments &&
         value.fulfillments.length > 0 &&
         value.fulfillments.filter(
-          (fulfillment) =>
-            fulfillment.id === fullfilmentIdGoodReturn
+          (fulfillment) => fulfillment.id === fullfilmentIdGoodReturn
         )[0].id
       }`
     );
@@ -911,44 +909,51 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         }
         extra={
           <Space size={26}>
-            <div className="text-menu">
-              <img
-                src={calendarOutlined}
-                style={{ marginRight: 9.5 }}
-                alt=""
-              ></img>
-
-              <span style={{ color: "#222222", lineHeight: "16px" }}>
-                {props.OrderDetail?.fulfillments &&
-                props.OrderDetail?.fulfillments.length > 0 &&
-                props.OrderDetail?.fulfillments[0].shipment
-                  ?.expected_received_date
-                  ? moment(
-                      props.OrderDetail?.fulfillments[0].shipment
-                        ?.expected_received_date
-                    ).format("DD/MM/YYYY")
-                  : ""}
-              </span>
-              {props.OrderDetail?.fulfillments &&
-                props.OrderDetail?.fulfillments.length > 0 &&
-                props.OrderDetail?.fulfillments[0].shipment?.office_time && (
-                  <span
-                    style={{
-                      marginLeft: 6,
-                      color: "#737373",
-                      fontSize: "14px",
-                    }}
-                  >
-                    (Giờ hành chính)
+            {props.OrderDetail?.fulfillments &&
+              props.OrderDetail?.fulfillments.length > 0 &&
+              props.OrderDetail?.fulfillments[0].shipment
+                ?.expected_received_date && (
+                <div className="text-menu">
+                  <img
+                    src={calendarOutlined}
+                    style={{ marginRight: 9.5 }}
+                    alt=""
+                  ></img>
+                  <span style={{ color: "#222222", lineHeight: "16px" }}>
+                    {props.OrderDetail?.fulfillments &&
+                    props.OrderDetail?.fulfillments.length > 0 &&
+                    props.OrderDetail?.fulfillments[0].shipment
+                      ?.expected_received_date
+                      ? moment(
+                          props.OrderDetail?.fulfillments[0].shipment
+                            ?.expected_received_date
+                        ).format("DD/MM/YYYY")
+                      : ""}
                   </span>
-                )}
-            </div>
-            <div className="text-menu">
-              <img src={eyeOutline} alt="eye"></img>
-              <span style={{ marginLeft: "5px", fontWeight: 500 }}>
-                {requirementNameView}
-              </span>
-            </div>
+                  {props.OrderDetail?.fulfillments &&
+                    props.OrderDetail?.fulfillments.length > 0 &&
+                    props.OrderDetail?.fulfillments[0].shipment
+                      ?.office_time && (
+                      <span
+                        style={{
+                          marginLeft: 6,
+                          color: "#737373",
+                          fontSize: "14px",
+                        }}
+                      >
+                        (Giờ hành chính)
+                      </span>
+                    )}
+                </div>
+              )}
+            {requirementNameView && (
+              <div className="text-menu">
+                <img src={eyeOutline} alt="eye"></img>
+                <span style={{ marginLeft: "5px", fontWeight: 500 }}>
+                  {requirementNameView}
+                </span>
+              </div>
+            )}
           </Space>
         }
       >
@@ -962,13 +967,25 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             >
               <Collapse
                 className="saleorder_shipment_order_colapse payment_success"
-                defaultActiveKey={["1"]}
-                onChange={() => setIsArrowRotation(!isArrowRotation)}
+                defaultActiveKey={[
+                  fulfillment.status !== FulFillmentStatus.RETURNED ? "1" : "",
+                ]}
+                onChange={(e) => console.log(e[0])}
+                expandIcon={({ isActive }) => (
+                  <img
+                    src={doubleArrow}
+                    style={{
+                      transform: `${
+                        !isActive ? "rotate(270deg)" : "rotate(0deg)"
+                      }`,
+                    }}
+                  />
+                )}
                 ghost
               >
                 <Panel
                   className="orders-timeline-custom"
-                  showArrow={false}
+                  showArrow={true}
                   header={
                     <Row
                       style={{ paddingLeft: 12 }}
@@ -990,22 +1007,19 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             color: "#2A2A86",
                             fontWeight: 500,
                             fontSize: 18,
+                            marginRight: 11,
                           }}
                         >
                           {fulfillment.code}
                         </span>
-                        <img
-                          src={doubleArrow}
-                          alt=""
-                          style={{
-                            transform: `${
-                              isArrowRotation
-                                ? "rotate(270deg)"
-                                : "rotate(0deg)"
-                            }`,
-                            padding: "0 5px",
-                          }}
-                        />
+                        <div style={{ width: 30, padding: "0 4px", marginRight: 14 }}>
+                          <img
+                            onClick={(e) => copyOrderID(e)}
+                            src={copyFileBtn}
+                            alt=""
+                            style={{ width: 23 }}
+                          />
+                        </div>
                         {fulfillment.status !== FulFillmentStatus.CANCELLED &&
                           fulfillment.status !== FulFillmentStatus.RETURNING &&
                           fulfillment.status !== FulFillmentStatus.RETURNED &&
@@ -1482,6 +1496,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               props.OrderDetail?.fulfillments[0].shipment
                 .delivery_service_provider_type === "pick_at_store" ? (
                 <Button
+                  onClick={cancelFullfilment}
                   type="default"
                   className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                   style={{
