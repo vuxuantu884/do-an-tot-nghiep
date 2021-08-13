@@ -67,6 +67,7 @@ export interface PurchaseOrderQuery extends BaseQuery {
   qc?: string;
   cost_included?: boolean;
   tax_included?: boolean;
+  expected_store?: string;
   note?: string;
   supplier_note?: string;
   tags?: string;

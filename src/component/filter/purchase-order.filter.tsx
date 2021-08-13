@@ -67,7 +67,7 @@ const filterFields = {
   cost_included: "cost_included",
   tax_included: "tax_included",
   expected_import_date: "expected_import_date",
-  expected_import_store: "expected_import_store",
+  expected_store: "expected_store",
   note: "note",
   supllier_note: "supplier_note",
   tags: "tags",
@@ -93,7 +93,7 @@ const filterFieldsMapping: any = {
   [filterFields.cost_included]: "Chi phí",
   [filterFields.tax_included]: "VAT",
   [filterFields.expected_import_date]: "Ngày nhận hàng dự kiên",
-  [filterFields.expected_import_store]: "Kho nhận hàng dự kiên",
+  [filterFields.expected_store]: "Kho nhận hàng dự kiên",
   [filterFields.note]: "Ghi chú nội bộ",
   [filterFields.supllier_note]: "Ghi chú nhà cung cấp",
   [filterFields.tags]: "Tag",
@@ -330,7 +330,7 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
-          case filterFields.expected_import_store:
+          case filterFields.expected_store:
             return (
               <Collapse key={field}>
                 <Panel header="Kho nhận hàng dự kiến" key="1">
@@ -347,7 +347,7 @@ const AdvanceFormItems = ({
                       maxTagCount="responsive"
                     >
                       {listStore?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.id}>
+                        <CustomSelect.Option key={item.id} value={item.name}>
                           {item.name}
                         </CustomSelect.Option>
                       ))}
