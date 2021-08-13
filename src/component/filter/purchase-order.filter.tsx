@@ -37,7 +37,7 @@ type PurchaseOrderFilterProps = {
 };
 
 const listPOStatus = {
-  [POStatus.DRAFT]: "Nháp",
+  [POStatus.DRAFT]: "Đặt hàng",
   [POStatus.FINALIZED]: "Đã xác nhận",
   [POStatus.COMPLETED]: "Đã hoàn thành",
   [POStatus.FINISHED]: "Đã kết thúc",
