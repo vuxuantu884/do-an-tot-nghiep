@@ -49,7 +49,7 @@ export interface PurchaseOrder extends BaseObject{
 }
 
 export interface PurchaseOrderQuery extends BaseQuery {
-  infor?: string;
+  info?: string;
   from_order_date?: Date;
   to_order_date?: Date;
   from_cancelled_date?: Date;

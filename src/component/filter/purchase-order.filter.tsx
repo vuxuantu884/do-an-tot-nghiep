@@ -103,8 +103,8 @@ const filterFields = {
   expected_import_store: "expected_import_store",
   note: "note",
   supllier_note: "supplier_note",
-  tag: "tag",
-  ref: "ref",
+  tags: "tags",
+  reference: "reference",
 };
 
 const listStatus = {
@@ -123,14 +123,14 @@ const filterFieldsMapping: any = {
   [filterFields.financial_status]: "Thanh toán",
   [filterFields.merchandiser]: "Merchandiser",
   [filterFields.qc]: "qc",
-  [filterFields.cost_included]: "cost",
-  [filterFields.tax_included]: "vat",
+  [filterFields.cost_included]: "Chi phí",
+  [filterFields.tax_included]: "VAT",
   [filterFields.expected_import_date]: "Ngày nhận hàng dự kiên",
   [filterFields.expected_import_store]: "Kho nhận hàng dự kiên",
   [filterFields.note]: "Ghi chú nội bộ",
   [filterFields.supllier_note]: "Ghi chú nhà cung cấp",
-  [filterFields.tag]: "Tag",
-  [filterFields.ref]: "Mã tham chiếu",
+  [filterFields.tags]: "Tag",
+  [filterFields.reference]: "Mã tham chiếu",
 };
 
 type FilterHeaderProps = {
@@ -179,6 +179,28 @@ const FilterList = ({ filters, resetField }: any) => {
                 className="fade"
                 closable
               >{`${filterFieldsMapping[filterKey]} : ${status?.value}`}</Tag>
+            );
+          case filterFields.cost_included:
+            let costTxt = "Có chi phí";
+            if (value === "false") costTxt = "Không chi phí"
+            return (
+              <Tag
+                onClose={() => resetField(filterKey)}
+                key={filterKey}
+                className="fade"
+                closable
+              >{`${filterFieldsMapping[filterKey]} : ${costTxt}`}</Tag>
+            );
+          case filterFields.tax_included:
+            let taxTxt = "Có VAT";
+            if (value === "false") taxTxt = "Không VAT"
+            return (
+              <Tag
+                onClose={() => resetField(filterKey)}
+                key={filterKey}
+                className="fade"
+                closable
+              >{`${filterFieldsMapping[filterKey]} : ${taxTxt}`}</Tag>
             );
           default:
             return (
@@ -388,7 +410,7 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
-          case filterFields.tag:
+          case filterFields.tags:
             return (
               <Collapse key={field}>
                 <Panel header={<FilterHeader title="TAG" />} key="1">
@@ -398,7 +420,7 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
-          case filterFields.ref:
+          case filterFields.reference:
             return (
               <Collapse key={field}>
                 <Panel header={<FilterHeader title="MÃ THAM CHIẾU" />} key="1">
@@ -549,7 +571,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             layout="inline"
 
           >
-            <Item name="infor">
+            <Item name="info">
               <Input
                 prefix={<img src={search} alt="" />}
                 style={{ width: 350 }}
