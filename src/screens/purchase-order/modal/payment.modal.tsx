@@ -11,6 +11,7 @@ import {
   PoPaymentUpdateAction,
 } from "domain/actions/po/po-payment.action";
 import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
+import moment from "moment";
 
 type PaymentModalProps = {
   visible: boolean;
@@ -74,13 +75,13 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     [createCallback, dispatch, formPayment, poId, updateCallback]
   );
 
-  const onChangePaymentMethod = (e:any) => {
+  const onChangePaymentMethod = (e: any) => {
     debugger;
-    console.log('radio checked', e.target.value);
-    if(e.target.value ===PoPaymentMethod.BANK_TRANSFER){
-setDisabledRef(false);
-    }else{
-      formPayment.setFieldsValue({ reference: '' });
+    console.log("radio checked", e.target.value);
+    if (e.target.value === PoPaymentMethod.BANK_TRANSFER) {
+      setDisabledRef(false);
+    } else {
+      formPayment.setFieldsValue({ reference: "" });
       setDisabledRef(true);
     }
     // setValue(e.target.value);
@@ -156,6 +157,7 @@ setDisabledRef(false);
               ]}
             >
               <CustomDatepicker
+                 disableDate={(date) => date <= moment().startOf("days")}
                 style={{ width: "100%" }}
                 placeholder="dd/mm/yyyy"
               />
@@ -181,7 +183,11 @@ setDisabledRef(false);
           </Col>
           <Col xs={24} lg={12}>
             <Item name="reference" label="Số tham chiếu">
-              <Input placeholder="Nhập số tham chiếu" disabled={disabledRef} maxLength={255} />
+              <Input
+                placeholder="Nhập số tham chiếu"
+                disabled={disabledRef}
+                maxLength={255}
+              />
             </Item>
           </Col>
           <Col xs={24} lg={24}>
