@@ -17,6 +17,7 @@ const SettingCreatePrinter: React.FC = () => {
     console.log("value", value);
     setHtmlContent(value);
   };
+  const initialHtmlContent = "";
   const sprintConfigure = {
     danhSachMauIn: [
       {
@@ -161,7 +162,10 @@ const SettingCreatePrinter: React.FC = () => {
                 <Form.Item name="editor">
                   {/* <Editor onChange={handleOnChange} /> */}
                   {/* <CkEditor onChange={handleOnChange} /> */}
-                  <CkEditor onChange={handleOnChange} />
+                  <CkEditor
+                    onChange={handleOnChange}
+                    initialHtmlContent={initialHtmlContent}
+                  />
                 </Form.Item>
               </Card>
             </Col>
