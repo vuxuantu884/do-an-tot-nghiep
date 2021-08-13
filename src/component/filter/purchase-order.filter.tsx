@@ -36,56 +36,23 @@ type PurchaseOrderFilterProps = {
   onClearFilter?: () => void;
 };
 
-const listPOStatus = [
-  {
-    key: POStatus.DRAFT,
-    value: "Nháp",
-  },
-  {
-    key: POStatus.FINALIZED,
-    value: "Đã xác nhận",
-  },
-  {
-    key: POStatus.COMPLETED,
-    value: "Đã hoàn thành",
-  },
-  {
-    key: POStatus.FINISHED,
-    value: "Đã kết thúc",
-  },
-  {
-    key: POStatus.CANCELLED,
-    value: "Đã hủy",
-  },
-];
-const listProcumentStatus = [
-  {
-    key: ProcumentStatus.NOT_RECEIVED,
-    value: "Chưa nhận hàng",
-  },
-  {
-    key: ProcumentStatus.PARTIAL_RECEIVED,
-    value: "Nhận hàng 1 phần",
-  },
-  {
-    key: ProcumentStatus.RECEIVED,
-    value: "Đã nhận hàng",
-  },
-];
-const listPaymentStatus = [
-  {
-    key: PoPaymentStatus.UNPAID,
-    value: "Chưa thanh toán",
-  },
-  {
-    key: PoPaymentStatus.PARTIAL_PAID,
-    value: "Thanh toán 1 phần",
-  },
-  {
-    key: PoPaymentStatus.PAID,
-    value: "Đã thanh toán",
-  },
-];
+const listPOStatus = {
+  [POStatus.DRAFT]: "Nháp",
+  [POStatus.FINALIZED]: "Đã xác nhận",
+  [POStatus.COMPLETED]: "Đã hoàn thành",
+  [POStatus.FINISHED]: "Đã kết thúc",
+  [POStatus.CANCELLED]: "Đã hủy",
+};
+const listProcumentStatus = {
+  [ProcumentStatus.NOT_RECEIVED]: "Chưa nhận hàng",
+  [ProcumentStatus.PARTIAL_RECEIVED]: "Nhận hàng 1 phần",
+  [ProcumentStatus.RECEIVED]: "Đã nhận hàng",
+};
+const listPaymentStatus = {
+  [PoPaymentStatus.UNPAID]: "Chưa thanh toán",
+  [PoPaymentStatus.PARTIAL_PAID]: "Thanh toán 1 phần",
+  [PoPaymentStatus.PAID]: "Đã thanh toán",
+};
 
 const filterFields = {
   order_date: "order_date",
@@ -107,7 +74,7 @@ const filterFields = {
   reference: "reference",
 };
 
-const listStatus = {
+const allStatus: any = {
   [filterFields.status]: listPOStatus,
   [filterFields.receive_status]: listProcumentStatus,
   [filterFields.financial_status]: listPaymentStatus
@@ -144,6 +111,7 @@ const FilterList = ({ filters, resetField }: any) => {
   let filtersKeys = Object.keys(filters);
   return (
     <Space wrap={true} style={{ marginBottom: 20 }}>
+
       {filtersKeys.map((filterKey) => {
         let value = filters[filterKey];
         if (!value) return;
@@ -168,9 +136,10 @@ const FilterList = ({ filters, resetField }: any) => {
           case filterFields.status:
           case filterFields.receive_status:
           case filterFields.financial_status:
-            let listStt = listStatus[filterKey];
-            let status = listStt.find((stt) => {
-              return stt.key = value;
+            let listStatus= allStatus[filterKey];
+            if (!(value instanceof Array)) value = [value];
+            let listStatusValue = value?.map((key: string) => {
+              return listStatus[key];
             });
             return (
               <Tag
@@ -178,7 +147,7 @@ const FilterList = ({ filters, resetField }: any) => {
                 key={filterKey}
                 className="fade"
                 closable
-              >{`${filterFieldsMapping[filterKey]} : ${status?.value}`}</Tag>
+              >{`${filterFieldsMapping[filterKey]} : ${listStatusValue}`}</Tag>
             );
           case filterFields.cost_included:
             let costTxt = "Có chi phí";
@@ -458,7 +427,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 
   const resetField = useCallback((field: string) => {
     setAdvanceFilters({...advanceFilters, [field]: undefined});
-  }, [formBaseFilter, formAdvanceFilter]);
+  }, [advanceFilters]);
 
   const onBaseFinish = useCallback(
     (values: PurchaseOrderQuery) => {
@@ -486,8 +455,12 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     setVisible(false);
   }, [formAdvanceFilter]);
   const onResetFilter = useCallback(() => {
-    debugger;
-    formAdvanceFilter.resetFields();
+    // debugger;
+    let fields = formAdvanceFilter.getFieldsValue(true);
+    for (let key in fields) {
+      fields[key] = null;
+    };
+    formAdvanceFilter.setFieldsValue(fields);
     setVisible(false);
     formAdvanceFilter.submit();
   }, [formAdvanceFilter]);
@@ -498,19 +471,13 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     [onMenuClick]
   );
 
-  const getAdvanceFields = useCallback(() => {
-    let {infor, status, receive_status, financial_status, ...advancedFilters } = formBaseFilter.getFieldsValue(true);
-    return advancedFilters;
-  }, [formBaseFilter]);
-  
   useEffect(() => {
-    formAdvanceFilter.setFieldsValue(advanceFilters);
-  }, [formAdvanceFilter, advanceFilters]);
-
+    formBaseFilter.setFieldsValue({...advanceFilters});
+    formAdvanceFilter.setFieldsValue({...advanceFilters});
+  },[advanceFilters]);
   useEffect(() => {
-    let advancedFilters= getAdvanceFields();
-    setAdvanceFilters({...advancedFilters});
-  }, [formBaseFilter]);
+    setAdvanceFilters({...params});
+  }, [params]);
   useLayoutEffect(() => {
     // if (visible) {
     //   formBaseFilter.resetFields();
@@ -521,14 +488,14 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     //   formAdvanceFilter.resetFields();
     // };
   }, [formAdvanceFilter, formBaseFilter, visible]);
-
+  console.log('huynvq::=========>', advanceFilters, params);
   return (
     <div className="purchase-order-form">
       <Form.Provider
         onFormFinish={(name, { values, forms }) => {        
           const { formBaseFilter, formAdvanceFilter } = forms;
-          let baseValues = formBaseFilter.getFieldsValue();
-          let advanceValues = formAdvanceFilter?.getFieldsValue();
+          let baseValues = formBaseFilter.getFieldsValue(true);
+          let advanceValues = formAdvanceFilter?.getFieldsValue(true);
           let data = {...baseValues, ...advanceValues};
           let orderDate = data[filterFields.order_date],
               activatedDate = data[filterFields.activated_date],
@@ -540,6 +507,12 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             [from_completed_date, to_completed_date] = completedDate ? completedDate : [],
             [from_cancelled_date, to_cancelled_date] = cancelledDate ? cancelledDate : [],
             [from_expect_import_date, to_expect_import_date] = expectedImportDate ? expectedImportDate : [];
+          
+          for (let key in data) {
+            if (data[key] instanceof Array) {
+              if (data[key].length === 0) data[key] = undefined;
+            };
+          };
           data = {
             ...data,
             from_order_date,
@@ -557,9 +530,6 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           formAdvanceFilter?.setFieldsValue({
             ...data,
           });
-
-          let advancedFilters = getAdvanceFields();
-          setAdvanceFilters({...advancedFilters});
         }}
       >
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
@@ -567,7 +537,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             form={formBaseFilter}
             name="formBaseFilter"
             onFinish={onBaseFinish}
-            initialValues={params}
+            initialValues={advanceFilters}
             layout="inline"
 
           >
@@ -588,9 +558,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                 style={{ width: 150 }}
                 maxTagCount="responsive"
               >
-                {listPOStatus?.map((poStatus, index) => (
-                  <CustomSelect.Option key={index} value={poStatus.key}>
-                    {poStatus.value}
+                {Object.keys(listPOStatus)?.map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listPOStatus[key]}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
@@ -605,9 +575,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                 style={{ width: 200 }}
                 maxTagCount="responsive"
               >
-                {listProcumentStatus?.map((procumentStatus, index) => (
-                  <CustomSelect.Option key={index} value={procumentStatus.key}>
-                    {procumentStatus.value}
+                {Object.keys(listProcumentStatus)?.map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listProcumentStatus[key]}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
@@ -622,9 +592,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                 style={{ width: 200 }}
                 maxTagCount="responsive"
               >
-                {listPaymentStatus?.map((paymentStatus, index) => (
-                  <CustomSelect.Option key={index} value={paymentStatus.key}>
-                    {paymentStatus.value}
+                {Object.keys(listPaymentStatus).map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listPaymentStatus[key]}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
@@ -650,7 +620,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             form={formAdvanceFilter}
             name="formAdvanceFilter"
             onFinish={onAdvanceFinish}
-            initialValues={params}
+            initialValues={advanceFilters}
             layout="vertical"
           >
             <AdvanceFormItems
