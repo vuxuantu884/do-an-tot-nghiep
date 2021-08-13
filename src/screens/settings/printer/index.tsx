@@ -21,7 +21,7 @@ import {
 } from "model/response/order-processing-status.response";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -140,18 +140,17 @@ const SettingPrinter: React.FC = () => {
 
   const createPrinterHtml = () => {
     return (
-      <Button
-        type="primary"
-        className="ant-btn-primary"
-        size="large"
-        onClick={() => {
-          setModalAction("create");
-          setIsShowModal(true);
-        }}
-        icon={<PlusOutlined />}
-      >
-        Thêm mẫu in
-      </Button>
+      <Link to={`${UrlConfig.PRINTER}/create`}>
+        <Button
+          type="primary"
+          className="ant-btn-primary"
+          size="large"
+          onClick={() => {}}
+          icon={<PlusOutlined />}
+        >
+          Thêm mẫu in
+        </Button>
+      </Link>
     );
   };
 
