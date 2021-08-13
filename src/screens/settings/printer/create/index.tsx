@@ -161,7 +161,7 @@ const SettingCreatePrinter: React.FC = () => {
                 <Form.Item name="editor">
                   {/* <Editor onChange={handleOnChange} /> */}
                   {/* <CkEditor onChange={handleOnChange} /> */}
-                  <CkEditor />
+                  <CkEditor onChange={handleOnChange} />
                 </Form.Item>
               </Card>
             </Col>
