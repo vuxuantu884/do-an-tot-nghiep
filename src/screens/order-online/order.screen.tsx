@@ -751,7 +751,7 @@ export default function Order() {
                   formRef.current?.submit();
                 }}
               >
-                Lưu và duyệt
+                Lưu và Xác nhận
               </Button>
             </Col>
           </Row>

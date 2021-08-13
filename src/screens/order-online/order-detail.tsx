@@ -88,7 +88,6 @@ const OrderDetail = () => {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
-  const [paymentDataSorted, setPaymentDataSorted] = useState([]);
   //#endregion
   //#region Orther
   const onPaymentSelect = (paymentType: number) => {
@@ -171,7 +170,7 @@ const OrderDetail = () => {
     },
     []
   );
-
+  console.log(OrderDetail);
   //#endregion
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setLoadingData(false);
@@ -270,24 +269,6 @@ const OrderDetail = () => {
     };
   }, [scroll]);
 
-  useEffect(() => {
-    let _paymentData: any = [];
-    let paymentData: any = OrderDetail?.payments?.filter(
-      (item) => item.payment_method !== "cod"
-    );
-    let obj =
-      paymentData?.length > 0 &&
-      paymentData.reduce((res: any, curr: any) => {
-        if (res[curr.created_date.toString()])
-          res[curr.created_date.toString()].push(curr);
-        else Object.assign(res, { [curr.created_date.toString()]: [curr] });
-        return res;
-      }, {});
-    for (let key in obj) {
-      _paymentData.push(obj[key]);
-    }
-    setPaymentDataSorted(_paymentData);
-  }, [setPaymentDataSorted, OrderDetail]);
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -428,19 +409,7 @@ const OrderDetail = () => {
                       <div style={{ padding: "0 24px 24px 24px" }}>
                         <Collapse
                           className="orders-timeline"
-                          defaultActiveKey={["1", "2", "3", "100"]}
-                          expandIcon={({ isActive }) => (
-                            <img
-                              src={doubleArrow}
-                              alt=""
-                              style={{
-                                transform: isActive
-                                  ? "rotate(0deg)"
-                                  : "rotate(270deg)",
-                                float: "right",
-                              }}
-                            />
-                          )}
+                          defaultActiveKey={["100"]}
                           ghost
                         >
                           {OrderDetail.total === SumCOD(OrderDetail) &&
@@ -448,91 +417,43 @@ const OrderDetail = () => {
                             ""
                           ) : (
                             <>
-                              {paymentDataSorted.map(
-                                (paymentData: any, index: number) => (
+                              {OrderDetail?.payments
+                                .filter(
+                                  (payment) =>
+                                    payment.payment_method !== "cod" &&
+                                    payment.amount
+                                )
+                                .map((payment: any, index: number) => (
                                   <Panel
+                                    showArrow={false}
                                     className="orders-timeline-custom success-collapse"
                                     header={
-                                      <span style={{ color: "#222222" }}>
-                                        <b>
-                                          {paymentData
-                                            .filter(
-                                              (payment: any) =>
-                                                payment.payment_method !==
-                                                  "cod" && payment.amount
-                                            )
-                                            .map(
-                                              (item: any, index: number) =>
-                                                item.payment_method +
-                                                (index ===
-                                                (item.length > 0
-                                                  ? item.length
-                                                  : 0) -
-                                                  1
-                                                  ? ""
-                                                  : ", ")
+                                      <div className="orders-payment-item">
+                                        <div className="orders-payment-type"
+                                          style={{
+                                            color: "#222222",
+                                          }}
+                                        >
+                                          <b>{payment.payment_method}</b>
+                                          <span>{payment.reference}</span>
+                                          {payment.payment_method_id === 5 && <span>{payment.amount/1000} điểm</span>}
+                                        </div>
+                                        <div className="orders-payment-amount">
+                                          <span>
+                                            {formatCurrency(payment.amount)}
+                                          </span>
+                                          <span style={{ color: "#737373" }}>
+                                            {ConvertUtcToLocalDate(
+                                              payment.created_date,
+                                              "DD/MM/YYYY HH:mm"
                                             )}
-                                        </b>
-                                      </span>
+                                          </span>
+                                        </div>
+                                      </div>
                                     }
-                                    key={index + 1}
-                                    extra={
-                                      <>
-                                        {paymentData && (
-                                          <div>
-                                            <span
-                                              className="fixed-time text-field"
-                                              style={{ color: "#737373" }}
-                                            >
-                                              {ConvertUtcToLocalDate(
-                                                getDateLastPayment(paymentData),
-                                                "DD/MM/YYYY HH:mm"
-                                              )}
-                                            </span>
-                                          </div>
-                                        )}
-                                      </>
-                                    }
-                                  >
-                                    <Row gutter={24}>
-                                      {paymentData
-                                        .filter(
-                                          (payment: any) =>
-                                            payment.payment_method !== "cod" &&
-                                            payment.amount
-                                        )
-                                        .map((item: any) => (
-                                          <Col span={6} key={item.code}>
-                                            <>
-                                              <p
-                                                style={{
-                                                  color: "#737373",
-                                                  marginBottom: 10,
-                                                }}
-                                              >
-                                                {item.payment_method}
-                                              </p>
-                                              <b>
-                                                {formatCurrency(
-                                                  item.paid_amount
-                                                )}
-                                              </b>
-                                            </>
-                                            {item.payment_method_id === 3 && (
-                                              <p>{item.reference}</p>
-                                            )}
-                                            {item.payment_method_id === 5 && (
-                                              <p>
-                                                {Math.round(item.amount / 1000)}{" "}
-                                                điểm
-                                              </p>
-                                            )}
-                                          </Col>
-                                        ))}
-                                    </Row>
-                                  </Panel>
-                                )
-                              )}
+                                    key={index}
+                                  ></Panel>
+                                ))}
                             </>
                           )}
                           {isShowPaymentPartialPayment && OrderDetail !== null && (
@@ -550,7 +471,7 @@ const OrderDetail = () => {
                                   Lựa chọn 1 hoặc nhiều phương thức thanh toán
                                 </b>
                               }
-                              key="2"
+                              key="100"
                             >
                               {isShowPaymentPartialPayment &&
                                 OrderDetail !== null && (
@@ -936,7 +857,11 @@ const OrderDetail = () => {
                 </Row>
               </div>
             </Card>
-            <SubStatusOrder status={OrderDetail?.status} orderId={OrderId} fulfillments={OrderDetail?.fulfillments} />
+            <SubStatusOrder
+              status={OrderDetail?.status}
+              orderId={OrderId}
+              fulfillments={OrderDetail?.fulfillments}
+            />
             <Card
               className="margin-top-20"
               title={
@@ -1008,7 +933,8 @@ const OrderDetail = () => {
                 <Typography.Link style={{ display: "flex" }}>
                   <img
                     src={historyAction}
-                    style={{ width: 20, height: 20 }} alt=""
+                    style={{ width: 20, height: 20 }}
+                    alt=""
                   ></img>
                   <span
                     className="text-focus"
