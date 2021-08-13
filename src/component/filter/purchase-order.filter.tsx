@@ -488,7 +488,6 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     //   formAdvanceFilter.resetFields();
     // };
   }, [formAdvanceFilter, formBaseFilter, visible]);
-  console.log('huynvq::=========>', advanceFilters, params);
   return (
     <div className="purchase-order-form">
       <Form.Provider
