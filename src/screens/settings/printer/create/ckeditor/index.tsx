@@ -1,5 +1,6 @@
 import { CKEditor } from "ckeditor4-react";
 import React from "react";
+import { StyledComponent } from "./styles";
 
 type EditorType = {
   initialHtmlContent: string;
@@ -12,7 +13,7 @@ function Editor(props: EditorType) {
     onChange(evt.editor.getData());
   };
   return (
-    <div>
+    <StyledComponent>
       <CKEditor
         initData={initialHtmlContent}
         config={{
@@ -118,6 +119,7 @@ function Editor(props: EditorType) {
             { name: "colors", items: ["TextColor", "BGColor"] },
             { name: "tools", items: ["Maximize", "ShowBlocks"] },
             { name: "about", items: ["About"] },
+            { name: "openModalButton", items: ["OpenModalButton"] },
           ],
           // remove button to display sup and sub tags
           removeButtons: "Cut,Copy,Paste,Undo,Redo,Anchor",
@@ -126,11 +128,37 @@ function Editor(props: EditorType) {
             "assets/css/pastefromgdocs.css",
           ],
           bodyClass: "document-editor",
-          extraPlugins: "colordialog, tableresize, font, colorbutton, justify",
+          extraPlugins:
+            "colordialog, tableresize, font, colorbutton, justify, timestamp",
+        }}
+        /**
+         * https://stackoverflow.com/questions/65339020/how-to-add-custom-plugin-in-ckeditor4-react
+         */
+        onBeforeLoad={(CKEDITOR: any) => {
+          CKEDITOR.plugins.add("timestamp", {
+            init: function (editor: any) {
+              editor.addCommand("openModalDialog", {
+                exec: function (editor: any) {
+                  var now = new Date();
+                  editor.insertHtml(
+                    "The current date and time is: <em>" +
+                      now.toString() +
+                      "</em>"
+                  );
+                },
+              });
+              editor.ui.addButton("OpenModalButton", {
+                label: "Xem chi tiết",
+                command: "openModalDialog",
+                toolbar: "insert",
+                icon: "https://cdn4.iconfinder.com/data/icons/24x24-free-pixel-icons/24/Clock.png",
+              });
+            },
+          });
         }}
         onChange={handleChange}
       />
-    </div>
+    </StyledComponent>
   );
 }
 
