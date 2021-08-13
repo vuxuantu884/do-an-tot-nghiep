@@ -48,7 +48,7 @@ const CustomerEdit = (props: any) => {
   }, [dispatch]);
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
-  }, [params]);
+  }, [dispatch, params]);
   // const customerInit = React.useMemo(() => {
   //   if (customer) {
   //     return {
@@ -66,7 +66,7 @@ const CustomerEdit = (props: any) => {
           : null,
       });
     }
-  }, [customer]);
+  }, [customer, customerForm]);
   const reload = React.useCallback(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params.id]);
@@ -75,7 +75,7 @@ const CustomerEdit = (props: any) => {
       showSuccess("Cập nhật khách hàng thành công");
       history.goBack();
     }
-  }, []);
+  }, [history]);
   const handleSubmit = (values: any) => {
     console.log("Success:", values);
     const processValue = {

@@ -12,7 +12,6 @@ import {
 } from "antd";
 
 import {
-  EditOutlined,
   EnvironmentFilled,
   PhoneFilled,
   PhoneOutlined,

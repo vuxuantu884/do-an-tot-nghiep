@@ -1,12 +1,10 @@
-import { Button, Row, Col, Form, Input, Collapse, Tag, Space } from "antd";
+import { Button, Form, Input, Collapse, Tag, Space } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
 import {
   useCallback,
   useLayoutEffect,
   useState,
-  useMemo,
-  Fragment,
 } from "react";
 import moment from "moment";
 import BaseFilter from "./base.filter";
@@ -17,7 +15,6 @@ import CustomRangepicker from "component/filter/component/range-picker.custom";
 import CustomSelect from "component/custom/select.custom";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
-import { SwapRightOutlined } from "@ant-design/icons";
 import { POStatus, ProcumentStatus, PoPaymentStatus } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 
@@ -139,8 +136,8 @@ const FilterList = ({ filters }: any) => {
     <Space wrap={true} style={{ marginBottom: 20 }}>
       {filtersKeys.map((filterKey) => {
         let value = filters[filterKey];
-        if (!value) return;
-        if (!filterFieldsMapping[filterKey]) return;
+        if (!value) return null;
+        if (!filterFieldsMapping[filterKey]) return null;
         switch (filterKey) {
           case filterFields.import_date:
           case filterFields.activated_date:
@@ -172,7 +169,7 @@ const FilterList = ({ filters }: any) => {
 };
 
 function tagRender(props: any) {
-  const { label, value, closable, onClose } = props;
+  const { label, closable, onClose } = props;
   const onPreventMouseDown = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
@@ -453,6 +450,8 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
+          default: 
+          return null;
         }
       })}
     </Space>
@@ -469,7 +468,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     listRdAccount,
     listStore,
     onMenuClick,
-    onClearFilter,
+    // onClearFilter,
     onFilter,
   } = props;
   const [visible, setVisible] = useState(false);

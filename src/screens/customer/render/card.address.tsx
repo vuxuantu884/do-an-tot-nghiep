@@ -1,6 +1,6 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Card, Col, Row, Form, Button, FormInstance } from "antd";
-import { CustomerBillingAddress, CustomerBillingAddressClass, CustomerShippingAddressClass } from "model/request/customer.request";
+import { CustomerBillingAddressClass, CustomerShippingAddressClass } from "model/request/customer.request";
 import React from "react";
 
 interface CardAddressProps {

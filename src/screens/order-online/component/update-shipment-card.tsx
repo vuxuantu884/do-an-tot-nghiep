@@ -14,12 +14,10 @@ import {
   DatePicker,
   FormInstance,
   Select,
-  Steps,
 } from "antd";
 import React, {
   useState,
   useCallback,
-  useLayoutEffect,
   useEffect,
   createRef,
 } from "react";
@@ -91,10 +89,6 @@ import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import { StoreResponse } from "model/core/store.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import CancelSteps from "../component/cancel-steps";
-import OrderDetail from "./../order-detail";
-import steps from "antd/lib/steps";
-import { CaretRightOutlined } from "@ant-design/icons";
 const { Panel } = Collapse;
 const { Link } = Typography;
 //#endregion
@@ -132,7 +126,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
 
   // node dom
   const formRef = createRef<FormInstance>();
-  const copyRef = createRef<any>();
   // action
   const dispatch = useDispatch();
 
@@ -147,7 +140,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     null
   );
   const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
-  const [isArrowRotation, setIsArrowRotation] = useState<boolean>(false);
   const [deliveryServices, setDeliveryServices] =
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
@@ -166,7 +158,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     (state: RootReducerType) =>
       state.bootstrapReducer.data?.shipping_requirement
   );
-  console.log(props.OrderDetailAllFullfilment);
   //#endregion
   // show shipping
   const ShowShipping = () => {
@@ -213,19 +204,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     },
   ];
   // copy button
-  const copyOrderID = (e: any) => {
+  const copyOrderID = (e: any, data: string | null) => {
     e.stopPropagation();
     e.target.style.width = "26px";
     const decWidth = setTimeout(() => {
       e.target.style.width = "23px";
     }, 100);
     clearTimeout(decWidth);
-    let selection = window.getSelection();
-    let range = document.createRange();
-    range.selectNodeContents(copyRef?.current);
-    selection && selection.removeAllRanges();
-    selection && selection.addRange(range);
-    document.execCommand("Copy");
+    navigator.clipboard.writeText(data ? data : "").then(() => {});
   };
   //#region Product
   const ShipMethodOnChange = (value: number) => {
@@ -505,7 +491,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         .delivery_service_provider_type === "pick_at_store"
     ) {
       let money = props.OrderDetail.total;
-      props.OrderDetail?.payments?.map((p) => {
+      props.OrderDetail?.payments?.forEach((p) => {
         money = money - p.paid_amount;
       });
       return money;
@@ -871,10 +857,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     value.status = FulFillmentStatus.RETURNED;
     dispatch(UpdateFulFillmentStatusAction(value, onReturnSuccess));
   };
-  const goodsReturnCallback = useCallback(
-    (id: number | null) => (
-      setFullfilmentIdGoodReturn(id), setIsvibleGoodsReturn(true)
-    ),
+  const goodsReturnCallback = useCallback((id: number | null) => {
+      setFullfilmentIdGoodReturn(id)
+      setIsvibleGoodsReturn(true)
+  },
     [setFullfilmentIdGoodReturn, setIsvibleGoodsReturn]
   );
   // end
@@ -972,36 +958,36 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 ]}
                 onChange={(e) => console.log(e[0])}
                 expandIcon={({ isActive }) => (
-                  <img
-                    src={doubleArrow}
-                    style={{
-                      transform: `${
-                        !isActive ? "rotate(270deg)" : "rotate(0deg)"
-                      }`,
-                    }}
-                  />
+                  <div className="saleorder-header-arrow">
+                    <img
+                      alt=""
+                      src={doubleArrow}
+                      style={{
+                        transform: `${
+                          !isActive ? "rotate(270deg)" : "rotate(0deg)"
+                        }`,
+                      }}
+                    />
+                  </div>
                 )}
                 ghost
               >
                 <Panel
-                  className="orders-timeline-custom"
+                  className={
+                    fulfillment.status === FulFillmentStatus.CANCELLED ||
+                    fulfillment.status === FulFillmentStatus.RETURNING ||
+                    fulfillment.status === FulFillmentStatus.RETURNED
+                      ? "orders-timeline-custom order-shipment-dot-cancelled"
+                      : fulfillment.status === FulFillmentStatus.SHIPPED
+                      ? "orders-timeline-custom order-shipment-dot-active"
+                      : "orders-timeline-custom order-shipment-dot-default"
+                  }
                   showArrow={true}
                   header={
-                    <Row
-                      style={{ paddingLeft: 12 }}
-                      className={
-                        fulfillment.status === FulFillmentStatus.CANCELLED ||
-                        fulfillment.status === FulFillmentStatus.RETURNING ||
-                        fulfillment.status === FulFillmentStatus.RETURNED
-                          ? "order-shipment-dot order-shipment-dot-cancelled"
-                          : fulfillment.status === FulFillmentStatus.SHIPPED
-                          ? "order-shipment-dot order-shipment-dot-active"
-                          : "order-shipment-dot order-shipment-dot-default"
-                      }
+                    <div
                     >
-                      <Col>
+                      <div>
                         <span
-                          ref={copyRef}
                           className="text-field"
                           style={{
                             color: "#2A2A86",
@@ -1012,9 +998,16 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         >
                           {fulfillment.code}
                         </span>
-                        <div style={{ width: 30, padding: "0 4px", marginRight: 14 }}>
+                        <div
+                          style={{
+                            width: 35,
+                            padding: "0 4px",
+                            marginRight: 10,
+                            marginBottom: 2
+                          }}
+                        >
                           <img
-                            onClick={(e) => copyOrderID(e)}
+                            onClick={(e) => copyOrderID(e, fulfillment.code)}
                             src={copyFileBtn}
                             alt=""
                             style={{ width: 23 }}
@@ -1082,8 +1075,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               Hủy giao hàng - Đã nhận hàng
                             </Tag>
                           )}
-                      </Col>
-                      <Col>
+                      </div>
+                      <div>
                         <span style={{ color: "#000000d9", marginRight: 6 }}>
                           Ngày tạo:
                         </span>
@@ -1092,8 +1085,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             "DD/MM/YYYY"
                           )}
                         </span>
-                      </Col>
-                    </Row>
+                      </div>
+                    </div>
                   }
                   key="1"
                 >
@@ -1299,7 +1292,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                         props.OrderDetail?.fulfillments[0]
                                           .shipment?.tracking_code
                                       }`}
-                                      ref={copyRef}
                                       className="text-field"
                                       style={{
                                         color: "#2A2A86",
@@ -1313,7 +1305,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                       style={{ width: 30, padding: "0 4px" }}
                                     >
                                       <img
-                                        onClick={(e) => copyOrderID(e)}
+                                        onClick={(e) =>
+                                          copyOrderID(
+                                            e,
+                                            TrackingCode(props.OrderDetail)!
+                                          )
+                                        }
                                         src={copyFileBtn}
                                         alt=""
                                         style={{ width: 23 }}
@@ -1531,7 +1528,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             props.OrderDetail?.fulfillments &&
             props.OrderDetail?.fulfillments.length > 0 &&
             props.OrderDetail.fulfillments[0].shipment
-              ?.delivery_service_provider_type != "pick_at_store" && (
+              ?.delivery_service_provider_type !== "pick_at_store" && (
               <Button
                 type="primary"
                 style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1546,7 +1543,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             props.OrderDetail?.fulfillments &&
             props.OrderDetail?.fulfillments.length > 0 &&
             props.OrderDetail.fulfillments[0].shipment
-              ?.delivery_service_provider_type == "pick_at_store" && (
+              ?.delivery_service_provider_type === "pick_at_store" && (
               <Button
                 type="primary"
                 style={{ marginLeft: "10px" }}
@@ -1571,7 +1568,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             props.OrderDetail?.fulfillments &&
             props.OrderDetail?.fulfillments.length > 0 &&
             props.OrderDetail.fulfillments[0].shipment
-              ?.delivery_service_provider_type != "pick_at_store" && (
+              ?.delivery_service_provider_type !== "pick_at_store" && (
               <Button
                 type="primary"
                 style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -1596,7 +1593,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
             props.OrderDetail?.fulfillments &&
             props.OrderDetail?.fulfillments.length > 0 &&
             props.OrderDetail.fulfillments[0].shipment
-              ?.delivery_service_provider_type == "pick_at_store" && (
+              ?.delivery_service_provider_type === "pick_at_store" && (
               <Button
                 type="primary"
                 style={{ marginLeft: "10px", padding: "0 25px" }}
@@ -2007,7 +2004,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         name="shipper_code"
                         rules={[
                           {
-                            required: shipmentMethod == 2,
+                            required: shipmentMethod === 2,
                             message: "Vui lòng chọn đối tác giao hàng",
                           },
                         ]}

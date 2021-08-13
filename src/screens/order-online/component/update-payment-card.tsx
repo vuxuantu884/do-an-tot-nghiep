@@ -227,7 +227,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
   }, [dispatch]);
   useEffect(() => {
     props.setTotalPaid(totalAmountPaid);
-  }, []);
+  }, [props, totalAmountPaid]);
   return (
     <div>
       <SaveAndConfirmOrder
@@ -239,7 +239,6 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
         cancelText="Hủy"
         title="Bạn muốn xác nhận thanh toán cho đơn hàng này?"
         text={textValue}
-        order_id={props.order_id}
       />
       {props.showPartialPayment === false && (
         <Card
