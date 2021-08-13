@@ -119,7 +119,14 @@ function Editor(props: EditorType) {
             { name: "tools", items: ["Maximize", "ShowBlocks"] },
             { name: "about", items: ["About"] },
           ],
-          extraPlugins: "colordialog,tableresize",
+          // remove button to display sup and sub tags
+          removeButtons: "Cut,Copy,Paste,Undo,Redo,Anchor",
+          contentsCss: [
+            "http://cdn.ckeditor.com/4.16.2/full-all/contents.css",
+            "assets/css/pastefromgdocs.css",
+          ],
+          bodyClass: "document-editor",
+          extraPlugins: "colordialog, tableresize, font, colorbutton, justify",
         }}
         onChange={handleChange}
       />
