@@ -61,11 +61,12 @@ export const StyledComponent = styled.div`
         &__value {
           align-items: center;
           bottom: 0;
-          color: #fff;
+          color: #222222;
+          font-weight:500;
           display: flex;
           font-size: 12px;
           left: 0;
-          padding: 0 15px;
+          padding: 5px 15px 0px 15px;
           position: absolute;
           text-transform: uppercase;
           top: 0;

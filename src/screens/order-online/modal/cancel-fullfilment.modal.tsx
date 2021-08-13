@@ -27,8 +27,8 @@ const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
       okText={okText}
       cancelText={cancelText}
       title={[
-        <div key="cancel-modal">
-          <img src={icon} />
+        <div>
+          <img src={icon} alt="" />
           <div>
             <h4>{title}</h4>
             <span

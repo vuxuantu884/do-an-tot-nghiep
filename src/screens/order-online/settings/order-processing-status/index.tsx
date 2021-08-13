@@ -208,6 +208,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
     /**
      * when dispatch action, call function (handleData) to handle data
      */
+    setTableLoading(true);
     dispatch(
       actionFetchListOrderProcessingStatus(
         params,

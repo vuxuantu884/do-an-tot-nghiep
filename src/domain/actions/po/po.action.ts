@@ -52,3 +52,13 @@ export const PoSearchAction = (
     setData,
   });
 };
+
+export const PODeleteAction = (
+  id: number,
+  deleteCallback: (result: any | null) => void
+) => {
+  return BaseAction(POType.DELETE_PO_REQUEST, {
+    id,
+    deleteCallback,
+  });
+};

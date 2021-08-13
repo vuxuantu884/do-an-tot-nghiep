@@ -12,10 +12,11 @@ import { ProcumentStatus } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
+import { Moment } from "moment";
 
 type ProcumentConfirmProps = {
   visible: boolean;
-  now: Date;
+  now: Moment;
   stores: Array<StoreResponse>;
   onCancel: () => void;
   item: PurchaseProcument|null;
@@ -61,7 +62,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
       visible={visible}
       cancelText="Hủy"
       onOk={() => {
-        form.setFieldsValue({status: ProcumentStatus.CONFIRMED})
+        form.setFieldsValue({status: ProcumentStatus.NOT_RECEIVED})
         form.submit();
       }}
       confirmLoading={loading}
@@ -131,7 +132,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
               label="Ngày nhận dự kiến"
             >
               <CustomDatepicker
-                disableDate={(date) => date.valueOf() < now.getTime()}
+                disableDate={(date) => date < now}
                 style={{ width: "100%" }}
               />
             </Form.Item>

@@ -18,6 +18,16 @@ export const getDistrictApi = (countryId: number): Promise<BaseResponse<Array<Di
   return BaseAxios.get(url);
 }
 
+export const getCityByCountryApi = (countryId: number): Promise<BaseResponse<Array<DistrictResponse>>> => {
+  let url = `${ApiConfig.CONTENT}/countries/${countryId}/cities` 
+  return BaseAxios.get(url);
+}
+
+export const getDistrictByCityApi = (cityId: number): Promise<BaseResponse<Array<DistrictResponse>>> => {
+  let url = `${ApiConfig.CONTENT}/cities/${cityId}/districts` 
+  return BaseAxios.get(url);
+}
+
 export const getWardApi = (districtId: number): Promise<BaseResponse<Array<WardResponse>>> => {
   let url = `${ApiConfig.CONTENT}/districts/${districtId}/wards` 
   return BaseAxios.get(url);

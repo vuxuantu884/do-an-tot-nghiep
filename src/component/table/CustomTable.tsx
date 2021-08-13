@@ -97,6 +97,7 @@ const CustomTable = (props: ICustomTableProps) => {
                 type: "checkbox",
                 onSelect: onSelect,
                 onSelectAll: onSelectAll,
+                columnWidth: 60,
               }
             : undefined
         }
