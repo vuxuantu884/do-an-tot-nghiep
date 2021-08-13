@@ -2,7 +2,7 @@ import { Col, Form, Input, Row, Select } from "antd";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 type POInventoryDraftProps = {
@@ -14,7 +14,7 @@ type POInventoryDraftProps = {
 const POInventoryDraft: React.FC<POInventoryDraftProps> = (
   props: POInventoryDraftProps
 ) => {
-  const { stores, now, isEdit } = props;
+  const { stores, isEdit } = props;
   if (!isEdit) {
     return (
       <Row gutter={50}>
@@ -46,7 +46,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
             label="Ngày nhận dự kiến"
           >
             <CustomDatepicker
-              disableDate={(date) => date <= now}
+              disableDate={(date) => date <= moment().startOf('days')}
               style={{ width: "100%" }}
             />
           </Form.Item>

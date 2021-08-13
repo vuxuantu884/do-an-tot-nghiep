@@ -326,7 +326,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                       {({ getFieldValue }) => {
                         let total_paid = getFieldValue(POField.total_paid);
                         let total = getFieldValue(POField.total);
-                        return formatCurrency(total - total_paid);
+                        return formatCurrency(Math.round(total - total_paid));
                       }}
                     </Form.Item>
                   </strong>
