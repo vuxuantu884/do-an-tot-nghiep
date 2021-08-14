@@ -54,6 +54,7 @@ import {
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
+import Xclosebtn from "assets/icon/X_close.svg";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 //#endregion
 
@@ -692,13 +693,15 @@ export default function Order() {
                     }}
                     // name="tags"
                   >
-                    <Select
-                      className="ant-select-hashtag"
-                      dropdownClassName="ant-select-dropdown-hashtag"
-                      mode="tags"
-                      placeholder="Thêm tag"
-                      onChange={onChangeTag}
-                    ></Select>
+                   
+                    <div className="orders-screen-custom-tags">
+                    <div><span>123etert</span><img src={Xclosebtn}></img></div>
+                    <div><span>123etert</span><img src={Xclosebtn}></img></div>
+                    <div><span>123etert</span><img src={Xclosebtn}></img></div>
+                    <div><span>123etert</span><img src={Xclosebtn}></img></div>
+                    <div><span>123e354353453453453434353454345tert</span><img src={Xclosebtn}></img></div>
+                    <input type="text" placeholder="Thêm tags"></input>
+                    </div>
                   </Form.Item>
                 </div>
               </Card>
@@ -771,3 +774,15 @@ export default function Order() {
     </ContentContainer>
   );
 }
+
+
+
+
+
+// <Select
+// className="ant-select-hashtag"
+// dropdownClassName="ant-select-dropdown-hashtag"
+// mode="tags"
+// placeholder="Thêm tag"
+// onChange={onChangeTag}
+// ></Select>

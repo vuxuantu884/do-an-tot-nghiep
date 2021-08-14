@@ -1627,3 +1627,50 @@
     
   }
 }
+.orders-screen-custom-tags{
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  border: 1px solid #d9d9d9;
+  border-radius: 5px;
+  padding: 10px;
+  input{
+    border: none;
+    outline: none;
+    width: 100%;
+    color: #222222;
+    line-height: 1;
+    margin: 2px 0;
+    &::-webkit-input-placeholder{
+      font-size: 14px;
+      color: #b4b4b4;
+    }
+  }
+  div{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height:25px;
+    text-align:center;
+    background-color: #F5F5F5;
+    border-radius: 3px;
+    color: #737373;
+    margin: 2px;
+    flex: 1;
+    padding: 2px 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    img{
+      width: 14px;
+      cursor: pointer;
+      margin-left: 1px;
+    }
+    span{
+      width: 100%;
+      text-align: center;
+      flex:1;
+      word-wrap: break-word !important;
+      overflow-wrap: break-word;
+    }
+  }
+}
