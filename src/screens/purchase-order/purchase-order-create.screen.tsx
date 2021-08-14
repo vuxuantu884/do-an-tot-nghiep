@@ -56,7 +56,6 @@ const POCreateScreen: React.FC = () => {
     cost_lines: [],
     tax_lines: [],
     supplier_id: 0,
-    expect_store_id: "",
     expect_import_date: ConvertDateToUtc(moment()),
     order_date: ConvertDateToUtc(now),
     status: POStatus.DRAFT,
