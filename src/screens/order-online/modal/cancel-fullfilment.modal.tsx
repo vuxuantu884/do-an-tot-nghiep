@@ -28,7 +28,7 @@ const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
       cancelText={cancelText}
       title={[
         <div>
-          <img src={icon} />
+          <img src={icon} alt="" />
           <div>
             <h4>{title}</h4>
             <span
@@ -48,13 +48,14 @@ const CancelFullfilmentModal: React.FC<cancelFullfilmentModalProps> = (
           {cancelText}
         </Button>,
         <Button
+          key="cancel"
           type="primary"
           className="create-button-custom ant-btn-outline fixed-button"
           onClick={onOk}
         >
           {okText}
         </Button>,
-        <Button type="primary" onClick={props.onOkandMore}>
+        <Button key="cancel-and-goods-back" type="primary" onClick={props.onOkandMore}>
           Hủy giao và nhận lại hàng
         </Button>,
       ]}

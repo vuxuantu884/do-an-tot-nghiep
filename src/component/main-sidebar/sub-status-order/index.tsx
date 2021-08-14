@@ -3,17 +3,22 @@ import {
   getListSubStatusAction,
   setSubStatusAction,
 } from "domain/actions/order/order.action";
-import { OrderSubStatusResponse } from "model/response/order/order.response";
+import {
+  FulFillmentResponse,
+  OrderSubStatusResponse,
+} from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { OrderStatus } from "utils/Constants";
 
 type PropType = {
   status?: string | null;
   orderId: number;
+  fulfillments?: FulFillmentResponse[] | null;
 };
 
 function SubStatusOrder(props: PropType): React.ReactElement {
-  const { status, orderId } = props;
+  const { status, orderId, fulfillments } = props;
   const dispatch = useDispatch();
   const [listOrderSubStatus, setListOrderSubStatus] = useState<
     OrderSubStatusResponse[]
@@ -24,14 +29,40 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   };
 
   useEffect(() => {
+    const listFulfillmentMapSubStatus = {
+      packed: {
+        fulfillmentStatus: "packed",
+        subStatus: "packed",
+      },
+      finalized: {
+        fulfillmentStatus: "shipping",
+        subStatus: "shipping",
+      },
+    };
     if (status) {
+      let resultStatus = status;
+      if (status === OrderStatus.FINALIZED && fulfillments && fulfillments.length > 0) {
+        switch (fulfillments[0].status) {
+          case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
+            resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
+            break;
+          case listFulfillmentMapSubStatus.finalized.fulfillmentStatus:
+            resultStatus = listFulfillmentMapSubStatus.finalized.subStatus;
+            break;
+          default:
+            break;
+        }
+      }
       dispatch(
-        getListSubStatusAction(status, (data: OrderSubStatusResponse[]) => {
-          setListOrderSubStatus(data);
-        })
+        getListSubStatusAction(
+          resultStatus,
+          (data: OrderSubStatusResponse[]) => {
+            setListOrderSubStatus(data);
+          }
+        )
       );
     }
-  }, [dispatch, status]);
+  }, [dispatch, fulfillments, status]);
   return (
     <Card
       className="margin-top-20"

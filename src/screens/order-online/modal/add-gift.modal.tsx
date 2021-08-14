@@ -9,7 +9,6 @@ import {
   findPrice,
   findPriceInVariant,
   findTaxInVariant,
-  formatCurrency,
 } from "utils/AppUtils";
 import { AppConfig } from "config/AppConfig";
 import imgdefault from "assets/icon/img-default.svg";

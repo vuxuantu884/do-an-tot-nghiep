@@ -1,5 +1,6 @@
 import {
   DeliveryServiceResponse,
+  ErrorLogResponse,
   OrderResponse,
   OrderSubStatusResponse,
   ShippingGHTKResponse,
@@ -55,7 +56,7 @@ export const getTrackingLogFulfillmentAction = (
 
 export const getTrackingLogError = (
   fulfillment_code: string,
-  setData: (data: Array<TrackingLogFulfillmentResponse> | null) => void
+  setData: (data: Array<ErrorLogResponse> | null) => void
 ) => {
   return BaseAction(OrderType.GET_TRACKING_LOG_ERROR, {
     fulfillment_code,

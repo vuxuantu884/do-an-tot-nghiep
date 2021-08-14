@@ -3,6 +3,7 @@ import { CustomModalFormModel } from "model/modal/modal.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
 
 type FormValueType = {
@@ -18,23 +19,27 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
   props: CustomModalFormModel
 ) => {
   const { modalAction, formItem, form, visible } = props;
-  const isCreateForm = modalAction === "create";
+  const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
+  const DEFAULT_FORM_VALUE = {
+    company_id: 1,
+    company: "YODY",
+  };
   const initialFormValue: FormValueType =
     !isCreateForm && formItem
       ? {
-          company_id: 1,
-          company: "YODY",
+          company_id: DEFAULT_FORM_VALUE.company_id,
+          company: DEFAULT_FORM_VALUE.company,
           sub_status: formItem?.sub_status,
           status: formItem?.status,
           active: formItem?.active,
           note: formItem?.note,
         }
       : {
-          company_id: 1,
-          company: "YODY",
+          company_id: DEFAULT_FORM_VALUE.company_id,
+          company: DEFAULT_FORM_VALUE.company,
           sub_status: "",
           status: undefined,
-          active: false,
+          active: true,
           note: "",
         };
   const bootstrapReducer = useSelector(
@@ -72,9 +77,9 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng điền tên nguồn đơn hàng !",
+                  message: "Vui lòng điền tên nguồn đơn hàng!",
                 },
-                { max: 255, message: "Không được nhập quá 255 ký tự" },
+                { max: 255, message: "Không được nhập quá 255 ký tự!" },
               ]}
             >
               <Input
@@ -85,9 +90,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
             <Form.Item
               name="status"
               label="Trạng thái đơn hàng"
-              rules={[
-                { required: true, message: "Vui lòng chọn trạng thái !" },
-              ]}
+              rules={[{ required: true, message: "Vui lòng chọn trạng thái!" }]}
             >
               <Select
                 placeholder="Chọn trạng thái"
@@ -119,7 +122,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
             <Form.Item
               name="note"
               label="Ghi chú"
-              rules={[{ max: 500, message: "Không được nhập quá 500 ký tự" }]}
+              rules={[{ max: 500, message: "Không được nhập quá 500 ký tự!" }]}
             >
               <Input.TextArea rows={10} />
             </Form.Item>
