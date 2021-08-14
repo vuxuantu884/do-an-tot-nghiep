@@ -42,7 +42,7 @@ type PurchaseOrderParam = {
   id: string;
 };
 const PODetailScreen: React.FC = () => {
-  let now = moment().startOf('days');
+  let now = moment();
   let initPurchaseOrder = {
     line_items: [],
     policy_price_code: AppConfig.import_price,
@@ -59,7 +59,7 @@ const PODetailScreen: React.FC = () => {
     tax_lines: [],
     supplier_id: 0,
     expect_store_id: "",
-    expect_import_date: ConvertDateToUtc(now),
+    expect_import_date: ConvertDateToUtc(now.startOf('days')),
     order_date: ConvertDateToUtc(now),
     status: POStatus.DRAFT,
     receive_status: ProcumentStatus.DRAFT,
@@ -240,7 +240,7 @@ const PODetailScreen: React.FC = () => {
           name: `Đơn hàng ${id}`,
         },
       ]}
-      extra={<POStep status="" />}
+      extra={<POStep status={poData?.status} order_date={poData?.order_date}  />}
     >
       <Form
         name={PoFormName.Main}
@@ -325,7 +325,7 @@ const PODetailScreen: React.FC = () => {
               zIndex: 100,
             }}
           >
-            <POStep status="" />
+            <POStep status={poData?.status} />
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>

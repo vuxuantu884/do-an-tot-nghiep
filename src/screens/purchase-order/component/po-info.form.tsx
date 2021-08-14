@@ -202,8 +202,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             name={POField.merchandiser_code}
             label="Merchandiser"
           >
-            <Select showArrow showSearch placeholder="Chọn Merchandiser">
-              <Select.Option value="">Chọn Merchandiser</Select.Option>
+            <Select showArrow showSearch optionFilterProp="children" placeholder="Chọn Merchandiser">
               {winAccount.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
                   {[item.code, item.full_name].join(" - ")}
@@ -212,7 +211,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             </Select>
           </Form.Item>
           <Form.Item name={POField.qc_code} label="QC">
-            <Select showArrow showSearch placeholder="Chọn QC">
+            <Select showArrow showSearch optionFilterProp="children"  placeholder="Chọn QC">
               <Select.Option value="">Chọn QC</Select.Option>
               {rdAccount.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
