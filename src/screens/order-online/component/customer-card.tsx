@@ -19,7 +19,7 @@ import {
 import React, {
   createRef,
   useCallback,
-  useLayoutEffect,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -78,20 +78,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
-  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
-    null
-  );
-  const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
-  const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
-
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
 
   //#region Modal
   const ShowAddressModal = () => {
     setVisibleAddress(true);
-    setVisibleShippingAddress(false);
-    setVisibleBillingAddress(false);
   };
 
   const CancleConfirmAddress = useCallback(() => {
@@ -204,7 +196,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         if (resultSearch[index].billing_addresses) {
           resultSearch[index].billing_addresses.forEach((item, index2) => {
             if (item.default === true) {
-              setBillingAddress(item);
               props.BillingAddressChange(item);
             }
           });
@@ -220,13 +211,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     return listSource.filter((item) => item.code !== "pos");
   }, [listSource]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch, props]);
 
-  const handleVisibleShippingAddressChange = (value: boolean) => {
-    setVisibleShippingAddress(value);
-  };
 
   return (
     <Card
@@ -520,7 +508,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           </div>
                         }
                         trigger="click"
-                        onVisibleChange={handleVisibleShippingAddressChange}
                         className="change-shipping-address"
                       >
                         <Button type="link" className="btn-style">
@@ -663,7 +650,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             </div>
                           }
                           trigger="click"
-                          onVisibleChange={handleVisibleShippingAddressChange}
                           className="change-shipping-address"
                         >
                           <Button type="link" className="btn-style">
