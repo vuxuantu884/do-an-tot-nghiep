@@ -71,8 +71,6 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
         {({ getFieldValue }) => {
           let planned_quantity = getFieldValue(POField.planned_quantity);
           let receipt_quantity = getFieldValue(POField.receipt_quantity);
-          console.log('planned_quantity', planned_quantity);
-          console.log('receipt_quantity', receipt_quantity);
           return (
             <Row align="middle">
               <Col span={24} md={18}>

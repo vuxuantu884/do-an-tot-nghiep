@@ -2,12 +2,11 @@ import { Col, Form, Input, Row, Select } from "antd";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
-import moment, { Moment } from "moment";
+import moment from "moment";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 type POInventoryDraftProps = {
   stores: Array<StoreResponse>;
-  now: Moment;
   isEdit: boolean;
 };
 
@@ -29,8 +28,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
             ]}
             label="Kho nhập hàng"
           >
-            <Select showSearch optionFilterProp="children">
-              <Select.Option value="">Chọn kho nhập</Select.Option>
+            <Select placeholder="Chọn kho nhập" showSearch optionFilterProp="children">
               {stores.map((item) => (
                 <Select.Option key={item.id} value={item.id}>
                   {item.name}
