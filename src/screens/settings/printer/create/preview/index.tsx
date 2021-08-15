@@ -35,7 +35,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
         );
       }
     }
-    console.log("resultText", resultText);
+    // console.log("resultText", resultText);
     return resultText;
   };
   // const replaceSymbolByText = (text: string) => {
@@ -45,7 +45,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   //   return text;
   // };
   const renderHtml = (htmlContent: string) => {
-    console.log("htmlContent", htmlContent);
+    // console.log("htmlContent", htmlContent);
     let result = htmlContent;
     if (listKeyWords) {
       result = replaceSymbolByText(htmlContent, listKeyWords);

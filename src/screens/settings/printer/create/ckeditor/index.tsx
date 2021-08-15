@@ -3,12 +3,18 @@ import React, { useState } from "react";
 import EditorModal from "../editor/modal";
 import { StyledComponent } from "./styles";
 
+/**
+ * keyword is variable, outside component and not use useState: so that Ck editor can read
+ * function handleInsertKeyword sets value of keyword
+ * hide button class cke_button__inserthtml_label and trigger event click
+ */
+let keyword = "whatever";
 function Editor(props: any) {
   const { initialHtmlContent, onChange, listKeyWords } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [keyword, setKeyword] = useState("333");
 
   const handleChange = (evt: any) => {
+    // console.log("change");
     onChange(evt.editor.getData());
   };
   const showModal = () => {
@@ -20,22 +26,12 @@ function Editor(props: any) {
   };
 
   const handleInsertKeyword = (text: string) => {
-    console.log("text", text);
-    setKeyword(text);
+    // console.log("text", text);
+    keyword = text;
     let editor = document.getElementsByClassName(
       "cke_button__inserthtml_label"
     )[0] as HTMLElement;
-    console.log("keyword33", keyword);
-    // setTimeout(() => {
-    //   editor.click();
-    // }, 1000);
-    console.log("click");
     editor.click();
-  };
-  const handleFocus = () => {
-    setTimeout(() => {
-      console.log("keyword44", keyword);
-    }, 1000);
   };
 
   return (
@@ -43,7 +39,7 @@ function Editor(props: any) {
       <CKEditor
         name="editorName"
         initData={initialHtmlContent}
-        onChnage={handleFocus}
+        onChange={handleChange}
         config={{
           toolbar: [
             {
@@ -141,7 +137,7 @@ function Editor(props: any) {
                 "Iframe",
               ],
             },
-            "/",
+            // "/",
             { name: "styles", items: ["Styles", "Format", "Font", "FontSize"] },
             { name: "colors", items: ["TextColor", "BGColor"] },
             { name: "tools", items: ["Maximize", "ShowBlocks"] },
@@ -178,12 +174,11 @@ function Editor(props: any) {
               });
               editor.addCommand("insertHtml", {
                 exec: function (editor: any) {
-                  setKeyword("111");
+                  // console.log("keyword", keyword);
+                  editor.insertHtml(keyword);
                   setTimeout(() => {
-                    editor.insertHtml(keyword);
-                    console.log("keyword", keyword);
                     editor.focus();
-                  }, 1500);
+                  }, 500);
                 },
               });
               editor.ui.addButton("InsertHtml", {
@@ -195,7 +190,6 @@ function Editor(props: any) {
             },
           });
         }}
-        onChange={handleChange}
       />
       <EditorModal
         isModalVisible={isModalVisible}
