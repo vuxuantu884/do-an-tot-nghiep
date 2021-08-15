@@ -1,9 +1,12 @@
-import { PrintPreviewModel } from "model/other/Print/print-model";
+import {
+  listKeyWordsModel,
+  PrintPreviewModel,
+} from "model/editor/editor.model";
 import React from "react";
 import "react-quill/dist/quill.snow.css";
 
 const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
-  const { htmlContent } = props;
+  const { htmlContent, listKeyWords } = props;
   // const FAKE_WORDS = [
   //   {
   //     symbol: "{ten_cong_ty}",
@@ -14,22 +17,26 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   //     value: "Hải dương",
   //   },
   // ];
-  const FAKE_WORDS = {
-    ten_cong_ty: "YODY",
-    dia_chi_cong_ty: "Hải dương",
-  };
 
   /**
    * https://stackoverflow.com/questions/47794036/replace-with-multiple-value-in-string-typescript
    */
   const replaceSymbolByText = (
     text: string,
-    replacements: { [name: string]: string }
+    replacements: listKeyWordsModel
   ) => {
-    return text.replace(new RegExp("{([A-z]*)}", "g"), (m) => {
-      console.log("m", m);
-      return replacements[m.substring(1, m.length - 1)];
-    });
+    let resultText = text;
+    let replacementLength = replacements.length;
+    if (replacementLength > 0) {
+      for (let i = 0; i < replacementLength; i++) {
+        resultText = resultText.replaceAll(
+          replacements[i].key,
+          replacements[i].value
+        );
+      }
+    }
+    console.log("resultText", resultText);
+    return resultText;
   };
   // const replaceSymbolByText = (text: string) => {
   //   FAKE_WORDS.forEach((singleWord) => {
@@ -38,7 +45,11 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   //   return text;
   // };
   const renderHtml = (htmlContent: string) => {
-    const result = replaceSymbolByText(htmlContent, FAKE_WORDS);
+    console.log("htmlContent", htmlContent);
+    let result = htmlContent;
+    if (listKeyWords) {
+      result = replaceSymbolByText(htmlContent, listKeyWords);
+    }
     return result;
   };
   return (

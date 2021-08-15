@@ -3,21 +3,23 @@ import { Button, Card, Col, Form, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
+import { listKeyWordsModel } from "model/editor/editor.model";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import CkEditor from "./ckeditor";
-import Editor from "./editor";
 import Preview from "./preview";
 import { StyledComponent } from "./styles";
 
 const SettingCreatePrinter: React.FC = () => {
   const [form] = Form.useForm();
-  const [htmlContent, setHtmlContent] = useState("");
+  const initialHtmlContent = "{ten_cong_ty}{dia_chi_cong_ty}{dia_chi_cong_ty}";
+  const [htmlContent, setHtmlContent] = useState(initialHtmlContent);
+
   const handleOnChange = (value: string) => {
     console.log("value", value);
     setHtmlContent(value);
   };
-  const initialHtmlContent = "";
+
   const sprintConfigure = {
     danhSachMauIn: [
       {
@@ -44,6 +46,19 @@ const SettingCreatePrinter: React.FC = () => {
       },
     ],
   };
+
+  const FAKE_WORDS: listKeyWordsModel = [
+    {
+      title: "tên công ty",
+      key: "{ten_cong_ty}",
+      value: "YODY",
+    },
+    {
+      title: "địa chỉ công ty",
+      key: "{dia_chi_cong_ty}",
+      value: "Hải dương",
+    },
+  ];
 
   const initialFormValue = {};
 
@@ -165,6 +180,7 @@ const SettingCreatePrinter: React.FC = () => {
                   <CkEditor
                     onChange={handleOnChange}
                     initialHtmlContent={initialHtmlContent}
+                    listKeyWords={FAKE_WORDS}
                   />
                 </Form.Item>
               </Card>
@@ -172,7 +188,7 @@ const SettingCreatePrinter: React.FC = () => {
             <Col span={12}>
               <Card style={{ padding: "35px 15px" }}>
                 Preview
-                <Preview htmlContent={htmlContent} />
+                <Preview htmlContent={htmlContent} listKeyWords={FAKE_WORDS} />
               </Card>
             </Col>
           </Row>
