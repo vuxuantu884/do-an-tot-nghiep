@@ -13,7 +13,8 @@ import {
   Collapse,
   DatePicker,
   FormInstance,
-  Select,Badge
+  Select,
+  Badge,
 } from "antd";
 import React, { useState, useCallback, useEffect, createRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -1280,20 +1281,42 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             }
                             key="1"
                           >
-                            {props.OrderDetail?.items.map((item) => (
-                              <div className="orders-shipment-item-view" >
-                                <div className="orders-shipment-item-view-wrap" >
-                                <div className="orders-shipment-item-name">
-                                <div>
-                                  <Link style={{color: "#2A2A86"}}>{item.sku}</Link>
-                                </div>
-                                <Badge
-                                  status="default"
-                                  text={item.variant}
-                                  style={{ marginLeft: 7 }}
-                                />
-                                </div>
-                                <span style={{marginRight: 10}}>{item.quantity}</span>
+                            {props.OrderDetail?.items.map((item, index) => (
+                              <div
+                                className="orders-shipment-item-view"
+                                key={index}
+                              >
+                                <div className="orders-shipment-item-view-wrap">
+                                  <div className="orders-shipment-item-name">
+                                    <div>
+                                      <Link style={{ color: "#2A2A86" }}>
+                                        {item.sku}
+                                      </Link>
+                                    </div>
+                                    <Badge
+                                      status="default"
+                                      text={item.variant}
+                                      style={{ marginLeft: 7 }}
+                                    />
+                                  </div>
+                                  <div
+                                    style={{
+                                      width: "30%",
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                    }}
+                                  >
+                                    {item.type === "gift" ? (
+                                      <span>Quà tặng</span>
+                                    ) : (
+                                      <div></div>
+                                    )}
+                                    <span style={{ marginRight: 10 }}>
+                                      {item.quantity >= 10
+                                        ? item.quantity
+                                        : "0" + item.quantity}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
                             ))}

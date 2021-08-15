@@ -388,17 +388,14 @@ const OrderDetail = () => {
                         <b style={{ color: "red" }}>
                           {OrderDetail?.fulfillments &&
                           OrderDetail?.fulfillments.length > 0 &&
-                          OrderDetail?.fulfillments[0].status !== "shipped"
-                            ? formatCurrency(
+                          OrderDetail?.fulfillments[0].shipment?.cod
+                            ? 0
+                            : formatCurrency(
                                 customerNeedToPayValue -
                                   (OrderDetail?.total_paid
                                     ? OrderDetail?.total_paid
-                                    : 0) -
-                                  (OrderDetail?.fulfillments[0].shipment
-                                    ? OrderDetail?.fulfillments[0].shipment?.cod
                                     : 0)
-                              )
-                            : 0}
+                              )}
                         </b>
                       </Col>
                     </Row>
@@ -429,14 +426,19 @@ const OrderDetail = () => {
                                     className="orders-timeline-custom success-collapse"
                                     header={
                                       <div className="orders-payment-item">
-                                        <div className="orders-payment-type"
+                                        <div
+                                          className="orders-payment-type"
                                           style={{
                                             color: "#222222",
                                           }}
                                         >
                                           <b>{payment.payment_method}</b>
                                           <span>{payment.reference}</span>
-                                          {payment.payment_method_id === 5 && <span>{payment.amount/1000} điểm</span>}
+                                          {payment.payment_method_id === 5 && (
+                                            <span>
+                                              {payment.amount / 1000} điểm
+                                            </span>
+                                          )}
                                         </div>
                                         <div className="orders-payment-amount">
                                           <span>
@@ -553,7 +555,7 @@ const OrderDetail = () => {
                                       }}
                                     >
                                       {OrderDetail !== null &&
-                                      OrderDetail.fulfillments
+                                      OrderDetail?.fulfillments
                                         ? formatCurrency(
                                             OrderDetail.fulfillments[0].shipment
                                               ?.cod
@@ -696,7 +698,7 @@ const OrderDetail = () => {
                         }
                         showArrow={false}
                         header={
-                          <b style={{ color: "#222222" }}>
+                          <div style={{ color: "#222222", paddingTop: 4 }}>
                             COD
                             <Tag
                               className="orders-tag orders-tag-warning"
@@ -713,7 +715,7 @@ const OrderDetail = () => {
                                   )
                                 : 0}
                             </b>
-                          </b>
+                          </div>
                         }
                         key="1"
                       >
@@ -978,3 +980,8 @@ const OrderDetail = () => {
 };
 
 export default OrderDetail;
+
+// -
+//                                   (OrderDetail?.fulfillments.length > 0 && OrderDetail?.fulfillments[0].shipment
+//                                     ? OrderDetail?.fulfillments[0].shipment?.cod
+//                                     : 0)
