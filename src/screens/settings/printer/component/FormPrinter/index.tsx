@@ -1,10 +1,7 @@
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Input, Row, Select } from "antd";
+import { Button, Card, Col, Form, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
-import UrlConfig from "config/UrlConfig";
 import { FormPrinterModel, listKeyWordsModel } from "model/editor/editor.model";
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import ReactToPrint from "react-to-print";
 import Editor from "../ckeditor";
 import Preview from "../preview";
@@ -19,39 +16,14 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const { type, formValue } = props;
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
-  const initialHtmlContent =
-    isEdit && formValue
-      ? formValue.formIn
-      : "{ten_cong_ty}{dia_chi_cong_ty}{dia_chi_cong_ty}";
+  const initialHtmlContent = "{ten_cong_ty}{dia_chi_cong_ty}{dia_chi_cong_ty}";
+
   const [htmlContent, setHtmlContent] = useState(initialHtmlContent);
+  console.log("htmlContent", htmlContent);
   const componentRef = useRef(null);
 
   const handleOnChange = (value: string) => {
-    console.log("value", value);
     setHtmlContent(value);
-  };
-
-  const handlePrint = () => {
-    console.log("print");
-    var content = document.getElementById("divcontents");
-    const abc = document.getElementById(
-      "ifmcontentstoprint"
-    ) as HTMLIFrameElement;
-    var pri = null;
-    if (abc) {
-      pri = abc.contentWindow;
-    }
-    console.log("abc", abc);
-    console.log("content", content);
-    console.log("pri", pri);
-    if (content && pri) {
-      pri.document.open();
-
-      pri.document.write(content.innerHTML);
-      pri.document.close();
-      pri.focus();
-      pri.print();
-    }
   };
 
   const sprintConfigure = {
@@ -115,21 +87,11 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     console.log("formValue", formValue);
   };
 
-  const createPrinterHtml = () => {
-    return (
-      <Link to={`${UrlConfig.PRINTER}/create`}>
-        <Button
-          type="primary"
-          className="ant-btn-primary"
-          size="large"
-          onClick={() => {}}
-          icon={<PlusOutlined />}
-        >
-          Thêm mẫu in
-        </Button>
-      </Link>
-    );
-  };
+  useEffect(() => {
+    if (isEdit && formValue) {
+      setHtmlContent(formValue.formIn);
+    }
+  }, [formValue, isEdit]);
 
   return (
     <StyledComponent>
@@ -211,7 +173,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                     {/* <Input hidden /> */}
                     <Editor
                       onChange={handleOnChange}
-                      initialHtmlContent={initialHtmlContent}
+                      initialHtmlContent={initialFormValue.formIn}
                       listKeyWords={FAKE_WORDS}
                     />
                   </Form.Item>
@@ -220,8 +182,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             </Col>
             <Col span={12}>
               <Card style={{ padding: "35px 15px" }}>
-                Preview
-                <Button onClick={handlePrint}>In thử</Button>
+                Bản xem trước
                 <ReactToPrint
                   trigger={() => <button>Print this out!</button>}
                   content={() => componentRef.current}
@@ -232,11 +193,6 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                     listKeyWords={FAKE_WORDS}
                   />
                 </div>
-                {/* <iframe
-                         id="ifmcontentstoprint"
-                         title="dd"
-                         style={{ height: 0, width: 0, position: "absolute" }}
-                       ></iframe> */}
               </Card>
             </Col>
           </Row>
