@@ -26,3 +26,15 @@ export const PoProcumentUpdateAction = (
     updateCallback,
   });
 };
+
+export const PoProcumentFinishAction = (
+  poId: number,
+  status: string,
+  updateCallback: (result: PurchaseProcument | null) => void
+) => {
+  return BaseAction(POProcumentType.FINNISH_PO_PROCUMENT_REQUEST, {
+    poId,
+    status,
+    updateCallback,
+  });
+};
