@@ -1,4 +1,3 @@
-import { QuestionCircleOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
 import { TiWarningOutline } from "react-icons/ti";
 

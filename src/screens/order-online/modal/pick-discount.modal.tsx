@@ -9,7 +9,7 @@ import {
 } from 'antd';
 import React, { createRef, useState } from 'react';
 // import { useDispatch } from 'react-redux';
-import { formatCurrency, replaceFormat } from 'utils/AppUtils';
+import { formatCurrency } from 'utils/AppUtils';
 
 type PickDiscountModalProps = {
     visible: boolean;

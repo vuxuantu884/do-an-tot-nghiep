@@ -36,12 +36,13 @@ import { POField } from "model/purchase-order/po-field";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import POPaymentConditionsForm from "./component/po-payment-conditions.form";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
+import moment from "moment";
 
 type PurchaseOrderParam = {
   id: string;
 };
 const PODetailScreen: React.FC = () => {
-  let now = new Date();
+  let now = moment().startOf('days');
   let initPurchaseOrder = {
     line_items: [],
     policy_price_code: AppConfig.import_price,

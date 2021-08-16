@@ -11,14 +11,11 @@ import {
   Checkbox,
   Modal
 } from "antd";
-import { DistrictResponse } from "model/content/district.model";
 import { WardResponse } from "model/content/ward.model";
 import React from "react";
 import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import {
-  CityByCountryAction,
-  DistrictByCityAction,
   DistrictGetByCountryAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
@@ -76,21 +73,21 @@ const AddressForm = ({
       showSuccess('Thêm mới địa chỉ thành công')
       if(reload) {reload()}
     }
-  }, [])
+  }, [reload])
 
   const setResultUpdate = React.useCallback(result => {
     if (result) {
       showSuccess('Cập nhật địa chỉ thành công')
       if(reload) {reload()}
     }
-  }, [])
+  }, [reload])
 
   const setResultDelete = React.useCallback(result => {
     if (result) {
       showSuccess('Xóa địa chỉ thành công')
       if(reload) {reload()}
     }
-  }, [])
+  }, [reload])
 
   // function getCityIdValue(): number | null {
   //   if (form) {

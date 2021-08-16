@@ -1,6 +1,6 @@
 import { FormInstance } from "antd";
 
-export type modalActionType = "edit" | "create";
+export type modalActionType = "create" | "edit" | "delete";
 
 export interface CustomModalFormModel {
   visible: boolean;

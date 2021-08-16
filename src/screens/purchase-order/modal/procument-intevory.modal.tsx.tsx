@@ -12,10 +12,11 @@ import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
 import { POUtils } from "utils/POUtils";
+import { Moment } from "moment";
 
 type ProducmentInventoryModalProps = {
   visible: boolean;
-  now: Date;
+  now: Moment;
   stores: Array<StoreResponse>;
   onCancel: () => void;
   item: PurchaseProcument | null;

@@ -2,7 +2,6 @@ import {
   CheckCircleOutlined,
   EditOutlined,
   MinusCircleOutlined,
-  PlusOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -275,11 +274,11 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                               percent={percent}
                               showInfo={false}
                               strokeWidth={21}
-                              strokeColor="#5D5D8A"
+                              strokeColor="#B2B2E4"
                               trailColor="#ECEFFA"
                             />
                             <div className="checkOut__progress-bar__value">
-                              <span> Thanh toán : {percent}</span>
+                              <span> Thanh toán : {percent} %</span>
                             </div>
                           </div>
                         );

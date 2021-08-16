@@ -1,4 +1,4 @@
-import moment, {Moment} from "moment";
+import moment, { Moment } from "moment";
 
 export const DATE_FORMAT = {
   DDMMYYY: "DD/MM/YYYY",
@@ -22,6 +22,6 @@ export const getDateFromNow = (distance: number, unit: 'day' | 'month' | 'week')
   return moment().subtract(distance, unit);
 };
 
-export const ConvertDateToUtc = (date: Date | string | number) => {
+export const ConvertDateToUtc = (date: Date | string | number | Moment) => {
   return moment(date).utc().format();
 };

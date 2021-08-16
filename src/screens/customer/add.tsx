@@ -46,13 +46,13 @@ const CustomerAdd = (props: any) => {
   }, [dispatch]);
   React.useEffect(() => {
     customerForm.setFieldsValue(new CustomerModel());
-  }, []);
+  }, [customerForm]);
   const setResult = React.useCallback((result) => {
     if (result) {
       showSuccess("Thêm khách hàng thành công");
       history.goBack();
     }
-  }, []);
+  }, [history]);
   const handleSubmit = (values: any) => {
     console.log("Success:", values);
     let piece = {
