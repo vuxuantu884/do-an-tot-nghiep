@@ -10,6 +10,7 @@ import CkEditor from "./ckeditor";
 import Preview from "./preview";
 import ReactToPrint from "react-to-print";
 import { StyledComponent } from "./styles";
+import FormPrinter from "../component/FormPrinter";
 
 const SettingCreatePrinter: React.FC = () => {
   const [form] = Form.useForm();
@@ -126,113 +127,7 @@ const SettingCreatePrinter: React.FC = () => {
         ]}
         extra={createPrinterHtml()}
       >
-        printer
-        <Form
-          form={form}
-          name="control-hooks"
-          layout="vertical"
-          initialValues={initialFormValue}
-        >
-          <Card style={{ padding: "35px 15px", marginBottom: 20 }}>
-            <Row gutter={20}>
-              <Col span={6}>
-                <Form.Item name="name" label="Chọn mẫu in:">
-                  <Select
-                    placeholder="Chọn mẫu in"
-                    // onChange={this.onGenderChange}
-                    allowClear
-                  >
-                    {sprintConfigure.danhSachMauIn &&
-                      sprintConfigure.danhSachMauIn.map((single, index) => {
-                        return (
-                          <Select.Option value={single.tenMauIn} key={index}>
-                            {single.tenMauIn}
-                          </Select.Option>
-                        );
-                      })}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item name="chiNhanh" label="Chọn chi nhánh áp dụng:">
-                  <Select
-                    placeholder="Chọn Chọn chi nhánh áp dụng:"
-                    // onChange={this.onGenderChange}
-                    allowClear
-                  >
-                    {sprintConfigure.danhSachChiNhanh &&
-                      sprintConfigure.danhSachChiNhanh.map((single, index) => {
-                        return (
-                          <Select.Option value={single.tenChiNhanh} key={index}>
-                            {single.tenChiNhanh}
-                          </Select.Option>
-                        );
-                      })}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item name="khoIn" label="Chọn khổ in:">
-                  <Select
-                    placeholder="Chọn khổ in"
-                    // onChange={this.onGenderChange}
-                    allowClear
-                  >
-                    {sprintConfigure.danhSachkhoIn &&
-                      sprintConfigure.danhSachkhoIn.map((single, index) => {
-                        return (
-                          <Select.Option value={single.tenKhoIn} key={index}>
-                            {single.tenKhoIn}
-                          </Select.Option>
-                        );
-                      })}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item name="active" valuePropName="checked">
-                  <Checkbox>Đặt làm khổ in mặc định</Checkbox>
-                </Form.Item>
-              </Col>
-            </Row>
-          </Card>
-          <Row gutter={20}>
-            <Col span={12}>
-              <Card style={{ padding: "35px 15px" }}>
-                <Form.Item name="editor">
-                  {/* <Editor onChange={handleOnChange} /> */}
-                  {/* <CkEditor onChange={handleOnChange} /> */}
-                  <CkEditor
-                    onChange={handleOnChange}
-                    initialHtmlContent={initialHtmlContent}
-                    listKeyWords={FAKE_WORDS}
-                  />
-                </Form.Item>
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card style={{ padding: "35px 15px" }}>
-                Preview
-                <Button onClick={handlePrint}>In thử</Button>
-                <ReactToPrint
-                  trigger={() => <button>Print this out!</button>}
-                  content={() => componentRef.current}
-                />
-                <div className="printContent" ref={componentRef}>
-                  <Preview
-                    htmlContent={htmlContent}
-                    listKeyWords={FAKE_WORDS}
-                  />
-                </div>
-                {/* <iframe
-                  id="ifmcontentstoprint"
-                  title="dd"
-                  style={{ height: 0, width: 0, position: "absolute" }}
-                ></iframe> */}
-              </Card>
-            </Col>
-          </Row>
-        </Form>
+        <FormPrinter type="create" />
       </ContentContainer>
     </StyledComponent>
   );
