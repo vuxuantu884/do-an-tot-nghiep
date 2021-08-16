@@ -4,20 +4,45 @@ import Checkbox from "antd/lib/checkbox/Checkbox";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import { listKeyWordsModel } from "model/editor/editor.model";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import CkEditor from "./ckeditor";
 import Preview from "./preview";
+import ReactToPrint from "react-to-print";
 import { StyledComponent } from "./styles";
 
 const SettingCreatePrinter: React.FC = () => {
   const [form] = Form.useForm();
   const initialHtmlContent = "{ten_cong_ty}{dia_chi_cong_ty}{dia_chi_cong_ty}";
   const [htmlContent, setHtmlContent] = useState(initialHtmlContent);
+  const componentRef = useRef(null);
 
   const handleOnChange = (value: string) => {
     console.log("value", value);
     setHtmlContent(value);
+  };
+
+  const handlePrint = () => {
+    console.log("print");
+    var content = document.getElementById("divcontents");
+    const abc = document.getElementById(
+      "ifmcontentstoprint"
+    ) as HTMLIFrameElement;
+    var pri = null;
+    if (abc) {
+      pri = abc.contentWindow;
+    }
+    console.log("abc", abc);
+    console.log("content", content);
+    console.log("pri", pri);
+    if (content && pri) {
+      pri.document.open();
+
+      pri.document.write(content.innerHTML);
+      pri.document.close();
+      pri.focus();
+      pri.print();
+    }
   };
 
   const sprintConfigure = {
@@ -188,7 +213,22 @@ const SettingCreatePrinter: React.FC = () => {
             <Col span={12}>
               <Card style={{ padding: "35px 15px" }}>
                 Preview
-                <Preview htmlContent={htmlContent} listKeyWords={FAKE_WORDS} />
+                <Button onClick={handlePrint}>In thử</Button>
+                <ReactToPrint
+                  trigger={() => <button>Print this out!</button>}
+                  content={() => componentRef.current}
+                />
+                <div className="printContent" ref={componentRef}>
+                  <Preview
+                    htmlContent={htmlContent}
+                    listKeyWords={FAKE_WORDS}
+                  />
+                </div>
+                {/* <iframe
+                  id="ifmcontentstoprint"
+                  title="dd"
+                  style={{ height: 0, width: 0, position: "absolute" }}
+                ></iframe> */}
               </Card>
             </Col>
           </Row>

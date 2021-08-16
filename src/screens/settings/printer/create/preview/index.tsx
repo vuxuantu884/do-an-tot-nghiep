@@ -54,6 +54,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   };
   return (
     <div
+      id="divcontents"
       dangerouslySetInnerHTML={{
         __html: renderHtml(htmlContent),
       }}
