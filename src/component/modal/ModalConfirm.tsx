@@ -10,15 +10,17 @@ type ModalConfirmProps = {
   okText?: string;
   cancelText?: string;
   bgIcon?: string;
+  loading?: boolean,
 };
 
 const ModalConfirm: React.FC<ModalConfirmProps> = (
   props: ModalConfirmProps
 ) => {
-  const { visible, onOk, onCancel, title, subTitle, okText, cancelText } =
+  const { visible, onOk, onCancel, title, subTitle, okText, cancelText, loading } =
     props;
   return (
     <Modal
+      confirmLoading={loading}
       width="35%"
       className="modal-confirm"
       okText={okText ? okText : "Có"}

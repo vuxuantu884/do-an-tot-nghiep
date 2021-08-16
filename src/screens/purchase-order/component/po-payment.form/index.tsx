@@ -453,7 +453,6 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
               POField.payments
             );
             let financial_status = getFieldValue(POField.financial_status);
-            debugger;
             return (
               payments &&
               payments.length > 0 &&
