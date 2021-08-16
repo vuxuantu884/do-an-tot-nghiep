@@ -20,7 +20,7 @@ import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { SwapRightOutlined } from "@ant-design/icons";
 import { POStatus, ProcumentStatus, PoPaymentStatus } from "utils/Constants";
-import { DATE_FORMAT } from "utils/DateUtils";
+import { DATE_FORMAT, getDateFromNow } from "utils/DateUtils";
 
 const { Panel } = Collapse;
 const { Item } = Form;
@@ -58,7 +58,7 @@ const filterFields = {
   order_date: "order_date",
   activated_date: "activated_date",
   completed_date: "completed_date",
-  cancelled_date: "cancelled_date_range",
+  cancelled_date: "cancelled_date",
   status: "status",
   receive_status: "receive_status",
   financial_status: "financial_status",
@@ -69,7 +69,7 @@ const filterFields = {
   expected_import_date: "expected_import_date",
   expected_store: "expected_store",
   note: "note",
-  supllier_note: "supplier_note",
+  supplier_note: "supplier_note",
   tags: "tags",
   reference: "reference",
 };
@@ -81,7 +81,7 @@ const allStatus: any = {
 };
 
 const filterFieldsMapping: any = {
-  [filterFields.order_date]: "Ngày nhập kho",
+  [filterFields.order_date]: "Ngày tạo đơn",
   [filterFields.activated_date]: "Ngày duyệt đơn",
   [filterFields.completed_date]: "Ngày hoàn tất đơn",
   [filterFields.cancelled_date]: "Ngày hủy đơn",
@@ -89,13 +89,13 @@ const filterFieldsMapping: any = {
   [filterFields.receive_status]: "Nhập kho",
   [filterFields.financial_status]: "Thanh toán",
   [filterFields.merchandiser]: "Merchandiser",
-  [filterFields.qc]: "qc",
+  [filterFields.qc]: "QC",
   [filterFields.cost_included]: "Chi phí",
   [filterFields.tax_included]: "VAT",
-  [filterFields.expected_import_date]: "Ngày nhận hàng dự kiên",
-  [filterFields.expected_store]: "Kho nhận hàng dự kiên",
+  [filterFields.expected_import_date]: "Ngày nhận hàng dự kiến",
+  [filterFields.expected_store]: "Kho nhận hàng dự kiến",
   [filterFields.note]: "Ghi chú nội bộ",
-  [filterFields.supllier_note]: "Ghi chú nhà cung cấp",
+  [filterFields.supplier_note]: "Ghi chú nhà cung cấp",
   [filterFields.tags]: "Tag",
   [filterFields.reference]: "Mã tham chiếu",
 };
@@ -107,11 +107,69 @@ const FilterHeader = ({ title }: FilterHeaderProps) => {
   return <span>{title}</span>;
 };
 
+const checkFixedDate = (from: any, to: any) => {
+  let fixedDate = null;
+  let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY);
+  let formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
+  type CheckDateType = {
+    distance: number;
+    unit: 'day' | 'week' | 'month';
+    display: any
+  };
+
+  let checkDates: Array<CheckDateType> = [
+    {
+      distance: 0,
+      unit: 'day',
+      display: 'Hôm nay'
+    },
+    {
+      distance: 1,
+      unit: 'day',
+      display: 'Hôm qua'
+    },
+    {
+      distance: 0,
+      unit: 'week',
+      display: 'Tuần này'
+    },
+    {
+      distance: 1,
+      unit: 'week',
+      display: 'Tuần trước'
+    },
+    {
+      distance: 0,
+      unit: 'month',
+      display: 'Tháng này'
+    },
+    {
+      distance: 1,
+      unit: 'month',
+      display: 'Tháng trước'
+    },
+  ];
+  for (let i = 0; i < checkDates.length; i ++) {
+    const checkDate = checkDates[i],
+      {distance, unit, display} = checkDate;
+    let searchUnit: any = unit;
+    if (searchUnit === 'week') searchUnit = 'isoWeek';
+  
+    let dateFrom = getDateFromNow(distance, unit),
+     dateTo = getDateFromNow(distance, unit);
+    if (from === dateFrom.startOf(searchUnit).utc().format() &&
+      to === dateTo.endOf(searchUnit).utc().format()) {
+      if (unit === 'day') fixedDate = `${display} (${formatedFrom}`;
+      else fixedDate = `${display} (${formatedFrom} - ${formatedTo})`;
+      return fixedDate;
+    }
+  };
+};
 const FilterList = ({ filters, resetField }: any) => {
   let filtersKeys = Object.keys(filters);
+  let renderTxt = null;
   return (
     <Space wrap={true} style={{ marginBottom: 20 }}>
-
       {filtersKeys.map((filterKey) => {
         let value = filters[filterKey];
         if (!value) return;
@@ -123,16 +181,12 @@ const FilterList = ({ filters, resetField }: any) => {
           case filterFields.cancelled_date:
           case filterFields.expected_import_date:
             let [from, to] = value;
-            from = moment.utc(from).format(DATE_FORMAT.DDMMYYY);
-            to = moment.utc(to).format(DATE_FORMAT.DDMMYYY);
-            return (
-              <Tag
-                onClose={() => resetField(filterKey)}
-                key={filterKey}
-                className="fade"
-                closable
-              >{`${filterFieldsMapping[filterKey]} : ${from} - ${to}`}</Tag>
-            );
+            let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
+              formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
+            let fixedDate = checkFixedDate(from, to);
+            if (fixedDate) renderTxt = `${filterFieldsMapping[filterKey]} : ${fixedDate}`;
+            else renderTxt = `${filterFieldsMapping[filterKey]} : ${formatedFrom} - ${formatedTo}`;
+            break;
           case filterFields.status:
           case filterFields.receive_status:
           case filterFields.financial_status:
@@ -141,49 +195,31 @@ const FilterList = ({ filters, resetField }: any) => {
             let listStatusValue = value?.map((key: string) => {
               return listStatus[key];
             });
-            return (
-              <Tag
-                onClose={() => resetField(filterKey)}
-                key={filterKey}
-                className="fade"
-                closable
-              >{`${filterFieldsMapping[filterKey]} : ${listStatusValue}`}</Tag>
-            );
+            renderTxt=`${filterFieldsMapping[filterKey]} : ${listStatusValue}`;
+            break;
           case filterFields.cost_included:
             let costTxt = "Có chi phí";
             if (value === "false") costTxt = "Không chi phí"
-            return (
-              <Tag
-                onClose={() => resetField(filterKey)}
-                key={filterKey}
-                className="fade"
-                closable
-              >{`${filterFieldsMapping[filterKey]} : ${costTxt}`}</Tag>
-            );
+            renderTxt = `${filterFieldsMapping[filterKey]} : ${costTxt}`;
+            break;
           case filterFields.tax_included:
             let taxTxt = "Có VAT";
             if (value === "false") taxTxt = "Không VAT"
-            return (
-              <Tag
-                onClose={() => resetField(filterKey)}
-                key={filterKey}
-                className="fade"
-                closable
-              >{`${filterFieldsMapping[filterKey]} : ${taxTxt}`}</Tag>
-            );
+            renderTxt = `${filterFieldsMapping[filterKey]} : ${taxTxt}`;
+            break;
           default:
-            return (
-              <Tag
-                onClose={() => resetField(filterKey)}
-                key={filterKey}
-                className="fade"
-                closable
-              >{`${filterFieldsMapping[filterKey]} : ${value}`}</Tag>
-            );
+            renderTxt = `${filterFieldsMapping[filterKey]} : ${value}`;
         }
+        return (  
+            <Tag
+              onClose={() => resetField(filterKey)}
+              key={filterKey}
+              className="fade"
+              closable
+            >{`${renderTxt}`}</Tag>
+        );
       })}
-    </Space>
-  );
+  </Space>)
 };
 
 function tagRender(props: any) {
@@ -236,6 +272,7 @@ const AdvanceFormItems = ({
                 <Panel header={<FilterHeader title="MERCHANDISER" />} key="1">
                   <Item name={field}>
                     <CustomSelect
+                      showArrow
                       placeholder="Chọn 1 hoặc nhiều merchandiser"
                       mode="multiple"
                       allowClear
@@ -262,6 +299,7 @@ const AdvanceFormItems = ({
                 <Panel header={<FilterHeader title="QC" />} key="1">
                   <Item name={field}>
                     <CustomSelect
+                      showArrow
                       placeholder="Chọn 1 hoặc nhiều qc"
                       mode="multiple"
                       allowClear
@@ -288,6 +326,7 @@ const AdvanceFormItems = ({
                 <Panel header={<FilterHeader title="CHI PHÍ" />} key="1">
                   <Item name={field}>
                     <CustomSelect
+                      showArrow
                       placeholder="Chọn 1 trong 2 đk"
                       tagRender={tagRender}
                       style={{
@@ -312,6 +351,7 @@ const AdvanceFormItems = ({
                 <Panel header={<FilterHeader title="VAT" />} key="1">
                   <Item name={field}>
                     <CustomSelect
+                      showArrow
                       placeholder="Chọn 1 trong 2 đk"
                       tagRender={tagRender}
                       style={{
@@ -336,6 +376,7 @@ const AdvanceFormItems = ({
                 <Panel header="Kho nhận hàng dự kiến" key="1">
                   <Item name={field}>
                     <CustomSelect
+                      showArrow
                       placeholder="Kho nhận hàng dự kiến"
                       style={{
                         width: "100%",
@@ -366,7 +407,7 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
-          case filterFields.supllier_note:
+          case filterFields.supplier_note:
             return (
               <Collapse key={field}>
                 <Panel
@@ -549,6 +590,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             </Item>
             <Item name={filterFields.status}>
               <CustomSelect
+                showArrow
                 placeholder="Chọn 1 hoặc nhiều trạng thái"
                 mode="multiple"
                 allowClear
@@ -566,6 +608,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             </Item>
             <Item name={filterFields.receive_status}>
               <CustomSelect
+                showArrow
                 placeholder="Chọn 1 hoặc nhiều trạng thái"
                 mode="multiple"
                 allowClear
@@ -583,6 +626,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             </Item>
             <Item name={filterFields.financial_status}>
               <CustomSelect
+                showArrow
                 placeholder="Chọn 1 hoặc nhiều trạng thái"
                 mode="multiple"
                 allowClear

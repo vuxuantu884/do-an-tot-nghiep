@@ -1,7 +1,7 @@
 import { DatePicker, Row, Col, Button } from "antd";
 import moment, { Moment } from "moment";
 import { CSSProperties, Fragment, ReactNode, useCallback } from "react";
-import { DATE_FORMAT } from "utils/DateUtils";
+import { DATE_FORMAT, getDateFromNow } from "utils/DateUtils";
 import { SettingOutlined } from "@ant-design/icons";
 import _ from "lodash";
 
@@ -37,8 +37,13 @@ const StyledButton = ({ children, className, onClick }: BtnProps) => {
 };
 
 const getRange = (distance: number, unit: "day" | "month" | "week") => {
-  let from = moment().subtract(distance, unit).startOf(unit),
-    to = moment().subtract(distance, unit).endOf(unit);
+  let dateFrom = getDateFromNow(distance, unit),
+    dateTo = getDateFromNow(distance, unit);
+  
+  let searchUnit: any = unit;
+  if (searchUnit === 'week') searchUnit = 'isoWeek';
+  let from = dateFrom.startOf(searchUnit),
+    to = dateTo.endOf(searchUnit);
   return [from.utc().format(), to.utc().format()];
 };
 
