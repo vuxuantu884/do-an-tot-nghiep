@@ -512,8 +512,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   }, []);
   const onCancelFilter = useCallback(() => {
     formAdvanceFilter.resetFields();
+    setTempAdvanceFilters({...advanceFilters});
     setVisible(false);
-  }, [formAdvanceFilter]);
+  }, [formAdvanceFilter, advanceFilters]);
   const onResetFilter = useCallback(() => {
     // debugger;
     let fields = formAdvanceFilter.getFieldsValue(true);
@@ -669,7 +670,8 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             initialValues={advanceFilters}
             layout="vertical"
             onFieldsChange={(changedFields: any, allFields: any) => {
-              let fieldNames = changedFields[0].name;
+              let fieldNames = changedFields && changedFields.length > 0 && changedFields[0].name;
+              if (!fieldNames) return;
               let filtersSelected: any = {};
               fieldNames.forEach((fieldName: any) => {
                 filtersSelected[fieldName] = true;
