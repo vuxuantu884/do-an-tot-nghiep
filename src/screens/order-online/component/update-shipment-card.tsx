@@ -82,6 +82,7 @@ import CustomSelect from "component/custom/select.custom";
 import NumberInput from "component/custom/number-input.custom";
 import { setTimeout } from "timers";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
+import GetGoodsBack from "../modal/get-goods-back.modal";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import { StoreResponse } from "model/core/store.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
@@ -146,6 +147,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [hvc, setHvc] = useState<number | null>(null);
   const [serviceType, setServiceType] = useState<string>();
   const [feeGhtk, setFeeGhtk] = useState<number>(0);
+  const [cancelReason, setCancelReason] = useState<string>("");
 
   useEffect(() => {
     dispatch(DeliveryServicesGetList(setDeliveryServices));
@@ -314,7 +316,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
   }, [dispatch, props.OrderDetail]);
   //#endregion
-
+console.log(cancelReason)
   //#region Update Fulfillment Status
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
@@ -847,6 +849,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       order_id: null,
       fulfillment_id: null,
       status: "",
+      cancel_reason: cancelReason
     };
     value.order_id = props.OrderDetail?.id;
     value.fulfillment_id = fullfilmentIdGoodReturn;
@@ -2316,7 +2319,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       />
 
       {/* Nhận hàng trả lại */}
-      <SaveAndConfirmOrder
+      <GetGoodsBack
+        setCancelReason={setCancelReason}
         onCancel={() => setIsvibleGoodsReturn(false)}
         onOk={onOKGoodsReturn}
         visible={isvibleGoodsReturn}

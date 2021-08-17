@@ -170,7 +170,6 @@ const OrderDetail = () => {
     },
     []
   );
-  console.log(OrderDetail);
   //#endregion
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setLoadingData(false);
@@ -698,7 +697,7 @@ const OrderDetail = () => {
                         }
                         showArrow={false}
                         header={
-                          <div style={{ color: "#222222", paddingTop: 4 }}>
+                          <div style={{ color: "#222222", paddingTop: 4, fontWeight: 500 }}>
                             COD
                             <Tag
                               className="orders-tag orders-tag-warning"
