@@ -103,7 +103,7 @@ type FilterHeaderProps = {
   title?: string;
 };
 const FilterHeader = ({ title }: FilterHeaderProps) => {
-  return <span>{title}</span>;
+  return <span>{title?.toUpperCase()}</span>;
 };
 
 const checkFixedDate = (from: any, to: any) => {
@@ -624,7 +624,6 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
               fieldNames.forEach((fieldName: any) => {
                 filtersSelected[fieldName] = true;
               });
-              console.log('huynvq::===========>onChangeField');
               setTempAdvanceFilters({...filtersSelected, ...tempAdvanceFilters})
             }}
           >
