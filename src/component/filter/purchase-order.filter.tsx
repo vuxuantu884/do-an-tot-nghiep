@@ -265,7 +265,73 @@ const AdvanceFormItems = ({
             collapseChildren = (
               <CustomRangepicker />
             );
-            break;    
+            break;
+          case filterFields.status:
+            collapseChildren = (
+              <CustomSelect
+                showArrow
+                placeholder="Chọn 1 hoặc nhiều trạng thái"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
+                notFoundContent="Không tìm thấy kết quả"
+                style={{
+                  width: "100%",
+                }}
+                maxTagCount="responsive"
+              >
+                {Object.keys(listPOStatus)?.map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listPOStatus[key]}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
+            )
+            break;
+          case filterFields.receive_status:
+            collapseChildren = (
+              <CustomSelect
+                showArrow
+                placeholder="Chọn 1 hoặc nhiều trạng thái"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
+                notFoundContent="Không tìm thấy kết quả"
+                style={{
+                  width: "100%",
+                }}
+                maxTagCount="responsive"
+              >
+                {Object.keys(listProcumentStatus)?.map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listProcumentStatus[key]}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
+            );
+            break;
+          case filterFields.financial_status:
+            collapseChildren = (
+              <CustomSelect
+                showArrow
+                placeholder="Chọn 1 hoặc nhiều trạng thái"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
+                notFoundContent="Không tìm thấy kết quả"
+                style={{
+                  width: "100%",
+                }}
+                maxTagCount="responsive"
+              >
+                {Object.keys(listPaymentStatus).map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listPaymentStatus[key]}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
+            );
+            break;
           case filterFields.merchandiser:
             collapseChildren = (<CustomSelect
               showArrow
@@ -532,65 +598,48 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             onFinish={onBaseFinish}
             initialValues={advanceFilters}
             layout="inline"
-
           >
             <Item name="info">
               <Input
                 prefix={<img src={search} alt="" />}
                 style={{ width: 350 }}
-                placeholder="Tìm kiếm theo ID đơn mua, tên số điện thoại ncc"
+                placeholder="Tìm kiếm theo ID đơn mua, Tên, SĐT nhà cung cấp"
               />
+            </Item>
+            <Item name={filterFields.merchandiser}>
+              <CustomSelect
+                showArrow
+                placeholder="Merchandise"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
+                style={{
+                  width: 140
+                }}
+                notFoundContent="Không tìm thấy kết quả"
+                maxTagCount="responsive"
+              >
+                {listSupplierAccount?.map((item) => (
+                  <CustomSelect.Option key={item.id} value={item.full_name}>
+                    {`${item.code} - ${item.full_name}`}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
             </Item>
             <Item name={filterFields.status}>
               <CustomSelect
                 showArrow
-                placeholder="Chọn 1 hoặc nhiều trạng thái"
+                placeholder="Trạng thái đặt hàng"
                 mode="multiple"
                 allowClear
                 tagRender={tagRender}
                 notFoundContent="Không tìm thấy kết quả"
-                style={{ width: 150 }}
+                style={{ width: 200 }}
                 maxTagCount="responsive"
               >
                 {Object.keys(listPOStatus)?.map((key) => (
                   <CustomSelect.Option key={key} value={key}>
                     {listPOStatus[key]}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            </Item>
-            <Item name={filterFields.receive_status}>
-              <CustomSelect
-                showArrow
-                placeholder="Chọn 1 hoặc nhiều trạng thái"
-                mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                notFoundContent="Không tìm thấy kết quả"
-                style={{ width: 200 }}
-                maxTagCount="responsive"
-              >
-                {Object.keys(listProcumentStatus)?.map((key) => (
-                  <CustomSelect.Option key={key} value={key}>
-                    {listProcumentStatus[key]}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            </Item>
-            <Item name={filterFields.financial_status}>
-              <CustomSelect
-                showArrow
-                placeholder="Chọn 1 hoặc nhiều trạng thái"
-                mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                notFoundContent="Không tìm thấy kết quả"
-                style={{ width: 200 }}
-                maxTagCount="responsive"
-              >
-                {Object.keys(listPaymentStatus).map((key) => (
-                  <CustomSelect.Option key={key} value={key}>
-                    {listPaymentStatus[key]}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
