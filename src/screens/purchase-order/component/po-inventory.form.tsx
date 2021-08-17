@@ -174,9 +174,11 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       }
     >
       <div className="padding-20">
-        <POInventoryDraft isEdit={props.isEdit} stores={stores} now={now} />
+        <POInventoryDraft isEdit={props.isEdit} stores={stores} />
         {status && status !== POStatus.DRAFT && status !== POStatus.COMPLETED && (
           <POInventoryView
+            id={idNumber}
+            onSuccess={() => { onAddProcumentSuccess && onAddProcumentSuccess();}}
             confirmDraft={(value: PurchaseProcument) => {
               setProcumentDraft(value);
               setVisibleDraft(true);

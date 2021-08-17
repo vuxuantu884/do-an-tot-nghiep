@@ -5,6 +5,7 @@ import {
   useCallback,
   useLayoutEffect,
   useState,
+  useEffect,
 } from "react";
 import moment from "moment";
 import BaseFilter from "./base.filter";
@@ -32,95 +33,68 @@ type PurchaseOrderFilterProps = {
   onClearFilter?: () => void;
 };
 
-const listPOStatus = [
-  {
-    key: POStatus.DRAFT,
-    value: "Nháp",
-  },
-  {
-    key: POStatus.FINALIZED,
-    value: "Đã xác nhận",
-  },
-  {
-    key: POStatus.COMPLETED,
-    value: "Đã hoàn thành",
-  },
-  {
-    key: POStatus.FINISHED,
-    value: "Đã kết thúc",
-  },
-  {
-    key: POStatus.CANCELLED,
-    value: "Đã hủy",
-  },
-];
-const listProcumentStatus = [
-  {
-    key: ProcumentStatus.NOT_RECEIVED,
-    value: "Chưa nhận hàng",
-  },
-  {
-    key: ProcumentStatus.PARTIAL_RECEIVED,
-    value: "Nhận hàng 1 phần",
-  },
-  {
-    key: ProcumentStatus.RECEIVED,
-    value: "Đã nhận hàng",
-  },
-];
-const listPaymentStatus = [
-  {
-    key: PoPaymentStatus.UNPAID,
-    value: "Chưa thanh toán",
-  },
-  {
-    key: PoPaymentStatus.PARTIAL_PAID,
-    value: "Thanh toán 1 phần",
-  },
-  {
-    key: PoPaymentStatus.PAID,
-    value: "Đã thanh toán",
-  },
-];
+const listPOStatus = {
+  [POStatus.DRAFT]: "Đặt hàng",
+  [POStatus.FINALIZED]: "Đã xác nhận",
+  [POStatus.COMPLETED]: "Đã hoàn thành",
+  [POStatus.FINISHED]: "Đã kết thúc",
+  [POStatus.CANCELLED]: "Đã hủy",
+};
+const listProcumentStatus = {
+  [ProcumentStatus.NOT_RECEIVED]: "Chưa nhận hàng",
+  [ProcumentStatus.PARTIAL_RECEIVED]: "Nhận hàng 1 phần",
+  [ProcumentStatus.RECEIVED]: "Đã nhận hàng",
+};
+const listPaymentStatus = {
+  [PoPaymentStatus.UNPAID]: "Chưa thanh toán",
+  [PoPaymentStatus.PARTIAL_PAID]: "Thanh toán 1 phần",
+  [PoPaymentStatus.PAID]: "Đã thanh toán",
+};
 
 const filterFields = {
-  import_date: "import_date",
+  order_date: "order_date",
   activated_date: "activated_date",
   completed_date: "completed_date",
-  canceled_date: "canceled_date_range",
+  cancelled_date: "cancelled_date_range",
   status: "status",
-  import: "import",
-  payments: "payments",
-  merchandisers: "merchandisers",
+  receive_status: "receive_status",
+  financial_status: "financial_status",
+  merchandiser: "merchandiser",
   qc: "qc",
-  cost: "cost",
-  vat: "vat",
+  cost_included: "cost_included",
+  tax_included: "tax_included",
   expected_import_date: "expected_import_date",
-  expected_import_store: "expected_import_store",
+  expected_store: "expected_store",
   note: "note",
-  note_ncc: "note_ncc",
-  tag: "tag",
-  ref: "ref",
+  supllier_note: "supplier_note",
+  tags: "tags",
+  reference: "reference",
+};
+
+const allStatus: any = {
+  [filterFields.status]: listPOStatus,
+  [filterFields.receive_status]: listProcumentStatus,
+  [filterFields.financial_status]: listPaymentStatus
 };
 
 const filterFieldsMapping: any = {
-  [filterFields.import_date]: "Ngày nhập kho",
+  [filterFields.order_date]: "Ngày nhập kho",
   [filterFields.activated_date]: "Ngày duyệt đơn",
   [filterFields.completed_date]: "Ngày hoàn tất đơn",
-  [filterFields.canceled_date]: "Ngày hủy đơn",
+  [filterFields.cancelled_date]: "Ngày hủy đơn",
   [filterFields.status]: "Trạng thái đơn",
-  [filterFields.import]: "Nhập kho",
-  [filterFields.payments]: "Thanh toán",
-  [filterFields.merchandisers]: "Merchandisers",
+  [filterFields.receive_status]: "Nhập kho",
+  [filterFields.financial_status]: "Thanh toán",
+  [filterFields.merchandiser]: "Merchandiser",
   [filterFields.qc]: "qc",
-  [filterFields.cost]: "cost",
-  [filterFields.vat]: "vat",
+  [filterFields.cost_included]: "Chi phí",
+  [filterFields.tax_included]: "VAT",
   [filterFields.expected_import_date]: "Ngày nhận hàng dự kiên",
-  [filterFields.expected_import_store]: "Kho nhận hàng dự kiên",
+  [filterFields.expected_store]: "Kho nhận hàng dự kiên",
   [filterFields.note]: "Ghi chú nội bộ",
-  [filterFields.note_ncc]: "Ghi chú nhà cung cấp",
-  [filterFields.tag]: "Tag",
-  [filterFields.ref]: "Mã tham chiếu",
+  [filterFields.supllier_note]: "Ghi chú nhà cung cấp",
+  [filterFields.tags]: "Tag",
+  [filterFields.reference]: "Mã tham chiếu",
 };
 
 type FilterHeaderProps = {
@@ -130,33 +104,74 @@ const FilterHeader = ({ title }: FilterHeaderProps) => {
   return <span>{title}</span>;
 };
 
-const FilterList = ({ filters }: any) => {
+const FilterList = ({ filters, resetField }: any) => {
   let filtersKeys = Object.keys(filters);
   return (
     <Space wrap={true} style={{ marginBottom: 20 }}>
+
       {filtersKeys.map((filterKey) => {
         let value = filters[filterKey];
         if (!value) return null;
         if (!filterFieldsMapping[filterKey]) return null;
         switch (filterKey) {
-          case filterFields.import_date:
+          case filterFields.order_date:
           case filterFields.activated_date:
           case filterFields.completed_date:
-          case filterFields.canceled_date:
+          case filterFields.cancelled_date:
           case filterFields.expected_import_date:
             let [from, to] = value;
             from = moment.utc(from).format(DATE_FORMAT.DDMMYYY);
             to = moment.utc(to).format(DATE_FORMAT.DDMMYYY);
             return (
               <Tag
+                onClose={() => resetField(filterKey)}
                 key={filterKey}
                 className="fade"
                 closable
               >{`${filterFieldsMapping[filterKey]} : ${from} - ${to}`}</Tag>
             );
+          case filterFields.status:
+          case filterFields.receive_status:
+          case filterFields.financial_status:
+            let listStatus= allStatus[filterKey];
+            if (!(value instanceof Array)) value = [value];
+            let listStatusValue = value?.map((key: string) => {
+              return listStatus[key];
+            });
+            return (
+              <Tag
+                onClose={() => resetField(filterKey)}
+                key={filterKey}
+                className="fade"
+                closable
+              >{`${filterFieldsMapping[filterKey]} : ${listStatusValue}`}</Tag>
+            );
+          case filterFields.cost_included:
+            let costTxt = "Có chi phí";
+            if (value === "false") costTxt = "Không chi phí"
+            return (
+              <Tag
+                onClose={() => resetField(filterKey)}
+                key={filterKey}
+                className="fade"
+                closable
+              >{`${filterFieldsMapping[filterKey]} : ${costTxt}`}</Tag>
+            );
+          case filterFields.tax_included:
+            let taxTxt = "Có VAT";
+            if (value === "false") taxTxt = "Không VAT"
+            return (
+              <Tag
+                onClose={() => resetField(filterKey)}
+                key={filterKey}
+                className="fade"
+                closable
+              >{`${filterFieldsMapping[filterKey]} : ${taxTxt}`}</Tag>
+            );
           default:
             return (
               <Tag
+                onClose={() => resetField(filterKey)}
                 key={filterKey}
                 className="fade"
                 closable
@@ -195,13 +210,13 @@ const AdvanceFormItems = ({
     <Space direction="vertical" style={{ width: "100%" }}>
       {Object.keys(filterFields).map((field) => {
         switch (field) {
-          case filterFields.import_date:
+          case filterFields.order_date:
           case filterFields.activated_date:
           case filterFields.completed_date:
-          case filterFields.canceled_date:
+          case filterFields.cancelled_date:
           case filterFields.expected_import_date:
             return (
-              <Collapse>
+              <Collapse key={field}>
                 <Panel
                   header={<FilterHeader title={filterFieldsMapping[field]} />}
                   key="1"
@@ -212,86 +227,15 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
-          case filterFields.status:
+          case filterFields.merchandiser:
             return (
-              <Collapse>
-                <Panel header={<FilterHeader title="TRẠNG THÁI ĐƠN" />} key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      placeholder="Chọn 1 hoặc nhiều trạng thái"
-                      mode="multiple"
-                      tagRender={tagRender}
-                      style={{
-                        width: "100%",
-                      }}
-                      notFoundContent="Không tìm thấy kết quả"
-                    >
-                      {listPOStatus?.map((poStatus, index) => (
-                        <CustomSelect.Option key={index} value={poStatus.value}>
-                          {poStatus.value}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
-          case filterFields.import:
-            return (
-              <Collapse>
-                <Panel header={<FilterHeader title="NHẬP KHO" />} key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      placeholder="Chọn 1 hoặc nhiều trạng thái"
-                      mode="multiple"
-                      tagRender={tagRender}
-                      style={{
-                        width: "100%",
-                      }}
-                      notFoundContent="Không tìm thấy kết quả"
-                    >
-                      {listProcumentStatus?.map((poStatus, index) => (
-                        <CustomSelect.Option key={index} value={poStatus.value}>
-                          {poStatus.value}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
-          case filterFields.payments:
-            return (
-              <Collapse>
-                <Panel header={<FilterHeader title="THANH TOÁN" />} key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      placeholder="Chọn 1 hoặc nhiều trạng thái"
-                      mode="multiple"
-                      tagRender={tagRender}
-                      style={{
-                        width: "100%",
-                      }}
-                      notFoundContent="Không tìm thấy kết quả"
-                    >
-                      {listPaymentStatus?.map((poStatus, index) => (
-                        <CustomSelect.Option key={index} value={poStatus.value}>
-                          {poStatus.value}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
-          case filterFields.merchandisers:
-            return (
-              <Collapse>
+              <Collapse key={field}>
                 <Panel header={<FilterHeader title="MERCHANDISER" />} key="1">
                   <Item name={field}>
                     <CustomSelect
                       placeholder="Chọn 1 hoặc nhiều merchandiser"
                       mode="multiple"
+                      allowClear
                       tagRender={tagRender}
                       style={{
                         width: "100%",
@@ -300,8 +244,8 @@ const AdvanceFormItems = ({
                       maxTagCount="responsive"
                     >
                       {listSupplierAccount?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.id}>
-                          {item.full_name}
+                        <CustomSelect.Option key={item.id} value={item.full_name}>
+                          {`${item.code} - ${item.full_name}`}
                         </CustomSelect.Option>
                       ))}
                     </CustomSelect>
@@ -311,12 +255,13 @@ const AdvanceFormItems = ({
             );
           case filterFields.qc:
             return (
-              <Collapse>
+              <Collapse key={field}>
                 <Panel header={<FilterHeader title="QC" />} key="1">
                   <Item name={field}>
                     <CustomSelect
                       placeholder="Chọn 1 hoặc nhiều qc"
                       mode="multiple"
+                      allowClear
                       tagRender={tagRender}
                       style={{
                         width: "100%",
@@ -325,8 +270,8 @@ const AdvanceFormItems = ({
                       maxTagCount="responsive"
                     >
                       {listRdAccount?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.id}>
-                          {item.full_name}
+                        <CustomSelect.Option key={item.id} value={item.full_name}>
+                          {`${item.code} - ${item.full_name}`}
                         </CustomSelect.Option>
                       ))}
                     </CustomSelect>
@@ -334,9 +279,9 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
-          case filterFields.cost:
+          case filterFields.cost_included:
             return (
-              <Collapse>
+              <Collapse key={field}>
                 <Panel header={<FilterHeader title="CHI PHÍ" />} key="1">
                   <Item name={field}>
                     <CustomSelect
@@ -347,10 +292,10 @@ const AdvanceFormItems = ({
                       }}
                       notFoundContent="Không tìm thấy kết quả"
                     >
-                      <CustomSelect.Option key="1" value="0">
+                      <CustomSelect.Option key="1" value="true">
                         Có chi phí
                       </CustomSelect.Option>
-                      <CustomSelect.Option key="2" value="1">
+                      <CustomSelect.Option key="2" value="false">
                         Không chi phí
                       </CustomSelect.Option>
                     </CustomSelect>
@@ -358,9 +303,9 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
-          case filterFields.vat:
+          case filterFields.tax_included:
             return (
-              <Collapse>
+              <Collapse key={field}>
                 <Panel header={<FilterHeader title="VAT" />} key="1">
                   <Item name={field}>
                     <CustomSelect
@@ -371,10 +316,10 @@ const AdvanceFormItems = ({
                       }}
                       notFoundContent="Không tìm thấy kết quả"
                     >
-                      <CustomSelect.Option key="1" value="0">
+                      <CustomSelect.Option key="1" value="true">
                         Có VAT
                       </CustomSelect.Option>
-                      <CustomSelect.Option key="2" value="1">
+                      <CustomSelect.Option key="2" value="false">
                         Không VAT
                       </CustomSelect.Option>
                     </CustomSelect>
@@ -382,9 +327,9 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
-          case filterFields.expected_import_store:
+          case filterFields.expected_store:
             return (
-              <Collapse>
+              <Collapse key={field}>
                 <Panel header="Kho nhận hàng dự kiến" key="1">
                   <Item name={field}>
                     <CustomSelect
@@ -395,10 +340,11 @@ const AdvanceFormItems = ({
                       tagRender={tagRender}
                       notFoundContent="Không tìm thấy kết quả"
                       mode="multiple"
+                      allowClear
                       maxTagCount="responsive"
                     >
                       {listStore?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.id}>
+                        <CustomSelect.Option key={item.id} value={item.name}>
                           {item.name}
                         </CustomSelect.Option>
                       ))}
@@ -409,7 +355,7 @@ const AdvanceFormItems = ({
             );
           case filterFields.note:
             return (
-              <Collapse>
+              <Collapse key={field}>
                 <Panel header={<FilterHeader title="GHI CHÚ NỘI BỘ" />} key="1">
                   <Item name={field}>
                     <Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
@@ -417,9 +363,9 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
-          case filterFields.note_ncc:
+          case filterFields.supllier_note:
             return (
-              <Collapse>
+              <Collapse key={field}>
                 <Panel
                   header={<FilterHeader title="GHI CHÚ NHÀ CUNG CẤP" />}
                   key="1"
@@ -430,9 +376,9 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
-          case filterFields.tag:
+          case filterFields.tags:
             return (
-              <Collapse>
+              <Collapse key={field}>
                 <Panel header={<FilterHeader title="TAG" />} key="1">
                   <Item name={field}>
                     <Input placeholder="Tìm kiếm theo tag" />
@@ -440,9 +386,9 @@ const AdvanceFormItems = ({
                 </Panel>
               </Collapse>
             );
-          case filterFields.ref:
+          case filterFields.reference:
             return (
-              <Collapse>
+              <Collapse key={field}>
                 <Panel header={<FilterHeader title="MÃ THAM CHIẾU" />} key="1">
                   <Item name={field}>
                     <Input placeholder="Tìm kiếm theo mã tham chiếu" />
@@ -475,10 +421,15 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
-  const currentFilters = formBaseFilter.getFieldsValue(true);
+
+  const [advanceFilters, setAdvanceFilters] = useState({});
+
+  const resetField = useCallback((field: string) => {
+    setAdvanceFilters({...advanceFilters, [field]: undefined});
+  }, [advanceFilters]);
+
   const onBaseFinish = useCallback(
     (values: PurchaseOrderQuery) => {
-      
       let data = formBaseFilter.getFieldsValue(true);
       onFilter && onFilter(data);
     },
@@ -486,21 +437,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   );
   const onAdvanceFinish = useCallback(
     (values: PurchaseOrderQuery) => {
-      
       let data = formAdvanceFilter.getFieldsValue(true);
-      // let importDate = data[filterFields.import_date],
-      //   activatedDate = data[filterFields.activated_date]
-      // completedDate = data[filterFields.completed_date],
-      // canceledDate = data[filterFields.canceled_date],
-      // expectedImportDate = data[filterFields.expected_import_date];
-      data = {
-        ...data,
-        // import_from_date: importDate ? importDate[0] : null,
-        // import_to_date: importDate ? importDate[1] : null,
-        // activate_from_date: activatedDate ? activatedDate[0] : null,
-        // activate_to_date: activatedDate ? activatedDate[1] : null,
-      };
-      formAdvanceFilter.setFieldsValue(data);
       onFilter && onFilter(data);
     },
     [formAdvanceFilter, onFilter]
@@ -517,8 +454,12 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     setVisible(false);
   }, [formAdvanceFilter]);
   const onResetFilter = useCallback(() => {
-    debugger;
-    formAdvanceFilter.resetFields();
+    // debugger;
+    let fields = formAdvanceFilter.getFieldsValue(true);
+    for (let key in fields) {
+      fields[key] = null;
+    };
+    formAdvanceFilter.setFieldsValue(fields);
     setVisible(false);
     formAdvanceFilter.submit();
   }, [formAdvanceFilter]);
@@ -528,6 +469,14 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     },
     [onMenuClick]
   );
+
+  useEffect(() => {
+    formBaseFilter.setFieldsValue({...advanceFilters});
+    formAdvanceFilter.setFieldsValue({...advanceFilters});
+  },[advanceFilters]);
+  useEffect(() => {
+    setAdvanceFilters({...params});
+  }, [params]);
   useLayoutEffect(() => {
     // if (visible) {
     //   formBaseFilter.resetFields();
@@ -538,20 +487,46 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     //   formAdvanceFilter.resetFields();
     // };
   }, [formAdvanceFilter, formBaseFilter, visible]);
-
   return (
     <div className="purchase-order-form">
       <Form.Provider
-        onFormFinish={(name, { values, forms }) => {
-          
+        onFormFinish={(name, { values, forms }) => {        
           const { formBaseFilter, formAdvanceFilter } = forms;
-          let baseValues = formBaseFilter.getFieldsValue();
-          let advanceValues = formAdvanceFilter?.getFieldsValue();
-          formBaseFilter.setFieldsValue({ ...baseValues, ...advanceValues });
-
+          let baseValues = formBaseFilter.getFieldsValue(true);
+          let advanceValues = formAdvanceFilter?.getFieldsValue(true);
+          let data = {...baseValues, ...advanceValues};
+          let orderDate = data[filterFields.order_date],
+              activatedDate = data[filterFields.activated_date],
+            completedDate = data[filterFields.completed_date],
+            cancelledDate = data[filterFields.cancelled_date],
+            expectedImportDate = data[filterFields.expected_import_date];
+          const [from_order_date, to_order_date] = orderDate ? orderDate : [],
+            [from_activated_date, to_activated_date] = activatedDate ? activatedDate : [],
+            [from_completed_date, to_completed_date] = completedDate ? completedDate : [],
+            [from_cancelled_date, to_cancelled_date] = cancelledDate ? cancelledDate : [],
+            [from_expect_import_date, to_expect_import_date] = expectedImportDate ? expectedImportDate : [];
+          
+          for (let key in data) {
+            if (data[key] instanceof Array) {
+              if (data[key].length === 0) data[key] = undefined;
+            };
+          };
+          data = {
+            ...data,
+            from_order_date,
+            to_order_date,
+            from_activated_date,
+            to_activated_date,
+            from_completed_date,
+            to_completed_date,
+            from_cancelled_date, 
+            to_cancelled_date,
+            from_expect_import_date,
+            to_expect_import_date
+          };
+          formBaseFilter.setFieldsValue({ ...data });
           formAdvanceFilter?.setFieldsValue({
-            ...baseValues,
-            ...advanceValues,
+            ...data,
           });
         }}
       >
@@ -560,56 +535,64 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             form={formBaseFilter}
             name="formBaseFilter"
             onFinish={onBaseFinish}
-            initialValues={params}
+            initialValues={advanceFilters}
             layout="inline"
+
           >
-            <Item name="code">
+            <Item name="info">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{ width: 376 }}
+                style={{ width: 350 }}
                 placeholder="Tìm kiếm theo ID đơn mua, tên số điện thoại ncc"
               />
             </Item>
-            <Item name="status">
+            <Item name={filterFields.status}>
               <CustomSelect
-                placeholder="Trạng thái đơn hàng"
+                placeholder="Chọn 1 hoặc nhiều trạng thái"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
                 notFoundContent="Không tìm thấy kết quả"
-                style={{ width: 178 }}
+                style={{ width: 150 }}
+                maxTagCount="responsive"
               >
-                <CustomSelect.Option value="">
-                  Trạng thái đơn hàng
-                </CustomSelect.Option>
-                {listPOStatus?.map((poStatus, index) => (
-                  <CustomSelect.Option key={index} value={poStatus.value}>
-                    {poStatus.value}
+                {Object.keys(listPOStatus)?.map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listPOStatus[key]}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
             </Item>
-            <Item name="receive_status">
+            <Item name={filterFields.receive_status}>
               <CustomSelect
-                placeholder="Nhập kho"
+                placeholder="Chọn 1 hoặc nhiều trạng thái"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
                 notFoundContent="Không tìm thấy kết quả"
-                style={{ width: 178 }}
+                style={{ width: 200 }}
+                maxTagCount="responsive"
               >
-                <CustomSelect.Option value="">Nhập kho</CustomSelect.Option>
-                {listProcumentStatus?.map((poStatus, index) => (
-                  <CustomSelect.Option key={index} value={poStatus.value}>
-                    {poStatus.value}
+                {Object.keys(listProcumentStatus)?.map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listProcumentStatus[key]}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
             </Item>
-            <Item name="financial_status">
+            <Item name={filterFields.financial_status}>
               <CustomSelect
-                placeholder="Thanh toán"
+                placeholder="Chọn 1 hoặc nhiều trạng thái"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
                 notFoundContent="Không tìm thấy kết quả"
-                style={{ width: 178 }}
+                style={{ width: 200 }}
+                maxTagCount="responsive"
               >
-                <CustomSelect.Option value="">Thanh toán</CustomSelect.Option>
-                {listPaymentStatus?.map((poStatus, index) => (
-                  <CustomSelect.Option key={index} value={poStatus.value}>
-                    {poStatus.value}
+                {Object.keys(listPaymentStatus).map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listPaymentStatus[key]}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
@@ -624,7 +607,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             </Item>
           </Form>
         </CustomFilter>
-        <FilterList filters={currentFilters} />
+        <FilterList filters={advanceFilters} resetField={resetField}/>
         <BaseFilter
           onClearFilter={onResetFilter}
           onFilter={onFilterClick}
@@ -635,7 +618,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             form={formAdvanceFilter}
             name="formAdvanceFilter"
             onFinish={onAdvanceFinish}
-            initialValues={params}
+            initialValues={advanceFilters}
             layout="vertical"
           >
             <AdvanceFormItems
