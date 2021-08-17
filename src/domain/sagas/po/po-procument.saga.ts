@@ -1,4 +1,4 @@
-import { updatePurchaseProcumentService } from 'service/purchase-order/purchase-procument.service';
+import { updatePurchaseProcumentService, updateStatusPO } from 'service/purchase-order/purchase-procument.service';
 import { createPurchaseProcumentService } from 'service/purchase-order/purchase-procument.service';
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
@@ -66,7 +66,37 @@ function* poProcumentUpdateSaga(action: YodyAction) {
   }
 }
 
+function* poProcumentFinishSaga(action: YodyAction) {
+  const { poId, status, updateCallback } = action.payload;
+  try {
+    let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
+      updateStatusPO,
+      poId,
+      status,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response.data);
+        updateCallback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        updateCallback(null);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        updateCallback(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    updateCallback(null);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+
 export function* poProcumentSaga() {
   yield takeLatest(POProcumentType.CREATE_PO_PROCUMENT_REQUEST, poProcumentCreateSaga);
   yield takeLatest(POProcumentType.UPDATE_PO_PROCUMENT_REQUEST, poProcumentUpdateSaga);
+  yield takeLatest(POProcumentType.FINNISH_PO_PROCUMENT_REQUEST , poProcumentFinishSaga)
 }

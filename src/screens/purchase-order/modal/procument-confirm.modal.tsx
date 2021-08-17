@@ -12,7 +12,7 @@ import { ProcumentStatus } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 
 type ProcumentConfirmProps = {
   visible: boolean;
@@ -132,7 +132,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
               label="Ngày nhận dự kiến"
             >
               <CustomDatepicker
-                disableDate={(date) => date < now}
+                disableDate={(date) => date < moment().startOf('days')}
                 style={{ width: "100%" }}
               />
             </Form.Item>
@@ -305,6 +305,30 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                     ),
                   },
                 ]}
+                summary={(data) => {
+                  return (
+                    <Table.Summary>
+                      <Table.Summary.Row>
+                        <Table.Summary.Cell
+                          align="center"
+                          colSpan={3}
+                          index={0}
+                        >
+                          <div style={{ fontWeight: 700 }}>Tổng</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={1}>
+                          <div style={{ fontWeight: 700 }}></div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={2}>
+                          <div style={{ fontWeight: 700 }}></div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={3}>
+                          <div style={{ fontWeight: 700 }}></div>
+                        </Table.Summary.Cell>
+                      </Table.Summary.Row>
+                    </Table.Summary>
+                  );
+                }}
               />
             );
           }}

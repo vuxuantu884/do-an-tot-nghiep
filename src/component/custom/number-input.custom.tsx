@@ -1,5 +1,5 @@
 import { Input } from "antd";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { CSSProperties, useCallback } from "react";
 import { RegUtil } from "utils/RegUtils";
 
@@ -41,22 +41,27 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     prefix,
     id,
   } = props;
+  const [data, setData] = useState<string>('');
   const onChangeText = useCallback(
     (e) => {
       let newValue: string = e.target.value;
-      console.log(newValue);
       let value = format ? (replace ? replace(newValue) : newValue) : newValue;
       if (value === "") {
+        setData(value);
         onChange && onChange(null);
         return;
       }
       if (isFloat) {
         if (RegUtil.FLOATREG.test(value)) {
-          onChange && onChange(parseFloat(value));
+          setData(value);
+          if(value[value.length - 1] !== '.') {
+            onChange && onChange(parseFloat(value));
+          }
           return;
         }
       }
       if (RegUtil.NUMBERREG.test(value)) {
+        setData(value);
         onChange && onChange(parseInt(value));
         return;
       }
@@ -89,12 +94,15 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     },
     [onBlur, onChange, props, value]
   );
+  useEffect(() => {
+    setData(value ? value.toString() : '');
+  }, [value]);
   return (
     <Input
       id={id}
       className={className}
       placeholder={placeholder}
-      value={value && format ? format(value.toString()) : value}
+      value={format ? format(data) : data}
       style={{textAlign: 'right', ...style}}
       onBlur={onBlurEvent}
       onChange={onChangeText}

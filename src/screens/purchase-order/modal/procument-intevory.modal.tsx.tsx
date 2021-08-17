@@ -28,8 +28,7 @@ type ProducmentInventoryModalProps = {
 const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
   props: ProducmentInventoryModalProps
 ) => {
-  const { visible, now, onCancel, item, defaultStore, onOk, loading } =
-    props;
+  const { visible, now, onCancel, item, defaultStore, onOk, loading } = props;
   const [code, setCode] = useState<string | undefined>("");
   const [form] = Form.useForm();
   const onFinish = useCallback(
@@ -136,11 +135,16 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                 current[POProcumentField.expect_receipt_date]
               }
             >
-               {({ getFieldValue }) => {
-                let expect_receipt_date = getFieldValue(POProcumentField.expect_receipt_date);
+              {({ getFieldValue }) => {
+                let expect_receipt_date = getFieldValue(
+                  POProcumentField.expect_receipt_date
+                );
                 return (
                   <div>
-                    Ngày dự kiến <strong>{ConvertUtcToLocalDate(expect_receipt_date)}</strong>
+                    Ngày dự kiến{" "}
+                    <strong>
+                      {ConvertUtcToLocalDate(expect_receipt_date)}
+                    </strong>
                   </div>
                 );
               }}
@@ -250,7 +254,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                           display: "flex",
                         }}
                       >
-                        SL Nhận được duyệt
+                        SL nhận được duyệt
                       </div>
                     ),
                     width: 130,
@@ -290,6 +294,40 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                     ),
                   },
                 ]}
+                summary={(data) => {
+                  let ordered_quantity = 0;
+                  let quantity = 0;
+                  let real_quantity = 0;
+                  data.forEach((item) => {
+                    ordered_quantity = ordered_quantity + item.ordered_quantity;
+                    quantity = quantity + item.quantity;
+                    real_quantity = real_quantity + item.real_quantity;
+                  })
+                  return (
+                    <Table.Summary>
+                      <Table.Summary.Row>
+                        <Table.Summary.Cell
+                          align="left"
+                          colSpan={3}
+                          index={0}
+                        >
+                          <div style={{ fontWeight: 700 }}>Tổng</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={1}>
+                          <div style={{ fontWeight: 700 }}>
+                            {ordered_quantity}
+                          </div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={2}>
+                          <div style={{ fontWeight: 700 }}>{quantity}</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={3}>
+                          <div style={{ fontWeight: 700, marginRight: 15 }}>{real_quantity}</div>
+                        </Table.Summary.Cell>
+                      </Table.Summary.Row>
+                    </Table.Summary>
+                  );
+                }}
               />
             );
           }}
