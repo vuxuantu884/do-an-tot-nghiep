@@ -13,9 +13,9 @@ function SinglePrinter() {
   };
   const [singlePrinterContent, setSinglePrinterContent] =
     useState<FormPrinterModel>({
-      tenMauIn: "Đơn bán hàng 1",
-      chiNhanhApDung: "YODY Kho tổng 1",
-      khoIn: "Khổ in K80 (80x45 mm) 1",
+      tenMauIn: "",
+      chiNhanhApDung: "",
+      khoIn: "",
       apDung: false,
       formIn: "",
     });

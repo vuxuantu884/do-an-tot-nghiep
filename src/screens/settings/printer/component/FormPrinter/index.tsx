@@ -16,10 +16,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const { type, formValue } = props;
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
-  const initialHtmlContent = "{ten_cong_ty}{dia_chi_cong_ty}{dia_chi_cong_ty}";
-
-  const [htmlContent, setHtmlContent] = useState(initialHtmlContent);
-  console.log("htmlContent", htmlContent);
+  const [htmlContent, setHtmlContent] = useState("");
+  const [selectedPrintSize, setSelectedPrintSize] = useState("");
   const componentRef = useRef(null);
 
   const handleOnChangeEditor = (value: string) => {
@@ -83,9 +81,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           formIn: "",
         };
 
-  const onChange = (value: string) => {
-    console.log("value", value);
-    initialFormValue.formIn = "pdfdfd";
+  const onChangeKhoIn = (value: string) => {
+    setSelectedPrintSize(value);
     setHtmlContent(value);
   };
 
@@ -97,6 +94,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   useEffect(() => {
     if (isEdit && formValue) {
       setHtmlContent(formValue.formIn);
+      setSelectedPrintSize(formValue.formIn);
     }
   }, [formValue, isEdit]);
 
@@ -149,7 +147,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                 <Form.Item name="khoIn" label="Chọn khổ in:">
                   <Select
                     placeholder="Chọn khổ in"
-                    onChange={onChange}
+                    onChange={onChangeKhoIn}
                     allowClear
                   >
                     {sprintConfigure.danhSachkhoIn &&
@@ -182,6 +180,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                       onChange={handleOnChangeEditor}
                       initialHtmlContent={htmlContent}
                       listKeyWords={FAKE_WORDS}
+                      selectedPrintSize={selectedPrintSize}
                     />
                   </Form.Item>
                 </React.Fragment>

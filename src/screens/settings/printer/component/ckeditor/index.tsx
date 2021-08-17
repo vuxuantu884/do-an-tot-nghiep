@@ -10,13 +10,15 @@ import { StyledComponent } from "./styles";
  */
 let keyword = "whatever";
 function Editor(props: any) {
-  const { initialHtmlContent, onChange, listKeyWords } = props;
+  const { initialHtmlContent, onChange, listKeyWords, selectedPrintSize } =
+    props;
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleChange = (evt: any) => {
     // console.log("change");
     onChange(evt.editor.getData());
   };
+
   const showModal = () => {
     setIsModalVisible(true);
   };
@@ -24,6 +26,7 @@ function Editor(props: any) {
   const handleCancelModal = () => {
     setIsModalVisible(false);
   };
+  console.log("sg");
 
   const handleInsertKeyword = (text: string) => {
     // console.log("text", text);
@@ -33,13 +36,17 @@ function Editor(props: any) {
     )[0] as HTMLElement;
     editor.click();
   };
-
+  console.log("initialHtmlContent", initialHtmlContent);
   return (
     <StyledComponent>
+      {/* use key to change value */}
       <CKEditor
-        key={initialHtmlContent}
+        key={selectedPrintSize}
         name="editorName"
-        initData={initialHtmlContent}
+        // initData={initialHtmlContent}
+        onInstanceReady={(event) => {
+          event.editor.setData(initialHtmlContent);
+        }}
         onChange={handleChange}
         config={{
           toolbar: [
@@ -158,7 +165,9 @@ function Editor(props: any) {
         }}
         /**
          * https://stackoverflow.com/questions/65339020/how-to-add-custom-plugin-in-ckeditor4-react
+         * use onNamespaceLoaded to fix  error
          */
+        // onBeforeLoad={(CKEDITOR: any) => {
         onNamespaceLoaded={(CKEDITOR: any) => {
           CKEDITOR.plugins.add("timestamp", {
             init: function (editor: any) {
