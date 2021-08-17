@@ -32,21 +32,28 @@ import {
 import {
   PaymentMethodOption,
   ShipmentMethodOption,
-  TRANSPORTS,
+  // TRANSPORTS,
 } from "utils/Constants";
 import {
   OrderLineItemRequest,
   ShippingGHTKRequest,
+  GHNFeeRequest,
+  VTPFeeRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServicesGetList,
   InfoGHTKAction,
+  InfoGHNAction,
+  InfoVTPAction
 } from "domain/actions/order/order.action";
 import {
   DeliveryServiceResponse,
+  GHNFeeResponse,
   ShippingGHTKResponse,
+
   StoreCustomResponse,
+  VTPFeeResponse,
 } from "model/response/order/order.response";
 type ShipmentCardProps = {
   shipmentMethod: number;
@@ -75,6 +82,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
+  const [infoGHN, setInfoGHN] = useState<GHNFeeResponse | null>(null);
+  const [infoVTP, setInfoVTP] = useState<Array<VTPFeeResponse>>([]);
   const [deliveryServices, setDeliveryServices] =
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [shipmentMethodState, setshipmentMethod] = useState<number>(4);
@@ -90,8 +99,10 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     }
 
     if (value === ShipmentMethodOption.DELIVERPARNER) {
-      getInfoDeliveryGHTK(TRANSPORTS.ROAD);
-      getInfoDeliveryGHTK(TRANSPORTS.FLY);
+      console.log('start request fees')
+      getInfoDeliveryGHTK();
+      getInfoDeliveryGHN();
+      getInfoDeliveryVTP();
       props.setPaymentMethod(PaymentMethodOption.COD);
     }
   };
@@ -113,7 +124,9 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   };
 
   const getInfoDeliveryGHTK = useCallback(
-    (type: string) => {
+    () => {
+      console.log('getInfoDeliveryGHTK');
+      
       let request: ShippingGHTKRequest = {
         pick_address: props.storeDetail?.address,
         pick_province: props.storeDetail?.city_name,
@@ -136,6 +149,155 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         request.district
       ) {
         dispatch(InfoGHTKAction(request, setInfoGHTK));
+      } else {
+        console.log(request.pick_address,
+          request.pick_district,
+          request.pick_province,
+          request.address,
+          request.province,
+          request.weight,
+          request.district);
+        
+      }
+    },
+    [dispatch, props.amount, props.cusomerInfo, props.items, props.storeDetail]
+  );
+
+  const getInfoDeliveryGHN = useCallback(
+    () => {
+      console.log('getInfoDeliveryGHN');
+      let request: GHNFeeRequest = {
+        created_by: null,
+        created_name: null,
+        updated_by: null,
+        updated_name: null,
+        request_id: null,
+        operator_kc_id: null,
+
+        sender_country_id: props.storeDetail?.country_id,
+        sender_city_id: props.storeDetail?.city_id,
+        sender_district_id: props.storeDetail?.district_id,
+        sender_ward_id: props.storeDetail?.ward_id,
+
+        receive_country_id: getShipingAddresDefault(props.cusomerInfo)?.country_id,
+        receive_city_id: getShipingAddresDefault(props.cusomerInfo)?.city_id,
+        receive_district_id: getShipingAddresDefault(props.cusomerInfo)?.district_id,
+        receive_ward_id: getShipingAddresDefault(props.cusomerInfo)?.ward_id,
+
+        sender_address: props.storeDetail?.address || props.storeDetail?.full_address,
+        receive_address: getShipingAddresDefault(props.cusomerInfo)?.full_address,
+
+        price: 0,
+        quantity: 0,
+        weight: SumWeight(props.items),
+        length: 0,
+        height: 0,
+        width: 0,
+        ghn_service_id: 1,
+        coupon: null,
+        cod: props.amount,
+      };
+
+      if (
+        request.sender_country_id &&
+        request.sender_city_id &&
+        request.sender_district_id &&
+        request.sender_ward_id &&
+
+        request.receive_country_id &&
+        request.receive_city_id &&
+        request.receive_district_id &&
+        request.receive_ward_id &&
+
+        request.sender_address &&
+        request.receive_address
+      ) {
+        dispatch(InfoGHNAction(request, setInfoGHN));
+      }  else {
+        console.log(request.sender_country_id,
+          request.sender_city_id,
+          request.sender_district_id,
+          request.sender_ward_id,
+  
+          request.receive_country_id,
+          request.receive_city_id,
+          request.receive_district_id,
+          request.receive_ward_id,
+  
+          request.sender_address,
+          request.receive_address,
+          request.ghn_service_id);
+        
+      }
+    },
+    [dispatch, props.amount, props.cusomerInfo, props.items, props.storeDetail]
+  );
+
+  const getInfoDeliveryVTP = useCallback(
+    () => {
+      console.log('getInfoDeliveryVTP');
+      let request: VTPFeeRequest = {
+        created_by: null,
+        created_name: null,
+        updated_by: null,
+        updated_name: null,
+        request_id: null,
+        operator_kc_id: null,
+
+        sender_country_id: props.storeDetail?.country_id,
+        sender_city_id: props.storeDetail?.city_id,
+        sender_district_id: props.storeDetail?.district_id,
+        sender_ward_id: props.storeDetail?.ward_id,
+
+        receive_country_id: getShipingAddresDefault(props.cusomerInfo)?.country_id,
+        receive_city_id: getShipingAddresDefault(props.cusomerInfo)?.city_id,
+        receive_district_id: getShipingAddresDefault(props.cusomerInfo)?.district_id,
+        receive_ward_id: getShipingAddresDefault(props.cusomerInfo)?.ward_id,
+
+        sender_address: props.storeDetail?.address || props.storeDetail?.full_address,
+        receive_address: getShipingAddresDefault(props.cusomerInfo)?.full_address,
+
+        price: 0,
+        quantity: 0,
+        weight: SumWeight(props.items),
+        length: 10,
+        height: 10,
+        width: 10,
+        ghn_service_id: 1,
+        coupon: null,
+        cod: props.amount,
+      };
+
+      if (
+        request.sender_country_id &&
+        request.sender_city_id &&
+        request.sender_district_id &&
+        request.sender_ward_id &&
+
+        request.receive_country_id &&
+        request.receive_city_id &&
+        request.receive_district_id &&
+        request.receive_ward_id &&
+
+        request.sender_address &&
+        request.receive_address
+        
+      ) {
+        dispatch(InfoVTPAction(request, setInfoVTP));
+      } else {
+        console.log(request.sender_country_id,
+          request.sender_city_id,
+          request.sender_district_id,
+          request.sender_ward_id,
+  
+          request.receive_country_id,
+          request.receive_city_id,
+          request.receive_district_id,
+          request.receive_ward_id,
+  
+          request.sender_address,
+          request.receive_address);
+        
       }
     },
     [dispatch, props.amount, props.cusomerInfo, props.items, props.storeDetail]
@@ -388,7 +550,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                   />
                                 </td>
                                 <td style={{ padding: 0 }}>
-                                  {single.code === "ghtk" ? (
+                                  {single.code === "ghtk" && (
                                     <div>
                                       <label
                                         className="radio-container"
@@ -437,7 +599,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                         Đường bay
                                       </label>
                                     </div>
-                                  ) : (
+                                  )}
+                                  {single.code === "ghn" && (
                                     <label className="radio-container">
                                       <input
                                         type="radio"
@@ -457,9 +620,103 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                       Chuyển phát nhanh PDE
                                     </label>
                                   )}
+                                  {single.code === "vtp" && (
+                                    <div style={{margin: "8px 0"}}>
+                                      <label
+                                        className="radio-container"
+                                      >
+                                        <input
+                                          type="radio"
+                                          name="tt"
+                                          className="radio-delivery"
+                                          value="standard"
+                                          onChange={(e) =>
+                                            changeServiceType(
+                                              single.id,
+                                              single.code,
+                                              "standard",
+                                              infoGHTK.length > 1
+                                              ? infoGHTK[0].fee
+                                              : 0
+                                            )
+                                          }
+                                        />
+                                        <span className="checkmark">
+                                        </span>
+                                        2 giờ
+                                      </label>
+                                      <Divider style={{margin: "8px 0"}}/>
+                                      <label
+                                        className="radio-container"
+                                      >
+                                        <input
+                                          type="radio"
+                                          name="tt"
+                                          className="radio-delivery"
+                                          value="express"
+                                          onChange={(e) =>
+                                            changeServiceType(
+                                              single.id,
+                                              single.code,
+                                              "express",
+                                              infoGHTK.length > 1
+                                                ? infoGHTK[1].fee
+                                                : 0
+                                            )
+                                          }
+                                        />
+                                        <span className="checkmark"></span>
+                                        6 giờ
+                                      </label>
+                                      <Divider style={{margin: "8px 0"}}/>
+                                      <label
+                                        className="radio-container"
+                                      >
+                                        <input
+                                          type="radio"
+                                          name="tt"
+                                          className="radio-delivery"
+                                          value="express"
+                                          onChange={(e) =>
+                                            changeServiceType(
+                                              single.id,
+                                              single.code,
+                                              "express",
+                                              infoGHTK.length > 1
+                                                ? infoGHTK[1].fee
+                                                : 0
+                                            )
+                                          }
+                                        />
+                                        <span className="checkmark"></span>
+                                        12 giờ
+                                      </label>
+                                    </div>
+                                  )}
+                                  {single.code === "dhl" && (
+                                    <label className="radio-container">
+                                      <input
+                                        type="radio"
+                                        name="tt"
+                                        className="radio-delivery"
+                                        value={`${single.code}_standard`}
+                                        onChange={(e) =>
+                                          changeServiceType(
+                                            single.id,
+                                            single.code,
+                                            "standard",
+                                            20000
+                                          )
+                                        }
+                                      />
+                                      <span className="checkmark"></span>
+                                      Chuyển phát nhanh PDE
+                                    </label>
+                                  )}
+                                  
                                 </td>
                                 <td style={{ padding: 0, textAlign: "right" }}>
-                                  {single.code === "ghtk" ? (
+                                  {single.code === "ghtk" && (
                                     <div>
                                       <div
                                         style={{ padding: "8px 16px" }}
@@ -478,7 +735,49 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                                           : 0}
                                       </div>
                                     </div>
-                                  ) : (
+                                  )}
+                                  {single.code === "ghn" && (
+                                    <div>
+                                      <div
+                                        style={{ padding: "8px 16px" }}
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      >
+                                        {infoGHN
+                                          ? formatCurrency(infoGHN.total)
+                                          : 0}
+                                      </div>
+                                      
+                                    </div>
+                                  )}
+                                  {single.code === "vtp" && (
+                                    <>
+                                      <div
+                                        style={{ padding: "8px 16px" }}
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      >
+                                        {infoVTP && infoVTP.length > 0
+                                          ? formatCurrency(infoVTP[0].GIA_CUOC)
+                                          : 0}
+                                      </div>
+                                      <div
+                                        style={{ padding: "8px 16px" }}
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      >
+                                        {infoVTP && infoVTP.length > 1
+                                          ? formatCurrency(infoVTP[2].GIA_CUOC)
+                                          : 0}
+                                      </div>
+                                      <div
+                                        style={{ padding: "8px 16px" }}
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      >
+                                        {infoVTP && infoVTP.length > 1
+                                          ? formatCurrency(infoVTP[1].GIA_CUOC)
+                                          : 0}
+                                      </div>
+                                    </>
+                                  )}
+                                  {single.code === "dhl" && (
                                     <div
                                       style={{ padding: "8px 16px" }}
                                       className="custom-table__has-border-bottom custom-table__has-select-radio"

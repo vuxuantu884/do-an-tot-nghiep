@@ -7,6 +7,8 @@ import {
   updatePayment,
   getDeliverieServices,
   getInfoDeliveryGHTK,
+  getInfoDeliveryGHN,
+  getInfoDeliveryVTP,
   getOrderSubStatusService,
   getTrackingLogFulFillment,
   setSubStatusService,
@@ -29,6 +31,8 @@ import {
   OrderResponse,
   OrderSubStatusResponse,
   ShippingGHTKResponse,
+  GHNFeeResponse,
+  VTPFeeResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import { getAmountPayment } from "utils/AppUtils";
@@ -59,6 +63,46 @@ function* InfoGHTKSaga(action: YodyAction) {
   try {
     let response: BaseResponse<Array<ShippingGHTKResponse>> = yield call(
       getInfoDeliveryGHTK,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError(error);
+  }
+}
+
+function* InfoGHNSaga(action: YodyAction) {
+  const { request, setData } = action.payload;
+  try {
+    let response: BaseResponse<GHNFeeResponse> = yield call(
+      getInfoDeliveryGHN,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError(error);
+  }
+}
+
+function* InfoVTPSaga(action: YodyAction) {
+  const { request, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<VTPFeeResponse>> = yield call(
+      getInfoDeliveryVTP,
       request
     );
     switch (response.code) {
@@ -309,6 +353,8 @@ function* OrderOnlineSaga() {
   );
   yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD, updatePaymentSaga);
   yield takeLatest(OrderType.GET_INFO_DELIVERY_GHTK, InfoGHTKSaga);
+  yield takeLatest(OrderType.GET_INFO_GHN_FEE, InfoGHNSaga);
+  yield takeLatest(OrderType.GET_INFO_VTP_FEE, InfoVTPSaga);
   yield takeLatest(OrderType.GET_LIST_SUB_STATUS, getListSubStatusSaga);
   yield takeLatest(
     OrderType.GET_TRACKING_LOG_FULFILLMENT,

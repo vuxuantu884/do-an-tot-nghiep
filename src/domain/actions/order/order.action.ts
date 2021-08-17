@@ -3,12 +3,16 @@ import {
   OrderResponse,
   OrderSubStatusResponse,
   ShippingGHTKResponse,
+  GHNFeeResponse,
+  VTPFeeResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import {
   OrderRequest,
   ShippingGHTKRequest,
+  GHNFeeRequest,
+  VTPFeeRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   UpdatePaymentRequest,
@@ -28,6 +32,20 @@ export const InfoGHTKAction = (
   setData: (data: Array<ShippingGHTKResponse>) => void
 ) => {
   return BaseAction(OrderType.GET_INFO_DELIVERY_GHTK, { request, setData });
+};
+
+export const InfoGHNAction = (
+  request: GHNFeeRequest,
+  setData: (data: GHNFeeResponse) => void
+) => {
+  return BaseAction(OrderType.GET_INFO_GHN_FEE, { request, setData });
+};
+
+export const InfoVTPAction = (
+  request: VTPFeeRequest,
+  setData: (data: Array<VTPFeeResponse>) => void
+) => {
+  return BaseAction(OrderType.GET_INFO_VTP_FEE, { request, setData });
 };
 
 export const PaymentMethodGetList = (

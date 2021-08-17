@@ -5,6 +5,8 @@ import { BaseQuery } from "model/base/base.query";
 import {
   OrderRequest,
   ShippingGHTKRequest,
+  GHNFeeRequest,
+  VTPFeeRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   UpdatePaymentRequest,
@@ -18,6 +20,8 @@ import {
   DeliveryServiceResponse,
   OrderResponse,
   ShippingGHTKResponse,
+  GHNFeeResponse,
+  VTPFeeResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -44,6 +48,18 @@ export const getInfoDeliveryGHTK = (
   request: ShippingGHTKRequest
 ): Promise<BaseResponse<ShippingGHTKResponse>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/shipping/ghtk/fees`, request);
+};
+
+export const getInfoDeliveryGHN = (
+  request: GHNFeeRequest
+): Promise<BaseResponse<GHNFeeResponse>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/shipping/ghn/fees`, request);
+};
+
+export const getInfoDeliveryVTP = (
+  request: VTPFeeRequest
+): Promise<BaseResponse<VTPFeeResponse>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/shipping/vtp/fees`, request);
 };
 
 export const getOrderDetail = (
