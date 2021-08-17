@@ -20,6 +20,7 @@ import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { POStatus, ProcumentStatus, PoPaymentStatus } from "utils/Constants";
 import { DATE_FORMAT, getDateFromNow } from "utils/DateUtils";
+import { FilterOutlined } from "@ant-design/icons";
 
 const { Panel } = Collapse;
 const { Item } = Form;
@@ -650,7 +651,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
               </Button>
             </Item>
             <Item>
-              <Button onClick={openFilter}>Thêm bộ lọc</Button>
+              <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>
           </Form>
         </CustomFilter>
