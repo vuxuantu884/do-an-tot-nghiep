@@ -37,6 +37,7 @@ function Editor(props: any) {
   return (
     <StyledComponent>
       <CKEditor
+        key={initialHtmlContent}
         name="editorName"
         initData={initialHtmlContent}
         onChange={handleChange}
@@ -158,7 +159,7 @@ function Editor(props: any) {
         /**
          * https://stackoverflow.com/questions/65339020/how-to-add-custom-plugin-in-ckeditor4-react
          */
-        onBeforeLoad={(CKEDITOR: any) => {
+        onNamespaceLoaded={(CKEDITOR: any) => {
           CKEDITOR.plugins.add("timestamp", {
             init: function (editor: any) {
               editor.addCommand("openModalDialog", {
@@ -176,6 +177,7 @@ function Editor(props: any) {
                 exec: function (editor: any) {
                   // console.log("keyword", keyword);
                   editor.insertHtml(keyword);
+                  console.log("initialHtmlContent", initialHtmlContent);
                   setTimeout(() => {
                     editor.focus();
                   }, 500);

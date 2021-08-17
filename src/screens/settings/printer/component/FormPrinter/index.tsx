@@ -22,7 +22,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   console.log("htmlContent", htmlContent);
   const componentRef = useRef(null);
 
-  const handleOnChange = (value: string) => {
+  const handleOnChangeEditor = (value: string) => {
     setHtmlContent(value);
   };
 
@@ -82,6 +82,13 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           apDung: false,
           formIn: "",
         };
+
+  const onChange = (value: string) => {
+    console.log("value", value);
+    initialFormValue.formIn = "pdfdfd";
+    setHtmlContent(value);
+  };
+
   const handleSubmitForm = () => {
     const formValue = form.getFieldsValue();
     console.log("formValue", formValue);
@@ -142,7 +149,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                 <Form.Item name="khoIn" label="Chọn khổ in:">
                   <Select
                     placeholder="Chọn khổ in"
-                    // onChange={this.onGenderChange}
+                    onChange={onChange}
                     allowClear
                   >
                     {sprintConfigure.danhSachkhoIn &&
@@ -166,14 +173,14 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           <Row gutter={20}>
             <Col span={12}>
               <Card style={{ padding: "35px 15px" }}>
-                {/* <Editor onChange={handleOnChange} /> */}
-                {/* <CkEditor onChange={handleOnChange} /> */}
+                {/* <Editor onChange={handleOnChangeEditor} /> */}
+                {/* <CkEditor onChange={handleOnChangeEditor} /> */}
                 <React.Fragment>
                   <Form.Item name="formIn">
                     {/* <Input hidden /> */}
                     <Editor
-                      onChange={handleOnChange}
-                      initialHtmlContent={initialFormValue.formIn}
+                      onChange={handleOnChangeEditor}
+                      initialHtmlContent={htmlContent}
                       listKeyWords={FAKE_WORDS}
                     />
                   </Form.Item>
