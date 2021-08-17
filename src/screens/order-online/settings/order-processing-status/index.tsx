@@ -215,6 +215,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
         (data: OrderProcessingStatusResponseModel) => {
           setListOrderProcessingStatus(data.items);
           setTotal(data.metadata.total);
+          setTableLoading(false);
         }
       )
     );

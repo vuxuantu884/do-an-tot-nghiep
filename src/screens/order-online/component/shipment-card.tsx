@@ -10,7 +10,7 @@ import {
   DatePicker,
   Checkbox, Divider
 } from "antd";
-
+import moment from "moment";
 import storeBluecon from "assets/img/storeBlue.svg";
 import deliveryIcon from "assets/icon/delivery.svg";
 import selfdeliver from "assets/icon/self_shipping.svg";
@@ -203,8 +203,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 style={{ width: "100%" }}
                 className="r-5 w-100 ip-search"
                 placeholder="Chọn ngày giao"
-                disabledDate={(current: any) =>
-                  current && current.valueOf() < Date.now()
+                disabledDate={(current: any) => moment().add(-1, 'days')  >= current
                 }
               />
             </Form.Item>

@@ -55,6 +55,7 @@ import {
 } from "utils/AppUtils";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import CustomeInputTags from "./component/custom-input-tags";
 //#endregion
 
 var typeButton = "";
@@ -199,10 +200,10 @@ export default function Order() {
     billing_address: billingAddress,
   };
 
-  const onChangeTag = (value: []) => {
+  const onChangeTag = useCallback((value: []) => {
     const strTag = value.join(", ");
     setTag(strTag);
-  };
+  },[tags,setTag])
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
     let shipmentRequest = createShipmentRequest(value);
@@ -692,13 +693,9 @@ export default function Order() {
                     }}
                     // name="tags"
                   >
-                    <Select
-                      className="ant-select-hashtag"
-                      dropdownClassName="ant-select-dropdown-hashtag"
-                      mode="tags"
-                      placeholder="Thêm tag"
-                      onChange={onChangeTag}
-                    ></Select>
+                  <CustomeInputTags 
+                    onChangeTag={onChangeTag}
+                  />
                   </Form.Item>
                 </div>
               </Card>
@@ -751,23 +748,23 @@ export default function Order() {
                   formRef.current?.submit();
                 }}
               >
-                Lưu và duyệt
+                Lưu và Xác nhận
               </Button>
             </Col>
           </Row>
-          
         </Form>
       </div>
       <SaveAndConfirmOrder
-            onCancel={onCancelSaveAndConfirm}
-            onOk={onOkSaveAndConfirm}
-            visible={isvibleSaveAndConfirm}
-            okText="Đồng ý"
-            cancelText="Hủy"
-            title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
-            text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
-            icon={WarningIcon}
-          />
+        onCancel={onCancelSaveAndConfirm}
+        onOk={onOkSaveAndConfirm}
+        visible={isvibleSaveAndConfirm}
+        okText="Đồng ý"
+        cancelText="Hủy"
+        title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
+        text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
+        icon={WarningIcon}
+      />
     </ContentContainer>
   );
 }
+

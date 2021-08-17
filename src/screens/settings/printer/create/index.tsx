@@ -4,6 +4,8 @@ import Checkbox from "antd/lib/checkbox/Checkbox";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import CkEditor from "./ckeditor";
 import Editor from "./editor";
 import Preview from "./preview";
 import { StyledComponent } from "./styles";
@@ -46,15 +48,17 @@ const SettingCreatePrinter: React.FC = () => {
 
   const createPrinterHtml = () => {
     return (
-      <Button
-        type="primary"
-        className="ant-btn-primary"
-        size="large"
-        onClick={() => {}}
-        icon={<PlusOutlined />}
-      >
-        Thêm mẫu in
-      </Button>
+      <Link to={`${UrlConfig.PRINTER}/create`}>
+        <Button
+          type="primary"
+          className="ant-btn-primary"
+          size="large"
+          onClick={() => {}}
+          icon={<PlusOutlined />}
+        >
+          Thêm mẫu in
+        </Button>
+      </Link>
     );
   };
 
@@ -155,7 +159,9 @@ const SettingCreatePrinter: React.FC = () => {
             <Col span={12}>
               <Card style={{ padding: "35px 15px" }}>
                 <Form.Item name="editor">
-                  <Editor onChange={handleOnChange} />
+                  {/* <Editor onChange={handleOnChange} /> */}
+                  {/* <CkEditor onChange={handleOnChange} /> */}
+                  <CkEditor />
                 </Form.Item>
               </Card>
             </Col>
