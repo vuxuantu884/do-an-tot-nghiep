@@ -239,65 +239,56 @@ function tagRender(props: any) {
   );
 }
 
+type AdvanceFormItemProps = {
+  listSupplierAccount: PurchaseOrderFilterProps['listSupplierAccount'];
+  listRdAccount: PurchaseOrderFilterProps['listRdAccount'];
+  listStore: PurchaseOrderFilterProps['listStore'];
+  tempAdvanceFilters: any
+};
+
 const AdvanceFormItems = ({
   listSupplierAccount,
   listRdAccount,
   listStore,
-}: Partial<PurchaseOrderFilterProps>) => {
+  tempAdvanceFilters
+}: AdvanceFormItemProps) => {
   return (
     <Space direction="vertical" style={{ width: "100%" }}>
       {Object.keys(filterFields).map((field) => {
+        let collapseChildren = null;
         switch (field) {
           case filterFields.order_date:
           case filterFields.activated_date:
           case filterFields.completed_date:
           case filterFields.cancelled_date:
           case filterFields.expected_import_date:
-            return (
-              <Collapse key={field}>
-                <Panel
-                  header={<FilterHeader title={filterFieldsMapping[field]} />}
-                  key="1"
-                >
-                  <Item name={field}>
-                    <CustomRangepicker />
-                  </Item>
-                </Panel>
-              </Collapse>
+            collapseChildren = (
+              <CustomRangepicker />
             );
+            break;    
           case filterFields.merchandiser:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="MERCHANDISER" />} key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      showArrow
-                      placeholder="Chọn 1 hoặc nhiều merchandiser"
-                      mode="multiple"
-                      allowClear
-                      tagRender={tagRender}
-                      style={{
-                        width: "100%",
-                      }}
-                      notFoundContent="Không tìm thấy kết quả"
-                      maxTagCount="responsive"
-                    >
-                      {listSupplierAccount?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.full_name}>
-                          {`${item.code} - ${item.full_name}`}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<CustomSelect
+              showArrow
+              placeholder="Chọn 1 hoặc nhiều merchandiser"
+              mode="multiple"
+              allowClear
+              tagRender={tagRender}
+              style={{
+                width: "100%",
+              }}
+              notFoundContent="Không tìm thấy kết quả"
+              maxTagCount="responsive"
+            >
+              {listSupplierAccount?.map((item) => (
+                <CustomSelect.Option key={item.id} value={item.full_name}>
+                  {`${item.code} - ${item.full_name}`}
+                </CustomSelect.Option>
+              ))}
+            </CustomSelect>)
+            break;
           case filterFields.qc:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="QC" />} key="1">
-                  <Item name={field}>
-                    <CustomSelect
+            collapseChildren = (
+              <CustomSelect
                       showArrow
                       placeholder="Chọn 1 hoặc nhiều qc"
                       mode="multiple"
@@ -315,133 +306,92 @@ const AdvanceFormItems = ({
                         </CustomSelect.Option>
                       ))}
                     </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
             );
+            break;
           case filterFields.cost_included:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="CHI PHÍ" />} key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      showArrow
-                      placeholder="Chọn 1 trong 2 đk"
-                      tagRender={tagRender}
-                      style={{
-                        width: "100%",
-                      }}
-                      notFoundContent="Không tìm thấy kết quả"
-                    >
-                      <CustomSelect.Option key="1" value="true">
-                        Có chi phí
-                      </CustomSelect.Option>
-                      <CustomSelect.Option key="2" value="false">
-                        Không chi phí
-                      </CustomSelect.Option>
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<CustomSelect
+              showArrow
+              placeholder="Chọn 1 trong 2 đk"
+              tagRender={tagRender}
+              style={{
+                width: "100%",
+              }}
+              notFoundContent="Không tìm thấy kết quả"
+            >
+              <CustomSelect.Option key="1" value="true">
+                Có chi phí
+              </CustomSelect.Option>
+              <CustomSelect.Option key="2" value="false">
+                Không chi phí
+              </CustomSelect.Option>
+            </CustomSelect>);
+            break;
           case filterFields.tax_included:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="VAT" />} key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      showArrow
-                      placeholder="Chọn 1 trong 2 đk"
-                      tagRender={tagRender}
-                      style={{
-                        width: "100%",
-                      }}
-                      notFoundContent="Không tìm thấy kết quả"
-                    >
-                      <CustomSelect.Option key="1" value="true">
-                        Có VAT
-                      </CustomSelect.Option>
-                      <CustomSelect.Option key="2" value="false">
-                        Không VAT
-                      </CustomSelect.Option>
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<CustomSelect
+              showArrow
+              placeholder="Chọn 1 trong 2 đk"
+              tagRender={tagRender}
+              style={{
+                width: "100%",
+              }}
+              notFoundContent="Không tìm thấy kết quả"
+            >
+              <CustomSelect.Option key="1" value="true">
+                Có VAT
+              </CustomSelect.Option>
+              <CustomSelect.Option key="2" value="false">
+                Không VAT
+              </CustomSelect.Option>
+            </CustomSelect>);
+            break;
           case filterFields.expected_store:
-            return (
-              <Collapse key={field}>
-                <Panel header="Kho nhận hàng dự kiến" key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      showArrow
-                      placeholder="Kho nhận hàng dự kiến"
-                      style={{
-                        width: "100%",
-                      }}
-                      tagRender={tagRender}
-                      notFoundContent="Không tìm thấy kết quả"
-                      mode="multiple"
-                      allowClear
-                      maxTagCount="responsive"
-                    >
-                      {listStore?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.name}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<CustomSelect
+              showArrow
+              placeholder="Kho nhận hàng dự kiến"
+              style={{
+                width: "100%",
+              }}
+              tagRender={tagRender}
+              notFoundContent="Không tìm thấy kết quả"
+              mode="multiple"
+              allowClear
+              maxTagCount="responsive"
+            >
+              {listStore?.map((item) => (
+                <CustomSelect.Option key={item.id} value={item.name}>
+                  {item.name}
+                </CustomSelect.Option>
+              ))}
+            </CustomSelect>);
+            break;
           case filterFields.note:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="GHI CHÚ NỘI BỘ" />} key="1">
-                  <Item name={field}>
-                    <Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />);
+            break;
           case filterFields.supplier_note:
-            return (
-              <Collapse key={field}>
-                <Panel
-                  header={<FilterHeader title="GHI CHÚ NHÀ CUNG CẤP" />}
-                  key="1"
-                >
-                  <Item name={field}>
-                    <Input placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<Input placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />);
+            break;
           case filterFields.tags:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="TAG" />} key="1">
-                  <Item name={field}>
-                    <Input placeholder="Tìm kiếm theo tag" />
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<Input placeholder="Tìm kiếm theo tag" />);
+            break;
           case filterFields.reference:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="MÃ THAM CHIẾU" />} key="1">
-                  <Item name={field}>
-                    <Input placeholder="Tìm kiếm theo mã tham chiếu" />
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<Input placeholder="Tìm kiếm theo mã tham chiếu" />);
+            break;
           default: 
-          return null;
+            collapseChildren = null;
         }
+        return (
+          <Collapse key={field}>
+            <Panel
+              className={tempAdvanceFilters[field] ? 'active' : ''}
+              header={<FilterHeader title={filterFieldsMapping[field]} />}
+              key="1"
+            >
+              <Item name={field}>
+                {collapseChildren}
+              </Item>
+            </Panel>
+          </Collapse>
+        );
       })}
     </Space>
   );
@@ -466,6 +416,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   const [formAdvanceFilter] = Form.useForm();
 
   const [advanceFilters, setAdvanceFilters] = useState({});
+  const [tempAdvanceFilters, setTempAdvanceFilters] = useState({});
 
   const resetField = useCallback((field: string) => {
     setAdvanceFilters({...advanceFilters, [field]: undefined});
@@ -516,6 +467,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   useEffect(() => {
     formBaseFilter.setFieldsValue({...advanceFilters});
     formAdvanceFilter.setFieldsValue({...advanceFilters});
+    setTempAdvanceFilters(advanceFilters);
   },[advanceFilters]);
   useEffect(() => {
     setAdvanceFilters({...params});
@@ -666,11 +618,21 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             onFinish={onAdvanceFinish}
             initialValues={advanceFilters}
             layout="vertical"
+            onFieldsChange={(changedFields: any, allFields: any) => {
+              let fieldNames = changedFields[0].name;
+              let filtersSelected: any = {};
+              fieldNames.forEach((fieldName: any) => {
+                filtersSelected[fieldName] = true;
+              });
+              console.log('huynvq::===========>onChangeField');
+              setTempAdvanceFilters({...filtersSelected, ...tempAdvanceFilters})
+            }}
           >
             <AdvanceFormItems
               listSupplierAccount={listSupplierAccount}
               listStore={listStore}
               listRdAccount={listRdAccount}
+              tempAdvanceFilters={tempAdvanceFilters}
             />
           </Form>
         </BaseFilter>
