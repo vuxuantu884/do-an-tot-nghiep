@@ -616,7 +616,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                 allowClear
                 tagRender={tagRender}
                 style={{
-                  width: 140
+                  width: 150
                 }}
                 notFoundContent="Không tìm thấy kết quả"
                 maxTagCount="responsive"
