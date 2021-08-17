@@ -282,9 +282,9 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                         placeholder="Kế hoạch nhận"
                         isFloat={false}
                         value={value}
-                        min={1}
+                        min={0}
                         max={item.ordered_quantity}
-                        default={1}
+                        default={0}
                         maxLength={6}
                         onChange={(quantity: number | null) => {
                           onQuantityChange(quantity, index);
