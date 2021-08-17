@@ -3,20 +3,49 @@ import { Button, Card, Col, Form, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
-import { useState } from "react";
+import { listKeyWordsModel } from "model/editor/editor.model";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import CkEditor from "./ckeditor";
-import Editor from "./editor";
 import Preview from "./preview";
+import ReactToPrint from "react-to-print";
 import { StyledComponent } from "./styles";
+import FormPrinter from "../component/FormPrinter";
 
 const SettingCreatePrinter: React.FC = () => {
   const [form] = Form.useForm();
-  const [htmlContent, setHtmlContent] = useState("");
+  const initialHtmlContent = "{ten_cong_ty}{dia_chi_cong_ty}{dia_chi_cong_ty}";
+  const [htmlContent, setHtmlContent] = useState(initialHtmlContent);
+  const componentRef = useRef(null);
+
   const handleOnChange = (value: string) => {
     console.log("value", value);
     setHtmlContent(value);
   };
+
+  const handlePrint = () => {
+    console.log("print");
+    var content = document.getElementById("divcontents");
+    const abc = document.getElementById(
+      "ifmcontentstoprint"
+    ) as HTMLIFrameElement;
+    var pri = null;
+    if (abc) {
+      pri = abc.contentWindow;
+    }
+    console.log("abc", abc);
+    console.log("content", content);
+    console.log("pri", pri);
+    if (content && pri) {
+      pri.document.open();
+
+      pri.document.write(content.innerHTML);
+      pri.document.close();
+      pri.focus();
+      pri.print();
+    }
+  };
+
   const sprintConfigure = {
     danhSachMauIn: [
       {
@@ -43,6 +72,19 @@ const SettingCreatePrinter: React.FC = () => {
       },
     ],
   };
+
+  const FAKE_WORDS: listKeyWordsModel = [
+    {
+      title: "tên công ty",
+      key: "{ten_cong_ty}",
+      value: "YODY",
+    },
+    {
+      title: "địa chỉ công ty",
+      key: "{dia_chi_cong_ty}",
+      value: "Hải dương",
+    },
+  ];
 
   const initialFormValue = {};
 
@@ -85,94 +127,7 @@ const SettingCreatePrinter: React.FC = () => {
         ]}
         extra={createPrinterHtml()}
       >
-        printer
-        <Form
-          form={form}
-          name="control-hooks"
-          layout="vertical"
-          initialValues={initialFormValue}
-        >
-          <Card style={{ padding: "35px 15px", marginBottom: 20 }}>
-            <Row gutter={20}>
-              <Col span={6}>
-                <Form.Item name="name" label="Chọn mẫu in:">
-                  <Select
-                    placeholder="Chọn mẫu in"
-                    // onChange={this.onGenderChange}
-                    allowClear
-                  >
-                    {sprintConfigure.danhSachMauIn &&
-                      sprintConfigure.danhSachMauIn.map((single, index) => {
-                        return (
-                          <Select.Option value={single.tenMauIn} key={index}>
-                            {single.tenMauIn}
-                          </Select.Option>
-                        );
-                      })}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item name="chiNhanh" label="Chọn chi nhánh áp dụng:">
-                  <Select
-                    placeholder="Chọn Chọn chi nhánh áp dụng:"
-                    // onChange={this.onGenderChange}
-                    allowClear
-                  >
-                    {sprintConfigure.danhSachChiNhanh &&
-                      sprintConfigure.danhSachChiNhanh.map((single, index) => {
-                        return (
-                          <Select.Option value={single.tenChiNhanh} key={index}>
-                            {single.tenChiNhanh}
-                          </Select.Option>
-                        );
-                      })}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item name="khoIn" label="Chọn khổ in:">
-                  <Select
-                    placeholder="Chọn khổ in"
-                    // onChange={this.onGenderChange}
-                    allowClear
-                  >
-                    {sprintConfigure.danhSachkhoIn &&
-                      sprintConfigure.danhSachkhoIn.map((single, index) => {
-                        return (
-                          <Select.Option value={single.tenKhoIn} key={index}>
-                            {single.tenKhoIn}
-                          </Select.Option>
-                        );
-                      })}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={6}>
-                <Form.Item name="active" valuePropName="checked">
-                  <Checkbox>Đặt làm khổ in mặc định</Checkbox>
-                </Form.Item>
-              </Col>
-            </Row>
-          </Card>
-          <Row gutter={20}>
-            <Col span={12}>
-              <Card style={{ padding: "35px 15px" }}>
-                <Form.Item name="editor">
-                  {/* <Editor onChange={handleOnChange} /> */}
-                  {/* <CkEditor onChange={handleOnChange} /> */}
-                  <CkEditor />
-                </Form.Item>
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card style={{ padding: "35px 15px" }}>
-                Preview
-                <Preview htmlContent={htmlContent} />
-              </Card>
-            </Col>
-          </Row>
-        </Form>
+        <FormPrinter type="create" />
       </ContentContainer>
     </StyledComponent>
   );

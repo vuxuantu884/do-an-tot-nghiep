@@ -3,10 +3,10 @@ import {
   PrintPreviewModel,
 } from "model/editor/editor.model";
 import React from "react";
-import "react-quill/dist/quill.snow.css";
 
 const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   const { htmlContent, listKeyWords } = props;
+  console.log("htmlContent", htmlContent);
   // const FAKE_WORDS = [
   //   {
   //     symbol: "{ten_cong_ty}",

@@ -1,5 +1,5 @@
 import { AnyPtrRecord } from "dns";
-import { PrintEditorModel } from "model/other/Print/print-model";
+// import { PrintEditorModel } from "model/other/Print/print-model";
 import React, { useRef, useState } from "react";
 import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
