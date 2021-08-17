@@ -1,12 +1,16 @@
+import { Button } from "antd";
 import {
   listKeyWordsModel,
   PrintPreviewModel,
 } from "model/editor/editor.model";
-import React from "react";
+import React, { useRef } from "react";
+import ReactToPrint from "react-to-print";
+import { StyledComponent } from "./styles";
 
 const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   const { htmlContent, listKeyWords } = props;
   console.log("htmlContent", htmlContent);
+  const componentRef = useRef(null);
   // const FAKE_WORDS = [
   //   {
   //     symbol: "{ten_cong_ty}",
@@ -53,12 +57,27 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
     return result;
   };
   return (
-    <div
-      id="divcontents"
-      dangerouslySetInnerHTML={{
-        __html: renderHtml(htmlContent),
-      }}
-    ></div>
+    <StyledComponent>
+      <div className="preview">
+        <div className="preview__header">
+          <div className="preview__header-inner">
+            <span>Bản xem trước</span>
+            <ReactToPrint
+              trigger={() => <Button>In thử</Button>}
+              content={() => componentRef.current}
+            />
+          </div>
+        </div>
+        <div className="preview__content printContent" ref={componentRef}>
+          <div
+            id="divcontents"
+            dangerouslySetInnerHTML={{
+              __html: renderHtml(htmlContent),
+            }}
+          ></div>
+        </div>
+      </div>
+    </StyledComponent>
   );
 };
 

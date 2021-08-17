@@ -1,3 +1,5 @@
+import ContentContainer from "component/container/content.container";
+import UrlConfig from "config/UrlConfig";
 import { FormPrinterModel } from "model/editor/editor.model";
 import React, { useEffect, useState } from "react";
 import FormPrinter from "../component/FormPrinter";
@@ -25,7 +27,28 @@ function SinglePrinter() {
   }, []);
   return (
     <StyledComponent>
-      <FormPrinter type="edit" formValue={singlePrinterContent} />
+      <ContentContainer
+        title="Danh sách mẫu in"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: UrlConfig.HOME,
+          },
+          {
+            name: "Cài đặt",
+            path: UrlConfig.ACCOUNTS,
+          },
+          {
+            name: "Danh sách mẫu in",
+            path: UrlConfig.ACCOUNTS,
+          },
+          {
+            name: "Mẫu in 1",
+          },
+        ]}
+      >
+        <FormPrinter type="edit" formValue={singlePrinterContent} />
+      </ContentContainer>
     </StyledComponent>
   );
 }

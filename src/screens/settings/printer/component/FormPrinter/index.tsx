@@ -103,7 +103,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
       {initialFormValue.formIn && (
         <Form form={form} layout="vertical" initialValues={initialFormValue}>
           <Card style={{ padding: "35px 15px", marginBottom: 20 }}>
-            <Row gutter={20}>
+            <Row gutter={20} className="sectionFilter">
               <Col span={6}>
                 <Form.Item name="tenMauIn" label="Chọn mẫu in:">
                   <Select
@@ -163,14 +163,14 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               </Col>
               <Col span={6}>
                 <Form.Item name="apDung" valuePropName="checked">
-                  <Checkbox>Đặt làm khổ in mặc định</Checkbox>
+                  <Checkbox>Áp dụng</Checkbox>
                 </Form.Item>
               </Col>
             </Row>
           </Card>
           <Row gutter={20}>
             <Col span={12}>
-              <Card style={{ padding: "35px 15px" }}>
+              <Card style={{ padding: "35px 15px", height: "100%" }}>
                 {/* <Editor onChange={handleOnChangeEditor} /> */}
                 {/* <CkEditor onChange={handleOnChangeEditor} /> */}
                 <React.Fragment>
@@ -188,11 +188,6 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             </Col>
             <Col span={12}>
               <Card style={{ padding: "35px 15px" }}>
-                Bản xem trước
-                <ReactToPrint
-                  trigger={() => <button>Print this out!</button>}
-                  content={() => componentRef.current}
-                />
                 <div className="printContent" ref={componentRef}>
                   <Preview
                     htmlContent={htmlContent}
@@ -202,7 +197,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               </Card>
             </Col>
           </Row>
-          <div>
+          <div className="groupButtons">
             <Button
               onClick={() => {
                 handleSubmitForm();

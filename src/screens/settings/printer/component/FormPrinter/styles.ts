@@ -1,30 +1,26 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  td {
-    white-space: nowrap;
+  .sectionFilter .ant-col {
+    display: flex;
+    align-items: flex-end;
   }
-  .ant-table-tbody {
-    tr {
-      cursor: pointer;
-    }
-    .text {
-      display: block;
-      max-width: 375px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      word-wrap: break-word;
-      word-break: break-word;
-      @media screen and (min-width: 1600px) {
-        max-width: 600px;
-      }
-    }
+  .ant-form-item {
+    margin-bottom: 0;
   }
-  .columnTitle {
-    .title {
-      display: block;
-      font-size: 1em;
-    }
+  form {
+    position: relative;
+    padding-bottom: 150px;
+  }
+  .groupButtons {
+    position: absolute;
+    bottom: 0;
+    left: -30px;
+    right: -30px;
+    z-index: 9283;
+    padding: 20px 20px;
+    display: flex;
+    justify-content: flex-end;
+    background: #fff;
   }
 `;
