@@ -306,6 +306,16 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                   },
                 ]}
                 summary={(data) => {
+                  let ordered_quantity = 0;
+                  let accepted_quantity = 0
+                  let planned_quantity = 0;
+                  let quantity = 0;
+                  data.forEach((item) => {
+                    ordered_quantity = ordered_quantity + item.ordered_quantity
+                    accepted_quantity = accepted_quantity + item.accepted_quantity
+                    planned_quantity = planned_quantity + item.planned_quantity
+                    quantity = quantity + item.quantity;
+                  })
                   return (
                     <Table.Summary>
                       <Table.Summary.Row>
@@ -317,13 +327,16 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                           <div style={{ fontWeight: 700 }}>Tổng</div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={1}>
-                          <div style={{ fontWeight: 700 }}></div>
+                          <div style={{ fontWeight: 700 }}>{ordered_quantity}</div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={2}>
-                          <div style={{ fontWeight: 700 }}></div>
+                          <div style={{ fontWeight: 700 }}>{accepted_quantity}</div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={3}>
-                          <div style={{ fontWeight: 700 }}></div>
+                          <div style={{ fontWeight: 700 }}>{planned_quantity}</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={4}>
+                          <div style={{ fontWeight: 700, marginRight: 15 }}>{quantity}</div>
                         </Table.Summary.Cell>
                       </Table.Summary.Row>
                     </Table.Summary>
