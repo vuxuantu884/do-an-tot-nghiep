@@ -13,14 +13,19 @@ export const StyledComponent = styled.div`
     padding-bottom: 150px;
   }
   .groupButtons {
-    position: absolute;
+    position: fixed;
     bottom: 0;
-    left: -30px;
-    right: -30px;
+    left: 240px;
+    right: 0px;
     z-index: 9283;
     padding: 20px 20px;
     display: flex;
     justify-content: flex-end;
     background: #fff;
+    button {
+      &:not(:last-child) {
+        margin-right: 5px;
+      }
+    }
   }
 `;

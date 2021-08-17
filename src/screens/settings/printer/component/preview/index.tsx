@@ -61,7 +61,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
       <div className="preview">
         <div className="preview__header">
           <div className="preview__header-inner">
-            <span>Bản xem trước</span>
+            <h3 className="preview__header-title">Bản xem trước</h3>
             <ReactToPrint
               trigger={() => <Button>In thử</Button>}
               content={() => componentRef.current}

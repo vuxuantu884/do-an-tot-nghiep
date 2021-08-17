@@ -2,6 +2,7 @@ import { Button, Card, Col, Form, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import { FormPrinterModel, listKeyWordsModel } from "model/editor/editor.model";
 import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import ReactToPrint from "react-to-print";
 import Editor from "../ckeditor";
 import Preview from "../preview";
@@ -187,7 +188,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               </Card>
             </Col>
             <Col span={12}>
-              <Card style={{ padding: "35px 15px" }}>
+              <Card style={{ padding: "35px 15px", height: "100%" }}>
                 <div className="printContent" ref={componentRef}>
                   <Preview
                     htmlContent={htmlContent}
@@ -198,7 +199,11 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             </Col>
           </Row>
           <div className="groupButtons">
+            <Button type="primary" danger>
+              <Link to="/">Hủy</Link>
+            </Button>
             <Button
+              type="primary"
               onClick={() => {
                 handleSubmitForm();
               }}
