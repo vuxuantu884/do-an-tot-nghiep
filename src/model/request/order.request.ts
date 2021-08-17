@@ -269,6 +269,7 @@ export interface UpdateFulFillmentStatusRequest {
   order_id: number | null | undefined;
   fulfillment_id: number | null;
   status: string | null;
+  cancel_reason?: string | null;
 }
 
 export interface ShippingGHTKRequest {

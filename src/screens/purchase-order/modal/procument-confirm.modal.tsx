@@ -12,7 +12,7 @@ import { ProcumentStatus } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 
 type ProcumentConfirmProps = {
   visible: boolean;
@@ -132,7 +132,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
               label="Ngày nhận dự kiến"
             >
               <CustomDatepicker
-                disableDate={(date) => date < now}
+                disableDate={(date) => date < moment().startOf('days')}
                 style={{ width: "100%" }}
               />
             </Form.Item>
@@ -305,6 +305,43 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                     ),
                   },
                 ]}
+                summary={(data) => {
+                  let ordered_quantity = 0;
+                  let accepted_quantity = 0
+                  let planned_quantity = 0;
+                  let quantity = 0;
+                  data.forEach((item) => {
+                    ordered_quantity = ordered_quantity + item.ordered_quantity
+                    accepted_quantity = accepted_quantity + item.accepted_quantity
+                    planned_quantity = planned_quantity + item.planned_quantity
+                    quantity = quantity + item.quantity;
+                  })
+                  return (
+                    <Table.Summary>
+                      <Table.Summary.Row>
+                        <Table.Summary.Cell
+                          align="center"
+                          colSpan={3}
+                          index={0}
+                        >
+                          <div style={{ fontWeight: 700 }}>Tổng</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={1}>
+                          <div style={{ fontWeight: 700 }}>{ordered_quantity}</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={2}>
+                          <div style={{ fontWeight: 700 }}>{accepted_quantity}</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={3}>
+                          <div style={{ fontWeight: 700 }}>{planned_quantity}</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={4}>
+                          <div style={{ fontWeight: 700, marginRight: 15 }}>{quantity}</div>
+                        </Table.Summary.Cell>
+                      </Table.Summary.Row>
+                    </Table.Summary>
+                  );
+                }}
               />
             );
           }}

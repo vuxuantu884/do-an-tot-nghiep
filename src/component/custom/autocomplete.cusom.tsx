@@ -43,7 +43,6 @@ export default class CustomAutoComplete extends Component<
   }
 
   focus() {
-    console.log('vào đây');
     this.auputRef?.focus();
   }
 

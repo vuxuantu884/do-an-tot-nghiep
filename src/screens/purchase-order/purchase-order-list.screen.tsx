@@ -25,7 +25,7 @@ import { showSuccess, showWarning } from "utils/ToastUtils";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { ProcumentStatus, PoPaymentStatus } from "utils/Constants";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import {
@@ -58,7 +58,6 @@ const PurchaseOrderListScreen: React.FC = () => {
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
 
   let initQuery: PurchaseOrderQuery = {
-    code: "",
   };
 
   let dataQuery: PurchaseOrderQuery = {
@@ -93,11 +92,6 @@ const PurchaseOrderListScreen: React.FC = () => {
       visible: true,
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "phone",
-      visible: true,
-    },
-    {
       title: "Ngày duyệt đơn",
       dataIndex: "activated_date",
       render: (value: string) => {
@@ -109,7 +103,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       title: "Ngày nhận hàng dự kiến",
       dataIndex: "expect_import_date",
       render: (value: string) => {
-        return <div>{ConvertUtcToLocalDate(value)}</div>;
+        return <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>;
       },
       visible: true,
       width: 200,
@@ -124,7 +118,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       title: "Trạng thái đơn",
       dataIndex: "status_name",
       render: (value: string) => {
-        return <Tag className="primary-txt">{value}</Tag>;
+        return <Tag className="tag-custom primary-txt">{value}</Tag>;
       },
       visible: true,
     },

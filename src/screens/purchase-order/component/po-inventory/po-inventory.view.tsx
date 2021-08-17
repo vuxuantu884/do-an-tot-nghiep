@@ -34,6 +34,8 @@ const TAB = [
 ];
 
 type POInventoryViewProps = {
+  id?: number,
+  onSuccess: ()=>void;
   confirmDraft: (item: PurchaseProcument) => void;
   confirmInventory: (item: PurchaseProcument) => void;
 };
@@ -41,13 +43,13 @@ type POInventoryViewProps = {
 const POInventoryView: React.FC<POInventoryViewProps> = (
   props: POInventoryViewProps
 ) => {
-  let { confirmDraft, confirmInventory } = props;
+  let { confirmDraft, confirmInventory ,id: poId, onSuccess} = props;
   const [activeTab, setActiveTab] = useState(TAB[0].id);
   const getComponent = useCallback(
     (id: number) => {
       switch (id) {
         case 1:
-          return <TabAll />;
+          return <TabAll onSuccess={onSuccess} id={poId} />;
         case 2:
           return <TabInvetory />;
         case 3:
@@ -56,7 +58,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           return <TabDraft confirmDraft={confirmDraft} />;
       }
     },
-    [confirmDraft, confirmInventory]
+    [confirmDraft, confirmInventory, onSuccess, poId]
   );
   return (
     <React.Fragment>
@@ -71,8 +73,6 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
         {({ getFieldValue }) => {
           let planned_quantity = getFieldValue(POField.planned_quantity);
           let receipt_quantity = getFieldValue(POField.receipt_quantity);
-          console.log('planned_quantity', planned_quantity);
-          console.log('receipt_quantity', receipt_quantity);
           return (
             <Row align="middle">
               <Col span={24} md={18}>
