@@ -6,13 +6,6 @@ import FormPrinter from "../component/FormPrinter";
 import { StyledComponent } from "./styles";
 
 function SinglePrinter() {
-  const FAKE_SINGLE_PRINTER_FORM: FormPrinterModel = {
-    tenMauIn: "Đơn bán hàng 1",
-    chiNhanhApDung: "YODY Kho tổng 1",
-    khoIn: "Khổ in K80 (80x45 mm) 1",
-    apDung: true,
-    formIn: "{ten_cong_ty}{dia_chi_cong_ty}form1",
-  };
   const [singlePrinterContent, setSinglePrinterContent] =
     useState<FormPrinterModel>({
       tenMauIn: "",
@@ -23,6 +16,13 @@ function SinglePrinter() {
     });
 
   useEffect(() => {
+    const FAKE_SINGLE_PRINTER_FORM: FormPrinterModel = {
+      tenMauIn: "Đơn bán hàng 1",
+      chiNhanhApDung: "YODY Kho tổng 1",
+      khoIn: "Khổ in K80 (80x45 mm) 1",
+      apDung: true,
+      formIn: "{ten_cong_ty}{dia_chi_cong_ty}form1",
+    };
     setSinglePrinterContent(FAKE_SINGLE_PRINTER_FORM);
   }, []);
   return (

@@ -66,6 +66,22 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   ];
   console.log("formValue", formValue);
 
+  // const initialFormValue =
+  //   isEdit && formValue
+  //     ? {
+  //         tenMauIn: "Đơn bán hàng 1",
+  //         chiNhanhApDung: formValue.chiNhanhApDung,
+  //         khoIn: formValue.khoIn,
+  //         apDung: formValue.apDung,
+  //         formIn: formValue.formIn,
+  //       }
+  //     : {
+  //         tenMauIn: null,
+  //         chiNhanhApDung: null,
+  //         khoIn: null,
+  //         apDung: false,
+  //         formIn: null,
+  //       };
   const initialFormValue =
     isEdit && formValue
       ? {
@@ -115,7 +131,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
       <Form
         form={form}
         layout="vertical"
-        initialValues={initialFormValue}
+        initialValues={initialFormValue2}
         // initialValues={{ khoIn: "Khổ in K80 (80x45 mm) 1" }}
       >
         <Card style={{ padding: "35px 15px", marginBottom: 20 }}>
