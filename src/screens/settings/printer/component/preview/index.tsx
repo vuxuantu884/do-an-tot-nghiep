@@ -11,7 +11,7 @@ import { StyledComponent } from "./styles";
 const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   const { htmlContent, listKeyWords } = props;
   // console.log("htmlContent", htmlContent);
-  const componentRef = useRef(null);
+  const printElementRef = useRef(null);
 
   const replaceSymbolByText = (
     text: string,
@@ -55,11 +55,11 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
                   In thử
                 </Button>
               )}
-              content={() => componentRef.current}
+              content={() => printElementRef.current}
             />
           </div>
         </div>
-        <div className="preview__content printContent" ref={componentRef}>
+        <div className="preview__content printContent" ref={printElementRef}>
           <div
             id="divcontents"
             dangerouslySetInnerHTML={{

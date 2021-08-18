@@ -7,14 +7,17 @@ import CustomTable, {
 import UrlConfig from "config/UrlConfig";
 import { FormPrinterModel } from "model/editor/editor.model";
 import { VariantResponse } from "model/product/product.model";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
+import { useReactToPrint } from "react-to-print";
 import { generateQuery } from "utils/AppUtils";
 import IconEdit from "./images/iconEdit.svg";
 import IconPrintHover from "./images/iconPrintHover.svg";
 import { StyledComponent } from "./styles";
 
 const SettingPrinter: React.FC = () => {
+  const FAKE_PRINT_CONTENT = "<p>This is fake print content print screen</p>";
+  const printElementRef = useRef(null);
   const [tableLoading, setTableLoading] = useState(false);
   const [listPrinter, setListPrinter] = useState<FormPrinterModel[]>([]);
   const useQuery = () => {
@@ -47,15 +50,15 @@ const SettingPrinter: React.FC = () => {
     history.push(`${UrlConfig.PRINTER}/${id}`);
   };
 
-  const handlePrint = (e: any) => {
-    e.preventDefault();
-    console.log("handlePrint");
-  };
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
 
   const columns: Array<ICustomTableColumType<VariantResponse>> = [
     {
       title: "STT",
       visible: true,
+      width: "5%",
       render: (value, row, index) => {
         return <span>{(params.page - 1) * params.limit + index + 1}</span>;
       },
@@ -65,65 +68,19 @@ const SettingPrinter: React.FC = () => {
       dataIndex: "tenMauIn",
       visible: true,
       className: "columnTitle",
-      width: "25%",
-      render: (value, row, index) => {
-        if (value) {
-          return (
-            <div
-              className="link"
-              onClick={() => {
-                goToPageDetail(row.id);
-              }}
-            >
-              <span
-                title={value}
-                style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-                className="title text"
-              >
-                {value}
-              </span>
-            </div>
-          );
-        }
-      },
+      width: "20%",
     },
     {
       title: "Chi nhánh áp dụng",
       dataIndex: "chiNhanhApDung",
       visible: true,
-      width: "25%",
-      render: (value, row, index) => {
-        return (
-          <div
-            className="link"
-            onClick={() => {
-              goToPageDetail(row.id);
-            }}
-          >
-            <span title={value}>{value}</span>
-          </div>
-        );
-      },
+      width: "20%",
     },
     {
       title: "Khổ in",
       dataIndex: "khoIn",
       visible: true,
-      width: "25%",
-      render: (value, row, index) => {
-        return (
-          <div
-            className="link"
-            onClick={() => {
-              goToPageDetail(row.id);
-            }}
-          >
-            <span className="text" title={value}>
-              {value}
-            </span>
-          </div>
-        );
-      },
+      width: "30%",
     },
     {
       title: "Thao tác ",
@@ -144,15 +101,20 @@ const SettingPrinter: React.FC = () => {
                 Sửa
               </Button>
             </Link>
-            <Button
-              className="columnAction__singleButton columnAction__singleButton--print"
-              onClick={handlePrint}
-            >
-              <div className="icon">
-                <img src={IconPrintHover} alt="" className="icon--hover" />
-              </div>
-              In thử
-            </Button>
+            {handlePrint && (
+              <Button
+                className="columnAction__singleButton columnAction__singleButton--print"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrint();
+                }}
+              >
+                <div className="icon">
+                  <img src={IconPrintHover} alt="" className="icon--hover" />
+                </div>
+                In thử
+              </Button>
+            )}
           </div>
         );
       },
@@ -262,8 +224,24 @@ const SettingPrinter: React.FC = () => {
             dataSource={listPrinter}
             columns={columnFinal()}
             rowKey={(item: VariantResponse) => item.id}
+            onRow={(record: FormPrinterModel) => {
+              return {
+                onClick: (event) => {
+                  goToPageDetail(record.id);
+                }, // click row
+              };
+            }}
           />
         </Card>
+        <div style={{ display: "none" }}>
+          <div className="printContent" ref={printElementRef}>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: FAKE_PRINT_CONTENT,
+              }}
+            ></div>
+          </div>
+        </div>
       </ContentContainer>
     </StyledComponent>
   );

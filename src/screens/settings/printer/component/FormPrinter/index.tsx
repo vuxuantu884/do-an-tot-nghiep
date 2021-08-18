@@ -1,10 +1,10 @@
 import { Button, Card, Col, Form, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
+import Editor from "component/ckeditor";
 import UrlConfig from "config/UrlConfig";
 import { FormValueModel, listKeyWordsModel } from "model/editor/editor.model";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import Editor from "../ckeditor";
 import Preview from "../preview";
 import { StyledComponent } from "./styles";
 

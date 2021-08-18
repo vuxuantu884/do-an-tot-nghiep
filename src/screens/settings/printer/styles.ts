@@ -9,7 +9,7 @@ export const StyledComponent = styled.div`
     }
     &__singleButton {
       &:not(:last-child) {
-        margin-right: 5px;
+        margin-right: 10px;
       }
       &--edit {
         color: #222;
@@ -24,7 +24,7 @@ export const StyledComponent = styled.div`
     }
   }
   .custom-table {
-    .link {
+    tr {
       cursor: pointer;
       &:hover {
         color: #2a2a86;

@@ -86,6 +86,7 @@ import GetGoodsBack from "../modal/get-goods-back.modal";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import { StoreResponse } from "model/core/store.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import PrintShippingLabel from "./PrintShippingLabel";
 const { Panel } = Collapse;
 const { Link } = Typography;
 //#endregion
@@ -316,7 +317,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
   }, [dispatch, props.OrderDetail]);
   //#endregion
-console.log(cancelReason)
+  console.log(cancelReason);
   //#region Update Fulfillment Status
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
@@ -849,7 +850,7 @@ console.log(cancelReason)
       order_id: null,
       fulfillment_id: null,
       status: "",
-      cancel_reason: cancelReason
+      cancel_reason: cancelReason,
     };
     value.order_id = props.OrderDetail?.id;
     value.fulfillment_id = fullfilmentIdGoodReturn;
@@ -988,7 +989,7 @@ console.log(cancelReason)
                       }
                       showArrow={true}
                       header={
-                        <div>
+                        <div className="saleorder-header-content">
                           <div>
                             <span
                               className="text-field"
@@ -1087,6 +1088,7 @@ console.log(cancelReason)
                                 </Tag>
                               )}
                           </div>
+                          <PrintShippingLabel />
                           <div>
                             <span
                               style={{ color: "#000000d9", marginRight: 6 }}

@@ -32,20 +32,4 @@ export const StyledComponent = styled.div`
       }
     }
   }
-  @page {
-    /* size: 80mm 50mm; */
-    margin: 20mm;
-  }
-
-  @media all {
-    .pagebreak {
-      display: none;
-    }
-  }
-
-  @media print {
-    .pagebreak {
-      page-break-before: always;
-    }
-  }
 `;
