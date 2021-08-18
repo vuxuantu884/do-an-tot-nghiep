@@ -150,12 +150,7 @@ const SettingPrinter: React.FC = () => {
                 Sửa
               </Button>
             </Link>
-            <Button
-              className="columnAction__singleButton columnAction__singleButton--print"
-              onClick={() => {
-                console.log("in thử");
-              }}
-            >
+            <Button className="columnAction__singleButton columnAction__singleButton--print">
               <div className="icon">
                 <img src={IconPrintHover} alt="" className="icon--hover" />
               </div>

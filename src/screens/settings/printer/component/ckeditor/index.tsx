@@ -26,7 +26,6 @@ function Editor(props: any) {
   const handleCancelModal = () => {
     setIsModalVisible(false);
   };
-  console.log("sg");
 
   const handleInsertKeyword = (text: string) => {
     // console.log("text", text);
@@ -36,7 +35,7 @@ function Editor(props: any) {
     )[0] as HTMLElement;
     editor.click();
   };
-  console.log("initialHtmlContent", initialHtmlContent);
+  // console.log("initialHtmlContent", initialHtmlContent);
   return (
     <StyledComponent>
       {/* use key to change value */}
@@ -186,7 +185,7 @@ function Editor(props: any) {
                 exec: function (editor: any) {
                   // console.log("keyword", keyword);
                   editor.insertHtml(keyword);
-                  console.log("initialHtmlContent", initialHtmlContent);
+                  // console.log("initialHtmlContent", initialHtmlContent);
                   setTimeout(() => {
                     editor.focus();
                   }, 500);

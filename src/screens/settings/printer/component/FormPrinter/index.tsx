@@ -2,7 +2,7 @@ import { Button, Card, Col, Form, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import UrlConfig from "config/UrlConfig";
 import { FormPrinterModel, listKeyWordsModel } from "model/editor/editor.model";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Editor from "../ckeditor";
 import Preview from "../preview";
@@ -64,50 +64,26 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
       value: "Hải dương",
     },
   ];
-  console.log("formValue", formValue);
 
-  // const initialFormValue =
-  //   isEdit && formValue
-  //     ? {
-  //         tenMauIn: "Đơn bán hàng 1",
-  //         chiNhanhApDung: formValue.chiNhanhApDung,
-  //         khoIn: formValue.khoIn,
-  //         apDung: formValue.apDung,
-  //         formIn: formValue.formIn,
-  //       }
-  //     : {
-  //         tenMauIn: null,
-  //         chiNhanhApDung: null,
-  //         khoIn: null,
-  //         apDung: false,
-  //         formIn: null,
-  //       };
-  const initialFormValue =
-    isEdit && formValue
-      ? {
-          tenMauIn: "Đơn bán hàng 1",
-          chiNhanhApDung: formValue.chiNhanhApDung,
-          khoIn: formValue.khoIn,
-          apDung: formValue.apDung,
-          formIn: formValue.formIn,
-        }
-      : {
-          tenMauIn: null,
-          chiNhanhApDung: null,
-          khoIn: null,
-          apDung: false,
-          formIn: null,
-        };
-  const initialFormValue2 = {
-    tenMauIn: "Đơn bán hàng 1",
-    chiNhanhApDung: "YODY Kho tổng 1",
-    khoIn: "Khổ in K80 (80x45 mm) 1",
-    apDung: true,
-    formIn: "{ten_cong_ty}{dia_chi_cong_ty}form1",
-  };
-
-  console.log("initialFormValue", initialFormValue);
-  console.log("initialFormValue2", initialFormValue2);
+  const initialFormValue = useMemo(() => {
+    let result =
+      isEdit && formValue
+        ? {
+            tenMauIn: formValue.tenMauIn,
+            chiNhanhApDung: formValue.chiNhanhApDung,
+            khoIn: formValue.khoIn,
+            apDung: formValue.apDung,
+            formIn: formValue.formIn,
+          }
+        : {
+            tenMauIn: null,
+            chiNhanhApDung: null,
+            khoIn: null,
+            apDung: false,
+            formIn: null,
+          };
+    return result;
+  }, [isEdit, formValue]);
 
   const onChangeKhoIn = (value: string) => {
     setSelectedPrintSize(value);
@@ -123,17 +99,13 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     if (isEdit && formValue) {
       setHtmlContent(formValue.formIn);
       setSelectedPrintSize(formValue.formIn);
+      form.setFieldsValue(initialFormValue);
     }
-  }, [formValue, isEdit]);
+  }, [form, formValue, initialFormValue, isEdit]);
 
   return (
     <StyledComponent>
-      <Form
-        form={form}
-        layout="vertical"
-        initialValues={initialFormValue2}
-        // initialValues={{ khoIn: "Khổ in K80 (80x45 mm) 1" }}
-      >
+      <Form form={form} layout="vertical" initialValues={initialFormValue}>
         <Card style={{ padding: "35px 15px", marginBottom: 20 }}>
           <Row gutter={20} className="sectionFilter">
             <Col span={6}>
@@ -155,7 +127,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                 <Select placeholder="Chọn chi nhánh áp dụng:" allowClear>
                   {sprintConfigure.danhSachChiNhanh &&
                     sprintConfigure.danhSachChiNhanh.map((single, index) => {
-                      console.log("single", single);
+                      // console.log("single", single);
                       return (
                         <Select.Option
                           value={single.chiNhanhApDung}

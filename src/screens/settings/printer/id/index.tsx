@@ -28,7 +28,7 @@ function SinglePrinter() {
   return (
     <StyledComponent>
       <ContentContainer
-        title="Danh sách mẫu in"
+        title="Chi tiết mẫu in"
         breadcrumb={[
           {
             name: "Tổng quan",
