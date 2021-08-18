@@ -159,7 +159,7 @@ const checkFixedDate = (from: any, to: any) => {
      dateTo = getDateFromNow(distance, unit);
     if (from === dateFrom.startOf(searchUnit).utc().format() &&
       to === dateTo.endOf(searchUnit).utc().format()) {
-      if (unit === 'day') fixedDate = `${display} (${formatedFrom}`;
+      if (unit === 'day') fixedDate = `${display} (${formatedFrom})`;
       else fixedDate = `${display} (${formatedFrom} - ${formatedTo})`;
       return fixedDate;
     }
@@ -356,23 +356,23 @@ const AdvanceFormItems = ({
           case filterFields.qc:
             collapseChildren = (
               <CustomSelect
-                      showArrow
-                      placeholder="Chọn 1 hoặc nhiều qc"
-                      mode="multiple"
-                      allowClear
-                      tagRender={tagRender}
-                      style={{
-                        width: "100%",
-                      }}
-                      notFoundContent="Không tìm thấy kết quả"
-                      maxTagCount="responsive"
-                    >
-                      {listRdAccount?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.full_name}>
-                          {`${item.code} - ${item.full_name}`}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
+                showArrow
+                placeholder="Chọn 1 hoặc nhiều qc"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
+                style={{
+                  width: "100%",
+                }}
+                notFoundContent="Không tìm thấy kết quả"
+                maxTagCount="responsive"
+              >
+                {listRdAccount?.map((item) => (
+                  <CustomSelect.Option key={item.id} value={item.full_name}>
+                    {`${item.code} - ${item.full_name}`}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
             );
             break;
           case filterFields.cost_included:
@@ -482,12 +482,14 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
 
-  const [advanceFilters, setAdvanceFilters] = useState({});
+  let [advanceFilters, setAdvanceFilters] = useState({});
   const [tempAdvanceFilters, setTempAdvanceFilters] = useState({});
 
   const resetField = useCallback((field: string) => {
-    setAdvanceFilters({...advanceFilters, [field]: undefined});
-  }, [advanceFilters]);
+    formBaseFilter.setFieldsValue({...formBaseFilter.getFieldsValue(true), [field]: undefined});
+    formAdvanceFilter.setFieldsValue({...formAdvanceFilter.getFieldsValue(true), [field]: undefined});
+    formBaseFilter.submit();
+  }, [formBaseFilter, formAdvanceFilter]);
 
   const onBaseFinish = useCallback(
     (values: PurchaseOrderQuery) => {
@@ -563,12 +565,11 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             completedDate = data[filterFields.completed_date],
             cancelledDate = data[filterFields.cancelled_date],
             expectedImportDate = data[filterFields.expected_import_date];
-          const [from_order_date, to_order_date] = orderDate ? orderDate : [],
-            [from_activated_date, to_activated_date] = activatedDate ? activatedDate : [],
-            [from_completed_date, to_completed_date] = completedDate ? completedDate : [],
-            [from_cancelled_date, to_cancelled_date] = cancelledDate ? cancelledDate : [],
-            [from_expect_import_date, to_expect_import_date] = expectedImportDate ? expectedImportDate : [];
-          
+          const [from_order_date, to_order_date] = orderDate ? orderDate : [undefined, undefined],
+            [from_activated_date, to_activated_date] = activatedDate ? activatedDate : [undefined, undefined],
+            [from_completed_date, to_completed_date] = completedDate ? completedDate : [undefined, undefined],
+            [from_cancelled_date, to_cancelled_date] = cancelledDate ? cancelledDate : [undefined, undefined],
+            [from_expect_import_date, to_expect_import_date] = expectedImportDate ? expectedImportDate : [undefined, undefined];
           for (let key in data) {
             if (data[key] instanceof Array) {
               if (data[key].length === 0) data[key] = undefined;

@@ -1,6 +1,6 @@
 import { DatePicker, Row, Col, Button } from "antd";
 import moment, { Moment } from "moment";
-import { CSSProperties, Fragment, ReactNode } from "react";
+import { CSSProperties, Fragment, ReactNode, useMemo } from "react";
 import { DATE_FORMAT, getDateFromNow } from "utils/DateUtils";
 import { SettingOutlined } from "@ant-design/icons";
 import _ from "lodash";
@@ -51,6 +51,18 @@ const CustomRangepicker: React.FC<CustomRangepickerProps> = (
   props: CustomRangepickerProps
 ) => {
   const { value, onChange, style } = props;
+  const convertValue: [Moment, Moment] | undefined = useMemo(() => {
+    if (_.isEqual(getRange(1, "day"), value) || _.isEqual(getRange(0, "day"), value) 
+        || _.isEqual(getRange(1, "week"), value) || _.isEqual(getRange(0, "week"), value)
+        || _.isEqual(getRange(1, "month"), value) || _.isEqual(getRange(0, "month"), value))
+      return undefined;
+    if (value && value.length > 0) {
+      const from = value[0],
+        to = value[1];
+      return [moment(from), moment(to)];
+    };
+    return undefined;
+  }, [value])
   return (
     <Fragment>
       <Row gutter={[5, 5]}>
@@ -129,6 +141,7 @@ const CustomRangepicker: React.FC<CustomRangepickerProps> = (
         style={{ ...style, width: "100%" }}
         disabledDate={props.disableDate}
         className={props.className}
+        value={convertValue}
         onChange={(dates, dateStrings) => {
           let from = null,
             to = null;
