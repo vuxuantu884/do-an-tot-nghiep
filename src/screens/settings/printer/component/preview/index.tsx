@@ -5,6 +5,7 @@ import {
 } from "model/editor/editor.model";
 import React, { useRef } from "react";
 import ReactToPrint from "react-to-print";
+import IconPrintHover from "./images/iconPrintHover.svg";
 import { StyledComponent } from "./styles";
 
 const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
@@ -63,7 +64,14 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
           <div className="preview__header-inner">
             <h3 className="preview__header-title">Bản xem trước</h3>
             <ReactToPrint
-              trigger={() => <Button>In thử</Button>}
+              trigger={() => (
+                <Button className="button--print">
+                  <div className="icon">
+                    <img src={IconPrintHover} alt="" className="icon--hover" />
+                  </div>
+                  In thử
+                </Button>
+              )}
               content={() => componentRef.current}
             />
           </div>

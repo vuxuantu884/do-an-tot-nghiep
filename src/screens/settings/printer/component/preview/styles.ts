@@ -21,6 +21,17 @@ export const StyledComponent = styled.div`
       padding-top: 30px;
     }
   }
+  .button {
+    &--print {
+      border-color: #2a2a86;
+      color: #2a2a86;
+      .icon {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 5px;
+      }
+    }
+  }
   @page {
     /* size: 80mm 50mm; */
     margin: 20mm;

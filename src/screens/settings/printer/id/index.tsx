@@ -40,7 +40,7 @@ function SinglePrinter() {
           },
           {
             name: "Danh sách mẫu in",
-            path: UrlConfig.ACCOUNTS,
+            path: UrlConfig.PRINTER,
           },
           {
             name: "Mẫu in 1",

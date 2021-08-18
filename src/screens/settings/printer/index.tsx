@@ -141,24 +141,22 @@ const SettingPrinter: React.FC = () => {
           <div className="columnAction">
             <Link
               to={`${history.location.pathname}/${value}`}
-              className="columnAction__singleButton"
+              className="columnAction__singleButton columnAction__singleButton--edit"
             >
               <Button>
                 <div className="icon">
                   <img src={IconEdit} alt="" className="icon--normal" />
-                  <img src={IconEditHover} alt="" className="icon--hover" />
                 </div>
                 Sửa
               </Button>
             </Link>
             <Button
-              className="columnAction__singleButton"
+              className="columnAction__singleButton columnAction__singleButton--print"
               onClick={() => {
                 console.log("in thử");
               }}
             >
               <div className="icon">
-                <img src={IconPrint} alt="" className="icon--normal" />
                 <img src={IconPrintHover} alt="" className="icon--hover" />
               </div>
               In thử

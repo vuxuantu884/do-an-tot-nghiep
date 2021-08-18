@@ -6,26 +6,20 @@ export const StyledComponent = styled.div`
       display: inline-block;
       vertical-align: middle;
       margin-right: 5px;
-      &--hover {
-        display: none;
-      }
-      &--normal {
-        display: block;
-      }
     }
     &__singleButton {
-      &:hover {
-        .icon {
-          &--hover {
-            display: block;
-          }
-          &--normal {
-            display: none;
-          }
-        }
-      }
       &:not(:last-child) {
         margin-right: 5px;
+      }
+      &--edit {
+        color: #222;
+        .ant-btn {
+          color: inherit;
+        }
+      }
+      &--print {
+        border-color: #2a2a86;
+        color: #2a2a86;
       }
     }
   }
