@@ -1,9 +1,20 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  .sectionFilter .ant-col {
-    display: flex;
-    align-items: flex-end;
+  .sectionFilter {
+    .ant-form-item {
+      width: 100%;
+    }
+    .ant-form-item-control-input {
+      width: 100%;
+    }
+    .ant-col {
+      display: flex;
+      align-items: flex-end;
+    }
+    label {
+      font-weight: 500;
+    }
   }
   .ant-form-item {
     margin-bottom: 0;
@@ -24,7 +35,7 @@ export const StyledComponent = styled.div`
     background: #fff;
     button {
       &:not(:last-child) {
-        margin-right: 5px;
+        margin-right: 10px;
       }
     }
   }

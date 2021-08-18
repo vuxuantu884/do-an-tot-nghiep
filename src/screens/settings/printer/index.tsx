@@ -5,59 +5,18 @@ import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
-import { SinglePrintModel } from "model/editor/editor.model";
+import { FormPrinterModel } from "model/editor/editor.model";
 import { VariantResponse } from "model/product/product.model";
-import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
-import { StyledComponent } from "./styles";
 import IconEdit from "./images/iconEdit.svg";
-import IconEditHover from "./images/iconEditHover.svg";
-import IconPrint from "./images/iconPrint.svg";
 import IconPrintHover from "./images/iconPrintHover.svg";
+import { StyledComponent } from "./styles";
 
 const SettingPrinter: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
-  const FAKE_LIST_PRINTERS = [
-    {
-      id: 1,
-      tenMauIn: "Tên mẫu in 1",
-      chiNhanhApDung: "Chi nhánh áp dụng 1",
-      khoIn: "Khổ in 1",
-    },
-    {
-      id: 2,
-      tenMauIn: "Tên mẫu in 2",
-      chiNhanhApDung: "Chi nhánh áp dụng 2",
-      khoIn: "Khổ in 2",
-    },
-    {
-      id: 3,
-      tenMauIn: "Tên mẫu in 3",
-      chiNhanhApDung: "Chi nhánh áp dụng 3",
-      khoIn: "Khổ in 3",
-    },
-    {
-      id: 4,
-      tenMauIn: "Tên mẫu in 4",
-      chiNhanhApDung: "Chi nhánh áp dụng 4",
-      khoIn: "Khổ in 4",
-    },
-    {
-      id: 5,
-      tenMauIn: "Tên mẫu in 5",
-      chiNhanhApDung: "Chi nhánh áp dụng 5",
-      khoIn: "Khổ in 5",
-    },
-    {
-      id: 6,
-      tenMauIn: "Tên mẫu in 6",
-      chiNhanhApDung: "Chi nhánh áp dụng 6",
-      khoIn: "Khổ in 6",
-    },
-  ];
-  const [listPrinter, setListPrinter] = useState<SinglePrintModel[]>([]);
+  const [listPrinter, setListPrinter] = useState<FormPrinterModel[]>([]);
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
@@ -84,6 +43,15 @@ const SettingPrinter: React.FC = () => {
     [history, params]
   );
 
+  const goToPageDetail = (id: string | number) => {
+    history.push(`${UrlConfig.PRINTER}/${id}`);
+  };
+
+  const handlePrint = (e: any) => {
+    e.preventDefault();
+    console.log("handlePrint");
+  };
+
   const columns: Array<ICustomTableColumType<VariantResponse>> = [
     {
       title: "STT",
@@ -101,13 +69,20 @@ const SettingPrinter: React.FC = () => {
       render: (value, row, index) => {
         if (value) {
           return (
-            <span
-              title={value}
-              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-              className="title text"
+            <div
+              className="link"
+              onClick={() => {
+                goToPageDetail(row.id);
+              }}
             >
-              {value}
-            </span>
+              <span
+                title={value}
+                style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+                className="title text"
+              >
+                {value}
+              </span>
+            </div>
           );
         }
       },
@@ -117,6 +92,18 @@ const SettingPrinter: React.FC = () => {
       dataIndex: "chiNhanhApDung",
       visible: true,
       width: "25%",
+      render: (value, row, index) => {
+        return (
+          <div
+            className="link"
+            onClick={() => {
+              goToPageDetail(row.id);
+            }}
+          >
+            <span title={value}>{value}</span>
+          </div>
+        );
+      },
     },
     {
       title: "Khổ in",
@@ -125,9 +112,16 @@ const SettingPrinter: React.FC = () => {
       width: "25%",
       render: (value, row, index) => {
         return (
-          <span className="text" title={value} style={{ color: "#666666" }}>
-            {value}
-          </span>
+          <div
+            className="link"
+            onClick={() => {
+              goToPageDetail(row.id);
+            }}
+          >
+            <span className="text" title={value}>
+              {value}
+            </span>
+          </div>
         );
       },
     },
@@ -150,7 +144,10 @@ const SettingPrinter: React.FC = () => {
                 Sửa
               </Button>
             </Link>
-            <Button className="columnAction__singleButton columnAction__singleButton--print">
+            <Button
+              className="columnAction__singleButton columnAction__singleButton--print"
+              onClick={handlePrint}
+            >
               <div className="icon">
                 <img src={IconPrintHover} alt="" className="icon--hover" />
               </div>
@@ -181,6 +178,50 @@ const SettingPrinter: React.FC = () => {
   };
 
   useEffect(() => {
+    const FAKE_LIST_PRINTERS = [
+      {
+        id: 1,
+        tenMauIn: "Tên mẫu in 1",
+        chiNhanhApDung: "Chi nhánh áp dụng 1",
+        apDung: false,
+        khoIn: "Khổ in 1",
+      },
+      {
+        id: 2,
+        tenMauIn: "Tên mẫu in 2",
+        chiNhanhApDung: "Chi nhánh áp dụng 2",
+        apDung: false,
+        khoIn: "Khổ in 2",
+      },
+      {
+        id: 3,
+        tenMauIn: "Tên mẫu in 3",
+        chiNhanhApDung: "Chi nhánh áp dụng 3",
+        apDung: false,
+        khoIn: "Khổ in 3",
+      },
+      {
+        id: 4,
+        tenMauIn: "Tên mẫu in 4",
+        chiNhanhApDung: "Chi nhánh áp dụng 4",
+        apDung: false,
+        khoIn: "Khổ in 4",
+      },
+      {
+        id: 5,
+        tenMauIn: "Tên mẫu in 5",
+        chiNhanhApDung: "Chi nhánh áp dụng 5",
+        apDung: false,
+        khoIn: "Khổ in 5",
+      },
+      {
+        id: 6,
+        tenMauIn: "Tên mẫu in 6",
+        chiNhanhApDung: "Chi nhánh áp dụng 6",
+        apDung: false,
+        khoIn: "Khổ in 6",
+      },
+    ];
     setTableLoading(false);
     setTotal(30);
     setListPrinter(FAKE_LIST_PRINTERS);
@@ -221,13 +262,6 @@ const SettingPrinter: React.FC = () => {
             dataSource={listPrinter}
             columns={columnFinal()}
             rowKey={(item: VariantResponse) => item.id}
-            onRow={(record: OrderProcessingStatusModel) => {
-              return {
-                onClick: (event) => {
-                  console.log("event", event);
-                }, // click row
-              };
-            }}
           />
         </Card>
       </ContentContainer>

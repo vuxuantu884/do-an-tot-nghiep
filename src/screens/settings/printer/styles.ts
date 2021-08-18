@@ -23,4 +23,12 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .custom-table {
+    .link {
+      cursor: pointer;
+      &:hover {
+        color: #2a2a86;
+      }
+    }
+  }
 `;

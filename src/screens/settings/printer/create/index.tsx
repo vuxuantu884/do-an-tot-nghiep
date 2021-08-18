@@ -7,22 +7,6 @@ import FormPrinter from "../component/FormPrinter";
 import { StyledComponent } from "./styles";
 
 const SettingCreatePrinter: React.FC = () => {
-  const createPrinterHtml = () => {
-    return (
-      <Link to={`${UrlConfig.PRINTER}/create`}>
-        <Button
-          type="primary"
-          className="ant-btn-primary"
-          size="large"
-          onClick={() => {}}
-          icon={<PlusOutlined />}
-        >
-          Thêm mẫu in
-        </Button>
-      </Link>
-    );
-  };
-
   return (
     <StyledComponent>
       <ContentContainer
@@ -44,7 +28,6 @@ const SettingCreatePrinter: React.FC = () => {
             name: "Thêm mới mẫu in",
           },
         ]}
-        extra={createPrinterHtml()}
       >
         <FormPrinter type="create" />
       </ContentContainer>

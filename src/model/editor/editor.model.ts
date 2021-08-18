@@ -4,13 +4,6 @@ export interface keyWordsModel {
   value: string;
 }
 
-export interface SinglePrintModel {
-  id: string | number;
-  tenMauIn: string;
-  chiNhanhApDung: string;
-  khoIn: string;
-}
-
 export type listKeyWordsModel = keyWordsModel[];
 
 export interface EditorModel {
@@ -38,10 +31,19 @@ export interface PrintPreviewModel {
 
 export type SinglePrinterContentModel = string;
 
-export interface FormPrinterModel {
+export interface FormValueModel {
   tenMauIn: string;
   chiNhanhApDung: string;
   khoIn: string;
   apDung: boolean;
   formIn: SinglePrinterContentModel;
+}
+
+export interface FormPrinterModel {
+  id: string | number;
+  tenMauIn: string;
+  chiNhanhApDung: string;
+  khoIn: string;
+  apDung: boolean;
+  formIn?: SinglePrinterContentModel;
 }

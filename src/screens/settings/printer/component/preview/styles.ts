@@ -5,15 +5,15 @@ export const StyledComponent = styled.div`
     display: block;
     &__header {
       &-inner {
-        padding-bottom: 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        height: 108px;
         border-bottom: 1px solid #ccc;
       }
       &-title {
         font-weight: bold;
-        font-size: 1em;
+        font-size: 18px;
         margin: 0;
       }
     }

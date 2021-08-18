@@ -1,13 +1,13 @@
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
-import { FormPrinterModel } from "model/editor/editor.model";
+import { FormValueModel } from "model/editor/editor.model";
 import React, { useEffect, useState } from "react";
 import FormPrinter from "../component/FormPrinter";
 import { StyledComponent } from "./styles";
 
 function SinglePrinter() {
   const [singlePrinterContent, setSinglePrinterContent] =
-    useState<FormPrinterModel>({
+    useState<FormValueModel>({
       tenMauIn: "",
       chiNhanhApDung: "",
       khoIn: "",
@@ -16,12 +16,12 @@ function SinglePrinter() {
     });
 
   useEffect(() => {
-    const FAKE_SINGLE_PRINTER_FORM: FormPrinterModel = {
-      tenMauIn: "Đơn bán hàng 1",
-      chiNhanhApDung: "YODY Kho tổng 1",
-      khoIn: "Khổ in K80 (80x45 mm) 1",
+    const FAKE_SINGLE_PRINTER_FORM: FormValueModel = {
+      tenMauIn: "Đơn bán hàng 2",
+      chiNhanhApDung: "YODY Kho tổng 2",
+      khoIn: "Khổ in K80 (80x45 mm) 2",
       apDung: true,
-      formIn: "{ten_cong_ty}{dia_chi_cong_ty}form1",
+      formIn: "{ten_cong_ty}{dia_chi_cong_ty}form2",
     };
     setSinglePrinterContent(FAKE_SINGLE_PRINTER_FORM);
   }, []);

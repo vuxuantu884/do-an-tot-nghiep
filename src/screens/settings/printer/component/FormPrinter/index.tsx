@@ -1,7 +1,7 @@
 import { Button, Card, Col, Form, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import UrlConfig from "config/UrlConfig";
-import { FormPrinterModel, listKeyWordsModel } from "model/editor/editor.model";
+import { FormValueModel, listKeyWordsModel } from "model/editor/editor.model";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Editor from "../ckeditor";
@@ -10,7 +10,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   type?: "create" | "edit";
-  formValue?: FormPrinterModel;
+  formValue?: FormValueModel;
 };
 
 const FormPrinter: React.FC<PropType> = (props: PropType) => {
@@ -86,8 +86,10 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   }, [isEdit, formValue]);
 
   const onChangeKhoIn = (value: string) => {
-    setSelectedPrintSize(value);
-    setHtmlContent(value);
+    if (isEdit) {
+      setSelectedPrintSize(value);
+      setHtmlContent(value);
+    }
   };
 
   const handleSubmitForm = () => {
@@ -106,7 +108,9 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   return (
     <StyledComponent>
       <Form form={form} layout="vertical" initialValues={initialFormValue}>
-        <Card style={{ padding: "35px 15px", marginBottom: 20 }}>
+        <Card
+          style={{ padding: "20px 15px", marginBottom: 20, borderRadius: 12 }}
+        >
           <Row gutter={20} className="sectionFilter">
             <Col span={6}>
               <Form.Item name="tenMauIn" label="Chọn mẫu in:">
@@ -167,7 +171,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         </Card>
         <Row gutter={20}>
           <Col span={12}>
-            <Card style={{ padding: "35px 15px", height: "100%" }}>
+            <Card style={{ padding: "15px 15px", height: "100%" }}>
               {/* <Editor onChange={handleOnChangeEditor} /> */}
               {/* <CkEditor onChange={handleOnChangeEditor} /> */}
               <React.Fragment>
@@ -184,7 +188,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             </Card>
           </Col>
           <Col span={12}>
-            <Card style={{ padding: "35px 15px", height: "100%" }}>
+            <Card style={{ padding: "15px 15px", height: "100%" }}>
               <div className="printContent" ref={componentRef}>
                 <Preview htmlContent={htmlContent} listKeyWords={FAKE_WORDS} />
               </div>
@@ -193,7 +197,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         </Row>
         <div className="groupButtons">
           <Button>
-            <Link to={`/${UrlConfig.PRINTER}`}>Hủy</Link>
+            <Link to={`${UrlConfig.PRINTER}`}>Thoát</Link>
           </Button>
           <Button
             type="primary"

@@ -10,22 +10,9 @@ import { StyledComponent } from "./styles";
 
 const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   const { htmlContent, listKeyWords } = props;
-  console.log("htmlContent", htmlContent);
+  // console.log("htmlContent", htmlContent);
   const componentRef = useRef(null);
-  // const FAKE_WORDS = [
-  //   {
-  //     symbol: "{ten_cong_ty}",
-  //     value: "YODY",
-  //   },
-  //   {
-  //     symbol: "{dia_chi_cong_ty}",
-  //     value: "Hải dương",
-  //   },
-  // ];
 
-  /**
-   * https://stackoverflow.com/questions/47794036/replace-with-multiple-value-in-string-typescript
-   */
   const replaceSymbolByText = (
     text: string,
     replacements: listKeyWordsModel
@@ -43,12 +30,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
     // console.log("resultText", resultText);
     return resultText;
   };
-  // const replaceSymbolByText = (text: string) => {
-  //   FAKE_WORDS.forEach((singleWord) => {
-  //     text = text.replaceAll(singleWord.symbol, singleWord.value);
-  //   });
-  //   return text;
-  // };
+
   const renderHtml = (htmlContent: string) => {
     // console.log("htmlContent", htmlContent);
     let result = htmlContent;
@@ -57,6 +39,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
     }
     return result;
   };
+
   return (
     <StyledComponent>
       <div className="preview">

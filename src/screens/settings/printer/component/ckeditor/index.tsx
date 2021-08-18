@@ -1,5 +1,5 @@
 import { CKEditor } from "ckeditor4-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import EditorModal from "./modal";
 import { StyledComponent } from "./styles";
 
@@ -30,11 +30,27 @@ function Editor(props: any) {
   const handleInsertKeyword = (text: string) => {
     // console.log("text", text);
     keyword = text;
-    let editor = document.getElementsByClassName(
+    let editorButtonInsertHtml = document.getElementsByClassName(
       "cke_button__inserthtml_label"
     )[0] as HTMLElement;
-    editor.click();
+    editorButtonInsertHtml.click();
   };
+
+  const renderModal = () => {
+    let html = null;
+    if (isModalVisible) {
+      html = (
+        <EditorModal
+          isModalVisible={isModalVisible}
+          handleCancel={handleCancelModal}
+          listKeyWords={listKeyWords}
+          insertKeyword={(text) => handleInsertKeyword(text)}
+        />
+      );
+    }
+    return html;
+  };
+
   // console.log("initialHtmlContent", initialHtmlContent);
   return (
     <StyledComponent>
@@ -168,15 +184,21 @@ function Editor(props: any) {
          */
         // onBeforeLoad={(CKEDITOR: any) => {
         onNamespaceLoaded={(CKEDITOR: any) => {
+          console.log("onNamespaceLoaded");
           CKEDITOR.plugins.add("timestamp", {
             init: function (editor: any) {
               editor.addCommand("openModalDialog", {
                 exec: function (editor: any) {
-                  showModal();
+                  // showModal();
+                  let editorButtonShowModal = document.getElementsByClassName(
+                    "buttonShowModal"
+                  )[0] as HTMLElement;
+                  editorButtonShowModal.click();
+                  // console.log("openModalDialog");
                 },
               });
               editor.ui.addButton("OpenModalButton", {
-                label: "Xem chi tiết",
+                label: "Xem danh sách từ khóa",
                 command: "openModalDialog",
                 toolbar: "insert",
                 icon: "https://cdn4.iconfinder.com/data/icons/24x24-free-pixel-icons/24/Clock.png",
@@ -201,12 +223,14 @@ function Editor(props: any) {
           });
         }}
       />
-      <EditorModal
-        isModalVisible={isModalVisible}
-        handleCancel={handleCancelModal}
-        listKeyWords={listKeyWords}
-        insertKeyword={(text) => handleInsertKeyword(text)}
-      />
+      <button
+        className="buttonShowModal"
+        onClick={showModal}
+        style={{ display: "none" }}
+      >
+        showModal
+      </button>
+      {renderModal()}
     </StyledComponent>
   );
 }
