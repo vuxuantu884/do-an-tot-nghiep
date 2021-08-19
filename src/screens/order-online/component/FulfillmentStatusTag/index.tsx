@@ -8,23 +8,9 @@ type PropType = {
   fulfillment: FulFillmentResponse | null | undefined;
 };
 
-type labelType = {
-  name: string;
-  color: string;
-  backgroundColor: string;
-};
-
-interface statusTagWithoutReturned extends labelType {
-  status: string;
-}
-
-interface statusTagWithReturn extends labelType {
-  statusBeforeCancellation: string;
-}
-
 const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
   const { fulfillment } = props;
-  const listStatusTagWithReturning: statusTagWithReturn[] = [
+  const listStatusTagWithReturning = [
     {
       statusBeforeCancellation: FulFillmentStatus.SHIPPING,
       name: "Hủy đơn giao - Chưa nhận hàng",
@@ -38,7 +24,7 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
       backgroundColor: "rgba(226, 67, 67, 0.1)",
     },
   ];
-  const listStatusTagWithReturned: statusTagWithReturn[] = [
+  const listStatusTagWithReturned = [
     {
       statusBeforeCancellation: FulFillmentStatus.UNSHIPPED,
       name: "Hủy đơn giao",
@@ -58,7 +44,7 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
       backgroundColor: "rgba(226, 67, 67, 0.1)",
     },
   ];
-  const listStatusTagWithoutReturn: statusTagWithoutReturned[] = [
+  const listStatusTagWithoutReturn = [
     {
       name: "Chưa giao hàng",
       status: FulFillmentStatus.UNSHIPPED,

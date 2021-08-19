@@ -1,31 +1,35 @@
 //#region Import
 import {
+  Badge,
   Button,
   Card,
-  Row,
-  Col,
-  Form,
-  Space,
-  Typography,
-  Divider,
   Checkbox,
-  Tag,
+  Col,
   Collapse,
   DatePicker,
+  Divider,
+  Form,
   FormInstance,
+  Row,
   Select,
-  Badge,
+  Space,
+  Tag,
+  Typography,
 } from "antd";
-import React, { useState, useCallback, useEffect, createRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  ShippingGHTKRequest,
-  UpdateFulFillmentRequest,
-  UpdateFulFillmentStatusRequest,
-  UpdateLineFulFillment,
-  UpdateShipmentRequest,
-} from "model/request/order.request";
-import { AccountResponse } from "model/account/account.model";
+import calendarOutlined from "assets/icon/calendar_outline.svg";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
+import deliveryIcon from "assets/icon/delivery.svg";
+import doubleArrow from "assets/icon/double_arrow.svg";
+import eyeOutline from "assets/icon/eye_outline.svg";
+import selfdeliver from "assets/icon/self_shipping.svg";
+import shoppingBag from "assets/icon/shopping_bag.svg";
+import wallClock from "assets/icon/wall_clock.svg";
+import AlertIcon from "assets/icon/ydAlertIcon.svg";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import WarningIcon from "assets/icon/ydWarningIcon.svg";
+import storeBluecon from "assets/img/storeBlue.svg";
+import NumberInput from "component/custom/number-input.custom";
+import CustomSelect from "component/custom/select.custom";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   DeliveryServicesGetList,
@@ -35,28 +39,28 @@ import {
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
-import storeBluecon from "assets/img/storeBlue.svg";
-import deliveryIcon from "assets/icon/delivery.svg";
-import selfdeliver from "assets/icon/self_shipping.svg";
-import shoppingBag from "assets/icon/shopping_bag.svg";
-import wallClock from "assets/icon/wall_clock.svg";
-import eyeOutline from "assets/icon/eye_outline.svg";
-import calendarOutlined from "assets/icon/calendar_outline.svg";
-import doubleArrow from "assets/icon/double_arrow.svg";
-import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import AlertIcon from "assets/icon/ydAlertIcon.svg";
-
+import { AccountResponse } from "model/account/account.model";
+import { StoreResponse } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import {
+  ShippingGHTKRequest,
+  UpdateFulFillmentRequest,
+  UpdateFulFillmentStatusRequest,
+  UpdateLineFulFillment,
+  UpdateShipmentRequest,
+} from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
   ErrorLogResponse,
-  FulFillmentResponse,
   OrderResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
+import React, { createRef, useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setTimeout } from "timers";
 import {
   checkPaymentStatusToShow,
   CheckShipmentType,
@@ -69,26 +73,21 @@ import {
   SumWeightResponse,
   TrackingCode,
 } from "utils/AppUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   FulFillmentStatus,
-  OrderStatus,
-  ShipmentMethodOption,
-  PaymentMethodOption,
-  TRANSPORTS,
   MoneyPayThreePls,
+  OrderStatus,
+  PaymentMethodOption,
+  ShipmentMethodOption,
+  TRANSPORTS,
 } from "utils/Constants";
-import CustomSelect from "component/custom/select.custom";
-import NumberInput from "component/custom/number-input.custom";
-import { setTimeout } from "timers";
-import SaveAndConfirmOrder from "../modal/save-confirm.modal";
-import GetGoodsBack from "../modal/get-goods-back.modal";
+import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
-import { StoreResponse } from "model/core/store.model";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import PrintShippingLabel from "./PrintShippingLabel";
+import GetGoodsBack from "../modal/get-goods-back.modal";
+import SaveAndConfirmOrder from "../modal/save-confirm.modal";
 import FulfillmentStatusTag from "./FulfillmentStatusTag";
+import PrintShippingLabel from "./PrintShippingLabel";
+
 const { Panel } = Collapse;
 const { Link } = Typography;
 //#endregion
