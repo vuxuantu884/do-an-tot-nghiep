@@ -27,6 +27,7 @@ export interface PrintEditorModel {
 export interface PrintPreviewModel {
   htmlContent: string;
   listKeyWords?: listKeyWordsModel;
+  previewHeaderHeight?: number;
 }
 
 export type SinglePrinterContentModel = string;
