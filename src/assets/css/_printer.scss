@@ -1,0 +1,16 @@
+@page {
+  /* size: 80mm 50mm; */
+  margin: 20mm;
+}
+
+@media all {
+  .pageBreak {
+    display: none;
+  }
+}
+
+@media print {
+  .pageBreak {
+    page-break-before: always;
+  }
+}
