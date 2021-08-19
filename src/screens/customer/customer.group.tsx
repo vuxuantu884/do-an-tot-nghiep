@@ -1,4 +1,4 @@
-import { Card, Row, Col, AutoComplete, Button, Form, Tooltip } from "antd";
+import { Card, Row, Col, AutoComplete, Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import React from "react";
 import Popup from "./popup";
@@ -6,7 +6,6 @@ import CustomerAdd from "./add";
 import ButtonCreate from "component/header/ButtonCreate";
 import arrowDownloadRight from "../../assets/icon/arrow-download-right.svg";
 import arrowDownloadDown from "../../assets/icon/arrow-download-down.svg";
-import { FilterOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/UrlConfig";
 import { useDispatch } from "react-redux";
@@ -104,6 +103,7 @@ const Customer = () => {
   });
   console.log(data);
   const [tableLoading, setTableLoading] = React.useState<boolean>(true);
+
   const [options, setOptions] = React.useState<SearchResult>({ items: [] });
 
   const onPageChange = React.useCallback(
@@ -176,11 +176,11 @@ const Customer = () => {
               fontWeight: 400,
               marginRight: 14,
               height: 40,
-              color: "#222222",
+              color: "#222222", 
             }}
             className="ant-btn-outline fixed-button cancle-button"
             onClick={() => window.location.reload()}
-            icon={<img style={{ marginRight: 10 }} src={arrowDownloadRight} />}
+            icon={<img style={{ marginRight: 10}} src={arrowDownloadRight} />}
           >
             Nhập file
           </Button>
@@ -204,8 +204,8 @@ const Customer = () => {
       <Row gutter={[12, 12]} style={{ padding: "5px 0" }}>
         <Col span={24}>
           <Card>
-            <Row style={{ padding: "5px 7px" }}>
-              <Col span={18}>
+            <Row gutter={[10, 10]} style={{ padding: "5px 7px" }}>
+              <Col span={5}>
                 <AutoComplete
                   onSearch={onSearch}
                   onSelect={(value, option) => onSelect(value, option)}

@@ -15,6 +15,7 @@ interface CardContactProps {
 const RenderCardContact = ({component: Component, title, name, form, isEdit, reload}: CardContactProps) => {
     return (
         <Card
+        style={{marginTop: 16}}
         title={
           <div className="d-flex">
             <span className="title-card">{title}</span>
@@ -37,6 +38,7 @@ const RenderCardContact = ({component: Component, title, name, form, isEdit, rel
                             form={form}
                             isEdit={isEdit}
                             reload={reload}
+                            title={title}
                           />
                         )}
                       </Form.Item>

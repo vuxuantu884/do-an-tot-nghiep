@@ -16,6 +16,7 @@ const UrlConfig = {
   ORDER_PROCESSING_STATUS: `/settings/order-processing-status`,
   ORDER_SOURCES: `/settings/order-source`,
   PRINTER: `/settings/printer`,
+  CUSTOMER: `/customers`
 };
 
 export default UrlConfig;
