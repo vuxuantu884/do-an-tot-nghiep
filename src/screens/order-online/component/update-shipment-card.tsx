@@ -51,6 +51,7 @@ import AlertIcon from "assets/icon/ydAlertIcon.svg";
 import {
   DeliveryServiceResponse,
   ErrorLogResponse,
+  FulFillmentResponse,
   OrderResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
@@ -87,6 +88,7 @@ import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import { StoreResponse } from "model/core/store.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import PrintShippingLabel from "./PrintShippingLabel";
+import FulfillmentStatusTag from "./FulfillmentStatusTag";
 const { Panel } = Collapse;
 const { Link } = Typography;
 //#endregion
@@ -164,44 +166,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
   //#endregion
   //#region Master
-  interface statusTagObj {
-    name: string;
-    status: string;
-    color: string;
-    backgroundColor: string;
-  }
-  const shipmentStatusTag: Array<statusTagObj> = [
-    {
-      name: "Chưa giao hàng",
-      status: FulFillmentStatus.UNSHIPPED,
-      color: "#666666",
-      backgroundColor: "rgba(102, 102, 102, 0.1)",
-    },
-    {
-      name: "Đã nhặt hàng",
-      status: FulFillmentStatus.PICKED,
-      color: "#FCAF17",
-      backgroundColor: "rgba(252, 175, 23, 0.1)",
-    },
-    {
-      name: "Đã đóng gói",
-      status: FulFillmentStatus.PACKED,
-      color: "#FCAF17",
-      backgroundColor: "rgba(252, 175, 23, 0.1)",
-    },
-    {
-      name: "Đang giao hàng",
-      status: FulFillmentStatus.SHIPPING,
-      color: "#FCAF17",
-      backgroundColor: "rgba(252, 175, 23, 0.1)",
-    },
-    {
-      name: "Đã giao hàng",
-      status: FulFillmentStatus.SHIPPED,
-      color: "#27AE60",
-      backgroundColor: "rgba(39, 174, 96, 0.1)",
-    },
-  ];
+
   // copy button
   const copyOrderID = (e: any, data: string | null) => {
     e.stopPropagation();
@@ -864,6 +829,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     },
     [setFullfilmentIdGoodReturn, setIsvibleGoodsReturn]
   );
+
   // end
   useEffect(() => {
     getRequirementName();
@@ -990,7 +956,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       showArrow={true}
                       header={
                         <div className="saleorder-header-content">
-                          <div>
+                          <div className="saleorder-header-content__info">
                             <span
                               className="text-field"
                               style={{
@@ -1019,77 +985,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                 style={{ width: 23 }}
                               />
                             </div>
-                            {fulfillment.status !==
-                              FulFillmentStatus.CANCELLED &&
-                              fulfillment.status !==
-                                FulFillmentStatus.RETURNING &&
-                              fulfillment.status !==
-                                FulFillmentStatus.RETURNED &&
-                              shipmentStatusTag.map((statusTag) => {
-                                return (
-                                  statusTag.status ===
-                                    (props.OrderDetail &&
-                                      props.OrderDetail?.fulfillments &&
-                                      props.OrderDetail?.fulfillments[0]
-                                        .status) && (
-                                    <Tag
-                                      key={statusTag.name}
-                                      className="orders-tag text-menu"
-                                      style={{
-                                        color: `${statusTag.color}`,
-                                        backgroundColor: `${statusTag.backgroundColor}`,
-                                      }}
-                                    >
-                                      {statusTag.name}
-                                    </Tag>
-                                  )
-                                );
-                              })}
-                            {fulfillment.status_before_cancellation !==
-                              FulFillmentStatus.SHIPPING &&
-                              fulfillment.status ===
-                                FulFillmentStatus.RETURNED && (
-                                <Tag
-                                  className="orders-tag text-menu"
-                                  style={{
-                                    color: "#E24343",
-                                    backgroundColor: "rgba(226, 67, 67, 0.1)",
-                                  }}
-                                >
-                                  Hủy giao hàng - Đã nhận hàng
-                                </Tag>
-                              )}
-                            {fulfillment.status_before_cancellation ===
-                              FulFillmentStatus.SHIPPING &&
-                              fulfillment.status !==
-                                FulFillmentStatus.RETURNED && (
-                                <Tag
-                                  className="orders-tag text-menu"
-                                  style={{
-                                    color: "#E24343",
-                                    backgroundColor: "rgba(226, 67, 67, 0.1)",
-                                  }}
-                                >
-                                  Hủy giao hàng - Chưa nhận hàng
-                                </Tag>
-                              )}
-                            {fulfillment.status_before_cancellation ===
-                              FulFillmentStatus.SHIPPING &&
-                              fulfillment.status ===
-                                FulFillmentStatus.RETURNED && (
-                                <Tag
-                                  className="orders-tag text-menu"
-                                  style={{
-                                    color: "#E24343",
-                                    backgroundColor: "rgba(226, 67, 67, 0.1)",
-                                  }}
-                                >
-                                  Hủy giao hàng - Đã nhận hàng
-                                </Tag>
-                              )}
+                            <FulfillmentStatusTag fulfillment={fulfillment} />
+                            <PrintShippingLabel />
                           </div>
-                          <PrintShippingLabel />
-                          <div>
+
+                          <div className="saleorder-header-content__date">
                             <span
                               style={{ color: "#000000d9", marginRight: 6 }}
                             >
@@ -1576,7 +1476,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   type="default"
                   className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                   style={{
-                    color: "#737373",
+                    // color: "#737373",
                     border: "1px solid #E5E5E5",
                     padding: "0 25px",
                   }}
@@ -1592,7 +1492,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                     type="default"
                     className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                     style={{
-                      color: "#737373",
                       border: "1px solid #E5E5E5",
                       padding: "0 25px",
                     }}
