@@ -18,6 +18,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
   const [htmlContent, setHtmlContent] = useState("");
+  const [previewHeaderHeight, setPreviewHeaderHeight] = useState(108);
   const [selectedPrintSize, setSelectedPrintSize] = useState("whatever");
   const componentRef = useRef(null);
 
@@ -42,7 +43,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         chiNhanhApDung: "YODY Kho tổng 2",
       },
     ],
-    danhSachkhoIn: [
+    danhSachKhoIn: [
       {
         khoIn: "Khổ in K80 (80x45 mm) 1",
       },
@@ -95,6 +96,10 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const handleSubmitForm = () => {
     const formComponentValue = form.getFieldsValue();
     console.log("formComponentValue", formComponentValue);
+  };
+
+  const handleEditorToolbarHeight = (height: number) => {
+    setPreviewHeaderHeight(height);
   };
 
   useEffect(() => {
@@ -151,8 +156,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                   onChange={onChangeKhoIn}
                   allowClear
                 >
-                  {sprintConfigure.danhSachkhoIn &&
-                    sprintConfigure.danhSachkhoIn.map((single, index) => {
+                  {sprintConfigure.danhSachKhoIn &&
+                    sprintConfigure.danhSachKhoIn.map((single, index) => {
                       return (
                         <Select.Option value={single.khoIn} key={index}>
                           {single.khoIn}
@@ -182,6 +187,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                     initialHtmlContent={htmlContent}
                     listKeyWords={FAKE_WORDS}
                     selectedPrintSize={selectedPrintSize}
+                    previewHeaderHeight={handleEditorToolbarHeight}
                   />
                 </Form.Item>
               </React.Fragment>
@@ -190,7 +196,11 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           <Col span={12}>
             <Card style={{ padding: "15px 15px", height: "100%" }}>
               <div className="printContent" ref={componentRef}>
-                <Preview htmlContent={htmlContent} listKeyWords={FAKE_WORDS} />
+                <Preview
+                  htmlContent={htmlContent}
+                  listKeyWords={FAKE_WORDS}
+                  previewHeaderHeight={previewHeaderHeight}
+                />
               </div>
             </Card>
           </Col>
