@@ -18,6 +18,10 @@ export const ConvertUtcToLocalDate = (
   return "";
 };
 
+export const getDateFromNow = (distance: number, unit: 'day' | 'month' | 'week'): Moment => {
+  return moment().subtract(distance, unit);
+};
+
 export const ConvertDateToUtc = (date: Date | string | number | Moment) => {
   return moment(date).utc().format();
 };

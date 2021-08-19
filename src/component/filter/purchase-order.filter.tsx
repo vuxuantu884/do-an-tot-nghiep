@@ -17,7 +17,8 @@ import CustomSelect from "component/custom/select.custom";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { POStatus, ProcumentStatus, PoPaymentStatus } from "utils/Constants";
-import { DATE_FORMAT } from "utils/DateUtils";
+import { DATE_FORMAT, getDateFromNow } from "utils/DateUtils";
+import { FilterOutlined } from "@ant-design/icons";
 
 const { Panel } = Collapse;
 const { Item } = Form;
@@ -55,7 +56,7 @@ const filterFields = {
   order_date: "order_date",
   activated_date: "activated_date",
   completed_date: "completed_date",
-  cancelled_date: "cancelled_date_range",
+  cancelled_date: "cancelled_date",
   status: "status",
   receive_status: "receive_status",
   financial_status: "financial_status",
@@ -66,7 +67,7 @@ const filterFields = {
   expected_import_date: "expected_import_date",
   expected_store: "expected_store",
   note: "note",
-  supllier_note: "supplier_note",
+  supplier_note: "supplier_note",
   tags: "tags",
   reference: "reference",
 };
@@ -78,7 +79,7 @@ const allStatus: any = {
 };
 
 const filterFieldsMapping: any = {
-  [filterFields.order_date]: "Ngày nhập kho",
+  [filterFields.order_date]: "Ngày tạo đơn",
   [filterFields.activated_date]: "Ngày duyệt đơn",
   [filterFields.completed_date]: "Ngày hoàn tất đơn",
   [filterFields.cancelled_date]: "Ngày hủy đơn",
@@ -86,13 +87,13 @@ const filterFieldsMapping: any = {
   [filterFields.receive_status]: "Nhập kho",
   [filterFields.financial_status]: "Thanh toán",
   [filterFields.merchandiser]: "Merchandiser",
-  [filterFields.qc]: "qc",
+  [filterFields.qc]: "QC",
   [filterFields.cost_included]: "Chi phí",
   [filterFields.tax_included]: "VAT",
-  [filterFields.expected_import_date]: "Ngày nhận hàng dự kiên",
-  [filterFields.expected_store]: "Kho nhận hàng dự kiên",
+  [filterFields.expected_import_date]: "Ngày nhận hàng dự kiến",
+  [filterFields.expected_store]: "Kho nhận hàng dự kiến",
   [filterFields.note]: "Ghi chú nội bộ",
-  [filterFields.supllier_note]: "Ghi chú nhà cung cấp",
+  [filterFields.supplier_note]: "Ghi chú nhà cung cấp",
   [filterFields.tags]: "Tag",
   [filterFields.reference]: "Mã tham chiếu",
 };
@@ -101,14 +102,72 @@ type FilterHeaderProps = {
   title?: string;
 };
 const FilterHeader = ({ title }: FilterHeaderProps) => {
-  return <span>{title}</span>;
+  return <span>{title?.toUpperCase()}</span>;
 };
 
+const checkFixedDate = (from: any, to: any) => {
+  let fixedDate = null;
+  let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY);
+  let formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
+  type CheckDateType = {
+    distance: number;
+    unit: 'day' | 'week' | 'month';
+    display: any
+  };
+
+  let checkDates: Array<CheckDateType> = [
+    {
+      distance: 0,
+      unit: 'day',
+      display: 'Hôm nay'
+    },
+    {
+      distance: 1,
+      unit: 'day',
+      display: 'Hôm qua'
+    },
+    {
+      distance: 0,
+      unit: 'week',
+      display: 'Tuần này'
+    },
+    {
+      distance: 1,
+      unit: 'week',
+      display: 'Tuần trước'
+    },
+    {
+      distance: 0,
+      unit: 'month',
+      display: 'Tháng này'
+    },
+    {
+      distance: 1,
+      unit: 'month',
+      display: 'Tháng trước'
+    },
+  ];
+  for (let i = 0; i < checkDates.length; i ++) {
+    const checkDate = checkDates[i],
+      {distance, unit, display} = checkDate;
+    let searchUnit: any = unit;
+    if (searchUnit === 'week') searchUnit = 'isoWeek';
+  
+    let dateFrom = getDateFromNow(distance, unit),
+     dateTo = getDateFromNow(distance, unit);
+    if (from === dateFrom.startOf(searchUnit).utc().format() &&
+      to === dateTo.endOf(searchUnit).utc().format()) {
+      if (unit === 'day') fixedDate = `${display} (${formatedFrom})`;
+      else fixedDate = `${display} (${formatedFrom} - ${formatedTo})`;
+      return fixedDate;
+    }
+  };
+};
 const FilterList = ({ filters, resetField }: any) => {
   let filtersKeys = Object.keys(filters);
+  let renderTxt = null;
   return (
     <Space wrap={true} style={{ marginBottom: 20 }}>
-
       {filtersKeys.map((filterKey) => {
         let value = filters[filterKey];
         if (!value) return null;
@@ -120,16 +179,12 @@ const FilterList = ({ filters, resetField }: any) => {
           case filterFields.cancelled_date:
           case filterFields.expected_import_date:
             let [from, to] = value;
-            from = moment.utc(from).format(DATE_FORMAT.DDMMYYY);
-            to = moment.utc(to).format(DATE_FORMAT.DDMMYYY);
-            return (
-              <Tag
-                onClose={() => resetField(filterKey)}
-                key={filterKey}
-                className="fade"
-                closable
-              >{`${filterFieldsMapping[filterKey]} : ${from} - ${to}`}</Tag>
-            );
+            let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY),
+              formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
+            let fixedDate = checkFixedDate(from, to);
+            if (fixedDate) renderTxt = `${filterFieldsMapping[filterKey]} : ${fixedDate}`;
+            else renderTxt = `${filterFieldsMapping[filterKey]} : ${formatedFrom} - ${formatedTo}`;
+            break;
           case filterFields.status:
           case filterFields.receive_status:
           case filterFields.financial_status:
@@ -138,49 +193,31 @@ const FilterList = ({ filters, resetField }: any) => {
             let listStatusValue = value?.map((key: string) => {
               return listStatus[key];
             });
-            return (
-              <Tag
-                onClose={() => resetField(filterKey)}
-                key={filterKey}
-                className="fade"
-                closable
-              >{`${filterFieldsMapping[filterKey]} : ${listStatusValue}`}</Tag>
-            );
+            renderTxt=`${filterFieldsMapping[filterKey]} : ${listStatusValue}`;
+            break;
           case filterFields.cost_included:
             let costTxt = "Có chi phí";
             if (value === "false") costTxt = "Không chi phí"
-            return (
-              <Tag
-                onClose={() => resetField(filterKey)}
-                key={filterKey}
-                className="fade"
-                closable
-              >{`${filterFieldsMapping[filterKey]} : ${costTxt}`}</Tag>
-            );
+            renderTxt = `${filterFieldsMapping[filterKey]} : ${costTxt}`;
+            break;
           case filterFields.tax_included:
             let taxTxt = "Có VAT";
             if (value === "false") taxTxt = "Không VAT"
-            return (
-              <Tag
-                onClose={() => resetField(filterKey)}
-                key={filterKey}
-                className="fade"
-                closable
-              >{`${filterFieldsMapping[filterKey]} : ${taxTxt}`}</Tag>
-            );
+            renderTxt = `${filterFieldsMapping[filterKey]} : ${taxTxt}`;
+            break;
           default:
-            return (
-              <Tag
-                onClose={() => resetField(filterKey)}
-                key={filterKey}
-                className="fade"
-                closable
-              >{`${filterFieldsMapping[filterKey]} : ${value}`}</Tag>
-            );
+            renderTxt = `${filterFieldsMapping[filterKey]} : ${value}`;
         }
+        return (  
+            <Tag
+              onClose={() => resetField(filterKey)}
+              key={filterKey}
+              className="fade"
+              closable
+            >{`${renderTxt}`}</Tag>
+        );
       })}
-    </Space>
-  );
+  </Space>)
 };
 
 function tagRender(props: any) {
@@ -201,204 +238,225 @@ function tagRender(props: any) {
   );
 }
 
+type AdvanceFormItemProps = {
+  listSupplierAccount: PurchaseOrderFilterProps['listSupplierAccount'];
+  listRdAccount: PurchaseOrderFilterProps['listRdAccount'];
+  listStore: PurchaseOrderFilterProps['listStore'];
+  tempAdvanceFilters: any
+};
+
 const AdvanceFormItems = ({
   listSupplierAccount,
   listRdAccount,
   listStore,
-}: Partial<PurchaseOrderFilterProps>) => {
+  tempAdvanceFilters
+}: AdvanceFormItemProps) => {
   return (
     <Space direction="vertical" style={{ width: "100%" }}>
       {Object.keys(filterFields).map((field) => {
+        let collapseChildren = null;
         switch (field) {
           case filterFields.order_date:
           case filterFields.activated_date:
           case filterFields.completed_date:
           case filterFields.cancelled_date:
           case filterFields.expected_import_date:
-            return (
-              <Collapse key={field}>
-                <Panel
-                  header={<FilterHeader title={filterFieldsMapping[field]} />}
-                  key="1"
-                >
-                  <Item name={field}>
-                    <CustomRangepicker />
-                  </Item>
-                </Panel>
-              </Collapse>
+            collapseChildren = (
+              <CustomRangepicker />
             );
+            break;
+          case filterFields.status:
+            collapseChildren = (
+              <CustomSelect
+                showArrow
+                placeholder="Chọn 1 hoặc nhiều trạng thái"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
+                notFoundContent="Không tìm thấy kết quả"
+                style={{
+                  width: "100%",
+                }}
+                maxTagCount="responsive"
+              >
+                {Object.keys(listPOStatus)?.map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listPOStatus[key]}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
+            )
+            break;
+          case filterFields.receive_status:
+            collapseChildren = (
+              <CustomSelect
+                showArrow
+                placeholder="Chọn 1 hoặc nhiều trạng thái"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
+                notFoundContent="Không tìm thấy kết quả"
+                style={{
+                  width: "100%",
+                }}
+                maxTagCount="responsive"
+              >
+                {Object.keys(listProcumentStatus)?.map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listProcumentStatus[key]}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
+            );
+            break;
+          case filterFields.financial_status:
+            collapseChildren = (
+              <CustomSelect
+                showArrow
+                placeholder="Chọn 1 hoặc nhiều trạng thái"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
+                notFoundContent="Không tìm thấy kết quả"
+                style={{
+                  width: "100%",
+                }}
+                maxTagCount="responsive"
+              >
+                {Object.keys(listPaymentStatus).map((key) => (
+                  <CustomSelect.Option key={key} value={key}>
+                    {listPaymentStatus[key]}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
+            );
+            break;
           case filterFields.merchandiser:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="MERCHANDISER" />} key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      placeholder="Chọn 1 hoặc nhiều merchandiser"
-                      mode="multiple"
-                      allowClear
-                      tagRender={tagRender}
-                      style={{
-                        width: "100%",
-                      }}
-                      notFoundContent="Không tìm thấy kết quả"
-                      maxTagCount="responsive"
-                    >
-                      {listSupplierAccount?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.full_name}>
-                          {`${item.code} - ${item.full_name}`}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<CustomSelect
+              showArrow
+              placeholder="Chọn 1 hoặc nhiều merchandiser"
+              mode="multiple"
+              allowClear
+              tagRender={tagRender}
+              style={{
+                width: "100%",
+              }}
+              notFoundContent="Không tìm thấy kết quả"
+              maxTagCount="responsive"
+            >
+              {listSupplierAccount?.map((item) => (
+                <CustomSelect.Option key={item.id} value={item.full_name}>
+                  {`${item.code} - ${item.full_name}`}
+                </CustomSelect.Option>
+              ))}
+            </CustomSelect>)
+            break;
           case filterFields.qc:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="QC" />} key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      placeholder="Chọn 1 hoặc nhiều qc"
-                      mode="multiple"
-                      allowClear
-                      tagRender={tagRender}
-                      style={{
-                        width: "100%",
-                      }}
-                      notFoundContent="Không tìm thấy kết quả"
-                      maxTagCount="responsive"
-                    >
-                      {listRdAccount?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.full_name}>
-                          {`${item.code} - ${item.full_name}`}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
+            collapseChildren = (
+              <CustomSelect
+                showArrow
+                placeholder="Chọn 1 hoặc nhiều qc"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
+                style={{
+                  width: "100%",
+                }}
+                notFoundContent="Không tìm thấy kết quả"
+                maxTagCount="responsive"
+              >
+                {listRdAccount?.map((item) => (
+                  <CustomSelect.Option key={item.id} value={item.full_name}>
+                    {`${item.code} - ${item.full_name}`}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
             );
+            break;
           case filterFields.cost_included:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="CHI PHÍ" />} key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      placeholder="Chọn 1 trong 2 đk"
-                      tagRender={tagRender}
-                      style={{
-                        width: "100%",
-                      }}
-                      notFoundContent="Không tìm thấy kết quả"
-                    >
-                      <CustomSelect.Option key="1" value="true">
-                        Có chi phí
-                      </CustomSelect.Option>
-                      <CustomSelect.Option key="2" value="false">
-                        Không chi phí
-                      </CustomSelect.Option>
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<CustomSelect
+              showArrow
+              placeholder="Chọn 1 trong 2 đk"
+              tagRender={tagRender}
+              style={{
+                width: "100%",
+              }}
+              notFoundContent="Không tìm thấy kết quả"
+            >
+              <CustomSelect.Option key="1" value="true">
+                Có chi phí
+              </CustomSelect.Option>
+              <CustomSelect.Option key="2" value="false">
+                Không chi phí
+              </CustomSelect.Option>
+            </CustomSelect>);
+            break;
           case filterFields.tax_included:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="VAT" />} key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      placeholder="Chọn 1 trong 2 đk"
-                      tagRender={tagRender}
-                      style={{
-                        width: "100%",
-                      }}
-                      notFoundContent="Không tìm thấy kết quả"
-                    >
-                      <CustomSelect.Option key="1" value="true">
-                        Có VAT
-                      </CustomSelect.Option>
-                      <CustomSelect.Option key="2" value="false">
-                        Không VAT
-                      </CustomSelect.Option>
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<CustomSelect
+              showArrow
+              placeholder="Chọn 1 trong 2 đk"
+              tagRender={tagRender}
+              style={{
+                width: "100%",
+              }}
+              notFoundContent="Không tìm thấy kết quả"
+            >
+              <CustomSelect.Option key="1" value="true">
+                Có VAT
+              </CustomSelect.Option>
+              <CustomSelect.Option key="2" value="false">
+                Không VAT
+              </CustomSelect.Option>
+            </CustomSelect>);
+            break;
           case filterFields.expected_store:
-            return (
-              <Collapse key={field}>
-                <Panel header="Kho nhận hàng dự kiến" key="1">
-                  <Item name={field}>
-                    <CustomSelect
-                      placeholder="Kho nhận hàng dự kiến"
-                      style={{
-                        width: "100%",
-                      }}
-                      tagRender={tagRender}
-                      notFoundContent="Không tìm thấy kết quả"
-                      mode="multiple"
-                      allowClear
-                      maxTagCount="responsive"
-                    >
-                      {listStore?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.name}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<CustomSelect
+              showArrow
+              placeholder="Kho nhận hàng dự kiến"
+              style={{
+                width: "100%",
+              }}
+              tagRender={tagRender}
+              notFoundContent="Không tìm thấy kết quả"
+              mode="multiple"
+              allowClear
+              maxTagCount="responsive"
+            >
+              {listStore?.map((item) => (
+                <CustomSelect.Option key={item.id} value={item.name}>
+                  {item.name}
+                </CustomSelect.Option>
+              ))}
+            </CustomSelect>);
+            break;
           case filterFields.note:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="GHI CHÚ NỘI BỘ" />} key="1">
-                  <Item name={field}>
-                    <Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
-          case filterFields.supllier_note:
-            return (
-              <Collapse key={field}>
-                <Panel
-                  header={<FilterHeader title="GHI CHÚ NHÀ CUNG CẤP" />}
-                  key="1"
-                >
-                  <Item name={field}>
-                    <Input placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<Input placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />);
+            break;
+          case filterFields.supplier_note:
+            collapseChildren = (<Input placeholder="Tìm kiếm theo nội dung ghi chú nhà cung cấp" />);
+            break;
           case filterFields.tags:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="TAG" />} key="1">
-                  <Item name={field}>
-                    <Input placeholder="Tìm kiếm theo tag" />
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<Input placeholder="Tìm kiếm theo tag" />);
+            break;
           case filterFields.reference:
-            return (
-              <Collapse key={field}>
-                <Panel header={<FilterHeader title="MÃ THAM CHIẾU" />} key="1">
-                  <Item name={field}>
-                    <Input placeholder="Tìm kiếm theo mã tham chiếu" />
-                  </Item>
-                </Panel>
-              </Collapse>
-            );
+            collapseChildren = (<Input placeholder="Tìm kiếm theo mã tham chiếu" />);
+            break;
           default: 
-          return null;
+            collapseChildren = null;
         }
+        return (
+          <Collapse key={field}>
+            <Panel
+              className={tempAdvanceFilters[field] ? 'active' : ''}
+              header={<FilterHeader title={filterFieldsMapping[field]} />}
+              key="1"
+            >
+              <Item name={field}>
+                {collapseChildren}
+              </Item>
+            </Panel>
+          </Collapse>
+        );
       })}
     </Space>
   );
@@ -422,11 +480,14 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
 
-  const [advanceFilters, setAdvanceFilters] = useState({});
+  let [advanceFilters, setAdvanceFilters] = useState({});
+  const [tempAdvanceFilters, setTempAdvanceFilters] = useState({});
 
   const resetField = useCallback((field: string) => {
-    setAdvanceFilters({...advanceFilters, [field]: undefined});
-  }, [advanceFilters]);
+    formBaseFilter.setFieldsValue({...formBaseFilter.getFieldsValue(true), [field]: undefined});
+    formAdvanceFilter.setFieldsValue({...formAdvanceFilter.getFieldsValue(true), [field]: undefined});
+    formBaseFilter.submit();
+  }, [formBaseFilter, formAdvanceFilter]);
 
   const onBaseFinish = useCallback(
     (values: PurchaseOrderQuery) => {
@@ -451,8 +512,9 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   }, []);
   const onCancelFilter = useCallback(() => {
     formAdvanceFilter.resetFields();
+    setTempAdvanceFilters({...advanceFilters});
     setVisible(false);
-  }, [formAdvanceFilter]);
+  }, [formAdvanceFilter, advanceFilters]);
   const onResetFilter = useCallback(() => {
     // debugger;
     let fields = formAdvanceFilter.getFieldsValue(true);
@@ -473,6 +535,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   useEffect(() => {
     formBaseFilter.setFieldsValue({...advanceFilters});
     formAdvanceFilter.setFieldsValue({...advanceFilters});
+    setTempAdvanceFilters(advanceFilters);
   },[advanceFilters]);
   useEffect(() => {
     setAdvanceFilters({...params});
@@ -500,12 +563,11 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             completedDate = data[filterFields.completed_date],
             cancelledDate = data[filterFields.cancelled_date],
             expectedImportDate = data[filterFields.expected_import_date];
-          const [from_order_date, to_order_date] = orderDate ? orderDate : [],
-            [from_activated_date, to_activated_date] = activatedDate ? activatedDate : [],
-            [from_completed_date, to_completed_date] = completedDate ? completedDate : [],
-            [from_cancelled_date, to_cancelled_date] = cancelledDate ? cancelledDate : [],
-            [from_expect_import_date, to_expect_import_date] = expectedImportDate ? expectedImportDate : [];
-          
+          const [from_order_date, to_order_date] = orderDate ? orderDate : [undefined, undefined],
+            [from_activated_date, to_activated_date] = activatedDate ? activatedDate : [undefined, undefined],
+            [from_completed_date, to_completed_date] = completedDate ? completedDate : [undefined, undefined],
+            [from_cancelled_date, to_cancelled_date] = cancelledDate ? cancelledDate : [undefined, undefined],
+            [from_expect_import_date, to_expect_import_date] = expectedImportDate ? expectedImportDate : [undefined, undefined];
           for (let key in data) {
             if (data[key] instanceof Array) {
               if (data[key].length === 0) data[key] = undefined;
@@ -537,62 +599,48 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             onFinish={onBaseFinish}
             initialValues={advanceFilters}
             layout="inline"
-
           >
             <Item name="info">
               <Input
                 prefix={<img src={search} alt="" />}
                 style={{ width: 350 }}
-                placeholder="Tìm kiếm theo ID đơn mua, tên số điện thoại ncc"
+                placeholder="Tìm kiếm theo ID đơn mua, Tên, SĐT nhà cung cấp"
               />
+            </Item>
+            <Item name={filterFields.merchandiser}>
+              <CustomSelect
+                showArrow
+                placeholder="Merchandise"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
+                style={{
+                  width: 150
+                }}
+                notFoundContent="Không tìm thấy kết quả"
+                maxTagCount="responsive"
+              >
+                {listSupplierAccount?.map((item) => (
+                  <CustomSelect.Option key={item.id} value={item.full_name}>
+                    {`${item.code} - ${item.full_name}`}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
             </Item>
             <Item name={filterFields.status}>
               <CustomSelect
-                placeholder="Chọn 1 hoặc nhiều trạng thái"
+                showArrow
+                placeholder="Trạng thái đặt hàng"
                 mode="multiple"
                 allowClear
                 tagRender={tagRender}
                 notFoundContent="Không tìm thấy kết quả"
-                style={{ width: 150 }}
+                style={{ width: 200 }}
                 maxTagCount="responsive"
               >
                 {Object.keys(listPOStatus)?.map((key) => (
                   <CustomSelect.Option key={key} value={key}>
                     {listPOStatus[key]}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            </Item>
-            <Item name={filterFields.receive_status}>
-              <CustomSelect
-                placeholder="Chọn 1 hoặc nhiều trạng thái"
-                mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                notFoundContent="Không tìm thấy kết quả"
-                style={{ width: 200 }}
-                maxTagCount="responsive"
-              >
-                {Object.keys(listProcumentStatus)?.map((key) => (
-                  <CustomSelect.Option key={key} value={key}>
-                    {listProcumentStatus[key]}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            </Item>
-            <Item name={filterFields.financial_status}>
-              <CustomSelect
-                placeholder="Chọn 1 hoặc nhiều trạng thái"
-                mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                notFoundContent="Không tìm thấy kết quả"
-                style={{ width: 200 }}
-                maxTagCount="responsive"
-              >
-                {Object.keys(listPaymentStatus).map((key) => (
-                  <CustomSelect.Option key={key} value={key}>
-                    {listPaymentStatus[key]}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
@@ -603,7 +651,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
               </Button>
             </Item>
             <Item>
-              <Button onClick={openFilter}>Thêm bộ lọc</Button>
+              <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>
           </Form>
         </CustomFilter>
@@ -620,11 +668,21 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             onFinish={onAdvanceFinish}
             initialValues={advanceFilters}
             layout="vertical"
+            onFieldsChange={(changedFields: any, allFields: any) => {
+              let fieldNames = changedFields && changedFields.length > 0 && changedFields[0].name;
+              if (!fieldNames) return;
+              let filtersSelected: any = {};
+              fieldNames.forEach((fieldName: any) => {
+                filtersSelected[fieldName] = true;
+              });
+              setTempAdvanceFilters({...filtersSelected, ...tempAdvanceFilters})
+            }}
           >
             <AdvanceFormItems
               listSupplierAccount={listSupplierAccount}
               listStore={listStore}
               listRdAccount={listRdAccount}
+              tempAdvanceFilters={tempAdvanceFilters}
             />
           </Form>
         </BaseFilter>
