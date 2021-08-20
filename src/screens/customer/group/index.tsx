@@ -49,26 +49,6 @@ const SettingCustomerGroup: React.FC = () => {
 
   const columns: Array<ICustomTableColumType<VariantResponse>> = [
     {
-      title: "Mã nhóm khách hàng",
-      dataIndex: "code",
-      visible: false,
-      className: "columnTitle",
-      width: "10%",
-      render: (value, row, index) => {
-        if (value) {
-          return (
-            <span
-              title={value}
-              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-              className="title text"
-            >
-              {value}
-            </span>
-          );
-        }
-      },
-    },
-    {
       title: "Tên Nhóm khách hàng",
       dataIndex: "name",
       visible: true,
@@ -114,6 +94,19 @@ const SettingCustomerGroup: React.FC = () => {
         );
       },
     },
+    // {
+    //   title: "Thao tác",
+    //   dataIndex: "note",
+    //   visible: true,
+    //   width: "25%",
+    //   render: (value, row, index) => {
+    //     return (
+    //       <span className="text" title={value} style={{ color: "#666666" }}>
+    //         {value}
+    //       </span>
+    //     );
+    //   },
+    // },
   ];
 
   const columnFinal = () => columns.filter((item) => item.visible === true);

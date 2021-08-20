@@ -1,7 +1,7 @@
 import { BaseObject } from 'model/base/base.response';
 
 export interface CustomerResponse extends BaseObject {
-  full_name: string | null,
+  full_name: string,
   phone: string | null,
   email: string | null,
   facebook_url: string | null,
@@ -16,12 +16,16 @@ export interface CustomerResponse extends BaseObject {
   wedding_date: number,
   birthday: number,
   gender: string | null,
-  responsible_staff_id: number,
+  website: string | null
+  responsible_staff_code: number,
   affiliate_code: string | null,
   loyalty: number,
-  billing_addresses: Array<BillingAddress>;
-  shipping_addresses: Array<ShippingAddress>;
-  contact: Array<contact>
+  billing_addresses: Array<BillingAddress>,
+  shipping_addresses: Array<ShippingAddress>,
+  contacts: Array<contact>,
+  customer_type: string | null,
+  customer_group: string | null,
+  description: string | null
 }
 
 

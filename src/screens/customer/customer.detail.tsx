@@ -1,11 +1,20 @@
 import { Input, Form, Row, Col, DatePicker, Select, Button, Card } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
+import CustomTable from "component/table/CustomTable";
+import { ICustomTableColumType } from "component/table/CustomTable";
+import { PlusOutlined } from "@ant-design/icons";
+import { modalActionType } from "model/modal/modal.model";
+import CustomModal from "component/modal/CustomModal";
+
 import {
   CustomerDetail,
   CustomerGroups,
   CustomerLevels,
   CustomerTypes,
   UpdateCustomer,
+  CreateContact,
+  UpdateContact,
+  DeleteContact
 } from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
 import React from "react";
@@ -26,6 +35,10 @@ import GeneralInformation from "./general.infor";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
+import { contact, CustomerResponse } from "model/response/customer/customer.response";
+import { updateContact } from "service/cusomer/customer.service";
+import { CustomerContact } from "model/request/customer.request";
+import FormCustomerContact from "component/forms/FormCustomerContact";
 
 const { Option } = Select;
 
@@ -34,7 +47,7 @@ const CustomerEdit = (props: any) => {
   const [customerForm] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
-  const [customer, setCustomer] = React.useState<any>();
+  const [customer, setCustomer] = React.useState<CustomerResponse>();
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
   const [levels, setLevels] = React.useState<Array<any>>([]);
@@ -147,6 +160,53 @@ const CustomerEdit = (props: any) => {
     setCustomerPoint(details);
   }, [customer, setCustomerPoint]);
 
+  const columns: Array<ICustomTableColumType<contact>> = [
+    {
+      title: "Tiêu đề",
+      dataIndex: "title",
+      visible: true,
+      width: "20%",
+    },
+    {
+      title: "Tên người liên hệ",
+      dataIndex: "name",
+      visible: true,
+      width: "20%",
+    },
+
+    {
+      title: "Email",
+      dataIndex: "email",
+      visible: true,
+      width: "20%",
+    },
+
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      visible: true,
+      width: "20%",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "note",
+      visible: true,
+      width: "20%",
+      render: (value, row, index) => {
+        return (
+          <span className="text" title={value} style={{ color: "#666666" }}>
+            {value}
+          </span>
+        );
+      },
+    },
+    
+    
+
+  ];
+
+  const columnFinal = () => columns.filter((item) => item.visible === true);
+  const [modalSingleContact, setModalSingleContact] =React.useState<CustomerContact>();
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -200,10 +260,71 @@ const CustomerEdit = (props: any) => {
       });
     }
   }, [customer, customerForm]);
+  const [modalAction, setModalAction] = React.useState<modalActionType>("create");
+  const [isShowModal, setIsShowModal] = React.useState(false);
+  const handleForm = {
+    create: (formValue: CustomerContact) => {
+      if(customer)
+      dispatch(
+        CreateContact(customer.id, formValue, () => {
+          setIsShowModal(false);
+          gotoFirstPage(customer.id);
+        })
+      );
+    },
+    edit: (formValue: CustomerContact) => {
+      if (modalSingleContact) {
+        if(customer)
+        dispatch(
+          UpdateContact(
+            modalSingleContact.id, customer.id,
+            formValue,() => {
+              setIsShowModal(false);
+              gotoFirstPage(customer.id);
+            })
+        );
+      }
+    },
+    delete: () => {
+      if (modalSingleContact) {
+        if(customer)
+        dispatch(
+          DeleteContact(
+            modalSingleContact.id,customer.id,
+            () => {
+              setIsShowModal(false);
+              gotoFirstPage(customer.id);
+            }
+          )
+        );
+      }
+    },
+  };
 
+  const gotoFirstPage = (customerId:any) => {
+    history.replace(`${UrlConfig.CUSTOMER2}/detail/`+customerId);
+    window.scrollTo(0, 0);
+  };
+
+  const addContact = () => {
+    return (
+      <Button
+        type="primary"
+        className="ant-btn-primary"
+        size="large"
+        onClick={() => {
+          setModalAction("create");
+          setIsShowModal(true);
+        }}
+        icon={<PlusOutlined />}
+      >
+        Thêm mới liên hệ
+      </Button>
+    );
+  };
   return (
     <ContentContainer
-      title={customer && customer.full_name}
+      title={customer?customer.full_name:""}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -279,6 +400,63 @@ const CustomerEdit = (props: any) => {
                     </Col>
                   </Col>
                 ))}
+            </Row>
+          </Card>
+
+          <Card
+            style={{ marginTop: 16 }}
+            title={
+              <div className="d-flex">
+                <span className="title-card">THÔNG TIN LIÊN HỆ</span>
+              </div>
+            }
+            extra={addContact()}
+          >
+            <Row gutter={30} style={{ padding: "16px" }}>
+            <Col                    span={24}>
+            <CustomTable
+              showColumnSetting={false}
+              // scroll={{ x: 1080 }}
+              pagination={{
+                pageSize: customer?customer.contacts?customer.contacts.length:0:0,
+                total: customer?customer.contacts?customer.contacts.length:0:0,
+                current: 1,
+                showSizeChanger: true,
+                // onChange: onPageChange,
+                // onShowSizeChange: onPageChange,
+              }}
+              dataSource={customer?customer.contacts:[]}
+              columns={columnFinal()}
+              rowKey={(item: contact) => item.id}
+              onRow={(record: CustomerContact) => {
+                return {
+                  onClick: (event) => {
+                    console.log(record)
+                    setModalSingleContact(record);
+                    setModalAction("edit");
+                    setIsShowModal(true);
+                  }, // click row
+                };
+              }
+              }
+            />
+            <CustomModal
+          visible={isShowModal}
+          onCreate={(formValue: CustomerContact) =>
+            handleForm.create(formValue)
+          }
+          onEdit={(formValue: CustomerContact) =>
+            handleForm.edit(formValue)
+          }
+          onDelete={() => handleForm.delete()}
+          onCancel={() => setIsShowModal(false)}
+          modalAction={modalAction}
+          modalTypeText="Nhóm khách hàng"
+          componentForm={FormCustomerContact}
+          formItem={modalSingleContact}
+          deletedItemTitle={modalSingleContact?.name}
+        />
+            </Col>
             </Row>
           </Card>
         </Col>
