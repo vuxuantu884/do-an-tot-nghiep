@@ -1,0 +1,14 @@
+.ant-form{
+  .ant-row {
+    .ant-collapse-content-box {
+      .date-option {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        .ant-btn {
+          width: 30%;
+        }
+      }
+    }
+  }
+}
