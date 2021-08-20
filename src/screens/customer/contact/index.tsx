@@ -11,7 +11,8 @@ import {
   Divider,
   Button,
   FormInstance,
-  Modal,InputNumber
+  Modal,
+  InputNumber,
 } from "antd";
 import {
   CreateContact,
@@ -22,6 +23,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 const { confirm } = Modal;
 interface ContactFormProps {
@@ -92,7 +94,7 @@ const ContactForm = ({
   };
   const handleRemove = (callback: any, field: any) => {
     const values: Array<any> = form?.getFieldValue("contacts");
-    const value = values.find((_, index) => index === field.key);
+    const value = values && values.find((_, index) => index === field.key);
     if (value && value.id !== 0) {
       confirm({
         title: (
@@ -136,23 +138,21 @@ const ContactForm = ({
           name={[field.name, "phone"]}
           rules={[
             {
-              type: "number",
-              min: 0,
-              max: 999999999999999,
-              message: "Không đúng định dạng số điện thoại",
-            },
-            {
               required: true,
               message: "Vui lòng nhập số điện thoại",
             },
+            {
+              pattern: RegUtil.PHONE,
+              message: "Số điện thoại chưa đúng định dạng",
+            },
           ]}
         >
-          <InputNumber
-                      style={{ borderRadius: 5, width: "100%" }}
-                      minLength={9}
-                      maxLength={15}
-                      placeholder="Nhập số điện thoại"
-                    />
+          <Input
+            style={{ borderRadius: 5, width: "100%" }}
+            minLength={9}
+            maxLength={15}
+            placeholder="Nhập số điện thoại"
+          />
         </Form.Item>
       </Col>
       <Col span={12}>
@@ -170,29 +170,6 @@ const ContactForm = ({
           <Input maxLength={255} placeholder="Thư điện tử" />
         </Form.Item>
       </Col>
-      <Col span={24}>
-        <Form.Item
-          {...field}
-          name={[field.name, "company_name"]}
-          label={<b>Tên đơn vị:</b>}
-        >
-          <Input maxLength={255} placeholder="Nhập tên liên hệ" />
-        </Form.Item>
-      </Col>
-      <Col span={12}>
-        <Form.Item {...field} name={[field.name, "website"]} label={<b>Website:</b>}>
-          <Input maxLength={255} placeholder="Website" />
-        </Form.Item>
-      </Col>
-      <Col span={12}>
-        <Form.Item
-          {...field}
-          label={<b>Mã số thuế:</b>}
-          name={[field.name, "tax_code"]}
-        >
-          <Input maxLength={255} placeholder="Mã số thuế" />
-        </Form.Item>
-      </Col>
 
       <Col span={24} style={{ padding: "0 1rem" }}>
         <Row gutter={8}>
@@ -204,7 +181,11 @@ const ContactForm = ({
            */}
 
           <Col span={24}>
-            <Form.Item {...field} label={<b>Ghi chú:</b>} name={[field.name, "note"]}>
+            <Form.Item
+              {...field}
+              label={<b>Ghi chú:</b>}
+              name={[field.name, "note"]}
+            >
               <Input.TextArea maxLength={500} placeholder="Ghi chú" />
             </Form.Item>
           </Col>

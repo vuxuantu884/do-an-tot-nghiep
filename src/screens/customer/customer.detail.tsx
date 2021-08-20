@@ -41,7 +41,7 @@ const CustomerEdit = (props: any) => {
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
   const [companies, setCompanies] = React.useState<Array<any>>([]);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
-
+  const [customerDetail, setCustomerDetail] = React.useState([]) as any;
 
   const statuses = [
     { name: "Hoạt động", key: "1", value: "active" },
@@ -58,9 +58,62 @@ const CustomerEdit = (props: any) => {
     []
   );
   React.useEffect(() => {
+    let details: any = [];
+    if (customer) {
+      details = [
+        { name: "Họ tên khách hàng", value: customer.full_name },
+        {
+          name: "Giới tính",
+          value: customer.gender,
+        },
+        {
+          name: "Số điện thoại",
+          value: customer.phone,
+        },
+        {
+          name: "Ngày sinh",
+          value: customer.birthday,
+        },
+        {
+          name: "Ngày cưới",
+          value: customer.wedding_date,
+        },
+        {
+          name: "Đơn vị",
+          value: customer.company,
+        },
+        {
+          name: "Website/Facebook",
+          value: customer.website,
+        },
+        {
+          name: "Mã khách hàng",
+          value: customer.code,
+        },
+        {
+          name: "Loại khách hàng",
+          value: customer.customer_type,
+        },
+        {
+          name: "Nhóm khách hàng",
+          value: customer.customer_group,
+        },
+        {
+          name: "Nhân viên phụ trách",
+          value: customer.responsible_staff_code,
+        },
+        {
+          name: "Ghi chú",
+          value: customer.description,
+        },
+      ];
+    }
+    setCustomerDetail(details);
+  }, [customer, setCustomerDetail]);
+
+  React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
-
   React.useEffect(() => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
@@ -70,14 +123,7 @@ const CustomerEdit = (props: any) => {
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params]);
-  // const customerInit = React.useMemo(() => {
-  //   if (customer) {
-  //     return {
-  //       ...customer
-  //     }
-  //   }
-  // }, [customer])
-  console.log(customer)
+  console.log(customer);
   React.useEffect(() => {
     if (customer) {
       customerForm.setFieldsValue({
@@ -92,12 +138,15 @@ const CustomerEdit = (props: any) => {
   const reload = React.useCallback(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params.id]);
-  const setResult = React.useCallback((result) => {
-    if (result) {
-      showSuccess("Cập nhật khách hàng thành công");
-      history.goBack();
-    }
-  }, [history]);
+  const setResult = React.useCallback(
+    (result) => {
+      if (result) {
+        showSuccess("Cập nhật khách hàng thành công");
+        history.goBack();
+      }
+    },
+    [history]
+  );
   const handleSubmit = (values: any) => {
     console.log("Success:", values);
     const processValue = {
@@ -130,7 +179,7 @@ const CustomerEdit = (props: any) => {
   };
   return (
     <ContentContainer
-      title="Quản lý khách hàng"
+      title={customer && customer.full_name}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -141,80 +190,62 @@ const CustomerEdit = (props: any) => {
           path: `/customer`,
         },
         {
-          name: "Sửa thông tin khách hàng",
+          name: "Chi tiết khách hàng",
         },
       ]}
     >
-      <Form
-        form={customerForm}
-        name="customer_add"
-        onFinish={handleSubmit}
-        onFinishFailed={handleSubmitFail}
-        layout="vertical"
-        // initialValues={customerInit}
-      >
-        <Row gutter={24}>
-          <Col span={24}>
-            <GeneralInformation 
-            accounts={accounts}
-            />
-          </Col>
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardContact
-              component={ContactForm}
-              title="THÔNG TIN LIÊN HỆ"
-              name="contacts"
-              form={customerForm}
-              isEdit={true}
-              reload={reload}
-            />
-          </Col>
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardAdress
-              name="billing_addresses"
-              component={AddressForm}
-              title="ĐỊA CHỈ NHẬN HÓA ĐƠN "
-              countries={countries}
-              form={customerForm}
-              isEdit={true}
-              reload={reload}
-            />
-          </Col>
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardAdress
-              name="shipping_addresses"
-              component={AddressForm}
-              title="ĐỊA CHỈ GIAO HÀNG"
-              countries={countries}
-              form={customerForm}
-              isEdit={true}
-              reload={reload}
-            />
-          </Col>
-          
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardNote component={NoteForm} title="GHI CHÚ" name="notes" />
-          </Col>
-        </Row>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: ".75rem",
-          }}
-        >
-          <Button type="primary" htmlType="submit">
-            Lưu
-          </Button>
-          <Button
-            onClick={() => history.goBack()}
-            style={{ marginLeft: ".75rem" }}
-            type="ghost"
+      <Row gutter={24}>
+        <Col span={18}>
+          <Card
+            title={
+              <div>
+                <span className="title-card">THÔNG TIN CÁ NHÂN</span>
+              </div>
+            }
           >
-            Hủy
-          </Button>
-        </div>
-      </Form>
+            <Row style={{ padding: "16px 30px" }}>
+              {customerDetail.map((detail: any, index: number) => (
+                <Col
+                  key={index}
+                  span={12}
+                  style={{ display: "flex", marginBottom: 20 }}
+                >
+                  <Col span={12}>
+                    <span>{detail.name}</span>
+                  </Col>
+                  <Col span={12}>
+                    <b>: {detail.value}</b>
+                  </Col>
+                </Col>
+              ))}
+            </Row>
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card
+            title={
+              <div className="d-flex">
+                <span className="title-card">THÔNG TIN TÍCH ĐIỂM</span>
+              </div>
+            }
+          >
+            <Row gutter={12} style={{ padding: "16px" }}></Row>
+          </Card>
+        </Col>
+      </Row>
+      <Row style={{ marginTop: 16 }}>
+        <Col span={24}>
+          <Card
+            title={
+              <div className="d-flex">
+                <span className="title-card">THÔNG TIN MUA HÀNG</span>
+              </div>
+            }
+          >
+            <Row gutter={12} style={{ padding: "16px" }}></Row>
+          </Card>
+        </Col>
+      </Row>
     </ContentContainer>
   );
 };

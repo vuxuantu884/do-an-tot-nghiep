@@ -46,7 +46,7 @@ const Customer = () => {
       title: "Mã ",
       dataIndex: "code",
       render: (value: string, i: any) => (
-        <Link to={`/customer/${i.id}`}>{value}</Link>
+        <Link to={`/customer/detail/${i.id}`}>{value}</Link>
       ),
       visible: true,
     },
