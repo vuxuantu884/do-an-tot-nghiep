@@ -1,6 +1,7 @@
 import { BaseObject } from 'model/base/base.response';
 
 export interface CustomerResponse extends BaseObject {
+  full_address: string,
   full_name: string,
   phone: string | null,
   email: string | null,
@@ -25,6 +26,7 @@ export interface CustomerResponse extends BaseObject {
   contacts: Array<contact>,
   customer_type: string | null,
   customer_group: string | null,
+  status: string
   description: string | null
 }
 
