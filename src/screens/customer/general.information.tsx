@@ -6,61 +6,17 @@ import {
   DatePicker,
   Select,
   Card,
-  InputNumber,
   Space,
   Switch,
-  Collapse,
 } from "antd";
-import { CountryGetAllAction } from "domain/actions/content/content.action";
-import {
-  DistrictGetByCountryAction,
-  WardGetByDistrictAction,
-} from "domain/actions/content/content.action";
-import {
-  CustomerGroups,
-  CustomerLevels,
-  CustomerTypes,
-} from "domain/actions/customer/customer.action";
-import { CountryResponse } from "model/content/country.model";
-import { WardResponse } from "model/content/ward.model";
-import { CustomerModel } from "model/request/customer.request";
-import React from "react";
-import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
 import { RegUtil } from "utils/RegUtils";
-import ContactForm from "./contact";
 import "./customer.scss";
-import RenderCardContact from "./render/card.contact";
-import customers from './../../routes/menu/customer';
 
 const { Option } = Select;
-const { Panel } = Collapse;
 
 const GeneralInformation = (props: any) => {
-  const { form, status, setStatus, areas, countries,wards, handleChangeArea } = props;
-  const history = useHistory();
-  const dispatch = useDispatch();
-  console.log(status)
-  const statuses = [
-    { name: "Hoạt động", key: "1", value: "active" },
-    { name: "Không hoạt động", key: "2", value: "inactive" },
-  ];
-
-  // const handleChangeArea = (districtId: string) => {
-  //   if (districtId) {
-  //     setDistrictId(districtId);
-  //     let area = areas.find((area) => area.id === districtId);
-  //     let value = form?.getFieldValue();
-  //     value.city_id = area.city_id;
-  //     value.city = area.city_name;
-  //     value.district_id = districtId;
-  //     value.district = area.name;
-  //     value.ward_id = null;
-  //     value.ward = "";
-  //     form?.setFieldsValue({ name: value });
-  //   }
-  // };
- 
+  const { status, setStatus, areas, countries, wards, handleChangeArea } =
+    props;
   return (
     <Row gutter={24}>
       <Col span={18}>
@@ -71,21 +27,19 @@ const GeneralInformation = (props: any) => {
             </div>
           }
           extra={[
-            <Space key="status" size={15} style={{marginRight: "10px"}}>
+            <Space key="status" size={15} style={{ marginRight: "10px" }}>
               <label className="text-default">Trạng thái</label>
               <Switch
                 className="ant-switch-success"
-                checked={status === "Hoạt động"}
+                checked={status === "active"}
                 onChange={(checked) => {
-                  setStatus(checked ? "Hoạt động" : "Không hoạt động");
+                  setStatus(checked ? "active" : "inactive");
                 }}
               />
               <label
-                className={
-                  status === "Hoạt động" ? "text-success" : "text-error"
-                }
+                className={status === "active" ? "text-success" : "text-error"}
               >
-                {status}
+                {status === "active" ? "Hoạt động" : "Không hoạt động"}
               </label>
             </Space>,
           ]}
@@ -196,15 +150,16 @@ const GeneralInformation = (props: any) => {
                   </Form.Item>
                 </Col> */}
                 <Col span={12}>
-                  <Form.Item label={<b>Mã số thuế:</b>} name="tax_code">
-                    <Input maxLength={255} placeholder="Mã số thuế" />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
                   <Form.Item name="company" label={<b>Tên đơn vị:</b>}>
                     <Input maxLength={255} placeholder="Nhập tên đơn vị" />
                   </Form.Item>
                 </Col>
+                <Col span={12}>
+                  <Form.Item label={<b>Mã số thuế:</b>} name="tax_code">
+                    <Input maxLength={255} placeholder="Mã số thuế" />
+                  </Form.Item>
+                </Col>
+
                 <Col span={8}>
                   <Form.Item
                     label={<b>Quốc gia:</b>}
@@ -295,16 +250,6 @@ const GeneralInformation = (props: any) => {
                 </Col>
               </Row>
             </Col>
-            {/* 
-                <Col span={24}>
-                  <Row gutter={12}>
-                    <Col span={8}>
-                      <Form.Item name="description" label="Mô tả">
-                        <Input.TextArea placeholder="Mô tả" />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </Col> */}
           </Row>
         </Card>
       </Col>
@@ -321,12 +266,12 @@ const GeneralInformation = (props: any) => {
               <Form.Item
                 name="customer_type_id"
                 label={<b>Loại khách hàng:</b>}
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng chọn loại khách hàng",
-                //   },
-                // ]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn loại khách hàng",
+                  },
+                ]}
               >
                 <Select
                   showSearch
@@ -347,12 +292,12 @@ const GeneralInformation = (props: any) => {
               <Form.Item
                 name="customer_group_id"
                 label={<b>Nhóm khách hàng:</b>}
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng chọn nhóm khách hàng",
-                //   },
-                // ]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn nhóm khách hàng",
+                  },
+                ]}
               >
                 <Select
                   showSearch
@@ -399,12 +344,12 @@ const GeneralInformation = (props: any) => {
               <Form.Item
                 name="responsible_staff_code"
                 label={<b>Nhân viên phụ trách:</b>}
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng chọn cấp độ khách hàng",
-                //   },
-                // ]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn cấp độ khách hàng",
+                  },
+                ]}
               >
                 <Select
                   showSearch

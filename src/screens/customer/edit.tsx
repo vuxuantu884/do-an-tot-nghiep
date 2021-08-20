@@ -121,14 +121,7 @@ const CustomerEdit = (props: any) => {
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params]);
-  // const customerInit = React.useMemo(() => {
-  //   if (customer) {
-  //     return {
-  //       ...customer
-  //     }
-  //   }
-  // }, [customer])
-  console.log(customer);
+
   React.useEffect(() => {
     if (customer) {
       customerForm.setFieldsValue({
@@ -138,6 +131,7 @@ const CustomerEdit = (props: any) => {
           ? moment(customer.wedding_date, "YYYY-MM-DD")
           : null,
       });
+      setStatus(customer.status)
     }
   }, [customer, customerForm]);
   const reload = React.useCallback(() => {
