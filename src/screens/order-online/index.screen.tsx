@@ -108,75 +108,126 @@ const ListOrderScreen: React.FC = () => {
   });
 
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<VariantResponse>>>([
-    // {
-    //   title: "Ảnh",
-    //   render: (value: VariantResponse) => {
-    //     let image = Products.findAvatar(value.variant_images);
-    //     return <ImageProduct  path={image !== null ? image.url : null} onClick={() => {
-    //       setVariant({
-    //         name: value.name,
-    //         sku: value.sku,
-    //         variant_images: value.variant_images
-    //       })
-    //       variantResponse = value;
-    //       setUploadVisible(true);
-    //     }} />;
-    //   },
-    //   visible: true,
-    // },
     {
-      title: "Mã sản phẩm",
+      title: "ID đơn hàng",
       dataIndex: "sku",
-      render: (value: string, i: VariantResponse) => (
-        <Link to={`${UrlConfig.VARIANTS}/${i.id}`}>{value}</Link>
-      ),
       visible: true,
     },
     {
-      title: "Tên sản phẩm",
+      title: "Khách hàng",
       dataIndex: "name",
-      sorter: true,
       visible: true,
     },
     {
-      title: "Màu sắc",
+      title: "Số điện thoại",
       dataIndex: "color",
       visible: true,
     },
     {
-      title: "Size",
+      title: "Khu vực",
       dataIndex: "size",
       visible: true,
     },
     {
-      title: "Nhà thiết kế",
-      render: (value: VariantResponse) => <div> {value.product.designer}</div>,
+      title: "Kho cửa hàng",
+      dataIndex: "size",
       visible: true,
     },
     {
-      title: "Merchandiser",
-      render: (value: VariantResponse) => (
-        <div> {value.product.merchandiser}</div>
-      ),
+      title: "Nguồn đơn hàng",
+      dataIndex: "size",
       visible: true,
     },
     {
-      title: "Tồn có thể bán",
+      title: "Trạng thái đơn",
       dataIndex: "inventory",
       visible: true,
     },
     {
-      title: "Trạng thái",
-      dataIndex: "status",
-      render: (value: string, row: VariantResponse) => (
-        <div
-          className={row.status === "active" ? "text-success" : "text-error"}
-        >
-          {value === "active" ? "Đang hoạt động" : "Ngừng hoạt động"}
-        </div>
-      ),
+      title: "Đóng gói",
+      dataIndex: "inventory",
       visible: true,
     },
+    {
+      title: "Xuất kho",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Thanh toán",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Tổng số lượng sản phẩm",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Khách cần phải trả",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Khách đã trả",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Còn phải trả",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Hình thức vận chuyển",
+      dataIndex: "inventory",
+      visible: true,
+    },
+
+    {
+      title: "Phương thức thanh toán",
+      dataIndex: "inventory",
+      visible: true,
+    },{
+      title: "Nhân viên bán hàng",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Nhân viên tạo đơn",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Ngày hoàn tất đơn",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Ngày huỷ đơn",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Ghi chú nội bộ",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Ghi chú của khách",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Tag",
+      dataIndex: "inventory",
+      visible: true,
+    },
+    {
+      title: "Mã tham chiếu",
+      dataIndex: "inventory",
+      visible: true,
+    }
   ]);
 
   const onPageChange = useCallback(
@@ -237,17 +288,17 @@ const ListOrderScreen: React.FC = () => {
   }, [dispatch, params, setSearchResult]);
   return (
     <ContentContainer
-      title="Quản lý chất liệu"
+      title="Quản lý đơn hàng"
       breadcrumb={[
         {
           name: "Tổng quản",
          path: UrlConfig.HOME,
         },
         {
-          name: "Sản phẩm",
+          name: "Danh sách đơn hàng",
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.PRODUCT}/create`} />}
+      extra={<ButtonCreate path={`${UrlConfig.ORDER}/create`} />}
     >
       <Card>
         <div className="padding-20">
@@ -268,7 +319,7 @@ const ListOrderScreen: React.FC = () => {
           isRowSelection
           isLoading={tableLoading}
           showColumnSetting={true}
-          scroll={{ x: 1080 }}
+          scroll={{ x: 4320 }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,

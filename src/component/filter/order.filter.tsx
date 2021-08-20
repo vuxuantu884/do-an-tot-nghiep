@@ -321,7 +321,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item
                     name="from_created_date"
                   >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn trạng thái đơn hàng" style={{width: '100%'}}>
+                  <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn trạng thái đơn hàng" style={{width: '100%'}}>
                     <Option value="">Chọn trạng thái đơn hàng</Option>
                     {/* {listCountries?.map((item) => (
                       <Option key={item.id} value={item.id}>
@@ -341,7 +341,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item
                     name="from_created_date"
                   >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn trạng thái xử lý đơn" style={{width: '100%'}}>
+                  <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn trạng thái xử lý đơn" style={{width: '100%'}}>
                     <Option value="">Chọn trạng thái xử lý đơn</Option>
                     {/* {listCountries?.map((item) => (
                       <Option key={item.id} value={item.id}>
@@ -375,15 +375,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Col span={24}>
               <Collapse defaultActiveKey={[]}>
                 <Panel header="THANH TOÁN" key="1">
-                  <Item
-                    name="from_created_date"
-                  >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn hình thức thanh toán" style={{width: '100%'}}>
-                    <Option value="">Thẻ</Option>
-                    <Option value="">Tiền mặt</Option>
-                    <Option value="">Momo</Option>
-                  </Select>
-                  </Item>
+                  Radio
                 </Panel>
               </Collapse>
             </Col>
@@ -392,18 +384,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Col span={24}>
               <Collapse defaultActiveKey={[]}>
                 <Panel header="TRẢ HÀNG" key="1">
-                  <Item
-                    name="from_created_date"
-                  >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
-                    <Option value="">Chọn khu vực</Option>
-                    {/* {listCountries?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))} */}
-                  </Select>
-                  </Item>
+                  Radio
                 </Panel>
               </Collapse>
             </Col>
@@ -415,8 +396,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item
                     name="from_created_date"
                   >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
-                    <Option value="">Chọn khu vực</Option>
+                  <Select optionFilterProp="children" showSearch placeholder="Chọn nhân viên bán hàng" style={{width: '100%'}}>
+                    <Option value="">Nhân viên bán hàng</Option>
                     {/* {listCountries?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -435,8 +416,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item
                     name="from_created_date"
                   >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
-                    <Option value="">Chọn khu vực</Option>
+                  <Select optionFilterProp="children" showSearch placeholder="Chọn nhân viên tạo đơn" style={{width: '100%'}}>
+                    <Option value="">Nhân viên tạo đơn</Option>
                     {/* {listCountries?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -452,18 +433,26 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Col span={24}>
               <Collapse defaultActiveKey={[]}>
                 <Panel header="TỔNG TIỀN" key="1">
-                  <Item
-                    name="from_created_date"
-                  >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
-                    <Option value="">Chọn khu vực</Option>
-                    {/* {listCountries?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))} */}
-                  </Select>
-                  </Item>
+                  <Input style={{ width: 100, textAlign: 'center' }} placeholder="Minimum" />
+                  <Input
+                    className="site-input-split"
+                    style={{
+                      width: 30,
+                      borderLeft: 0,
+                      borderRight: 0,
+                      pointerEvents: 'none',
+                    }}
+                    placeholder="~"
+                    disabled
+                  />
+                  <Input
+                    className="site-input-right"
+                    style={{
+                      width: 100,
+                      textAlign: 'center',
+                    }}
+                    placeholder="Maximum"
+                  />
                 </Panel>
               </Collapse>
             </Col>
@@ -475,8 +464,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item
                     name="from_created_date"
                   >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
-                    <Option value="">Chọn khu vực</Option>
+                  <Select optionFilterProp="children" showSearch placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}>
+                    <Option value="">Tiền mặt</Option>
+                    <Option value="">Chuyển khoản</Option>
+                    <Option value="">COD</Option>
                     {/* {listCountries?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -495,14 +486,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item
                     name="from_created_date"
                   >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
-                    <Option value="">Chọn khu vực</Option>
-                    {/* {listCountries?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))} */}
-                  </Select>
+                    <DatePicker placeholder="Chọn ngày" style={{width: "100%"}}/>
                   </Item>
                 </Panel>
               </Collapse>
@@ -515,8 +499,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item
                     name="from_created_date"
                   >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
-                    <Option value="">Chọn khu vực</Option>
+                  <Select optionFilterProp="children" showSearch placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
+                    <Option value="">Hình thức vận chuyển</Option>
                     {/* {listCountries?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -535,14 +519,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item
                     name="from_created_date"
                   >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
-                    <Option value="">Chọn khu vực</Option>
-                    {/* {listCountries?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))} */}
-                  </Select>
+                    <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
                   </Item>
                 </Panel>
               </Collapse>
@@ -555,7 +532,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item
                     name="from_created_date"
                   >
-                  <Input style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
+                  <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
                   </Item>
                 </Panel>
               </Collapse>
@@ -569,7 +546,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     name="from_created_date"
                   >
                   <Select optionFilterProp="children" showSearch placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
-                    <Option value="">Chọn khu vực</Option>
+                    <Option value="">Tag 1</Option>
+                    <Option value="">Tag 2</Option>
                     {/* {listCountries?.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -588,14 +566,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Item
                     name="from_created_date"
                   >
-                  <Select optionFilterProp="children" showSearch placeholder="Tìm kiếm theo mã tham chiếu" style={{width: '100%'}}>
-                    <Option value="">Chọn khu vực</Option>
-                    {/* {listCountries?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))} */}
-                  </Select>
+                    <Input placeholder="Tìm kiếm theo mã tham chiếu"/>
                   </Item>
                 </Panel>
               </Collapse>
