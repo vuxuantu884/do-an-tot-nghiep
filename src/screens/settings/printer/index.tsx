@@ -1,50 +1,30 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
-import FormOrderProcessingStatus from "component/forms/FormOrderProcessingStatus";
-import CustomModal from "component/modal/CustomModal";
-import { ICustomTableColumType } from "component/table/CustomTable";
-import CustomTable from "component/table/CustomTable";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
-import {
-  actionAddOrderProcessingStatus,
-  actionDeleteOrderProcessingStatus,
-  actionEditOrderProcessingStatus,
-  actionFetchListOrderProcessingStatus,
-} from "domain/actions/settings/order-processing-status.action";
-import { modalActionType } from "model/modal/modal.model";
+import { FormPrinterModel } from "model/editor/editor.model";
 import { VariantResponse } from "model/product/product.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import {
-  OrderProcessingStatusModel,
-  OrderProcessingStatusResponseModel,
-} from "model/response/order-processing-status.response";
-import { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
+import { useReactToPrint } from "react-to-print";
 import { generateQuery } from "utils/AppUtils";
+import IconEdit from "./images/iconEdit.svg";
+import IconPrintHover from "./images/iconPrintHover.svg";
 import { StyledComponent } from "./styles";
 
 const SettingPrinter: React.FC = () => {
+  const FAKE_PRINT_CONTENT = "<p>This is fake print content print screen</p>";
+  const printElementRef = useRef(null);
   const [tableLoading, setTableLoading] = useState(false);
-  const [isShowModal, setIsShowModal] = useState(false);
-  const dispatch = useDispatch();
-  const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
-    OrderProcessingStatusModel[]
-  >([]);
+  const [listPrinter, setListPrinter] = useState<FormPrinterModel[]>([]);
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
   const query = useQuery();
   const [total, setTotal] = useState(0);
-  const [modalAction, setModalAction] = useState<modalActionType>("create");
-  const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] =
-    useState<OrderProcessingStatusModel | null>(null);
-
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
-  const LIST_STATUS = bootstrapReducer.data?.order_main_status;
 
   const history = useHistory();
 
@@ -66,72 +46,77 @@ const SettingPrinter: React.FC = () => {
     [history, params]
   );
 
+  const goToPageDetail = (id: string | number) => {
+    history.push(`${UrlConfig.PRINTER}/${id}`);
+  };
+
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
+
   const columns: Array<ICustomTableColumType<VariantResponse>> = [
     {
       title: "STT",
       visible: true,
+      width: "5%",
       render: (value, row, index) => {
         return <span>{(params.page - 1) * params.limit + index + 1}</span>;
       },
     },
     {
       title: "Tên mẫu in",
-      dataIndex: "sub_status",
+      dataIndex: "tenMauIn",
       visible: true,
       className: "columnTitle",
-      width: "25%",
-      render: (value, row, index) => {
-        if (value) {
-          return (
-            <span
-              title={value}
-              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-              className="title text"
-            >
-              {value}
-            </span>
-          );
-        }
-      },
+      width: "20%",
     },
     {
       title: "Chi nhánh áp dụng",
-      dataIndex: "status",
+      dataIndex: "chiNhanhApDung",
       visible: true,
-      width: "25%",
-      render: (value, row, index) => {
-        const result = LIST_STATUS?.find((singleStatus) => {
-          return singleStatus.value === value;
-        });
-        if (result) {
-          return result.name;
-        }
-        return "";
-      },
+      width: "20%",
     },
     {
       title: "Khổ in",
-      dataIndex: "note",
+      dataIndex: "khoIn",
+      visible: true,
+      width: "30%",
+    },
+    {
+      title: "Thao tác ",
+      dataIndex: "id",
       visible: true,
       width: "25%",
       render: (value, row, index) => {
         return (
-          <span className="text" title={value} style={{ color: "#666666" }}>
-            {value}
-          </span>
+          <div className="columnAction">
+            <Link
+              to={`${history.location.pathname}/${value}`}
+              className="columnAction__singleButton columnAction__singleButton--edit"
+            >
+              <Button>
+                <div className="icon">
+                  <img src={IconEdit} alt="" className="icon--normal" />
+                </div>
+                Sửa
+              </Button>
+            </Link>
+            {handlePrint && (
+              <Button
+                className="columnAction__singleButton columnAction__singleButton--print"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrint();
+                }}
+              >
+                <div className="icon">
+                  <img src={IconPrintHover} alt="" className="icon--hover" />
+                </div>
+                In thử
+              </Button>
+            )}
+          </div>
         );
-      },
-    },
-    {
-      title: "Thao tác ",
-      dataIndex: "active",
-      visible: true,
-      width: "25%",
-      render: (value, row, index) => {
-        if (value) {
-          return <span style={{ color: "#27AE60" }}>Đang áp dụng</span>;
-        }
-        return <span style={{ color: "#E24343" }}>Ngưng áp dụng</span>;
       },
     },
   ];
@@ -154,81 +139,60 @@ const SettingPrinter: React.FC = () => {
     );
   };
 
-  const gotoFirstPage = () => {
-    const newParams = {
-      ...params,
-      page: 1,
-    };
-    setParams({ ...newParams });
-    let queryParam = generateQuery(newParams);
-    history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
-    window.scrollTo(0, 0);
-  };
-
-  const handleForm = {
-    create: (formValue: OrderProcessingStatusModel) => {
-      dispatch(
-        actionAddOrderProcessingStatus(formValue, () => {
-          setIsShowModal(false);
-          gotoFirstPage();
-        })
-      );
-    },
-    edit: (formValue: OrderProcessingStatusModel) => {
-      if (modalSingleServiceSubStatus) {
-        dispatch(
-          actionEditOrderProcessingStatus(
-            modalSingleServiceSubStatus.id,
-            formValue,
-            () => {
-              dispatch(
-                actionFetchListOrderProcessingStatus(
-                  params,
-                  (data: OrderProcessingStatusResponseModel) => {
-                    setListOrderProcessingStatus(data.items);
-                  }
-                )
-              );
-              setIsShowModal(false);
-            }
-          )
-        );
-      }
-    },
-    delete: () => {
-      if (modalSingleServiceSubStatus) {
-        dispatch(
-          actionDeleteOrderProcessingStatus(
-            modalSingleServiceSubStatus.id,
-            () => {
-              setIsShowModal(false);
-              gotoFirstPage();
-            }
-          )
-        );
-      }
-    },
-  };
-
   useEffect(() => {
-    /**
-     * when dispatch action, call function (handleData) to handle data
-     */
-    dispatch(
-      actionFetchListOrderProcessingStatus(
-        params,
-        (data: OrderProcessingStatusResponseModel) => {
-          setListOrderProcessingStatus(data.items);
-          setTotal(data.metadata.total);
-        }
-      )
-    );
-  }, [dispatch, params]);
+    const FAKE_LIST_PRINTERS = [
+      {
+        id: 1,
+        tenMauIn: "Tên mẫu in 1",
+        chiNhanhApDung: "Chi nhánh áp dụng 1",
+        apDung: false,
+        khoIn: "Khổ in 1",
+      },
+      {
+        id: 2,
+        tenMauIn: "Tên mẫu in 2",
+        chiNhanhApDung: "Chi nhánh áp dụng 2",
+        apDung: false,
+        khoIn: "Khổ in 2",
+      },
+      {
+        id: 3,
+        tenMauIn: "Tên mẫu in 3",
+        chiNhanhApDung: "Chi nhánh áp dụng 3",
+        apDung: false,
+        khoIn: "Khổ in 3",
+      },
+      {
+        id: 4,
+        tenMauIn: "Tên mẫu in 4",
+        chiNhanhApDung: "Chi nhánh áp dụng 4",
+        apDung: false,
+        khoIn: "Khổ in 4",
+      },
+      {
+        id: 5,
+        tenMauIn: "Tên mẫu in 5",
+        chiNhanhApDung: "Chi nhánh áp dụng 5",
+        apDung: false,
+        khoIn: "Khổ in 5",
+      },
+      {
+        id: 6,
+        tenMauIn: "Tên mẫu in 6",
+        chiNhanhApDung: "Chi nhánh áp dụng 6",
+        apDung: false,
+        khoIn: "Khổ in 6",
+      },
+    ];
+    setTableLoading(false);
+    setTotal(30);
+    setListPrinter(FAKE_LIST_PRINTERS);
+  }, []);
 
   return (
     <StyledComponent>
       <ContentContainer
-        title="Xử lý đơn hàng"
+        title="Danh sách mẫu in"
         breadcrumb={[
           {
             name: "Tổng quan",
@@ -244,7 +208,6 @@ const SettingPrinter: React.FC = () => {
         ]}
         extra={createPrinterHtml()}
       >
-        printer
         <Card style={{ padding: "35px 15px" }}>
           <CustomTable
             isLoading={tableLoading}
@@ -258,20 +221,27 @@ const SettingPrinter: React.FC = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            dataSource={listOrderProcessingStatus}
+            dataSource={listPrinter}
             columns={columnFinal()}
             rowKey={(item: VariantResponse) => item.id}
-            onRow={(record: OrderProcessingStatusModel) => {
+            onRow={(record: FormPrinterModel) => {
               return {
                 onClick: (event) => {
-                  setModalSingleServiceSubStatus(record);
-                  setModalAction("edit");
-                  setIsShowModal(true);
+                  goToPageDetail(record.id);
                 }, // click row
               };
             }}
           />
         </Card>
+        <div style={{ display: "none" }}>
+          <div className="printContent" ref={printElementRef}>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: FAKE_PRINT_CONTENT,
+              }}
+            ></div>
+          </div>
+        </div>
       </ContentContainer>
     </StyledComponent>
   );

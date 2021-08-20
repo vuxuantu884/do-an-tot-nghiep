@@ -177,11 +177,12 @@ const OrderSources: React.FC = () => {
     /**
      * when dispatch action, call function (handleData) to handle data
      */
-    // setTableLoading(true);
+    setTableLoading(true);
     dispatch(
       actionFetchListOrderSources(params, (data: OrderSourceResponseModel) => {
         setListOrderSources(data.items);
         setTotal(data.metadata.total);
+        setTableLoading(false);
       })
     );
   }, [dispatch, params]);

@@ -1,30 +1,34 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  td {
-    white-space: nowrap;
-  }
-  .ant-table-tbody {
-    tr {
-      cursor: pointer;
+  .columnAction {
+    .icon {
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 5px;
     }
-    .text {
-      display: block;
-      max-width: 375px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      word-wrap: break-word;
-      word-break: break-word;
-      @media screen and (min-width: 1600px) {
-        max-width: 600px;
+    &__singleButton {
+      &:not(:last-child) {
+        margin-right: 10px;
+      }
+      &--edit {
+        color: #222;
+        .ant-btn {
+          color: inherit;
+        }
+      }
+      &--print {
+        border-color: #2a2a86;
+        color: #2a2a86;
       }
     }
   }
-  .columnTitle {
-    .title {
-      display: block;
-      font-size: 1em;
+  .custom-table {
+    tr {
+      cursor: pointer;
+      &:hover {
+        color: #2a2a86;
+      }
     }
   }
 `;
