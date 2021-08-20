@@ -2,22 +2,41 @@ import { Button, Card, Col, Form, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import Editor from "component/ckeditor";
 import UrlConfig from "config/UrlConfig";
-import { FormValueModel, listKeyWordsModel } from "model/editor/editor.model";
+import {
+  getListStoresSimpleAction,
+  StoreGetListAction,
+} from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
+import { listKeyWordsModel } from "model/editor/editor.model";
+import { PrinterModel } from "model/response/printer.response";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import {
+  LIST_PRINTER_SIZES,
+  LIST_PRINTER_TYPES,
+} from "utils/Printer.constants";
 import Preview from "../preview";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   type?: "create" | "edit";
-  formValue?: FormValueModel;
+  formValue?: PrinterModel;
 };
+
+type StoreType = {
+  id: number;
+  name: string;
+}[];
 
 const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const { type, formValue } = props;
+  const dispatch = useDispatch();
+  console.log("formValue", formValue);
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
   const [htmlContent, setHtmlContent] = useState("");
+  const [listStores, setListStores] = useState<StoreType>([]);
   const [previewHeaderHeight, setPreviewHeaderHeight] = useState(108);
   const [selectedPrintSize, setSelectedPrintSize] = useState("whatever");
   const componentRef = useRef(null);
@@ -27,36 +46,15 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   };
 
   const sprintConfigure = {
-    danhSachMauIn: [
-      {
-        tenMauIn: "Đơn bán hàng 1",
-      },
-      {
-        tenMauIn: "Đơn bán hàng 2",
-      },
-    ],
-    danhSachChiNhanh: [
-      {
-        chiNhanhApDung: "YODY Kho tổng 1",
-      },
-      {
-        chiNhanhApDung: "YODY Kho tổng 2",
-      },
-    ],
-    danhSachKhoIn: [
-      {
-        khoIn: "Khổ in K80 (80x45 mm) 1",
-      },
-      {
-        khoIn: "Khổ in K80 (80x45 mm) 2",
-      },
-    ],
+    listPrinterTypes: LIST_PRINTER_TYPES,
+    listStores: listStores,
+    listPrinterSizes: LIST_PRINTER_SIZES,
   };
 
   const FAKE_WORDS: listKeyWordsModel = [
     {
       title: "tên công ty",
-      key: "{ten_cong_ty}",
+      key: "{company_name}",
       value: "YODY",
     },
     {
@@ -70,18 +68,24 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     let result =
       isEdit && formValue
         ? {
-            tenMauIn: formValue.tenMauIn,
-            chiNhanhApDung: formValue.chiNhanhApDung,
-            khoIn: formValue.khoIn,
-            apDung: formValue.apDung,
-            formIn: formValue.formIn,
+            company: formValue.company,
+            company_id: formValue.company_id,
+            default: formValue.default,
+            print_size: formValue.print_size,
+            store: formValue.store,
+            store_id: formValue.store_id,
+            template: formValue.template,
+            type: formValue.type,
           }
         : {
-            tenMauIn: null,
-            chiNhanhApDung: null,
-            khoIn: null,
-            apDung: false,
-            formIn: null,
+            company: "",
+            company_id: 0,
+            default: false,
+            print_size: "",
+            store: "",
+            store_id: 0,
+            template: "",
+            type: "",
           };
     return result;
   }, [isEdit, formValue]);
@@ -104,11 +108,19 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
 
   useEffect(() => {
     if (isEdit && formValue) {
-      setHtmlContent(formValue.formIn);
-      setSelectedPrintSize(formValue.formIn);
+      setHtmlContent(formValue.template);
+      setSelectedPrintSize(formValue.print_size);
       form.setFieldsValue(initialFormValue);
     }
   }, [form, formValue, initialFormValue, isEdit]);
+
+  useEffect(() => {
+    dispatch(
+      getListStoresSimpleAction((data: StoreResponse[]) => {
+        setListStores(data);
+      })
+    );
+  }, [dispatch]);
 
   return (
     <StyledComponent>
@@ -118,13 +130,23 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         >
           <Row gutter={20} className="sectionFilter">
             <Col span={6}>
-              <Form.Item name="tenMauIn" label="Chọn mẫu in:">
-                <Select placeholder="Chọn mẫu in" allowClear>
-                  {sprintConfigure.danhSachMauIn &&
-                    sprintConfigure.danhSachMauIn.map((single, index) => {
+              <Form.Item name="type" label="Chọn mẫu in:">
+                <Select
+                  placeholder="Chọn mẫu in"
+                  allowClear
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option?.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
+                >
+                  {sprintConfigure.listPrinterTypes &&
+                    sprintConfigure.listPrinterTypes.map((single, index) => {
                       return (
-                        <Select.Option value={single.tenMauIn} key={index}>
-                          {single.tenMauIn}
+                        <Select.Option value={single.value} key={index}>
+                          {single.name}
                         </Select.Option>
                       );
                     })}
@@ -132,17 +154,25 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item name="chiNhanhApDung" label="Chọn chi nhánh áp dụng:">
-                <Select placeholder="Chọn chi nhánh áp dụng:" allowClear>
-                  {sprintConfigure.danhSachChiNhanh &&
-                    sprintConfigure.danhSachChiNhanh.map((single, index) => {
+              <Form.Item name="store_id" label="Chọn chi nhánh áp dụng:">
+                <Select
+                  placeholder="Chọn chi nhánh áp dụng:"
+                  allowClear
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option?.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
+                >
+                  <Select.Option value={10000}>Tất cả cửa hàng</Select.Option>
+                  {sprintConfigure.listStores &&
+                    sprintConfigure.listStores.map((single, index) => {
                       // console.log("single", single);
                       return (
-                        <Select.Option
-                          value={single.chiNhanhApDung}
-                          key={index}
-                        >
-                          {single.chiNhanhApDung}
+                        <Select.Option value={single.id} key={index}>
+                          {single.name}
                         </Select.Option>
                       );
                     })}
@@ -150,17 +180,17 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item name="khoIn" label="Chọn khổ in:">
+              <Form.Item name="print_size" label="Chọn khổ in:">
                 <Select
                   placeholder="Chọn khổ in"
                   onChange={onChangeKhoIn}
                   allowClear
                 >
-                  {sprintConfigure.danhSachKhoIn &&
-                    sprintConfigure.danhSachKhoIn.map((single, index) => {
+                  {sprintConfigure.listPrinterSizes &&
+                    sprintConfigure.listPrinterSizes.map((single, index) => {
                       return (
-                        <Select.Option value={single.khoIn} key={index}>
-                          {single.khoIn}
+                        <Select.Option value={single.value} key={index}>
+                          {single.name}
                         </Select.Option>
                       );
                     })}
@@ -168,7 +198,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item name="apDung" valuePropName="checked">
+              <Form.Item name="default" valuePropName="checked">
                 <Checkbox>Áp dụng</Checkbox>
               </Form.Item>
             </Col>

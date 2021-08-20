@@ -5,9 +5,15 @@ import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
+import { actionFetchListPrinter } from "domain/actions/printer/printer.action";
 import { FormPrinterModel } from "model/editor/editor.model";
 import { VariantResponse } from "model/product/product.model";
+import {
+  PrinterModel,
+  PrinterResponseModel,
+} from "model/response/printer.response";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { generateQuery } from "utils/AppUtils";
@@ -19,7 +25,7 @@ const SettingPrinter: React.FC = () => {
   const FAKE_PRINT_CONTENT = "<p>This is fake print content print screen</p>";
   const printElementRef = useRef(null);
   const [tableLoading, setTableLoading] = useState(false);
-  const [listPrinter, setListPrinter] = useState<FormPrinterModel[]>([]);
+  const [listPrinter, setListPrinter] = useState<PrinterModel[]>([]);
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
@@ -27,6 +33,7 @@ const SettingPrinter: React.FC = () => {
   const [total, setTotal] = useState(0);
 
   const history = useHistory();
+  const dispatch = useDispatch();
 
   let [params, setParams] = useState({
     page: +(query.get("page") || 1),
@@ -72,15 +79,16 @@ const SettingPrinter: React.FC = () => {
     },
     {
       title: "Chi nhánh áp dụng",
-      dataIndex: "chiNhanhApDung",
+      dataIndex: "store",
       visible: true,
       width: "20%",
     },
     {
       title: "Khổ in",
-      dataIndex: "khoIn",
+      dataIndex: "print_size",
       visible: true,
       width: "30%",
+      className: "printSize",
     },
     {
       title: "Thao tác ",
@@ -140,54 +148,15 @@ const SettingPrinter: React.FC = () => {
   };
 
   useEffect(() => {
-    const FAKE_LIST_PRINTERS = [
-      {
-        id: 1,
-        tenMauIn: "Tên mẫu in 1",
-        chiNhanhApDung: "Chi nhánh áp dụng 1",
-        apDung: false,
-        khoIn: "Khổ in 1",
-      },
-      {
-        id: 2,
-        tenMauIn: "Tên mẫu in 2",
-        chiNhanhApDung: "Chi nhánh áp dụng 2",
-        apDung: false,
-        khoIn: "Khổ in 2",
-      },
-      {
-        id: 3,
-        tenMauIn: "Tên mẫu in 3",
-        chiNhanhApDung: "Chi nhánh áp dụng 3",
-        apDung: false,
-        khoIn: "Khổ in 3",
-      },
-      {
-        id: 4,
-        tenMauIn: "Tên mẫu in 4",
-        chiNhanhApDung: "Chi nhánh áp dụng 4",
-        apDung: false,
-        khoIn: "Khổ in 4",
-      },
-      {
-        id: 5,
-        tenMauIn: "Tên mẫu in 5",
-        chiNhanhApDung: "Chi nhánh áp dụng 5",
-        apDung: false,
-        khoIn: "Khổ in 5",
-      },
-      {
-        id: 6,
-        tenMauIn: "Tên mẫu in 6",
-        chiNhanhApDung: "Chi nhánh áp dụng 6",
-        apDung: false,
-        khoIn: "Khổ in 6",
-      },
-    ];
-    setTableLoading(false);
-    setTotal(30);
-    setListPrinter(FAKE_LIST_PRINTERS);
-  }, []);
+    console.log("params", params);
+    dispatch(
+      actionFetchListPrinter(params, (data: PrinterResponseModel) => {
+        setListPrinter(data.items);
+        setTotal(data.metadata.total);
+        setTableLoading(false);
+      })
+    );
+  }, [dispatch, params]);
 
   return (
     <StyledComponent>
