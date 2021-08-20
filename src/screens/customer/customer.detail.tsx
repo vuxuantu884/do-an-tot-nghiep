@@ -10,7 +10,7 @@ import {
 import { CountryResponse } from "model/content/country.model";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import AddressForm from "./address";
 import ContactForm from "./contact";
 import "./customer.scss";
@@ -42,6 +42,8 @@ const CustomerEdit = (props: any) => {
   const [companies, setCompanies] = React.useState<Array<any>>([]);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [customerDetail, setCustomerDetail] = React.useState([]) as any;
+  const [customerPointInfo, setCustomerPoint] = React.useState([]) as any;
+  const [customerBuyDetail, setCustomerBuyDetail] = React.useState([]) as any;
 
   const statuses = [
     { name: "Hoạt động", key: "1", value: "active" },
@@ -112,6 +114,70 @@ const CustomerEdit = (props: any) => {
   }, [customer, setCustomerDetail]);
 
   React.useEffect(() => {
+    let details: any = [];
+    if (customer) {
+      details = [
+        { name: "Điểm hiện tại", value: null },
+        {
+          name: "Hạng thẻ hiện tại",
+          value: null,
+        },
+        {
+          name: "Mã số thẻ",
+          value: null,
+        },
+        {
+          name: "Giá trị còn để lên hạng",
+          value: null,
+        },
+        {
+          name: "Ngày kích hoạt",
+          value: null,
+        },
+        {
+          name: "Ngày hết hạn",
+          value: null,
+        },
+        {
+          name: "Cửa hàng kích hoạt",
+          value: null,
+        },
+      ];
+    }
+    setCustomerPoint(details);
+  }, [customer, setCustomerPoint]);
+
+  React.useEffect(() => {
+    let details: any = [];
+    if (customer) {
+      details = [
+        { name: "Tổng chi tiêu", value: null },
+        {
+          name: "Tổng đơn hàng",
+          value: null,
+        },
+        {
+          name: "Ngày đầu tiên mua hàng",
+          value: null,
+        },
+        {
+          name: "Tổng số lượng sản phẩm đã mua",
+          value: null,
+        },
+        {
+          name: "Ngày cuối cùng mua hàng",
+          value: null,
+        },
+        {
+          name: "Tổng số lượng sản phẩm hoàn trả",
+          value: null,
+        },
+      ];
+    }
+    setCustomerBuyDetail(details);
+  }, [customer, setCustomerBuyDetail]);
+
+  React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
   React.useEffect(() => {
@@ -123,7 +189,6 @@ const CustomerEdit = (props: any) => {
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params]);
-  console.log(customer);
   React.useEffect(() => {
     if (customer) {
       customerForm.setFieldsValue({
@@ -135,48 +200,7 @@ const CustomerEdit = (props: any) => {
       });
     }
   }, [customer, customerForm]);
-  const reload = React.useCallback(() => {
-    dispatch(CustomerDetail(params.id, setCustomer));
-  }, [dispatch, params.id]);
-  const setResult = React.useCallback(
-    (result) => {
-      if (result) {
-        showSuccess("Cập nhật khách hàng thành công");
-        history.goBack();
-      }
-    },
-    [history]
-  );
-  const handleSubmit = (values: any) => {
-    console.log("Success:", values);
-    const processValue = {
-      ...values,
-      birthday: moment(values.birthday, "YYYY-MM-DD").format("YYYY-MM-DD"),
-      wedding_date: values.wedding_date
-        ? moment(values.wedding_date, "YYYY-MM-DD").format("YYYY-MM-DD")
-        : null,
-      billing_addresses: values.billing_addresses.map((b: any) => {
-        if (b.hasOwnProperty("is_default")) {
-          return b;
-        } else {
-          return { ...b, is_default: b.default };
-        }
-      }),
-      shipping_addresses: values.shipping_addresses.map((b: any) => {
-        if (b.hasOwnProperty("is_default")) {
-          return b;
-        } else {
-          return { ...b, is_default: b.default };
-        }
-      }),
-    };
-    dispatch(
-      UpdateCustomer(params.id, { ...customer, ...processValue }, setResult)
-    );
-  };
-  const handleSubmitFail = (errorInfo: any) => {
-    console.error("Failed:", errorInfo);
-  };
+
   return (
     <ContentContainer
       title={customer && customer.full_name}
@@ -202,22 +226,59 @@ const CustomerEdit = (props: any) => {
                 <span className="title-card">THÔNG TIN CÁ NHÂN</span>
               </div>
             }
+            extra={[<Link to={`/customer/edit/${params.id}`}>Cập nhật</Link>]}
           >
             <Row style={{ padding: "16px 30px" }}>
-              {customerDetail.map((detail: any, index: number) => (
-                <Col
-                  key={index}
-                  span={12}
-                  style={{ display: "flex", marginBottom: 20 }}
-                >
-                  <Col span={12}>
-                    <span>{detail.name}</span>
+              {customerDetail &&
+                customerDetail.map((detail: any, index: number) => (
+                  <Col
+                    key={index}
+                    span={12}
+                    style={{
+                      display: "flex",
+                      marginBottom: 20,
+                      color: "#222222",
+                    }}
+                  >
+                    <Col span={12}>
+                      <span>{detail.name}</span>
+                    </Col>
+                    <Col span={12}>
+                      <b>: {detail.value ? detail.value : "---"}</b>
+                    </Col>
                   </Col>
-                  <Col span={12}>
-                    <b>: {detail.value}</b>
+                ))}
+            </Row>
+          </Card>
+          <Card
+            style={{ marginTop: 16 }}
+            title={
+              <div className="d-flex">
+                <span className="title-card">THÔNG TIN MUA HÀNG</span>
+              </div>
+            }
+            extra={[<Link to={``}>Chi tiết</Link>]}
+          >
+            <Row gutter={30} style={{ padding: "16px" }}>
+              {customerBuyDetail &&
+                customerBuyDetail.map((info: any, index: number) => (
+                  <Col
+                    key={index}
+                    span={12}
+                    style={{
+                      display: "flex",
+                      marginBottom: 20,
+                      color: "#222222",
+                    }}
+                  >
+                    <Col span={14}>
+                      <span>{info.name}</span>
+                    </Col>
+                    <Col span={10}>
+                      <b>: {info.value ? info.value : "---"}</b>
+                    </Col>
                   </Col>
-                </Col>
-              ))}
+                ))}
             </Row>
           </Card>
         </Col>
@@ -229,23 +290,31 @@ const CustomerEdit = (props: any) => {
               </div>
             }
           >
-            <Row gutter={12} style={{ padding: "16px" }}></Row>
+            <Row gutter={30} style={{ padding: "16px" }}>
+              {customerPointInfo &&
+                customerPointInfo.map((detail: any, index: number) => (
+                  <Col
+                    key={index}
+                    span={24}
+                    style={{
+                      display: "flex",
+                      marginBottom: 20,
+                      color: "#222222",
+                    }}
+                  >
+                    <Col span={14}>
+                      <span>{detail.name}</span>
+                    </Col>
+                    <Col span={10}>
+                      <b>: {detail.value ? detail.value : "---"}</b>
+                    </Col>
+                  </Col>
+                ))}
+            </Row>
           </Card>
         </Col>
       </Row>
-      <Row style={{ marginTop: 16 }}>
-        <Col span={24}>
-          <Card
-            title={
-              <div className="d-flex">
-                <span className="title-card">THÔNG TIN MUA HÀNG</span>
-              </div>
-            }
-          >
-            <Row gutter={12} style={{ padding: "16px" }}></Row>
-          </Card>
-        </Col>
-      </Row>
+      <Row style={{ marginTop: 16 }}></Row>
     </ContentContainer>
   );
 };

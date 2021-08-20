@@ -8,6 +8,7 @@ import {
   Button,
   Card,
   InputNumber,
+  Collapse,
 } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
@@ -44,6 +45,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 
 const { Option } = Select;
+const { Panel } = Collapse;
 
 const CustomerAdd = (props: any) => {
   const [customerForm] = Form.useForm();
@@ -90,6 +92,8 @@ const CustomerAdd = (props: any) => {
     }
   }, [dispatch, districtId]);
 
+  const getResponsibleStaffCode = () => {};
+
   React.useEffect(() => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
@@ -118,14 +122,14 @@ const CustomerAdd = (props: any) => {
       wedding_date: values.wedding_date
         ? new Date(values.wedding_date).toISOString()
         : null,
-      billing_addresses: values.billing_addresses.map((b: any) => {
-        return { ...b, is_default: b.default };
-      }),
-      shipping_addresses: values.shipping_addresses.map((b: any) => {
-        return { ...b, is_default: b.default };
-      }),
+      // billing_addresses: values.billing_addresses.map((b: any) => {
+      //   return { ...b, is_default: b.default };
+      // }),
+      // shipping_addresses: values.shipping_addresses.map((b: any) => {
+      //   return { ...b, is_default: b.default };
+      // }),
     };
-    console.log(piece)
+    console.log(piece);
     dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
   };
   const handleSubmitFail = (errorInfo: any) => {
@@ -157,14 +161,51 @@ const CustomerAdd = (props: any) => {
       >
         <Row gutter={24}>
           <Col span={24}>
-            <GeneralInformation 
-            form={customerForm}
-            name="general_information"
-            accounts={accounts}
+            <GeneralInformation
+              form={customerForm}
+              name="general_information"
+              accounts={accounts}
+              groups={groups}
+              types={types}
             />
           </Col>
         </Row>
-        <Row>
+        <Row gutter={24}>
+          <Col span={18}>
+            <Collapse
+              className="customer-contact-collapse"
+              defaultActiveKey={["1"]}
+              style={{ backgroundColor: "white", marginTop: 16 }}
+              expandIconPosition="right"
+            >
+              <Panel
+                className=""
+                header={
+                  <span
+                    style={{
+                      textTransform: "uppercase",
+                      fontWeight: 500,
+                      padding: "6px",
+                    }}
+                  >
+                    THÔNG TIN LIÊN HỆ
+                  </span>
+                }
+                key="1"
+              >
+                <RenderCardContact
+                  component={ContactForm}
+                  title="THÔNG TIN LIÊN HỆ"
+                  name="contacts"
+                  isEdit={false}
+                  form={customerForm}
+                />
+              </Panel>
+            </Collapse>
+          </Col>
+          <Col span={6} />
+        </Row>
+        {/* <Row>
           <Col span={24} style={{ marginTop: "1.2rem" }}>
             <RenderCardAdress
               name="billing_addresses"
@@ -188,7 +229,7 @@ const CustomerAdd = (props: any) => {
           <Col span={24} style={{ marginTop: "1.2rem" }}>
             <RenderCardNote component={NoteForm} title="GHI CHÚ" name="notes" />
           </Col>
-        </Row>
+        </Row> */}
         <div
           style={{
             display: "flex",

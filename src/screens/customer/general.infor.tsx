@@ -9,6 +9,7 @@ import {
   InputNumber,
   Space,
   Switch,
+  Collapse,
 } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
@@ -32,14 +33,13 @@ import "./customer.scss";
 import RenderCardContact from "./render/card.contact";
 
 const { Option } = Select;
+const { Panel } = Collapse;
 
 const GeneralInformation = (props: any) => {
   const { form } = props;
   const history = useHistory();
   const dispatch = useDispatch();
-  const [groups, setGroups] = React.useState<Array<any>>([]);
   const [companies, setCompanies] = React.useState<Array<any>>([]);
-  const [types, setTypes] = React.useState<Array<any>>([]);
   const [levels, setLevels] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
   const [areas, setAreas] = React.useState<Array<any>>([]);
@@ -56,7 +56,6 @@ const GeneralInformation = (props: any) => {
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
-
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
       setDistrictId(districtId);
@@ -77,9 +76,7 @@ const GeneralInformation = (props: any) => {
     }
   }, [dispatch, districtId]);
   React.useEffect(() => {
-    dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
-    dispatch(CustomerTypes(setTypes));
     dispatch(CustomerLevels(setLevels));
   }, [dispatch]);
   return (
@@ -91,7 +88,6 @@ const GeneralInformation = (props: any) => {
               <span className="title-card">THÔNG TIN KHÁCH HÀNG</span>
             </div>
           }
-          
         >
           <Row gutter={30} style={{ padding: "16px 30px" }}>
             <Col span={24}>
@@ -310,13 +306,6 @@ const GeneralInformation = (props: any) => {
                 </Col> */}
           </Row>
         </Card>
-        <RenderCardContact
-          component={ContactForm}
-          title="THÔNG TIN LIÊN HỆ"
-          name="contacts"
-          isEdit={false}
-          form={form}
-        />
       </Col>
       <Col span={6}>
         <Card
@@ -344,11 +333,12 @@ const GeneralInformation = (props: any) => {
                   allowClear
                   optionFilterProp="children"
                 >
-                  {types.map((type) => (
-                    <Option key={type.id} value={type.id}>
-                      {type.name}
-                    </Option>
-                  ))}
+                  {props.types &&
+                    props.types.map((type: any) => (
+                      <Option key={type.id} value={type.id}>
+                        {type.name}
+                      </Option>
+                    ))}
                 </Select>
               </Form.Item>
             </Col>
@@ -369,11 +359,12 @@ const GeneralInformation = (props: any) => {
                   allowClear
                   optionFilterProp="children"
                 >
-                  {groups.map((group) => (
-                    <Option key={group.id} value={group.id}>
-                      {group.name + ` - ${group.code}`}
-                    </Option>
-                  ))}
+                  {props.groups &&
+                    props.groups.map((group: any) => (
+                      <Option key={group.id} value={group.id}>
+                        {group.name + ` - ${group.code}`}
+                      </Option>
+                    ))}
                 </Select>
               </Form.Item>
             </Col>
@@ -422,7 +413,7 @@ const GeneralInformation = (props: any) => {
                 >
                   {props.accounts &&
                     props.accounts.map((c: any) => (
-                      <Option key={c.id} value={c.id}>
+                      <Option key={c.id} value={c.code}>
                         {c.full_name + " - " + c.code}
                       </Option>
                     ))}
