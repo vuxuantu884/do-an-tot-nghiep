@@ -59,9 +59,19 @@ type CustomerCardProps = {
 
 //Add query for search Customer
 const initQueryCustomer: CustomerSearchQuery = {
-  request: "",
-  limit: 10,
-  page: 1,
+    request: "",
+    limit: 10,
+    page: 1,
+    gender: "",
+    from_birthday:  "",
+    to_birthday: "",
+    company: "",
+    from_wedding_date: "",
+    to_wedding_date: "",
+    customer_type_id: null,
+    customer_group_id: null,
+    customer_level_id: null,
+    responsible_staff_code: ""
 };
 
 const CustomerCard: React.FC<CustomerCardProps> = (

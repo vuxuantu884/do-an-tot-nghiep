@@ -1,7 +1,26 @@
-import { Card, Row, Col, AutoComplete, Button, Form, Tooltip } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  AutoComplete,
+  Button,
+  Form,
+  Tooltip,
+  Input,
+  Select,
+} from "antd";
+import CustomFilter from "component/table/custom.filter";
+
+import BaseFilter from "../../component/filter/base.filter";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { SearchOutlined } from "@ant-design/icons";
+import { StarOutlined } from "@ant-design/icons";
+
 import ContentContainer from "component/container/content.container";
+import CustomDatepicker from "component/custom/date-picker.custom";
 import React from "react";
 import Popup from "./popup";
+import { useSelector } from "react-redux";
 import CustomerAdd from "./add";
 import ButtonCreate from "component/header/ButtonCreate";
 import arrowDownloadRight from "../../assets/icon/arrow-download-right.svg";
@@ -19,6 +38,18 @@ import { Link, useHistory } from "react-router-dom";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import FormItem from "antd/lib/form/FormItem";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AccountResponse } from "model/account/account.model";
+import { MenuAction } from "component/table/ActionButton";
+
+import {
+  CustomerGroups,
+  CustomerLevels,
+  CustomerTypes,
+} from "domain/actions/customer/customer.action";
+
+const { Option } = Select;
 
 interface SearchResult {
   items: Array<any>;
@@ -28,10 +59,40 @@ interface SearchResult {
 const Customer = () => {
   const dispatch = useDispatch();
   const history = useHistory();
+
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+  const LIST_GENDER = bootstrapReducer.data?.gender;
+  const params: CustomerSearchQuery = {
+    request: "",
+    page: 1,
+    limit: 10,
+    gender: "",
+    from_birthday: "",
+    to_birthday: "",
+    company: "",
+    from_wedding_date: "",
+    to_wedding_date: "",
+    customer_type_id: null,
+    customer_group_id: null,
+    customer_level_id: null,
+    responsible_staff_code: "",
+  };
   const [query, setQuery] = React.useState<CustomerSearchQuery>({
     page: 1,
     limit: 10,
     request: "",
+    gender: "",
+    from_birthday: "",
+    to_birthday: "",
+    company: "",
+    from_wedding_date: "",
+    to_wedding_date: "",
+    customer_type_id: null,
+    customer_group_id: null,
+    customer_level_id: null,
+    responsible_staff_code: "",
   });
   const [popup, setPopup] = React.useState({
     visible: false,
@@ -39,6 +100,8 @@ const Customer = () => {
     y: 0,
   });
   const [visible, setVisible] = React.useState<boolean>(false);
+  const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
+
   const [columns, setColumn] = React.useState<
     Array<ICustomTableColumType<any>>
   >([
@@ -132,6 +195,30 @@ const Customer = () => {
     dispatch(CustomerList(query, setResult));
   }, [dispatch, query, setResult]);
 
+  const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
+
+  const setDataAccounts = React.useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
+  React.useEffect(() => {
+    dispatch(AccountSearchAction({}, setDataAccounts));
+  }, [dispatch, setDataAccounts]);
+
+  const [groups, setGroups] = React.useState<Array<any>>([]);
+  const [types, setTypes] = React.useState<Array<any>>([]);
+  const [levels, setLevels] = React.useState<Array<any>>([]);
+  React.useEffect(() => {
+    dispatch(CustomerGroups(setGroups));
+    dispatch(CustomerTypes(setTypes));
+    dispatch(CustomerLevels(setLevels));
+  }, [dispatch]);
+
   // const onRow = (record: any) => ({
   //   onContextMenu: (event: any) => {
   //     event.preventDefault();
@@ -145,15 +232,50 @@ const Customer = () => {
   //     setPopup({ visible: true, x: event.clientX, y: event.clientY });
   //   },
   // });
+  const [formAdvance] = Form.useForm();
 
-  const onSearch = (request: string) => {
-    const querySearch: CustomerSearchQuery = { page: 1, limit: 15, request };
-    dispatch(CustomerList(querySearch, setOptions));
+  const onFilterClick = React.useCallback(() => {
+    setVisibleFilter(false);
+    formAdvance.submit();
+  }, [formAdvance]);
+  const onClearFilterAdvanceClick = React.useCallback(() => {
+    formAdvance.setFieldsValue(params);
+    setVisibleFilter(false);
+    formAdvance.submit();
+  }, [formAdvance, params]);
+  const openFilter = React.useCallback(() => {
+    setVisibleFilter(true);
+  }, []);
+  const onCancelFilter = React.useCallback(() => {
+    setVisibleFilter(false);
+  }, []);
+
+  let value = formAdvance.getFieldValue("filter");
+
+  const onSearch = (value: CustomerSearchQuery) => {
+    const querySearch: CustomerSearchQuery = value;
+    dispatch(CustomerList(querySearch, setData));
+  };
+
+  const onFinish = (value: CustomerSearchQuery) => {
+    console.log(value);
+    onSearch(value);
   };
 
   const onSelect = (value: any, option: any) => {
     history.push(`/customer/${option.key}`);
   };
+
+  const actions: Array<MenuAction> = [
+    {
+      id: 1,
+      name: "Nhập file",
+    },
+    {
+      id: 2,
+      name: "Xuất file",
+    },
+  ];
 
   return (
     <ContentContainer
@@ -169,72 +291,43 @@ const Customer = () => {
         },
       ]}
       extra={
-        <>
-          <Button
-            style={{
-              padding: "0 25px",
-              fontWeight: 400,
-              marginRight: 14,
-              height: 40,
-              color: "#222222",
-            }}
-            className="ant-btn-outline fixed-button cancle-button"
-            onClick={() => window.location.reload()}
-            icon={<img style={{ marginRight: 10 }} src={arrowDownloadRight} />}
-          >
-            Nhập file
-          </Button>
-          <Button
-            style={{
-              padding: "0 25px",
-              fontWeight: 400,
-              height: 40,
-              color: "#222222",
-            }}
-            className="ant-btn-outline fixed-button cancle-button"
-            onClick={() => window.location.reload()}
-            icon={<img style={{ marginRight: 10 }} src={arrowDownloadDown} />}
-          >
-            Xuất file
-          </Button>
+        <>            
           <ButtonCreate path={`/customer/create`} />
         </>
       }
     >
-      <Row gutter={[12, 12]} style={{ padding: "5px 0" }}>
-        <Col span={24}>
-          <Card>
-            <Row style={{ padding: "5px 7px" }}>
-              <Col span={18}>
-                <AutoComplete
-                  onSearch={onSearch}
-                  onSelect={(value, option) => onSelect(value, option)}
-                  allowClear={true}
-                  notFoundContent="Không tìm thấy"
-                  style={{ width: "100%" }}
-                  placeholder="Tên khách hàng, số điện thoại,..."
-                >
-                  {/* <Input
-                    prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                    placeholder="Tên khách hàng, số điện thoại,..."
-                  /> */}
-                  {options.items.map((item) => (
-                    <AutoComplete.Option key={item.id} value={item.full_name}>
-                      {item.full_name + ` - ${item.code}`}
-                    </AutoComplete.Option>
-                  ))}
-                </AutoComplete>
-                {/* <Input
-                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                  placeholder="Tên khách hàng, số điện thoại,..."
-                ></Input> */}
-              </Col>
-            </Row>
-          </Card>
-        </Col>
+      <Card>
+        <div className="padding-20">
+        <CustomFilter menu={actions}>
+            <Form onFinish={onFinish} initialValues={params} layout="inline">
+                  <Form.Item name="request" >
+                    <Input
+                      
+                      style={{width: "500px"}}
+                      prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                      placeholder="Tên khách hàng, mã khách hàng , số điện thoại, email"
+                    />
+                  </Form.Item>
+                 {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
+                  <Form.Item>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                    >
+                      Lọc
+                    </Button>
+                  </Form.Item>
 
-        <Col span={24}>
-          <Card style={{ position: "relative" }}>
+                  <Form.Item>
+                    <Button onClick={openFilter}>Thêm bộ lọc</Button>
+                  </Form.Item>
+
+              
+            </Form>
+            
+          </CustomFilter>
+        
+          {/* <Card style={{ position: "relative" }}> */}
             <CustomTable
               isLoading={tableLoading}
               showColumnSetting={true}
@@ -253,10 +346,154 @@ const Customer = () => {
               rowKey={(item: any) => item.id}
             />
             <Popup {...popup} />
+          </div>
           </Card>
-        </Col>
+
         {visible && <CustomerAdd visible={visible} setVisible={setVisible} />}
-      </Row>
+
+      <BaseFilter
+        onClearFilter={onClearFilterAdvanceClick}
+        onFilter={onFilterClick}
+        onCancel={onCancelFilter}
+        visible={visibleFilter}
+      >
+        <Form
+          form={formAdvance}
+          onFinish={onFinish}
+          //ref={formRef}
+          initialValues={params}
+          layout="vertical"
+        >
+          <Row gutter={50}>
+            <Col span={24}>
+              <Form.Item name="gender" label={<b>Giới tính:</b>}>
+                <Select
+                  showSearch
+                  placeholder="Giới tính"
+                  allowClear
+                  optionFilterProp="children"
+                >
+                  {LIST_GENDER &&
+                    LIST_GENDER.map((c: any) => (
+                      <Option key={c.value} value={c.value}>
+                        {c.name}
+                      </Option>
+                    ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24}>
+              <Form.Item
+                name="responsible_staff_code"
+                label={<b>Nhân viên phụ trách:</b>}
+              >
+                <Select
+                  showSearch
+                  placeholder="Nhân viên phụ trách"
+                  allowClear
+                  optionFilterProp="children"
+                >
+                  {accounts &&
+                    accounts.map((c: any) => (
+                      <Option key={c.id} value={c.code}>
+                        {c.full_name + " - " + c.code}
+                      </Option>
+                    ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24}>
+              <Form.Item
+                name="customer_group_id"
+                label={<b>Nhóm khách hàng:</b>}
+              >
+                <Select
+                  showSearch
+                  placeholder="Nhóm khách hàng"
+                  allowClear
+                  optionFilterProp="children"
+                >
+                  {groups.map((group) => (
+                    <Option key={group.id} value={group.id}>
+                      {group.name + ` - ${group.code}`}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={12}>
+              <Form.Item name="from_birthday" label="Ngày sinh từ">
+                <CustomDatepicker placeholder="Ngày sinh từ" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Đến" name="to_birthday">
+                <CustomDatepicker placeholder="Ngày sinh đến" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={12}>
+              <Form.Item name="from_wedding_date" label="Ngày cưới từ">
+                <CustomDatepicker placeholder="Ngày cưới từ" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Đến" name="to_wedding_date">
+                <CustomDatepicker placeholder="Ngày cưới đến" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24}>
+              <Form.Item
+                name="customer_level_id"
+                label={<b>Hạng khách hàng:</b>}
+              >
+                <Select
+                  showSearch
+                  placeholder="Hạng khách hàng"
+                  allowClear
+                  optionFilterProp="children"
+                >
+                  {levels.map((level) => (
+                    <Option key={level.id} value={level.id}>
+                      {level.name + ` - ${level.code}`}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={50}>
+            <Col span={24}>
+              <Form.Item
+                name="customer_type_id"
+                label={<b>Loại khách hàng:</b>}
+              >
+                <Select
+                  showSearch
+                  placeholder="Loại khách hàng"
+                  allowClear
+                  optionFilterProp="children"
+                >
+                  {types.map((type) => (
+                    <Option key={type.id} value={type.id}>
+                      {type.name + ` - ${type.code}`}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </BaseFilter>
       <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}

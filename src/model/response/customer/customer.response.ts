@@ -1,9 +1,6 @@
 import { BaseObject } from 'model/base/base.response';
 
-export interface CustomerResponse {
-  id: number | null;
-  code: string | null;
-  version: number | null,
+export interface CustomerResponse extends BaseObject {
   full_name: string | null,
   phone: string | null,
   email: string | null,
@@ -24,6 +21,7 @@ export interface CustomerResponse {
   loyalty: number,
   billing_addresses: Array<BillingAddress>;
   shipping_addresses: Array<ShippingAddress>;
+  contact: Array<contact>
 }
 
 
@@ -59,4 +57,12 @@ export interface ShippingAddress extends BaseObject {
   ward: string,
   zip_code: string,
   full_address: string
+}
+
+export interface contact extends BaseObject {
+  title: string;
+  name: string;
+  email: string;
+  phone: string;
+  note: string;
 }

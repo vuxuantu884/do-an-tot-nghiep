@@ -33,6 +33,16 @@ const Customer = () => {
     page: 1,
     limit: 10,
     request: "",
+    gender: "",
+    from_birthday:  "",
+    to_birthday: "",
+    company: "",
+    from_wedding_date: "",
+    to_wedding_date: "",
+    customer_type_id: null,
+    customer_group_id: null,
+    customer_level_id: null,
+    responsible_staff_code: ""
   });
   const [popup, setPopup] = React.useState({
     visible: false,
@@ -47,7 +57,7 @@ const Customer = () => {
       title: "Mã ",
       dataIndex: "code",
       render: (value: string, i: any) => (
-        <Link to={`/customer_groups/${i.id}`}>{value}</Link>
+        <Link to={`/group/${i.id}`}>{value}</Link>
       ),
       visible: true,
     },
@@ -116,7 +126,21 @@ const Customer = () => {
   // });
 
   const onSearch = (request: string) => {
-    const querySearch: CustomerSearchQuery = { page: 1, limit: 15, request };
+    const querySearch: CustomerSearchQuery = { 
+      page: 1, 
+      limit: 15,
+      gender: "",
+      from_birthday:  "",
+      to_birthday: "",
+      company: "",
+      from_wedding_date: "",
+      to_wedding_date: "",
+      customer_type_id: null,
+      customer_group_id: null,
+      customer_level_id: null,
+      responsible_staff_code: "",
+      request 
+    };
     dispatch(CustomerGroupList(querySearch, setOptions));
   };
 
@@ -134,7 +158,7 @@ const Customer = () => {
         },
         {
           name: "Nhóm khách hàng",
-          path: `/customers/customers-group`,
+          path: `/customers/group`,
         },
       ]}
       extra={
@@ -166,7 +190,7 @@ const Customer = () => {
           >
             Xuất file
           </Button> */}
-          <ButtonCreate path={`/customer_groups/create`} />
+          <ButtonCreate path={`/group/create`} />
         </>
       }
     >

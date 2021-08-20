@@ -9,7 +9,7 @@ import { StyledComponent } from "./styles";
 type FormValueType = {
   code: string;
   name?: string;
-  status?:string;
+  active?:boolean;
   note?: string;
 };
 
@@ -27,14 +27,14 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
       ? {
           code: formItem?.code,
           name: formItem?.name,
-          status: formItem?.status,
+          active: formItem?.active,
           note: formItem?.note,
         }
       : {
           code: "",
           name: "",
           note: "",
-          status: "active"
+          active: true
         };
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -54,8 +54,8 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
         initialValues={initialFormValue}
       >
         <Row gutter={20}>
-          <Col span={12}>
-          <Form.Item
+          <Col span={24}>
+          {/* <Form.Item
               name="code"
               label="Mã nhóm khách hàng"
               rules={[
@@ -70,7 +70,7 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
                 placeholder="Nhập mã nhóm khách hàng"
                 style={{ width: "100%" }}
               />
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item
               name="name"
@@ -88,15 +88,15 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
                 style={{ width: "100%" }}
               />
             </Form.Item>
-            <Form.Item
+            {/* <Form.Item
               name="status"
               valuePropName="active"
               style={{ marginBottom: 10 }}
             >
               <Checkbox>Áp dụng </Checkbox>
-            </Form.Item>
-          </Col>
-          <Col span={12}>
+            </Form.Item> */}
+          {/* </Col>
+          <Col span={12}> */}
             <Form.Item
               name="note"
               label="Ghi chú"

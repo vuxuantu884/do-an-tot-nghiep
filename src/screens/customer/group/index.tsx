@@ -51,7 +51,7 @@ const SettingCustomerGroup: React.FC = () => {
     {
       title: "Mã nhóm khách hàng",
       dataIndex: "code",
-      visible: true,
+      visible: false,
       className: "columnTitle",
       width: "10%",
       render: (value, row, index) => {
@@ -73,15 +73,33 @@ const SettingCustomerGroup: React.FC = () => {
       dataIndex: "name",
       visible: true,
       width: "25%",
-      // render: (value, row, index) => {
-      //   const result = LIST_STATUS?.find((singleStatus) => {
-      //     return singleStatus.value === value;
-      //   });
-      //   if (result) {
-      //     return result.name;
-      //   }
-      //   return "";
-      // },
+      render: (value, row, index) => {
+        if (value) {
+          return (
+            <span
+              title={value}
+              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+              className="title text"
+            >
+              {value}
+            </span>
+          );
+        }
+      },
+    },
+    
+    {
+      title: "Người tạo",
+      dataIndex: "created_by",
+      visible: true,
+      width: "20%",
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "created_date",
+      visible: true,
+      width: "20%",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
       title: "Ghi chú",
@@ -95,19 +113,6 @@ const SettingCustomerGroup: React.FC = () => {
           </span>
         );
       },
-    },
-    {
-      title: "Người tạo",
-      dataIndex: "created_by",
-      visible: true,
-      width: "20%",
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "created_date",
-      visible: true,
-      width: "20%",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
   ];
 
@@ -156,7 +161,7 @@ const SettingCustomerGroup: React.FC = () => {
       page: 1,
     };
     setParams({ ...newParams });
-    history.replace(`${UrlConfig.CUSTOMER}/customers-group`);
+    history.replace(`${UrlConfig.CUSTOMER}/group`);
     window.scrollTo(0, 0);
   };
 
