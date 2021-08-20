@@ -32,10 +32,16 @@ import moment from "moment";
 import { showSuccess } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
-import GeneralInformation from "./general.infor";
+import GeneralInformation from "./general.information";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
+import { BillingAddress } from './../../model/request/order.request';
+import { WardResponse } from "model/content/ward.model";
+import {
+  DistrictGetByCountryAction,
+  WardGetByDistrictAction,
+} from "domain/actions/content/content.action";
 
 const { Option } = Select;
 const { Panel } = Collapse;
@@ -51,7 +57,12 @@ const CustomerEdit = (props: any) => {
   const [levels, setLevels] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
   const [companies, setCompanies] = React.useState<Array<any>>([]);
+  const [areas, setAreas] = React.useState<Array<any>>([]);
+  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
+  const [countryId, setCountryId] = React.useState<number>(233);
+  const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
+  const [status, setStatus] = React.useState<string>("active");
 
   const statuses = [
     { name: "Hoạt động", key: "1", value: "active" },
@@ -66,6 +77,37 @@ const CustomerEdit = (props: any) => {
     },
     []
   );
+  React.useEffect(() => {
+    dispatch(DistrictGetByCountryAction(countryId, setAreas));
+  }, [dispatch, countryId]);
+
+  const handleChangeArea = (districtId: string) => {
+    if(districtId){
+      setDistrictId(districtId);
+      let area = areas.find((area) => area.id === districtId)
+      let value = customerForm.getFieldsValue();
+      console.log(area)
+      value.city_id = area.city_id;
+      value.city = area.city_name;
+      value.district_id = districtId;
+      value.district = area.name;
+      value.ward_id = null;
+      value.ward = "";
+      customerForm.setFieldsValue({ name: value })
+    }
+   
+  };
+  React.useEffect(() => {
+    if (districtId) {
+      dispatch(WardGetByDistrictAction(districtId, setWards));
+    }
+  }, [dispatch, districtId]);
+
+
+
+
+
+
   React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
@@ -159,7 +201,7 @@ const CustomerEdit = (props: any) => {
     >
       <Form
         form={customerForm}
-        name="customer_add"
+        name="customer_edit"
         onFinish={handleSubmit}
         onFinishFailed={handleSubmitFail}
         layout="vertical"
@@ -170,9 +212,16 @@ const CustomerEdit = (props: any) => {
             <GeneralInformation
               accounts={accounts}
               form={customerForm}
-              name="general_information"
+              name="general edit"
               groups={groups}
               types={types}
+              customer={customer}
+              status={status}
+              setStatus={setStatus}
+              areas={areas}
+              countries={countries}
+              wards={wards}
+              handleChangeArea={handleChangeArea}
             />
           </Col>
           {/* <Col span={24} style={{ marginTop: "1.2rem" }}>

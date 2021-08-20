@@ -31,54 +31,36 @@ import { RegUtil } from "utils/RegUtils";
 import ContactForm from "./contact";
 import "./customer.scss";
 import RenderCardContact from "./render/card.contact";
+import customers from './../../routes/menu/customer';
 
 const { Option } = Select;
 const { Panel } = Collapse;
 
 const GeneralInformation = (props: any) => {
-  const { form } = props;
+  const { form, status, setStatus, areas, countries,wards, handleChangeArea } = props;
   const history = useHistory();
   const dispatch = useDispatch();
-  const [companies, setCompanies] = React.useState<Array<any>>([]);
-  const [levels, setLevels] = React.useState<Array<any>>([]);
-  const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
-  const [areas, setAreas] = React.useState<Array<any>>([]);
-  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
-  const [countryId, setCountryId] = React.useState<number>(233);
-  const [districtId, setDistrictId] = React.useState<any>(null);
-  const [status, setStatus] = React.useState<string>("active");
-
+  console.log(status)
   const statuses = [
     { name: "Hoạt động", key: "1", value: "active" },
     { name: "Không hoạt động", key: "2", value: "inactive" },
   ];
 
-  React.useEffect(() => {
-    dispatch(DistrictGetByCountryAction(countryId, setAreas));
-  }, [dispatch, countryId]);
-  const handleChangeArea = (districtId: string) => {
-    if (districtId) {
-      setDistrictId(districtId);
-      let area = areas.find((area) => area.id === districtId);
-      let value = form?.getFieldValue();
-      value.city_id = area.city_id;
-      value.city = area.city_name;
-      value.district_id = districtId;
-      value.district = area.name;
-      value.ward_id = null;
-      value.ward = "";
-      form?.setFieldsValue({ name: value });
-    }
-  };
-  React.useEffect(() => {
-    if (districtId) {
-      dispatch(WardGetByDistrictAction(districtId, setWards));
-    }
-  }, [dispatch, districtId]);
-  React.useEffect(() => {
-    dispatch(CountryGetAllAction(setCountries));
-    dispatch(CustomerLevels(setLevels));
-  }, [dispatch]);
+  // const handleChangeArea = (districtId: string) => {
+  //   if (districtId) {
+  //     setDistrictId(districtId);
+  //     let area = areas.find((area) => area.id === districtId);
+  //     let value = form?.getFieldValue();
+  //     value.city_id = area.city_id;
+  //     value.city = area.city_name;
+  //     value.district_id = districtId;
+  //     value.district = area.name;
+  //     value.ward_id = null;
+  //     value.ward = "";
+  //     form?.setFieldsValue({ name: value });
+  //   }
+  // };
+ 
   return (
     <Row gutter={24}>
       <Col span={18}>
@@ -88,6 +70,25 @@ const GeneralInformation = (props: any) => {
               <span className="title-card">THÔNG TIN KHÁCH HÀNG</span>
             </div>
           }
+          extra={[
+            <Space key="status" size={15} style={{marginRight: "10px"}}>
+              <label className="text-default">Trạng thái</label>
+              <Switch
+                className="ant-switch-success"
+                checked={status === "Hoạt động"}
+                onChange={(checked) => {
+                  setStatus(checked ? "Hoạt động" : "Không hoạt động");
+                }}
+              />
+              <label
+                className={
+                  status === "Hoạt động" ? "text-success" : "text-error"
+                }
+              >
+                {status}
+              </label>
+            </Space>,
+          ]}
         >
           <Row gutter={30} style={{ padding: "16px 30px" }}>
             <Col span={24}>
@@ -170,7 +171,7 @@ const GeneralInformation = (props: any) => {
             <Col span={24}>
               <Row gutter={30}>
                 <Col span={12}>
-                  <Form.Item name="facebook_link" label={<b>Facebook:</b>}>
+                  <Form.Item name="website" label={<b>Facebook:</b>}>
                     <Input maxLength={255} placeholder="Nhập link facebook" />
                   </Form.Item>
                 </Col>
@@ -183,7 +184,7 @@ const GeneralInformation = (props: any) => {
                     />
                   </Form.Item>
                 </Col>
-                <Col span={12}>
+                {/* <Col span={12}>
                   <Form.Item name="status" label={<b>Trạng thái:</b>}>
                     <Select placeholder="Trạng thái">
                       {statuses.map((status) => (
@@ -193,7 +194,7 @@ const GeneralInformation = (props: any) => {
                       ))}
                     </Select>
                   </Form.Item>
-                </Col>
+                </Col> */}
                 <Col span={12}>
                   <Form.Item label={<b>Mã số thuế:</b>} name="tax_code">
                     <Input maxLength={255} placeholder="Mã số thuế" />
@@ -218,7 +219,7 @@ const GeneralInformation = (props: any) => {
                       allowClear
                       optionFilterProp="children"
                     >
-                      {countries.map((country) => (
+                      {countries.map((country: any) => (
                         <Option key={country.id} value={country.id}>
                           {country.name + ` - ${country.code}`}
                         </Option>
@@ -244,7 +245,7 @@ const GeneralInformation = (props: any) => {
                       allowClear
                       optionFilterProp="children"
                     >
-                      {areas.map((area) => (
+                      {areas.map((area: any) => (
                         <Option key={area.id} value={area.id}>
                           {area.city_name + ` - ${area.name}`}
                         </Option>
@@ -270,7 +271,7 @@ const GeneralInformation = (props: any) => {
                       placeholder="Xã/Phường"
                       // onChange={handleChangeWard}
                     >
-                      {wards.map((ward) => (
+                      {wards.map((ward: any) => (
                         <Option key={ward.id} value={ward.id}>
                           {ward.name}
                         </Option>

@@ -39,7 +39,7 @@ import RenderCardContact from "./render/card.contact";
 import RenderCardNote from "./render/card.note";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
-import GeneralInformation from "./general.infor";
+import GeneralInformation from "./general.information";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -61,6 +61,7 @@ const CustomerAdd = (props: any) => {
   const [countryId, setCountryId] = React.useState<number>(233);
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
+  const [status, setStatus] = React.useState<string>("active");
 
   const statuses = [
     { name: "Hoạt động", key: "1", value: "active" },
@@ -75,6 +76,7 @@ const CustomerAdd = (props: any) => {
     },
     []
   );
+  
   React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
@@ -84,7 +86,20 @@ const CustomerAdd = (props: any) => {
   }, [dispatch, countryId]);
 
   const handleChangeArea = (districtId: string) => {
-    setDistrictId(districtId);
+    if(districtId){
+      setDistrictId(districtId);
+      let area = areas.find((area) => area.id === districtId)
+      let value = customerForm.getFieldsValue();
+      console.log(area)
+      value.city_id = area.city_id;
+      value.city = area.city_name;
+      value.district_id = districtId;
+      value.district = area.name;
+      value.ward_id = null;
+      value.ward = "";
+      customerForm.setFieldsValue({ name: value })
+    }
+   
   };
   React.useEffect(() => {
     if (districtId) {
@@ -114,6 +129,7 @@ const CustomerAdd = (props: any) => {
   );
   const handleSubmit = (values: any) => {
     console.log("Success:", values);
+    let area = areas.find((area) => area.id === districtId)
     let piece = {
       ...values,
       birthday: moment(new Date(values.birthday), "YYYY-MM-DD").format(
@@ -122,6 +138,9 @@ const CustomerAdd = (props: any) => {
       wedding_date: values.wedding_date
         ? new Date(values.wedding_date).toISOString()
         : null,
+      status: status,
+      city_id: area.city_id,
+      
       // billing_addresses: values.billing_addresses.map((b: any) => {
       //   return { ...b, is_default: b.default };
       // }),
@@ -163,10 +182,16 @@ const CustomerAdd = (props: any) => {
           <Col span={24}>
             <GeneralInformation
               form={customerForm}
-              name="general_information"
+              name="general add"
               accounts={accounts}
               groups={groups}
               types={types}
+              status={status}
+              setStatus={setStatus}
+              areas={areas}
+              countries={countries}
+              wards={wards}
+              handleChangeArea={handleChangeArea}
             />
           </Col>
         </Row>

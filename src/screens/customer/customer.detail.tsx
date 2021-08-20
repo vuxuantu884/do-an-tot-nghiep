@@ -22,7 +22,7 @@ import moment from "moment";
 import { showSuccess } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
-import GeneralInformation from "./general.infor";
+import GeneralInformation from "./general.information";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
