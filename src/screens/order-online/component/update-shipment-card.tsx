@@ -1,31 +1,35 @@
 //#region Import
 import {
+  Badge,
   Button,
   Card,
-  Row,
-  Col,
-  Form,
-  Space,
-  Typography,
-  Divider,
   Checkbox,
-  Tag,
+  Col,
   Collapse,
   DatePicker,
+  Divider,
+  Form,
   FormInstance,
+  Row,
   Select,
-  Badge,
+  Space,
+  Tag,
+  Typography,
 } from "antd";
-import React, { useState, useCallback, useEffect, createRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  ShippingGHTKRequest,
-  UpdateFulFillmentRequest,
-  UpdateFulFillmentStatusRequest,
-  UpdateLineFulFillment,
-  UpdateShipmentRequest,
-} from "model/request/order.request";
-import { AccountResponse } from "model/account/account.model";
+import calendarOutlined from "assets/icon/calendar_outline.svg";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
+import deliveryIcon from "assets/icon/delivery.svg";
+import doubleArrow from "assets/icon/double_arrow.svg";
+import eyeOutline from "assets/icon/eye_outline.svg";
+import selfdeliver from "assets/icon/self_shipping.svg";
+import shoppingBag from "assets/icon/shopping_bag.svg";
+import wallClock from "assets/icon/wall_clock.svg";
+import AlertIcon from "assets/icon/ydAlertIcon.svg";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import WarningIcon from "assets/icon/ydWarningIcon.svg";
+import storeBluecon from "assets/img/storeBlue.svg";
+import NumberInput from "component/custom/number-input.custom";
+import CustomSelect from "component/custom/select.custom";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   DeliveryServicesGetList,
@@ -35,19 +39,17 @@ import {
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
-import storeBluecon from "assets/img/storeBlue.svg";
-import deliveryIcon from "assets/icon/delivery.svg";
-import selfdeliver from "assets/icon/self_shipping.svg";
-import shoppingBag from "assets/icon/shopping_bag.svg";
-import wallClock from "assets/icon/wall_clock.svg";
-import eyeOutline from "assets/icon/eye_outline.svg";
-import calendarOutlined from "assets/icon/calendar_outline.svg";
-import doubleArrow from "assets/icon/double_arrow.svg";
-import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import AlertIcon from "assets/icon/ydAlertIcon.svg";
-
+import { AccountResponse } from "model/account/account.model";
+import { StoreResponse } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import {
+  ShippingGHTKRequest,
+  UpdateFulFillmentRequest,
+  UpdateFulFillmentStatusRequest,
+  UpdateLineFulFillment,
+  UpdateShipmentRequest,
+} from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
   ErrorLogResponse,
@@ -56,6 +58,9 @@ import {
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
+import React, { createRef, useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setTimeout } from "timers";
 import {
   checkPaymentStatusToShow,
   CheckShipmentType,
@@ -68,24 +73,21 @@ import {
   SumWeightResponse,
   TrackingCode,
 } from "utils/AppUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   FulFillmentStatus,
-  OrderStatus,
-  ShipmentMethodOption,
-  PaymentMethodOption,
-  TRANSPORTS,
   MoneyPayThreePls,
+  OrderStatus,
+  PaymentMethodOption,
+  ShipmentMethodOption,
+  TRANSPORTS,
 } from "utils/Constants";
-import CustomSelect from "component/custom/select.custom";
-import NumberInput from "component/custom/number-input.custom";
-import { setTimeout } from "timers";
-import SaveAndConfirmOrder from "../modal/save-confirm.modal";
-import GetGoodsBack from "../modal/get-goods-back.modal";
+import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
-import { StoreResponse } from "model/core/store.model";
-import { CustomerResponse } from "model/response/customer/customer.response";
+import GetGoodsBack from "../modal/get-goods-back.modal";
+import SaveAndConfirmOrder from "../modal/save-confirm.modal";
+import FulfillmentStatusTag from "./FulfillmentStatusTag";
+import PrintShippingLabel from "./PrintShippingLabel";
+
 const { Panel } = Collapse;
 const { Link } = Typography;
 //#endregion
@@ -163,44 +165,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   };
   //#endregion
   //#region Master
-  interface statusTagObj {
-    name: string;
-    status: string;
-    color: string;
-    backgroundColor: string;
-  }
-  const shipmentStatusTag: Array<statusTagObj> = [
-    {
-      name: "Chưa giao hàng",
-      status: FulFillmentStatus.UNSHIPPED,
-      color: "#666666",
-      backgroundColor: "rgba(102, 102, 102, 0.1)",
-    },
-    {
-      name: "Đã nhặt hàng",
-      status: FulFillmentStatus.PICKED,
-      color: "#FCAF17",
-      backgroundColor: "rgba(252, 175, 23, 0.1)",
-    },
-    {
-      name: "Đã đóng gói",
-      status: FulFillmentStatus.PACKED,
-      color: "#FCAF17",
-      backgroundColor: "rgba(252, 175, 23, 0.1)",
-    },
-    {
-      name: "Đang giao hàng",
-      status: FulFillmentStatus.SHIPPING,
-      color: "#FCAF17",
-      backgroundColor: "rgba(252, 175, 23, 0.1)",
-    },
-    {
-      name: "Đã giao hàng",
-      status: FulFillmentStatus.SHIPPED,
-      color: "#27AE60",
-      backgroundColor: "rgba(39, 174, 96, 0.1)",
-    },
-  ];
+
   // copy button
   const copyOrderID = (e: any, data: string | null) => {
     e.stopPropagation();
@@ -316,7 +281,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
   }, [dispatch, props.OrderDetail]);
   //#endregion
-console.log(cancelReason)
+  console.log(cancelReason);
   //#region Update Fulfillment Status
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
@@ -849,7 +814,7 @@ console.log(cancelReason)
       order_id: null,
       fulfillment_id: null,
       status: "",
-      cancel_reason: cancelReason
+      cancel_reason: cancelReason,
     };
     value.order_id = props.OrderDetail?.id;
     value.fulfillment_id = fullfilmentIdGoodReturn;
@@ -863,6 +828,7 @@ console.log(cancelReason)
     },
     [setFullfilmentIdGoodReturn, setIsvibleGoodsReturn]
   );
+
   // end
   useEffect(() => {
     getRequirementName();
@@ -988,8 +954,8 @@ console.log(cancelReason)
                       }
                       showArrow={true}
                       header={
-                        <div>
-                          <div>
+                        <div className="saleorder-header-content">
+                          <div className="saleorder-header-content__info">
                             <span
                               className="text-field"
                               style={{
@@ -1018,76 +984,11 @@ console.log(cancelReason)
                                 style={{ width: 23 }}
                               />
                             </div>
-                            {fulfillment.status !==
-                              FulFillmentStatus.CANCELLED &&
-                              fulfillment.status !==
-                                FulFillmentStatus.RETURNING &&
-                              fulfillment.status !==
-                                FulFillmentStatus.RETURNED &&
-                              shipmentStatusTag.map((statusTag) => {
-                                return (
-                                  statusTag.status ===
-                                    (props.OrderDetail &&
-                                      props.OrderDetail?.fulfillments &&
-                                      props.OrderDetail?.fulfillments[0]
-                                        .status) && (
-                                    <Tag
-                                      key={statusTag.name}
-                                      className="orders-tag text-menu"
-                                      style={{
-                                        color: `${statusTag.color}`,
-                                        backgroundColor: `${statusTag.backgroundColor}`,
-                                      }}
-                                    >
-                                      {statusTag.name}
-                                    </Tag>
-                                  )
-                                );
-                              })}
-                            {fulfillment.status_before_cancellation !==
-                              FulFillmentStatus.SHIPPING &&
-                              fulfillment.status ===
-                                FulFillmentStatus.RETURNED && (
-                                <Tag
-                                  className="orders-tag text-menu"
-                                  style={{
-                                    color: "#E24343",
-                                    backgroundColor: "rgba(226, 67, 67, 0.1)",
-                                  }}
-                                >
-                                  Hủy giao hàng - Đã nhận hàng
-                                </Tag>
-                              )}
-                            {fulfillment.status_before_cancellation ===
-                              FulFillmentStatus.SHIPPING &&
-                              fulfillment.status !==
-                                FulFillmentStatus.RETURNED && (
-                                <Tag
-                                  className="orders-tag text-menu"
-                                  style={{
-                                    color: "#E24343",
-                                    backgroundColor: "rgba(226, 67, 67, 0.1)",
-                                  }}
-                                >
-                                  Hủy giao hàng - Chưa nhận hàng
-                                </Tag>
-                              )}
-                            {fulfillment.status_before_cancellation ===
-                              FulFillmentStatus.SHIPPING &&
-                              fulfillment.status ===
-                                FulFillmentStatus.RETURNED && (
-                                <Tag
-                                  className="orders-tag text-menu"
-                                  style={{
-                                    color: "#E24343",
-                                    backgroundColor: "rgba(226, 67, 67, 0.1)",
-                                  }}
-                                >
-                                  Hủy giao hàng - Đã nhận hàng
-                                </Tag>
-                              )}
+                            <FulfillmentStatusTag fulfillment={fulfillment} />
+                            <PrintShippingLabel />
                           </div>
-                          <div>
+
+                          <div className="saleorder-header-content__date">
                             <span
                               style={{ color: "#000000d9", marginRight: 6 }}
                             >
@@ -1574,7 +1475,7 @@ console.log(cancelReason)
                   type="default"
                   className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                   style={{
-                    color: "#737373",
+                    // color: "#737373",
                     border: "1px solid #E5E5E5",
                     padding: "0 25px",
                   }}
@@ -1590,7 +1491,6 @@ console.log(cancelReason)
                     type="default"
                     className="create-button-custom ant-btn-outline fixed-button saleorder_shipment_cancel_btn"
                     style={{
-                      color: "#737373",
                       border: "1px solid #E5E5E5",
                       padding: "0 25px",
                     }}

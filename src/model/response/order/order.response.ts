@@ -241,6 +241,22 @@ export interface ShippingGHTKResponse {
   delivery_type: string;
 }
 
+export interface GHNFeeResponse {
+  coupon_value: number;
+  insurance_fee: number;
+  pick_station_fee: number;
+  r2s_fee: number;
+  service_fee: number;
+  total: number;
+}
+
+export interface VTPFeeResponse {
+  GIA_CUOC: number;
+  MA_DV_CHINH: string;
+  TEN_DICHVU: string;
+  THOI_GIAN: string;
+}
+
 export interface StoreCustomResponse extends BaseObject {
   name: string;
   rank: number;
