@@ -1,4 +1,14 @@
-import { Input, Form, Row, Col, DatePicker, Select, Button, Card } from "antd";
+import {
+  Input,
+  Form,
+  Row,
+  Col,
+  DatePicker,
+  Select,
+  Button,
+  Card,
+  Collapse,
+} from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
   CustomerDetail,
@@ -28,6 +38,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 
 const { Option } = Select;
+const { Panel } = Collapse;
 
 const CustomerEdit = (props: any) => {
   const params = useParams() as any;
@@ -42,12 +53,10 @@ const CustomerEdit = (props: any) => {
   const [companies, setCompanies] = React.useState<Array<any>>([]);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
 
-
   const statuses = [
     { name: "Hoạt động", key: "1", value: "active" },
     { name: "Không hoạt động", key: "2", value: "inactive" },
   ];
-
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -77,7 +86,7 @@ const CustomerEdit = (props: any) => {
   //     }
   //   }
   // }, [customer])
-  console.log(customer)
+  console.log(customer);
   React.useEffect(() => {
     if (customer) {
       customerForm.setFieldsValue({
@@ -92,12 +101,15 @@ const CustomerEdit = (props: any) => {
   const reload = React.useCallback(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params.id]);
-  const setResult = React.useCallback((result) => {
-    if (result) {
-      showSuccess("Cập nhật khách hàng thành công");
-      history.goBack();
-    }
-  }, [history]);
+  const setResult = React.useCallback(
+    (result) => {
+      if (result) {
+        showSuccess("Cập nhật khách hàng thành công");
+        history.goBack();
+      }
+    },
+    [history]
+  );
   const handleSubmit = (values: any) => {
     console.log("Success:", values);
     const processValue = {
@@ -106,20 +118,20 @@ const CustomerEdit = (props: any) => {
       wedding_date: values.wedding_date
         ? moment(values.wedding_date, "YYYY-MM-DD").format("YYYY-MM-DD")
         : null,
-      billing_addresses: values.billing_addresses.map((b: any) => {
-        if (b.hasOwnProperty("is_default")) {
-          return b;
-        } else {
-          return { ...b, is_default: b.default };
-        }
-      }),
-      shipping_addresses: values.shipping_addresses.map((b: any) => {
-        if (b.hasOwnProperty("is_default")) {
-          return b;
-        } else {
-          return { ...b, is_default: b.default };
-        }
-      }),
+      // billing_addresses: values.billing_addresses.map((b: any) => {
+      //   if (b.hasOwnProperty("is_default")) {
+      //     return b;
+      //   } else {
+      //     return { ...b, is_default: b.default };
+      //   }
+      // }),
+      // shipping_addresses: values.shipping_addresses.map((b: any) => {
+      //   if (b.hasOwnProperty("is_default")) {
+      //     return b;
+      //   } else {
+      //     return { ...b, is_default: b.default };
+      //   }
+      // }),
     };
     dispatch(
       UpdateCustomer(params.id, { ...customer, ...processValue }, setResult)
@@ -155,21 +167,15 @@ const CustomerEdit = (props: any) => {
       >
         <Row gutter={24}>
           <Col span={24}>
-            <GeneralInformation 
-            accounts={accounts}
-            />
-          </Col>
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardContact
-              component={ContactForm}
-              title="THÔNG TIN LIÊN HỆ"
-              name="contacts"
+            <GeneralInformation
+              accounts={accounts}
               form={customerForm}
-              isEdit={true}
-              reload={reload}
+              name="general_information"
+              groups={groups}
+              types={types}
             />
           </Col>
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
+          {/* <Col span={24} style={{ marginTop: "1.2rem" }}>
             <RenderCardAdress
               name="billing_addresses"
               component={AddressForm}
@@ -194,7 +200,43 @@ const CustomerEdit = (props: any) => {
           
           <Col span={24} style={{ marginTop: "1.2rem" }}>
             <RenderCardNote component={NoteForm} title="GHI CHÚ" name="notes" />
+          </Col> */}
+        </Row>
+        <Row gutter={24}>
+          <Col span={18}>
+            <Collapse
+              className="customer-contact-collapse"
+              defaultActiveKey={["1"]}
+              style={{ backgroundColor: "white", marginTop: 16 }}
+              expandIconPosition="right"
+            >
+              <Panel
+                className=""
+                header={
+                  <span
+                    style={{
+                      textTransform: "uppercase",
+                      fontWeight: 500,
+                      padding: "6px",
+                    }}
+                  >
+                    THÔNG TIN LIÊN HỆ
+                  </span>
+                }
+                key="1"
+              >
+                <RenderCardContact
+                  component={ContactForm}
+                  title="THÔNG TIN LIÊN HỆ"
+                  name="contacts"
+                  form={customerForm}
+                  isEdit={true}
+                  reload={reload}
+                />
+              </Panel>
+            </Collapse>
           </Col>
+          <Col span={6} />
         </Row>
         <div
           style={{

@@ -203,6 +203,7 @@ export class CustomerModel implements CustomerRequest {
   status = "active";
   tags = "";
   responsible_staff_code = null;
+  responsible_staff_name = null;
   full_address = "";
   billing_addresses: Array<CustomerBillingAddress> = [];
   shipping_addresses: Array<CustomerShippingAddress> = [];
