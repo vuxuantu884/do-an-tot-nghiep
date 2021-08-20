@@ -9,7 +9,7 @@ import arrowDownloadDown from "../../assets/icon/arrow-download-down.svg";
 
 import UrlConfig from "config/UrlConfig";
 import { useDispatch } from "react-redux";
-import { CustomerList } from "domain/actions/customer/customer.action";
+import { CustomerGroups, CustomerList, CustomerGroupList } from "domain/actions/customer/customer.action";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import CustomTable, {
   ICustomTableColumType,
@@ -18,6 +18,8 @@ import { Link, useHistory } from "react-router-dom";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { setgroups } from "process";
+import { group } from "console";
 
 interface SearchResult {
   items: Array<any>;
@@ -45,62 +47,30 @@ const Customer = () => {
       title: "Mã ",
       dataIndex: "code",
       render: (value: string, i: any) => (
-        <Link to={`/customer/${i.id}`}>{value}</Link>
+        <Link to={`/customer_groups/${i.id}`}>{value}</Link>
       ),
       visible: true,
     },
     {
-      title: "Tên khách hàng",
-      dataIndex: "full_name",
-      visible: true,
-    },
-    {
-      title: "Số điện thoại",
-      dataIndex: "phone",
-      visible: true,
-    },
-    {
-      title: "Thư điện tử",
-      dataIndex: "email",
-      visible: true,
-    },
-    {
-      title: "Nhóm khách hàng",
-      dataIndex: "customer_group",
-      visible: true,
-    },
-    {
-      title: "Loại khách hàng",
-      dataIndex: "customer_type",
-      visible: true,
-    },
-    {
-      title: "Cấp độ",
-      dataIndex: "customer_level",
+      title: "Tên nhóm khách hàng",
+      dataIndex: "name",
       visible: true,
     },
     {
       title: "Người tạo",
       dataIndex: "created_by",
-      visible: false,
+      visible: true,
     },
     {
       title: "Ngày tạo",
       dataIndex: "created_date",
-      visible: false,
+      visible: true,
 
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
   ]);
 
-  const [data, setData] = React.useState<PageResponse<any>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 0,
-    },
-    items: [],
-  });
+  const [data, setData] = React.useState<Array<any>>([]);
   console.log(data);
   const [tableLoading, setTableLoading] = React.useState<boolean>(true);
 
@@ -118,19 +88,18 @@ const Customer = () => {
     [columns]
   );
 
-  const setResult = React.useCallback((result: PageResponse<any> | false) => {
+  const setResult = React.useCallback((result: Array<any> | false) => {
     setTableLoading(false);
     if (!!result) {
       setData(result);
     }
   }, []);
-
   const [showSettingColumn, setShowSettingColumn] =
     React.useState<boolean>(false);
 
   React.useEffect(() => {
-    dispatch(CustomerList(query, setResult));
-  }, [dispatch, query, setResult]);
+    dispatch(CustomerGroups(setResult));
+  }, [dispatch, setResult]);
 
   // const onRow = (record: any) => ({
   //   onContextMenu: (event: any) => {
@@ -148,7 +117,7 @@ const Customer = () => {
 
   const onSearch = (request: string) => {
     const querySearch: CustomerSearchQuery = { page: 1, limit: 15, request };
-    dispatch(CustomerList(querySearch, setOptions));
+    dispatch(CustomerGroupList(querySearch, setOptions));
   };
 
   const onSelect = (value: any, option: any) => {
@@ -157,20 +126,20 @@ const Customer = () => {
 
   return (
     <ContentContainer
-      title="Quản lý khách hàng"
+      title="Quản lý nhóm khách hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khách hàng",
-          path: `/customer`,
+          name: "Nhóm khách hàng",
+          path: `/customers/customers-group`,
         },
       ]}
       extra={
         <>
-          <Button
+          {/* <Button
             style={{
               padding: "0 25px",
               fontWeight: 400,
@@ -196,8 +165,8 @@ const Customer = () => {
             icon={<img style={{ marginRight: 10 }} src={arrowDownloadDown} />}
           >
             Xuất file
-          </Button>
-          <ButtonCreate path={`/customer/create`} />
+          </Button> */}
+          <ButtonCreate path={`/customer_groups/create`} />
         </>
       }
     >
@@ -212,7 +181,7 @@ const Customer = () => {
                   allowClear={true}
                   notFoundContent="Không tìm thấy"
                   style={{ width: "100%" }}
-                  placeholder="Tên khách hàng, số điện thoại,..."
+                  placeholder="Mã tên nhóm khách hàng, Mã nhóm khách hàng"
                 >
                   {/* <Input
                     prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
@@ -239,16 +208,16 @@ const Customer = () => {
               isLoading={tableLoading}
               showColumnSetting={true}
               scroll={{ x: 1080 }}
-              pagination={{
-                pageSize: data.metadata.limit,
-                total: data.metadata.total,
-                current: data.metadata.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }}
+              // pagination={{
+              //   pageSize: data.metadata.limit,
+              //   total: data.metadata.total,
+              //   current: data.metadata.page,
+              //   showSizeChanger: true,
+              //   onChange: onPageChange,
+              //   onShowSizeChange: onPageChange,
+              // }}
               onShowColumnSetting={() => setShowSettingColumn(true)}
-              dataSource={data.items}
+              dataSource={data}
               columns={columnFinal}
               rowKey={(item: any) => item.id}
             />

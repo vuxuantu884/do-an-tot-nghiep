@@ -4,7 +4,7 @@ import { RouteMenu } from "model/other";
 import React from "react";
 
 const customer = React.lazy(() => import ("screens/customer/index"))
-const customergroup = React.lazy(() => import ("screens/customer/customer.group"))
+const customergroup = React.lazy(() => import ("screens/customer/group"))
 
 const customers: Array<RouteMenu> = [
   {
