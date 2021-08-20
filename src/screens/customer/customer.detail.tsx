@@ -31,7 +31,7 @@ import moment from "moment";
 import { showSuccess } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
-import GeneralInformation from "./general.infor";
+import GeneralInformation from "./general.information";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -78,44 +78,70 @@ const CustomerEdit = (props: any) => {
       details = [
         { name: "Họ tên khách hàng", value: customer.full_name },
         {
-          name: "Giới tính",
-          value: customer.gender,
-        },
-        {
-          name: "Số điện thoại",
-          value: customer.phone,
-        },
-        {
-          name: "Ngày sinh",
-          value: customer.birthday,
-        },
-        {
-          name: "Ngày cưới",
-          value: customer.wedding_date,
-        },
-        {
-          name: "Đơn vị",
-          value: customer.company,
-        },
-        {
           name: "Website/Facebook",
           value: customer.website,
+        },
+        {
+          name: "Giới tính",
+          value: customer.gender === "male" ? "Nam" : "Nữ",
         },
         {
           name: "Mã khách hàng",
           value: customer.code,
         },
         {
+          name: "Trạng thái",
+          value:
+            customer.status === "active" ? (
+              <span style={{color: " #27AE60"}}>Đang hoạt động</span>
+            ) : (
+              <span style={{color: "#b6b6b6"}}>Không hoạt động</span>
+            ),
+        },
+        {
           name: "Loại khách hàng",
           value: customer.customer_type,
+        },
+        {
+          name: "Số điện thoại",
+          value: customer.phone,
         },
         {
           name: "Nhóm khách hàng",
           value: customer.customer_group,
         },
         {
+          name: "Email",
+          value: customer.email,
+        },
+        {
+          name: "Địa chỉ",
+          value: customer.full_address,
+        },
+        {
+          name: "Ngày sinh",
+          value: moment(customer.birthday).format(
+            "DD/MM/YYYY"
+          )
+        },
+        {
+          name: "Mã số thuế",
+          value: customer.tax_code,
+        },
+        {
+          name: "Ngày cưới",
+          value: moment(customer.wedding_date).format(
+            "DD/MM/YYYY"
+          )
+        },
+
+        {
           name: "Nhân viên phụ trách",
           value: customer.responsible_staff_code,
+        },
+        {
+          name: "Đơn vị",
+          value: customer.company,
         },
         {
           name: "Ghi chú",
