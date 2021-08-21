@@ -107,21 +107,27 @@ export const PoPaymentStatus = {
   CANCELLED: "cancelled",
 };
 
-export const PoPaymentMethod ={
-  CASH:'cash',
-  BANK_TRANSFER:'bank_transfer'
-}
+export const PoPaymentMethod = {
+  CASH: "cash",
+  BANK_TRANSFER: "bank_transfer",
+};
 
 export const MODAL_ACTION_TYPE = {
   create: "create",
   edit: "edit",
   delete: "delete",
 };
+
 export const PoFinancialStatus = {
-  DRAFT: 'draft',
-  UNPAID: 'unpaid',
-  PARTIAL_PAID:'partial_paid',
-  PAID:'paid',
-  FINISHED:'finished',
-  CANCELLED:'cancelled',  
-}
+  DRAFT: "draft",
+  UNPAID: "unpaid",
+  PARTIAL_PAID: "partial_paid",
+  PAID: "paid",
+  FINISHED: "finished",
+  CANCELLED: "cancelled",
+};
+
+export const DEFAULT_FORM_VALUE = {
+  company: "YODY",
+  company_id: 1,
+};
