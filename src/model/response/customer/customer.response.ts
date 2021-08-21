@@ -1,10 +1,8 @@
 import { BaseObject } from 'model/base/base.response';
 
-export interface CustomerResponse {
-  id: number | null;
-  code: string | null;
-  version: number | null,
-  full_name: string | null,
+export interface CustomerResponse extends BaseObject {
+  full_address: string,
+  full_name: string,
   phone: string | null,
   email: string | null,
   facebook_url: string | null,
@@ -19,11 +17,17 @@ export interface CustomerResponse {
   wedding_date: number,
   birthday: number,
   gender: string | null,
-  responsible_staff_id: number,
+  website: string | null
+  responsible_staff_code: number,
   affiliate_code: string | null,
   loyalty: number,
-  billing_addresses: Array<BillingAddress>;
-  shipping_addresses: Array<ShippingAddress>;
+  billing_addresses: Array<BillingAddress>,
+  shipping_addresses: Array<ShippingAddress>,
+  contacts: Array<contact>,
+  customer_type: string | null,
+  customer_group: string | null,
+  status: string
+  description: string | null
 }
 
 
@@ -59,4 +63,12 @@ export interface ShippingAddress extends BaseObject {
   ward: string,
   zip_code: string,
   full_address: string
+}
+
+export interface contact extends BaseObject {
+  title: string;
+  name: string;
+  email: string;
+  phone: string;
+  note: string;
 }

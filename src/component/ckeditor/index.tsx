@@ -10,8 +10,13 @@ import { StyledComponent } from "./styles";
  */
 let keyword = "whatever";
 function Editor(props: any) {
-  const { initialHtmlContent, onChange, listKeyWords, selectedPrintSize } =
-    props;
+  const {
+    initialHtmlContent,
+    onChange,
+    listKeywords,
+    selectedPrintSize,
+    previewHeaderHeight,
+  } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleChange = (evt: any) => {
@@ -43,13 +48,27 @@ function Editor(props: any) {
         <EditorModal
           isModalVisible={isModalVisible}
           handleCancel={handleCancelModal}
-          listKeyWords={listKeyWords}
+          listKeywords={listKeywords}
           insertKeyword={(text) => handleInsertKeyword(text)}
         />
       );
     }
     return html;
   };
+
+  const toolbarElement = document.getElementsByClassName(
+    "cke_top"
+  )[0] as HTMLElement;
+
+  useEffect(() => {
+    const getPreviewHeaderHeight = () => {
+      if (toolbarElement) {
+        const toolbarHeight = toolbarElement.offsetHeight;
+        previewHeaderHeight(toolbarHeight);
+      }
+    };
+    getPreviewHeaderHeight();
+  }, [previewHeaderHeight, toolbarElement]);
 
   // console.log("initialHtmlContent", initialHtmlContent);
   return (

@@ -1,22 +1,23 @@
-export interface keyWordsModel {
+export interface keywordsModel {
   title: string;
   key: string;
   value: string;
+  isRepeat?: boolean;
 }
 
-export type listKeyWordsModel = keyWordsModel[];
+export type listKeywordsModel = keywordsModel[];
 
 export interface EditorModel {
   initialHtmlContent: string;
   onChange: (data: string) => void;
-  listKeyWords?: listKeyWordsModel;
+  listKeywords?: listKeywordsModel;
 }
 
 export interface EditorModalType {
   isModalVisible: boolean;
   handleCancel: () => void;
   insertKeyword: (text: string) => void;
-  listKeyWords?: listKeyWordsModel;
+  listKeywords?: listKeywordsModel;
 }
 
 export interface PrintEditorModel {
@@ -26,7 +27,9 @@ export interface PrintEditorModel {
 
 export interface PrintPreviewModel {
   htmlContent: string;
-  listKeyWords?: listKeyWordsModel;
+  listKeywords?: listKeywordsModel;
+  listProductKeywords?: listKeywordsModel;
+  previewHeaderHeight?: number;
 }
 
 export type SinglePrinterContentModel = string;

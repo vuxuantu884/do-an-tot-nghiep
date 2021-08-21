@@ -1,26 +1,29 @@
 import { all } from "redux-saga/effects";
+import { accountSaga } from "./account/account.saga";
 import { appSaga } from "./app.saga";
-import { colorSaga } from "./product/color.saga";
-import { supplierSagas } from "./core/supplier.saga";
-import OrderOnlineSaga from "./order/order.saga";
-import { storeSaga } from "./core/store.saga";
 import { authSaga } from "./auth/auth.saga";
+import { permissionSaga } from "./auth/permission.saga";
+import { roleSaga } from "./auth/role.saga";
 import { bootstrapSaga } from "./content/bootstrap.saga";
 import { contentSaga } from "./content/content.saga";
-import { categorySaga } from "./product/category.saga";
-import { materialSaga } from "./product/material.saga";
-import { productSaga } from "./product/product.saga";
-import { sizeSaga } from "./product/size.saga";
-import { accountSaga } from "./account/account.saga";
+import { storeSaga } from "./core/store.saga";
+import { supplierSagas } from "./core/supplier.saga";
+import { customerGroupSaga } from "./customer/customer-group.saga";
 import customerSagas from "./customer/customer.saga";
-import { roleSaga } from "./auth/role.saga";
-import { permissionSaga } from "./auth/permission.saga";
-import { poSaga } from "./po/po.saga";
-import { settingOrderProcessingStatusSaga } from "./settings/order-processing-status.saga";
-import { settingOrderSourceSaga } from "./settings/order-source.saga";
+import OrderOnlineSaga from "./order/order.saga";
 import { paymentConditionsSaga } from "./po/payment-conditions.saga";
 import { poPaymentSaga } from "./po/po-payment.saga";
 import { poProcumentSaga } from "./po/po-procument.saga";
+import { poSaga } from "./po/po.saga";
+import { settingPrinterSaga } from "./printer/printer";
+import { categorySaga } from "./product/category.saga";
+import { colorSaga } from "./product/color.saga";
+import { materialSaga } from "./product/material.saga";
+import { productSaga } from "./product/product.saga";
+import { sizeSaga } from "./product/size.saga";
+import { settingOrderProcessingStatusSaga } from "./settings/order-processing-status.saga";
+import { settingOrderSourceSaga } from "./settings/order-source.saga";
+
 function* rootSaga() {
   yield all([
     appSaga(),
@@ -42,9 +45,11 @@ function* rootSaga() {
     poSaga(),
     settingOrderProcessingStatusSaga(),
     settingOrderSourceSaga(),
+    settingPrinterSaga(),
     paymentConditionsSaga(),
     poPaymentSaga(),
     poProcumentSaga(),
+    customerGroupSaga(),
   ]);
 }
 

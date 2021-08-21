@@ -4,6 +4,7 @@ import setting from './setting';
 import product from './product';
 import bill from './bill';
 import UrlConfig from 'config/UrlConfig';
+import customers from "./customer"
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
@@ -87,7 +88,7 @@ const menu: Array<RouteMenu> = [
     key: "6",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: customers,
     type: 0,
     object: null,
   },

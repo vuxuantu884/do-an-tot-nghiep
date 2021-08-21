@@ -2,6 +2,8 @@ import styled from "styled-components";
 
 export const StyledComponent = styled.div`
   width: auto;
+  display: block !important;
+  margin-left: 10px;
   button {
     background: none;
     color: #222;
