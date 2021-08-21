@@ -3,6 +3,7 @@ import { Scrollbars } from "react-custom-scrollbars";
 
 type BaseFilterProps = {
   visible: boolean;
+  width?: number;
   children: React.ReactNode;
   onCancel?: () => void;
   onFilter?: () => void;
@@ -10,12 +11,12 @@ type BaseFilterProps = {
 };
 
 const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
-  const { visible, children, onFilter, onClearFilter, onCancel } = props;
+  const { visible, width, children, onFilter, onClearFilter, onCancel } = props;
   return (
     <Drawer
       placement="right"
       title="Thêm bộ lọc"
-      width={396}
+      width={width}
       closable={false}
       onClose={onCancel}
       visible={visible}

@@ -4,7 +4,7 @@ import React from "react";
 import { StyledComponent } from "./styles";
 
 const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
-  const { isModalVisible, handleCancel, listKeyWords, insertKeyword } = props;
+  const { isModalVisible, handleCancel, listKeywords, insertKeyword } = props;
 
   const renderModalFooter = () => {
     return <Button onClick={handleCancel}>Đóng</Button>;
@@ -25,9 +25,9 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
         footer={renderModalFooter()}
       >
         <Row>
-          {listKeyWords &&
-            listKeyWords.length > 0 &&
-            listKeyWords.map((singleKeyWord, index) => {
+          {listKeywords &&
+            listKeywords.length > 0 &&
+            listKeywords.map((singleKeyWord, index) => {
               return (
                 <Col span={12} key={index}>
                   <Row>

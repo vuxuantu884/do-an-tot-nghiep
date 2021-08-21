@@ -685,6 +685,7 @@
   text-transform: uppercase;
   position: relative;
   padding-left: 20px;
+  padding-left: 0;
 }
 .title-card::before {
   content: "";
@@ -695,6 +696,7 @@
   top: 4px;
   position: absolute;
   left: 3px;
+  display: none;
 }
 
 .ant-form-item-label label {
