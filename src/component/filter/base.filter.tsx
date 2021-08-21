@@ -3,7 +3,7 @@ import { Scrollbars } from "react-custom-scrollbars";
 
 type BaseFilterProps = {
   visible: boolean;
-  width: number;
+  width?: number;
   children: React.ReactNode;
   onCancel?: () => void;
   onFilter?: () => void;
