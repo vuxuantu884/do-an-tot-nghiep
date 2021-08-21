@@ -1,10 +1,12 @@
+const SETTINGS = "settings";
+
 const UrlConfig = {
   HOME: `/`,
   LOGIN: `/login`,
   PRODUCT: `/products`,
   VARIANTS: `/products/variants`,
   CATEGORIES: `/categories`,
-  PURCHASE_ORDER: `/pucharse-order`,
+  PURCHASE_ORDER: `/purchase-order`,
   MATERIALS: `/materials`,
   SIZES: `/sizes`,
   COLORS: `/colors`,
@@ -13,12 +15,12 @@ const UrlConfig = {
   STORE: `/stores`,
   ROLES: `/roles`,
   ORDER: `/orders`,
-  ORDER_PROCESSING_STATUS: `/settings/order-processing-status`,
-  ORDER_SOURCES: `/settings/order-source`,
-  PRINTER: `/settings/printer`,
+  ORDER_PROCESSING_STATUS: `/${SETTINGS}/order-processing-status`,
+  ORDER_SOURCES: `/${SETTINGS}/order-source`,
+  PRINTER: `/${SETTINGS}/printer`,
+  THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
   CUSTOMER: `/customers`,
-  CUSTOMER2: `/customer`
-
+  CUSTOMER2: `/customer`,
 };
 
 export default UrlConfig;

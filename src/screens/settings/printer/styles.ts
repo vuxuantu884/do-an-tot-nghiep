@@ -23,6 +23,9 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .printSize {
+    text-transform: uppercase;
+  }
   .custom-table {
     tr {
       cursor: pointer;
