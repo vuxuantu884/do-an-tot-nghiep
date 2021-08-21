@@ -661,6 +661,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
+          width={396}
         >
           <Form
             form={formAdvanceFilter}

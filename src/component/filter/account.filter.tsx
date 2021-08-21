@@ -134,6 +134,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visible}
+        width={396}
       >
         <Form
           onFinish={onFinish}
