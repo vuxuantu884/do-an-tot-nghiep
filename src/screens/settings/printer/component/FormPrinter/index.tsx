@@ -32,10 +32,10 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
   const [htmlContent, setHtmlContent] = useState("");
-  const [isEditorLoad, setIsEditorLoad] = useState(true);
+  // const [isEditorLoad, setIsEditorLoad] = useState(true);
   const [listStores, setListStores] = useState<StoreType>([]);
   const [previewHeaderHeight, setPreviewHeaderHeight] = useState(108);
-  const [selectedPrintSize, setSelectedPrintSize] = useState("whatever");
+  const [selectedPrintSize, setSelectedPrintSize] = useState("");
   const componentRef = useRef(null);
 
   const handleOnChangeEditor = (value: string) => {
@@ -72,6 +72,12 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
       title: "giá sản phẩm",
       key: "{gia_san_pham}",
       value: "{100}, {200}, {300}",
+      isRepeat: true,
+    },
+    {
+      title: "màu sắc",
+      key: "{mau_sac_san_pham}",
+      value: "{xanh}, {vàng}, {đỏ}",
       isRepeat: true,
     },
   ];
@@ -122,11 +128,26 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     if (isEdit && formValue) {
       // setHtmlContent(formValue.template);
       setHtmlContent(
-        "<table><tr><td>{san_pham}</td><td>{gia_san_pham}</td><tr></table>"
+        `<table border="1" cellpadding="1" cellspacing="1" style="width:500px">
+        <tbody>
+          <tr>
+            <td style="width:166px">a</td>
+            <td style="width:152px">b</td>
+            <td style="width:163px">&nbsp;</td>
+          </tr>
+          <tr>
+            <td style="width:166px">{san_pham}</td>
+            <td style="width:152px">{gia_san_pham}</td>
+            <td style="width:163px">{mau_sac_san_pham}</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <p>&nbsp;</p>`
       );
       setSelectedPrintSize(formValue.print_size);
       form.setFieldsValue(initialFormValue);
-      setIsEditorLoad(true);
+      // setIsEditorLoad(true);
     }
   }, [form, formValue, initialFormValue, isEdit]);
 
@@ -227,7 +248,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               {/* <CkEditor onChange={handleOnChangeEditor} /> */}
               <React.Fragment>
                 {/* <Input hidden /> */}
-                {isEditorLoad && (
+                {/* {isEditorLoad && selectedPrintSize && ( */}
+                {(!isEdit || selectedPrintSize) && (
                   <Form.Item name="formIn">
                     <Editor
                       onChange={handleOnChangeEditor}

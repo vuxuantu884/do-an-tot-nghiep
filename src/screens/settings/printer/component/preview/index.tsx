@@ -20,73 +20,92 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   const replaceSymbolByText = (text: string) => {
     let resultText = text;
-    let tableElements = document.getElementsByTagName("table");
-    console.log("tableElements", tableElements);
-    let listKeywordLength = listKeywords?.length;
-    let listProductKeywordsLength = listProductKeywords?.length;
+    let editorElement = document.getElementById("1111");
+    if (editorElement) {
+      let tableElements = editorElement.getElementsByTagName("table");
+      console.log("editorElement", editorElement);
+      console.log("tableElements", tableElements);
 
-    let abc = "";
-    if (
-      listProductKeywords &&
-      listProductKeywordsLength &&
-      listProductKeywordsLength > 0
-    ) {
-      let result = "";
-      let textReplaced = "";
-      for (const item of tableElements) {
-        let trElements = item.getElementsByTagName("tr");
-        textReplaced = trElements[0].outerHTML;
-        let numberOfProducts = listProductKeywords[0].value.split(",").length;
-        console.log("numberOfProducts", numberOfProducts);
-        for (const element of listProductKeywords) {
-          const arrayKeys = element.value.split(",");
-          console.log("element", element);
-          console.log("arrayKeys", arrayKeys);
-          // result = trElements[0].innerHTML.replaceAll(arrayKeys.);
-          result += trElements[0].outerHTML;
-          console.log("trElements[0].innerHTML", trElements[0].innerHTML);
+      let listKeywordLength = listKeywords?.length;
+      let listProductKeywordsLength = listProductKeywords?.length;
+
+      if (
+        listProductKeywords &&
+        listProductKeywordsLength &&
+        listProductKeywordsLength > 0
+      ) {
+        let result = "";
+        let bbb = "";
+        let textReplaced = "";
+        for (const item of tableElements) {
+          let tBodyElements = item.getElementsByTagName("tbody");
+          let trElements = tBodyElements[0].getElementsByTagName("tr");
+          console.log("trElements", trElements);
+          let numberOfProducts = listProductKeywords[0].value.split(",").length;
+          console.log("numberOfProducts", numberOfProducts);
+          let aaa: string[] = [];
+
+          // mỗi số lượng sản phẩm trả về 1 row
+          for (let i = 0; i < numberOfProducts; i++) {
+            let eachRow = trElements[0].outerHTML;
+            for (const value of listProductKeywords) {
+              console.log("value", value);
+              textReplaced = value.value.split(", ")[i];
+              console.log("value.key", value.key);
+              console.log("textReplaced", textReplaced);
+              console.log("eachRow1", eachRow);
+              eachRow = eachRow.replaceAll(value.key, textReplaced);
+              console.log("eachRow2", eachRow);
+              eachRow.replaceAll(/\t/g, "");
+              eachRow.replaceAll(/\n/g, "");
+            }
+            aaa[i] = eachRow;
+
+            // // result=trElements[0].innerHTML.replaceAll()
+          }
+          console.log("aaa", aaa);
+          bbb = aaa.join("");
+          let ccc = item.outerHTML.replaceAll(trElements[0].outerHTML, bbb);
+          console.log("ccc", ccc);
+          resultText = resultText.replaceAll(item.outerHTML, ccc);
         }
       }
-      console.log("resultText1", resultText);
-      console.log("result", result);
-      console.log("textReplaced", textReplaced);
-      abc = resultText.replaceAll(textReplaced, resultText);
     }
-    console.log("resultText2", abc);
-    if (listKeywords && listKeywordLength && listKeywordLength > 0) {
-      for (let i = 0; i < listKeywordLength; i++) {
-        resultText = resultText.replaceAll(
-          listKeywords[i].key,
-          listKeywords[i].value
-        );
-        if (!listKeywords[i].isRepeat) {
-        }
-      }
-      // else {
-      //   console.log("replacements[i]", replacements[i]);
-      //   const textToReplace = replacements[i].key;
-      //   const arrayKeys = replacements[i].value.split(",");
-      //   console.log("arrayKeys", arrayKeys);
-      //   const htmlReplaced = trElements.item(0);
-      //   console.log("htmlReplaced", htmlReplaced);
-      //   let textReplaced = "";
-      //   for (const element of arrayKeys) {
-      //     textReplaced += htmlReplaced?.outerHTML.replace(
-      //       textToReplace,
-      //       element
-      //     );
-      //   }
-      //   console.log("textReplaced", textReplaced);
-      //   if (tableElements[0]) {
-      //     tableElements[0].innerHTML = textReplaced;
-      //     resultText = tableElements[0].innerHTML;
-      //   }
-      // }
-      // if(tableElement.includes(tableElement)) {
+    // console.log("resultText333", resultText);
+    // if (listKeywords && listKeywordLength && listKeywordLength > 0) {
+    //   for (let i = 0; i < listKeywordLength; i++) {
+    //     resultText = resultText.replaceAll(
+    //       listKeywords[i].key,
+    //       listKeywords[i].value
+    //     );
+    //     if (!listKeywords[i].isRepeat) {
+    //     }
+    //   }
+    //   // else {
+    //   //   console.log("replacements[i]", replacements[i]);
+    //   //   const textToReplace = replacements[i].key;
+    //   //   const arrayKeys = replacements[i].value.split(",");
+    //   //   console.log("arrayKeys", arrayKeys);
+    //   //   const htmlReplaced = trElements.item(0);
+    //   //   console.log("htmlReplaced", htmlReplaced);
+    //   //   let textReplaced = "";
+    //   //   for (const element of arrayKeys) {
+    //   //     textReplaced += htmlReplaced?.outerHTML.replace(
+    //   //       textToReplace,
+    //   //       element
+    //   //     );
+    //   //   }
+    //   //   console.log("textReplaced", textReplaced);
+    //   //   if (tableElements[0]) {
+    //   //     tableElements[0].innerHTML = textReplaced;
+    //   //     resultText = tableElements[0].innerHTML;
+    //   //   }
+    //   // }
+    //   // if(tableElement.includes(tableElement)) {
 
-      // }
-      // tableElement.innerHTML.re
-    }
+    //   // }
+    //   // tableElement.innerHTML.re
+    // }
 
     // console.log("resultText", resultText);
     return resultText;
@@ -97,6 +116,8 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
     let result = htmlContent;
     if (listKeywords) {
       result = replaceSymbolByText(htmlContent);
+      // console.log("htmlContent", htmlContent);
+      // console.log("result", result);
     }
     return result;
   };
@@ -127,10 +148,25 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             />
           </div>
         </div>
-        <div className="preview__content printContent" ref={printElementRef}>
+        <div
+          className="preview__content printContent 222"
+          id="1111"
+          ref={printElementRef}
+        >
           <div
             dangerouslySetInnerHTML={{
               __html: renderHtml(htmlContent),
+              //   __html: `<table><tbody>
+              //   <tr>
+              //     <td>{sản phẩm 1}</td>
+              //     <td>{100}</td>
+              //     <td>{xanh}</td>
+              //   </tr><tr>
+              //     <td>{sản phẩm 2}</td>
+              //     <td>{200}</td>
+              //     <td>{vàng}</td>
+              //   </tr>
+              // </tbody></table>`,
             }}
           ></div>
         </div>
