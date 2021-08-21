@@ -13,7 +13,7 @@ function Editor(props: any) {
   const {
     initialHtmlContent,
     onChange,
-    listKeyWords,
+    listKeywords,
     selectedPrintSize,
     previewHeaderHeight,
   } = props;
@@ -48,7 +48,7 @@ function Editor(props: any) {
         <EditorModal
           isModalVisible={isModalVisible}
           handleCancel={handleCancelModal}
-          listKeyWords={listKeyWords}
+          listKeywords={listKeywords}
           insertKeyword={(text) => handleInsertKeyword(text)}
         />
       );

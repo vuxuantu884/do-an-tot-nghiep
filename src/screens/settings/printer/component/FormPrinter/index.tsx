@@ -2,12 +2,9 @@ import { Button, Card, Col, Form, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import Editor from "component/ckeditor";
 import UrlConfig from "config/UrlConfig";
-import {
-  getListStoresSimpleAction,
-  StoreGetListAction,
-} from "domain/actions/core/store.action";
+import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
-import { listKeyWordsModel } from "model/editor/editor.model";
+import { listKeywordsModel } from "model/editor/editor.model";
 import { PrinterModel } from "model/response/printer.response";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -32,10 +29,10 @@ type StoreType = {
 const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const { type, formValue } = props;
   const dispatch = useDispatch();
-  console.log("formValue", formValue);
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
   const [htmlContent, setHtmlContent] = useState("");
+  const [isEditorLoad, setIsEditorLoad] = useState(true);
   const [listStores, setListStores] = useState<StoreType>([]);
   const [previewHeaderHeight, setPreviewHeaderHeight] = useState(108);
   const [selectedPrintSize, setSelectedPrintSize] = useState("whatever");
@@ -51,7 +48,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     listPrinterSizes: LIST_PRINTER_SIZES,
   };
 
-  const FAKE_WORDS: listKeyWordsModel = [
+  const FAKE_WORDS: listKeywordsModel = [
     {
       title: "tên công ty",
       key: "{company_name}",
@@ -61,6 +58,21 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
       title: "địa chỉ công ty",
       key: "{dia_chi_cong_ty}",
       value: "Hải dương",
+    },
+  ];
+
+  const FAKE_PRODUCT_WORDS = [
+    {
+      title: "sản phẩm",
+      key: "{san_pham}",
+      value: "{sản phẩm 1}, {sản phẩm 2}",
+      isRepeat: true,
+    },
+    {
+      title: "giá sản phẩm",
+      key: "{gia_san_pham}",
+      value: "{100}, {200}, {300}",
+      isRepeat: true,
     },
   ];
 
@@ -108,9 +120,13 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
 
   useEffect(() => {
     if (isEdit && formValue) {
-      setHtmlContent(formValue.template);
+      // setHtmlContent(formValue.template);
+      setHtmlContent(
+        "<table><tr><td>{san_pham}</td><td>{gia_san_pham}</td><tr></table>"
+      );
       setSelectedPrintSize(formValue.print_size);
       form.setFieldsValue(initialFormValue);
+      setIsEditorLoad(true);
     }
   }, [form, formValue, initialFormValue, isEdit]);
 
@@ -210,16 +226,18 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               {/* <Editor onChange={handleOnChangeEditor} /> */}
               {/* <CkEditor onChange={handleOnChangeEditor} /> */}
               <React.Fragment>
-                <Form.Item name="formIn">
-                  {/* <Input hidden /> */}
-                  <Editor
-                    onChange={handleOnChangeEditor}
-                    initialHtmlContent={htmlContent}
-                    listKeyWords={FAKE_WORDS}
-                    selectedPrintSize={selectedPrintSize}
-                    previewHeaderHeight={handleEditorToolbarHeight}
-                  />
-                </Form.Item>
+                {/* <Input hidden /> */}
+                {isEditorLoad && (
+                  <Form.Item name="formIn">
+                    <Editor
+                      onChange={handleOnChangeEditor}
+                      initialHtmlContent={htmlContent}
+                      listKeywords={FAKE_WORDS}
+                      selectedPrintSize={selectedPrintSize}
+                      previewHeaderHeight={handleEditorToolbarHeight}
+                    />
+                  </Form.Item>
+                )}
               </React.Fragment>
             </Card>
           </Col>
@@ -228,7 +246,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               <div className="printContent" ref={componentRef}>
                 <Preview
                   htmlContent={htmlContent}
-                  listKeyWords={FAKE_WORDS}
+                  listKeywords={FAKE_WORDS}
+                  listProductKeywords={FAKE_PRODUCT_WORDS}
                   previewHeaderHeight={previewHeaderHeight}
                 />
               </div>
