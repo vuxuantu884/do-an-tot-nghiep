@@ -24,6 +24,7 @@ import "./customer.scss";
 import { useParams } from "react-router-dom";
 import { CreateBillingAddress, CreateShippingAddress, DeleteBillingAddress, DeleteShippingAddress, UpdateBillingAddress, UpdateShippingAddress } from "domain/actions/customer/customer.action";
 import { showSuccess } from "utils/ToastUtils";
+import { RegUtil } from "utils/RegUtils";
 interface AddressFormProps {
   countries: Array<CountryResponse>;
   field: any;
@@ -267,10 +268,15 @@ const AddressForm = ({
                 {
                   required: true,
                   message: "Vui lòng nhập số điện thoại",
+                }, 
+                {
+                  pattern: RegUtil.PHONE,
+                  message: "Số điện thoại chưa đúng định dạng",
                 },
               ]}
             >
-              <Input placeholder="Số điện thoại" />
+              <Input minLength={9}
+                  maxLength={15} placeholder="Số điện thoại" />
             </Form.Item>
           </Col>
           <Col span={4}>

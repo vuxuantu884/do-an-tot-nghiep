@@ -2,6 +2,10 @@ import { CustomerSearchQuery } from 'model/query/customer.query';
 import BaseAction from 'base/BaseAction';
 import { CustomerType } from 'domain/types/customer.type';
 import { CustomerResponse } from 'model/response/customer/customer.response';
+import {
+    CustomerGroupModel,
+    CustomerGroupResponseModel,
+  } from "model/response/customer/customer-group.response";
 //import { CustomerRequest, CustomerUpdateRequest } from 'model/request/customer.request';
 
 export const CustomerSearch = (query: CustomerSearchQuery, setData: (data: Array<CustomerResponse>) => void) => {
@@ -11,6 +15,65 @@ export const CustomerSearch = (query: CustomerSearchQuery, setData: (data: Array
 export const CustomerList = (query: CustomerSearchQuery, setData: (data: any) => void) => {
     return BaseAction(CustomerType.CUSTOMER_LIST, { query, setData });
 }
+
+export const CustomerGroupList = (query: CustomerSearchQuery, setData: (data: any) => void) => {
+    return BaseAction(CustomerType.CUSTOMER_LIST, { query, setData });
+}
+
+export const actionAddCustomerGroup = (
+    item: CustomerGroupModel,
+    handleData: () => void
+  ) => {
+    return {
+      type: CustomerType.CUSTOMER_GROUP_CREATE,
+      payload: {
+        item,
+        handleData,
+      },
+    };
+  };
+
+  export const actionDeleteCustomerGroup = (
+    id: number,
+    handleData: () => void
+  ) => {
+    return {
+      type: CustomerType.CUSTOMER_GROUP_DELETE,
+      payload: {
+        id,
+        handleData,
+      },
+    };
+  };
+
+  export const actionEditCustomerGroup = (
+    id: number,
+    item: CustomerGroupModel,
+    handleData: () => void
+  ) => {
+    return {
+      type: CustomerType.CUSTOMER_GROUP_EDIT,
+      payload: {
+        id,
+        item,
+        handleData,
+      },
+    };
+  };
+
+  export const actionFetchListCustomerGroup = (
+    params = {},
+    handleData: (data: CustomerGroupResponseModel) => void
+  ) => {
+    console.log(2)
+    return {
+      type: CustomerType.CUSTOMER_GROUP_SEARCH,
+      payload: {
+        params,
+        handleData,
+      },
+    };
+  };
 
 export const CustomerDetail = (id: number|null, setData: (data: CustomerResponse) => void) => {
     return BaseAction(CustomerType.CUSTOMER_DETAIL, { id, setData });

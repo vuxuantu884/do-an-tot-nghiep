@@ -19,6 +19,12 @@ const UrlConfig = {
   ORDER_SOURCES: `/${SETTINGS}/order-source`,
   PRINTER: `/${SETTINGS}/printer`,
   THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
+  ORDER_PROCESSING_STATUS: `/settings/order-processing-status`,
+  ORDER_SOURCES: `/settings/order-source`,
+  PRINTER: `/settings/printer`,
+  CUSTOMER: `/customers`,
+  CUSTOMER2: `/customer`
+
 };
 
 export default UrlConfig;
