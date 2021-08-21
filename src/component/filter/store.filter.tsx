@@ -121,6 +121,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visible}
+        width={396}
       >
         <Form
           onFinish={onFinish}
