@@ -32,17 +32,17 @@ const Customer = () => {
   const [query, setQuery] = React.useState<CustomerSearchQuery>({
     page: 1,
     limit: 10,
-    request: "",
-    gender: "",
-    from_birthday:  "",
-    to_birthday: "",
-    company: "",
-    from_wedding_date: "",
-    to_wedding_date: "",
+    request: null,
+    gender: null,
+    from_birthday:  null,
+    to_birthday: null,
+    company: null,
+    from_wedding_date: null,
+    to_wedding_date: null,
     customer_type_id: null,
     customer_group_id: null,
     customer_level_id: null,
-    responsible_staff_code: ""
+    responsible_staff_code: null
   });
   const [popup, setPopup] = React.useState({
     visible: false,
@@ -129,16 +129,16 @@ const Customer = () => {
     const querySearch: CustomerSearchQuery = { 
       page: 1, 
       limit: 15,
-      gender: "",
-      from_birthday:  "",
-      to_birthday: "",
-      company: "",
-      from_wedding_date: "",
-      to_wedding_date: "",
+      gender: null,
+      from_birthday:  null,
+      to_birthday: null,
+      company: null,
+      from_wedding_date: null,
+      to_wedding_date: null,
       customer_type_id: null,
       customer_group_id: null,
       customer_level_id: null,
-      responsible_staff_code: "",
+      responsible_staff_code: null,
       request 
     };
     dispatch(CustomerGroupList(querySearch, setOptions));
