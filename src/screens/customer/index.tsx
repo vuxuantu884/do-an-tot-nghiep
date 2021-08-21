@@ -109,7 +109,7 @@ const Customer = () => {
       title: "Mã ",
       dataIndex: "code",
       render: (value: string, i: any) => (
-        <Link to={`/customer/detail/${i.id}`}>{value}</Link>
+        <Link to={`/customers/${i.id}`}>{value}</Link>
       ),
       visible: true,
     },
@@ -263,7 +263,7 @@ const Customer = () => {
   };
 
   const onSelect = (value: any, option: any) => {
-    history.push(`/customer/${option.key}`);
+    history.push(`/customers/${option.key}`);
   };
 
   const actions: Array<MenuAction> = [
@@ -292,7 +292,7 @@ const Customer = () => {
       ]}
       extra={
         <>            
-          <ButtonCreate path={`/customer/create`} />
+          <ButtonCreate path={`/customers/create`} />
         </>
       }
     >

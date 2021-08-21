@@ -686,16 +686,16 @@
   position: relative;
   padding-left: 20px;
 }
-.title-card::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  background: #fcaf17;
-  border-radius: 50%;
-  top: 4px;
-  position: absolute;
-  left: 3px;
-}
+// .title-card::before {
+//   content: "";
+//   width: 8px;
+//   height: 8px;
+//   background: #fcaf17;
+//   border-radius: 50%;
+//   top: 4px;
+//   position: absolute;
+//   left: 3px;
+// }
 
 .ant-form-item-label label {
   color: #222222;

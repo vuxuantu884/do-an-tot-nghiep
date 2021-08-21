@@ -79,33 +79,12 @@
     justify-content: flex-end;
   }
 
-//   .ant-table-cell:hover + .more, .more:hover {
-//     display: flex;
-//     justify-content: flex-end;
-//   }
-  
-.customer-contact-collapse{
+
+.customer-information-card{
     .ant-collapse-header{
-        height: 56px;
-        display: flex;
-        position: relative;
-        margin-left: 20px;
-        &::before {
-            position: absolute;
-            content: "";
-            width: 8px;
-            height: 8px;
-            background-color: #fcaf17;
-            border-radius: 50%;
-            top: 23px;
-            left: 8px;
-        }
-       &>span{
-            &:last-child{
-                color: #222222;
-                
-            }
-        }
+        padding: 0 !important;
     }
-    
+    .ant-collapse-content-box{
+        padding: 12px 0
+    }
 }
