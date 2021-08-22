@@ -89,7 +89,9 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
     }
   };
   React.useEffect(() => {
-    setDistrictId(formItem.district_id);
+    if(formItem){
+      setDistrictId(formItem.district_id)
+    };
   }, [formItem]);
 
   React.useEffect(() => {
