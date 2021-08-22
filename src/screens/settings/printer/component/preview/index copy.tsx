@@ -36,10 +36,10 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
       for (const item of tableElements) {
         let trElements = item.getElementsByTagName("tr");
         textReplaced = trElements[0].outerHTML;
-        let numberOfProducts = listProductKeywords[0].value.split(",").length;
+        let numberOfProducts = listProductKeywords[0].value.length;
         console.log("numberOfProducts", numberOfProducts);
         for (const element of listProductKeywords) {
-          const arrayKeys = element.value.split(",");
+          const arrayKeys = element.value;
           console.log("element", element);
           console.log("arrayKeys", arrayKeys);
           // result = trElements[0].innerHTML.replaceAll(arrayKeys.);
@@ -54,14 +54,14 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
     }
     console.log("resultText2", abc);
     if (listKeywords && listKeywordLength && listKeywordLength > 0) {
-      for (let i = 0; i < listKeywordLength; i++) {
-        resultText = resultText.replaceAll(
-          listKeywords[i].key,
-          listKeywords[i].value
-        );
-        if (!listKeywords[i].isRepeat) {
-        }
-      }
+      // for (let i = 0; i < listKeywordLength; i++) {
+      //   resultText = resultText.replaceAll(
+      //     listKeywords[i].key,
+      //     listKeywords[i].value
+      //   );
+      //   if (!listKeywords[i].isRepeat) {
+      //   }
+      // }
       // else {
       //   console.log("replacements[i]", replacements[i]);
       //   const textToReplace = replacements[i].key;
@@ -83,7 +83,6 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
       //   }
       // }
       // if(tableElement.includes(tableElement)) {
-
       // }
       // tableElement.innerHTML.re
     }

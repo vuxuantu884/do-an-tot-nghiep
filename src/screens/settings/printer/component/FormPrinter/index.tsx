@@ -65,19 +65,19 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     {
       title: "sản phẩm",
       key: "{san_pham}",
-      value: "{sản phẩm 1}, {sản phẩm 2}",
+      value: ["{sản phẩm 1}", "{sản phẩm 2}"],
       isRepeat: true,
     },
     {
       title: "giá sản phẩm",
       key: "{gia_san_pham}",
-      value: "{100}, {200}, {300}",
+      value: ["{100}", "{200}"],
       isRepeat: true,
     },
     {
       title: "màu sắc",
       key: "{mau_sac_san_pham}",
-      value: "{xanh}, {vàng}, {đỏ}",
+      value: ["{xanh}", "{vàng}"],
       isRepeat: true,
     },
   ];
@@ -143,7 +143,20 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         </tbody>
       </table>
       
-      <p>&nbsp;</p>`
+      <table border="1" cellpadding="1" cellspacing="1" style="width:500px">
+        <tbody>
+          <tr>
+            <td style="width:166px">a2</td>
+            <td style="width:152px">b2</td>
+            <td style="width:163px">&nbsp;</td>
+          </tr>
+          <tr>
+            <td style="width:166px">{san_pham}</td>
+            <td style="width:152px">{gia_san_pham}</td>
+            <td style="width:163px">{mau_sac_san_pham}</td>
+          </tr>
+        </tbody>
+      </table>`
       );
       setSelectedPrintSize(formValue.print_size);
       form.setFieldsValue(initialFormValue);

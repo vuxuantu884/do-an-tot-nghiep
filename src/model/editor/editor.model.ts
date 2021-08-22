@@ -1,7 +1,7 @@
 export interface keywordsModel {
   title: string;
   key: string;
-  value: string;
+  value: string | string[];
   isRepeat?: boolean;
 }
 

@@ -35,16 +35,10 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   };
   const replaceSymbolByText = (text: string) => {
     let resultText = text;
-    console.log("resultText", resultText);
-    var docFromCkEditor = new DOMParser().parseFromString(
-      resultText,
-      // "text/xml"
-      "text/html"
-    );
-    console.log("docFromCkEditor", docFromCkEditor);
-    if (docFromCkEditor) {
-      let tableElements = docFromCkEditor.getElementsByTagName("table");
-      console.log("tableElements", tableElements);
+    let editorElement = document.getElementById("2222");
+    console.log("editorElement", editorElement);
+    if (editorElement) {
+      let tableElements = editorElement.getElementsByTagName("table");
       // console.log("editorElement", editorElement);
       // console.log("tableElements", tableElements);
 
@@ -60,6 +54,8 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
           let tBodyElements = item.getElementsByTagName("tbody");
           let trElements = tBodyElements[0].getElementsByTagName("tr");
           const trLength = trElements.length;
+          console.log("trLength", trLength);
+          console.log("trElements", trElements);
           let hadChanged = false;
           let productsChange = listProductKeywords[0].value;
           let numberOfProducts = productsChange.length;
@@ -69,15 +65,29 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
           for (let i = 0; i < trLength; i++) {
             let aaa: string[] = [];
             let eachRow = trElements[i].outerHTML;
+
+            // aaa[i] = eachRow;
             // console.log("eachRow", eachRow);
-            if (checkIfStringContainsOneInArray(eachRow, listProductKeywords)) {
+            console.log(
+              "checkIfStringContainsOneInArray(eachRow, listProductKeywords)",
+              checkIfStringContainsOneInArray(eachRow, listProductKeywords)
+            );
+            if (
+              checkIfStringContainsOneInArray(eachRow, listProductKeywords) &&
+              !hadChanged
+            ) {
               hadChanged = true;
+              console.log("eachRow1", eachRow);
               for (let j = 0; j < numberOfProducts; j++) {
                 aaa[j] = eachRow;
+                let value = listProductKeywords;
+                let ddd = eachRow;
                 for (let k = 0; k < listProductKeywords.length; k++) {
+                  console.log("listProductKeywords[k]", listProductKeywords[k]);
                   let textToReplaced = listProductKeywords[k].key;
                   let textReplaced = listProductKeywords[k].value[j];
-                  // console.log("textToReplaced", textToReplaced);
+                  console.log("textToReplaced", textToReplaced);
+                  console.log("textReplaced", textReplaced);
                   aaa[j] = aaa[j].replaceAll(textToReplaced, textReplaced);
                 }
                 // console.log("ddd", ddd);
@@ -93,6 +103,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
                 // console.log("eachRow2", eachRow);
                 // aaa[i] = eachRow;
                 // abc = abc.replaceAll(value.key, textReplaced);
+                console.log("abc", abc);
                 // for (let k = 0; k < listProductKeywords.length; k++) {
                 //   const element = array[k];
 
@@ -115,14 +126,15 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
               //   // trElements[i].outerHTML.replaceAll(value.key, textReplaced);
               // }
               bbb = aaa.join("");
-              console.log("bbb", bbb);
               // let ccc = item.outerHTML.replaceAll(trElements[i].outerHTML, bbb);
+              console.log("bbb", bbb);
               // console.log("ccc", ccc);
               // resultText = resultText.replaceAll(item.outerHTML, ccc);
-              resultText = resultText.replaceAll(eachRow, bbb);
+              resultText = editorElement.outerHTML.replaceAll(eachRow, bbb);
             } else {
               hadChanged = false;
             }
+            console.log("aaa", aaa);
 
             // // result=trElements[0].innerHTML.replaceAll()
             // console.log("hadChanged", hadChanged);
@@ -131,6 +143,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             // }
           }
         }
+        console.log("editorElement", editorElement);
       }
       // resultText = editorElement.innerHTML;
     }
@@ -175,7 +188,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   };
 
   const renderHtml = (htmlContent: string) => {
-    // console.log("htmlContent", htmlContent);
+    console.log("htmlContent", htmlContent);
     let result = htmlContent;
     if (listKeywords) {
       result = replaceSymbolByText(htmlContent);
@@ -210,6 +223,28 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
               content={() => printElementRef.current}
             />
           </div>
+        </div>
+        <div
+          className="preview__content printContent 111323"
+          id="2222"
+          ref={printElementRef}
+        >
+          <div
+            dangerouslySetInnerHTML={{
+              __html: htmlContent,
+              //   __html: `<table><tbody>
+              //   <tr>
+              //     <td>{sản phẩm 1}</td>
+              //     <td>{100}</td>
+              //     <td>{xanh}</td>
+              //   </tr><tr>
+              //     <td>{sản phẩm 2}</td>
+              //     <td>{200}</td>
+              //     <td>{vàng}</td>
+              //   </tr>
+              // </tbody></table>`,
+            }}
+          ></div>
         </div>
         <div
           className="preview__content printContent 222"
