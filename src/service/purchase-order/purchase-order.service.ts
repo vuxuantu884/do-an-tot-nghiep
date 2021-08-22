@@ -36,6 +36,15 @@ export const deletePurchaseOrder = (
 ): Promise<BaseResponse<string>> => {
   return BaseAxios.delete(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}`);
 };
+export const returnPurchaseOrder = (
+  id: number,
+  data: PurchaseOrder
+): Promise<BaseResponse<string>> => {
+  return BaseAxios.post(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}/return`,
+    data
+  );
+};
 
 export const searchPurchaseOrderApi = (
   query: PurchaseOrderQuery
