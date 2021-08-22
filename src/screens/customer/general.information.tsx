@@ -9,14 +9,25 @@ import {
   Space,
   Switch,
 } from "antd";
+import { useEffect } from "react";
 import { RegUtil } from "utils/RegUtils";
 import "./customer.scss";
 
 const { Option } = Select;
 
 const GeneralInformation = (props: any) => {
-  const { status, setStatus, areas, countries, wards, handleChangeArea } =
-    props;
+  const {
+    status,
+    setStatus,
+    areas,
+    countries,
+    wards,
+    handleChangeArea,
+    form,
+    districtId,
+  } = props;
+
+
   return (
     <Row gutter={24}>
       <Col span={18}>
@@ -39,7 +50,7 @@ const GeneralInformation = (props: any) => {
               <label
                 className={status === "active" ? "text-success" : "text-error"}
               >
-                {status === "active" ? "Hoạt động" : "Không hoạt động"}
+                {status === "active" ? "Đang hoạt động" : "Không hoạt động"}
               </label>
             </Space>,
           ]}
@@ -138,17 +149,7 @@ const GeneralInformation = (props: any) => {
                     />
                   </Form.Item>
                 </Col>
-                {/* <Col span={12}>
-                  <Form.Item name="status" label={<b>Trạng thái:</b>}>
-                    <Select placeholder="Trạng thái">
-                      {statuses.map((status) => (
-                        <Option key={status.key} value={status.value}>
-                          {status.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col> */}
+
                 <Col span={12}>
                   <Form.Item name="company" label={<b>Tên đơn vị:</b>}>
                     <Input maxLength={255} placeholder="Nhập tên đơn vị" />
@@ -314,32 +315,7 @@ const GeneralInformation = (props: any) => {
                 </Select>
               </Form.Item>
             </Col>
-            {/* <Col span={24}>
-                  <Form.Item
-                    name="customer_level_id"
-                    label={<b>Cấp độ khách hàng:</b>}
 
-                    // rules={[
-                    //   {
-                    //     required: true,
-                    //     message: "Vui lòng chọn cấp độ khách hàng",
-                    //   },
-                    // ]}
-                  >
-                    <Select
-                      showSearch
-                      placeholder="Phân loại cấp độ khách hàng"
-                      allowClear
-                      optionFilterProp="children"
-                    >
-                      {levels.map((level) => (
-                        <Option key={level.id} value={level.id}>
-                          {level.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col> */}
             <Col span={24}>
               <Form.Item
                 name="responsible_staff_code"
@@ -379,3 +355,32 @@ const GeneralInformation = (props: any) => {
 };
 
 export default GeneralInformation;
+
+{
+  /* <Col span={24}>
+                  <Form.Item
+                    name="customer_level_id"
+                    label={<b>Cấp độ khách hàng:</b>}
+
+                    // rules={[
+                    //   {
+                    //     required: true,
+                    //     message: "Vui lòng chọn cấp độ khách hàng",
+                    //   },
+                    // ]}
+                  >
+                    <Select
+                      showSearch
+                      placeholder="Phân loại cấp độ khách hàng"
+                      allowClear
+                      optionFilterProp="children"
+                    >
+                      {levels.map((level) => (
+                        <Option key={level.id} value={level.id}>
+                          {level.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col> */
+}

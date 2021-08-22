@@ -121,7 +121,7 @@ const Customer = () => {
       dataIndex: "code",
       visible: true,
       render: (value: string, i: any) => (
-        <Link to={`/customer/detail/${i.id}`}>{value}</Link>
+        <Link to={`/customers/${i.id}`}>{value}</Link>
       ),
       width: "10%"
     },
@@ -419,7 +419,7 @@ const AccountChangeSearch = React.useCallback(
   };
 
   const onSelect = (value: any, option: any) => {
-    history.push(`/customer/${option.key}`);
+    history.push(`/customers/${option.key}`);
   };
 
   const onSelectTable = React.useCallback((selectedRow: Array<CustomerResponse>) => {
@@ -452,7 +452,7 @@ const AccountChangeSearch = React.useCallback(
       ]}
       extra={
         <>            
-          <ButtonCreate path={`/customer/create`} />
+          <ButtonCreate path={`/customers/create`} />
         </>
       }
     >
