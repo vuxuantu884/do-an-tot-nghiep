@@ -71,7 +71,6 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
           listProductKeywordsLength > 0 &&
           tableElements
         ) {
-          console.log("tableElements", tableElements);
           let resultTextReplaced = "";
           // let textReplaced = "";
           for (const item of tableElements) {

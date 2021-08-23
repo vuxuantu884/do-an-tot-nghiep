@@ -32,6 +32,12 @@ const FulfillmentStatusTag: React.FC<PropType> = (props: PropType) => {
       backgroundColor: "rgba(226, 67, 67, 0.1)",
     },
     {
+      statusBeforeCancellation: FulFillmentStatus.PICKED,
+      name: "Hủy đơn giao ",
+      color: "#E24343",
+      backgroundColor: "rgba(226, 67, 67, 0.1)",
+    },
+    {
       statusBeforeCancellation: FulFillmentStatus.PACKED,
       name: "Hủy đơn giao ",
       color: "#E24343",

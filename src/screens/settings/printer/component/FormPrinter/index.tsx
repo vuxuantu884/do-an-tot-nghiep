@@ -232,7 +232,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                 {/* <Input hidden /> */}
                 {/* {isEditorLoad && selectedPrintSize && ( */}
                 {(!isEdit || selectedPrintSize) && (
-                  <Form.Item name="formIn">
+                  <Form.Item name="template">
                     <Editor
                       onChange={handleOnChangeEditor}
                       initialHtmlContent={htmlContent}
