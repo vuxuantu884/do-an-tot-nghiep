@@ -43,7 +43,9 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
     },
     [dispatch, idNumber, onUpdateCall]
   );
-
+  const onCancelButton = () => {
+    history.replace(`${UrlConfig.PURCHASE_ORDER}/${id}`);
+  };
   const onConfirmButton = useCallback(() => {
     setLoading(true);
     formMain.submit();
@@ -117,6 +119,9 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>
+            <Button type="default" className="light" onClick={onCancelButton}>
+              Hủy
+            </Button>
             <Button
               type="primary"
               onClick={onConfirmButton}
