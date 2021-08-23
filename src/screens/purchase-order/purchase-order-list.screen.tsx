@@ -1,4 +1,4 @@
-import { Card, Tag } from "antd";
+import { Card, Tag, Row, Button, Space } from "antd";
 import NumberFormat from "react-number-format";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import ContentContainer from "component/container/content.container";
@@ -14,6 +14,9 @@ import UrlConfig from "config/UrlConfig";
 import { AppConfig } from "config/AppConfig";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PoSearchAction, PODeleteAction } from "domain/actions/po/po.action";
+import { ExportResponse } from "model/other/File/export-model";
+import { exportFile, getFile } from "service/other/export.service";
+import { HttpStatus } from "config/HttpStatus";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -32,6 +35,11 @@ import {
   AccountResponse,
   AccountSearchQuery,
 } from "model/account/account.model";
+import importIcon from "assets/icon/import.svg";
+import exportIcon from "assets/icon/export.svg";
+import ExportModal from "screens/purchase-order/modal/export.modal";
+
+import { showError } from "utils/ToastUtils";
 import "./purchase-order-list.scss";
 
 const supplierQuery: AccountSearchQuery = {
@@ -56,9 +64,10 @@ const PurchaseOrderListScreen: React.FC = () => {
     useState<Array<AccountResponse>>();
   const [listRdAccount, setListRdAccount] = useState<Array<AccountResponse>>();
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [showExportModal, setShowExportModal] = useState(false);
 
-  let initQuery: PurchaseOrderQuery = {
-  };
+  let initQuery: PurchaseOrderQuery = {};
 
   let dataQuery: PurchaseOrderQuery = {
     ...initQuery,
@@ -73,6 +82,49 @@ const PurchaseOrderListScreen: React.FC = () => {
     },
     items: [],
   });
+
+  const onExport = useCallback(() => {
+    let queryParams = generateQuery(params);
+    exportFile({
+      conditions: queryParams,
+      type: "EXPORT_PURCHASE_ORDER",
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          showSuccess("Đã gửi yêu cầu xuất file");
+          setListExportFile([...listExportFile, response.data.code]);
+        }
+      })
+      .catch((error) => {
+        console.log("purchase order export file error", error);
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  }, [params, listExportFile]);
+  const checkExportFile = useCallback(() => {
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data.status === "FINISH") {
+            let fileCode = response.data.code,
+              newListExportFile = listExportFile.filter((item) => {
+                return item !== fileCode;
+              });
+            window.open(response.data.url);
+            setListExportFile(newListExportFile);
+          }
+        }
+      });
+    });
+  }, [listExportFile]);
+  useEffect(() => {
+    if (listExportFile.length === 0) return;
+    checkExportFile();
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile]);
 
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<PurchaseOrder>>
@@ -404,7 +456,34 @@ const PurchaseOrderListScreen: React.FC = () => {
           path: `${UrlConfig.PURCHASE_ORDER}`,
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />}
+      extra={
+        <Row>
+          <Space>
+            <Button
+              type="default"
+              className="light"
+              size="large"
+              icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={() => {}}
+            >
+              Nhập file
+            </Button>
+            <Button
+              type="default"
+              className="light"
+              size="large"
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              // onClick={onExport}
+              onClick={() => {
+                setShowExportModal(true);
+              }}
+            >
+              Xuất file
+            </Button>
+            <ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />
+          </Space>
+        </Row>
+      }
     >
       <Card>
         <div className="purchase-order-list padding-20">
@@ -438,6 +517,14 @@ const PurchaseOrderListScreen: React.FC = () => {
           />
         </div>
       </Card>
+      <ExportModal
+        visible={showExportModal}
+        onCancel={() => setShowExportModal(false)}
+        onOk={() => {
+          setShowExportModal(false);
+          onExport();
+        }}
+      />
       <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}

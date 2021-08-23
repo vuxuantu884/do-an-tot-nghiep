@@ -80,7 +80,7 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/customer",
+    path: "/customers",
     exact: true,
     title: "Khách hàng",
     icon: 'icon-customer',

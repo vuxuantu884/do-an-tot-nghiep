@@ -55,30 +55,13 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
       >
         <Row gutter={20}>
           <Col span={24}>
-          {/* <Form.Item
-              name="code"
-              label="Mã nhóm khách hàng"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng điền tên mã nhóm khách hàng!",
-                },
-                { max: 255, message: "Không được nhập quá 255 ký tự!" },
-              ]}
-            >
-              <Input
-                placeholder="Nhập mã nhóm khách hàng"
-                style={{ width: "100%" }}
-              />
-            </Form.Item> */}
-
             <Form.Item
               name="name"
               label="Tên nhóm khách hàng"
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng điền tên nhóm khách hàng!",
+                  message: "Vui lòng nhập tên nhóm khách hàng!",
                 },
                 { max: 255, message: "Không được nhập quá 255 ký tự!" },
               ]}
@@ -88,21 +71,17 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
                 style={{ width: "100%" }}
               />
             </Form.Item>
-            {/* <Form.Item
-              name="status"
-              valuePropName="active"
-              style={{ marginBottom: 10 }}
-            >
-              <Checkbox>Áp dụng </Checkbox>
-            </Form.Item> */}
-          {/* </Col>
-          <Col span={12}> */}
+          
             <Form.Item
               name="note"
-              label="Ghi chú"
+              label="Mô tả"
               rules={[{ max: 500, message: "Không được nhập quá 500 ký tự!" }]}
             >
-              <Input.TextArea rows={10} />
+              <Input.TextArea  
+                rows={10}
+                placeholder="Nhập mô tả"
+
+              />
             </Form.Item>
           </Col>
         </Row>

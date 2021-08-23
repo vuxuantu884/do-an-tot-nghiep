@@ -63,24 +63,6 @@ const CustomerAdd = (props: any) => {
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
 
-  const statuses = [
-    { name: "Hoạt động", key: "1", value: "active" },
-    { name: "Không hoạt động", key: "2", value: "inactive" },
-  ];
-  const setDataAccounts = React.useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-    },
-    []
-  );
-  
-  React.useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
-
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
@@ -90,14 +72,13 @@ const CustomerAdd = (props: any) => {
       setDistrictId(districtId);
       let area = areas.find((area) => area.id === districtId)
       let value = customerForm.getFieldsValue();
-      console.log(area)
       value.city_id = area.city_id;
       value.city = area.city_name;
       value.district_id = districtId;
       value.district = area.name;
       value.ward_id = null;
       value.ward = "";
-      customerForm.setFieldsValue({ name: value })
+      customerForm.setFieldsValue(value )
     }
    
   };
@@ -107,7 +88,18 @@ const CustomerAdd = (props: any) => {
     }
   }, [dispatch, districtId]);
 
-  const getResponsibleStaffCode = () => {};
+  const setDataAccounts = React.useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
+  React.useEffect(() => {
+    dispatch(AccountSearchAction({}, setDataAccounts));
+  }, [dispatch, setDataAccounts]);
 
   React.useEffect(() => {
     dispatch(CustomerGroups(setGroups));
@@ -182,7 +174,7 @@ const CustomerAdd = (props: any) => {
           <Col span={24}>
             <GeneralInformation
               form={customerForm}
-              name="general add"
+              name="general_add"
               accounts={accounts}
               groups={groups}
               types={types}

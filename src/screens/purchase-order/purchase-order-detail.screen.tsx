@@ -23,6 +23,8 @@ import POInventoryForm from "./component/po-inventory.form";
 import POPaymentForm from "./component/po-payment.form";
 import POProductForm from "./component/po-product.form";
 import POSupplierForm from "./component/po-supplier.form";
+
+import POReturnList from "./component/po-return-list";
 import {
   CountryGetAllAction,
   DistrictGetByCountryAction,
@@ -36,6 +38,7 @@ import { POField } from "model/purchase-order/po-field";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import POPaymentConditionsForm from "./component/po-payment-conditions.form";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
+import { POUtils } from "utils/POUtils";
 import moment from "moment";
 
 type PurchaseOrderParam = {
@@ -59,7 +62,7 @@ const PODetailScreen: React.FC = () => {
     tax_lines: [],
     supplier_id: 0,
     expect_store_id: "",
-    expect_import_date: ConvertDateToUtc(now.startOf('days')),
+    expect_import_date: ConvertDateToUtc(now.startOf("days")),
     order_date: ConvertDateToUtc(now),
     status: POStatus.DRAFT,
     receive_status: ProcumentStatus.DRAFT,
@@ -240,7 +243,7 @@ const PODetailScreen: React.FC = () => {
           name: `Đơn hàng ${id}`,
         },
       ]}
-      extra={<POStep status={poData?.status} order_date={poData?.order_date}  />}
+      extra={<POStep status={poData?.status} order_date={poData?.order_date} />}
     >
       <Form
         name={PoFormName.Main}
@@ -271,6 +274,8 @@ const PODetailScreen: React.FC = () => {
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm
+              showSupplierAddress={true}
+              showBillingAddress={true}
               isEdit={true}
               listCountries={listCountries}
               listDistrict={listDistrict}
@@ -290,6 +295,9 @@ const PODetailScreen: React.FC = () => {
               <POPaymentForm poId={parseInt(id)} loadDetail={loadDetail} />
             ) : (
               <POPaymentConditionsForm listPayment={listPaymentConditions} />
+            )}
+            {poData && POUtils.totalReceipt(poData.line_items) > 0 && (
+              <POReturnList id={id} params={formMain.getFieldsValue(true)} />
             )}
           </Col>
           {/* Right Side */}

@@ -8,7 +8,7 @@ const customergroup = React.lazy(() => import ("screens/customer/group"))
 
 const customers: Array<RouteMenu> = [
   {
-    path: `${UrlConfig.CUSTOMER}/list`,
+    path: `${UrlConfig.CUSTOMER}`,
     exact: true,
     title: "Danh sách khách hàng",
     icon: 'icon-dot',
@@ -21,7 +21,7 @@ const customers: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: `${UrlConfig.CUSTOMER}/group`,
+    path: `${UrlConfig.CUSTOMER}/groups`,
     exact: true,
     title: "Nhóm khách hàng",
     icon: 'icon-dot',

@@ -63,11 +63,7 @@ const CustomerEdit = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-
-  const statuses = [
-    { name: "Hoạt động", key: "1", value: "active" },
-    { name: "Không hoạt động", key: "2", value: "inactive" },
-  ];
+  
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -86,26 +82,29 @@ const CustomerEdit = (props: any) => {
       setDistrictId(districtId);
       let area = areas.find((area) => area.id === districtId)
       let value = customerForm.getFieldsValue();
-      console.log(area)
       value.city_id = area.city_id;
       value.city = area.city_name;
       value.district_id = districtId;
       value.district = area.name;
       value.ward_id = null;
       value.ward = "";
-      customerForm.setFieldsValue({ name: value })
+      customerForm.setFieldsValue(value)
     }
    
+    
   };
+  console.log(customer)
   React.useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
     }
   }, [dispatch, districtId]);
 
-
-
-
+  React.useEffect(() => {
+    if(customer){
+      dispatch(WardGetByDistrictAction(customer.district_id, setWards));
+    }
+  }, [dispatch, customer]);
 
 
   React.useEffect(() => {
@@ -186,7 +185,7 @@ const CustomerEdit = (props: any) => {
         },
         {
           name: "Khách hàng",
-          path: `/customer`,
+          path: `/customers`,
         },
         {
           name: "Sửa thông tin khách hàng",
@@ -215,6 +214,7 @@ const CustomerEdit = (props: any) => {
               areas={areas}
               countries={countries}
               wards={wards}
+              districtId={districtId}
               handleChangeArea={handleChangeArea}
             />
           </Col>
