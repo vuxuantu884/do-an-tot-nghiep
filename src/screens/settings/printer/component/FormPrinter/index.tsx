@@ -63,8 +63,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
 
   const FAKE_PRODUCT_WORDS = [
     {
-      title: "sản phẩm",
-      key: "{san_pham}",
+      title: "tên sản phẩm",
+      key: "{product_name}",
       value: ["{sản phẩm 1}", "{sản phẩm 2}"],
       isRepeat: true,
     },
@@ -126,38 +126,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
 
   useEffect(() => {
     if (isEdit && formValue) {
-      // setHtmlContent(formValue.template);
-      setHtmlContent(
-        `<table border="1" cellpadding="1" cellspacing="1" style="width:500px">
-        <tbody>
-          <tr>
-            <td style="width:166px">a</td>
-            <td style="width:152px">b</td>
-            <td style="width:163px">&nbsp;</td>
-          </tr>
-          <tr>
-            <td style="width:166px">{san_pham}</td>
-            <td style="width:152px">{gia_san_pham}</td>
-            <td style="width:163px">{mau_sac_san_pham}</td>
-          </tr>
-        </tbody>
-      </table>
-      
-      <table border="1" cellpadding="1" cellspacing="1" style="width:500px">
-        <tbody>
-          <tr>
-            <td style="width:166px">a2</td>
-            <td style="width:152px">b2</td>
-            <td style="width:163px">&nbsp;</td>
-          </tr>
-          <tr>
-            <td style="width:166px">{san_pham}</td>
-            <td style="width:152px">{gia_san_pham}</td>
-            <td style="width:163px">{mau_sac_san_pham}</td>
-          </tr>
-        </tbody>
-      </table>`
-      );
+      setHtmlContent(formValue.template);
       setSelectedPrintSize(formValue.print_size);
       form.setFieldsValue(initialFormValue);
       // setIsEditorLoad(true);

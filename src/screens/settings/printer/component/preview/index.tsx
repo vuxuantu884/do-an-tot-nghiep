@@ -68,13 +68,17 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
         if (
           listProductKeywords &&
           listProductKeywordsLength &&
-          listProductKeywordsLength > 0
+          listProductKeywordsLength > 0 &&
+          tableElements
         ) {
+          console.log("tableElements", tableElements);
           let resultTextReplaced = "";
           // let textReplaced = "";
           for (const item of tableElements) {
             let tBodyElements = item.getElementsByTagName("tbody");
+            if (!tBodyElements[0]) return "";
             let trElements = tBodyElements[0].getElementsByTagName("tr");
+            if (!trElements) return "";
             const trLength = trElements.length;
             let productsChange = listProductKeywords[0].value;
             let numberOfProducts = productsChange.length;
