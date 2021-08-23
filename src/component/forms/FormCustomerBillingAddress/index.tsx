@@ -25,9 +25,10 @@ type FormValueType = {
   ward_id: number;
   full_address: string;
   is_default: boolean;
+  email: string;
 };
 
-const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
+const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
   props: CustomModalFormModel
 ) => {
   const dispatch = useDispatch();
@@ -54,6 +55,7 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
           ward_id: formItem?.ward_id,
           full_address: formItem?.full_address,
           is_default: formItem?.default,
+          email: formItem?.email,
         }
       : {
           name: "",
@@ -63,6 +65,7 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
           ward_id: null,
           full_address: "",
           is_default: false,
+          email: ""
         };
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -155,7 +158,22 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
                 maxLength={15}
               />
             </Form.Item>
-
+            <Form.Item
+              name="email"
+              label={<b>Email:</b>}
+              rules={[
+                {
+                  pattern: RegUtil.EMAIL,
+                  message: "Email chưa đúng định dạng",
+                },
+              ]}
+            >
+              <Input
+                placeholder="Nhập thư điện tử"
+                style={{ width: "100%" }}
+                maxLength={255}
+              />
+            </Form.Item>
             <Form.Item
               label={<b>Quốc gia:</b>}
               name="country_id"
@@ -267,4 +285,4 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
   );
 };
 
-export default FormCustomerShippingAddress;
+export default FormCustomerBillingAddress;

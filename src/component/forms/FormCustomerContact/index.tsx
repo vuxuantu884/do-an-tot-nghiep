@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
+import { RegUtil } from "utils/RegUtils";
 
 type FormValueType = {
   title?: string;
@@ -69,7 +70,7 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
           <Col span={24}>
             <Form.Item
               name="title"
-              label="Tiêu đề"
+              label={<b>Tiêu đề:</b>}
               rules={[
                 
               ]}
@@ -81,46 +82,59 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
             </Form.Item>
             <Form.Item
               name="name"
-              label="Tên người liên hệ"
-              rules={[
-                
-              ]}
+              label={<b>Tên người liên hệ:</b>}
+              rules={[{ required: true, message: "Vui lòng nhập tên liên hệ" }]}
             >
               <Input
                 placeholder="Nhập tên người liên hệ"
                 style={{ width: "100%" }}
-              />
-            </Form.Item>
-            <Form.Item
-              name="email"
-              label="Thư điện tử"
-              rules={[
-                
-              ]}
-            >
-              <Input
-                placeholder="Nhập thư điện tử"
-                style={{ width: "100%" }}
+                maxLength={255}
               />
             </Form.Item>
             <Form.Item
               name="phone"
-              label="Số điện thoại"
+              label={<b>Số điện thoại:</b>}
               rules={[
-                
+                {
+                  required: true,
+                  message: "Vui lòng nhập số điện thoại",
+                },
+                {
+                  pattern: RegUtil.PHONE,
+                  message: "Số điện thoại chưa đúng định dạng",
+                },
               ]}
             >
               <Input
                 placeholder="Nhập số điện thoại"
                 style={{ width: "100%" }}
+                minLength={9}
+                maxLength={15}
               />
             </Form.Item>
             <Form.Item
+              name="email"
+              label={<b>Email:</b>}
+              rules={[
+                {
+                  pattern: RegUtil.EMAIL,
+                  message: "Thư điện tử chưa đúng định dạng",
+                },
+              ]}
+            >
+              <Input
+                placeholder="Nhập thư điện tử"
+                style={{ width: "100%" }}
+                maxLength={255}
+              />
+            </Form.Item>
+            
+            <Form.Item
               name="note"
-              label="Ghi chú"
+              label={<b>Ghi chú:</b>}
               rules={[{ max: 500, message: "Không được nhập quá 500 ký tự!" }]}
             >
-              <Input.TextArea rows={5} />
+              <Input.TextArea rows={5} maxLength={255}/>
             </Form.Item>
           </Col>
         </Row>
