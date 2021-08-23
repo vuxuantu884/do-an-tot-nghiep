@@ -10,6 +10,7 @@ import {
   InputNumber,
   Input,
   FormInstance,
+  Checkbox,
 } from "antd";
 import { POField } from "model/purchase-order/po-field";
 import { Fragment, useMemo, useState, useEffect } from "react";
@@ -33,7 +34,8 @@ const POReturnForm: React.FC<POReturnFormProps> = (
   props: POReturnFormProps
 ) => {
   const { formMain } = props;
-  const [currentLineReturn, setCurrentLineReturn] = useState<
+  // const [allChecked, setAllChecked] = useState(false);
+  let [currentLineReturn, setCurrentLineReturn] = useState<
     Array<PurchaseOrderLineReturnItem>
   >([]);
   const product_units = useSelector(
@@ -51,6 +53,17 @@ const POReturnForm: React.FC<POReturnFormProps> = (
     if (valueIndex === -1) currentLineReturn.push(item);
     else currentLineReturn[valueIndex] = item;
     setCurrentLineReturn([...currentLineReturn]);
+  };
+
+  const fillAllLineReturn = (isFill: boolean) => {
+    currentLineReturn = formMain
+      .getFieldValue("line_items")
+      .map((item: PurchaseOrderLineReturnItem) => {
+        if (isFill) item.quantity_return = item.receipt_quantity;
+        else item.quantity_return = 0;
+        return item;
+      });
+    setCurrentLineReturn(currentLineReturn);
   };
 
   useEffect(() => {
@@ -114,6 +127,12 @@ const POReturnForm: React.FC<POReturnFormProps> = (
         </Form.Item>
         <Fragment />
         <Form.Item name={POField.line_return_items} hidden />
+        <Checkbox
+          // checked={allChecked}
+          onChange={(e) => fillAllLineReturn(e.target.checked)}
+        >
+          Trả toàn bộ sản phẩm
+        </Checkbox>
         <Form.Item
           style={{ padding: 0 }}
           className="margin-top-20"
@@ -230,14 +249,16 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                     width: 100,
                     dataIndex: "receipt_quantity",
                     render: (value, item, index) => {
-                      let defaultValue = 0;
-                      let valueIndex = currentLineReturn.findIndex(
-                        (lineItem: PurchaseOrderLineReturnItem) =>
-                          lineItem.id === item.id
-                      );
-                      if (valueIndex !== -1)
-                        defaultValue =
-                          currentLineReturn[valueIndex].quantity_return;
+                      let currentValue = 0;
+                      if (currentLineReturn.length > 0) {
+                        let valueIndex = currentLineReturn.findIndex(
+                          (lineItem: PurchaseOrderLineReturnItem) =>
+                            lineItem.id === item.id
+                        );
+                        if (valueIndex !== -1)
+                          currentValue =
+                            currentLineReturn[valueIndex].quantity_return;
+                      }
                       return (
                         <div
                           style={{
@@ -256,6 +277,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                             type="number"
                             max={value}
                             min={0}
+                            value={currentValue}
                             defaultValue={0}
                             onFocus={(e) => e.target.select()}
                             onChange={(inputValue) => {
