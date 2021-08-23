@@ -47,8 +47,10 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
     history.replace(`${UrlConfig.PURCHASE_ORDER}/${id}`);
   };
   const onConfirmButton = useCallback(() => {
-    setLoading(true);
-    formMain.submit();
+    formMain.validateFields().then((values) => {
+      setLoading(true);
+      formMain.submit();
+    });
   }, [formMain]);
 
   const state: any = location.state;
