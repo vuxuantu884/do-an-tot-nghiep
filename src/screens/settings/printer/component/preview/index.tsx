@@ -1,10 +1,9 @@
 import { Button } from "antd";
 import {
-  listKeywordsModel,
   PrintPreviewModel,
   productKeywordsModel,
 } from "model/editor/editor.model";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import ReactToPrint from "react-to-print";
 import IconPrintHover from "./images/iconPrintHover.svg";
 import { StyledComponent } from "./styles";
@@ -46,10 +45,16 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
         let replacementLength = listKeywords.length;
         if (replacementLength > 0) {
           for (let i = 0; i < replacementLength; i++) {
-            resultText = resultText.replaceAll(
-              listKeywords[i].key,
-              listKeywords[i].value
-            );
+            let singleListKeywords = listKeywords[i].list;
+            let singleListKeywordsLength = listKeywords[i].list.length;
+            if (singleListKeywordsLength > 0) {
+              for (let j = 0; j < singleListKeywordsLength; j++) {
+                resultText = resultText.replaceAll(
+                  singleListKeywords[j].key,
+                  singleListKeywords[j].value
+                );
+              }
+            }
           }
         }
       }
