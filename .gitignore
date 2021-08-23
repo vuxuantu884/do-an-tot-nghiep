@@ -25,3 +25,4 @@ yarn-error.log*
 /.vs/slnx.sqlite-journal
 /.vs/app-admin/v16/.suo
 /.vs/VSWorkspaceState.json
+/package-lock.json

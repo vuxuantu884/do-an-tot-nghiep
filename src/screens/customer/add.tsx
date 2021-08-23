@@ -1,5 +1,20 @@
-import { Input, Form, Row, Col, DatePicker, Select, Button, Card } from "antd";
+import {
+  Input,
+  Form,
+  Row,
+  Col,
+  DatePicker,
+  Select,
+  Button,
+  Card,
+  InputNumber,
+  Collapse,
+} from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
+import {
+  DistrictGetByCountryAction,
+  WardGetByDistrictAction,
+} from "domain/actions/content/content.action";
 import {
   CreateCustomer,
   CustomerGroups,
@@ -7,7 +22,9 @@ import {
   CustomerTypes,
 } from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
+import { WardResponse } from "model/content/ward.model";
 import { CustomerModel } from "model/request/customer.request";
+import arrowLeft from "../../assets/icon/arrow-left.svg";
 import moment from "moment";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -22,8 +39,13 @@ import RenderCardContact from "./render/card.contact";
 import RenderCardNote from "./render/card.note";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
+import GeneralInformation from "./general.information";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 
 const { Option } = Select;
+const { Panel } = Collapse;
 
 const CustomerAdd = (props: any) => {
   const [customerForm] = Form.useForm();
@@ -34,10 +56,51 @@ const CustomerAdd = (props: any) => {
   const [types, setTypes] = React.useState<Array<any>>([]);
   const [levels, setLevels] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
-  const statuses = [
-    { name: "Hoạt động", key: "1", value: "active" },
-    { name: "Không hoạt động", key: "2", value: "inactive" },
-  ];
+  const [areas, setAreas] = React.useState<Array<any>>([]);
+  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
+  const [countryId, setCountryId] = React.useState<number>(233);
+  const [districtId, setDistrictId] = React.useState<any>(null);
+  const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
+  const [status, setStatus] = React.useState<string>("active");
+
+  React.useEffect(() => {
+    dispatch(DistrictGetByCountryAction(countryId, setAreas));
+  }, [dispatch, countryId]);
+
+  const handleChangeArea = (districtId: string) => {
+    if(districtId){
+      setDistrictId(districtId);
+      let area = areas.find((area) => area.id === districtId)
+      let value = customerForm.getFieldsValue();
+      value.city_id = area.city_id;
+      value.city = area.city_name;
+      value.district_id = districtId;
+      value.district = area.name;
+      value.ward_id = null;
+      value.ward = "";
+      customerForm.setFieldsValue(value )
+    }
+   
+  };
+  React.useEffect(() => {
+    if (districtId) {
+      dispatch(WardGetByDistrictAction(districtId, setWards));
+    }
+  }, [dispatch, districtId]);
+
+  const setDataAccounts = React.useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
+  React.useEffect(() => {
+    dispatch(AccountSearchAction({}, setDataAccounts));
+  }, [dispatch, setDataAccounts]);
+
   React.useEffect(() => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
@@ -47,14 +110,18 @@ const CustomerAdd = (props: any) => {
   React.useEffect(() => {
     customerForm.setFieldsValue(new CustomerModel());
   }, [customerForm]);
-  const setResult = React.useCallback((result) => {
-    if (result) {
-      showSuccess("Thêm khách hàng thành công");
-      history.goBack();
-    }
-  }, [history]);
+  const setResult = React.useCallback(
+    (result) => {
+      if (result) {
+        showSuccess("Thêm khách hàng thành công");
+        history.goBack();
+      }
+    },
+    [history]
+  );
   const handleSubmit = (values: any) => {
     console.log("Success:", values);
+    let area = areas.find((area) => area.id === districtId)
     let piece = {
       ...values,
       birthday: moment(new Date(values.birthday), "YYYY-MM-DD").format(
@@ -63,13 +130,17 @@ const CustomerAdd = (props: any) => {
       wedding_date: values.wedding_date
         ? new Date(values.wedding_date).toISOString()
         : null,
-      billing_addresses: values.billing_addresses.map((b: any) => {
-        return { ...b, is_default: b.default };
-      }),
-      shipping_addresses: values.shipping_addresses.map((b: any) => {
-        return { ...b, is_default: b.default };
-      }),
+      status: status,
+      city_id: area.city_id,
+      
+      // billing_addresses: values.billing_addresses.map((b: any) => {
+      //   return { ...b, is_default: b.default };
+      // }),
+      // shipping_addresses: values.shipping_addresses.map((b: any) => {
+      //   return { ...b, is_default: b.default };
+      // }),
     };
+    console.log(piece);
     dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
   };
   const handleSubmitFail = (errorInfo: any) => {
@@ -77,7 +148,7 @@ const CustomerAdd = (props: any) => {
   };
   return (
     <ContentContainer
-      title="Quản lý khách hàng"
+      title="Thêm khách hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -101,226 +172,57 @@ const CustomerAdd = (props: any) => {
       >
         <Row gutter={24}>
           <Col span={24}>
-            <Card
-              title={
-                <div className="d-flex">
-                  <span className="title-card">THÔNG TIN KHÁCH HÀNG</span>
-                </div>
-              }
-            >
-              <Row gutter={16} style={{ padding: "16px" }}>
-                <Col span={4}>
-                  <Form.Item
-                    name="full_name"
-                    label="Tên khách hàng"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập tên khách hàng",
-                      },
-                    ]}
-                  >
-                    <Input placeholder="Tên khách hàng" />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item
-                    name="phone"
-                    label="Số điện thoại"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập số điện thoại",
-                      },
-                    ]}
-                  >
-                    <Input placeholder="Số điện thoại" />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item
-                    name="email"
-                    label="Email"
-                    rules={[
-                      { required: true, message: "Vui lòng nhập thư điện tử" },
-                    ]}
-                  >
-                    <Input type="email" placeholder="Thư điện tử" />
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item
-                    name="gender"
-                    label="Giới tính"
-                    rules={[
-                      { required: true, message: "Vui lòng chọn giới tính" },
-                    ]}
-                  >
-                    <Select placeholder="Giới tính">
-                      <Option value={"male"}>Nam</Option>
-                      <Option value={"female"}>Nữ</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item
-                    name="birthday"
-                    label="Ngày sinh"
-                    rules={[
-                      { required: true, message: "Vui lòng nhập ngày sinh" },
-                    ]}
-                  >
-                    <DatePicker
-                      style={{ width: "100%" }}
-                      placeholder="Ngày sinh"
-                      format={"YYYY-MM-DD"}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={24}>
-                  <Row gutter={12}>
-                    <Col span={4}>
-                      <Form.Item name="company_id" label="Công ty">
-                        <Select
-                        showSearch
-                        placeholder="Công ty"
-                        allowClear
-                        optionFilterProp="children"
-                        >
-                          {companies.map((company) => (
-                            <Option key={company.id} value={company.id}>
-                              {company.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={4}>
-                      <Form.Item name="wedding_date" label="Ngày cưới">
-                        <DatePicker
-                          style={{ width: "100%" }}
-                          placeholder="Ngày cưới"
-                          format={"YYYY-MM-DD"}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={4}>
-                      <Form.Item name="website" label="Website">
-                        <Input placeholder="Website" />
-                      </Form.Item>
-                    </Col>
-                    <Col span={4}>
-                      <Form.Item name="status" label="Trạng thái">
-                        <Select placeholder="Trạng thái" disabled>
-                          {statuses.map((status) => (
-                            <Option key={status.key} value={status.value}>
-                              {status.name}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </Col>
-                <Col span={24}>
-                  <Row gutter={12}>
-                    <Col span={8}>
-                      <Form.Item name="description" label="Mô tả">
-                        <Input.TextArea placeholder="Mô tả" />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-            </Card>
+            <GeneralInformation
+              form={customerForm}
+              name="general_add"
+              accounts={accounts}
+              groups={groups}
+              types={types}
+              status={status}
+              setStatus={setStatus}
+              areas={areas}
+              countries={countries}
+              wards={wards}
+              handleChangeArea={handleChangeArea}
+            />
           </Col>
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <Card
-              title={
-                <div className="d-flex">
-                  <span className="title-card">PHÂN LOẠI</span>
-                </div>
-              }
+        </Row>
+        <Row gutter={24}>
+          <Col span={18}>
+            <Collapse
+              className="customer-contact-collapse"
+              defaultActiveKey={["1"]}
+              style={{ backgroundColor: "white", marginTop: 16 }}
+              expandIconPosition="right"
             >
-              <Row gutter={12} style={{ padding: "16px" }}>
-                <Col span={4}>
-                  <Form.Item
-                    name="customer_type_id"
-                    label="Loại khách hàng"
-                    // rules={[
-                    //   {
-                    //     required: true,
-                    //     message: "Vui lòng chọn loại khách hàng",
-                    //   },
-                    // ]}
+              <Panel
+                className=""
+                header={
+                  <span
+                    style={{
+                      textTransform: "uppercase",
+                      fontWeight: 500,
+                      padding: "6px",
+                    }}
                   >
-                    <Select
-                    showSearch
-                    placeholder="Phân loại khách hàng"
-                    allowClear
-                    optionFilterProp="children"
-                    >
-                      {types.map((type) => (
-                        <Option key={type.id} value={type.id}>
-                          {type.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item
-                    name="customer_group_id"
-                    label="Nhóm khách hàng"
-                    // rules={[
-                    //   {
-                    //     required: true,
-                    //     message: "Vui lòng chọn nhóm khách hàng",
-                    //   },
-                    // ]}
-                  >
-                    <Select
-                    showSearch
-                    placeholder="Phân loại nhóm khách hàng"
-                    allowClear
-                    optionFilterProp="children"
-                    >
-                      {groups.map((group) => (
-                        <Option key={group.id} value={group.id}>
-                          {group.name + ` - ${group.code}`}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={4}>
-                  <Form.Item
-                    name="customer_level_id"
-                    label="Cấp độ khách hàng"
-                    // rules={[
-                    //   {
-                    //     required: true,
-                    //     message: "Vui lòng chọn cấp độ khách hàng",
-                    //   },
-                    // ]}
-                  >
-                    <Select
-                    showSearch
-                    placeholder="Phân loại cấp độ khách hàng"
-                    allowClear
-                    optionFilterProp="children"
-                    >
-                      {levels.map((level) => (
-                        <Option key={level.id} value={level.id}>
-                          {level.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
+                    THÔNG TIN LIÊN HỆ
+                  </span>
+                }
+                key="1"
+              >
+                <RenderCardContact
+                  component={ContactForm}
+                  title="THÔNG TIN LIÊN HỆ"
+                  name="contacts"
+                  isEdit={false}
+                  form={customerForm}
+                />
+              </Panel>
+            </Collapse>
           </Col>
+          <Col span={6} />
+        </Row>
+        {/* <Row>
           <Col span={24} style={{ marginTop: "1.2rem" }}>
             <RenderCardAdress
               name="billing_addresses"
@@ -342,35 +244,43 @@ const CustomerAdd = (props: any) => {
             />
           </Col>
           <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardContact
-              component={ContactForm}
-              title="LIÊN HỆ"
-              name="contacts"
-              isEdit={false}
-              form={customerForm}
-            />
-          </Col>
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
             <RenderCardNote component={NoteForm} title="GHI CHÚ" name="notes" />
           </Col>
-        </Row>
+        </Row> */}
         <div
           style={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             marginTop: ".75rem",
+            marginLeft: -30,
+            height: 55,
+            width: "100%",
+            boxShadow: "0px -1px 8px rgba(0, 0, 0, 0.1)",
+            alignItems: "center",
+            padding: "0 32px",
+            position: "fixed",
+            bottom: "0px",
+            backgroundColor: "white",
+            zIndex: 99,
+            paddingRight: 280,
           }}
         >
-          <Button type="primary" htmlType="submit">
-            Lưu
-          </Button>
-          <Button
-            onClick={() => history.goBack()}
-            style={{ marginLeft: ".75rem" }}
-            type="ghost"
-          >
-            Hủy
-          </Button>
+          <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
+            <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+            Quay lại danh sách khách hàng
+          </div>
+          <div>
+            <Button
+              onClick={() => history.goBack()}
+              style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
+              type="ghost"
+            >
+              Hủy
+            </Button>
+            <Button type="primary" htmlType="submit">
+              Lưu khách hàng
+            </Button>
+          </div>
         </div>
       </Form>
     </ContentContainer>

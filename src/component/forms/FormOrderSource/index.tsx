@@ -21,8 +21,8 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
   const DEFAULT_FORM_VALUE = {
     channel_id: 4,
     channel: "Admin",
-    company_id: 1,
-    company: "YODY",
+    company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
+    company: CONSTANTS.DEFAULT_FORM_VALUE.company,
   };
   const { modalAction, formItem, form, visible } = props;
   const [isVisibleFieldDefault, setIsVisibleFieldDefault] = useState(false);

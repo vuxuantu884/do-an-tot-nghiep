@@ -118,6 +118,7 @@ export const MODAL_ACTION_TYPE = {
   edit: "edit",
   delete: "delete",
 };
+
 export const PoFinancialStatus = {
   DRAFT: "draft",
   UNPAID: "unpaid",
@@ -125,4 +126,9 @@ export const PoFinancialStatus = {
   PAID: "paid",
   FINISHED: "finished",
   CANCELLED: "cancelled",
+};
+
+export const DEFAULT_FORM_VALUE = {
+  company: "YODY",
+  company_id: 1,
 };

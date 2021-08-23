@@ -24,7 +24,6 @@ import { AccountResponse } from "model/account/account.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderDetailAction } from "domain/actions/order/order.action";
-import doubleArrow from "assets/icon/double_arrow.svg";
 import { useParams } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -39,7 +38,6 @@ import {
   checkPaymentStatusToShow,
   formatCurrency,
   getAmountPayment,
-  getDateLastPayment,
   SumCOD,
 } from "utils/AppUtils";
 import historyAction from "assets/icon/action-history.svg";

@@ -283,3 +283,59 @@ export interface ShippingGHTKRequest {
   value?: number | null;
   transport?: string | null;
 }
+
+export interface GHNFeeRequest {
+  created_by: string | null;
+  created_name: string | null;
+  updated_by: string | null;
+  updated_name: string | null;
+  request_id: string | null;
+  operator_kc_id: string | null;
+  sender_country_id: number | undefined;
+  sender_city_id: number | undefined;
+  sender_district_id: number | undefined;
+  sender_ward_id: number | undefined;
+  receive_country_id: number | undefined;
+  receive_city_id: number | undefined;
+  receive_district_id: number | undefined;
+  receive_ward_id: number | undefined;
+  sender_address: string | null | undefined;
+  receive_address: string | null | undefined;
+  price: number | 0;
+  quantity: number | 0;
+  weight: number | 0;
+  length: number | 0;
+  height: number | 0;
+  width: number | 0;
+  ghn_service_id: number | 0;
+  coupon: string | null;
+  cod: number | 0;
+}
+
+export interface VTPFeeRequest {
+  created_by: string | null;
+  created_name: string | null;
+  updated_by: string | null;
+  updated_name: string | null;
+  request_id: string | null;
+  operator_kc_id: string | null;
+  sender_country_id: number | undefined;
+  sender_city_id: number | undefined;
+  sender_district_id: number | undefined;
+  sender_ward_id: number | undefined;
+  receive_country_id: number | undefined;
+  receive_city_id: number | undefined;
+  receive_district_id: number | undefined;
+  receive_ward_id: number | undefined;
+  sender_address: string | null | undefined;
+  receive_address: string | null | undefined;
+  price: number | 0;
+  quantity: number | 0;
+  weight: number | 0;
+  length: number | 0;
+  height: number | 0;
+  width: number | 0;
+  ghn_service_id: number | 0;
+  coupon: string | null;
+  cod: number | 0;
+}

@@ -47,7 +47,7 @@
   content: "\e907";
 }
 .icon-product:before {
-  content: "\e909";
+  content: url("../../icon/menu-clother.svg");
 }
 .icon-promotion:before {
   content: "\e90a";
