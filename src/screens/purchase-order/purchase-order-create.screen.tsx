@@ -192,7 +192,9 @@ const POCreateScreen: React.FC = () => {
           name: "Tạo mới đơn đặt hàng",
         },
       ]}
-      extra={<POStep order_date={initPurchaseOrder.order_date} status="draft" />}
+      extra={
+        <POStep order_date={initPurchaseOrder.order_date} status="draft" />
+      }
     >
       <Form
         name={PoFormName.Main}
@@ -217,18 +219,29 @@ const POCreateScreen: React.FC = () => {
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm
+              showSupplierAddress={true}
+              showBillingAddress={true}
               isEdit={false}
               listCountries={listCountries}
               listDistrict={listDistrict}
               formMain={formMain}
             />
             <POProductForm isEdit={false} formMain={formMain} />
-            <POInventoryForm isEdit={false} now={now} status={formMain.getFieldValue(POField.status)} stores={listStore} />
+            <POInventoryForm
+              isEdit={false}
+              now={now}
+              status={formMain.getFieldValue(POField.status)}
+              stores={listStore}
+            />
             <POPaymentConditionsForm listPayment={listPaymentConditions} />
           </Col>
           {/* Right Side */}
           <Col md={6}>
-            <POInfoForm isEdit={false} winAccount={winAccount} rdAccount={rdAccount} />
+            <POInfoForm
+              isEdit={false}
+              winAccount={winAccount}
+              rdAccount={rdAccount}
+            />
           </Col>
         </Row>
 

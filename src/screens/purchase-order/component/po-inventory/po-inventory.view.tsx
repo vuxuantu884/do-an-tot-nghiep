@@ -9,6 +9,7 @@ import TabConfirmed from "./tab3";
 import TabDraft from "./tab4";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { POField } from "model/purchase-order/po-field";
+import POProgressView from "../po-progress-view";
 
 const TAB = [
   {
@@ -34,8 +35,8 @@ const TAB = [
 ];
 
 type POInventoryViewProps = {
-  id?: number,
-  onSuccess: ()=>void;
+  id?: number;
+  onSuccess: () => void;
   confirmDraft: (item: PurchaseProcument) => void;
   confirmInventory: (item: PurchaseProcument) => void;
 };
@@ -43,7 +44,7 @@ type POInventoryViewProps = {
 const POInventoryView: React.FC<POInventoryViewProps> = (
   props: POInventoryViewProps
 ) => {
-  let { confirmDraft, confirmInventory ,id: poId, onSuccess} = props;
+  let { confirmDraft, confirmInventory, id: poId, onSuccess } = props;
   const [activeTab, setActiveTab] = useState(TAB[0].id);
   const getComponent = useCallback(
     (id: number) => {
@@ -74,40 +75,12 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           let planned_quantity = getFieldValue(POField.planned_quantity);
           let receipt_quantity = getFieldValue(POField.receipt_quantity);
           return (
-            <Row align="middle">
-              <Col span={24} md={18}>
-                <div className="progress-view">
-                  <Progress
-                    style={{ width: "100%" }}
-                    type="line"
-                    percent={Math.round(
-                      (receipt_quantity / planned_quantity) * 100
-                    )}
-                    showInfo={false}
-                    strokeWidth={21}
-                    strokeColor="#5D5D8A"
-                    trailColor="#ECEFFA"
-                  />
-                  <div className="progress-view-info">
-                    <div className="progress-view-receipt">
-                      <span>
-                        Đã nhận: {receipt_quantity ? receipt_quantity : 0}
-                      </span>
-                    </div>
-                    <div className="progress-view-order">
-                      <span>
-                        Tổng: {planned_quantity ? planned_quantity : 0}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Col>
-              <Col span={24} md={6}>
-                <div style={{textAlign: 'center'}}>
-                  <span>SL còn lại: {planned_quantity - receipt_quantity}</span>
-                </div>
-              </Col>
-            </Row>
+            <POProgressView
+              remainTitle={"SL CÒN LẠI"}
+              receivedTitle={"ĐÃ NHẬN"}
+              received={receipt_quantity}
+              total={planned_quantity}
+            />
           );
         }}
       </Form.Item>
