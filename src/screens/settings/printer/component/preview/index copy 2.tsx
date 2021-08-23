@@ -69,11 +69,11 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             // aaa[i] = eachRow;
             // console.log("eachRow", eachRow);
             console.log(
-              "checkIfStringContainsOneInArray(eachRow, listProductKeywords)",
-              checkIfStringContainsOneInArray(eachRow, listProductKeywords)
+              "checkIfStringContainsOneInArray(eachRow, listProductKeywords)"
+              // checkIfStringContainsOneInArray(eachRow, listProductKeywords)
             );
             if (
-              checkIfStringContainsOneInArray(eachRow, listProductKeywords) &&
+              // checkIfStringContainsOneInArray(eachRow, listProductKeywords) &&
               !hadChanged
             ) {
               hadChanged = true;

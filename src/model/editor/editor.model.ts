@@ -1,8 +1,13 @@
 export interface keywordsModel {
   title: string;
   key: string;
-  value: string | string[];
-  isRepeat?: boolean;
+  value: string;
+}
+
+export interface productKeywordsModel {
+  title: string;
+  key: string;
+  value: string[];
 }
 
 export type listKeywordsModel = keywordsModel[];
@@ -18,6 +23,7 @@ export interface EditorModalType {
   handleCancel: () => void;
   insertKeyword: (text: string) => void;
   listKeywords?: listKeywordsModel;
+  listProductKeywords?: productKeywordsModel[];
 }
 
 export interface PrintEditorModel {
@@ -27,8 +33,8 @@ export interface PrintEditorModel {
 
 export interface PrintPreviewModel {
   htmlContent: string;
-  listKeywords?: listKeywordsModel;
-  listProductKeywords?: listKeywordsModel;
+  listKeywords?: keywordsModel[];
+  listProductKeywords?: productKeywordsModel[];
   previewHeaderHeight?: number;
 }
 

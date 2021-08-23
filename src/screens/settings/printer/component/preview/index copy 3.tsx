@@ -66,71 +66,71 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             let eachRow = trElements[i].outerHTML;
 
             // aaa[i] = eachRow;
-            // console.log("eachRow", eachRow);
-            console.log(
-              "checkIfStringContainsOneInArray(eachRow, listProductKeywords)",
-              checkIfStringContainsOneInArray(eachRow, listProductKeywords)
-            );
-            if (checkIfStringContainsOneInArray(eachRow, listProductKeywords)) {
-              hadChanged = true;
-              console.log("eachRow1", eachRow);
-              for (let j = 0; j < numberOfProducts; j++) {
-                aaa[j] = eachRow;
-                let value = listProductKeywords;
-                let ddd = eachRow;
-                for (let k = 0; k < listProductKeywords.length; k++) {
-                  console.log("listProductKeywords[k]", listProductKeywords[k]);
-                  let textToReplaced = listProductKeywords[k].key;
-                  let textReplaced = listProductKeywords[k].value[j];
-                  console.log("textToReplaced", textToReplaced);
-                  console.log("textReplaced", textReplaced);
-                  aaa[j] = aaa[j].replaceAll(textToReplaced, textReplaced);
-                }
-                // console.log("ddd", ddd);
-                // console.log("value", value);
-                // let textToReplaced = listProductKeywords[i].key;
-                // let textReplaced = listProductKeywords[i].value;
-                // console.log("value.key", value.key);
-                // console.log("textToReplaced", textToReplaced);
-                // console.log("textReplaced", textReplaced);
-                // aaa[j] = aaa[j].replaceAll(value.key, textReplaced);
-                let abc = aaa[j];
+            // // console.log("eachRow", eachRow);
+            // console.log(
+            //   "checkIfStringContainsOneInArray(eachRow, listProductKeywords)",
+            //   checkIfStringContainsOneInArray(eachRow, listProductKeywords)
+            // );
+            // if (checkIfStringContainsOneInArray(eachRow, listProductKeywords)) {
+            //   hadChanged = true;
+            //   console.log("eachRow1", eachRow);
+            //   for (let j = 0; j < numberOfProducts; j++) {
+            //     aaa[j] = eachRow;
+            //     let value = listProductKeywords;
+            //     let ddd = eachRow;
+            //     for (let k = 0; k < listProductKeywords.length; k++) {
+            //       console.log("listProductKeywords[k]", listProductKeywords[k]);
+            //       let textToReplaced = listProductKeywords[k].key;
+            //       let textReplaced = listProductKeywords[k].value[j];
+            //       console.log("textToReplaced", textToReplaced);
+            //       console.log("textReplaced", textReplaced);
+            //       aaa[j] = aaa[j].replaceAll(textToReplaced, textReplaced);
+            //     }
+            //     // console.log("ddd", ddd);
+            //     // console.log("value", value);
+            //     // let textToReplaced = listProductKeywords[i].key;
+            //     // let textReplaced = listProductKeywords[i].value;
+            //     // console.log("value.key", value.key);
+            //     // console.log("textToReplaced", textToReplaced);
+            //     // console.log("textReplaced", textReplaced);
+            //     // aaa[j] = aaa[j].replaceAll(value.key, textReplaced);
+            //     let abc = aaa[j];
 
-                // console.log("eachRow2", eachRow);
-                // aaa[i] = eachRow;
-                // abc = abc.replaceAll(value.key, textReplaced);
-                console.log("abc", abc);
-                // for (let k = 0; k < listProductKeywords.length; k++) {
-                //   const element = array[k];
+            //     // console.log("eachRow2", eachRow);
+            //     // aaa[i] = eachRow;
+            //     // abc = abc.replaceAll(value.key, textReplaced);
+            //     console.log("abc", abc);
+            //     // for (let k = 0; k < listProductKeywords.length; k++) {
+            //     //   const element = array[k];
 
-                // }
-                // eachRow = eachRow.replaceAll(value.key, textReplaced);
-                // console.log("eachRow2", eachRow);
-                // trElements[i].outerHTML.replaceAll(value.key, textReplaced);
-              }
-              // for (const value of listProductKeywords) {
-              //   console.log("value", value);
-              //   textReplaced = value.value.split(", ")[i];
-              //   // console.log("value.key", value.key);
-              //   console.log("textReplaced", textReplaced);
-              //   aaa[i] = aaa[i].replaceAll(value.key, textReplaced);
-              //   // console.log("eachRow2", eachRow);
-              //   // aaa[i] = eachRow;
-              //   console.log("aaa[i]", aaa[i]);
-              //   // eachRow = eachRow.replaceAll(value.key, textReplaced);
-              //   // console.log("eachRow2", eachRow);
-              //   // trElements[i].outerHTML.replaceAll(value.key, textReplaced);
-              // }
-              bbb = aaa.join("");
-              // let ccc = item.outerHTML.replaceAll(trElements[i].outerHTML, bbb);
-              console.log("bbb", bbb);
-              // console.log("ccc", ccc);
-              // resultText = resultText.replaceAll(item.outerHTML, ccc);
-              resultText = editorElement.outerHTML.replaceAll(eachRow, bbb);
-            } else {
-              hadChanged = false;
-            }
-            console.log("aaa", aaa);
+            //     // }
+            //     // eachRow = eachRow.replaceAll(value.key, textReplaced);
+            //     // console.log("eachRow2", eachRow);
+            //     // trElements[i].outerHTML.replaceAll(value.key, textReplaced);
+            //   }
+            //   // for (const value of listProductKeywords) {
+            //   //   console.log("value", value);
+            //   //   textReplaced = value.value.split(", ")[i];
+            //   //   // console.log("value.key", value.key);
+            //   //   console.log("textReplaced", textReplaced);
+            //   //   aaa[i] = aaa[i].replaceAll(value.key, textReplaced);
+            //   //   // console.log("eachRow2", eachRow);
+            //   //   // aaa[i] = eachRow;
+            //   //   console.log("aaa[i]", aaa[i]);
+            //   //   // eachRow = eachRow.replaceAll(value.key, textReplaced);
+            //   //   // console.log("eachRow2", eachRow);
+            //   //   // trElements[i].outerHTML.replaceAll(value.key, textReplaced);
+            //   // }
+            //   bbb = aaa.join("");
+            //   // let ccc = item.outerHTML.replaceAll(trElements[i].outerHTML, bbb);
+            //   console.log("bbb", bbb);
+            //   // console.log("ccc", ccc);
+            //   // resultText = resultText.replaceAll(item.outerHTML, ccc);
+            //   resultText = editorElement.outerHTML.replaceAll(eachRow, bbb);
+            // } else {
+            //   hadChanged = false;
+            // }
+            // console.log("aaa", aaa);
 
             // // result=trElements[0].innerHTML.replaceAll()
             // console.log("hadChanged", hadChanged);
