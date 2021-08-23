@@ -1,16 +1,25 @@
 import { Row, Col, Progress } from "antd";
 import { MinusCircleFilled } from "@ant-design/icons";
+import { ReactNode, useMemo } from "react";
 type POProgressViewProps = {
+  receivedTitle: string;
+  remainTitle: string;
   received: number;
   total: number;
+  extra?: ReactNode;
 };
 const POProgressView: React.FC<POProgressViewProps> = (
   props: POProgressViewProps
 ) => {
-  const { received, total } = props;
+  const { received, total, extra, receivedTitle, remainTitle } = props;
+  const percent = useMemo(() => {
+    if (received && total) {
+      return Math.round((received / total) * 100);
+    }
+    return 0;
+  }, [received, total]);
   return (
     <Row
-      align="middle"
       className="padding-left-20 margin-top-20"
       style={{ border: "1px solid #E5E5E5" }}
     >
@@ -23,7 +32,7 @@ const POProgressView: React.FC<POProgressViewProps> = (
             // style={{ width: "100%" }}
             style={{ flex: 1 }}
             type="line"
-            percent={Math.round((received / total) * 100)}
+            percent={percent}
             showInfo={false}
             strokeWidth={21}
             strokeColor="#B2B2E4"
@@ -31,19 +40,25 @@ const POProgressView: React.FC<POProgressViewProps> = (
           />
           <div className="progress-view-info">
             <div className="progress-view-receipt">
-              <span>ĐÃ NHẬN: {received ? received : 0}</span>
+              <span>
+                {receivedTitle}: {received ? received : 0}
+              </span>
             </div>
           </div>
           <div className="progress-view-order">
             <span>TỔNG: {total ? total : 0}</span>
           </div>
         </div>
+        <div className="margin-bottom-20">{extra}</div>
       </Col>
-      <Col span={6}>
-        <div className="padding-left-20" style={{ textAlign: "left" }}>
+      <Col span={6} flex="auto">
+        <div
+          className="padding-left-20"
+          style={{ textAlign: "left", marginTop: 25 }}
+        >
           <span>
             <MinusCircleFilled style={{ color: "#E24343", marginRight: 4 }} />
-            SL CÒN LẠI:{" "}
+            {remainTitle}:{" "}
             <span style={{ color: "#E24343" }}>{total - received}</span>
           </span>
         </div>

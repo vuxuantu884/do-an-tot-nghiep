@@ -12,7 +12,7 @@ import {
   FormInstance,
 } from "antd";
 import { POField } from "model/purchase-order/po-field";
-import { Fragment, useMemo } from "react";
+import { Fragment, useMemo, useState, useEffect } from "react";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import POProgressView from "./po-progress-view";
 import {
@@ -33,6 +33,9 @@ const POReturnForm: React.FC<POReturnFormProps> = (
   props: POReturnFormProps
 ) => {
   const { formMain } = props;
+  const [currentLineReturn, setCurrentLineReturn] = useState<
+    Array<PurchaseOrderLineReturnItem>
+  >([]);
   const product_units = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
   );
@@ -42,17 +45,19 @@ const POReturnForm: React.FC<POReturnFormProps> = (
     index: number
   ) => {
     item.quantity_return = value;
-    let currentLineReturn = formMain.getFieldValue(POField.line_return_items);
-    if (!currentLineReturn) currentLineReturn = [];
     let valueIndex = currentLineReturn.findIndex(
       (lineItem: PurchaseOrderLineReturnItem) => lineItem.id === item.id
     );
     if (valueIndex === -1) currentLineReturn.push(item);
     else currentLineReturn[valueIndex] = item;
+    setCurrentLineReturn([...currentLineReturn]);
+  };
+
+  useEffect(() => {
     formMain.setFieldsValue({
       [POField.line_return_items]: [...currentLineReturn],
     });
-  };
+  }, [currentLineReturn]);
 
   return (
     <Card
@@ -98,6 +103,8 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                   </Space>
                 </Row>
                 <POProgressView
+                  remainTitle={"SL CÒN LẠI"}
+                  receivedTitle={"ĐÃ NHẬN"}
                   received={receipt_quantity}
                   total={planned_quantity}
                 />
@@ -222,41 +229,55 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                     ),
                     width: 100,
                     dataIndex: "receipt_quantity",
-                    render: (value, item, index) => (
-                      <div
-                        style={{
-                          display: "flex",
-                          textAlign: "right",
-                          flexDirection: "row",
-                          width: "100%",
-                        }}
-                      >
-                        <InputNumber
-                          size="small"
+                    render: (value, item, index) => {
+                      let defaultValue = 0;
+                      let valueIndex = currentLineReturn.findIndex(
+                        (lineItem: PurchaseOrderLineReturnItem) =>
+                          lineItem.id === item.id
+                      );
+                      if (valueIndex !== -1)
+                        defaultValue =
+                          currentLineReturn[valueIndex].quantity_return;
+                      return (
+                        <div
                           style={{
-                            width: "50%",
-                          }}
-                          className="hide-number-handle"
-                          type="number"
-                          max={value}
-                          min={0}
-                          defaultValue={0}
-                          onFocus={(e) => e.target.select()}
-                          onChange={(inputValue) => {
-                            handleChangeReturnQuantity(inputValue, item, index);
-                          }}
-                        />{" "}
-                        <span
-                          style={{
-                            marginLeft: 4,
-                            display: "inline-flex",
-                            alignItems: "center",
+                            display: "flex",
+                            textAlign: "right",
+                            flexDirection: "row",
+                            width: "100%",
                           }}
                         >
-                          /{value}
-                        </span>
-                      </div>
-                    ),
+                          <InputNumber
+                            size="small"
+                            style={{
+                              width: "50%",
+                            }}
+                            className="hide-number-handle"
+                            type="number"
+                            max={value}
+                            min={0}
+                            defaultValue={0}
+                            onFocus={(e) => e.target.select()}
+                            onChange={(inputValue) => {
+                              handleChangeReturnQuantity(
+                                inputValue,
+                                item,
+                                index
+                              );
+                            }}
+                          />{" "}
+                          <span
+                            style={{
+                              marginLeft: 4,
+                              display: "inline-flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            /{value}
+                          </span>
+                        </div>
+                      );
+                    },
                   },
                   {
                     title: (

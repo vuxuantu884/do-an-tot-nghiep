@@ -11,6 +11,7 @@ import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import POSupplierForm from "./component/po-supplier.form";
 import POReturnProductForm from "./component/po-return-product.form";
+import POReturnPaymentForm from "./component/po-return-payment.form";
 import POStep from "./component/po-step";
 
 interface POReturnProps {}
@@ -87,6 +88,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
           formMain={formMain}
         />
         <POReturnProductForm formMain={formMain} />
+        <POReturnPaymentForm formMain={formMain} />
         <Row
           gutter={24}
           className="margin-top-10 "

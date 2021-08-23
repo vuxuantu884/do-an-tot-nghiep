@@ -103,14 +103,15 @@ export const PoPaymentStatus = {
   UNPAID: "unpaid",
   PAID: "paid",
   PARTIAL_PAID: "partial_paid",
+  REFUND: "refund",
   FINISHED: "finished",
   CANCELLED: "cancelled",
 };
 
-export const PoPaymentMethod ={
-  CASH:'cash',
-  BANK_TRANSFER:'bank_transfer'
-}
+export const PoPaymentMethod = {
+  CASH: "cash",
+  BANK_TRANSFER: "bank_transfer",
+};
 
 export const MODAL_ACTION_TYPE = {
   create: "create",
@@ -118,10 +119,10 @@ export const MODAL_ACTION_TYPE = {
   delete: "delete",
 };
 export const PoFinancialStatus = {
-  DRAFT: 'draft',
-  UNPAID: 'unpaid',
-  PARTIAL_PAID:'partial_paid',
-  PAID:'paid',
-  FINISHED:'finished',
-  CANCELLED:'cancelled',  
-}
+  DRAFT: "draft",
+  UNPAID: "unpaid",
+  PARTIAL_PAID: "partial_paid",
+  PAID: "paid",
+  FINISHED: "finished",
+  CANCELLED: "cancelled",
+};

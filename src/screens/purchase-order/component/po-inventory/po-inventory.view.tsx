@@ -76,6 +76,8 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           let receipt_quantity = getFieldValue(POField.receipt_quantity);
           return (
             <POProgressView
+              remainTitle={"SL CÒN LẠI"}
+              receivedTitle={"ĐÃ NHẬN"}
               received={receipt_quantity}
               total={planned_quantity}
             />
