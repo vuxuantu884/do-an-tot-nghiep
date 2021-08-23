@@ -57,7 +57,7 @@ const CustomerEdit = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-console.log(groups)
+
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -193,6 +193,7 @@ console.log(groups)
               wards={wards}
               districtId={districtId}
               handleChangeArea={handleChangeArea}
+              isEdit={true}
             />
           </Col>
         </Row>

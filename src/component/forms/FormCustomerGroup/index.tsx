@@ -5,11 +5,12 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
+import { RegUtil } from "utils/RegUtils";
 
 type FormValueType = {
   code: string;
   name?: string;
-  active?:boolean;
+  active?: boolean;
   note?: string;
 };
 
@@ -34,7 +35,7 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
           code: "",
           name: "",
           note: "",
-          active: true
+          active: true,
         };
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -55,7 +56,7 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
       >
         <Row gutter={20}>
           <Col span={24}>
-          {/* <Form.Item
+            {/* <Form.Item
               name="code"
               label="Mã nhóm khách hàng"
               rules={[
@@ -78,14 +79,19 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng điền tên nhóm khách hàng!",
+                  message: "Vui lòng nhập tên nhóm khách hàng!",
                 },
-                { max: 255, message: "Không được nhập quá 255 ký tự!" },
+                { max: 254, message: "Không được nhập quá 255 ký tự!" },
+                {
+                  pattern: RegUtil.NO_ALL_SPACE,
+                  message: "Tên không được có khoảng trống ở đầu",
+                },
               ]}
             >
               <Input
                 placeholder="Nhập tên nhóm khách hàng"
                 style={{ width: "100%" }}
+                maxLength={255}
               />
             </Form.Item>
             {/* <Form.Item
@@ -95,14 +101,18 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
             >
               <Checkbox>Áp dụng </Checkbox>
             </Form.Item> */}
-          {/* </Col>
+            {/* </Col>
           <Col span={12}> */}
             <Form.Item
               name="note"
-              label="Ghi chú"
-              rules={[{ max: 500, message: "Không được nhập quá 500 ký tự!" }]}
+              label="Mô tả"
+              rules={[{ max: 499, message: "Không được nhập quá 500 ký tự!" }]}
             >
-              <Input.TextArea rows={10} />
+              <Input.TextArea
+                maxLength={500}
+                rows={10}
+                placeholder="Nhập mô tả"
+              />
             </Form.Item>
           </Col>
         </Row>

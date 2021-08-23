@@ -49,7 +49,7 @@ const SettingCustomerGroup: React.FC = () => {
 
   const columns: Array<ICustomTableColumType<VariantResponse>> = [
     {
-      title: "Tên Nhóm khách hàng",
+      title: "Tên Nhóm",
       dataIndex: "name",
       visible: true,
       width: "25%",
@@ -82,7 +82,7 @@ const SettingCustomerGroup: React.FC = () => {
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
-      title: "Ghi chú",
+      title: "Mô tả",
       dataIndex: "note",
       visible: true,
       width: "25%",

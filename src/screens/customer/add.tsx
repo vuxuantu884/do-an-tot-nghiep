@@ -49,7 +49,11 @@ const CustomerAdd = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
+  const [isShowInput, setIsShowInput] = React.useState<boolean>(true);
 
+  const handleShowInput = (value: any) => {
+    setIsShowInput(value.length > 0);
+  };
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
@@ -184,6 +188,7 @@ const CustomerAdd = (props: any) => {
               defaultActiveKey={["1"]}
               style={{ backgroundColor: "white", marginTop: 16 }}
               expandIconPosition="right"
+              onChange={(value) => handleShowInput(value)}
             >
               <Panel
                 className=""
@@ -202,47 +207,64 @@ const CustomerAdd = (props: any) => {
               >
                 <Row gutter={30} style={{ padding: "0 15px" }}>
                   <Col span={24}>
-                    <Form.Item label={<b>Họ và tên:</b>} name="contact_name">
-                      <Input maxLength={255} placeholder="Tên người liên hệ" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
                     <Form.Item
-                      label={<b>Số điện thoại:</b>}
-                      name="contact_phone"
+                      label={<b>Họ và tên:</b>}
+                      name="contact_name"
                       rules={[
                         {
                           required: true,
-                          message: "Vui lòng nhập số điện thoại",
+                          message: "Vui lòng nhập họ tên khách hàng",
                         },
                         {
-                          pattern: RegUtil.PHONE,
-                          message: "Số điện thoại chưa đúng định dạng",
+                          pattern: RegUtil.NO_ALL_SPACE,
+                          message: "Tên không được có khoảng trống ở đầu",
                         },
                       ]}
                     >
-                      <Input
-                        style={{ borderRadius: 5, width: "100%" }}
-                        minLength={9}
-                        maxLength={15}
-                        placeholder="Nhập số điện thoại"
-                      />
+                      <Input maxLength={255} placeholder="Nhập họ và tên" />
                     </Form.Item>
                   </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      label={<b>Email:</b>}
-                      name="contact_email"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng nhập thư điện tử",
-                        },
-                      ]}
-                    >
-                      <Input maxLength={255} placeholder="Thư điện tử" />
-                    </Form.Item>
-                  </Col>
+                  {isShowInput && (
+                    <>
+                      <Col span={12}>
+                        <Form.Item
+                          label={<b>Số điện thoại:</b>}
+                          name="contact_phone"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập số điện thoại",
+                            },
+                            {
+                              pattern: RegUtil.PHONE,
+                              message: "Số điện thoại chưa đúng định dạng",
+                            },
+                          ]}
+                        >
+                          <Input
+                            style={{ borderRadius: 5, width: "100%" }}
+                            minLength={9}
+                            maxLength={15}
+                            placeholder="Nhập số điện thoại"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item
+                          label={<b>Email:</b>}
+                          name="contact_email"
+                          // rules={[
+                          //   {
+                          //     required: true,
+                          //     message: "Vui lòng nhập thư điện tử",
+                          //   },
+                          // ]}
+                        >
+                          <Input maxLength={255} placeholder="Nhập email" />
+                        </Form.Item>
+                      </Col>
+                    </>
+                  )}
 
                   <Col span={24} style={{ padding: "0 1rem" }}>
                     <Row gutter={8}>
@@ -250,7 +272,7 @@ const CustomerAdd = (props: any) => {
                         <Form.Item label={<b>Ghi chú:</b>} name="contact_note">
                           <Input.TextArea
                             maxLength={500}
-                            placeholder="Ghi chú"
+                            placeholder="Nhập ghi chú"
                           />
                         </Form.Item>
                       </Col>
@@ -262,9 +284,7 @@ const CustomerAdd = (props: any) => {
           </Col>
           <Col span={6} />
         </Row>
-        <div className="customer-bottom-button"
-         
-        >
+        <div className="customer-bottom-button">
           <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
             <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
             Quay lại danh sách khách hàng
