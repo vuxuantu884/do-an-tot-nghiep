@@ -239,7 +239,7 @@ const SettingCustomerGroup: React.FC = () => {
           actionDeleteCustomerGroup(
             modalSingleServiceSubStatus.id,
             () => {
-              setIsShowModal(false);
+              setIsShowConfirmDelete(false);
               gotoFirstPage();
             }
           )
