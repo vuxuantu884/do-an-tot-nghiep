@@ -20,14 +20,8 @@ import {
 import { CountryResponse } from "model/content/country.model";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
-import AddressForm from "./address";
-import ContactForm from "./contact";
+import { Link, useHistory, useParams } from "react-router-dom";
 import "./customer.scss";
-import NoteForm from "./note";
-import RenderCardAdress from "./render/card.address";
-import RenderCardContact from "./render/card.contact";
-import RenderCardNote from "./render/card.note";
 import moment from "moment";
 import { showSuccess } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
@@ -36,12 +30,12 @@ import GeneralInformation from "./general.information";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { BillingAddress } from './../../model/request/order.request';
 import { WardResponse } from "model/content/ward.model";
 import {
   DistrictGetByCountryAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
+import arrowLeft from "../../assets/icon/arrow-left.svg";
 
 const { Option } = Select;
 const { Panel } = Collapse;
@@ -63,7 +57,7 @@ const CustomerEdit = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-  
+console.log(groups)
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -78,9 +72,9 @@ const CustomerEdit = (props: any) => {
   }, [dispatch, countryId]);
 
   const handleChangeArea = (districtId: string) => {
-    if(districtId){
+    if (districtId) {
       setDistrictId(districtId);
-      let area = areas.find((area) => area.id === districtId)
+      let area = areas.find((area) => area.id === districtId);
       let value = customerForm.getFieldsValue();
       value.city_id = area.city_id;
       value.city = area.city_name;
@@ -88,12 +82,10 @@ const CustomerEdit = (props: any) => {
       value.district = area.name;
       value.ward_id = null;
       value.ward = "";
-      customerForm.setFieldsValue(value)
+      customerForm.setFieldsValue(value);
     }
-   
-    
   };
-  console.log(customer)
+  console.log(customer);
   React.useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
@@ -101,11 +93,10 @@ const CustomerEdit = (props: any) => {
   }, [dispatch, districtId]);
 
   React.useEffect(() => {
-    if(customer){
+    if (customer) {
       dispatch(WardGetByDistrictAction(customer.district_id, setWards));
     }
   }, [dispatch, customer]);
-
 
   React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -130,7 +121,7 @@ const CustomerEdit = (props: any) => {
           ? moment(customer.wedding_date, "YYYY-MM-DD")
           : null,
       });
-      setStatus(customer.status)
+      setStatus(customer.status);
     }
   }, [customer, customerForm]);
   const reload = React.useCallback(() => {
@@ -153,24 +144,10 @@ const CustomerEdit = (props: any) => {
       wedding_date: values.wedding_date
         ? moment(values.wedding_date, "YYYY-MM-DD").format("YYYY-MM-DD")
         : null,
-      // billing_addresses: values.billing_addresses.map((b: any) => {
-      //   if (b.hasOwnProperty("is_default")) {
-      //     return b;
-      //   } else {
-      //     return { ...b, is_default: b.default };
-      //   }
-      // }),
-      // shipping_addresses: values.shipping_addresses.map((b: any) => {
-      //   if (b.hasOwnProperty("is_default")) {
-      //     return b;
-      //   } else {
-      //     return { ...b, is_default: b.default };
-      //   }
-      // }),
+      status: status,
+      version: customer.version,
     };
-    dispatch(
-      UpdateCustomer(params.id, { ...customer, ...processValue }, setResult)
-    );
+    dispatch(UpdateCustomer(params.id, processValue, setResult));
   };
   const handleSubmitFail = (errorInfo: any) => {
     console.error("Failed:", errorInfo);
@@ -218,86 +195,27 @@ const CustomerEdit = (props: any) => {
               handleChangeArea={handleChangeArea}
             />
           </Col>
-          {/* <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardAdress
-              name="billing_addresses"
-              component={AddressForm}
-              title="ĐỊA CHỈ NHẬN HÓA ĐƠN "
-              countries={countries}
-              form={customerForm}
-              isEdit={true}
-              reload={reload}
-            />
-          </Col>
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardAdress
-              name="shipping_addresses"
-              component={AddressForm}
-              title="ĐỊA CHỈ GIAO HÀNG"
-              countries={countries}
-              form={customerForm}
-              isEdit={true}
-              reload={reload}
-            />
-          </Col>
-          
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardNote component={NoteForm} title="GHI CHÚ" name="notes" />
-          </Col> */}
         </Row>
-        <Row gutter={24}>
-          <Col span={18}>
-            <Collapse
-              className="customer-contact-collapse"
-              defaultActiveKey={["1"]}
-              style={{ backgroundColor: "white", marginTop: 16 }}
-              expandIconPosition="right"
+
+        <div className="customer-bottom-button" style={{}}>
+          <Link to="/customers">
+            <div style={{ cursor: "pointer" }}>
+              <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+              Quay lại danh sách khách hàng
+            </div>
+          </Link>
+          <div>
+            <Button
+              onClick={() => history.goBack()}
+              style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
+              type="ghost"
             >
-              <Panel
-                className=""
-                header={
-                  <span
-                    style={{
-                      textTransform: "uppercase",
-                      fontWeight: 500,
-                      padding: "6px",
-                    }}
-                  >
-                    THÔNG TIN LIÊN HỆ
-                  </span>
-                }
-                key="1"
-              >
-                <RenderCardContact
-                  component={ContactForm}
-                  title="THÔNG TIN LIÊN HỆ"
-                  name="contacts"
-                  form={customerForm}
-                  isEdit={true}
-                  reload={reload}
-                />
-              </Panel>
-            </Collapse>
-          </Col>
-          <Col span={6} />
-        </Row>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            marginTop: ".75rem",
-          }}
-        >
-          <Button type="primary" htmlType="submit">
-            Lưu
-          </Button>
-          <Button
-            onClick={() => history.goBack()}
-            style={{ marginLeft: ".75rem" }}
-            type="ghost"
-          >
-            Hủy
-          </Button>
+              Hủy
+            </Button>
+            <Button type="primary" htmlType="submit">
+              Lưu khách hàng
+            </Button>
+          </div>
         </div>
       </Form>
     </ContentContainer>

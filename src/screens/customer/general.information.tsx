@@ -209,6 +209,9 @@ const GeneralInformation = (props: any) => {
                     </Select>
                   </Form.Item>
                 </Col>
+                <Form.Item label="city" name="city_id" hidden>
+                  <Input />
+                </Form.Item>
                 <Col span={8}>
                   <Form.Item
                     label={<b>Phường/ Xã:</b>}

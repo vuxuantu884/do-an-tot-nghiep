@@ -26,6 +26,8 @@ type FormValueType = {
   full_address: string;
   is_default: boolean;
   email: string;
+  city_id: number;
+  tax_code: string;
 };
 
 const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
@@ -56,6 +58,8 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
           full_address: formItem?.full_address,
           is_default: formItem?.default,
           email: formItem?.email,
+          city_id: formItem?.city_id,
+          tax_code: formItem?.tax_code,
         }
       : {
           name: "",
@@ -65,7 +69,9 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
           ward_id: null,
           full_address: "",
           is_default: false,
-          email: ""
+          email: "",
+          city_id: null,
+          tax_code: "",
         };
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -92,9 +98,9 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
     }
   };
   React.useEffect(() => {
-    if(formItem){
-      setDistrictId(formItem.district_id)
-    };
+    if (formItem) {
+      setDistrictId(formItem.district_id);
+    }
   }, [formItem]);
 
   React.useEffect(() => {
@@ -137,120 +143,145 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
               />
             </Form.Item>
 
-            <Form.Item
-              name="phone"
-              label={<b>Số điện thoại:</b>}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập số điện thoại",
-                },
-                {
-                  pattern: RegUtil.PHONE,
-                  message: "Số điện thoại chưa đúng định dạng",
-                },
-              ]}
-            >
-              <Input
-                placeholder="Nhập số điện thoại"
-                style={{ width: "100%" }}
-                minLength={9}
-                maxLength={15}
-              />
-            </Form.Item>
-            <Form.Item
-              name="email"
-              label={<b>Email:</b>}
-              rules={[
-                {
-                  pattern: RegUtil.EMAIL,
-                  message: "Email chưa đúng định dạng",
-                },
-              ]}
-            >
-              <Input
-                placeholder="Nhập thư điện tử"
-                style={{ width: "100%" }}
-                maxLength={255}
-              />
-            </Form.Item>
-            <Form.Item
-              label={<b>Quốc gia:</b>}
-              name="country_id"
-              initialValue={233}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn quốc gia",
-                },
-              ]}
-            >
-              <Select
-                placeholder="Quốc gia"
-                disabled
-                // onChange={handleChangeCountry}
-                showSearch
-                allowClear
-                optionFilterProp="children"
-              >
-                {countries.map((country: any) => (
-                  <Option key={country.id} value={country.id}>
-                    {country.name + ` - ${country.code}`}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              label={<b>Thành phố/Quận - Huyện:</b>}
-              name="district_id"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn khu vực",
-                },
-              ]}
-            >
-              <Select
-                showSearch
-                placeholder="Khu vực"
-                onChange={handleChangeArea}
-                allowClear
-                optionFilterProp="children"
-              >
-                {areas.map((area: any) => (
-                  <Option key={area.id} value={area.id}>
-                    {area.city_name + ` - ${area.name}`}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              label={<b>Phường/ Xã:</b>}
-              name="ward_id"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn xã/phường",
-                },
-              ]}
-            >
-              <Select
-                showSearch
-                allowClear
-                optionFilterProp="children"
-                placeholder="Xã/Phường"
-                // onChange={handleChangeWard}
-              >
-                {wards.map((ward: any) => (
-                  <Option key={ward.id} value={ward.id}>
-                    {ward.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-
+            <Row gutter={24}>
+              <Col span={12}>
+                <Form.Item
+                  name="phone"
+                  label={<b>Số điện thoại:</b>}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập số điện thoại",
+                    },
+                    {
+                      pattern: RegUtil.PHONE,
+                      message: "Số điện thoại chưa đúng định dạng",
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder="Nhập số điện thoại"
+                    style={{ width: "100%" }}
+                    minLength={9}
+                    maxLength={15}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="email"
+                  label={<b>Email:</b>}
+                  rules={[
+                    {
+                      pattern: RegUtil.EMAIL,
+                      message: "Email chưa đúng định dạng",
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder="Nhập thư điện tử"
+                    style={{ width: "100%" }}
+                    maxLength={255}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col span={12}>
+                <Form.Item label={<b>Mã số thuế:</b>} name="tax_code">
+                  <Input maxLength={255} placeholder="Mã số thuế" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label={<b>Quốc gia:</b>}
+                  name="country_id"
+                  initialValue={233}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn quốc gia",
+                    },
+                  ]}
+                >
+                  <Select
+                    placeholder="Quốc gia"
+                    disabled
+                    // onChange={handleChangeCountry}
+                    showSearch
+                    allowClear
+                    optionFilterProp="children"
+                  >
+                    {countries.map((country: any) => (
+                      <Option key={country.id} value={country.id}>
+                        {country.name + ` - ${country.code}`}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col span={12}>
+                <Form.Item
+                  label={<b>Thành phố/Quận - Huyện:</b>}
+                  name="district_id"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn khu vực",
+                    },
+                  ]}
+                >
+                  <Select
+                    showSearch
+                    placeholder="Khu vực"
+                    onChange={handleChangeArea}
+                    allowClear
+                    optionFilterProp="children"
+                  >
+                    {areas.map((area: any) => (
+                      <Option key={area.id} value={area.id}>
+                        {area.city_name + ` - ${area.name}`}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label={<b>Thành phố:</b>} name="city_id" hidden>
+                  <Input
+                    placeholder="Nhập địa chỉ chi tiết"
+                    style={{ width: "100%" }}
+                    maxLength={255}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label={<b>Phường/ Xã:</b>}
+                  name="ward_id"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn xã/phường",
+                    },
+                  ]}
+                >
+                  <Select
+                    showSearch
+                    allowClear
+                    optionFilterProp="children"
+                    placeholder="Xã/Phường"
+                    // onChange={handleChangeWard}
+                  >
+                    {wards.map((ward: any) => (
+                      <Option key={ward.id} value={ward.id}>
+                        {ward.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
             <Form.Item
               name="full_address"
               label={<b>Địa chỉ chi tiết:</b>}
