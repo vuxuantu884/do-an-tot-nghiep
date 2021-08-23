@@ -177,8 +177,7 @@ const Customer = () => {
     },
     {
       title: "Nhân viên phụ trách",
-      dataIndex: "responsible_staff_code",
-      align: "center",
+      dataIndex: "responsible_staff",
       visible: true,
       width: "15%",
     },
