@@ -66,6 +66,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       let data = formPayment.getFieldsValue(true);
 
       if (data.id) {
+        if (data.status === PoPaymentStatus.REFUND) data.amount = -data.amount;
         dispatch(PoPaymentUpdateAction(poId, data.id, data, updateCallback));
       } else {
         values.status = PoPaymentStatus.UNPAID;
@@ -157,7 +158,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               ]}
             >
               <CustomDatepicker
-                 disableDate={(date) => date <= moment().startOf("days")}
+                disableDate={(date) => date <= moment().startOf("days")}
                 style={{ width: "100%" }}
                 placeholder="dd/mm/yyyy"
               />
@@ -173,7 +174,9 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               ]}
             >
               <NumberInput
-                format={(a: string) => formatCurrency(a)}
+                format={(a: string) =>
+                  formatCurrency(a ? Math.abs(parseInt(a)) : 0)
+                }
                 replace={(a: string) => replaceFormatString(a)}
                 min={0}
                 default={0}
