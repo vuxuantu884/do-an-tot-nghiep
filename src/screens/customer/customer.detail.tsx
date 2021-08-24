@@ -40,18 +40,11 @@ import { CountryResponse } from "model/content/country.model";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
-import AddressForm from "./address";
-import ContactForm from "./contact";
 import "./customer.scss";
-import NoteForm from "./note";
-import RenderCardAdress from "./render/card.address";
-import RenderCardContact from "./render/card.contact";
-import RenderCardNote from "./render/card.note";
 import moment from "moment";
 import { showSuccess, showError } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
-import GeneralInformation from "./general.information";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -61,7 +54,6 @@ import {
   shippingAddress,
   billingAddress,
 } from "model/response/customer/customer.response";
-import { updateContact } from "service/cusomer/customer.service";
 import {
   CustomerContact,
   CustomerShippingAddress,
@@ -92,11 +84,6 @@ const CustomerEdit = (props: any) => {
   ) as any;
   const [customerPointInfo, setCustomerPoint] = React.useState([]) as any;
   const [customerBuyDetail, setCustomerBuyDetail] = React.useState([]) as any;
-
-  const statuses = [
-    { name: "Hoạt động", key: "1", value: "active" },
-    { name: "Không hoạt động", key: "2", value: "inactive" },
-  ];
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -264,42 +251,43 @@ const CustomerEdit = (props: any) => {
     {
       title: "Họ tên người nhận",
       dataIndex: "name",
+      align: "center",
       visible: true,
       width: "15%",
     },
     {
       title: "Số điện thoại",
-      dataIndex: "phone",
+      dataIndex: "phone",align: "center",
       visible: true,
       width: "15%",
     },
     {
       title: "Quốc gia",
-      dataIndex: "country",
+      dataIndex: "country",align: "center",
       visible: true,
-      width: "15%",
+      width: "10%",
     },
     {
       title: "Tỉnh/TP",
-      dataIndex: "city",
+      dataIndex: "city",align: "center",
       visible: true,
-      width: "15%",
+      width: "10%",
     },
     {
       title: "Quận/Huyện",
-      dataIndex: "district",
+      dataIndex: "district",align: "center",
       visible: true,
-      width: "15%",
+      width: "10%",
     },
     {
       title: "Phường/Xã",
-      dataIndex: "ward",
+      dataIndex: "ward",align: "center",
       visible: true,
-      width: "15%",
+      width: "10%",
     },
     {
       title: "Địa chỉ chi tiết",
-      dataIndex: "full_address",
+      dataIndex: "full_address",align: "center",
       visible: true,
       width: "20%",
       render: (value, row, index) => {
@@ -310,60 +298,69 @@ const CustomerEdit = (props: any) => {
         );
       },
     },
+    {
+      title: "",
+      dataIndex: "default",align: "center",
+      visible: true,
+      width: "10%",
+      render: (l: shippingAddress, item: any, index: number) => {
+        return item.default && <div style={{ color: "#2a2a86" }}>Mặc định</div>;
+      },
+    },
   ];
   // billing columns
   const billingColumns: Array<ICustomTableColumType<billingAddress>> = [
     {
       title: "Họ tên người nhận",
-      dataIndex: "name",
+      dataIndex: "name",align: "center",
       visible: true,
-      width: "15%",
+      width: "10%",
     },
     {
       title: "Số điện thoại",
-      dataIndex: "phone",
+      dataIndex: "phone",align: "center",
       visible: true,
       width: "10%",
     },
     {
       title: "Email",
-      dataIndex: "email",
+      dataIndex: "email",align: "center",
       visible: true,
       width: "10%",
     },
     {
       title: "Mã số thuế",
-      dataIndex: "tax_code",
+      dataIndex: "tax_code",align: "center",
       visible: true,
       width: "10%",
     },
     {
       title: "Quốc gia",
-      dataIndex: "country",
+      dataIndex: "country",align: "center",
       visible: true,
       width: "10%",
     },
     {
       title: "Tỉnh/TP",
-      dataIndex: "city",
+      dataIndex: "city",align: "center",
       visible: true,
       width: "10%",
     },
     {
       title: "Quận/Huyện",
-      dataIndex: "district",
+      dataIndex: "district",align: "center",
       visible: true,
       width: "10%",
     },
     {
       title: "Phường/Xã",
-      dataIndex: "ward",
+      dataIndex: "ward",align: "center",
       visible: true,
       width: "10%",
     },
     {
       title: "Địa chỉ chi tiết",
-      dataIndex: "full_address",
+      dataIndex: "full_address",align: "center",
       visible: true,
       width: "15%",
       render: (value, row, index) => {
@@ -372,6 +369,15 @@ const CustomerEdit = (props: any) => {
             {value}
           </span>
         );
+      },
+    },
+    {
+      title: "",
+      dataIndex: "default",align: "center",
+      visible: true,
+      width: "10%",
+      render: (l: shippingAddress, item: any, index: number) => {
+        return item.default && <div style={{ color: "#2a2a86" }}>Mặc định</div>;
       },
     },
   ];
@@ -580,7 +586,6 @@ const CustomerEdit = (props: any) => {
   // handle billing
   const handleBillingAddressForm = {
     create: (formValue: CustomerBillingAddress) => {
-      console.log(formValue);
       if (customer)
         dispatch(
           CreateBillingAddress(
@@ -1027,7 +1032,7 @@ const CustomerEdit = (props: any) => {
               </Row>
             )}
             {customerDetailState === 3 && (
-              <Row >
+              <Row>
                 <div
                   style={{
                     padding: "0 16px 10px 0",

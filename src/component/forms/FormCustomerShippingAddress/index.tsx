@@ -25,6 +25,7 @@ type FormValueType = {
   ward_id: number;
   full_address: string;
   is_default: boolean;
+  city_id: number;
 };
 
 const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
@@ -54,12 +55,14 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
           ward_id: formItem?.ward_id,
           full_address: formItem?.full_address,
           is_default: formItem?.default,
+          city_id: formItem?.city_id,
         }
       : {
           name: "",
           phone: "",
           country_id: 233,
           district_id: null,
+          city_id: null,
           ward_id: null,
           full_address: "",
           is_default: false,
@@ -89,9 +92,9 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
     }
   };
   React.useEffect(() => {
-    if(formItem){
-      setDistrictId(formItem.district_id)
-    };
+    if (formItem) {
+      setDistrictId(formItem.district_id);
+    }
   }, [formItem]);
 
   React.useEffect(() => {
@@ -133,56 +136,61 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
                 maxLength={255}
               />
             </Form.Item>
-
-            <Form.Item
-              name="phone"
-              label={<b>Số điện thoại:</b>}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập số điện thoại",
-                },
-                {
-                  pattern: RegUtil.PHONE,
-                  message: "Số điện thoại chưa đúng định dạng",
-                },
-              ]}
-            >
-              <Input
-                placeholder="Nhập số điện thoại"
-                style={{ width: "100%" }}
-                minLength={9}
-                maxLength={15}
-              />
-            </Form.Item>
-
-            <Form.Item
-              label={<b>Quốc gia:</b>}
-              name="country_id"
-              initialValue={233}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn quốc gia",
-                },
-              ]}
-            >
-              <Select
-                placeholder="Quốc gia"
-                disabled
-                // onChange={handleChangeCountry}
-                showSearch
-                allowClear
-                optionFilterProp="children"
-              >
-                {countries.map((country: any) => (
-                  <Option key={country.id} value={country.id}>
-                    {country.name + ` - ${country.code}`}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-
+            <Row gutter={24}>
+              <Col span={12}>
+                <Form.Item
+                  name="phone"
+                  label={<b>Số điện thoại:</b>}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập số điện thoại",
+                    },
+                    {
+                      pattern: RegUtil.PHONE,
+                      message: "Số điện thoại chưa đúng định dạng",
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder="Nhập số điện thoại"
+                    style={{ width: "100%" }}
+                    minLength={9}
+                    maxLength={15}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label={<b>Quốc gia:</b>}
+                  name="country_id"
+                  initialValue={233}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn quốc gia",
+                    },
+                  ]}
+                >
+                  <Select
+                    placeholder="Quốc gia"
+                    disabled
+                    // onChange={handleChangeCountry}
+                    showSearch
+                    allowClear
+                    optionFilterProp="children"
+                  >
+                    {countries.map((country: any) => (
+                      <Option key={country.id} value={country.id}>
+                        {country.name + ` - ${country.code}`}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col span={12}>
             <Form.Item
               label={<b>Thành phố/Quận - Huyện:</b>}
               name="district_id"
@@ -207,7 +215,15 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
                 ))}
               </Select>
             </Form.Item>
-
+            </Col>
+            <Col span={12}>
+            <Form.Item label={<b>Thành phố:</b>} name="city_id" hidden>
+              <Input
+                placeholder="Nhập địa chỉ chi tiết"
+                style={{ width: "100%" }}
+                maxLength={255}
+              />
+            </Form.Item>
             <Form.Item
               label={<b>Phường/ Xã:</b>}
               name="ward_id"
@@ -232,7 +248,8 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
                 ))}
               </Select>
             </Form.Item>
-
+            </Col>
+            </Row>
             <Form.Item
               name="full_address"
               label={<b>Địa chỉ chi tiết:</b>}

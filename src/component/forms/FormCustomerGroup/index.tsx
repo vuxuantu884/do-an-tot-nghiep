@@ -5,11 +5,12 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
+import { RegUtil } from "utils/RegUtils";
 
 type FormValueType = {
   code: string;
   name?: string;
-  active?:boolean;
+  active?: boolean;
   note?: string;
 };
 
@@ -34,7 +35,7 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
           code: "",
           name: "",
           note: "",
-          active: true
+          active: true,
         };
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -63,24 +64,28 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
                   required: true,
                   message: "Vui lòng nhập tên nhóm khách hàng!",
                 },
-                { max: 255, message: "Không được nhập quá 255 ký tự!" },
+                { max: 254, message: "Không được nhập quá 255 ký tự!" },
+                {
+                  pattern: RegUtil.NO_ALL_SPACE,
+                  message: "Tên không được có khoảng trống ở đầu",
+                },
               ]}
             >
               <Input
                 placeholder="Nhập tên nhóm khách hàng"
                 style={{ width: "100%" }}
+                maxLength={255}
               />
             </Form.Item>
-          
             <Form.Item
               name="note"
               label="Mô tả"
-              rules={[{ max: 500, message: "Không được nhập quá 500 ký tự!" }]}
+              rules={[{ max: 499, message: "Không được nhập quá 500 ký tự!" }]}
             >
-              <Input.TextArea  
+              <Input.TextArea
+                maxLength={500}
                 rows={10}
                 placeholder="Nhập mô tả"
-
               />
             </Form.Item>
           </Col>
