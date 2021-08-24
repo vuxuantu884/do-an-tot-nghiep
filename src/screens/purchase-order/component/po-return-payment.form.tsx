@@ -67,25 +67,27 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
         </div>
       }
       extra={
-        <Item
-          style={{ display: "inline", verticalAlign: "middle" }}
-          shouldUpdate={(prev, current) =>
-            prev[POField.total_paid] !== current[POField.total_paid]
-          }
-        >
-          {({ getFieldValue }) => {
-            let total_paid = getFieldValue(POField.total_paid);
-            return (
-              <Checkbox
-                checked={showPayment}
-                disabled={!total_paid}
-                onChange={(e) => setShowPayment(e.target.checked)}
-              >
-                Yêu cầu nhà cung cấp hoàn tiền
-              </Checkbox>
-            );
-          }}
-        </Item>
+        showPayment && (
+          <Item
+            style={{ display: "inline", verticalAlign: "middle" }}
+            shouldUpdate={(prev, current) =>
+              prev[POField.total_paid] !== current[POField.total_paid]
+            }
+          >
+            {({ getFieldValue }) => {
+              let total_paid = getFieldValue(POField.total_paid);
+              return (
+                <Checkbox
+                  checked={showPayment}
+                  disabled={!total_paid}
+                  onChange={(e) => setShowPayment(e.target.checked)}
+                >
+                  Yêu cầu nhà cung cấp hoàn tiền
+                </Checkbox>
+              );
+            }}
+          </Item>
+        )
       }
     >
       <div className="padding-20">
