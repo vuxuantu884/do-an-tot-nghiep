@@ -38,8 +38,8 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
     history.replace(`${UrlConfig.PURCHASE_ORDER}/${id}`);
   }, [history, id]);
   const onFinish = useCallback(
-    (value: PurchaseOrder) => {
-      dispatch(POReturnAction(idNumber, value, onUpdateCall));
+    (values: PurchaseOrder) => {
+      dispatch(POReturnAction(idNumber, values, onUpdateCall));
     },
     [dispatch, idNumber, onUpdateCall]
   );
@@ -49,9 +49,9 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const onConfirmButton = useCallback(() => {
     formMain.validateFields().then((values) => {
       setLoading(true);
-      formMain.submit();
+      onFinish(values);
     });
-  }, [formMain]);
+  }, [formMain, onFinish]);
 
   const state: any = location.state;
   if (!state) return <Fragment></Fragment>;
@@ -81,7 +81,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
         form={formMain}
         initialValues={params}
         layout="vertical"
-        onFinish={onFinish}
+        // onFinish={onFinish}
       >
         <POSupplierForm
           showSupplierAddress={true}

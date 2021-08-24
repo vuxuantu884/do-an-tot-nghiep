@@ -201,7 +201,6 @@ const PODetailScreen: React.FC = () => {
     (index: number) => {
       switch (index) {
         case 1:
-          // console.log("huynvq::============>poData", poData, poData?.status);
           setConfirmDelete(true);
           break;
       }
