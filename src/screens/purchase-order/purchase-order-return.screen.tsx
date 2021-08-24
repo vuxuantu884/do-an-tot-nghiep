@@ -39,7 +39,8 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   }, [history, id]);
   const onFinish = useCallback(
     (value: PurchaseOrder) => {
-      dispatch(POReturnAction(idNumber, value, onUpdateCall));
+      let formValues = formMain.getFieldsValue(true);
+      dispatch(POReturnAction(idNumber, formValues, onUpdateCall));
     },
     [dispatch, idNumber, onUpdateCall]
   );
