@@ -41,7 +41,10 @@ import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import FormItem from "antd/lib/form/FormItem";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
+import {
+  AccountResponse,
+  AccountSearchQuery,
+} from "model/account/account.model";
 import { MenuAction } from "component/table/ActionButton";
 
 import {
@@ -108,83 +111,95 @@ const Customer = () => {
   const [columns, setColumn] = React.useState<
     Array<ICustomTableColumType<any>>
   >([
-    
     {
       title: "STT",
       key: "index",
-      render: (value:any, item:any, index:number) =>  <div>{index+1}</div>,
+      render: (value: any, item: any, index: number) => <div>{index + 1}</div>,
+      align: "center",
       visible: true,
-      width: "5%"
+      width: "5%",
     },
     {
       title: "Mã khách hàng",
       dataIndex: "code",
+      align: "center",
       visible: true,
       render: (value: string, i: any) => (
         <Link to={`/customers/${i.id}`}>{value}</Link>
       ),
-      width: "10%"
+      width: "10%",
     },
     {
       title: "Tên khách hàng",
       dataIndex: "full_name",
+      align: "center",
       visible: true,
-      width: "20%"
+      width: "20%",
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone",
+      align: "center",
       visible: true,
-      width: "15%"
+      width: "15%",
     },
     {
       title: "Giới tính",
       dataIndex: "gender",
-      render: (value:any, item:any) =>  <div>{LIST_GENDER?.filter(g => g.value == value)[0].name}</div>,
+      align: "center",
+      render: (value: any, item: any) => (
+        <div>{LIST_GENDER?.filter((g) => g.value == value)[0].name}</div>
+      ),
       visible: true,
-      width: "5%"
+      width: "5%",
     },
     {
       title: "Nhóm khách hàng",
       dataIndex: "customer_group",
+      align: "center",
       visible: true,
-      width: "15%"
+      width: "15%",
     },
     {
       title: "Thư điện tử",
       dataIndex: "email",
+      align: "center",
       visible: false,
-      width: "15%"
+      width: "15%",
     },
 
     {
       title: "Loại khách hàng",
       dataIndex: "customer_type",
+      align: "center",
       visible: false,
-      width: "15%"
+      width: "15%",
     },
     {
       title: "Nhân viên phụ trách",
       dataIndex: "responsible_staff",
       visible: true,
-      width: "15%"
+      width: "15%",
     },
     {
       title: "Hạng thẻ hiện tại",
       dataIndex: "customer_level",
+      align: "center",
       visible: true,
-      width: "15%"
+      width: "15%",
     },
-    
+
     {
       title: "Người tạo",
       dataIndex: "created_by",
+      align: "center",
       visible: false,
-      width: "15%"
+      width: "15%",
     },
     {
       title: "Ngày tạo",
       dataIndex: "created_date",
+      align: "center",
       visible: false,
       width: "15%",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
@@ -192,6 +207,7 @@ const Customer = () => {
     {
       title: "Ngày sinh",
       dataIndex: "birthday",
+      align: "center",
       visible: false,
       width: "15%",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
@@ -199,6 +215,7 @@ const Customer = () => {
     {
       title: "Ngày cưới",
       dataIndex: "wedding_date",
+      align: "center",
       visible: false,
       width: "15%",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
@@ -206,41 +223,48 @@ const Customer = () => {
     {
       title: "website/facebook",
       dataIndex: "website",
+      align: "center",
       visible: false,
       width: "15%",
     },
     {
       title: "Ngày kích hoạt thẻ",
       dataIndex: "",
+      align: "center",
       visible: false,
       width: "15%",
     },
     {
       title: "Ngày hết hạn thẻ",
       dataIndex: "",
+      align: "center",
       visible: false,
       width: "15%",
     },
     {
       title: "Cửa hàng kích hoạt",
       dataIndex: "",
+      align: "center",
       visible: false,
       width: "15%",
     },
     {
       title: "Mã số thẻ",
       dataIndex: "",
+      align: "center",
       visible: false,
       width: "15%",
     },
     {
       title: "Đơn vị",
       dataIndex: "company",
+      align: "center",
       visible: false,
       width: "15%",
     },
     {
       title: "Điểm hiện tại",
+      align: "center",
       dataIndex: "",
       visible: false,
       width: "15%",
@@ -348,7 +372,7 @@ const Customer = () => {
   };
 
   const initQueryAccount: AccountSearchQuery = {
-    info: ""
+    info: "",
   };
 
   // const AccountRenderSearchResult = (item: AccountResponse) => {
@@ -364,24 +388,25 @@ const Customer = () => {
   // };
   const [keySearchAccount, setKeySearchAccount] = React.useState("");
 
-  const [resultSearch, setResultSearch] = React.useState<PageResponse<AccountResponse> | false>(false);
+  const [resultSearch, setResultSearch] = React.useState<
+    PageResponse<AccountResponse> | false
+  >(false);
 
   const autoCompleteRef = React.createRef<RefSelectProps>();
 
   const AccountConvertResultSearch = React.useMemo(() => {
     let options: any[] = [];
-    if(resultSearch)
-    resultSearch.items.forEach((item: AccountResponse, index: number) => {
-      options.push({
-        label: item.code + " - " + item.full_name,
-        value: item.code + " - " + item.full_name,
+    if (resultSearch)
+      resultSearch.items.forEach((item: AccountResponse, index: number) => {
+        options.push({
+          label: item.code + " - " + item.full_name,
+          value: item.code + " - " + item.full_name,
+        });
       });
-    });
     return options;
   }, [dispatch, resultSearch]);
 
-
-const AccountChangeSearch = React.useCallback(
+  const AccountChangeSearch = React.useCallback(
     (value) => {
       setKeySearchAccount(value);
       initQueryAccount.info = value;
@@ -393,28 +418,31 @@ const AccountChangeSearch = React.useCallback(
   const SearchAccountSelect = React.useCallback(
     (value, o) => {
       let index: number = -1;
-      if(resultSearch){
-        console.log(resultSearch)
-      index = resultSearch.items.findIndex(
-        (accountResponse: AccountResponse) =>
-        accountResponse.id && accountResponse.id.toString() === value
-      );
-      if (index !== -1) {
-        console.log(index)
+      if (resultSearch) {
+        console.log(resultSearch);
+        index = resultSearch.items.findIndex(
+          (accountResponse: AccountResponse) =>
+            accountResponse.id && accountResponse.id.toString() === value
+        );
+        if (index !== -1) {
+          console.log(index);
 
-        setKeySearchAccount(resultSearch.items[index].code + "-" + resultSearch.items[index].full_name);
-        autoCompleteRef.current?.blur();
-
+          setKeySearchAccount(
+            resultSearch.items[index].code +
+              "-" +
+              resultSearch.items[index].full_name
+          );
+          autoCompleteRef.current?.blur();
+        }
       }
-    }
     },
-   [autoCompleteRef, dispatch, resultSearch]
-  
+    [autoCompleteRef, dispatch, resultSearch]
   );
 
-
   const onFinish = (value: CustomerSearchQuery) => {
-    value.responsible_staff_code = value.responsible_staff_code? value.responsible_staff_code.split(" - ")[0] : null
+    value.responsible_staff_code = value.responsible_staff_code
+      ? value.responsible_staff_code.split(" - ")[0]
+      : null;
     onSearch(value);
   };
 
@@ -422,9 +450,12 @@ const AccountChangeSearch = React.useCallback(
     history.push(`/customers/${option.key}`);
   };
 
-  const onSelectTable = React.useCallback((selectedRow: Array<CustomerResponse>) => {
-    setSelected(selectedRow);
-  }, []);
+  const onSelectTable = React.useCallback(
+    (selectedRow: Array<CustomerResponse>) => {
+      setSelected(selectedRow);
+    },
+    []
+  );
 
   const actions: Array<MenuAction> = [
     {
@@ -451,67 +482,60 @@ const AccountChangeSearch = React.useCallback(
         },
       ]}
       extra={
-        <>            
+        <>
           <ButtonCreate path={`/customers/create`} />
         </>
       }
     >
       <Card>
         <div className="padding-20">
-        <CustomFilter menu={actions}>
+          <CustomFilter menu={actions}>
             <Form onFinish={onFinish} initialValues={params} layout="inline">
-                  <Form.Item name="request" >
-                    <Input
-                      
-                      style={{width: "500px"}}
-                      prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
-                      placeholder="Tên khách hàng, mã khách hàng , số điện thoại, email"
-                    />
-                  </Form.Item>
-                 {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
-                  <Form.Item>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                    >
-                      Lọc
-                    </Button>
-                  </Form.Item>
+              <Form.Item name="request">
+                <Input
+                  style={{ width: "500px" }}
+                  prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                  placeholder="Tên khách hàng, mã khách hàng , số điện thoại, email"
+                />
+              </Form.Item>
+              {/* style={{ display: "flex", justifyContent: "flex-end" }}> */}
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Form.Item>
 
-                  <Form.Item>
-                    <Button onClick={openFilter}>Thêm bộ lọc</Button>
-                  </Form.Item>
-
-              
+              <Form.Item>
+                <Button onClick={openFilter}>Thêm bộ lọc</Button>
+              </Form.Item>
             </Form>
-            
           </CustomFilter>
-        
-          {/* <Card style={{ position: "relative" }}> */}
-            <CustomTable
-              isRowSelection
-              isLoading={tableLoading}
-              onSelectedChange={onSelectTable}
-              showColumnSetting={true}
-              scroll={{ x: 1080 }}
-              pagination={{
-                pageSize: data.metadata.limit,
-                total: data.metadata.total,
-                current: data.metadata.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }}
-              onShowColumnSetting={() => setShowSettingColumn(true)}
-              dataSource={data.items}
-              columns={columnFinal}
-              rowKey={(item: any) => item.id}
-            />
-            <Popup {...popup} />
-          </div>
-          </Card>
 
-        {visible && <CustomerAdd visible={visible} setVisible={setVisible} />}
+          {/* <Card style={{ position: "relative" }}> */}
+          <CustomTable
+            isRowSelection
+            isLoading={tableLoading}
+            onSelectedChange={onSelectTable}
+            showColumnSetting={true}
+            scroll={{ x: 1080 }}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(item: any) => item.id}
+          />
+          <Popup {...popup} />
+        </div>
+      </Card>
+
+      {visible && <CustomerAdd visible={visible} setVisible={setVisible} />}
 
       <BaseFilter
         onClearFilter={onClearFilterAdvanceClick}
@@ -551,25 +575,24 @@ const AccountChangeSearch = React.useCallback(
                 name="responsible_staff_code"
                 label={<b>Nhân viên phụ trách:</b>}
               >
-  
                 <AutoComplete
-              notFoundContent={
-                keySearchAccount.length >= 3
-                  ? "Không có bản ghi nào"
-                  : undefined
-              }
-              id="search_account"
-              value={keySearchAccount}
-              ref={autoCompleteRef}
-              onSelect={SearchAccountSelect}
-              onSearch={AccountChangeSearch}
-              options={AccountConvertResultSearch}
-            >
-              <Input
-                placeholder="Chọn nhân viên phụ trách"
-                // prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-              />
-            </AutoComplete>
+                  notFoundContent={
+                    keySearchAccount.length >= 3
+                      ? "Không có bản ghi nào"
+                      : undefined
+                  }
+                  id="search_account"
+                  value={keySearchAccount}
+                  ref={autoCompleteRef}
+                  onSelect={SearchAccountSelect}
+                  onSearch={AccountChangeSearch}
+                  options={AccountConvertResultSearch}
+                >
+                  <Input
+                    placeholder="Chọn nhân viên phụ trách"
+                    // prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+                  />
+                </AutoComplete>
               </Form.Item>
             </Col>
           </Row>
@@ -674,6 +697,5 @@ const AccountChangeSearch = React.useCallback(
     </ContentContainer>
   );
 };
-
 
 export default Customer;
