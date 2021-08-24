@@ -22,9 +22,8 @@ import {
 } from "model/response/order-processing-status.response";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
-import { useQuery } from "utils/useQuery";
 import { StyledComponent } from "./styles";
 
 const SettingOrderProcessingStatus: React.FC = () => {
@@ -34,6 +33,9 @@ const SettingOrderProcessingStatus: React.FC = () => {
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
+  const useQuery = () => {
+    return new URLSearchParams(useLocation().search);
+  };
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");

@@ -9,8 +9,8 @@ export const StyledComponent = styled.div`
       width: 100%;
     }
     .ant-col {
-      display: flex;
       align-items: flex-end;
+      display: flex;
     }
     label {
       font-weight: 500;
@@ -20,19 +20,19 @@ export const StyledComponent = styled.div`
     margin-bottom: 0;
   }
   form {
-    position: relative;
     padding-bottom: 150px;
+    position: relative;
   }
   .groupButtons {
-    position: fixed;
+    background: #fff;
     bottom: 0;
-    left: 240px;
-    right: 0px;
-    z-index: 983;
-    padding: 20px 20px;
     display: flex;
     justify-content: flex-end;
-    background: #fff;
+    left: 240px;
+    padding: 20px 20px;
+    position: fixed;
+    right: 0px;
+    z-index: 983;
     button {
       &:not(:last-child) {
         margin-right: 10px;

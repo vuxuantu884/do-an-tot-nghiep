@@ -21,9 +21,8 @@ import {
 } from "model/response/order/order-source.response";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
-import { useQuery } from "utils/useQuery";
 import iconChecked from "./images/iconChecked.svg";
 import { StyledComponent } from "./styles";
 
@@ -34,6 +33,9 @@ const OrderSources: React.FC = () => {
   const [listOrderSources, setListOrderSources] = useState<OrderSourceModel[]>(
     []
   );
+  const useQuery = () => {
+    return new URLSearchParams(useLocation().search);
+  };
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
