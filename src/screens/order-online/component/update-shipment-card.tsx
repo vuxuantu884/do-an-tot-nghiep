@@ -1495,7 +1495,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       padding: "0 25px",
                     }}
                   >
-                    Hủy giao hàng
+                    Hủy đơn giao
                   </Button>
                 )
               )}
