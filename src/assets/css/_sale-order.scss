@@ -1585,21 +1585,31 @@
 .orders-timeline-custom {
   .ant-collapse-header {
     width: 100%;
-    .orders-payment-item {
+    .orderPaymentItem {
       display: flex;
       justify-content: space-between;
-      .orders-payment-type {
-        display: flex;
-        flex-direction: column;
-        margin-left: 8px;
+      .amount {
+        font-weight: 500;
       }
-      .orders-payment-amount {
+      .date {
+        color: #737373;
+      }
+      .orderPaymentItem__left {
+        color: #222222;
+        display: flex;
+        // flex-direction: column;
+        margin-left: 8px;
+        width: 60%;
+        justify-content: space-between;
+      }
+
+      .orderPaymentItem__right {
+        width: 40%;
+        display: flex;
+        justify-content: flex-end;
         span {
           &:last-child {
-            padding-left: 300px;
-          }
-          &:first-child {
-            font-weight: 500;
+            padding-left: 30px;
           }
         }
       }

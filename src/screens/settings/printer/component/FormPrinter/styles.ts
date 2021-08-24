@@ -28,7 +28,7 @@ export const StyledComponent = styled.div`
     bottom: 0;
     left: 240px;
     right: 0px;
-    z-index: 9283;
+    z-index: 983;
     padding: 20px 20px;
     display: flex;
     justify-content: flex-end;

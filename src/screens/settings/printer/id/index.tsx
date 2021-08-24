@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { DEFAULT_FORM_VALUE } from "utils/Constants";
 import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
+import { useQuery } from "utils/useQuery";
 import FormPrinter from "../component/FormPrinter";
 import { StyledComponent } from "./styles";
 
@@ -24,9 +25,13 @@ function SinglePrinter() {
       type: "",
     });
 
-  const params = useParams<{ id: string }>();
-  const { id } = params;
+  const paramsId = useParams<{ id: string }>();
+  const { id } = paramsId;
   const [printerName, setPrinterName] = useState("");
+  const query = useQuery();
+  const [params, setParams] = useState({
+    "print-size": query.get("print-size") || "a4",
+  });
 
   useEffect(() => {
     const findPrinter = (printerType: string) => {
@@ -35,7 +40,7 @@ function SinglePrinter() {
       });
     };
     dispatch(
-      actionFetchPrinterDetail(+id, (data: PrinterModel) => {
+      actionFetchPrinterDetail(+id, params, (data: PrinterModel) => {
         setSinglePrinterContent(data);
         const printer = findPrinter(data.type);
         if (printer) {
@@ -43,7 +48,7 @@ function SinglePrinter() {
         }
       })
     );
-  }, [dispatch, id]);
+  }, [dispatch, id, params]);
 
   return (
     <StyledComponent>
@@ -67,7 +72,7 @@ function SinglePrinter() {
           },
         ]}
       >
-        <FormPrinter type="edit" formValue={singlePrinterContent} />
+        <FormPrinter type="edit" id={id} formValue={singlePrinterContent} />
       </ContentContainer>
     </StyledComponent>
   );
