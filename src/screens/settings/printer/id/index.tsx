@@ -1,30 +1,55 @@
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
-import { FormValueModel } from "model/editor/editor.model";
+import { actionFetchPrinterDetail } from "domain/actions/printer/printer.action";
+import { PrinterModel } from "model/response/printer.response";
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
+import { DEFAULT_FORM_VALUE } from "utils/Constants";
+import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
+import { useQuery } from "utils/useQuery";
 import FormPrinter from "../component/FormPrinter";
 import { StyledComponent } from "./styles";
 
 function SinglePrinter() {
+  const dispatch = useDispatch();
   const [singlePrinterContent, setSinglePrinterContent] =
-    useState<FormValueModel>({
-      tenMauIn: "",
-      chiNhanhApDung: "",
-      khoIn: "",
-      apDung: false,
-      formIn: "",
+    useState<PrinterModel>({
+      company: DEFAULT_FORM_VALUE.company,
+      company_id: DEFAULT_FORM_VALUE.company_id,
+      store_id: 0,
+      id: 0,
+      print_size: "",
+      default: false,
+      template: "",
+      type: "",
     });
 
+  const paramsId = useParams<{ id: string }>();
+  const { id } = paramsId;
+  const [printerName, setPrinterName] = useState("");
+  const query = useQuery();
+  const [params, setParams] = useState({
+    "print-size": query.get("print-size") || "a4",
+  });
+
   useEffect(() => {
-    const FAKE_SINGLE_PRINTER_FORM: FormValueModel = {
-      tenMauIn: "Đơn bán hàng 2",
-      chiNhanhApDung: "YODY Kho tổng 2",
-      khoIn: "Khổ in K80 (80x45 mm) 2",
-      apDung: true,
-      formIn: "{ten_cong_ty}{dia_chi_cong_ty}form2",
+    const findPrinter = (printerType: string) => {
+      return LIST_PRINTER_TYPES.find((singlePrinter) => {
+        return singlePrinter.value === printerType;
+      });
     };
-    setSinglePrinterContent(FAKE_SINGLE_PRINTER_FORM);
-  }, []);
+    dispatch(
+      actionFetchPrinterDetail(+id, params, (data: PrinterModel) => {
+        setSinglePrinterContent(data);
+        const printer = findPrinter(data.type);
+        if (printer) {
+          setPrinterName(printer.name);
+        }
+      })
+    );
+  }, [dispatch, id, params]);
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -43,11 +68,11 @@ function SinglePrinter() {
             path: UrlConfig.PRINTER,
           },
           {
-            name: "Mẫu in 1",
+            name: printerName,
           },
         ]}
       >
-        <FormPrinter type="edit" formValue={singlePrinterContent} />
+        <FormPrinter type="edit" id={id} formValue={singlePrinterContent} />
       </ContentContainer>
     </StyledComponent>
   );

@@ -380,7 +380,7 @@ const OrderDetail = () => {
                       </Col>
                       <Col span={12}>
                         <span className="text-field margin-right-40">
-                          Còn phải trả:
+                          Còn phải trả 222:
                         </span>
                         <b style={{ color: "red" }}>
                           {OrderDetail?.fulfillments &&
@@ -422,26 +422,24 @@ const OrderDetail = () => {
                                     showArrow={false}
                                     className="orders-timeline-custom success-collapse"
                                     header={
-                                      <div className="orders-payment-item">
-                                        <div
-                                          className="orders-payment-type"
-                                          style={{
-                                            color: "#222222",
-                                          }}
-                                        >
-                                          <b>{payment.payment_method}</b>
-                                          <span>{payment.reference}</span>
-                                          {payment.payment_method_id === 5 && (
-                                            <span>
-                                              {payment.amount / 1000} điểm
-                                            </span>
-                                          )}
-                                        </div>
-                                        <div className="orders-payment-amount">
-                                          <span>
+                                      <div className="orderPaymentItem">
+                                        <div className="orderPaymentItem__left">
+                                          <div>
+                                            <b>{payment.payment_method}</b>
+                                            <span>{payment.reference}</span>
+                                            {payment.payment_method_id ===
+                                              5 && (
+                                              <span>
+                                                {payment.amount / 1000} điểm
+                                              </span>
+                                            )}
+                                          </div>
+                                          <span className="amount">
                                             {formatCurrency(payment.amount)}
                                           </span>
-                                          <span style={{ color: "#737373" }}>
+                                        </div>
+                                        <div className="orderPaymentItem__right">
+                                          <span className="date">
                                             {ConvertUtcToLocalDate(
                                               payment.created_date,
                                               "DD/MM/YYYY HH:mm"
@@ -516,67 +514,56 @@ const OrderDetail = () => {
                                 showArrow={false}
                                 header={
                                   <>
-                                    <b
-                                      style={{
-                                        paddingLeft: "4px",
-                                        color: "#222222",
-                                      }}
-                                    >
-                                      COD
-                                      {OrderDetail.fulfillments[0].status !==
-                                      "shipped" ? (
-                                        <Tag
-                                          className="orders-tag orders-tag-warning"
-                                          style={{ marginLeft: 10 }}
-                                        >
-                                          Đang chờ thu
-                                        </Tag>
-                                      ) : (
-                                        <Tag
-                                          className="orders-tag orders-tag-success"
-                                          style={{
-                                            backgroundColor:
-                                              "rgba(39, 174, 96, 0.1)",
-                                            color: "#27AE60",
-                                            marginLeft: 10,
-                                          }}
-                                        >
-                                          Đã thu COD
-                                        </Tag>
-                                      )}
-                                    </b>
-                                    <b
-                                      style={{
-                                        marginLeft: "200px",
-                                        color: "#222222",
-                                      }}
-                                    >
-                                      {OrderDetail !== null &&
-                                      OrderDetail?.fulfillments
-                                        ? formatCurrency(
-                                            OrderDetail.fulfillments[0].shipment
-                                              ?.cod
-                                          )
-                                        : 0}
-                                    </b>
-                                  </>
-                                }
-                                extra={
-                                  <>
-                                    {OrderDetail?.fulfillments[0].status ===
-                                      "shipped" && (
-                                      <div>
-                                        <span
-                                          className="fixed-time text-field"
-                                          style={{ color: "#737373" }}
-                                        >
-                                          {ConvertUtcToLocalDate(
-                                            OrderDetail?.updated_date,
-                                            "DD/MM/YYYY HH:mm"
+                                    <div className="orderPaymentItem">
+                                      <div className="orderPaymentItem__left">
+                                        <b>
+                                          COD
+                                          {OrderDetail.fulfillments[0]
+                                            .status !== "shipped" ? (
+                                            <Tag
+                                              className="orders-tag orders-tag-warning"
+                                              style={{ marginLeft: 10 }}
+                                            >
+                                              Đang chờ thu
+                                            </Tag>
+                                          ) : (
+                                            <Tag
+                                              className="orders-tag orders-tag-success"
+                                              style={{
+                                                backgroundColor:
+                                                  "rgba(39, 174, 96, 0.1)",
+                                                color: "#27AE60",
+                                                marginLeft: 10,
+                                              }}
+                                            >
+                                              Đã thu COD
+                                            </Tag>
                                           )}
+                                        </b>
+                                        <span className="amount">
+                                          {OrderDetail !== null &&
+                                          OrderDetail?.fulfillments
+                                            ? formatCurrency(
+                                                OrderDetail.fulfillments[0]
+                                                  .shipment?.cod
+                                              )
+                                            : 0}
                                         </span>
                                       </div>
-                                    )}
+                                      <div className="orderPaymentItem__right">
+                                        {OrderDetail?.fulfillments[0].status ===
+                                          "shipped" && (
+                                          <div>
+                                            <span className="date">
+                                              {ConvertUtcToLocalDate(
+                                                OrderDetail?.updated_date,
+                                                "DD/MM/YYYY HH:mm"
+                                              )}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
                                   </>
                                 }
                                 key="100"
@@ -695,7 +682,13 @@ const OrderDetail = () => {
                         }
                         showArrow={false}
                         header={
-                          <div style={{ color: "#222222", paddingTop: 4, fontWeight: 500 }}>
+                          <div
+                            style={{
+                              color: "#222222",
+                              paddingTop: 4,
+                              fontWeight: 500,
+                            }}
+                          >
                             COD
                             <Tag
                               className="orders-tag orders-tag-warning"

@@ -1,10 +1,11 @@
 import { RouteMenu } from "model/other"
 import CustomerAdd from "screens/customer/add"
 import CustomerEdit from "screens/customer/edit";
+import CustomerDetail from "screens/customer/customer.detail"
 
 const extra: Array<RouteMenu> = [
     {
-        path: "/customer/create",
+        path: "/customers/create",
         exact: true,
         title: "Thêm khách hàng",
         icon: 'icon-customer',
@@ -17,11 +18,24 @@ const extra: Array<RouteMenu> = [
         object: null,
     },
     {
-        path: "/customer/:id",
+        path: "/customers/edit/:id",
+        exact: true,
+        title: "Sửa thông tin khách hàng",
+        icon: 'icon-customer',
+        component: CustomerEdit,
+        key: "11",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+    },
+    {
+        path: "/customers/:id",
         exact: true,
         title: "Chi tiết khách hàng",
         icon: 'icon-customer',
-        component: CustomerEdit,
+        component: CustomerDetail,
         key: "11",
         isShow: true,
         header: null,

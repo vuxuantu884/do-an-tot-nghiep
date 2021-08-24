@@ -18,7 +18,7 @@ export const StyledComponent = styled.div`
       }
     }
     &__content {
-      padding-top: 30px;
+      padding-top: 20px;
     }
   }
   .button {

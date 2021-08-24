@@ -333,6 +333,15 @@
         background-color: $primary-color;
         border-color: $primary-color;
       }
+      &.light {
+        background-color: $white;
+        &:hover,
+        &:focus,
+        &.active {
+          color: $text-body-color;
+          border-color: $primary-color;
+        }
+      }
     }
   }
   //Card
@@ -452,6 +461,16 @@
     &-focused {
       box-shadow: unset;
       border-color: rgba(42, 42, 134, 0.6);
+    }
+  }
+  &-timeline {
+    .ant-timeline-item {
+      &.active {
+        .ant-timeline-item-head {
+          background: $green;
+          border: none;
+        }
+      }
     }
   }
   //Tooltip

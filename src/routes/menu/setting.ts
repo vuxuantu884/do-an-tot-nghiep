@@ -54,6 +54,13 @@ const SettingSinglePrinterScreen = React.lazy(
   () => import("screens/settings/printer/id")
 );
 
+// ThirdPartyLogisticsIntegration: Kết nối hãng vận chuyển
+const ThirdPartyLogisticsIntegrationScreen = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration")
+);
+const SingleThirdPartyLogisticsIntegrationScreen = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration/id")
+);
 const setting: Array<RouteMenu> = [
   {
     path: UrlConfig.ACCOUNTS,
@@ -282,6 +289,35 @@ const setting: Array<RouteMenu> = [
     object: {
       pathCreate: `${UrlConfig.ORDER_PROCESSING_STATUS}/create`,
     },
+  },
+  {
+    path: UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION,
+    exact: true,
+    title: "Kết nối hãng vận chuyển",
+    subTitle: "Kết nối hãng vận chuyển",
+    icon: "icon-dot",
+    component: ThirdPartyLogisticsIntegrationScreen,
+    key: "submenu97",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/:id`,
+        exact: true,
+        title: "Chỉnh sửa nguồn đơn hàng",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen,
+        key: "thirdPartyLogisticsSingle",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore: ["create"],
+      },
+    ],
+    type: HEADER_TYPE.BUTTON_CREATE,
+    object: {},
   },
 ];
 

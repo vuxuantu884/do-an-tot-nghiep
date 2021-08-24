@@ -1,4 +1,4 @@
-import { getListStore } from 'service/core/store.service';
+import { getListStore, getListStoreSimple } from "service/core/store.service";
 import BaseResponse from "base/BaseResponse";
 import { YodyAction } from "base/BaseAction";
 import { showError } from "utils/ToastUtils";
@@ -17,7 +17,7 @@ import {
 } from "service/core/store.services";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { StoreCustomResponse } from 'model/response/order/order.response';
+import { StoreCustomResponse } from "model/response/order/order.response";
 
 function* storeGetAllSaga(action: YodyAction) {
   let { setData } = action.payload;
@@ -35,7 +35,28 @@ function* storeGetAllSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* storeGetListStoreSimpleAllSaga(action: YodyAction) {
+  let { setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<StoreResponse>> = yield call(
+      getListStoreSimple
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -59,7 +80,6 @@ function* storeSearchSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -82,7 +102,6 @@ function* storeRanksaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -90,12 +109,11 @@ function* storeRanksaga(action: YodyAction) {
 function* storeCreateSaga(action: YodyAction) {
   const { request, onCreateSuccess } = action.payload;
   try {
-    
     let response: BaseResponse<StoreResponse> = yield call(
       storesPostApi,
       request
     );
-    
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess(response.data);
@@ -108,7 +126,6 @@ function* storeCreateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -116,13 +133,12 @@ function* storeCreateSaga(action: YodyAction) {
 function* storeUpdateSaga(action: YodyAction) {
   const { id, request, onUpdateSuccess } = action.payload;
   try {
-    
     let response: BaseResponse<StoreResponse> = yield call(
       storesPutApi,
       id,
       request
     );
-    
+
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onUpdateSuccess(response.data);
@@ -135,7 +151,6 @@ function* storeUpdateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -143,10 +158,7 @@ function* storeUpdateSaga(action: YodyAction) {
 export function* storeDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
-    let response: BaseResponse<StoreResponse> = yield call(
-      storesDetailApi,
-      id
-    );
+    let response: BaseResponse<StoreResponse> = yield call(storesDetailApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -162,7 +174,6 @@ export function* storeDetailSaga(action: YodyAction) {
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
-
 
 export function* storeDetailCustomSaga(action: YodyAction) {
   const { id, setData } = action.payload;
@@ -190,10 +201,14 @@ export function* storeDetailCustomSaga(action: YodyAction) {
 
 export function* storeSaga() {
   yield takeLatest(StoreType.GET_LIST_STORE_REQUEST, storeGetAllSaga);
+  yield takeLatest(
+    StoreType.GET_LIST_STORE_REQUEST_SIMPLE,
+    storeGetListStoreSimpleAllSaga
+  );
   yield takeLatest(StoreType.STORE_SEARCH, storeSearchSaga);
   yield takeLatest(StoreType.STORE_RANK, storeRanksaga);
   yield takeLatest(StoreType.STORE_CREATE, storeCreateSaga);
   yield takeLatest(StoreType.STORE_DETAIL, storeDetailSaga);
-  yield takeLatest(StoreType.STORE_DETAIL_CUSTOM, storeDetailCustomSaga)
+  yield takeLatest(StoreType.STORE_DETAIL_CUSTOM, storeDetailCustomSaga);
   yield takeLatest(StoreType.STORE_UPDATE, storeUpdateSaga);
 }

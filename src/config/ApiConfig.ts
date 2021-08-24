@@ -11,6 +11,7 @@ const ApiConfig = {
   CUSTOMER: `${v1}/${AppConfig.CUSTOMER_SERVICE}`,
   AUTH: `${v1}/${AppConfig.AUTH_SERVICE}`,
   PURCHASE_ORDER: `${v1}/${AppConfig.PURCHASE_ORDER_SERVICE}`,
-}
+  IMPORT_EXPORT: `${v1}/${AppConfig.IMPORT_EXPORT_SERVICE}`,
+};
 
 export { ApiConfig };
