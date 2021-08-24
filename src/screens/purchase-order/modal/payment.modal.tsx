@@ -77,7 +77,6 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   );
 
   const onChangePaymentMethod = (e: any) => {
-    debugger;
     console.log("radio checked", e.target.value);
     if (e.target.value === PoPaymentMethod.BANK_TRANSFER) {
       setDisabledRef(false);
