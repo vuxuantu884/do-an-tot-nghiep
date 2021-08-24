@@ -1056,7 +1056,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                     backgroundColor: "rgba(226, 67, 67, 0.1)",
                                   }}
                                 >
-                                  Hủy giao hàng - Đã nhận hàng
+                                  Hủy đơn giao - Đã nhận hàng
                                 </Tag>
                               )}
                             {fulfillment.status_before_cancellation ===
@@ -1070,7 +1070,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                     backgroundColor: "rgba(226, 67, 67, 0.1)",
                                   }}
                                 >
-                                  Hủy giao hàng - Chưa nhận hàng
+                                  Hủy đơn giao - Chưa nhận hàng
                                 </Tag>
                               )}
                             {fulfillment.status_before_cancellation ===
@@ -1084,7 +1084,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                                     backgroundColor: "rgba(226, 67, 67, 0.1)",
                                   }}
                                 >
-                                  Hủy giao hàng - Đã nhận hàng
+                                  Hủy đơn giao - Đã nhận hàng
                                 </Tag>
                               )}
                           </div>
@@ -1597,7 +1597,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       padding: "0 25px",
                     }}
                   >
-                    Hủy giao hàng
+                    Hủy đơn giao
                   </Button>
                 )
               )}
