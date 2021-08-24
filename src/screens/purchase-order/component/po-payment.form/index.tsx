@@ -266,7 +266,6 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                           percent = Math.round((total_paid / total) * 100);
                         }
 
-                        debugger;
                         return (
                           <div>
                             <Progress

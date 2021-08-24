@@ -59,7 +59,7 @@ const POReturnList: React.FC<POReturnListProps> = (
       className="po-form margin-top-20"
       title={
         <div className="d-flex">
-          <span className="title-card">Trả hàng</span>
+          <span className="title-card">Hoàn trả</span>
         </div>
       }
       extra={
@@ -77,7 +77,7 @@ const POReturnList: React.FC<POReturnListProps> = (
           className="create-button-custom ant-btn-outline fixed-button"
           icon={<AiOutlinePlus size={16} />}
         >
-          Tạo trả hàng
+          Tạo hoàn trả
         </Button>
       }
     >

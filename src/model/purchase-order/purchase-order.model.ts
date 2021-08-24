@@ -36,6 +36,7 @@ export interface PurchaseOrder extends BaseObject {
   total: number;
   total_paid: number;
   total_refunds: number;
+  receipt_quantity: number;
   status: string;
   financial_status: string;
   receive_status: string;

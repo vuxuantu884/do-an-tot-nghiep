@@ -1,12 +1,12 @@
-.page-filter{
+.page-filter {
   padding: 20px 0px 20px 0px;
 
-  &-heading{
+  &-heading {
     display: flex;
     justify-content: space-between;
   }
 
-  &-content{
+  &-content {
     margin-top: 10px;
   }
   .action-button {
@@ -33,6 +33,8 @@
       color: $primary-color;
       opacity: 0.5;
     }
+    &.ant-btn-primary {
+      color: white;
+    }
   }
 }
-

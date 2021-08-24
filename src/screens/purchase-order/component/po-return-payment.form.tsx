@@ -18,6 +18,7 @@ import CustomDatepicker from "component/custom/date-picker.custom";
 import { POField } from "model/purchase-order/po-field";
 
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
+import EmptyPlaceholder from "./EmptyPlaceholder";
 import moment from "moment";
 
 type POReturnPaymentFormProps = {
@@ -31,7 +32,6 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
 ) => {
   const { formMain } = props;
   const [payments, setPayments] = useState<Array<PurchasePayments>>([]);
-  const [showPayment, setShowPayment] = useState(false);
   const [disabledRef, setDisabledRef] = useState(false);
   const onChangePaymentMethod = (e: any) => {
     if (e.target.value === PoPaymentMethod.BANK_TRANSFER) {
@@ -65,37 +65,8 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
           <span className="title-card">Nhà cung cấp hoàn tiền</span>
         </div>
       }
-      extra={
-        <Item
-          style={{ display: "inline", verticalAlign: "middle" }}
-          shouldUpdate={(prev, current) =>
-            prev[POField.total_paid] !== current[POField.total_paid]
-          }
-        >
-          {({ getFieldValue }) => {
-            let total_paid = getFieldValue(POField.total_paid);
-            return (
-              <Checkbox
-                checked={showPayment}
-                disabled={!total_paid}
-                onChange={(e) => setShowPayment(e.target.checked)}
-              >
-                Yêu cầu nhà cung cấp hoàn tiền
-              </Checkbox>
-            );
-          }}
-        </Item>
-      }
     >
       <div className="padding-20">
-        <Row>
-          <Col span={12}>
-            Kho nhận hàng: <strong>Thanh toán 30 ngày</strong>
-          </Col>
-          <Col span={12}>
-            Diễn giải: <strong>abc</strong>
-          </Col>
-        </Row>
         <Item
           shouldUpdate={(prev, current) =>
             prev[POField.total_paid] !== current[POField.total_paid] ||
@@ -103,126 +74,158 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
           }
         >
           {({ getFieldValue }) => {
-            let total_paid = getFieldValue(POField.total_paid);
-            let total = getFieldValue(POField.total);
-            return (
-              <POProgressView
-                remainTitle={"Còn phải trả"}
-                receivedTitle={"ĐÃ NHẬN"}
-                received={total_paid}
-                total={total}
-                extra={
-                  <div>
-                    <CheckCircleOutlined
-                      style={{
-                        fontSize: "16px",
-                        color: "#27AE60",
-                        marginRight: 4,
-                      }}
-                    />
-                    Đã thanh toán: <strong>{total_paid}</strong>
-                  </div>
-                }
-              />
-            );
+            const total_paid = getFieldValue(POField.total_paid);
+            if (total_paid && total_paid > 0) {
+              return (
+                <Fragment>
+                  <Row>
+                    <Col span={12}>
+                      Kho nhận hàng: <strong>Thanh toán 30 ngày</strong>
+                    </Col>
+                    <Col span={12}>
+                      Diễn giải: <strong>abc</strong>
+                    </Col>
+                  </Row>
+                  <Item
+                    shouldUpdate={(prev, current) =>
+                      prev[POField.total_paid] !==
+                        current[POField.total_paid] ||
+                      prev[POField.total] !== current[POField.total]
+                    }
+                  >
+                    {({ getFieldValue }) => {
+                      let total_paid = getFieldValue(POField.total_paid);
+                      let total = getFieldValue(POField.total);
+                      return (
+                        <POProgressView
+                          remainTitle={"Còn phải trả"}
+                          receivedTitle={"ĐÃ NHẬN"}
+                          received={total_paid}
+                          total={total}
+                          extra={
+                            <div>
+                              <CheckCircleOutlined
+                                style={{
+                                  fontSize: "16px",
+                                  color: "#27AE60",
+                                  marginRight: 4,
+                                }}
+                              />
+                              Đã thanh toán: <strong>{total_paid}</strong>
+                            </div>
+                          }
+                        />
+                      );
+                    }}
+                  </Item>
+                  <Row gutter={24} className="margin-top-20">
+                    <List name="payments">
+                      {(fields) =>
+                        fields.map((field) => (
+                          <Fragment key={field.key}>
+                            <Col xs={24} lg={12}>
+                              <Item
+                                rules={[
+                                  {
+                                    required: true,
+                                    message:
+                                      "Vui lòng chọn phương thức thanh toán",
+                                  },
+                                ]}
+                                label="Phương thức thanh toán"
+                                name={[field.name, "payment_method_code"]}
+                              >
+                                <Radio.Group onChange={onChangePaymentMethod}>
+                                  <Radio
+                                    value={PoPaymentMethod.BANK_TRANSFER}
+                                    key={PoPaymentMethod.BANK_TRANSFER}
+                                  >
+                                    Chuyển khoản
+                                  </Radio>
+                                  <Radio
+                                    value={PoPaymentMethod.CASH}
+                                    key={PoPaymentMethod.CASH}
+                                  >
+                                    Tiền mặt
+                                  </Radio>
+                                </Radio.Group>
+                              </Item>
+                            </Col>
+                            <Col xs={24} lg={12}>
+                              <Item
+                                name={[field.name, "transaction_date"]}
+                                label="Ngày thanh toán"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Vui lòng nhập ngày thanh toán",
+                                  },
+                                ]}
+                              >
+                                <CustomDatepicker
+                                  disableDate={(date) =>
+                                    date <= moment().startOf("days")
+                                  }
+                                  style={{ width: "100%" }}
+                                  placeholder="dd/mm/yyyy"
+                                />
+                              </Item>
+                            </Col>
+                            <Col xs={24} lg={12}>
+                              <Item
+                                name={[field.name, "amount"]}
+                                label="Số tiền thanh toán"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Vui lòng nhập số tiền thanh toán",
+                                  },
+                                ]}
+                              >
+                                <NumberInput
+                                  format={(a: string) => formatCurrency(a)}
+                                  replace={(a: string) =>
+                                    replaceFormatString(a)
+                                  }
+                                  min={0}
+                                  default={0}
+                                  placeholder="Nhập số tiền cần thanh toán"
+                                />
+                              </Item>
+                            </Col>
+                            <Col xs={24} lg={12}>
+                              <Item
+                                name={[field.name, "reference"]}
+                                label="Số tham chiếu"
+                              >
+                                <Input
+                                  placeholder="Nhập số tham chiếu"
+                                  disabled={disabledRef}
+                                  maxLength={255}
+                                />
+                              </Item>
+                            </Col>
+                            <Col xs={24} lg={24}>
+                              <Item name={[field.name, "note"]} label="Ghi chú">
+                                <Input
+                                  maxLength={255}
+                                  placeholder="Nhập ghi chú"
+                                />
+                              </Item>
+                            </Col>
+                          </Fragment>
+                        ))
+                      }
+                    </List>
+                  </Row>
+                </Fragment>
+              );
+            } else
+              return (
+                <EmptyPlaceholder text="Không có thanh toán để hoàn trả" />
+              );
           }}
         </Item>
-        {showPayment && (
-          <Row gutter={24} className="margin-top-20">
-            <List name="payments">
-              {(fields) =>
-                fields.map((field) => (
-                  <Fragment key={field.key}>
-                    <Col xs={24} lg={12}>
-                      <Item
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn phương thức thanh toán",
-                          },
-                        ]}
-                        label="Phương thức thanh toán"
-                        name={[field.name, "payment_method_code"]}
-                      >
-                        <Radio.Group onChange={onChangePaymentMethod}>
-                          <Radio
-                            value={PoPaymentMethod.BANK_TRANSFER}
-                            key={PoPaymentMethod.BANK_TRANSFER}
-                          >
-                            Chuyển khoản
-                          </Radio>
-                          <Radio
-                            value={PoPaymentMethod.CASH}
-                            key={PoPaymentMethod.CASH}
-                          >
-                            Tiền mặt
-                          </Radio>
-                        </Radio.Group>
-                      </Item>
-                    </Col>
-                    <Col xs={24} lg={12}>
-                      <Item
-                        name={[field.name, "transaction_date"]}
-                        label="Ngày thanh toán"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập ngày thanh toán",
-                          },
-                        ]}
-                      >
-                        <CustomDatepicker
-                          disableDate={(date) =>
-                            date <= moment().startOf("days")
-                          }
-                          style={{ width: "100%" }}
-                          placeholder="dd/mm/yyyy"
-                        />
-                      </Item>
-                    </Col>
-                    <Col xs={24} lg={12}>
-                      <Item
-                        name={[field.name, "amount"]}
-                        label="Số tiền thanh toán"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập số tiền thanh toán",
-                          },
-                        ]}
-                      >
-                        <NumberInput
-                          format={(a: string) => formatCurrency(a)}
-                          replace={(a: string) => replaceFormatString(a)}
-                          min={0}
-                          default={0}
-                          placeholder="Nhập số tiền cần thanh toán"
-                        />
-                      </Item>
-                    </Col>
-                    <Col xs={24} lg={12}>
-                      <Item
-                        name={[field.name, "reference"]}
-                        label="Số tham chiếu"
-                      >
-                        <Input
-                          placeholder="Nhập số tham chiếu"
-                          disabled={disabledRef}
-                          maxLength={255}
-                        />
-                      </Item>
-                    </Col>
-                    <Col xs={24} lg={24}>
-                      <Item name={[field.name, "note"]} label="Ghi chú">
-                        <Input maxLength={255} placeholder="Nhập ghi chú" />
-                      </Item>
-                    </Col>
-                  </Fragment>
-                ))
-              }
-            </List>
-          </Row>
-        )}
       </div>
     </Card>
   );
