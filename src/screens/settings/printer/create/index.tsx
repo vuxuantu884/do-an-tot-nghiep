@@ -7,7 +7,7 @@ const SettingCreatePrinter: React.FC = () => {
   return (
     <StyledComponent>
       <ContentContainer
-        title="Xử lý đơn hàng"
+        title="Thêm mới mẫu in"
         breadcrumb={[
           {
             name: "Tổng quan",

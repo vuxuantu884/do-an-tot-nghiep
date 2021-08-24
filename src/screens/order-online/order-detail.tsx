@@ -380,7 +380,7 @@ const OrderDetail = () => {
                       </Col>
                       <Col span={12}>
                         <span className="text-field margin-right-40">
-                          Còn phải trả 222:
+                          Còn phải trả:
                         </span>
                         <b style={{ color: "red" }}>
                           {OrderDetail?.fulfillments &&

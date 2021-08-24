@@ -17,7 +17,6 @@ import {
   LIST_PRINTER_SIZES,
   LIST_PRINTER_TYPES,
 } from "utils/Printer.constants";
-import { useQuery } from "utils/useQuery";
 import Preview from "../preview";
 import { StyledComponent } from "./styles";
 
@@ -38,17 +37,12 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
   const [htmlContent, setHtmlContent] = useState("");
-  // const [isEditorLoad, setIsEditorLoad] = useState(true);
+  const [isShowEditor, setIsShowEditor] = useState(isEdit ? false : true);
   const [listStores, setListStores] = useState<StoreType>([]);
   const [previewHeaderHeight, setPreviewHeaderHeight] = useState(108);
   const [selectedPrintSize, setSelectedPrintSize] = useState("");
   const componentRef = useRef(null);
   const history = useHistory();
-
-  const query = useQuery();
-  const [params, setParams] = useState({
-    "print-size": query.get("print-size") || "a4",
-  });
 
   const handleOnChangeEditor = (value: string) => {
     setHtmlContent(value);
@@ -133,14 +127,14 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             type: formValue.type,
           }
         : {
-            company: "",
-            company_id: 0,
+            company: null,
+            company_id: null,
             default: false,
-            print_size: "",
-            store: "",
-            store_id: 0,
-            template: "",
-            type: "",
+            print_size: null,
+            store: null,
+            store_id: null,
+            template: null,
+            type: null,
           };
     return result;
   }, [isEdit, formValue]);
@@ -162,9 +156,12 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     }
   };
 
+  const onChangeStoreId = (value: string) => {
+    history.push(`${UrlConfig.PRINTER}/${id}?store-id=${value}`);
+  };
+
   const handleSubmitForm = () => {
     const formComponentValue = form.getFieldsValue();
-    console.log("formComponentValue", formComponentValue);
     dispatch(actionCreatePrinter(formComponentValue));
   };
 
@@ -238,6 +235,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                       .toLowerCase()
                       .indexOf(input.toLowerCase()) >= 0
                   }
+                  onChange={onChangeStoreId}
                 >
                   <Select.Option value={10000}>Tất cả cửa hàng</Select.Option>
                   {sprintConfigure.listStores &&
@@ -278,28 +276,30 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           </Row>
         </Card>
         <Row gutter={20}>
-          <Col span={12}>
-            <Card style={{ padding: "15px 15px", height: "100%" }}>
-              {/* <Editor onChange={handleOnChangeEditor} /> */}
-              {/* <CkEditor onChange={handleOnChangeEditor} /> */}
-              <React.Fragment>
-                {/* <Input hidden /> */}
-                {/* {isEditorLoad && selectedPrintSize && ( */}
-                {(!isEdit || selectedPrintSize) && (
-                  <Form.Item name="template">
-                    <Editor
-                      onChange={handleOnChangeEditor}
-                      initialHtmlContent={htmlContent}
-                      listKeywords={FAKE_WORDS}
-                      selectedPrintSize={selectedPrintSize}
-                      previewHeaderHeight={handleEditorToolbarHeight}
-                    />
-                  </Form.Item>
-                )}
-              </React.Fragment>
-            </Card>
-          </Col>
-          <Col span={12}>
+          {(isShowEditor || !isEdit) && (
+            <Col span={12}>
+              <Card style={{ padding: "15px 15px", height: "100%" }}>
+                {/* <Editor onChange={handleOnChangeEditor} /> */}
+                {/* <CkEditor onChange={handleOnChangeEditor} /> */}
+                <React.Fragment>
+                  {/* <Input hidden /> */}
+                  {/* {isEditorLoad && selectedPrintSize && ( */}
+                  {(!isEdit || selectedPrintSize) && (
+                    <Form.Item name="template">
+                      <Editor
+                        onChange={handleOnChangeEditor}
+                        initialHtmlContent={htmlContent}
+                        listKeywords={FAKE_WORDS}
+                        selectedPrintSize={selectedPrintSize}
+                        previewHeaderHeight={handleEditorToolbarHeight}
+                      />
+                    </Form.Item>
+                  )}
+                </React.Fragment>
+              </Card>
+            </Col>
+          )}
+          <Col span={isShowEditor || !isEdit ? 12 : 24}>
             <Card style={{ padding: "15px 15px", height: "100%" }}>
               <div className="printContent" ref={componentRef}>
                 <Preview
@@ -307,24 +307,30 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                   listKeywords={FAKE_WORDS}
                   listProductKeywords={FAKE_PRODUCT_WORDS}
                   previewHeaderHeight={previewHeaderHeight}
+                  isShowEditor={isShowEditor}
+                  onChangeShowEditor={(isShow: boolean) => {
+                    setIsShowEditor(isShow);
+                  }}
                 />
               </div>
             </Card>
           </Col>
         </Row>
-        <div className="groupButtons">
-          <Button>
-            <Link to={`${UrlConfig.PRINTER}`}>Thoát</Link>
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => {
-              handleSubmitForm();
-            }}
-          >
-            {isEdit ? "Lưu" : "Thêm mới"}
-          </Button>
-        </div>
+        {(isShowEditor || !isEdit) && (
+          <div className="groupButtons">
+            <Button>
+              <Link to={`${UrlConfig.PRINTER}`}>Thoát</Link>
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                handleSubmitForm();
+              }}
+            >
+              {isEdit ? "Lưu" : "Thêm mới"}
+            </Button>
+          </div>
+        )}
       </Form>
     </StyledComponent>
   );

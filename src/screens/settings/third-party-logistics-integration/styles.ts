@@ -18,5 +18,8 @@ export const StyledComponent = styled.div`
       font-size: 1em;
       font-weight: bold;
     }
+    &__logo {
+      margin-bottom: 15px;
+    }
   }
 `;
