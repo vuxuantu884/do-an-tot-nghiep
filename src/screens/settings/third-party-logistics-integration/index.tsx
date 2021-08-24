@@ -12,16 +12,34 @@ import { Link } from "react-router-dom";
 
 const ThirdPartyLogisticsIntegration: React.FC = () => {
   const listThirdPartyLogistics = [
-    { id: 1, name: "Giao hàng nhanh", image: IconHVC1, isConnect: false },
-    { id: 2, name: "Hãng DHL", image: IconHVC2, isConnect: true },
-    { id: 3, name: "Giao hàng tiết kiệm", image: IconHVC3, isConnect: false },
-    { id: 4, name: "Giao hàng nhanh", image: IconHVC1, isConnect: true },
-    { id: 5, name: "Hãng DHL", image: IconHVC2, isConnect: false },
-    { id: 6, name: "Giao hàng tiết kiệm", image: IconHVC3, isConnect: false },
-    { id: 7, name: "Giao hàng nhanh", image: IconHVC1, isConnect: false },
-    { id: 8, name: "Hãng DHL", image: IconHVC2, isConnect: false },
-    { id: 9, name: "Giao hàng tiết kiệm", image: IconHVC3, isConnect: false },
-    // { id: 10, name: "Giao hàng nhanh", image: IconHVC1, isConnect: false },
+    {
+      id: 1,
+      slug: "giao-hang-nhanh",
+      name: "Giao hàng nhanh",
+      image: IconHVC1,
+      isConnect: true,
+    },
+    {
+      id: 2,
+      slug: "giao-hang-nhanh",
+      name: "Hãng DHL",
+      image: IconHVC2,
+      isConnect: true,
+    },
+    {
+      id: 3,
+      slug: "giao-hang-nhanh",
+      name: "Giao hàng tiết kiệm",
+      image: IconHVC3,
+      isConnect: false,
+    },
+    {
+      id: 4,
+      slug: "giao-hang-nhanh",
+      name: "Giao hàng nhanh",
+      image: IconHVC1,
+      isConnect: true,
+    },
   ];
   return (
     <StyledComponent>
@@ -65,7 +83,7 @@ const ThirdPartyLogisticsIntegration: React.FC = () => {
                         {single.isConnect ? (
                           <Button>
                             <Link
-                              to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.id}`}
+                              to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.slug}`}
                             >
                               <img src={IconEdit} alt="" />
                               Sửa

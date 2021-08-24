@@ -58,8 +58,9 @@ const SettingSinglePrinterScreen = React.lazy(
 const ThirdPartyLogisticsIntegrationScreen = React.lazy(
   () => import("screens/settings/third-party-logistics-integration")
 );
-const SingleThirdPartyLogisticsIntegrationScreen = React.lazy(
-  () => import("screens/settings/third-party-logistics-integration/id")
+const SingleThirdPartyLogisticsIntegrationScreen_GiaoHangNhanh = React.lazy(
+  () =>
+    import("screens/settings/third-party-logistics-integration/giao-hang-nhanh")
 );
 const setting: Array<RouteMenu> = [
   {
@@ -302,12 +303,12 @@ const setting: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/:id`,
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/giao-hang-nhanh`,
         exact: true,
-        title: "Chỉnh sửa nguồn đơn hàng",
+        title: "Giao hàng nhanh",
         icon: "icon-dot",
-        component: SingleThirdPartyLogisticsIntegrationScreen,
-        key: "thirdPartyLogisticsSingle",
+        component: SingleThirdPartyLogisticsIntegrationScreen_GiaoHangNhanh,
+        key: "giao-hang-nhanh",
         isShow: true,
         header: null,
         subMenu: [],
