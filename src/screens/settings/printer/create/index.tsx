@@ -1,8 +1,5 @@
-import { PlusOutlined } from "@ant-design/icons";
-import { Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
-import { Link } from "react-router-dom";
 import FormPrinter from "../component/FormPrinter";
 import { StyledComponent } from "./styles";
 

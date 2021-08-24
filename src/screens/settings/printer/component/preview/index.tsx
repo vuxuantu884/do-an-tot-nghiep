@@ -3,13 +3,13 @@ import {
   listKeyWordsModel,
   PrintPreviewModel,
 } from "model/editor/editor.model";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import ReactToPrint from "react-to-print";
 import IconPrintHover from "./images/iconPrintHover.svg";
 import { StyledComponent } from "./styles";
 
 const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
-  const { htmlContent, listKeyWords } = props;
+  const { htmlContent, listKeyWords, previewHeaderHeight } = props;
   // console.log("htmlContent", htmlContent);
   const printElementRef = useRef(null);
 
@@ -44,7 +44,14 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
     <StyledComponent>
       <div className="preview">
         <div className="preview__header">
-          <div className="preview__header-inner">
+          <div
+            className="preview__header-inner"
+            style={
+              document.body.clientWidth > 1280
+                ? { height: previewHeaderHeight }
+                : {}
+            }
+          >
             <h3 className="preview__header-title">Bản xem trước</h3>
             <ReactToPrint
               trigger={() => (
@@ -61,7 +68,6 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
         </div>
         <div className="preview__content printContent" ref={printElementRef}>
           <div
-            id="divcontents"
             dangerouslySetInnerHTML={{
               __html: renderHtml(htmlContent),
             }}
