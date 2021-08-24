@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Card } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -8,25 +9,9 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch, useSelector } from "react-redux";
 // import ProductFilter from "component/filter/product.filter";
 import OrderFilter from "component/filter/order.filter";
-import { searchVariantsRequestAction, variantUpdateAction } from "domain/actions/product/products.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import {
-  VariantImage,
-  VariantResponse,
-  VariantSearchQuery,
-  VariantUpdateRequest,
-} from "model/product/product.model";
-import { CountryResponse } from "model/content/country.model";
-import { ColorResponse } from "model/product/color.model";
-import { SupplierResponse } from "model/core/supplier.model";
-import { CountryGetAllAction } from "domain/actions/content/content.action";
-import { listColorAction } from "domain/actions/product/color.action";
-import { ColorSearchQuery } from "model/product/color.model";
-import { SizeResponse } from "model/product/size.model";
-import { sizeGetAll } from "domain/actions/product/size.action";
-import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
-import { AccountGetListAction } from "domain/actions/account/account.action";
+import { OrderFulfillmentsModel, OrderModel, OrderPaymentModel, OrderSearchQuery } from "model/order/order.model";
 import {
   AccountResponse,
   AccountSearchQuery,
@@ -36,6 +21,7 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { getListOrderAction } from "domain/actions/order/order.action";
 
 const actions: Array<MenuAction> = [
   {
@@ -48,57 +34,78 @@ const actions: Array<MenuAction> = [
   },
 ];
 
-const initQuery: VariantSearchQuery = {
-  info: "",
-  barcode: "",
-  status: "",
-  brand: "",
-  made_in: "",
-  size: "",
-  main_color: "",
-  color: "",
-  supplier: "",
+const initQuery: OrderSearchQuery = {
+  page: 0,
+  limit: 0,
+  sort_type: "",
+  sort_column: "",
+  code: "",
+  customer: "",
+  store_address: "",
+  source: "",
+  issued_on_min: "",
+  issued_on_max: "",
+  issued_on_predefined: "",
+  finalized_on_min: "",
+  finalized_on_max: "",
+  finalized_on_predefined: "",
+  ship_on_min: "",
+  ship_on_max: "",
+  ship_on_predefined: "",
+  completed_on_min: "",
+  completed_on_max: "",
+  completed_on_predefined: "",
+  cancelled_on_min: "",
+  cancelled_on_max: "",
+  cancelled_on_predefined: "",
+  order_status: [
+    ""
+  ],
+  fulfillment_status: [
+    ""
+  ],
+  payment_status: [
+    ""
+  ],
+  return_status: [
+    ""
+  ],
+  account: "",
+  assignee: "",
+  price_min: 0,
+  price_max: 0,
+  payment_method_ids: [
+    0
+  ],
+  ship_by: "",
+  note: "",
+  customer_note: "",
+  tags: "",
+  reference_code: ""
 };
 
 const initAccountQuery: AccountSearchQuery = {
   department_ids: [4],
 };
 
-const initMainColorQuery: ColorSearchQuery = {
-  is_main_color: 1,
-};
-const initColorQuery: ColorSearchQuery = {
-  is_main_color: 0,
-};
-
-var variantResponse: VariantResponse|null = null;
-
 const ListOrderScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
-  const listBrands = useSelector((state: RootReducerType) => {
-    return state.bootstrapReducer.data?.brand;
-  });
+ 
   const listStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.variant_status;
   });
   const [tableLoading, setTableLoading] = useState(true);
   const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  const [listCountry, setCountry] = useState<Array<CountryResponse>>();
-  const [listMainColor, setMainColor] = useState<Array<ColorResponse>>();
-  const [listColor, setColor] = useState<Array<ColorResponse>>();
-  const [listSize, setSize] = useState<Array<SizeResponse>>();
-  const [listSupplier, setSupplier] = useState<Array<SupplierResponse>>();
-  const [listMerchandiser, setMarchandiser] =
     useState<Array<AccountResponse>>();
-  let dataQuery: VariantSearchQuery = {
+  let dataQuery: OrderSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
   };
-  let [params, setPrams] = useState<VariantSearchQuery>(dataQuery);
-  const [data, setData] = useState<PageResponse<VariantResponse>>({
+  let [params, setPrams] = useState<OrderSearchQuery>(dataQuery);
+  const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 30,
       page: 1,
@@ -107,10 +114,10 @@ const ListOrderScreen: React.FC = () => {
     items: [],
   });
 
-  const [columns, setColumn]  = useState<Array<ICustomTableColumType<VariantResponse>>>([
+  const [columns, setColumn]  = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
       title: "ID đơn hàng",
-      dataIndex: "sku",
+      dataIndex: "id",
       visible: true,
     },
     {
@@ -119,28 +126,27 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "color",
+      title: "Sản phẩm",
+      // dataIndex: "items",
       visible: true,
     },
     {
-      title: "Khu vực",
-      dataIndex: "size",
+      title: "Khách phải trả",
+      dataIndex: "total_line_amount_after_line_discount",
       visible: true,
     },
     {
-      title: "Kho cửa hàng",
-      dataIndex: "size",
-      visible: true,
-    },
-    {
-      title: "Nguồn đơn hàng",
-      dataIndex: "size",
+      title: "Hình thức vận chuyển",
+      dataIndex: "fulfillments",
+      render: (fulfillments: Array<OrderFulfillmentsModel>) => (
+        123
+        // fulfillments && fulfillments.length ? fulfillments[0].shipment.delivery_service_provider_id : null
+      ),
       visible: true,
     },
     {
       title: "Trạng thái đơn",
-      dataIndex: "inventory",
+      dataIndex: "status",
       visible: true,
     },
     {
@@ -155,77 +161,114 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Thanh toán",
+      dataIndex: "payment_status",
+      visible: true,
+    },
+    {
+      title: "Trả hàng",
+      dataIndex: "return_status",
+      visible: true,
+    },
+    {
+      title: "Tổng SL sản phẩm",
+      dataIndex: "items",
+      render: (items) => (
+        items.length
+      ),
+      visible: true,
+    },
+    {
+      title: "Khu vực",
       dataIndex: "inventory",
       visible: true,
     },
     {
-      title: "Tổng số lượng sản phẩm",
-      dataIndex: "inventory",
+      title: "Kho cửa hàng",
+      dataIndex: "store",
       visible: true,
     },
     {
-      title: "Khách cần phải trả",
-      dataIndex: "inventory",
+      title: "Nguồn đơn hàng",
+      dataIndex: "source",
       visible: true,
     },
     {
       title: "Khách đã trả",
-      dataIndex: "inventory",
-      visible: true,
-    },
-    {
-      title: "Còn phải trả",
-      dataIndex: "inventory",
-      visible: true,
-    },
-    {
-      title: "Hình thức vận chuyển",
-      dataIndex: "inventory",
+      dataIndex: "payments",
+      render: (payments: Array<OrderPaymentModel>) => {
+        let total = 0
+        payments.forEach(payment => {
+          total +=payment.amount
+        })
+        return (
+          total
+      )},
       visible: true,
     },
 
     {
-      title: "Phương thức thanh toán",
-      dataIndex: "inventory",
+      title: "Còn phải trả",
+      render: (order: OrderModel) => {
+        let paid = 0
+        order.payments.forEach(payment => {
+          paid +=payment.amount
+        })
+        const missingPaid = order.total_line_amount_after_line_discount ? order.total_line_amount_after_line_discount - paid : 0
+        return (
+          missingPaid > 0 ? missingPaid : 0
+      )},
       visible: true,
-    },{
+    },
+    {
+      title: "Phương thức thanh toán",
+      render: (payments: Array<OrderPaymentModel>) => (
+          123
+          // payments.map(payment => {
+          //   return (
+          //     <div>{payment.payment_method}</div>
+          //   )
+          // })
+      ),
+      visible: true,
+    },
+    {
       title: "Nhân viên bán hàng",
-      dataIndex: "inventory",
+      dataIndex: "assignee",
       visible: true,
     },
     {
       title: "Nhân viên tạo đơn",
-      dataIndex: "inventory",
+      dataIndex: "account",
       visible: true,
     },
     {
       title: "Ngày hoàn tất đơn",
-      dataIndex: "inventory",
+      dataIndex: "finalized_on",
       visible: true,
     },
     {
       title: "Ngày huỷ đơn",
-      dataIndex: "inventory",
+      dataIndex: "cancelled_on",
       visible: true,
     },
     {
       title: "Ghi chú nội bộ",
-      dataIndex: "inventory",
+      dataIndex: "note",
       visible: true,
     },
     {
       title: "Ghi chú của khách",
-      dataIndex: "inventory",
+      dataIndex: "customer_note",
       visible: true,
     },
     {
       title: "Tag",
-      dataIndex: "inventory",
+      dataIndex: "tags",
       visible: true,
     },
     {
       title: "Mã tham chiếu",
-      dataIndex: "inventory",
+      dataIndex: "reference_code",
       visible: true,
     }
   ]);
@@ -252,7 +295,8 @@ const ListOrderScreen: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {}, []);
 
   const setSearchResult = useCallback(
-    (result: PageResponse<VariantResponse>|false) => {
+    (result: PageResponse<OrderModel>|false) => {
+      console.log('result', result)
       setTableLoading(false);
       if(!!result) {
         setData(result);
@@ -261,31 +305,16 @@ const ListOrderScreen: React.FC = () => {
     []
   );
 
-  const onSave = useCallback((variant_images: Array<VariantImage>) => {
-    if(variantResponse !== null) {
-      dispatch(showLoading());
-      let variantRequet: VariantUpdateRequest = Products.converVariantResponseToRequest(variantResponse);
-      variantRequet.variant_images = variant_images;
-      dispatch(variantUpdateAction(variantResponse.id, variantRequet, (result) => {
-        dispatch(hideLoading());
-      }))
-    }
-  }, [dispatch]);
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
   
   useEffect(() => {
     if (isFirstLoad.current) {
-      dispatch(CountryGetAllAction(setCountry));
-      dispatch(listColorAction(initMainColorQuery, setMainColor));
-      dispatch(listColorAction(initColorQuery, setColor));
-      dispatch(sizeGetAll(setSize));
-      dispatch(SupplierGetAllAction(setSupplier));
-      dispatch(AccountGetListAction(initAccountQuery, setMarchandiser));
       setTableLoading(true);
     }
     isFirstLoad.current = false;
-    dispatch(searchVariantsRequestAction(params, setSearchResult));
+    dispatch(getListOrderAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
+
   return (
     <ContentContainer
       title="Quản lý đơn hàng"
@@ -308,12 +337,6 @@ const ListOrderScreen: React.FC = () => {
           onFilter={onFilter}
           params={params}
           listStatus={listStatus}
-          listMerchandisers={listMerchandiser}
-          listSize={listSize}
-          listMainColors={listMainColor}
-          listColors={listColor}
-          listSupplier={listSupplier}
-          listCountries={listCountry}
         />
         <CustomTable
           isRowSelection
@@ -331,7 +354,7 @@ const ListOrderScreen: React.FC = () => {
           onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
           columns={columnFinal}
-          rowKey={(item: VariantResponse) => item.id}
+          rowKey={(item: OrderModel) => item.id}
         />
         </div>
       </Card>

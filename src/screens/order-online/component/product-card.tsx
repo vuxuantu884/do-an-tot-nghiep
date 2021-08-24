@@ -58,7 +58,7 @@ import Xclosebtn from "assets/icon/X_close.svg";
 import addIcon from "assets/img/plus_1.svg";
 import { Type } from "config/TypeConfig";
 import AddGiftModal from "../modal/add-gift.modal";
-import { OrderItemDiscountModel } from "model/other/Order/order-model";
+import { OrderItemDiscountModel } from "model/other/order/order-model";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
