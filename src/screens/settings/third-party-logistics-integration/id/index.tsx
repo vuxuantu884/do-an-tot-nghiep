@@ -20,7 +20,7 @@ function SinglePrinter(props: PropType) {
 
   const [ListServices, setListServices] = useState([]);
   const [ListShops, setListShops] = useState([]);
-  useEffect(() => {}, [dispatch, id, params]);
+  useEffect(() => {}, [dispatch, id]);
 
   return (
     <StyledComponent>
