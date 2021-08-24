@@ -283,9 +283,9 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                         placeholder="Kế hoạch nhận"
                         isFloat={false}
                         value={value}
-                        min={1}
+                        min={0}
                         max={item.quantity}
-                        default={1}
+                        default={0}
                         maxLength={6}
                         onChange={(quantity: number | null) => {
                           onQuantityChange(quantity, index);
@@ -302,15 +302,11 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                     ordered_quantity = ordered_quantity + item.ordered_quantity;
                     quantity = quantity + item.quantity;
                     real_quantity = real_quantity + item.real_quantity;
-                  })
+                  });
                   return (
                     <Table.Summary>
                       <Table.Summary.Row>
-                        <Table.Summary.Cell
-                          align="left"
-                          colSpan={3}
-                          index={0}
-                        >
+                        <Table.Summary.Cell align="left" colSpan={3} index={0}>
                           <div style={{ fontWeight: 700 }}>Tổng</div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={1}>
@@ -322,7 +318,9 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                           <div style={{ fontWeight: 700 }}>{quantity}</div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={3}>
-                          <div style={{ fontWeight: 700, marginRight: 15 }}>{real_quantity}</div>
+                          <div style={{ fontWeight: 700, marginRight: 15 }}>
+                            {real_quantity}
+                          </div>
                         </Table.Summary.Cell>
                       </Table.Summary.Row>
                     </Table.Summary>
