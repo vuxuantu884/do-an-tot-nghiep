@@ -2,6 +2,8 @@ import { Button } from "antd";
 import UrlConfig from "config/UrlConfig";
 import React from "react";
 import { Link } from "react-router-dom";
+import IconBack from "./images/iconBack.svg";
+import IconCancelConnect from "./images/iconCancelConnect.svg";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -15,16 +17,22 @@ function BottomBar(props: PropType) {
     <StyledComponent>
       <div className="bottomBar">
         <div className="bottomBar__left">
-          <Link to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`}>
+          <Link
+            to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`}
+            className="back"
+          >
+            <img src={IconBack} alt="" style={{ marginRight: 5 }} />
             Quay lại danh sách
           </Link>
         </div>
         <div className="bottomBar__right">
           <Button
+            danger
             onClick={() => {
               onCancelConnect();
             }}
           >
+            <img src={IconCancelConnect} alt="" style={{ marginRight: 5 }} />
             Hủy kết nối
           </Button>
           <Button

@@ -23,4 +23,8 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .back {
+    color: #737373;
+    font-weight: 500;
+  }
 `;

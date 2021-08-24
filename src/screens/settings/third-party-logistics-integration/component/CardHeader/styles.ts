@@ -16,4 +16,7 @@ export const StyledComponent = styled.div`
       font-weight: normal;
     }
   }
+  .logoSingleThirdPartyLogistic {
+    margin-right: 10px;
+  }
 `;
