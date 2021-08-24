@@ -32,10 +32,10 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
   const [htmlContent, setHtmlContent] = useState("");
-  const [isEditorLoad, setIsEditorLoad] = useState(true);
+  // const [isEditorLoad, setIsEditorLoad] = useState(true);
   const [listStores, setListStores] = useState<StoreType>([]);
   const [previewHeaderHeight, setPreviewHeaderHeight] = useState(108);
-  const [selectedPrintSize, setSelectedPrintSize] = useState("whatever");
+  const [selectedPrintSize, setSelectedPrintSize] = useState("");
   const componentRef = useRef(null);
 
   const handleOnChangeEditor = (value: string) => {
@@ -63,15 +63,21 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
 
   const FAKE_PRODUCT_WORDS = [
     {
-      title: "sản phẩm",
-      key: "{san_pham}",
-      value: "{sản phẩm 1}, {sản phẩm 2}",
+      title: "tên sản phẩm",
+      key: "{product_name}",
+      value: ["{sản phẩm 1}", "{sản phẩm 2}"],
       isRepeat: true,
     },
     {
       title: "giá sản phẩm",
       key: "{gia_san_pham}",
-      value: "{100}, {200}, {300}",
+      value: ["{100}", "{200}"],
+      isRepeat: true,
+    },
+    {
+      title: "màu sắc",
+      key: "{mau_sac_san_pham}",
+      value: ["{xanh}", "{vàng}"],
       isRepeat: true,
     },
   ];
@@ -120,13 +126,10 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
 
   useEffect(() => {
     if (isEdit && formValue) {
-      // setHtmlContent(formValue.template);
-      setHtmlContent(
-        "<table><tr><td>{san_pham}</td><td>{gia_san_pham}</td><tr></table>"
-      );
+      setHtmlContent(formValue.template);
       setSelectedPrintSize(formValue.print_size);
       form.setFieldsValue(initialFormValue);
-      setIsEditorLoad(true);
+      // setIsEditorLoad(true);
     }
   }, [form, formValue, initialFormValue, isEdit]);
 
@@ -227,8 +230,9 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               {/* <CkEditor onChange={handleOnChangeEditor} /> */}
               <React.Fragment>
                 {/* <Input hidden /> */}
-                {isEditorLoad && (
-                  <Form.Item name="formIn">
+                {/* {isEditorLoad && selectedPrintSize && ( */}
+                {(!isEdit || selectedPrintSize) && (
+                  <Form.Item name="template">
                     <Editor
                       onChange={handleOnChangeEditor}
                       initialHtmlContent={htmlContent}
