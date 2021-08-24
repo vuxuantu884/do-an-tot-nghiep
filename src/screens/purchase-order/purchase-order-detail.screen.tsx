@@ -280,7 +280,7 @@ const PODetailScreen: React.FC = () => {
           name: `Đơn hàng ${id}`,
         },
       ]}
-      extra={<POStep status={poData?.status} order_date={poData?.order_date} />}
+      extra={<POStep poData={poData} />}
     >
       <div className="page-filter">
         <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" />
@@ -325,6 +325,7 @@ const PODetailScreen: React.FC = () => {
             <POInventoryForm
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
+              code={poData?.code}
               isEdit={true}
               now={now}
               status={status}
@@ -375,7 +376,7 @@ const PODetailScreen: React.FC = () => {
               zIndex: 100,
             }}
           >
-            <POStep status={poData?.status} />
+            <POStep poData={poData} />
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>

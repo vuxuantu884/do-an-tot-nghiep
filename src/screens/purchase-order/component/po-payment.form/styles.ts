@@ -24,26 +24,6 @@ export const StyledComponent = styled.div`
       }
     }
   }
-
-  .po-tag {
-    font-size: 12px;
-    font-weight: 500;
-    margin-top: 0px;
-    margin-bottom: 4px;
-    border-radius: 15px;
-    padding-left: 15px;
-    padding-right: 15px;
-    background-color: rgba(102, 102, 102, 0.1);
-    color: "rgb(102, 102, 102)";
-  }
-  .po-tag-success {
-    background-color: rgba(39, 174, 96, 0.1);
-    color: #27ae60;
-  }
-  .po-tag-warning {
-    background-color: #fff7e6;
-    color: #fa8c16;
-  }
   .checkOut {
     border: 1px solid #e5e5e5;
     border-right: none;
@@ -62,7 +42,7 @@ export const StyledComponent = styled.div`
           align-items: center;
           bottom: 0;
           color: #222222;
-          font-weight:500;
+          font-weight: 500;
           display: flex;
           font-size: 12px;
           left: 0;

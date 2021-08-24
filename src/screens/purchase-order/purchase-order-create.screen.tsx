@@ -192,9 +192,9 @@ const POCreateScreen: React.FC = () => {
           name: "Tạo mới đơn đặt hàng",
         },
       ]}
-      extra={
-        <POStep order_date={initPurchaseOrder.order_date} status="draft" />
-      }
+      // extra={
+      //   <POStep order_date={initPurchaseOrder.order_date} status="draft" />
+      // }
     >
       <Form
         name={PoFormName.Main}
@@ -268,7 +268,7 @@ const POCreateScreen: React.FC = () => {
               zIndex: 100,
             }}
           >
-            <POStep status="draft" />
+            {/* <POStep status="draft" /> */}
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>

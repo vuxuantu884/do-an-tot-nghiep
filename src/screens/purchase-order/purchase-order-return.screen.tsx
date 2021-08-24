@@ -117,7 +117,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
               zIndex: 100,
             }}
           >
-            <POStep status={params?.status} />
+            <POStep poData={params} />
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>
