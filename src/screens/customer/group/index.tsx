@@ -7,6 +7,8 @@ import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+
 import {
   actionAddCustomerGroup,
   actionDeleteCustomerGroup,
@@ -20,7 +22,7 @@ import {
   CustomerGroupModel,
   CustomerGroupResponseModel,
 } from "model/response/customer/customer-group.response";
-import { useCallback, useEffect, useState } from "react";
+import React,{ useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
@@ -29,6 +31,8 @@ import { StyledComponent } from "./styles";
 const SettingCustomerGroup: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
   const [isShowModal, setIsShowModal] = useState(false);
+  const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
+
   const dispatch = useDispatch();
   const [listCustomerGroup, setListCustomerGroup] = useState<
     CustomerGroupModel[]
@@ -40,7 +44,7 @@ const SettingCustomerGroup: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] =
-    useState<CustomerGroupModel | null>(null);
+    useState<any>(null);
 
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -49,7 +53,14 @@ const SettingCustomerGroup: React.FC = () => {
 
   const columns: Array<ICustomTableColumType<VariantResponse>> = [
     {
-      title: "Tên Nhóm khách hàng",
+      title: "STT",
+      key: "index",
+      render: (value:any, item:any, index:number) =>  <div>{index+1}</div>,
+      visible: true,
+      width: "5%"
+    },
+    {
+      title: "Tên Nhóm",
       dataIndex: "name",
       visible: true,
       width: "25%",
@@ -60,6 +71,12 @@ const SettingCustomerGroup: React.FC = () => {
               title={value}
               style={{ wordWrap: "break-word", wordBreak: "break-word" }}
               className="title text"
+              onClick = {(event)=>{
+                  setModalSingleServiceSubStatus(row);
+                  setModalAction("edit");
+                  setIsShowModal(true);
+                
+              }}
             >
               {value}
             </span>
@@ -82,7 +99,7 @@ const SettingCustomerGroup: React.FC = () => {
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
-      title: "Ghi chú",
+      title: "Mô tả",
       dataIndex: "note",
       visible: true,
       width: "25%",
@@ -94,20 +111,48 @@ const SettingCustomerGroup: React.FC = () => {
         );
       },
     },
-    // {
-    //   title: "Thao tác",
-    //   dataIndex: "note",
-    //   visible: true,
-    //   width: "25%",
-    //   render: (value, row, index) => {
-    //     return (
-    //       <span className="text" title={value} style={{ color: "#666666" }}>
-    //         {value}
-    //       </span>
-    //     );
-    //   },
-    // },
+    {
+      title: "Thao tác",
+      dataIndex: "note",
+      visible: true,
+      width: "25%",
+      render: (value, row, index) => {
+        return (
+          <div>
+            <Button
+              key="edit"
+              type="primary"
+              // danger
+              onClick={() => {
+                setModalSingleServiceSubStatus(row);
+                  setModalAction("edit");
+                  setIsShowModal(true);
+              }}
+            >
+              Sửa
+            </Button>
+            {" "}
+          <Button
+              key="delete"
+              type="primary"
+              danger
+              onClick={() => {
+                setModalSingleServiceSubStatus(row);
+                setIsShowConfirmDelete(true)}}
+            >
+              Xóa
+            </Button>
+            
+          </div>
+        );
+      },
+    },
   ];
+  const [selected, setSelected] = useState<Array<CustomerGroupResponseModel>>([]);
+
+  const onSelectTable = useCallback((selectedRow: Array<CustomerGroupResponseModel>) => {
+    setSelected(selectedRow);
+  }, []);
 
   const columnFinal = () => columns.filter((item) => item.visible === true);
 
@@ -154,7 +199,7 @@ const SettingCustomerGroup: React.FC = () => {
       page: 1,
     };
     setParams({ ...newParams });
-    history.replace(`${UrlConfig.CUSTOMER}/group`);
+    history.replace(`${UrlConfig.CUSTOMER}/groups`);
     window.scrollTo(0, 0);
   };
 
@@ -194,7 +239,7 @@ const SettingCustomerGroup: React.FC = () => {
           actionDeleteCustomerGroup(
             modalSingleServiceSubStatus.id,
             () => {
-              setIsShowModal(false);
+              setIsShowConfirmDelete(false);
               gotoFirstPage();
             }
           )
@@ -221,6 +266,14 @@ const SettingCustomerGroup: React.FC = () => {
     );
   }, [dispatch, params]);
 
+  const renderConfirmDeleteSubtitle = (deletedItemTitle: string) => {
+      return (
+        <React.Fragment>
+          Bạn có chắc chắn muốn xóa "<strong>{deletedItemTitle}</strong>" ?
+        </React.Fragment>
+      );
+  };
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -240,6 +293,8 @@ const SettingCustomerGroup: React.FC = () => {
         {listCustomerGroup && (
           <Card style={{ padding: "35px 15px" }}>
             <CustomTable
+              isRowSelection
+              onSelectedChange={onSelectTable}
               isLoading={tableLoading}
               showColumnSetting={false}
               scroll={{ x: 1080 }}
@@ -254,19 +309,25 @@ const SettingCustomerGroup: React.FC = () => {
               dataSource={listCustomerGroup}
               columns={columnFinal()}
               rowKey={(item: VariantResponse) => item.id}
-              onRow={(record: CustomerGroupModel) => {
-                return {
-                  onClick: (event) => {
-                    console.log(record)
-                    setModalSingleServiceSubStatus(record);
-                    setModalAction("edit");
-                    setIsShowModal(true);
-                  }, // click row
-                };
-              }}
+              // onRow={(record: CustomerGroupModel) => {
+              //   return {
+              //     onClick: (event) => {
+              //       setModalSingleServiceSubStatus(record);
+              //       setModalAction("edit");
+              //       setIsShowModal(true);
+              //     }, // click row
+              //   };
+              // }}
             />
           </Card>
         )}
+        <ModalDeleteConfirm
+          visible={isShowConfirmDelete}
+          onOk={() => handleForm.delete()}
+          onCancel={() => setIsShowConfirmDelete(false)}
+          title="Xác nhận"
+          subTitle={renderConfirmDeleteSubtitle(modalSingleServiceSubStatus?modalSingleServiceSubStatus.name:"")}
+        />
         <CustomModal
           visible={isShowModal}
           onCreate={(formValue: CustomerGroupModel) =>

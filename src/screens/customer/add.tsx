@@ -1,15 +1,4 @@
-import {
-  Input,
-  Form,
-  Row,
-  Col,
-  DatePicker,
-  Select,
-  Button,
-  Card,
-  InputNumber,
-  Collapse,
-} from "antd";
+import { Input, Form, Row, Col, Select, Button, Card, Collapse } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
   DistrictGetByCountryAction,
@@ -23,26 +12,24 @@ import {
 } from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
 import { WardResponse } from "model/content/ward.model";
-import { CustomerModel } from "model/request/customer.request";
+import {
+  CustomerModel,
+  CustomerContactClass,
+} from "model/request/customer.request";
 import arrowLeft from "../../assets/icon/arrow-left.svg";
 import moment from "moment";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { showSuccess } from "utils/ToastUtils";
-import AddressForm from "./address";
-import ContactForm from "./contact";
 import "./customer.scss";
-import NoteForm from "./note";
-import RenderCardAdress from "./render/card.address";
-import RenderCardContact from "./render/card.contact";
-import RenderCardNote from "./render/card.note";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import GeneralInformation from "./general.information";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
+import { RegUtil } from "utils/RegUtils";
 
 const { Option } = Select;
 const { Panel } = Collapse;
@@ -62,11 +49,36 @@ const CustomerAdd = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
+  const [isShowInput, setIsShowInput] = React.useState<boolean>(true);
 
-  const statuses = [
-    { name: "Hoạt động", key: "1", value: "active" },
-    { name: "Không hoạt động", key: "2", value: "inactive" },
-  ];
+  const handleShowInput = (value: any) => {
+    setIsShowInput(value.length > 0);
+  };
+  React.useEffect(() => {
+    dispatch(DistrictGetByCountryAction(countryId, setAreas));
+  }, [dispatch, countryId]);
+
+  const handleChangeArea = (districtId: string) => {
+    if (districtId) {
+      setDistrictId(districtId);
+      let area = areas.find((area) => area.id === districtId);
+      let value = customerForm.getFieldsValue();
+      value.city_id = area.city_id;
+      value.city = area.city_name;
+      value.district_id = districtId;
+      value.district = area.name;
+      value.ward_id = null;
+      value.ward = "";
+      customerForm.setFieldsValue(value);
+    }
+  };
+
+  React.useEffect(() => {
+    if (districtId) {
+      dispatch(WardGetByDistrictAction(districtId, setWards));
+    }
+  }, [dispatch, districtId]);
+
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -76,38 +88,9 @@ const CustomerAdd = (props: any) => {
     },
     []
   );
-  
   React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
-
-  React.useEffect(() => {
-    dispatch(DistrictGetByCountryAction(countryId, setAreas));
-  }, [dispatch, countryId]);
-
-  const handleChangeArea = (districtId: string) => {
-    if(districtId){
-      setDistrictId(districtId);
-      let area = areas.find((area) => area.id === districtId)
-      let value = customerForm.getFieldsValue();
-      console.log(area)
-      value.city_id = area.city_id;
-      value.city = area.city_name;
-      value.district_id = districtId;
-      value.district = area.name;
-      value.ward_id = null;
-      value.ward = "";
-      customerForm.setFieldsValue({ name: value })
-    }
-   
-  };
-  React.useEffect(() => {
-    if (districtId) {
-      dispatch(WardGetByDistrictAction(districtId, setWards));
-    }
-  }, [dispatch, districtId]);
-
-  const getResponsibleStaffCode = () => {};
 
   React.useEffect(() => {
     dispatch(CustomerGroups(setGroups));
@@ -127,9 +110,10 @@ const CustomerAdd = (props: any) => {
     },
     [history]
   );
+
   const handleSubmit = (values: any) => {
     console.log("Success:", values);
-    let area = areas.find((area) => area.id === districtId)
+    let area = areas.find((area) => area.id === districtId);
     let piece = {
       ...values,
       birthday: moment(new Date(values.birthday), "YYYY-MM-DD").format(
@@ -140,13 +124,15 @@ const CustomerAdd = (props: any) => {
         : null,
       status: status,
       city_id: area.city_id,
-      
-      // billing_addresses: values.billing_addresses.map((b: any) => {
-      //   return { ...b, is_default: b.default };
-      // }),
-      // shipping_addresses: values.shipping_addresses.map((b: any) => {
-      //   return { ...b, is_default: b.default };
-      // }),
+      contacts: [
+        {
+          ...CustomerContactClass,
+          name: values.contact_name,
+          phone: values.contact_phone,
+          note: values.contact_note,
+          email: values.contact_email,
+        },
+      ],
     };
     console.log(piece);
     dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
@@ -182,7 +168,7 @@ const CustomerAdd = (props: any) => {
           <Col span={24}>
             <GeneralInformation
               form={customerForm}
-              name="general add"
+              name="general_add"
               accounts={accounts}
               groups={groups}
               types={types}
@@ -202,6 +188,7 @@ const CustomerAdd = (props: any) => {
               defaultActiveKey={["1"]}
               style={{ backgroundColor: "white", marginTop: 16 }}
               expandIconPosition="right"
+              onChange={(value) => handleShowInput(value)}
             >
               <Panel
                 className=""
@@ -218,61 +205,86 @@ const CustomerAdd = (props: any) => {
                 }
                 key="1"
               >
-                <RenderCardContact
-                  component={ContactForm}
-                  title="THÔNG TIN LIÊN HỆ"
-                  name="contacts"
-                  isEdit={false}
-                  form={customerForm}
-                />
+                <Row gutter={30} style={{ padding: "0 15px" }}>
+                  <Col span={24}>
+                    <Form.Item
+                      label={<b>Họ và tên:</b>}
+                      name="contact_name"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập họ tên khách hàng",
+                        },
+                        {
+                          pattern: RegUtil.NO_ALL_SPACE,
+                          message: "Tên không được có khoảng trống ở đầu",
+                        },
+                      ]}
+                    >
+                      <Input maxLength={255} placeholder="Nhập họ và tên" />
+                    </Form.Item>
+                  </Col>
+                  {isShowInput && (
+                    <>
+                      <Col span={12}>
+                        <Form.Item
+                          label={<b>Số điện thoại:</b>}
+                          name="contact_phone"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập số điện thoại",
+                            },
+                            {
+                              pattern: RegUtil.PHONE,
+                              message: "Số điện thoại chưa đúng định dạng",
+                            },
+                          ]}
+                        >
+                          <Input
+                            style={{ borderRadius: 5, width: "100%" }}
+                            minLength={9}
+                            maxLength={15}
+                            placeholder="Nhập số điện thoại"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item
+                          label={<b>Email:</b>}
+                          name="contact_email"
+                          // rules={[
+                          //   {
+                          //     required: true,
+                          //     message: "Vui lòng nhập thư điện tử",
+                          //   },
+                          // ]}
+                        >
+                          <Input maxLength={255} placeholder="Nhập email" />
+                        </Form.Item>
+                      </Col>
+                    </>
+                  )}
+
+                  <Col span={24} style={{ padding: "0 1rem" }}>
+                    <Row gutter={8}>
+                      <Col span={24}>
+                        <Form.Item label={<b>Ghi chú:</b>} name="contact_note">
+                          <Input.TextArea
+                            maxLength={500}
+                            placeholder="Nhập ghi chú"
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
               </Panel>
             </Collapse>
           </Col>
           <Col span={6} />
         </Row>
-        {/* <Row>
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardAdress
-              name="billing_addresses"
-              component={AddressForm}
-              title="ĐỊA CHỈ NHẬN HÓA ĐƠN "
-              countries={countries}
-              isEdit={false}
-              form={customerForm}
-            />
-          </Col>
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardAdress
-              name="shipping_addresses"
-              component={AddressForm}
-              title="ĐỊA CHỈ GIAO HÀNG"
-              countries={countries}
-              isEdit={false}
-              form={customerForm}
-            />
-          </Col>
-          <Col span={24} style={{ marginTop: "1.2rem" }}>
-            <RenderCardNote component={NoteForm} title="GHI CHÚ" name="notes" />
-          </Col>
-        </Row> */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: ".75rem",
-            marginLeft: -30,
-            height: 55,
-            width: "100%",
-            boxShadow: "0px -1px 8px rgba(0, 0, 0, 0.1)",
-            alignItems: "center",
-            padding: "0 32px",
-            position: "fixed",
-            bottom: "0px",
-            backgroundColor: "white",
-            zIndex: 99,
-            paddingRight: 280,
-          }}
-        >
+        <div className="customer-bottom-button">
           <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
             <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
             Quay lại danh sách khách hàng
@@ -286,7 +298,7 @@ const CustomerAdd = (props: any) => {
               Hủy
             </Button>
             <Button type="primary" htmlType="submit">
-              Lưu khách hàng
+              Tạo mới khách hàng
             </Button>
           </div>
         </div>

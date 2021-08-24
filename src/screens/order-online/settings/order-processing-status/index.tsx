@@ -3,8 +3,9 @@ import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import FormOrderProcessingStatus from "component/forms/FormOrderProcessingStatus";
 import CustomModal from "component/modal/CustomModal";
-import { ICustomTableColumType } from "component/table/CustomTable";
-import CustomTable from "component/table/CustomTable";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import {
   actionAddOrderProcessingStatus,
@@ -21,8 +22,9 @@ import {
 } from "model/response/order-processing-status.response";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
+import { useQuery } from "utils/useQuery";
 import { StyledComponent } from "./styles";
 
 const SettingOrderProcessingStatus: React.FC = () => {
@@ -32,9 +34,6 @@ const SettingOrderProcessingStatus: React.FC = () => {
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
-  const useQuery = () => {
-    return new URLSearchParams(useLocation().search);
-  };
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
@@ -113,7 +112,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
 
   const history = useHistory();
 
-  let [params, setParams] = useState({
+  const [params, setParams] = useState({
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
     sort_type: "desc",

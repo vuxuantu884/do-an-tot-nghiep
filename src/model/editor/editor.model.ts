@@ -2,10 +2,19 @@ export interface keywordsModel {
   title: string;
   key: string;
   value: string;
-  isRepeat?: boolean;
+  isShow?: boolean;
 }
 
-export type listKeywordsModel = keywordsModel[];
+export interface productKeywordsModel {
+  title: string;
+  key: string;
+  value: string[];
+}
+
+export interface listKeywordsModel {
+  name: string;
+  list: keywordsModel[];
+}
 
 export interface EditorModel {
   initialHtmlContent: string;
@@ -17,7 +26,8 @@ export interface EditorModalType {
   isModalVisible: boolean;
   handleCancel: () => void;
   insertKeyword: (text: string) => void;
-  listKeywords?: listKeywordsModel;
+  listKeywords?: listKeywordsModel[];
+  listProductKeywords?: productKeywordsModel[];
 }
 
 export interface PrintEditorModel {
@@ -27,8 +37,8 @@ export interface PrintEditorModel {
 
 export interface PrintPreviewModel {
   htmlContent: string;
-  listKeywords?: listKeywordsModel;
-  listProductKeywords?: listKeywordsModel;
+  listKeywords?: listKeywordsModel[];
+  listProductKeywords?: productKeywordsModel[];
   previewHeaderHeight?: number;
 }
 

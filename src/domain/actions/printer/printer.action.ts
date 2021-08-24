@@ -19,13 +19,24 @@ export const actionFetchListPrinter = (
 
 export const actionFetchPrinterDetail = (
   id: number,
+  query: {},
   handleData: (data: PrinterModel) => void
 ) => {
   return {
     type: PRINTER_TYPES.getPrinterDetail,
     payload: {
       id,
+      query,
       handleData,
+    },
+  };
+};
+
+export const actionCreatePrinter = (formValue: PrinterModel) => {
+  return {
+    type: PRINTER_TYPES.createPrinter,
+    payload: {
+      formValue,
     },
   };
 };
