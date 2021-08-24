@@ -40,6 +40,8 @@ export interface PrintPreviewModel {
   listKeywords?: listKeywordsModel[];
   listProductKeywords?: productKeywordsModel[];
   previewHeaderHeight?: number;
+  isShowEditor?: boolean;
+  onChangeShowEditor: (isShow: boolean) => void;
 }
 
 export type SinglePrinterContentModel = string;

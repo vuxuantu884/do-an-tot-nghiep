@@ -4,10 +4,9 @@ import { actionFetchPrinterDetail } from "domain/actions/printer/printer.action"
 import { PrinterModel } from "model/response/printer.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { DEFAULT_FORM_VALUE } from "utils/Constants";
 import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
-import { useQuery } from "utils/useQuery";
 import FormPrinter from "../component/FormPrinter";
 import { StyledComponent } from "./styles";
 
@@ -25,13 +24,17 @@ function SinglePrinter() {
       type: "",
     });
 
+  const useQuery = () => {
+    return new URLSearchParams(useLocation().search);
+  };
+
   const paramsId = useParams<{ id: string }>();
   const { id } = paramsId;
   const [printerName, setPrinterName] = useState("");
   const query = useQuery();
-  const [params, setParams] = useState({
-    "print-size": query.get("print-size") || "a4",
-  });
+  const params = {
+    "print-size": query.get("print-size") ? query.get("print-size") : "a4",
+  };
 
   useEffect(() => {
     const findPrinter = (printerType: string) => {
@@ -48,7 +51,7 @@ function SinglePrinter() {
         }
       })
     );
-  }, [dispatch, id, params]);
+  }, [dispatch, id]);
 
   return (
     <StyledComponent>
