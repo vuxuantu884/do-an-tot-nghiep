@@ -47,7 +47,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
   );
   const LIST_STATUS = bootstrapReducer.data?.order_main_status;
 
-  const columns: Array<ICustomTableColumType<VariantResponse>> = [
+  const columns: ICustomTableColumType<any>[] = [
     {
       title: "Trạng thái xử lý",
       dataIndex: "sub_status",

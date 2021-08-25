@@ -1,38 +1,30 @@
 //#region Import
-import {
-  Button,
-  Card,
-  Row,
-  Col,
-  Space,
-  Divider,
-  Tag,
-  Collapse,
-  Typography,
-} from "antd";
-import UpdatePaymentCard from "./component/update-payment-card";
-import {
-  useState,
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useEffect,
-} from "react";
-import { useDispatch } from "react-redux";
-import { OrderPaymentRequest } from "model/request/order.request";
-import { AccountResponse } from "model/account/account.model";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { OrderDetailAction } from "domain/actions/order/order.action";
-import { useParams } from "react-router-dom";
+import { Button, Card, Col, Collapse, Divider, Row, Space, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
+import SubStatusOrder from "component/main-sidebar/sub-status-order";
+import UrlConfig from "config/UrlConfig";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { StoreDetailAction } from "domain/actions/core/store.action";
+import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { OrderDetailAction } from "domain/actions/order/order.action";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderPaymentRequest } from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { CustomerResponse } from "model/response/customer/customer.response";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   checkPaymentAll,
   checkPaymentStatusToShow,
@@ -40,14 +32,12 @@ import {
   getAmountPayment,
   SumCOD,
 } from "utils/AppUtils";
-import historyAction from "assets/icon/action-history.svg";
-import { StoreDetailAction } from "domain/actions/core/store.action";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
-import UrlConfig from "config/UrlConfig";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import UpdateProductCard from "./component/update-product-card";
+import ActionHistory from "./component/order-detail/ActionHistory";
 import UpdateCustomerCard from "./component/update-customer-card";
-import SubStatusOrder from "component/main-sidebar/sub-status-order";
+import UpdatePaymentCard from "./component/update-payment-card";
+import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
 const { Panel } = Collapse;
 //#endregion
@@ -429,7 +419,7 @@ const OrderDetail = () => {
                                             <span>{payment.reference}</span>
                                             {payment.payment_method_id ===
                                               5 && (
-                                              <span>
+                                              <span style={{ marginLeft: 10 }}>
                                                 {payment.amount / 1000} điểm
                                               </span>
                                             )}
@@ -581,12 +571,16 @@ const OrderDetail = () => {
                     (checkPaymentAll(OrderDetail) !== 1 &&
                       isShowPaymentPartialPayment === false &&
                       checkPaymentStatusToShow(OrderDetail) !== 1 && (
-                        <div className="padding-24 text-right">
+                        <div
+                          className="padding-24 text-right"
+                          style={{ paddingTop: 0 }}
+                        >
                           <Divider style={{ margin: "10px 0" }} />
                           <Button
                             type="primary"
                             className="ant-btn-outline fixed-button"
                             onClick={() => setShowPaymentPartialPayment(true)}
+                            style={{ marginTop: 10 }}
                           >
                             Thanh toán
                           </Button>
@@ -913,34 +907,7 @@ const OrderDetail = () => {
                 </Row>
               </div>
             </Card>
-            <Card className="margin-top-20">
-              <div
-                className=""
-                style={{
-                  padding: "13px 0 15px 22px",
-                  fontSize: "13px",
-                  height: 46,
-                }}
-              >
-                <Typography.Link style={{ display: "flex" }}>
-                  <img
-                    src={historyAction}
-                    style={{ width: 20, height: 20 }}
-                    alt=""
-                  ></img>
-                  <span
-                    className="text-focus"
-                    style={{
-                      marginLeft: 10,
-                      color: "#5D5D8A",
-                      lineHeight: "20px",
-                    }}
-                  >
-                    Lịch sử thao tác đơn hàng
-                  </span>
-                </Typography.Link>
-              </div>
-            </Card>
+            <ActionHistory />
           </Col>
         </Row>
         <Row
