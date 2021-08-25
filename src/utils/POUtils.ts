@@ -6,10 +6,54 @@ import {
   PurchaseOrderLineItem,
   Vat,
 } from "model/purchase-order/purchase-item.model";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchaseProcumentLineItem } from "model/purchase-order/purchase-procument";
 import { Products } from "./AppUtils";
+import { POStatus, ProcumentStatus, PoFinancialStatus } from "utils/Constants";
 
 const POUtils = {
+  combinePOStatus: (poData: PurchaseOrder) => {
+    const {
+      order_date,
+      receive_status,
+      financial_status,
+      receipt_quantity,
+      planned_quantity,
+      status,
+      procurements,
+      activated_date,
+      completed_date,
+    } = poData;
+    if (status === POStatus.DRAFT) return -1;
+    if (!receive_status) return 0;
+    if (
+      [ProcumentStatus.NOT_RECEIVED, ProcumentStatus.PARTIAL_RECEIVED].includes(
+        receive_status
+      )
+    ) {
+      let totalOrdered = 0;
+      procurements &&
+        procurements.map((procurementItem) => {
+          totalOrdered += POUtils.totalQuantityProcument(
+            procurementItem.procurement_items
+          );
+        });
+
+      if (planned_quantity && totalOrdered >= planned_quantity) return 2;
+      else return 1;
+    }
+    if (receive_status === ProcumentStatus.RECEIVED) {
+      return 3;
+    }
+    if (receive_status === ProcumentStatus.FINISHED) {
+      if (financial_status === PoFinancialStatus.PAID) {
+        if (!receipt_quantity || !planned_quantity) return 3;
+        if (receipt_quantity >= planned_quantity) return 4;
+        else return 5;
+      } else return 3;
+    }
+    return -1;
+  },
   convertVariantToLineitem: (
     variants: Array<VariantResponse>
   ): Array<PurchaseOrderLineItem> => {

@@ -5,6 +5,16 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { POStatus, ProcumentStatus, PoFinancialStatus } from "utils/Constants";
 import { POUtils } from "utils/POUtils";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+
+const statusToStep = {
+  [POStatus.DRAFT]: -1,
+  [POStatus.ORDER]: 0,
+  [POStatus.FINALIZED]: 1,
+  [POStatus.PROCUREMENT_DRAFT]: 2,
+  [POStatus.PROCUREMENT_RECEIVED]: 3,
+  [POStatus.COMPLETED]: 4,
+  [POStatus.FINISHED]: 5,
+};
 export interface POStepProps {
   poData?: PurchaseOrder;
 }
@@ -26,9 +36,9 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
    * trang thai PO = trang thai nhap kho + trang thai thanh toan
    * 0: dat hang, 1: xac nhan, 2: phieu nhap, 3: nhap kho, 4: hoan thanh
    */
-  const combineStatus: number = useMemo(() => {
-    if (status === POStatus.DRAFT) return -1;
-    if (!receive_status) return 0;
+  const combineStatus = useMemo(() => {
+    if (status === POStatus.DRAFT) return POStatus.DRAFT;
+    if (!receive_status) return POStatus.ORDER;
     if (
       [ProcumentStatus.NOT_RECEIVED, ProcumentStatus.PARTIAL_RECEIVED].includes(
         receive_status
@@ -42,20 +52,22 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           );
         });
 
-      if (planned_quantity && totalOrdered >= planned_quantity) return 2;
-      else return 1;
+      if (planned_quantity && totalOrdered >= planned_quantity)
+        return POStatus.PROCUREMENT_DRAFT;
+      else return POStatus.FINALIZED;
     }
     if (receive_status === ProcumentStatus.RECEIVED) {
-      return 3;
+      return POStatus.PROCUREMENT_RECEIVED;
     }
     if (receive_status === ProcumentStatus.FINISHED) {
       if (financial_status === PoFinancialStatus.PAID) {
-        if (!receipt_quantity || !planned_quantity) return 3;
-        if (receipt_quantity >= planned_quantity) return 4;
-        else return 5;
-      } else return 3;
+        if (!receipt_quantity || !planned_quantity)
+          return POStatus.PROCUREMENT_RECEIVED;
+        if (receipt_quantity >= planned_quantity) return POStatus.COMPLETED;
+        else return POStatus.FINISHED;
+      } else return POStatus.PROCUREMENT_RECEIVED;
     }
-    return -1;
+    return POStatus.DRAFT;
   }, [
     status,
     receive_status,
@@ -66,17 +78,18 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   ]);
 
   const getDescription = (step: number) => {
+    let currentStep = statusToStep[combineStatus];
     switch (step) {
       case 0:
-        if (combineStatus >= 0 && order_date !== null)
+        if (currentStep >= 0 && order_date !== null)
           return ConvertUtcToLocalDate(order_date);
         return null;
       case 1:
-        if (combineStatus >= 1 && activated_date !== null)
+        if (currentStep >= 1 && activated_date !== null)
           return ConvertUtcToLocalDate(activated_date);
         return null;
       case 2:
-        if (combineStatus >= 2 && activated_date)
+        if (currentStep >= 2 && activated_date)
           return ConvertUtcToLocalDate(activated_date);
         return null;
       case 3:
@@ -84,10 +97,10 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           procurements &&
           procurements.length > 0 &&
           procurements[procurements.length - 1].updated_date;
-        if (date) return ConvertUtcToLocalDate(date);
+        if (currentStep >= 3 && date) return ConvertUtcToLocalDate(date);
         return null;
       case 4:
-        if (combineStatus >= 4 && activated_date)
+        if (currentStep >= 4 && activated_date)
           return ConvertUtcToLocalDate(completed_date);
         return null;
     }
@@ -101,14 +114,14 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
         </div>
       )}
       size="small"
-      current={combineStatus}
+      current={statusToStep[combineStatus]}
     >
       <Steps.Step title="Đặt hàng" description={getDescription(0)} />
       <Steps.Step title="Xác nhận" description={getDescription(1)} />
       <Steps.Step title="Phiếu nháp" description={getDescription(2)} />
       <Steps.Step title="Nhập kho" description={getDescription(3)} />
       <Steps.Step
-        title={combineStatus === 5 ? "Kết thúc" : "Hoàn thành"}
+        title={statusToStep[combineStatus] === 5 ? "Kết thúc" : "Hoàn thành"}
         description={getDescription(4)}
       />
     </Steps>

@@ -136,23 +136,23 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         <Form.Item
           noStyle
           shouldUpdate={(prev, current) =>
-            prev[POField.financial_status] !== current[POField.financial_status]
+            prev[POField.receive_status] !== current[POField.receive_status]
           }
         >
           {({ getFieldValue }) => {
-            let financial_status = getFieldValue(POField.financial_status);
+            let receive_status = getFieldValue(POField.receive_status);
             let statusName = "Chưa nhập kho";
             let className = "po-tag";
             let dotClassName = "icon-dot";
-            if (financial_status === ProcumentStatus.PARTIAL_RECEIVED) {
+            if (receive_status === ProcumentStatus.PARTIAL_RECEIVED) {
               statusName = "Nhập kho 1 phần";
               className += " po-tag-warning";
               dotClassName += " partial";
             }
             if (
-              financial_status === ProcumentStatus.CANCELLED ||
-              financial_status === ProcumentStatus.FINISHED ||
-              financial_status === ProcumentStatus.RECEIVED
+              receive_status === ProcumentStatus.CANCELLED ||
+              receive_status === ProcumentStatus.FINISHED ||
+              receive_status === ProcumentStatus.RECEIVED
             ) {
               statusName = "Đã nhập kho";
               className += " po-tag-success";
