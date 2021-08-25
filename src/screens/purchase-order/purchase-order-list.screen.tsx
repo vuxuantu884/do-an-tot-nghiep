@@ -107,7 +107,7 @@ const PurchaseOrderListScreen: React.FC = () => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          if (response.data.status === "FINISH") {
+          if (response.data && response.data.status === "FINISH") {
             let fileCode = response.data.code,
               newListExportFile = listExportFile.filter((item) => {
                 return item !== fileCode;
