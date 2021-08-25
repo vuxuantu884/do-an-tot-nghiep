@@ -13,19 +13,21 @@ import { POStatus, ProcumentStatus, PoFinancialStatus } from "utils/Constants";
 
 const POUtils = {
   combinePOStatus: (poData: PurchaseOrder) => {
+    /**
+     * trang thai PO = trang thai nhap kho + trang thai thanh toan
+     * 0: dat hang, 1: xac nhan, 2: phieu nhap, 3: nhap kho, 4: hoan thanh
+     */
     const {
-      order_date,
       receive_status,
       financial_status,
       receipt_quantity,
       planned_quantity,
       status,
       procurements,
-      activated_date,
-      completed_date,
     } = poData;
-    if (status === POStatus.DRAFT) return -1;
-    if (!receive_status) return 0;
+    if (status === POStatus.DRAFT || status === POStatus.CANCELLED)
+      return status;
+    if (!receive_status) return POStatus.ORDER;
     if (
       [ProcumentStatus.NOT_RECEIVED, ProcumentStatus.PARTIAL_RECEIVED].includes(
         receive_status
@@ -39,20 +41,22 @@ const POUtils = {
           );
         });
 
-      if (planned_quantity && totalOrdered >= planned_quantity) return 2;
-      else return 1;
+      if (planned_quantity && totalOrdered >= planned_quantity)
+        return POStatus.PROCUREMENT_DRAFT;
+      else return POStatus.FINALIZED;
     }
     if (receive_status === ProcumentStatus.RECEIVED) {
-      return 3;
+      return POStatus.PROCUREMENT_RECEIVED;
     }
     if (receive_status === ProcumentStatus.FINISHED) {
       if (financial_status === PoFinancialStatus.PAID) {
-        if (!receipt_quantity || !planned_quantity) return 3;
-        if (receipt_quantity >= planned_quantity) return 4;
-        else return 5;
-      } else return 3;
+        if (!receipt_quantity || !planned_quantity)
+          return POStatus.PROCUREMENT_RECEIVED;
+        if (receipt_quantity >= planned_quantity) return POStatus.COMPLETED;
+        else return POStatus.FINISHED;
+      } else return POStatus.PROCUREMENT_RECEIVED;
     }
-    return -1;
+    return POStatus.DRAFT;
   },
   convertVariantToLineitem: (
     variants: Array<VariantResponse>

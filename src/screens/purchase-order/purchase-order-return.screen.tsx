@@ -56,7 +56,6 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const state: any = location.state;
   if (!state) return <Fragment></Fragment>;
   const params: PurchaseOrder = state.params;
-
   return (
     <ContentContainer
       isLoading={isLoading}
