@@ -151,12 +151,6 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
               <h3 className="preview__header-title">Bản xem trước</h3>
             </div>
             <div>
-              <img
-                src={IconEdit}
-                alt=""
-                className="iconEdit"
-                onClick={() => onChangeShowEditor(true)}
-              />
               <ReactToPrint
                 trigger={() => (
                   <Button className="button--print">
@@ -171,6 +165,12 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
                   </Button>
                 )}
                 content={() => printElementRef.current}
+              />
+              <img
+                src={IconEdit}
+                alt=""
+                className="iconEdit"
+                onClick={() => onChangeShowEditor(true)}
               />
             </div>
           </div>

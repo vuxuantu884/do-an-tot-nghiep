@@ -121,6 +121,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setVisibleShipping,
     setPaymentType,
     setShipmentMethod,
+    OrderDetail,
   } = props;
 
   // node dom
@@ -1750,7 +1751,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           format={(a: string) => formatCurrency(a)}
                           replace={(a: string) => replaceFormatString(a)}
                           placeholder="0"
-                          value={customerNeedToPayValue}
+                          // value={customerNeedToPayValue}
+                          value={
+                            customerNeedToPayValue -
+                            (OrderDetail?.total_paid
+                              ? OrderDetail?.total_paid
+                              : 0)
+                          }
                           onChange={(value: any) => setTakeMoneyHelper(value)}
                           style={{
                             textAlign: "right",

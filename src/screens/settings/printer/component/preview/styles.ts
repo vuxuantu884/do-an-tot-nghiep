@@ -28,7 +28,7 @@ export const StyledComponent = styled.div`
       }
       .iconEdit {
         cursor: pointer;
-        margin-right: 30px;
+        margin-left: 30px;
       }
     }
     &__content {
