@@ -22,10 +22,13 @@ stages:
 
 docker build:
   stage: docker_build
+  tags:
+    - nonprod-dev
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
   only:
     refs:
       - develop
+      - feature/move-cluster
   variables:
     DOCKER_FILE: Dockerfile
     SERVICE_NAME: yody-app-admin
@@ -35,6 +38,8 @@ docker build:
 
 docker build uat:
   stage: docker_build
+  tags:
+    - nonprod-dev
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
   only:
     refs:
@@ -48,12 +53,15 @@ docker build uat:
 
 deploy to dev:
   stage: deploy
+  tags:
+    - nonprod-deploy
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
   dependencies: []
   only:
     - develop
     - feature/sprint-4-app-admin
     - feature/ci-cd
+    - feature/move-cluster
   variables:
     HOST: dev.yody.io
     NAMESPACE: dev
@@ -82,6 +90,8 @@ deploy to uat:
 tag:
   stage: tag
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  tags:
+    - nonprod-dev
   only:
     - tags
   variables:
