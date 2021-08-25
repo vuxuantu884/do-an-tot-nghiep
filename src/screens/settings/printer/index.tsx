@@ -61,7 +61,7 @@ const SettingPrinter: React.FC = () => {
     content: () => printElementRef.current,
   });
 
-  const columns: Array<ICustomTableColumType<VariantResponse>> = [
+  const columns: ICustomTableColumType<any>[] = [
     {
       title: "STT",
       visible: true,

@@ -85,8 +85,8 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
-import FulfillmentStatusTag from "./FulfillmentStatusTag";
-import PrintShippingLabel from "./PrintShippingLabel";
+import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
+import PrintShippingLabel from "./order-detail/PrintShippingLabel";
 
 const { Panel } = Collapse;
 const { Link } = Typography;

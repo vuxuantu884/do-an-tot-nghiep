@@ -42,7 +42,7 @@ const OrderSources: React.FC = () => {
   const [modalSingleOrderSource, setModalSingleOrderSource] =
     useState<OrderSourceModel | null>(null);
 
-  const columns: Array<ICustomTableColumType<VariantResponse>> = [
+  const columns: ICustomTableColumType<any>[] = [
     {
       title: "Nguồn đơn hàng",
       dataIndex: "name",
