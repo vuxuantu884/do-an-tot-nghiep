@@ -82,3 +82,8 @@ export interface PurchaseOrderQuery extends BaseQuery {
   tags?: string;
   reference?: string;
 }
+export interface PurchaseOrderPrint {
+  purchaseOrderId: number;
+  htmlContent: string;
+  size: string;
+}
