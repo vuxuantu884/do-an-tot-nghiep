@@ -21,6 +21,7 @@ import {
   ProcumentStatus,
   VietNamId,
 } from "utils/Constants";
+import { POUtils } from "utils/POUtils";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
 import POPaymentForm from "./component/po-payment.form";
@@ -41,7 +42,6 @@ import { POField } from "model/purchase-order/po-field";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import POPaymentConditionsForm from "./component/po-payment-conditions.form";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
-import { POUtils } from "utils/POUtils";
 import moment from "moment";
 
 type PurchaseOrderParam = {
@@ -207,21 +207,60 @@ const PODetailScreen: React.FC = () => {
     },
     [setConfirmDelete, poData]
   );
+  const redirectToReturn = useCallback(() => {
+    history.push(`${UrlConfig.PURCHASE_ORDER}/${id}/return`, {
+      params: poData,
+    });
+  }, [history, poData]);
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [];
-    // if (poData?.status && !(poData?.status in [POStatus.FINALIZED, POStatus.FINISHED, POStatus.CANCELLED]))
-    return [
-      {
+    if (!poData) return [];
+    let poStatus = POUtils.combinePOStatus(poData);
+    if (
+      poStatus &&
+      [POStatus.ORDER, POStatus.FINALIZED, POStatus.PROCUREMENT_DRAFT].includes(
+        poStatus
+      ) &&
+      poData.receipt_quantity < 1
+    )
+      menuActions.push({
         id: 1,
-        name: "Xóa",
-      },
-      {
-        id: 2,
-        name: "Sửa",
-      },
-    ];
-  }, []);
+        name: "Hủy",
+      });
+    return menuActions;
+  }, [poData]);
+  const renderModalDelete = useCallback(() => {
+    let title = "Bạn chắc chắn hủy đơn nhập hàng này không ?",
+      subTitle = "",
+      okText = "Đồng ý",
+      cancelText = "Hủy",
+      deleteFunc = onDelete;
+    if (!poData) return;
+    const { receipt_quantity, total_paid } = poData;
+    if (!receipt_quantity && total_paid && total_paid > 0) {
+      subTitle =
+        "Đơn nhập đã được thanh toán với nhà cung cấp. Bạn có muốn tạo hoàn tiền từ nhà cung cấp trước khi hủy đơn nhập hàng không?";
+      okText = "Tạo hoàn tiền";
+      cancelText = "Hủy đơn hàng";
+      deleteFunc = redirectToReturn;
+    }
 
+    return (
+      <ModalDeleteConfirm
+        onCancel={() => setConfirmDelete(false)}
+        onOk={() => {
+          setConfirmDelete(false);
+          // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+          deleteFunc();
+        }}
+        okText={okText}
+        cancelText={cancelText}
+        title={title}
+        subTitle={subTitle}
+        visible={isConfirmDelete}
+      />
+    );
+  }, [poData, isConfirmDelete, setConfirmDelete, setConfirmDelete, onDelete]);
   const renderButton = useMemo(() => {
     switch (status) {
       case POStatus.DRAFT:
@@ -280,7 +319,7 @@ const PODetailScreen: React.FC = () => {
           name: `Đơn hàng ${id}`,
         },
       ]}
-      extra={<POStep status={poData?.status} order_date={poData?.order_date} />}
+      extra={<POStep poData={poData} />}
     >
       <div className="page-filter">
         <ActionButton menu={menu} onMenuClick={onMenuClick} type="primary" />
@@ -325,6 +364,7 @@ const PODetailScreen: React.FC = () => {
             <POInventoryForm
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
+              code={poData?.code}
               isEdit={true}
               now={now}
               status={status}
@@ -375,7 +415,7 @@ const PODetailScreen: React.FC = () => {
               zIndex: 100,
             }}
           >
-            <POStep status={poData?.status} />
+            <POStep poData={poData} />
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>
@@ -389,17 +429,7 @@ const PODetailScreen: React.FC = () => {
           </Col>
         </Row>
       </Form>
-      <ModalDeleteConfirm
-        onCancel={() => setConfirmDelete(false)}
-        onOk={() => {
-          setConfirmDelete(false);
-          // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
-          onDelete();
-        }}
-        title="Bạn chắc chắn xóa đơn đặt hàng ?"
-        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
-        visible={isConfirmDelete}
-      />
+      {renderModalDelete()}
     </ContentContainer>
   );
 };
