@@ -28,6 +28,7 @@ type FormValueType = {
   email: string;
   city_id: number;
   tax_code: string;
+  default: boolean
 };
 
 const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
@@ -60,6 +61,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
           email: formItem?.email,
           city_id: formItem?.city_id,
           tax_code: formItem?.tax_code,
+          default: formItem?.default,
         }
       : {
           name: "",
@@ -72,6 +74,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
           email: "",
           city_id: null,
           tax_code: "",
+          default: null
         };
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -173,13 +176,13 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                   label={<b>Email:</b>}
                   rules={[
                     {
-                      pattern: RegUtil.EMAIL,
-                      message: "Email chưa đúng định dạng",
+                      pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
+                      message: "Vui lòng nhập đúng định dạng email",
                     },
                   ]}
                 >
                   <Input
-                    placeholder="Nhập thư điện tử"
+                    placeholder="Nhập email"
                     style={{ width: "100%" }}
                     maxLength={255}
                   />
@@ -299,15 +302,9 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
               />
             </Form.Item>
             <Form.Item
-              style={{ display: "flex", flexDirection: "row" }}
-              label={<b>Đặt làm mặc định:</b>}
-              name="is_default"
-              valuePropName="checked"
+              name="default"
+              hidden
             >
-              <Checkbox
-                style={{ paddingBottom: 8, marginLeft: 20 }}
-                onChange={handleChangeDefault}
-              ></Checkbox>
             </Form.Item>
           </Col>
         </Row>

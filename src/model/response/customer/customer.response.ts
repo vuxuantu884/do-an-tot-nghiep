@@ -19,6 +19,7 @@ export interface CustomerResponse extends BaseObject {
   gender: string | null;
   website: string | null;
   responsible_staff_code: number;
+  responsible_staff: string;
   affiliate_code: string | null;
   loyalty: number;
   billing_addresses: Array<BillingAddress>;

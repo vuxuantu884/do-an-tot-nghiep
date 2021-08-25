@@ -103,3 +103,25 @@
   z-index: 99;
   padding-right: 280px;
 }
+
+.customer-search-filter{
+  .page-filter-right{
+    flex: 1;
+    .ant-space-align-center{
+      width: 100%;
+      .ant-space-item{
+        width: 100%;
+        .ant-form-inline{
+          width: 100%;
+          justify-content: space-between;
+          .ant-form-item:first-child{
+            flex: 1;
+            margin: 0 16px;
+          }
+         }
+      }
+     
+    }
+  }
+  
+}
