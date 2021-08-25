@@ -36,6 +36,7 @@ const POField = {
   receipt_quantity: "receipt_quantity",
   planned_quantity: "planned_quantity",
   financial_status: "financial_status",
+  receive_status: "receive_status",
   return_reason: "return_reason",
   quantity_return: "quantity_return",
 };

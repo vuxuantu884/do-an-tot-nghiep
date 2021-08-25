@@ -117,10 +117,9 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
               label={<b>Email:</b>}
               rules={[
                 {
-                  pattern: RegUtil.EMAIL,
-                  message: "Thư điện tử chưa đúng định dạng",
-                },
-              ]}
+                  pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
+                  message: "Vui lòng nhập đúng định dạng email",
+                }]}
             >
               <Input
                 placeholder="Nhập thư điện tử"

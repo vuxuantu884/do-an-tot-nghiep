@@ -81,11 +81,20 @@ export const ErrorGHTK = {
 };
 export const POStatus = {
   DRAFT: "draft",
+  //xac nhan
   FINALIZED: "finalized",
+  //ket thuc
   COMPLETED: "completed",
+  //hoan thanh
   FINISHED: "finished",
+  //huy
   CANCELLED: "cancelled",
+  //dat hang
+  ORDER: "ORDER",
+  //phieu nhap
   PROCUREMENT_DRAFT: "procurement_draft",
+  //nhap kho
+  PROCUREMENT_RECEIVED: "procurement_received",
   STOCK_IN: "stock_in",
 };
 
