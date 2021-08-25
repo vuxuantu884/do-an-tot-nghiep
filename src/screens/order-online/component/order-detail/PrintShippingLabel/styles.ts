@@ -9,7 +9,7 @@ export const StyledComponent = styled.div`
     color: #222;
     border-color: #e5e5e5;
     img {
-      margin-right: 5px;
+      margin-right: 10px;
     }
   }
 `;
