@@ -1,15 +1,18 @@
-.quill{
+.quill {
   width: 100%;
-  border: 1px solid #CFDCE9;
+  border: 1px solid #cfdce9;
   border-radius: 5px;
-  .ql{
-    &-toolbar  {
+  .ql {
+    &-toolbar {
       border: none;
       background-color: rgba($background-color-secondary, 0.5);
     }
-    &-container  {
+    &-container {
       height: 200px;
       border: none;
     }
   }
+}
+.cke_contents {
+  min-height: 500px !important;
 }

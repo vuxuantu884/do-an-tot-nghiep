@@ -4,11 +4,14 @@ import setting from './setting';
 import product from './product';
 import bill from './bill';
 import UrlConfig from 'config/UrlConfig';
+import customers from "./customer"
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
 const Inventory = React.lazy(() => import ("screens/inverory"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
+const Customer = React.lazy(() => import ("screens/customer"));
+// const CustomerAdd = React.lazy(() => import ("screens/customer/add"));
 
 const menu: Array<RouteMenu> = [
   {
@@ -77,15 +80,15 @@ const menu: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: "/customer",
+    path: "/customers",
     exact: true,
     title: "Khách hàng",
     icon: 'icon-customer',
-    component: Inventory,
+    component: Customer,
     key: "6",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: customers,
     type: 0,
     object: null,
   },

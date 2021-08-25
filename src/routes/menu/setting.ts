@@ -6,9 +6,9 @@ import { HEADER_TYPE } from "config/HeaderConfig";
 const ManageUserScreen = React.lazy(
   () => import("screens/account/account.search.screen")
 );
-const ManageStoreScreen = React.lazy(
-  () => import("screens/setting/manage-store.screen")
-);
+// const ManageStoreScreen = React.lazy(
+//   () => import("screens/setting/manage-store.screen")
+// );
 const RoleListScreen = React.lazy(
   () => import("screens/roles/role-list.screen")
 );
@@ -50,7 +50,31 @@ const SettingPrinterScreen = React.lazy(
 const SettingCreatePrinterScreen = React.lazy(
   () => import("screens/settings/printer/create")
 );
+const SettingSinglePrinterScreen = React.lazy(
+  () => import("screens/settings/printer/id")
+);
 
+// ThirdPartyLogisticsIntegration: Kết nối hãng vận chuyển
+const ThirdPartyLogisticsIntegrationScreen = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration")
+);
+const SingleThirdPartyLogisticsIntegrationScreen_GiaoHangNhanh = React.lazy(
+  () =>
+    import("screens/settings/third-party-logistics-integration/giao-hang-nhanh")
+);
+const SingleThirdPartyLogisticsIntegrationScreen_ViettelPost = React.lazy(
+  () =>
+    import("screens/settings/third-party-logistics-integration/viettel-post")
+);
+const SingleThirdPartyLogisticsIntegrationScreen_DHL = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration/dhl")
+);
+const SingleThirdPartyLogisticsIntegrationScreen_GiaoHangTietKiem = React.lazy(
+  () =>
+    import(
+      "screens/settings/third-party-logistics-integration/giao-hang-tiet-kiem"
+    )
+);
 const setting: Array<RouteMenu> = [
   {
     path: UrlConfig.ACCOUNTS,
@@ -58,7 +82,7 @@ const setting: Array<RouteMenu> = [
     title: "Quản lý người dùng",
     icon: "icon-dot",
     component: ManageUserScreen,
-    key: "submenu91",
+    key: "subMenu91",
     isShow: true,
     header: null,
     subMenu: [
@@ -68,7 +92,7 @@ const setting: Array<RouteMenu> = [
         title: "Thêm mới người dùng",
         icon: "icon-dot",
         component: AccountCreateScreen,
-        key: "submenu261",
+        key: "subMenu261",
         isShow: true,
         header: null,
         subMenu: [],
@@ -101,7 +125,7 @@ const setting: Array<RouteMenu> = [
     title: "Quản lý cửa hàng",
     icon: "icon-dot",
     component: StoreListScreen,
-    key: "submenu92",
+    key: "subMenu92",
     isShow: true,
     header: null,
     subMenu: [
@@ -111,7 +135,7 @@ const setting: Array<RouteMenu> = [
         title: "Thêm cửa hàng",
         icon: "icon-dot",
         component: StoreCreateScreen,
-        key: "submenu921",
+        key: "subMenu921",
         isShow: true,
         header: null,
         subMenu: [],
@@ -124,7 +148,7 @@ const setting: Array<RouteMenu> = [
         title: "Sửa cửa hàng",
         icon: "icon-dot",
         component: StoreUpdateScreen,
-        key: "submenu922",
+        key: "subMenu922",
         isShow: true,
         header: null,
         subMenu: [],
@@ -144,7 +168,7 @@ const setting: Array<RouteMenu> = [
     title: "Quản lý mẫu in",
     icon: "icon-dot",
     component: SettingPrinterScreen,
-    key: "submenu93",
+    key: "subMenu93",
     isShow: true,
     header: null,
     subMenu: [
@@ -154,12 +178,26 @@ const setting: Array<RouteMenu> = [
         title: "Thêm mới mẫu in",
         icon: "icon-dot",
         component: SettingCreatePrinterScreen,
-        key: "submenu262",
+        key: "subMenu262",
         isShow: true,
         header: null,
         subMenu: [],
         type: 0,
         object: null,
+      },
+      {
+        path: `${UrlConfig.PRINTER}/:id`,
+        exact: true,
+        title: "Sửa mẫu in",
+        icon: "icon-dot",
+        component: SettingSinglePrinterScreen,
+        key: "subMenu263",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore: ["create"],
       },
     ],
     type: 0,
@@ -171,7 +209,7 @@ const setting: Array<RouteMenu> = [
     title: "Quản lý nhóm quyền",
     icon: "icon-dot",
     component: RoleListScreen,
-    key: "submenu94",
+    key: "subMenu94",
     isShow: true,
     header: null,
     subMenu: [
@@ -181,7 +219,7 @@ const setting: Array<RouteMenu> = [
         title: "Thêm mới nhóm quyền",
         icon: "icon-dot",
         component: RoleCreateScreen,
-        key: "submenu941",
+        key: "subMenu941",
         isShow: true,
         header: null,
         subMenu: [],
@@ -199,7 +237,7 @@ const setting: Array<RouteMenu> = [
     subTitle: "Thiết lập quy trình xử lý đơn hàng",
     icon: "icon-dot",
     component: SettingFulfillmentScreen,
-    key: "submenu95",
+    key: "subMenu95",
     isShow: true,
     header: null,
     subMenu: [
@@ -209,7 +247,7 @@ const setting: Array<RouteMenu> = [
         title: "Thêm mới đơn hàng",
         icon: "icon-dot",
         component: SettingFulfillmentScreen,
-        key: "submenu261",
+        key: "subMenu261",
         isShow: true,
         header: null,
         subMenu: [],
@@ -229,7 +267,7 @@ const setting: Array<RouteMenu> = [
     subTitle: "Thêm và quản lý nguồn tạo ra đơn hàng",
     icon: "icon-dot",
     component: SettingOrderSourcesScreen,
-    key: "submenu96",
+    key: "subMenu96",
     isShow: true,
     header: null,
     subMenu: [
@@ -239,7 +277,7 @@ const setting: Array<RouteMenu> = [
         title: "Thêm mới nguồn đơn hàng",
         icon: "icon-dot",
         component: AccountCreateScreen,
-        key: "submenu261",
+        key: "subMenu261",
         isShow: true,
         header: null,
         subMenu: [],
@@ -265,6 +303,78 @@ const setting: Array<RouteMenu> = [
     object: {
       pathCreate: `${UrlConfig.ORDER_PROCESSING_STATUS}/create`,
     },
+  },
+  {
+    path: UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION,
+    exact: true,
+    title: "Kết nối hãng vận chuyển",
+    subTitle: "Kết nối hãng vận chuyển",
+    icon: "icon-dot",
+    component: ThirdPartyLogisticsIntegrationScreen,
+    key: "subMenu97",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/giao-hang-nhanh`,
+        exact: true,
+        title: "Giao hàng nhanh",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_GiaoHangNhanh,
+        key: "giao-hang-nhanh",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/viettel-post`,
+        exact: true,
+        title: "Viettel Post",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_ViettelPost,
+        key: "viettel-post",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/dhl`,
+        exact: true,
+        title: "DHL",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_DHL,
+        key: "dhl",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/giao-hang-tiet-kiem`,
+        exact: true,
+        title: "Giao hàng tiết kiệm",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_GiaoHangTietKiem,
+        key: "giao-hang-tiet-kiem",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+        pathIgnore: ["create"],
+      },
+    ],
+
+    type: HEADER_TYPE.BUTTON_CREATE,
+    object: {},
   },
 ];
 

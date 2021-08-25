@@ -8,6 +8,7 @@ import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { Moment } from "moment";
 import React, { useCallback, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
@@ -22,7 +23,7 @@ import POInventoryView from "./po-inventory/po-inventory.view";
 type POInventoryFormProps = {
   stores: Array<StoreResponse>;
   status: string;
-  now: Date;
+  now: Moment;
   isEdit: boolean;
   onAddProcumentSuccess?: () => void;
   idNumber?: number;
@@ -173,9 +174,11 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       }
     >
       <div className="padding-20">
-        <POInventoryDraft isEdit={props.isEdit} stores={stores} now={now} />
+        <POInventoryDraft isEdit={props.isEdit} stores={stores} />
         {status && status !== POStatus.DRAFT && status !== POStatus.COMPLETED && (
           <POInventoryView
+            id={idNumber}
+            onSuccess={() => { onAddProcumentSuccess && onAddProcumentSuccess();}}
             confirmDraft={(value: PurchaseProcument) => {
               setProcumentDraft(value);
               setVisibleDraft(true);

@@ -1,5 +1,4 @@
 import { Col, Form, Input, Modal, Radio, Row } from "antd";
-import { PurchaseAddress } from "model/purchase-order/purchase-address.model";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import CustomDatepicker from "component/custom/date-picker.custom";
@@ -12,6 +11,7 @@ import {
   PoPaymentUpdateAction,
 } from "domain/actions/po/po-payment.action";
 import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
+import moment from "moment";
 
 type PaymentModalProps = {
   visible: boolean;
@@ -28,6 +28,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   const { poId, purchasePayment, visible, onCancel, onOk } = props;
   const [formPayment] = Form.useForm();
   const [confirmLoading, setConfirmLoading] = React.useState(false);
+  const [disabledRef, setDisabledRef] = React.useState(false);
 
   const onOkPress = useCallback(() => {
     // onOk();
@@ -63,8 +64,9 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     (values: PurchasePayments) => {
       setConfirmLoading(true);
       let data = formPayment.getFieldsValue(true);
-      
+
       if (data.id) {
+        if (data.status === PoPaymentStatus.REFUND) data.amount = -data.amount;
         dispatch(PoPaymentUpdateAction(poId, data.id, data, updateCallback));
       } else {
         values.status = PoPaymentStatus.UNPAID;
@@ -74,6 +76,17 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     [createCallback, dispatch, formPayment, poId, updateCallback]
   );
 
+  const onChangePaymentMethod = (e: any) => {
+    console.log("radio checked", e.target.value);
+    if (e.target.value === PoPaymentMethod.BANK_TRANSFER) {
+      setDisabledRef(false);
+    } else {
+      formPayment.setFieldsValue({ reference: "" });
+      setDisabledRef(true);
+    }
+    // setValue(e.target.value);
+  };
+
   const prevVisibleRef = useRef(false);
   useEffect(() => {
     prevVisibleRef.current = visible;
@@ -81,13 +94,11 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   const prevVisible = prevVisibleRef.current;
   useEffect(() => {
     if (!visible && prevVisible) {
-      
       formPayment.resetFields();
     }
   }, [formPayment, prevVisible, visible]);
   useEffect(() => {
     if (visible) {
-      
       if (purchasePayment) {
         formPayment.setFieldsValue(purchasePayment);
       }
@@ -118,13 +129,13 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn loại nhà cung cấp",
+                  message: "Vui lòng chọn phương thức thanh toán",
                 },
               ]}
-              label="Hình thức thanh toán"
+              label="Phương thức thanh toán"
               name="payment_method_code"
             >
-              <Radio.Group>
+              <Radio.Group onChange={onChangePaymentMethod}>
                 <Radio
                   value={PoPaymentMethod.BANK_TRANSFER}
                   key={PoPaymentMethod.BANK_TRANSFER}
@@ -145,7 +156,11 @@ const PaymentModal: React.FC<PaymentModalProps> = (
                 { required: true, message: "Vui lòng nhập ngày thanh toán" },
               ]}
             >
-              <CustomDatepicker style={{ width: "100%" }} />
+              <CustomDatepicker
+                disableDate={(date) => date <= moment().startOf("days")}
+                style={{ width: "100%" }}
+                placeholder="dd/mm/yyyy"
+              />
             </Item>
           </Col>
 
@@ -158,20 +173,28 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               ]}
             >
               <NumberInput
-                format={(a: string) => formatCurrency(a)}
+                format={(a: string) =>
+                  formatCurrency(a ? Math.abs(parseInt(a)) : 0)
+                }
                 replace={(a: string) => replaceFormatString(a)}
-                placeholder=""
+                min={0}
+                default={0}
+                placeholder="Nhập số tiền cần thanh toán"
               />
             </Item>
           </Col>
           <Col xs={24} lg={12}>
             <Item name="reference" label="Số tham chiếu">
-              <Input />
+              <Input
+                placeholder="Nhập số tham chiếu"
+                disabled={disabledRef}
+                maxLength={255}
+              />
             </Item>
           </Col>
           <Col xs={24} lg={24}>
             <Item name="note" label="Ghi chú">
-              <Input.TextArea />
+              <Input maxLength={255} placeholder="Nhập ghi chú" />
             </Item>
           </Col>
         </Row>

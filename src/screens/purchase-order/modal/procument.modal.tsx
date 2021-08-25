@@ -14,10 +14,11 @@ import { ConvertDateToUtc } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
+import moment, { Moment } from "moment";
 
 type ProcumentModalProps = {
   visible: boolean;
-  now: Date;
+  now: Moment;
   stores: Array<StoreResponse>;
   onCancle: () => void;
   items: Array<PurchaseOrderLineItem>;
@@ -120,7 +121,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
               label="Ngày nhận dự kiến"
             >
               <CustomDatepicker
-                disableDate={(date) => date.valueOf() < now.getTime()}
+                disableDate={(date) => date < moment().startOf('days')}
                 style={{ width: "100%" }}
               />
             </Form.Item>
@@ -213,7 +214,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                         </div>
                       </div>
                     ),
-                    width: 150,
+                    width: 120,
                     dataIndex: POProcumentLineItemField.ordered_quantity,
                     render: (value, item, index) => (
                       <div style={{ textAlign: "right" }}>{value}</div>
@@ -229,10 +230,31 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                           display: "flex",
                         }}
                       >
-                        SL Nhận được duyệt
+                        SL đã nhận
                       </div>
                     ),
-                    width: 150,
+                    width: 100,
+                    dataIndex: POProcumentLineItemField.accepted_quantity,
+                    render: (value, item, index) => (
+                      <div style={{ textAlign: "right" }}>
+                        {value ? value : 0}
+                      </div>
+                    ),
+                  },
+                  {
+                    title: (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                          flexDirection: "column",
+                          display: "flex",
+                        }}
+                      >
+                        SL Đã lên kế hoạch
+                      </div>
+                    ),
+                    width: 100,
                     dataIndex: POProcumentLineItemField.planned_quantity,
                     render: (value, item, index) => (
                       <div style={{ textAlign: "right" }}>
@@ -253,16 +275,16 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                         Kế hoạch nhận
                       </div>
                     ),
-                    width: 150,
+                    width: 100,
                     dataIndex: POProcumentLineItemField.quantity,
                     render: (value, item, index) => (
                       <NumberInput
                         placeholder="Kế hoạch nhận"
                         isFloat={false}
                         value={value}
-                        min={1}
+                        min={0}
                         max={item.ordered_quantity}
-                        default={1}
+                        default={0}
                         maxLength={6}
                         onChange={(quantity: number | null) => {
                           onQuantityChange(quantity, index);
@@ -272,10 +294,50 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                   },
                   {
                     title: "",
-                    width: 40,
+                    width: 20,
                     render: (value: string, item, index: number) => "",
                   },
                 ]}
+                summary={(data) => {
+                  let ordered_quantity = 0;
+                  let accepted_quantity = 0
+                  let planned_quantity = 0;
+                  let quantity = 0;
+                  data.forEach((item) => {
+                    ordered_quantity = ordered_quantity + item.ordered_quantity
+                    accepted_quantity = accepted_quantity + item.accepted_quantity
+                    planned_quantity = planned_quantity + item.planned_quantity
+                    quantity = quantity + item.quantity;
+                  })
+                  return (
+                    <Table.Summary>
+                      <Table.Summary.Row>
+                        <Table.Summary.Cell
+                          align="center"
+                          colSpan={3}
+                          index={0}
+                        >
+                          <div style={{ fontWeight: 700 }}>Tổng</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={1}>
+                          <div style={{ fontWeight: 700 }}>{ordered_quantity}</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={2}>
+                          <div style={{ fontWeight: 700 }}>{accepted_quantity}</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={3}>
+                          <div style={{ fontWeight: 700 }}>{planned_quantity}</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={4}>
+                          <div style={{ fontWeight: 700 }}>{quantity}</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={5}>
+                          <div style={{ fontWeight: 700 }}></div>
+                        </Table.Summary.Cell>
+                      </Table.Summary.Row>
+                    </Table.Summary>
+                  );
+                }}
               />
             );
           }}

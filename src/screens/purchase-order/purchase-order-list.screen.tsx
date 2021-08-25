@@ -1,4 +1,6 @@
-import { Card } from "antd";
+import { Card, Tag, Row, Button, Space } from "antd";
+import NumberFormat from "react-number-format";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import ContentContainer from "component/container/content.container";
 import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -7,33 +9,65 @@ import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import UrlConfig from "config/UrlConfig";
-import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
-import { PoSearchAction } from "domain/actions/po/po.action";
+import { AppConfig } from "config/AppConfig";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { PoSearchAction, PODeleteAction } from "domain/actions/po/po.action";
+import { ExportResponse } from "model/other/File/export-model";
+import { exportFile, getFile } from "service/other/export.service";
+import { HttpStatus } from "config/HttpStatus";
 import { PageResponse } from "model/base/base-metadata.response";
-import { SupplierResponse } from "model/core/supplier.model";
+import { StoreResponse } from "model/core/store.model";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   PurchaseOrder,
   PurchaseOrderQuery,
 } from "model/purchase-order/purchase-order.model";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { ProcumentStatus, PoPaymentStatus } from "utils/Constants";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import NumberFormat from "react-number-format";
+import {
+  AccountResponse,
+  AccountSearchQuery,
+} from "model/account/account.model";
+import importIcon from "assets/icon/import.svg";
+import exportIcon from "assets/icon/export.svg";
+import ExportModal from "screens/purchase-order/modal/export.modal";
+
+import { showError } from "utils/ToastUtils";
+import "./purchase-order-list.scss";
+
+const supplierQuery: AccountSearchQuery = {
+  department_ids: [AppConfig.WIN_DEPARTMENT],
+};
+
+const rdQuery: AccountSearchQuery = {
+  department_ids: [AppConfig.RD_DEPARTMENT],
+};
 
 const PurchaseOrderListScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
+  const isFirstLoad = useRef(true);
   const [tableLoading, setTableLoading] = useState(true);
+  const [isError, setError] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  const [listSupplier, setSupplier] = useState<Array<SupplierResponse>>();
-  let initQuery: PurchaseOrderQuery = {
-    code: "",
-  };
+  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [selected, setSelected] = useState<Array<PurchaseOrder>>([]);
+  const [listSupplierAccount, setListSupplierAccount] =
+    useState<Array<AccountResponse>>();
+  const [listRdAccount, setListRdAccount] = useState<Array<AccountResponse>>();
+  const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
+  const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  let initQuery: PurchaseOrderQuery = {};
 
   let dataQuery: PurchaseOrderQuery = {
     ...initQuery,
@@ -48,16 +82,61 @@ const PurchaseOrderListScreen: React.FC = () => {
     },
     items: [],
   });
+
+  const onExport = useCallback(() => {
+    let queryParams = generateQuery(params);
+    exportFile({
+      conditions: queryParams,
+      type: "EXPORT_PURCHASE_ORDER",
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          showSuccess("Đã gửi yêu cầu xuất file");
+          setListExportFile([...listExportFile, response.data.code]);
+        }
+      })
+      .catch((error) => {
+        console.log("purchase order export file error", error);
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  }, [params, listExportFile]);
+  const checkExportFile = useCallback(() => {
+    let getFilePromises = listExportFile.map((code) => {
+      return getFile(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data.status === "FINISH") {
+            let fileCode = response.data.code,
+              newListExportFile = listExportFile.filter((item) => {
+                return item !== fileCode;
+              });
+            window.open(response.data.url);
+            setListExportFile(newListExportFile);
+          }
+        }
+      });
+    });
+  }, [listExportFile]);
+  useEffect(() => {
+    if (listExportFile.length === 0) return;
+    checkExportFile();
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFile, checkExportFile]);
+
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<PurchaseOrder>>
   >([
     {
-      title: "Mã ",
+      title: "ID đơn hàng",
       dataIndex: "code",
       render: (value: string, i: PurchaseOrder) => (
         <Link to={`${UrlConfig.PURCHASE_ORDER}/${i.id}`}>{value}</Link>
       ),
       visible: true,
+      fixed: "left",
     },
     {
       title: "Nhà cung cấp",
@@ -65,42 +144,191 @@ const PurchaseOrderListScreen: React.FC = () => {
       visible: true,
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "phone",
+      title: "Ngày duyệt đơn",
+      dataIndex: "activated_date",
+      render: (value: string) => {
+        return <div>{ConvertUtcToLocalDate(value)}</div>;
+      },
       visible: true,
     },
     {
-      title: "Tiền phải trả",
-      dataIndex: "total",
+      title: "Ngày nhận hàng dự kiến",
+      dataIndex: "expect_import_date",
+      render: (value: string) => {
+        return <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>;
+      },
       visible: true,
+      width: 200,
+    },
+    {
+      title: "Kho nhận hàng dự kiến",
+      dataIndex: "expect_store",
+      visible: true,
+      width: 200,
+    },
+    {
+      title: "Trạng thái đơn",
+      dataIndex: "status_name",
+      render: (value: string) => {
+        return <Tag className="tag-custom primary-txt">{value}</Tag>;
+      },
+      visible: true,
+    },
+    {
+      title: "Nhập kho",
+      dataIndex: "receive_status",
+      render: (value: string) => {
+        let processIcon = null;
+        switch (value) {
+          case ProcumentStatus.NOT_RECEIVED:
+            processIcon = "icon-blank";
+            break;
+          case ProcumentStatus.PARTIAL_RECEIVED:
+            processIcon = "icon-partial";
+            break;
+          case ProcumentStatus.RECEIVED:
+            processIcon = "icon-full";
+            break;
+        }
+        if (processIcon)
+          return (
+            <div className="text-center">
+              <div className={processIcon} />
+            </div>
+          );
+        return "";
+      },
+      visible: true,
+      width: 120,
+    },
+    {
+      title: "Thanh toán",
+      dataIndex: "financial_status",
+      render: (value: string) => {
+        let processIcon = null;
+        switch (value) {
+          case PoPaymentStatus.UNPAID:
+            processIcon = "icon-blank";
+            break;
+          case PoPaymentStatus.PARTIAL_PAID:
+            processIcon = "icon-partial";
+            break;
+          case PoPaymentStatus.PAID:
+            processIcon = "icon-full";
+            break;
+        }
+        if (processIcon)
+          return (
+            <div className="text-center">
+              <div className={processIcon} />
+            </div>
+          );
+        return "";
+      },
+      visible: true,
+      width: 120,
+    },
+    {
+      title: "Trả hàng",
+      visible: true,
+      width: 120,
+    },
+    {
+      title: "Tổng SL sp",
+      render: (row: PurchaseOrder) => {
+        let total = 0;
+        row?.line_items.forEach((item) => {
+          total += item?.quantity ? item.quantity : 0;
+        });
+        return <div>{total}</div>;
+      },
+      visible: true,
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "total",
       render: (value: number) => (
         <NumberFormat
           value={value}
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
-          prefix={"$"}
         />
       ),
+      visible: true,
     },
     {
-      title: "Người tạo",
-      dataIndex: "created_by",
-      visible: false,
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "created_date",
-      visible: false,
-
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      render: (value: string, row: PurchaseOrder) => (
-        <div className="text-success">{value}</div>
+      title: "Chi phí",
+      dataIndex: "total_cost_line",
+      render: (value: number) => (
+        <NumberFormat
+          value={value}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+        />
       ),
+      visible: true,
+    },
+    {
+      title: "Merchandiser",
+      render: (row) => {
+        if (!row.merchandiser_code || !row.merchandiser) return "";
+        return <div>{`${row.merchandiser_code} - ${row.merchandiser}`}</div>;
+      },
+      visible: true,
+    },
+    {
+      title: "QC",
+      render: (row) => {
+        if (!row.qc_code || !row.qc) return "";
+        return <div>{`${row.qc_code} - ${row.qc}`}</div>;
+      },
+      visible: true,
+    },
+    {
+      title: "Ngày tạo đơn",
+      dataIndex: "created_date",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      visible: true,
+      width: 200,
+    },
+    {
+      title: "Ngày hoàn tất đơn",
+      dataIndex: "completed_date",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      visible: true,
+      width: 200,
+    },
+    {
+      title: "Ngày hủy đơn",
+      dataIndex: "cancelled_date",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      visible: true,
+      width: 200,
+    },
+    {
+      title: "Ghi chú nội bộ",
+      dataIndex: "note",
+      visible: true,
+    },
+    {
+      title: "Ghi chú nhà cung cấp",
+      dataIndex: "supplier_note",
+      visible: true,
+      width: 200,
+    },
+    {
+      title: "Tag",
+      dataIndex: "tags",
+      render: (value: string) => {
+        return <div className="txt-muted">{value}</div>;
+      },
+      visible: true,
+    },
+    {
+      title: "Mã tham chiếu",
+      dataIndex: "reference",
       visible: true,
     },
   ]);
@@ -115,17 +343,21 @@ const PurchaseOrderListScreen: React.FC = () => {
     [history, params]
   );
 
-  const onMenuClick = useCallback((index: number) => {}, []);
+  const onMenuClick = useCallback((index: number) => {
+    switch (index) {
+      case 1:
+        setConfirmDelete(true);
+        // onDelete();
+        break;
+    }
+  }, []);
   let actions: Array<MenuAction> = [
     {
       id: 1,
       name: "Xóa",
     },
-    {
-      id: 2,
-      name: "Export",
-    },
   ];
+
   const onFilter = useCallback(
     (values) => {
       let newPrams = { ...params, ...values, page: 1 };
@@ -150,12 +382,69 @@ const PurchaseOrderListScreen: React.FC = () => {
     []
   );
 
+  const onResultRd = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        setError(true);
+        return;
+      }
+      setListRdAccount(data.items);
+    },
+    []
+  );
+
+  const onResultSupplier = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        setError(true);
+        return;
+      }
+      setListSupplierAccount(data.items);
+      dispatch(AccountSearchAction(rdQuery, onResultRd));
+    },
+    [dispatch, onResultRd]
+  );
+
   useEffect(() => {
-    dispatch(SupplierGetAllAction(setSupplier));
+    if (isFirstLoad.current) {
+      dispatch(AccountSearchAction(supplierQuery, onResultSupplier));
+      dispatch(StoreGetListAction(setListStore));
+    }
+    isFirstLoad.current = false;
     dispatch(PoSearchAction(params, setSearchResult));
-  }, [dispatch, params, setSearchResult]);
+  }, [dispatch, params, setSearchResult, onResultSupplier, onResultRd]);
+
+  const onSelect = useCallback((selectedRow: Array<PurchaseOrder>) => {
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      })
+    );
+  }, []);
+
+  const deleteCallback = useCallback(() => {
+    selected.splice(0, selected.length);
+    showSuccess("Xóa đơn đặt hàng thành công");
+    setTableLoading(true);
+    dispatch(PoSearchAction(params, setSearchResult));
+  }, [dispatch, params, setSearchResult, selected]);
+
+  const onDelete = useCallback(() => {
+    if (selected.length === 0) {
+      showWarning("Vui lòng chọn phần tử cần xóa");
+      return;
+    }
+
+    if (selected.length === 1) {
+      let id = selected[0].id;
+      dispatch(PODeleteAction(id, deleteCallback));
+      return;
+    }
+  }, [deleteCallback, dispatch, selected]);
+
   return (
     <ContentContainer
+      isError={isError}
       title="Quản lý đơn đặt hàng"
       breadcrumb={[
         {
@@ -167,22 +456,51 @@ const PurchaseOrderListScreen: React.FC = () => {
           path: `${UrlConfig.PURCHASE_ORDER}`,
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />}
+      extra={
+        <Row>
+          <Space>
+            <Button
+              type="default"
+              className="light"
+              size="large"
+              icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={() => {}}
+            >
+              Nhập file
+            </Button>
+            <Button
+              type="default"
+              className="light"
+              size="large"
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              // onClick={onExport}
+              onClick={() => {
+                setShowExportModal(true);
+              }}
+            >
+              Xuất file
+            </Button>
+            <ButtonCreate path={`${UrlConfig.PURCHASE_ORDER}/create`} />
+          </Space>
+        </Row>
+      }
     >
       <Card>
-        <div className="padding-20">
+        <div className="purchase-order-list padding-20">
           <PurchaseOrderFilter
             params={params}
             onMenuClick={onMenuClick}
             actions={actions}
             onFilter={onFilter}
-            listSupplier={listSupplier}
+            listSupplierAccount={listSupplierAccount}
+            listRdAccount={listRdAccount}
+            listStore={listStore}
           />
           <CustomTable
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 1080 }}
+            scroll={{ x: 3630 }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,
@@ -192,12 +510,21 @@ const PurchaseOrderListScreen: React.FC = () => {
               onShowSizeChange: onPageChange,
             }}
             onShowColumnSetting={() => setShowSettingColumn(true)}
+            onSelectedChange={onSelect}
             dataSource={data.items}
             columns={columnFinal}
             rowKey={(item: PurchaseOrder) => item.id}
           />
         </div>
       </Card>
+      <ExportModal
+        visible={showExportModal}
+        onCancel={() => setShowExportModal(false)}
+        onOk={() => {
+          setShowExportModal(false);
+          onExport();
+        }}
+      />
       <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}
@@ -206,6 +533,17 @@ const PurchaseOrderListScreen: React.FC = () => {
           setColumn(data);
         }}
         data={columns}
+      />
+      <ModalDeleteConfirm
+        onCancel={() => setConfirmDelete(false)}
+        onOk={() => {
+          setConfirmDelete(false);
+          // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+          onDelete();
+        }}
+        title="Bạn chắc chắn xóa đơn đặt hàng ?"
+        subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
+        visible={isConfirmDelete}
       />
     </ContentContainer>
   );

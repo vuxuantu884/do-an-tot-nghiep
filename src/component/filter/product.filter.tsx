@@ -146,6 +146,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visible}
+        width={396}
       >
         <Form
           onFinish={onFinish}

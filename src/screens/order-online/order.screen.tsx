@@ -54,9 +54,8 @@ import {
   getTotalAmountAfferDiscount,
 } from "utils/AppUtils";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import {
-  StoreDetailCustomAction,
-} from "domain/actions/core/store.action";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import CustomeInputTags from "./component/custom-input-tags";
 //#endregion
 
 var typeButton = "";
@@ -92,11 +91,11 @@ export default function Order() {
   const formRef = createRef<FormInstance>();
   const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] =
     useState<boolean>(false);
-  const [takeMoneyHelper, setTakeMoneyHelper] = useState<number | null>(null);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
+  // const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
   //#rgion Customer
 
@@ -122,7 +121,6 @@ export default function Order() {
     setShippingFeeCustomerHVC(value);
   };
   //#endregion
-  console.log(items);
   //#region Product
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
@@ -202,11 +200,10 @@ export default function Order() {
     billing_address: billingAddress,
   };
 
-  const onChangeTag = (value: []) => {
+  const onChangeTag = useCallback((value: []) => {
     const strTag = value.join(", ");
     setTag(strTag);
-  };
-  console.log(items.concat(itemGifts));
+  },[tags,setTag])
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
     let shipmentRequest = createShipmentRequest(value);
@@ -300,39 +297,31 @@ export default function Order() {
       objShipment.shipping_fee_paid_to_three_pls =
         value.shipping_fee_paid_to_three_pls;
 
-      if (takeMoneyHelper !== null) {
-        objShipment.cod = takeMoneyHelper;
-      } else {
-        objShipment.cod =
-          orderAmount +
-          (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-          getAmountPaymentRequest(payments) -
-          discountValue;
-      }
+      objShipment.cod =
+        orderAmount +
+        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+        getAmountPaymentRequest(payments) -
+        discountValue;
       return objShipment;
     }
     if (shipmentMethod === 3) {
       objShipment.delivery_service_provider_type = "pick_at_store";
 
-      if (takeMoneyHelper !== null) {
-        objShipment.cod = takeMoneyHelper;
-      } else {
-        if (shippingFeeCustomer !== null) {
-          if (
+      if (shippingFeeCustomer !== null) {
+        if (
+          orderAmount +
+            shippingFeeCustomer -
+            getAmountPaymentRequest(payments) >
+          0
+        ) {
+          objShipment.cod =
             orderAmount +
-              shippingFeeCustomer -
-              getAmountPaymentRequest(payments) >
-            0
-          ) {
-            objShipment.cod =
-              orderAmount +
-              shippingFeeCustomer -
-              getAmountPaymentRequest(payments);
-          }
-        } else {
-          if (orderAmount - getAmountPaymentRequest(payments) > 0) {
-            objShipment.cod = orderAmount - getAmountPaymentRequest(payments);
-          }
+            shippingFeeCustomer -
+            getAmountPaymentRequest(payments);
+        }
+      } else {
+        if (orderAmount - getAmountPaymentRequest(payments) > 0) {
+          objShipment.cod = orderAmount - getAmountPaymentRequest(payments);
         }
       }
       return objShipment;
@@ -362,12 +351,12 @@ export default function Order() {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      if(value.fulfillments && value.fulfillments.length > 0) {
-      showSuccess("Đơn được lưu và duyệt thành công");
-      history.push(`${UrlConfig.ORDER}/${value.id}`);
-      }else{
-      showSuccess("Đơn được lưu nháp thành công");
-      history.push(`${UrlConfig.ORDER}/${value.id}`);
+      if (value.fulfillments && value.fulfillments.length > 0) {
+        showSuccess("Đơn được lưu và duyệt thành công");
+        history.push(`${UrlConfig.ORDER}/${value.id}`);
+      } else {
+        showSuccess("Đơn được lưu nháp thành công");
+        history.push(`${UrlConfig.ORDER}/${value.id}`);
       }
     },
     [history]
@@ -498,8 +487,6 @@ export default function Order() {
       window.removeEventListener("scroll", scroll);
     };
   }, [scroll]);
-
-
 
   return (
     <ContentContainer
@@ -706,13 +693,9 @@ export default function Order() {
                     }}
                     // name="tags"
                   >
-                    <Select
-                      className="ant-select-hashtag"
-                      dropdownClassName="ant-select-dropdown-hashtag"
-                      mode="tags"
-                      placeholder="Thêm tag"
-                      onChange={onChangeTag}
-                    ></Select>
+                  <CustomeInputTags 
+                    onChangeTag={onChangeTag}
+                  />
                   </Form.Item>
                 </div>
               </Card>
@@ -765,22 +748,23 @@ export default function Order() {
                   formRef.current?.submit();
                 }}
               >
-                Lưu và duyệt
+                Lưu và Xác nhận
               </Button>
             </Col>
           </Row>
-          <SaveAndConfirmOrder
-            onCancel={onCancelSaveAndConfirm}
-            onOk={onOkSaveAndConfirm}
-            visible={isvibleSaveAndConfirm}
-            okText="Đồng ý"
-            cancelText="Hủy"
-            title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
-            text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
-            icon={WarningIcon}
-          />
         </Form>
       </div>
+      <SaveAndConfirmOrder
+        onCancel={onCancelSaveAndConfirm}
+        onOk={onOkSaveAndConfirm}
+        visible={isvibleSaveAndConfirm}
+        okText="Đồng ý"
+        cancelText="Hủy"
+        title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
+        text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
+        icon={WarningIcon}
+      />
     </ContentContainer>
   );
 }
+

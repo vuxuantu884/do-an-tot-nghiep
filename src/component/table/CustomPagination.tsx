@@ -60,8 +60,9 @@ const handleSizeChanger = (
   pagination: ICustomTablePaginationConfig,
   value: number
 ) => {
-  const { current = 1, onShowSizeChange } = pagination;
-  return onShowSizeChange && onShowSizeChange(current, value);
+  const { current = 1, total = 1, onShowSizeChange } = pagination;
+  const totalPage = Math.ceil(total / value);
+  return onShowSizeChange && onShowSizeChange(current > totalPage ? 1 : current, value);
 };
 
 const CustomPagination = (props: ICustomPaginationProps) => {

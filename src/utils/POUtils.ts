@@ -290,34 +290,34 @@ const POUtils = {
         variant_image: item.variant_image,
         ordered_quantity: item.quantity,
         planned_quantity: item.planned_quantity,
-        accepted_quantity: 0,
+        accepted_quantity: item.receipt_quantity,
         quantity: 0,
         real_quantity: 0,
-        note: '',
+        note: "",
       });
     });
     return result;
   },
   totalQuantityProcument: (data: Array<PurchaseProcumentLineItem>) => {
     let total = 0;
-    data.forEach((item) => total = total + item.quantity);
+    data.forEach((item) => (total = total + item.quantity));
     return total;
   },
   totalAccpectQuantityProcument: (data: Array<PurchaseProcumentLineItem>) => {
     let total = 0;
-    data.forEach((item) => total = total + item.accepted_quantity);
+    data.forEach((item) => (total = total + item.accepted_quantity));
     return total;
   },
   totalRealQuantityProcument: (data: Array<PurchaseProcumentLineItem>) => {
     let total = 0;
-    data.forEach((item) => total = total + item.real_quantity);
+    data.forEach((item) => (total = total + item.real_quantity));
     return total;
   },
   totalOrderQuantityProcument: (data: Array<PurchaseProcumentLineItem>) => {
     let total = 0;
-    data.forEach((item) => total = total + item.ordered_quantity);
+    data.forEach((item) => (total = total + item.ordered_quantity));
     return total;
-  }
+  },
 };
 
 export { POUtils };

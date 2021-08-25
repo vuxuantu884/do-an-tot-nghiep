@@ -12,13 +12,14 @@ import { ProcumentStatus } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import imgDefIcon from "assets/img/img-def.svg";
 import NumberInput from "component/custom/number-input.custom";
+import moment, { Moment } from "moment";
 
 type ProcumentConfirmProps = {
   visible: boolean;
-  now: Date;
+  now: Moment;
   stores: Array<StoreResponse>;
   onCancel: () => void;
-  item: PurchaseProcument|null;
+  item: PurchaseProcument | null;
   defaultStore: number;
   onOk: (value: PurchaseProcument) => void;
   loading: boolean;
@@ -29,7 +30,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
 ) => {
   const { visible, now, stores, onCancel, item, defaultStore, onOk, loading } =
     props;
-  const [code, setCode] = useState<string|undefined>('');
+  const [code, setCode] = useState<string | undefined>("");
   const [form] = Form.useForm();
   const onFinish = useCallback(
     (value: PurchaseProcument) => {
@@ -41,7 +42,10 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
     (quantity, index: number) => {
       let procurement_items: Array<PurchaseProcumentLineItem> =
         form.getFieldValue(POProcumentField.procurement_items);
-      procurement_items[index] = {...procurement_items[index], quantity: quantity};
+      procurement_items[index] = {
+        ...procurement_items[index],
+        quantity: quantity,
+      };
       form.setFieldsValue({ procurement_items: [...procurement_items] });
     },
     [form]
@@ -61,11 +65,15 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
       visible={visible}
       cancelText="Hủy"
       onOk={() => {
-        form.setFieldsValue({status: ProcumentStatus.CONFIRMED})
+        form.setFieldsValue({ status: ProcumentStatus.NOT_RECEIVED });
         form.submit();
       }}
       confirmLoading={loading}
-      title={<div>Duyệt phiếu nháp <span style={{color: '#2A2A86'}}>"{code}"</span></div>}
+      title={
+        <div>
+          Duyệt phiếu nháp <span style={{ color: "#2A2A86" }}>"{code}"</span>
+        </div>
+      }
       okText="Duyệt phiếu nháp"
     >
       <Form
@@ -131,7 +139,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
               label="Ngày nhận dự kiến"
             >
               <CustomDatepicker
-                disableDate={(date) => date.valueOf() < now.getTime()}
+                disableDate={(date) => date < moment().startOf("days")}
                 style={{ width: "100%" }}
               />
             </Form.Item>
@@ -283,7 +291,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                           display: "flex",
                         }}
                       >
-                        Kế hoạch nhận
+                        SL nhận được duyệt
                       </div>
                     ),
                     width: 150,
@@ -293,9 +301,9 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                         placeholder="Kế hoạch nhận"
                         isFloat={false}
                         value={value}
-                        min={1}
+                        min={0}
                         max={item.quantity}
-                        default={1}
+                        default={0}
                         maxLength={6}
                         onChange={(quantity: number | null) => {
                           onQuantityChange(quantity, index);
@@ -304,6 +312,52 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                     ),
                   },
                 ]}
+                summary={(data) => {
+                  let ordered_quantity = 0;
+                  let accepted_quantity = 0;
+                  let planned_quantity = 0;
+                  let quantity = 0;
+                  data.forEach((item) => {
+                    ordered_quantity = ordered_quantity + item.ordered_quantity;
+                    accepted_quantity =
+                      accepted_quantity + item.accepted_quantity;
+                    planned_quantity = planned_quantity + item.planned_quantity;
+                    quantity = quantity + item.quantity;
+                  });
+                  return (
+                    <Table.Summary>
+                      <Table.Summary.Row>
+                        <Table.Summary.Cell
+                          align="center"
+                          colSpan={3}
+                          index={0}
+                        >
+                          <div style={{ fontWeight: 700 }}>Tổng</div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={1}>
+                          <div style={{ fontWeight: 700 }}>
+                            {ordered_quantity}
+                          </div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={2}>
+                          <div style={{ fontWeight: 700 }}>
+                            {accepted_quantity}
+                          </div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={3}>
+                          <div style={{ fontWeight: 700 }}>
+                            {planned_quantity}
+                          </div>
+                        </Table.Summary.Cell>
+                        <Table.Summary.Cell align="right" index={4}>
+                          <div style={{ fontWeight: 700, marginRight: 15 }}>
+                            {quantity}
+                          </div>
+                        </Table.Summary.Cell>
+                      </Table.Summary.Row>
+                    </Table.Summary>
+                  );
+                }}
               />
             );
           }}

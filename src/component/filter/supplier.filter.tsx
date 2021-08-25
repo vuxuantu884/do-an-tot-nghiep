@@ -155,6 +155,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visible}
+        width={396}
       >
         <Form
           form={formAdvance}

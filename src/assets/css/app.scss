@@ -127,6 +127,9 @@ label {
   &-center {
     text-align: center;
   }
+  &-muted {
+    color: $text-muted
+  }
 }
 
 @for $i from 0 through 5 {
@@ -192,6 +195,7 @@ label {
 @import "modal-confirm";
 @import "sale-order";
 @import "po";
+@import "printer";
 
 .display {
   &-block {

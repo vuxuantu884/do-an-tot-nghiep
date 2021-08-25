@@ -32,13 +32,8 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
               label="Điều khoản thanh toán"
             >
               <Select
-                showArrow
-                showSearch
                 placeholder="Chọn điều khoản thanh toán"
               >
-                <Select.Option value="">
-                  Chọn điều khoản thanh toán
-                </Select.Option>
                 {props.listPayment.map((item) => (
                   <Select.Option key={item.id} value={item.id}>
                     {item.note}
@@ -49,7 +44,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
           </Col>
           <Col span={24} md={10}>
             <Form.Item name={POField.payment_note} label="Diễn giải">
-              <Input.TextArea placeholder="Nhập diễn giải" />
+              <Input.TextArea maxLength={255} placeholder="Nhập diễn giải" />
             </Form.Item>
           </Col>
         </Row>

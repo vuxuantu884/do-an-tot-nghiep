@@ -416,7 +416,6 @@
         filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg)
           brightness(66%) contrast(100%);
       }
-
     }
   }
   .tab {
@@ -431,7 +430,6 @@
       margin-right: 8px;
     }
   }
-  
 }
 
 .tab-content {
@@ -446,14 +444,15 @@
   margin: 25px 0;
   width: 100%;
   position: relative;
-  display: inline-block;
+  display: flex;
   &-info {
+    flex: 1;
     width: 100%;
     align-items: center;
     justify-content: space-between;
     bottom: 0;
     color: #222222;
-    display: flex;
+    // display: flex;
     line-height: 22px;
     font-size: 14px;
     left: 0;
@@ -464,5 +463,16 @@
     top: 0;
     white-space: nowrap;
     z-index: 1;
+  }
+  &-order {
+    margin: 0 40px 0 20px;
+  }
+}
+
+.po-form {
+  .icon-dot {
+    vertical-align: middle;
+    font-size: 5px;
+    color: #c4c4c4;
   }
 }

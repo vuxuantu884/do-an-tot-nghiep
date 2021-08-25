@@ -20,23 +20,19 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
 ) => {
   const { modalAction, formItem, form, visible } = props;
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
-  const DEFAULT_FORM_VALUE = {
-    company_id: 1,
-    company: "YODY",
-  };
   const initialFormValue: FormValueType =
     !isCreateForm && formItem
       ? {
-          company_id: DEFAULT_FORM_VALUE.company_id,
-          company: DEFAULT_FORM_VALUE.company,
+          company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
+          company: CONSTANTS.DEFAULT_FORM_VALUE.company,
           sub_status: formItem?.sub_status,
           status: formItem?.status,
           active: formItem?.active,
           note: formItem?.note,
         }
       : {
-          company_id: DEFAULT_FORM_VALUE.company_id,
-          company: DEFAULT_FORM_VALUE.company,
+          company_id: CONSTANTS.DEFAULT_FORM_VALUE.company_id,
+          company: CONSTANTS.DEFAULT_FORM_VALUE.company,
           sub_status: "",
           status: undefined,
           active: true,

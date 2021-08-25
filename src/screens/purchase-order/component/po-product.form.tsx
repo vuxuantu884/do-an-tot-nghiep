@@ -1198,6 +1198,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             className="product-item-vat"
                             value={value}
                             prefix={<div>%</div>}
+                            isFloat
                             onChange={(v) => onTaxChange(v, index)}
                             min={0}
                             maxLength={3}

@@ -52,3 +52,24 @@ export const PoSearchAction = (
     setData,
   });
 };
+
+export const PODeleteAction = (
+  id: number,
+  deleteCallback: (result: any | null) => void
+) => {
+  return BaseAction(POType.DELETE_PO_REQUEST, {
+    id,
+    deleteCallback,
+  });
+};
+export const POReturnAction = (
+  id: number,
+  request: PurchaseOrder | null,
+  returnCallback: (result: any | null) => void
+) => {
+  return BaseAction(POType.RETURN_PO_REQUEST, {
+    id,
+    request,
+    returnCallback,
+  });
+};

@@ -37,9 +37,10 @@ import { ConvertDateToUtc } from "utils/DateUtils";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import POPaymentConditionsForm from "./component/po-payment-conditions.form";
 import { POField } from "model/purchase-order/po-field";
+import moment from "moment";
 
 const POCreateScreen: React.FC = () => {
-  let now = new Date();
+  let now = moment();
   let initPurchaseOrder = {
     line_items: [],
     policy_price_code: AppConfig.import_price,
@@ -55,8 +56,7 @@ const POCreateScreen: React.FC = () => {
     cost_lines: [],
     tax_lines: [],
     supplier_id: 0,
-    expect_store_id: "",
-    expect_import_date: ConvertDateToUtc(now),
+    expect_import_date: ConvertDateToUtc(moment()),
     order_date: ConvertDateToUtc(now),
     status: POStatus.DRAFT,
     receive_status: ProcumentStatus.DRAFT,
@@ -192,7 +192,9 @@ const POCreateScreen: React.FC = () => {
           name: "Tạo mới đơn đặt hàng",
         },
       ]}
-      extra={<POStep status="draft" />}
+      extra={
+        <POStep order_date={initPurchaseOrder.order_date} status="draft" />
+      }
     >
       <Form
         name={PoFormName.Main}
@@ -217,18 +219,29 @@ const POCreateScreen: React.FC = () => {
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm
+              showSupplierAddress={true}
+              showBillingAddress={true}
               isEdit={false}
               listCountries={listCountries}
               listDistrict={listDistrict}
               formMain={formMain}
             />
             <POProductForm isEdit={false} formMain={formMain} />
-            <POInventoryForm isEdit={false} now={now} status={formMain.getFieldValue(POField.status)} stores={listStore} />
+            <POInventoryForm
+              isEdit={false}
+              now={now}
+              status={formMain.getFieldValue(POField.status)}
+              stores={listStore}
+            />
             <POPaymentConditionsForm listPayment={listPaymentConditions} />
           </Col>
           {/* Right Side */}
           <Col md={6}>
-            <POInfoForm isEdit={false} winAccount={winAccount} rdAccount={rdAccount} />
+            <POInfoForm
+              isEdit={false}
+              winAccount={winAccount}
+              rdAccount={rdAccount}
+            />
           </Col>
         </Row>
 

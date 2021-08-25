@@ -2,7 +2,6 @@ import {
   CheckCircleOutlined,
   EditOutlined,
   MinusCircleOutlined,
-  PlusOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -267,7 +266,6 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                           percent = Math.round((total_paid / total) * 100);
                         }
 
-                        debugger;
                         return (
                           <div>
                             <Progress
@@ -275,11 +273,11 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                               percent={percent}
                               showInfo={false}
                               strokeWidth={21}
-                              strokeColor="#5D5D8A"
+                              strokeColor="#B2B2E4"
                               trailColor="#ECEFFA"
                             />
                             <div className="checkOut__progress-bar__value">
-                              <span> Thanh toán : {percent}</span>
+                              <span> Thanh toán : {percent} %</span>
                             </div>
                           </div>
                         );
@@ -327,7 +325,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                       {({ getFieldValue }) => {
                         let total_paid = getFieldValue(POField.total_paid);
                         let total = getFieldValue(POField.total);
-                        return formatCurrency(total - total_paid);
+                        return formatCurrency(Math.round(total - total_paid));
                       }}
                     </Form.Item>
                   </strong>
@@ -454,7 +452,6 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
               POField.payments
             );
             let financial_status = getFieldValue(POField.financial_status);
-            debugger;
             return (
               payments &&
               payments.length > 0 &&

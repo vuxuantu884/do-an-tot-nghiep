@@ -1,4 +1,9 @@
-import { searchPurchaseOrderApi, updatePurchaseOrder, updatePurchaseOrderFinancialStatus } from "service/purchase-order/purchase-order.service";
+import { returnPurchaseOrder } from "./../../../service/purchase-order/purchase-order.service";
+import {
+  searchPurchaseOrderApi,
+  updatePurchaseOrder,
+  updatePurchaseOrderFinancialStatus,
+} from "service/purchase-order/purchase-order.service";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
@@ -10,6 +15,7 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import {
   createPurchaseOrder,
   getPurchaseOrderApi,
+  deletePurchaseOrder,
 } from "service/purchase-order/purchase-order.service";
 import { showError } from "utils/ToastUtils";
 
@@ -41,7 +47,7 @@ function* poCreateSaga(action: YodyAction) {
 }
 
 function* poUpdateSaga(action: YodyAction) {
-  const {id, request, updateCallback } = action.payload;
+  const { id, request, updateCallback } = action.payload;
   try {
     let response: BaseResponse<BaseResponse<PurchaseOrder>> = yield call(
       updatePurchaseOrder,
@@ -69,7 +75,7 @@ function* poUpdateSaga(action: YodyAction) {
 }
 
 function* poUpdateFinancialStatusSaga(action: YodyAction) {
-  const {id, financialstatus, updateCallback } = action.payload;
+  const { id, financialstatus, updateCallback } = action.payload;
   try {
     let response: BaseResponse<BaseResponse<PurchaseOrder>> = yield call(
       updatePurchaseOrderFinancialStatus,
@@ -94,7 +100,7 @@ function* poUpdateFinancialStatusSaga(action: YodyAction) {
     updateCallback(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
-} 
+}
 
 function* poDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
@@ -124,7 +130,6 @@ function* poDetailSaga(action: YodyAction) {
 function* poSearchSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    
     let response: BaseResponse<PageResponse<PurchaseOrder>> = yield call(
       searchPurchaseOrderApi,
       query
@@ -145,11 +150,66 @@ function* poSearchSaga(action: YodyAction) {
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
+function* poDeleteSaga(action: YodyAction) {
+  const { id, deleteCallback } = action.payload;
+  try {
+    let response: BaseResponse<any | null> = yield call(
+      deletePurchaseOrder,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response.data);
+        deleteCallback(true);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        deleteCallback(false);
+        // response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error ", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+function* poReturnSaga(action: YodyAction) {
+  const { id, request, returnCallback } = action.payload;
+  try {
+    let response: BaseResponse<any | null> = yield call(
+      returnPurchaseOrder,
+      id,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response.data);
+        returnCallback(true);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        returnCallback(false);
+        break;
+    }
+  } catch (error) {
+    console.log("error ", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
 
 export function* poSaga() {
   yield takeLatest(POType.CREATE_PO_REQUEST, poCreateSaga);
   yield takeLatest(POType.DETAIL_PO_REQUEST, poDetailSaga);
   yield takeLatest(POType.SEARCH_PO_REQUEST, poSearchSaga);
   yield takeLatest(POType.UPDATE_PO_REQUEST, poUpdateSaga);
-  yield takeLatest(POType.UPDATE_PO_FINANCIAL_STATUS_REQUEST, poUpdateFinancialStatusSaga);
+  yield takeLatest(POType.DELETE_PO_REQUEST, poDeleteSaga);
+  yield takeLatest(POType.RETURN_PO_REQUEST, poReturnSaga);
+  yield takeLatest(
+    POType.UPDATE_PO_FINANCIAL_STATUS_REQUEST,
+    poUpdateFinancialStatusSaga
+  );
 }
