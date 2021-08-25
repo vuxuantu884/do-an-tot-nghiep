@@ -1,13 +1,16 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card } from "antd";
+import { Button, Card, Menu, Dropdown } from "antd";
 import ContentContainer from "component/container/content.container";
 import FormCustomerGroup from "component/forms/FormCustomerGroup";
-import CustomModal from "component/modal/CustomModal";
+import CustomerModal from "../../customer/CustomerModal";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import editIcon from "../../../assets/icon/edit.svg";
+import deleteIcon from "../../../assets/icon/deleteIcon.svg";
+import threeDot from "../../../assets/icon/three-dot.svg";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 import {
   actionAddCustomerGroup,
@@ -22,11 +25,12 @@ import {
   CustomerGroupModel,
   CustomerGroupResponseModel,
 } from "model/response/customer/customer-group.response";
-import React,{ useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
+import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 
 const SettingCustomerGroup: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
@@ -55,9 +59,9 @@ const SettingCustomerGroup: React.FC = () => {
     {
       title: "STT",
       key: "index",
-      render: (value:any, item:any, index:number) =>  <div>{index+1}</div>,
+      render: (value: any, item: any, index: number) => <div>{index + 1}</div>,
       visible: true,
-      width: "5%"
+      width: "5%",
     },
     {
       title: "Tên Nhóm",
@@ -71,11 +75,10 @@ const SettingCustomerGroup: React.FC = () => {
               title={value}
               style={{ wordWrap: "break-word", wordBreak: "break-word" }}
               className="title text"
-              onClick = {(event)=>{
-                  setModalSingleServiceSubStatus(row);
-                  setModalAction("edit");
-                  setIsShowModal(true);
-                
+              onClick={(event) => {
+                setModalSingleServiceSubStatus(row);
+                setModalAction("edit");
+                setIsShowModal(true);
               }}
             >
               {value}
@@ -84,7 +87,7 @@ const SettingCustomerGroup: React.FC = () => {
         }
       },
     },
-    
+
     {
       title: "Người tạo",
       dataIndex: "created_by",
@@ -112,47 +115,95 @@ const SettingCustomerGroup: React.FC = () => {
       },
     },
     {
-      title: "Thao tác",
-      dataIndex: "note",
+      title: "",
       visible: true,
-      width: "25%",
+      width: "5%",
+      className: "saleorder-product-card-action ",
       render: (value, row, index) => {
-        return (
-          <div>
-            <Button
-              key="edit"
-              type="primary"
-              // danger
-              onClick={() => {
-                setModalSingleServiceSubStatus(row);
+        const menu = (
+          <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+            <Menu.Item key="1">
+              <Button
+                icon={<img style={{ marginRight: 12 }} src={editIcon} />}
+                type="text"
+                className=""
+                style={{
+                  paddingLeft: 24,
+                  background: "transparent",
+                  border: "none",
+                }}
+                onClick={() => {
+                  setModalSingleServiceSubStatus(row);
                   setModalAction("edit");
                   setIsShowModal(true);
+                }}
+              >
+                Chỉnh sửa
+              </Button>
+            </Menu.Item>
+            <Menu.Item key="2">
+              <Button
+                icon={<img style={{ marginRight: 12 }} src={deleteIcon} />}
+                type="text"
+                className=""
+                style={{
+                  paddingLeft: 24,
+                  background: "transparent",
+                  border: "none",
+                  color: "red",
+                }}
+                onClick={() => {
+                  setModalSingleServiceSubStatus(row);
+                  setIsShowConfirmDelete(true);
+                }}
+              >
+                Xóa
+              </Button>
+            </Menu.Item>
+          </Menu>
+        );
+        return (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "0 4px",
+            }}
+          >
+            <div
+              className="site-input-group-wrapper saleorder-input-group-wrapper"
+              style={{
+                borderRadius: 5,
               }}
             >
-              Sửa
-            </Button>
-            {" "}
-          <Button
-              key="delete"
-              type="primary"
-              danger
-              onClick={() => {
-                setModalSingleServiceSubStatus(row);
-                setIsShowConfirmDelete(true)}}
-            >
-              Xóa
-            </Button>
-            
+              <Dropdown
+                overlay={menu}
+                trigger={["click"]}
+                placement="bottomRight"
+              >
+                <Button
+                  type="text"
+                  className="p-0 ant-btn-custom"
+                  icon={<img src={threeDot} alt=""></img>}
+                ></Button>
+              </Dropdown>
+            </div>
           </div>
         );
       },
     },
   ];
-  const [selected, setSelected] = useState<Array<CustomerGroupResponseModel>>([]);
 
-  const onSelectTable = useCallback((selectedRow: Array<CustomerGroupResponseModel>) => {
-    setSelected(selectedRow);
-  }, []);
+  const [selected, setSelected] = useState<Array<CustomerGroupResponseModel>>(
+    []
+  );
+
+  const onSelectTable = useCallback(
+    (selectedRow: Array<CustomerGroupResponseModel>) => {
+      setSelected(selectedRow);
+    },
+    []
+  );
 
   const columnFinal = () => columns.filter((item) => item.visible === true);
 
@@ -236,13 +287,10 @@ const SettingCustomerGroup: React.FC = () => {
     delete: () => {
       if (modalSingleServiceSubStatus) {
         dispatch(
-          actionDeleteCustomerGroup(
-            modalSingleServiceSubStatus.id,
-            () => {
-              setIsShowConfirmDelete(false);
-              gotoFirstPage();
-            }
-          )
+          actionDeleteCustomerGroup(modalSingleServiceSubStatus.id, () => {
+            setIsShowConfirmDelete(false);
+            gotoFirstPage();
+          })
         );
       }
     },
@@ -253,7 +301,7 @@ const SettingCustomerGroup: React.FC = () => {
      * when dispatch action, call function (handleData) to handle data
      */
     setTableLoading(true);
-    console.log(1)
+    console.log(1);
     dispatch(
       actionFetchListCustomerGroup(
         params,
@@ -267,11 +315,11 @@ const SettingCustomerGroup: React.FC = () => {
   }, [dispatch, params]);
 
   const renderConfirmDeleteSubtitle = (deletedItemTitle: string) => {
-      return (
-        <React.Fragment>
-          Bạn có chắc chắn muốn xóa "<strong>{deletedItemTitle}</strong>" ?
-        </React.Fragment>
-      );
+    return (
+      <React.Fragment>
+        Bạn có chắc chắn muốn xóa "<strong>{deletedItemTitle}</strong>" ?
+      </React.Fragment>
+    );
   };
 
   return (
@@ -285,7 +333,7 @@ const SettingCustomerGroup: React.FC = () => {
           },
           {
             name: "Nhóm khách hàng",
-            path: UrlConfig.CUSTOMER+"/customers-group",
+            path: UrlConfig.CUSTOMER + "/customers-group",
           },
         ]}
         extra={addCustomerGroup()}
@@ -321,21 +369,33 @@ const SettingCustomerGroup: React.FC = () => {
             />
           </Card>
         )}
-        <ModalDeleteConfirm
+        {/* <ModalDeleteConfirm
           visible={isShowConfirmDelete}
           onOk={() => handleForm.delete()}
           onCancel={() => setIsShowConfirmDelete(false)}
           title="Xác nhận"
-          subTitle={renderConfirmDeleteSubtitle(modalSingleServiceSubStatus?modalSingleServiceSubStatus.name:"")}
+          subTitle={renderConfirmDeleteSubtitle(
+            modalSingleServiceSubStatus ? modalSingleServiceSubStatus.name : ""
+          )}
+        /> */}
+        <SaveAndConfirmOrder
+          onCancel={() => setIsShowConfirmDelete(false)}
+          onOk={() => handleForm.delete()}
+          visible={isShowConfirmDelete}
+          okText="Đồng ý"
+          cancelText="Hủy"
+          title=""
+          text={`Bạn có chắc chắn xóa nhóm "${
+            modalSingleServiceSubStatus ? modalSingleServiceSubStatus.name : ""
+          }" này không?`}
+          icon={DeleteIcon}
         />
-        <CustomModal
+        <CustomerModal
           visible={isShowModal}
           onCreate={(formValue: CustomerGroupModel) =>
             handleForm.create(formValue)
           }
-          onEdit={(formValue: CustomerGroupModel) =>
-            handleForm.edit(formValue)
-          }
+          onEdit={(formValue: CustomerGroupModel) => handleForm.edit(formValue)}
           onDelete={() => handleForm.delete()}
           onCancel={() => setIsShowModal(false)}
           modalAction={modalAction}

@@ -14,6 +14,7 @@ import {
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import { RegUtil } from "utils/RegUtils";
+import CustomInput from "screens/customer/customInput";
 
 const { Option } = Select;
 
@@ -28,7 +29,7 @@ type FormValueType = {
   email: string;
   city_id: number;
   tax_code: string;
-  default: boolean
+  default: boolean;
 };
 
 const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
@@ -74,7 +75,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
           email: "",
           city_id: null,
           tax_code: "",
-          default: null
+          default: null,
         };
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -134,18 +135,28 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
       >
         <Row gutter={20}>
           <Col span={24}>
-            <Form.Item
+            {/* <Form.Item
               name="name"
-              label={<b>Tên người liên hệ:</b>}
-              rules={[{ required: true, message: "Vui lòng nhập tên liên hệ" }]}
+              label={<b>Họ tên người nhận:</b>}
+              rules={[
+                { required: true, message: "Vui lòng nhập họ tên người nhận" },
+              ]}
             >
               <Input
-                placeholder="Nhập tên người liên hệ"
+                placeholder="Nhập họ tên người nhận"
                 style={{ width: "100%" }}
                 maxLength={255}
               />
-            </Form.Item>
-
+            </Form.Item> */}
+             <CustomInput
+                name="name"
+                label="Họ tên người nhận:"
+                form={form}
+                message="Vui lòng nhập họ tên người nhận"
+                placeholder="Nhập họ tên người nhận"
+                isRequired={true}
+                maxLength={255}
+              />
             <Row gutter={24}>
               <Col span={12}>
                 <Form.Item
@@ -191,9 +202,18 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
             </Row>
             <Row gutter={24}>
               <Col span={12}>
-                <Form.Item label={<b>Mã số thuế:</b>} name="tax_code">
-                  <Input maxLength={255} placeholder="Mã số thuế" />
-                </Form.Item>
+              <Form.Item
+                    label={<b>Mã số thuế:</b>}
+                    name="tax_code"
+                    rules={[
+                      {
+                        pattern: RegUtil.NUMBERREG,
+                        message: "Mã số thuế chỉ được phép nhập số",
+                      },
+                    ]}
+                  >
+                    <Input maxLength={255} placeholder="Mã số thuế" />
+                  </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item
@@ -227,7 +247,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
             <Row gutter={24}>
               <Col span={12}>
                 <Form.Item
-                  label={<b>Thành phố/Quận - Huyện:</b>}
+                  label={<b>Khu vực:</b>}
                   name="district_id"
                   rules={[
                     {
@@ -238,7 +258,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                 >
                   <Select
                     showSearch
-                    placeholder="Khu vực"
+                    placeholder="Chọn khu vực"
                     onChange={handleChangeArea}
                     allowClear
                     optionFilterProp="children"
@@ -260,12 +280,12 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                   />
                 </Form.Item>
                 <Form.Item
-                  label={<b>Phường/ Xã:</b>}
+                  label={<b>Phường/xã:</b>}
                   name="ward_id"
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng chọn xã/phường",
+                      message: "Vui lòng chọn phường/xã",
                     },
                   ]}
                 >
@@ -273,7 +293,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                     showSearch
                     allowClear
                     optionFilterProp="children"
-                    placeholder="Xã/Phường"
+                    placeholder="Chọn phường/xã"
                     // onChange={handleChangeWard}
                   >
                     {wards.map((ward: any) => (
@@ -285,7 +305,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item
+            {/* <Form.Item
               name="full_address"
               label={<b>Địa chỉ chi tiết:</b>}
               rules={[
@@ -300,12 +320,17 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                 style={{ width: "100%" }}
                 maxLength={255}
               />
-            </Form.Item>
-            <Form.Item
-              name="default"
-              hidden
-            >
-            </Form.Item>
+            </Form.Item> */}
+            <CustomInput
+                name="full_address"
+                label="Địa chỉ chi tiết:"
+                form={form}
+                message="Vui lòng nhập địa chỉ chi tiết"
+                placeholder="Nhập địa chỉ chi tiết"
+                isRequired={true}
+                maxLength={255}
+              />
+            <Form.Item name="default" hidden></Form.Item>
           </Col>
         </Row>
       </Form>

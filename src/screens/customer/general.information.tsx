@@ -9,13 +9,16 @@ import {
   Space,
   Switch,
 } from "antd";
+import { useState } from "react";
 import { RegUtil } from "utils/RegUtils";
 import "./customer.scss";
+import CustomInput from "./customInput";
 
 const { Option } = Select;
 
 const GeneralInformation = (props: any) => {
   const {
+    form,
     status,
     setStatus,
     areas,
@@ -23,6 +26,7 @@ const GeneralInformation = (props: any) => {
     wards,
     handleChangeArea,
     isEdit,
+    AccountChangeSearch,
   } = props;
 
   return (
@@ -60,22 +64,15 @@ const GeneralInformation = (props: any) => {
         >
           <Row gutter={30} style={{ padding: "16px 30px" }}>
             <Col span={24}>
-              <Form.Item
+              <CustomInput
                 name="full_name"
-                label={<b>Họ tên khách hàng:</b>}
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập họ tên khách hàng",
-                  },
-                 
-                ]}
-              >
-                <Input
-                  maxLength={255}
-                  placeholder="Nhập họ và tên khách hàng"
-                />
-              </Form.Item>
+                label="Họ tên khách hàng:"
+                form={form}
+                message="Vui lòng nhập họ tên khách hàng"
+                placeholder="Nhập họ và tên khách hàng"
+                isRequired={true}
+                maxLength={255}
+              />
             </Col>
             <Col span={12}>
               <Form.Item
@@ -175,13 +172,17 @@ const GeneralInformation = (props: any) => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label={<b>Mã số thuế:</b>} name="tax_code"  rules={[
+                  <Form.Item
+                    label={<b>Mã số thuế:</b>}
+                    name="tax_code"
+                    rules={[
                       {
                         pattern: RegUtil.NUMBERREG,
                         message: "Mã số thuế chỉ được phép nhập số",
                       },
-                    ]}>
-                    <Input maxLength={20} placeholder="Mã số thuế" />
+                    ]}
+                  >
+                    <Input maxLength={255} placeholder="Mã số thuế" />
                   </Form.Item>
                 </Col>
 
@@ -263,7 +264,7 @@ const GeneralInformation = (props: any) => {
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item
+                  {/* <Form.Item
                     label={<b>Địa chỉ chi tiết:</b>}
                     name="full_address"
                     // rules={[
@@ -277,7 +278,16 @@ const GeneralInformation = (props: any) => {
                       maxLength={500}
                       placeholder="Nhập địa chỉ chi tiết"
                     />
-                  </Form.Item>
+                  </Form.Item> */}
+                  <CustomInput
+                name="full_address"
+                label="Địa chỉ chi tiết:"
+                form={form}
+                message="Vui lòng nhập địa chỉ"
+                placeholder="Nhập địa chỉ chi tiết"
+                maxLength={500}
+                isRequired={false}
+              />
                 </Col>
               </Row>
             </Col>
@@ -309,7 +319,6 @@ const GeneralInformation = (props: any) => {
                   placeholder="Chọn loại khách hàng"
                   allowClear
                   optionFilterProp="children"
-                  
                 >
                   {props.types &&
                     props.types.map((type: any) => (
@@ -351,6 +360,7 @@ const GeneralInformation = (props: any) => {
               <Form.Item
                 name="responsible_staff_code"
                 label={<b>Nhân viên phụ trách:</b>}
+
                 // rules={[
                 //   {
                 //     required: true,
@@ -363,6 +373,7 @@ const GeneralInformation = (props: any) => {
                   placeholder="Chọn nv phụ trách"
                   allowClear
                   optionFilterProp="children"
+                  onSearch={(value) => AccountChangeSearch(value)}
                 >
                   {props.accounts &&
                     props.accounts.map((c: any) => (

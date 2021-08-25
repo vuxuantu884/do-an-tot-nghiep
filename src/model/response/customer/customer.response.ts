@@ -29,6 +29,9 @@ export interface CustomerResponse extends BaseObject {
   customer_group: string | null;
   status: string;
   description: string | null;
+  ward: string | null;
+  district: string | null;
+  city: string | null;
 }
 
 export interface BillingAddress extends BaseObject {

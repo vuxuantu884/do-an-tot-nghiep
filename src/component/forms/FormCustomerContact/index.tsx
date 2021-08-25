@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
 import { RegUtil } from "utils/RegUtils";
+import CustomInput from "screens/customer/customInput";
 
 type FormValueType = {
   title?: string;
@@ -30,24 +31,24 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
   const initialFormValue: FormValueType =
     !isCreateForm && formItem
       ? {
-        title: formItem?.title,
-        name: formItem?.name,
-        email: formItem?.email,
-        phone: formItem?.phone,
-        note: formItem?.note,
-        company_name: formItem?.company_name,
-        tax_code: formItem?.tax_code,
-        website: formItem?.website,
+          title: formItem?.title,
+          name: formItem?.name,
+          email: formItem?.email,
+          phone: formItem?.phone,
+          note: formItem?.note,
+          company_name: formItem?.company_name,
+          tax_code: formItem?.tax_code,
+          website: formItem?.website,
         }
       : {
-        title: "",
-        name: "",
-        email: "",
-        phone: "",
-        note: "",
-        company_name: "",
-        tax_code: "",
-        website: "",
+          title: "",
+          name: "",
+          email: "",
+          phone: "",
+          note: "",
+          company_name: "",
+          tax_code: "",
+          website: "",
         };
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
@@ -68,19 +69,10 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
       >
         <Row gutter={20}>
           <Col span={24}>
-            <Form.Item
-              name="title"
-              label={<b>Tiêu đề:</b>}
-              rules={[
-                
-              ]}
-            >
-              <Input
-                placeholder="Nhập tiêu đề"
-                style={{ width: "100%" }}
-              />
+            <Form.Item name="title" label={<b>Tiêu đề:</b>} rules={[]}>
+              <Input placeholder="Nhập tiêu đề" style={{ width: "100%" }} />
             </Form.Item>
-            <Form.Item
+            {/* <Form.Item
               name="name"
               label={<b>Tên người liên hệ:</b>}
               rules={[{ required: true, message: "Vui lòng nhập tên liên hệ" }]}
@@ -90,50 +82,70 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
                 style={{ width: "100%" }}
                 maxLength={255}
               />
-            </Form.Item>
-            <Form.Item
-              name="phone"
-              label={<b>Số điện thoại:</b>}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập số điện thoại",
-                },
-                {
-                  pattern: RegUtil.PHONE,
-                  message: "Số điện thoại chưa đúng định dạng",
-                },
-              ]}
-            >
-              <Input
-                placeholder="Nhập số điện thoại"
-                style={{ width: "100%" }}
-                minLength={9}
-                maxLength={15}
-              />
-            </Form.Item>
-            <Form.Item
-              name="email"
-              label={<b>Email:</b>}
-              rules={[
-                {
-                  pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
-                  message: "Vui lòng nhập đúng định dạng email",
-                }]}
-            >
-              <Input
-                placeholder="Nhập thư điện tử"
-                style={{ width: "100%" }}
+            </Form.Item> */}
+            <CustomInput
+                name="name"
+                label="Tên người liên hệ:"
+                form={form}
+                message="Vui lòng nhập tên liên hệ"
+                placeholder="Nhập tên người liên hệ"
+                isRequired={true}
                 maxLength={255}
               />
-            </Form.Item>
-            
+            <Row gutter={24}>
+              <Col span={12}>
+                <Form.Item
+                  name="phone"
+                  label={<b>Số điện thoại:</b>}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập số điện thoại",
+                    },
+                    {
+                      pattern: RegUtil.PHONE,
+                      message: "Số điện thoại chưa đúng định dạng",
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder="Nhập số điện thoại"
+                    style={{ width: "100%" }}
+                    minLength={9}
+                    maxLength={15}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="email"
+                  label={<b>Email:</b>}
+                  rules={[
+                    {
+                      pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
+                      message: "Vui lòng nhập đúng định dạng email",
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder="Nhập Email"
+                    style={{ width: "100%" }}
+                    maxLength={255}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
             <Form.Item
               name="note"
               label={<b>Ghi chú:</b>}
               rules={[{ max: 500, message: "Không được nhập quá 500 ký tự!" }]}
             >
-              <Input.TextArea rows={5} maxLength={255}/>
+              <Input.TextArea
+                rows={5}
+                maxLength={500}
+                placeholder="Nhập ghi chú"
+              />
             </Form.Item>
           </Col>
         </Row>
