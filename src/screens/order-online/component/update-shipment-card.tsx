@@ -85,8 +85,8 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
-import FulfillmentStatusTag from "./FulfillmentStatusTag";
-import PrintShippingLabel from "./PrintShippingLabel";
+import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
+import PrintShippingLabel from "./order-detail/PrintShippingLabel";
 
 const { Panel } = Collapse;
 const { Link } = Typography;
@@ -121,6 +121,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setVisibleShipping,
     setPaymentType,
     setShipmentMethod,
+    OrderDetail,
   } = props;
 
   // node dom
@@ -151,6 +152,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [feeGhtk, setFeeGhtk] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
 
+  console.log("props", props);
   useEffect(() => {
     dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
@@ -194,12 +196,21 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       setPaymentType(PaymentMethodOption.COD);
       props.setVisibleUpdatePayment(true);
     }
+    if (
+      value === ShipmentMethodOption.PICKATSTORE ||
+      value === ShipmentMethodOption.DELIVERLATER
+    ) {
+      props.shippingFeeInformedCustomer(0);
+    } else {
+      props.shippingFeeInformedCustomer(shippingFeeInformedCustomer);
+    }
   };
 
   const changeShippingFeeInformedCustomer = (value: any) => {
     setShippingFeeInformedCustomer(value);
     props.shippingFeeInformedCustomer(value);
   };
+
   const getInfoDeliveryGHTK = useCallback(
     (type: string) => {
       let request: ShippingGHTKRequest = {
@@ -285,7 +296,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   //#region Update Fulfillment Status
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
-    console.log(value);
     showSuccess("Tạo đơn giao hàng thành công");
     setTimeout(() => {
       window.location.reload();
@@ -985,7 +995,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               />
                             </div>
                             <FulfillmentStatusTag fulfillment={fulfillment} />
-                            <PrintShippingLabel />
+                            <PrintShippingLabel fulfillment={fulfillment}/>
                           </div>
 
                           <div className="saleorder-header-content__date">
@@ -1495,7 +1505,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                       padding: "0 25px",
                     }}
                   >
-                    Hủy giao hàng
+                    Hủy đơn giao
                   </Button>
                 )
               )}
@@ -1750,7 +1760,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           format={(a: string) => formatCurrency(a)}
                           replace={(a: string) => replaceFormatString(a)}
                           placeholder="0"
-                          value={customerNeedToPayValue}
+                          // value={customerNeedToPayValue}
+                          value={
+                            customerNeedToPayValue -
+                            (OrderDetail?.total_paid
+                              ? OrderDetail?.total_paid
+                              : 0)
+                          }
                           onChange={(value: any) => setTakeMoneyHelper(value)}
                           style={{
                             textAlign: "right",

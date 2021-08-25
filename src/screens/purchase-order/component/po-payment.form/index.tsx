@@ -113,46 +113,43 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
       <Card
         className="po-form margin-top-20"
         title={
-          <Space>
-            <div className="d-flex">
-              <span className="title-card">THANH TOÁN</span>
-            </div>{" "}
-            {/* <Tag
-              className="po-tag  orders-tag-default"
-              style={{
-                backgroundColor: "rgba(102, 102, 102, 0.1)",
-                color: "rgb(102, 102, 102)",
-              }}
-            >
-              Chưa thanh toán
-            </Tag> */}
-            <Form.Item
-              noStyle
-              shouldUpdate={(prev, current) =>
-                prev[POField.financial_status] !==
-                current[POField.financial_status]
+          <Form.Item
+            noStyle
+            shouldUpdate={(prev, current) =>
+              prev[POField.financial_status] !==
+              current[POField.financial_status]
+            }
+          >
+            {({ getFieldValue }) => {
+              let financial_status = getFieldValue(POField.financial_status);
+              let statusName = "Chưa thanh toán";
+              let className = "po-tag";
+              let dotClassName = "icon-dot";
+              if (financial_status === PoFinancialStatus.PARTIAL_PAID) {
+                statusName = "Thanh toán 1 phần";
+                className += " po-tag-warning";
+                dotClassName += " partial";
               }
-            >
-              {({ getFieldValue }) => {
-                let financial_status = getFieldValue(POField.financial_status);
-                let statusName = "Chưa thanh toán";
-                let className = "po-tag";
-                if (financial_status === PoFinancialStatus.PARTIAL_PAID) {
-                  statusName = "Thanh toán 1 phần";
-                  className += " po-tag-warning";
-                }
-                if (
-                  financial_status === PoFinancialStatus.CANCELLED ||
-                  financial_status === PoFinancialStatus.FINISHED ||
-                  financial_status === PoFinancialStatus.PAID
-                ) {
-                  statusName = "Đã thanh toán";
-                  className += " po-tag-success";
-                }
-                return <Tag className={className}>{statusName}</Tag>;
-              }}
-            </Form.Item>
-          </Space>
+              if (
+                financial_status === PoFinancialStatus.CANCELLED ||
+                financial_status === PoFinancialStatus.FINISHED ||
+                financial_status === PoFinancialStatus.PAID
+              ) {
+                statusName = "Đã thanh toán";
+                className += " po-tag-success";
+                dotClassName += " success";
+              }
+              return (
+                <Space>
+                  <div className={dotClassName} style={{ fontSize: 8 }} />
+                  <div className="d-flex">
+                    <span className="title-card">THANH TOÁN</span>
+                  </div>{" "}
+                  <Tag className={className}>{statusName}</Tag>
+                </Space>
+              );
+            }}
+          </Form.Item>
         }
         extra={
           // <Button onClick={ShowPaymentModal}>

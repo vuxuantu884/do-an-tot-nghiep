@@ -3,8 +3,9 @@ import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import FormOrderProcessingStatus from "component/forms/FormOrderProcessingStatus";
 import CustomModal from "component/modal/CustomModal";
-import { ICustomTableColumType } from "component/table/CustomTable";
-import CustomTable from "component/table/CustomTable";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import {
   actionAddOrderProcessingStatus,
@@ -46,7 +47,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
   );
   const LIST_STATUS = bootstrapReducer.data?.order_main_status;
 
-  const columns: Array<ICustomTableColumType<VariantResponse>> = [
+  const columns: ICustomTableColumType<any>[] = [
     {
       title: "Trạng thái xử lý",
       dataIndex: "sub_status",
@@ -113,7 +114,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
 
   const history = useHistory();
 
-  let [params, setParams] = useState({
+  const [params, setParams] = useState({
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
     sort_type: "desc",

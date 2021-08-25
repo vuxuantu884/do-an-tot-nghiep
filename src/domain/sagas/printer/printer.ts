@@ -8,10 +8,11 @@ import { PRINTER_TYPES } from "domain/types/printer.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PrinterResponseModel } from "model/response/printer.response";
 import {
+  createPrinterService,
   getListPrinterService,
   getPrinterDetailService,
 } from "service/printer/printer.service";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listDataPrinterSaga(action: YodyAction) {
   const { params, handleData } = action.payload;
@@ -45,12 +46,13 @@ function* listDataPrinterSaga(action: YodyAction) {
 }
 
 function* getPrinterDetailSaga(action: YodyAction) {
-  const { id, handleData } = action.payload;
+  const { id, query, handleData } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<PrinterResponseModel>> = yield call(
       getPrinterDetailService,
-      id
+      id,
+      query
     );
 
     switch (response.code) {
@@ -74,8 +76,39 @@ function* getPrinterDetailSaga(action: YodyAction) {
     yield put(hideLoading());
   }
 }
+function* createPrinterSaga(action: YodyAction) {
+  const { formValue } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<PageResponse<PrinterResponseModel>> = yield call(
+      createPrinterService,
+      formValue
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        /**
+         * call function handleData in payload, variables are taken from the response -> use when dispatch
+         */
+        showSuccess("Tạo mới mẫu in thành công");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
 
 export function* settingPrinterSaga() {
   yield takeLatest(PRINTER_TYPES.listPrinter, listDataPrinterSaga);
   yield takeLatest(PRINTER_TYPES.getPrinterDetail, getPrinterDetailSaga);
+  yield takeLatest(PRINTER_TYPES.createPrinter, createPrinterSaga);
 }

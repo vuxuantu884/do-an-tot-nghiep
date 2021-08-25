@@ -84,37 +84,7 @@ function Editor(props: any) {
         onChange={handleChange}
         config={{
           toolbar: [
-            {
-              name: "document",
-              items: [
-                "Source",
-                "-",
-                "Save",
-                "NewPage",
-                "ExportPdf",
-                "Preview",
-                "Print",
-                "-",
-                "Templates",
-              ],
-            },
-            {
-              name: "clipboard",
-              items: [
-                "Cut",
-                "Copy",
-                "Paste",
-                "PasteText",
-                "PasteFromWord",
-                "-",
-                "Undo",
-                "Redo",
-              ],
-            },
-            {
-              name: "editing",
-              items: ["Find", "Replace", "-", "SelectAll", "-", "Scayt"],
-            },
+            { name: "styles", items: ["Styles", "Format", "Font", "FontSize"] },
             {
               name: "forms",
               items: [
@@ -143,6 +113,30 @@ function Editor(props: any) {
                 "RemoveFormat",
               ],
             },
+
+            { name: "links", items: ["Link", "Unlink", "Anchor"] },
+            {
+              name: "insert",
+              items: [
+                "Image",
+                "Flash",
+                "Table",
+                "HorizontalRule",
+                "Smiley",
+                "SpecialChar",
+                "PageBreak",
+                "Iframe",
+              ],
+            },
+            // "/",
+
+            { name: "colors", items: ["TextColor", "BGColor"] },
+            { name: "tools", items: ["Maximize", "ShowBlocks"] },
+
+            {
+              name: "editing",
+              items: ["Find", "Replace", "-", "SelectAll", "-", "Scayt"],
+            },
             {
               name: "paragraph",
               items: [
@@ -165,34 +159,42 @@ function Editor(props: any) {
                 "Language",
               ],
             },
-            { name: "links", items: ["Link", "Unlink", "Anchor"] },
             {
-              name: "insert",
+              name: "clipboard",
               items: [
-                "Image",
-                "Flash",
-                "Table",
-                "HorizontalRule",
-                "Smiley",
-                "SpecialChar",
-                "PageBreak",
-                "Iframe",
+                "Cut",
+                "Copy",
+                "Paste",
+                "PasteText",
+                "PasteFromWord",
+                "-",
+                "Undo",
+                "Redo",
               ],
             },
-            // "/",
-            { name: "styles", items: ["Styles", "Format", "Font", "FontSize"] },
-            { name: "colors", items: ["TextColor", "BGColor"] },
-            { name: "tools", items: ["Maximize", "ShowBlocks"] },
-            { name: "about", items: ["About"] },
+            {
+              name: "document",
+              items: [
+                "-",
+                "Save",
+                "NewPage",
+                "ExportPdf",
+                "Preview",
+                "Print",
+                "-",
+                "Templates",
+                "Source",
+              ],
+            },
             { name: "openModalButton", items: ["OpenModalButton"] },
             { name: "openModalButton", items: ["InsertHtml"] },
           ],
           // remove button to display sup and sub tags
           removeButtons: "Cut,Copy,Paste,Undo,Redo,Anchor",
-          contentsCss: [
-            "http://cdn.ckeditor.com/4.16.2/full-all/contents.css",
-            "assets/css/pastefromgdocs.css",
-          ],
+          // contentsCss: [
+          //   "http://cdn.ckeditor.com/4.16.2/full-all/contents.css",
+          //   "assets/css/pastefromgdocs.css",
+          // ],
           bodyClass: "document-editor",
           extraPlugins:
             "colordialog, tableresize, font, colorbutton, justify, timestamp",

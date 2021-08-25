@@ -570,9 +570,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         fontSize: "20px",
                       }}
                     >
-                      <span
-                        style={{ color: false ? "blue" : "red" }}
-                      >
+                      <span style={{ color: false ? "blue" : "red" }}>
                         {formatCurrency(Math.abs(moneyReturn))}
                       </span>
                     </Col>
