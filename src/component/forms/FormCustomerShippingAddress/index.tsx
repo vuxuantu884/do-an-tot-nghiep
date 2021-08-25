@@ -26,6 +26,7 @@ type FormValueType = {
   full_address: string;
   is_default: boolean;
   city_id: number;
+  default: boolean
 };
 
 const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
@@ -56,6 +57,7 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
           full_address: formItem?.full_address,
           is_default: formItem?.default,
           city_id: formItem?.city_id,
+          default: formItem?.default
         }
       : {
           name: "",
@@ -66,16 +68,13 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
           ward_id: null,
           full_address: "",
           is_default: false,
+          default: null
         };
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
 
   // const LIST_STATUS = bootstrapReducer.data?.order_main_status;
-
-  const handleChangeDefault = (value: any) => {
-    console.log(value.target.checked);
-  };
 
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
@@ -267,15 +266,9 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
               />
             </Form.Item>
             <Form.Item
-              style={{ display: "flex", flexDirection: "row" }}
-              label={<b>Đặt làm mặc định:</b>}
-              name="is_default"
-              valuePropName="checked"
+              name="default"
+              hidden
             >
-              <Checkbox
-                style={{ paddingBottom: 8, marginLeft: 20 }}
-                onChange={handleChangeDefault}
-              ></Checkbox>
             </Form.Item>
           </Col>
         </Row>

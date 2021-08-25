@@ -123,7 +123,8 @@ const CustomerAdd = (props: any) => {
         ? new Date(values.wedding_date).toISOString()
         : null,
       status: status,
-      city_id: area.city_id,
+      city_id: area ? area.city_id : null,
+      gender: "other",
       contacts: [
         {
           ...CustomerContactClass,
@@ -206,26 +207,23 @@ const CustomerAdd = (props: any) => {
                 key="1"
               >
                 <Row gutter={30} style={{ padding: "0 15px" }}>
-                  <Col span={24}>
-                    <Form.Item
-                      label={<b>Họ và tên:</b>}
-                      name="contact_name"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng nhập họ tên khách hàng",
-                        },
-                        {
-                          pattern: RegUtil.NO_ALL_SPACE,
-                          message: "Tên không được có khoảng trống ở đầu",
-                        },
-                      ]}
-                    >
-                      <Input maxLength={255} placeholder="Nhập họ và tên" />
-                    </Form.Item>
-                  </Col>
                   {isShowInput && (
                     <>
+                      <Col span={24}>
+                        <Form.Item
+                          label={<b>Họ và tên:</b>}
+                          name="contact_name"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng nhập họ tên khách hàng",
+                            },
+                            
+                          ]}
+                        >
+                          <Input maxLength={255} placeholder="Nhập họ và tên" />
+                        </Form.Item>
+                      </Col>
                       <Col span={12}>
                         <Form.Item
                           label={<b>Số điện thoại:</b>}
@@ -249,23 +247,22 @@ const CustomerAdd = (props: any) => {
                           />
                         </Form.Item>
                       </Col>
-                      <Col span={12}>
-                        <Form.Item
-                          label={<b>Email:</b>}
-                          name="contact_email"
-                          // rules={[
-                          //   {
-                          //     required: true,
-                          //     message: "Vui lòng nhập thư điện tử",
-                          //   },
-                          // ]}
-                        >
-                          <Input maxLength={255} placeholder="Nhập email" />
-                        </Form.Item>
-                      </Col>
                     </>
                   )}
-
+                  <Col span={12}>
+                    <Form.Item
+                      label={<b>Email:</b>}
+                      name="contact_email"
+                      // rules={[
+                      //   {
+                      //     required: true,
+                      //     message: "Vui lòng nhập thư điện tử",
+                      //   },
+                      // ]}
+                    >
+                      <Input maxLength={255} placeholder="Nhập email" />
+                    </Form.Item>
+                  </Col>
                   <Col span={24} style={{ padding: "0 1rem" }}>
                     <Row gutter={8}>
                       <Col span={24}>
