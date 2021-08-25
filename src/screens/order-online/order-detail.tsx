@@ -89,7 +89,7 @@ const OrderDetail = () => {
     setPayments(value);
   };
   const changeShippingFeeInformedCustomer = (value: number | null) => {
-    if (value) {
+    if (value !== null) {
       setShippingFeeInformedCustomer(value);
     }
   };
