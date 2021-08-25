@@ -1,5 +1,5 @@
 export interface OrderItemModel {
-  id: number;
+  variant_id: number;
   sku: string;
 }
 export interface OrderPaymentModel {
@@ -42,7 +42,10 @@ export interface OrderModel {
   payment_status: string|null;
   return_status: string|null;
   total_line_amount_after_line_discount: number;
-  items: Array<OrderItemModel>;
+  items: Array<{
+    id: number;
+    sku: string;
+  }>;
   pre_payments: string;
   payments: Array<OrderPaymentModel>;
   fulfillments: Array<OrderFulfillmentsModel>;

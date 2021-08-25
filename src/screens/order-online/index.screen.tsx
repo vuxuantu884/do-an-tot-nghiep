@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Card } from "antd";
+import { Button, Card } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import OrderFilter from "component/filter/order.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { OrderFulfillmentsModel, OrderModel, OrderPaymentModel, OrderSearchQuery } from "model/order/order.model";
+import { OrderFulfillmentsModel, OrderItemModel, OrderModel, OrderPaymentModel, OrderSearchQuery } from "model/order/order.model";
 import {
   AccountResponse,
   AccountSearchQuery,
@@ -22,6 +22,11 @@ import ContentContainer from "component/container/content.container";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { getListOrderAction } from "domain/actions/order/order.action";
+import ColumnGroup from "antd/lib/table/ColumnGroup";
+import Column from "antd/lib/table/Column";
+import './scss/index.screen.scss'
+import { PoPaymentStatus } from "utils/Constants";
+import { SettingOutlined } from "@ant-design/icons";
 
 const actions: Array<MenuAction> = [
   {
@@ -118,83 +123,203 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "ID đơn hàng",
       dataIndex: "id",
+      key: "id",
       visible: true,
     },
     {
       title: "Khách hàng",
-      dataIndex: "name",
+      dataIndex: "customer",
+      key: "customer",
       visible: true,
     },
     {
       title: "Sản phẩm",
-      // dataIndex: "items",
+      dataIndex: "items",
+      key: "items.name",
+      render: (items: Array<OrderItemModel>) => (
+        <div className="items">
+          {items.map((item, i) => {
+            return (
+              <div className="item-details">{item.variant_id}</div>
+            )
+          })}
+        </div>
+      ),
+      visible: true,
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "items",
+      key: "item.quantity",
+      render: (items: Array<OrderItemModel>) => (
+        <div className="items">
+          {items.map((item, i) => {
+            return (
+              <div className="item-details">{item.sku}</div>
+            )
+          })}
+        </div>
+      ),
       visible: true,
     },
     {
       title: "Khách phải trả",
       dataIndex: "total_line_amount_after_line_discount",
+      key: "customer.amount_money",
       visible: true,
     },
     {
       title: "Hình thức vận chuyển",
       dataIndex: "fulfillments",
+      key: "shipment.type",
       render: (fulfillments: Array<OrderFulfillmentsModel>) => (
-        123
-        // fulfillments && fulfillments.length ? fulfillments[0].shipment.delivery_service_provider_id : null
+        fulfillments && fulfillments[0].shipment ? fulfillments[0].shipment.delivery_service_provider_id : ""
       ),
       visible: true,
     },
     {
       title: "Trạng thái đơn",
       dataIndex: "status",
+      key: "status",
       visible: true,
+      align: "center",
     },
     {
       title: "Đóng gói",
-      dataIndex: "inventory",
+      dataIndex: "packed_status",
+      render: (value: string) => {
+        let processIcon = null;
+        switch (value) {
+          case "partial_paid":
+            processIcon = "icon-partial";
+            break;
+          case "paid":
+            processIcon = "icon-full";
+            break;
+          default:
+            processIcon = "icon-blank";
+            break;
+        }
+        return (
+          <div className="text-center">
+            <div className={processIcon} />
+          </div>
+        );
+      },
       visible: true,
+      align: "center",
+      width: 120,
     },
     {
       title: "Xuất kho",
-      dataIndex: "inventory",
+      dataIndex: "received_status",
+      render: (value: string) => {
+        let processIcon = null;
+        switch (value) {
+          case "partial_paid":
+            processIcon = "icon-partial";
+            break;
+          case "paid":
+            processIcon = "icon-full";
+            break;
+          default:
+            processIcon = "icon-blank";
+            break;  
+        }
+        return (
+          <div className="text-center">
+            <div className={processIcon} />
+          </div>
+        );
+      },
       visible: true,
+      align: "center",
+      width: 120,
     },
     {
       title: "Thanh toán",
       dataIndex: "payment_status",
+      render: (value: string) => {
+        let processIcon = null;
+        switch (value) {
+          case "partial_paid":
+            processIcon = "icon-partial";
+            break;
+          case "paid":
+            processIcon = "icon-full";
+            break;
+          default:
+            processIcon = "icon-blank";
+            break;  
+        }
+        return (
+          <div className="text-center">
+            <div className={processIcon} />
+          </div>
+        );
+      },
       visible: true,
+      align: "center",
+      width: 120,
     },
     {
       title: "Trả hàng",
       dataIndex: "return_status",
+      render: (value: string) => {
+        let processIcon = null;
+        switch (value) {
+          case "partial_paid":
+            processIcon = "icon-partial";
+            break;
+          case "paid":
+            processIcon = "icon-full";
+            break;
+          default:
+            processIcon = "icon-blank";
+            break;  
+        }
+        return (
+          <div className="text-center">
+            <div className={processIcon} />
+          </div>
+        );
+      },
       visible: true,
+      align: "center",
+      width: 120,
     },
     {
       title: "Tổng SL sản phẩm",
       dataIndex: "items",
+      key: "item.quantity.total",
       render: (items) => (
         items.length
       ),
       visible: true,
+      align: "center",
     },
     {
       title: "Khu vực",
-      dataIndex: "inventory",
+      dataIndex: "area",
+      key: "area",
       visible: true,
     },
     {
       title: "Kho cửa hàng",
       dataIndex: "store",
+      key: "store",
       visible: true,
     },
     {
       title: "Nguồn đơn hàng",
       dataIndex: "source",
+      key: "source",
       visible: true,
     },
     {
       title: "Khách đã trả",
       dataIndex: "payments",
+      key: "customer.paid",
       render: (payments: Array<OrderPaymentModel>) => {
         let total = 0
         payments.forEach(payment => {
@@ -208,6 +333,7 @@ const ListOrderScreen: React.FC = () => {
 
     {
       title: "Còn phải trả",
+      key: "customer.pay",
       render: (order: OrderModel) => {
         let paid = 0
         order.payments.forEach(payment => {
@@ -221,6 +347,8 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Phương thức thanh toán",
+      dataIndex: "payments",
+      key: "payments.type",
       render: (payments: Array<OrderPaymentModel>) => (
           123
           // payments.map(payment => {
@@ -234,41 +362,51 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Nhân viên bán hàng",
       dataIndex: "assignee",
+      key: "assignee",
       visible: true,
+      align: "center",
     },
     {
       title: "Nhân viên tạo đơn",
       dataIndex: "account",
+      key: "account",
       visible: true,
+      align: "center",
     },
     {
       title: "Ngày hoàn tất đơn",
       dataIndex: "finalized_on",
+      key: "finalized_on",
       visible: true,
     },
     {
       title: "Ngày huỷ đơn",
       dataIndex: "cancelled_on",
+      key: "cancelled_on",
       visible: true,
     },
     {
       title: "Ghi chú nội bộ",
       dataIndex: "note",
+      key: "note",
       visible: true,
     },
     {
       title: "Ghi chú của khách",
       dataIndex: "customer_note",
+      key: "customer_note",
       visible: true,
     },
     {
       title: "Tag",
       dataIndex: "tags",
+      key: "tags",
       visible: true,
     },
     {
       title: "Mã tham chiếu",
       dataIndex: "reference_code",
+      key: "reference_code",
       visible: true,
     }
   ]);
@@ -337,11 +475,12 @@ const ListOrderScreen: React.FC = () => {
           onFilter={onFilter}
           params={params}
           listStatus={listStatus}
+          onShowColumnSetting={() => setShowSettingColumn(true)}
         />
         <CustomTable
           isRowSelection
           isLoading={tableLoading}
-          showColumnSetting={true}
+          // showColumnSetting={true}
           scroll={{ x: 4320 }}
           pagination={{
             pageSize: data.metadata.limit,
@@ -355,6 +494,7 @@ const ListOrderScreen: React.FC = () => {
           dataSource={data.items}
           columns={columnFinal}
           rowKey={(item: OrderModel) => item.id}
+          className="order-list"
         />
         </div>
       </Card>

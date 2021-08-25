@@ -23,9 +23,9 @@ import { SupplierResponse } from "model/core/supplier.model";
 import { CountryResponse } from "model/content/country.model";
 import { VariantSearchQuery } from "model/product/product.model";
 import CustomFilter from "component/table/custom.filter";
-import { StarOutlined, SettingOutlined } from "@ant-design/icons";
-import NumberInput from "component/custom/number-input.custom";
-import CustomDatepicker from "component/custom/date-picker.custom";
+import { StarOutlined, SettingOutlined, FilterOutlined } from "@ant-design/icons";
+// import NumberInput from "component/custom/number-input.custom";
+// import CustomDatepicker from "component/custom/date-picker.custom";
 import './order.filter.scss'
 
 const { Panel } = Collapse;
@@ -41,6 +41,7 @@ type OrderFilterProps = {
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: VariantSearchQuery) => void;
+  onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
 };
 
@@ -52,17 +53,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 ) => {
   const {
     params,
-    listStatus,
-    listMerchandisers,
-    listSize,
-    listMainColors,
-    listColors,
-    listSupplier,
     actions,
-    listCountries,
     onMenuClick,
     onClearFilter,
     onFilter,
+    onShowColumnSetting
   } = props;
   const [visible, setVisible] = useState(false);
 
@@ -96,21 +91,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   }, [formRef, visible]);
 
   return (
-    <div>
+    <div className="order-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
         <Form onFinish={onFinish} initialValues={params} layout="inline">
-          <Item name="info">
+          <Item name="search" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
-              style={{ width: 200 }}
-              placeholder="Tìm kiếm theo ID đơn hàng"
-            />
-          </Item>
-          <Item name="barcode">
-            <Input
-              prefix={<img src={search} alt="" />}
-              style={{ width: 200 }}
-              placeholder="Tìm kiếm theo tên, sđt khách hàng"
+              placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
             />
           </Item>
           
@@ -125,8 +112,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Tooltip>
           </Item>
           <Item>
-            <Button onClick={openFilter}>Thêm bộ lọc</Button>
+            <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
           </Item>
+          <Button icon={<SettingOutlined/>} onClick={onShowColumnSetting}></Button>
         </Form>
       </CustomFilter>
 
@@ -148,7 +136,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Collapse defaultActiveKey={[]}>
                 <Panel header="KHU VỰC" key="1">
                   <Item
-                    name="from_created_date"
+                    // name="area"
                   >
                   <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
                     <Option value="">Chọn khu vực</Option>
@@ -168,7 +156,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Collapse defaultActiveKey={[]}>
                 <Panel header="KHO CỬA HÀNG" key="1">
                   <Item
-                    name="from_created_date"
+                    // name="id_store"
                   >
                   <Select optionFilterProp="children" showSearch placeholder="Chọn kho hàng" style={{width: '100%'}}>
                     <Option value="">Chọn kho hàng</Option>
@@ -189,7 +177,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Panel header="NGUỒN ĐƠN HÀNG" key="1">
                   
                   <Item
-                    name="from_created_date"
+                    name="source"
                   >
                   <Select optionFilterProp="children" showSearch placeholder="Chọn nguồn đơn hàng" style={{width: '100%'}}>
                     <Option value="">Chọn nguồn đơn hàng</Option>
@@ -319,7 +307,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Collapse defaultActiveKey={[]}>
                 <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1">
                   <Item
-                    name="from_created_date"
+                    name="order_status"
                   >
                   <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn trạng thái đơn hàng" style={{width: '100%'}}>
                     <Option value="">Chọn trạng thái đơn hàng</Option>
@@ -334,34 +322,29 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Collapse>
             </Col>
           </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
+          {/* <Row gutter={12} style={{marginTop: '10px'}}>
             <Col span={24}>
               <Collapse defaultActiveKey={[]}>
                 <Panel header="TRẠNG THÁI XỬ LÝ ĐƠN" key="1">
                   <Item
-                    name="from_created_date"
+                    name="fulfillment_status"
                   >
                   <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn trạng thái xử lý đơn" style={{width: '100%'}}>
                     <Option value="">Chọn trạng thái xử lý đơn</Option>
-                    {/* {listCountries?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))} */}
                   </Select>
                   </Item>
                 </Panel>
               </Collapse>
             </Col>
-          </Row>
+          </Row> */}
           <Row gutter={12} style={{marginTop: '10px'}}>
             <Col span={24}>
               <Collapse defaultActiveKey={[]}>
                 <Panel header="GIAO HÀNG" key="1">
                   <Item
-                    name="from_created_date"
+                    // name="fulfillment_status"
                   >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn trạng thái giao hàng" style={{width: '100%'}}>
+                  <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn trạng thái giao hàng" style={{width: '100%'}}>
                     <Option value="">Chưa giao</Option>
                     <Option value="">Đang giao</Option>
                     <Option value="">Đã giao</Option>
@@ -375,7 +358,15 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Col span={24}>
               <Collapse defaultActiveKey={[]}>
                 <Panel header="THANH TOÁN" key="1">
-                  Radio
+                  <Item
+                      name="payment_status"
+                    >
+                    <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn trạng thái giao hàng" style={{width: '100%'}}>
+                      <Option value="unpaid">Chưa thanh toán</Option>
+                      <Option value="partial_paid">Thanh toán một phần</Option>
+                      <Option value="paid">Đã thanh toán</Option>
+                    </Select>
+                  </Item>
                 </Panel>
               </Collapse>
             </Col>
@@ -384,7 +375,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Col span={24}>
               <Collapse defaultActiveKey={[]}>
                 <Panel header="TRẢ HÀNG" key="1">
-                  Radio
+                  có đổi, không đổi
                 </Panel>
               </Collapse>
             </Col>
@@ -394,7 +385,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Collapse defaultActiveKey={[]}>
                 <Panel header="NHÂN VIÊN BÁN HÀNG" key="1">
                   <Item
-                    name="from_created_date"
+                    name="assignee"
                   >
                   <Select optionFilterProp="children" showSearch placeholder="Chọn nhân viên bán hàng" style={{width: '100%'}}>
                     <Option value="">Nhân viên bán hàng</Option>
@@ -414,7 +405,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Collapse defaultActiveKey={[]}>
                 <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1">
                   <Item
-                    name="from_created_date"
+                    name="account"
                   >
                   <Select optionFilterProp="children" showSearch placeholder="Chọn nhân viên tạo đơn" style={{width: '100%'}}>
                     <Option value="">Nhân viên tạo đơn</Option>
@@ -462,17 +453,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Collapse defaultActiveKey={[]}>
                 <Panel header="PHƯƠNG THỨC THANH TOÁN" key="1">
                   <Item
-                    name="from_created_date"
+                    name="payment_method_ids"
                   >
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}>
+                  <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}>
                     <Option value="">Tiền mặt</Option>
                     <Option value="">Chuyển khoản</Option>
                     <Option value="">COD</Option>
-                    {/* {listCountries?.map((item) => (
-                      <Option key={item.id} value={item.id}>
-                        {item.name}
-                      </Option>
-                    ))} */}
+                    
                   </Select>
                   </Item>
                 </Panel>
@@ -484,7 +471,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Collapse defaultActiveKey={[]}>
                 <Panel header="NGÀY DỰ KIẾN NHẬN HÀNG" key="1">
                   <Item
-                    name="from_created_date"
+                    // name="from_created_date"
                   >
                     <DatePicker placeholder="Chọn ngày" style={{width: "100%"}}/>
                   </Item>
@@ -543,7 +530,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Collapse defaultActiveKey={[]}>
                 <Panel header="TAG" key="1">
                   <Item
-                    name="from_created_date"
+                    // name="tags"
                   >
                   <Select optionFilterProp="children" showSearch placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
                     <Option value="">Tag 1</Option>
@@ -564,7 +551,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Collapse defaultActiveKey={[]}>
                 <Panel header="MÃ THAM CHIẾU" key="1">
                   <Item
-                    name="from_created_date"
+                    name="reference_code"
                   >
                     <Input placeholder="Tìm kiếm theo mã tham chiếu"/>
                   </Item>
