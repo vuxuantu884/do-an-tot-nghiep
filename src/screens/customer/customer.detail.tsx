@@ -10,15 +10,24 @@ import {
   Collapse,
   Tag,
   Space,
+  Dropdown,
+  Menu,
+  Checkbox,
 } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { PlusOutlined } from "@ant-design/icons";
 import { modalActionType } from "model/modal/modal.model";
-import CustomModal from "component/modal/CustomModal";
-import delivery from "../../assets/icon/delivery.svg";
-import people from "../../assets/icon/people.svg";
+import CustomerModal from "../customer/CustomerModal";
+import threeDot from "../../assets/icon/three-dot.svg";
+import editIcon from "../../assets/icon/edit.svg";
+import deleteIcon from "../../assets/icon/deleteIcon.svg";
+import customerShipping from "../../assets/icon/c-shipping.svg";
+import customerRecipt from "../../assets/icon/c-recipt.svg";
+import customerContact from "../../assets/icon/c-contact.svg";
+import customerBuyHistory from "../../assets/icon/c-bag.svg";
+import arrowLeft from "../../assets/icon/arrow-left.svg";
 
 import {
   CustomerDetail,
@@ -62,6 +71,8 @@ import {
 import FormCustomerContact from "component/forms/FormCustomerContact";
 import FormCustomerShippingAddress from "component/forms/FormCustomerShippingAddress";
 import FormCustomerBillingAddress from "component/forms/FormCustomerBillingAddress";
+import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -135,7 +146,13 @@ const CustomerEdit = (props: any) => {
         // },
         {
           name: "Nhân viên phụ trách",
-          value: customer.responsible_staff_code,
+          value: `${
+            customer.responsible_staff_code
+              ? customer.responsible_staff_code
+              : ""
+          }${
+            customer.responsible_staff ? "-" + customer.responsible_staff : ""
+          }`,
         },
         {
           name: "Email",
@@ -203,185 +220,391 @@ const CustomerEdit = (props: any) => {
     }
     setCustomerPoint(details);
   }, [customer, setCustomerPoint]);
+
+  const actionColumn = (handleEdit: any, handleDelete: any) => {
+    const _actionColumn = {
+      title: "",
+      visible: true,
+      width: "5%",
+      className: "saleorder-product-card-action ",
+      render: (l: any, item: any, index: number) => {
+        const menu = (
+          <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+            <Menu.Item key="1">
+              <Button
+                icon={<img style={{ marginRight: 12 }} src={editIcon} />}
+                type="text"
+                className=""
+                style={{
+                  paddingLeft: 24,
+                  background: "transparent",
+                  border: "none",
+                }}
+                onClick={handleEdit}
+              >
+                Chỉnh sửa
+              </Button>
+            </Menu.Item>
+            <Menu.Item key="2">
+              <Button
+                icon={<img style={{ marginRight: 12 }} src={deleteIcon} />}
+                type="text"
+                className=""
+                style={{
+                  paddingLeft: 24,
+                  background: "transparent",
+                  border: "none",
+                  color: "red",
+                }}
+                onClick={handleDelete}
+              >
+                Xóa
+              </Button>
+            </Menu.Item>
+          </Menu>
+        );
+        return (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "0 4px",
+            }}
+          >
+            <div
+              className="site-input-group-wrapper saleorder-input-group-wrapper"
+              style={{
+                borderRadius: 5,
+              }}
+            >
+              <Dropdown
+                overlay={menu}
+                trigger={["click"]}
+                placement="bottomRight"
+              >
+                <Button
+                  type="text"
+                  className="p-0 ant-btn-custom"
+                  icon={<img src={threeDot} alt=""></img>}
+                ></Button>
+              </Dropdown>
+            </div>
+          </div>
+        );
+      },
+    };
+    return _actionColumn;
+  };
+  const [isVisibleContactModal, setIsVisibleContactModal] =
+    React.useState<boolean>(false);
+
+  const handleContactEdit = () => {
+    setIsShowModalContacts(true);
+  };
+
+  const handleContactDelete = () => {
+    setIsVisibleContactModal(true);
+  };
+  const onOkContactDelete = () => {
+    handleContactForm.delete();
+    setIsVisibleContactModal(false);
+  };
+  const onCancelContactDelete = () => {
+    setIsVisibleContactModal(false);
+  };
+
   // contact column
   const columns: Array<ICustomTableColumType<contact>> = [
+    {
+      title: "STT",
+      dataIndex: "",
+      align: "center",
+      visible: true,
+      width: "5%",
+      render: (value, row, index) => {
+        return (
+          <span>{index+1}</span>
+        );
+      }
+    },
     {
       title: "Tiêu đề",
       dataIndex: "title",
       visible: true,
-      width: "20%",
+      // width: "20%",
     },
     {
       title: "Tên người liên hệ",
-      dataIndex: "name",
+      dataIndex: "",
       visible: true,
       width: "20%",
+      render: (value, row, index) =>{
+        return(
+          <div style={{width: 200}}>{row.name}</div>
+        )
+      }
     },
 
     {
       title: "Email",
       dataIndex: "email",
       visible: true,
-      width: "20%",
+      // width: "20%",
     },
 
     {
       title: "Số điện thoại",
       dataIndex: "phone",
       visible: true,
-      width: "20%",
+      // width: "20%",
     },
     {
       title: "Ghi chú",
       dataIndex: "note",
       visible: true,
-      width: "20%",
+      // width: "20%",
       render: (value, row, index) => {
         return (
-          <span className="text" title={value} style={{ color: "#666666" }}>
+          <div className="text" title={value} style={{ color: "#666666", width: 200 }}>
             {value}
-          </span>
+          </div>
         );
       },
     },
+    actionColumn(handleContactEdit, handleContactDelete),
   ];
   // shiping column
 
+  const [isVisibleShippingModal, setIsVisibleShippingModal] =
+    React.useState<boolean>(false);
+
+  const handleShippingEdit = () => {
+    setIsShowModalShipping(true);
+  };
+
+  const handleShippingDelete = () => {
+    setIsVisibleShippingModal(true);
+  };
+  const onOkShippingDelete = () => {
+    handleShippingAddressForm.delete();
+    setIsVisibleShippingModal(false);
+  };
+  const onCancelShippingDelete = () => {
+    setIsVisibleShippingModal(false);
+  };
+  const handleShippingDefault = (value: any, item: any) => {
+    let _item = { ...item };
+    _item.is_default = value.target.checked;
+    if (customer)
+      dispatch(
+        UpdateShippingAddress(
+          _item.id,
+          customer.id,
+          _item,
+          (data: shippingAddress) => {
+            history.replace(`${UrlConfig.CUSTOMER}/` + customer.id);
+            if (data) {
+              data.default
+                ? showSuccess("Đặt mặc định thành công")
+                : showSuccess("Bỏ mặc định thành công");
+            } else {
+              showError("Đặt mặc định thất bại");
+            }
+          }
+        )
+      );
+  };
   const shippingColumns: Array<ICustomTableColumType<shippingAddress>> = [
+    {
+      title: "STT",
+      dataIndex: "",
+      align: "center",
+      visible: true,
+      width: "5%",
+      render: (value, row, index) => {
+        return (
+          <span>{index+1}</span>
+        );
+      }
+    },
     {
       title: "Họ tên người nhận",
       dataIndex: "name",
-      align: "center",
       visible: true,
-      width: "15%",
+      width: "20%"
     },
     {
       title: "Số điện thoại",
-      dataIndex: "phone",align: "center",
+      dataIndex: "phone",
       visible: true,
-      width: "15%",
     },
     {
       title: "Quốc gia",
-      dataIndex: "country",align: "center",
+      dataIndex: "country",
       visible: true,
-      width: "10%",
     },
     {
-      title: "Tỉnh/TP",
-      dataIndex: "city",align: "center",
+      title: "Khu vực, phường/ xã, địa chỉ chi tiết",
+      dataIndex: "full_address",
       visible: true,
-      width: "10%",
-    },
-    {
-      title: "Quận/Huyện",
-      dataIndex: "district",align: "center",
-      visible: true,
-      width: "10%",
-    },
-    {
-      title: "Phường/Xã",
-      dataIndex: "ward",align: "center",
-      visible: true,
-      width: "10%",
-    },
-    {
-      title: "Địa chỉ chi tiết",
-      dataIndex: "full_address",align: "center",
-      visible: true,
-      width: "20%",
       render: (value, row, index) => {
         return (
-          <span className="text" title={value} style={{ color: "#666666" }}>
-            {value}
-          </span>
+          <div>
+            <span
+              className="text"
+              title={row.code}
+              style={{ color: "#222222", display: "block" }}
+            >
+              {`${row.ward ? row.ward : "---"} - ${
+                row.district ? row.district : "---"
+              } - ${row.city ? row.city : "---"}`}
+            </span>
+            <span
+              className="text"
+              title={row.code}
+              style={{ color: "#666666" }}
+            >
+              {`${row.full_address}`}
+            </span>
+          </div>
         );
       },
     },
     {
-      title: "",
-      dataIndex: "default",align: "center",
+      title: "Mặc định",
+      dataIndex: "default",
+      align: "center",
       visible: true,
       width: "10%",
       render: (l: shippingAddress, item: any, index: number) => {
-        return item.default && <div style={{ color: "#2a2a86" }}>Mặc định</div>;
+        return (
+          <Checkbox
+            checked={item.default}
+            onClick={(value) => handleShippingDefault(value, item)}
+          />
+        );
       },
     },
+    actionColumn(handleShippingEdit, handleShippingDelete),
   ];
+
   // billing columns
+  const [isVisibleBillingModal, setIsVisibleBillingModal] =
+    React.useState<boolean>(false);
+  const handleBillingEdit = () => {
+    setIsShowModalBilling(true);
+  };
+  const handleBillingDelete = () => {
+    setIsVisibleBillingModal(true);
+  };
+  const onOkBillingDelete = () => {
+    handleBillingAddressForm.delete();
+    setIsVisibleBillingModal(false);
+  };
+  const onCancelBillingDelete = () => {
+    setIsVisibleBillingModal(false);
+  };
   const billingColumns: Array<ICustomTableColumType<billingAddress>> = [
     {
-      title: "Họ tên người nhận",
-      dataIndex: "name",align: "center",
+      title: "STT",
+      dataIndex: "",
+      align: "center",
       visible: true,
-      width: "10%",
+      width: "5%",
+      render: (value, row, index) => {
+        return (
+          <span>{index+1}</span>
+        );
+      }
+    },
+    {
+      title: "Họ tên người nhận",
+      dataIndex: "name",
+      visible: true,
+      width: "20%",
     },
     {
       title: "Số điện thoại",
-      dataIndex: "phone",align: "center",
+      dataIndex: "phone",
       visible: true,
-      width: "10%",
     },
     {
       title: "Email",
-      dataIndex: "email",align: "center",
+      dataIndex: "email",
       visible: true,
-      width: "10%",
     },
     {
       title: "Mã số thuế",
-      dataIndex: "tax_code",align: "center",
+      dataIndex: "tax_code",
       visible: true,
-      width: "10%",
     },
     {
-      title: "Quốc gia",
-      dataIndex: "country",align: "center",
+      title: "Khu vực, phường/ xã, địa chỉ chi tiết",
+      dataIndex: "full_address",
       visible: true,
-      width: "10%",
-    },
-    {
-      title: "Tỉnh/TP",
-      dataIndex: "city",align: "center",
-      visible: true,
-      width: "10%",
-    },
-    {
-      title: "Quận/Huyện",
-      dataIndex: "district",align: "center",
-      visible: true,
-      width: "10%",
-    },
-    {
-      title: "Phường/Xã",
-      dataIndex: "ward",align: "center",
-      visible: true,
-      width: "10%",
-    },
-    {
-      title: "Địa chỉ chi tiết",
-      dataIndex: "full_address",align: "center",
-      visible: true,
-      width: "15%",
       render: (value, row, index) => {
         return (
-          <span className="text" title={value} style={{ color: "#666666" }}>
-            {value}
-          </span>
+          <div>
+            <span
+              className="text"
+              title={row.code}
+              style={{ color: "#222222", display: "block" }}
+            >
+              {`${row.ward ? row.ward : "--"} - ${
+                row.district ? row.district : "--"
+              } - ${row.city ? row.city : "--"}`}
+            </span>
+            <span
+              className="text"
+              title={row.code}
+              style={{ color: "#666666" }}
+            >
+              {`${row.full_address}`}
+            </span>
+          </div>
         );
       },
     },
     {
-      title: "",
-      dataIndex: "default",align: "center",
+      title: "Mặc định",
+      dataIndex: "default",
+      align: "center",
       visible: true,
       width: "10%",
-      render: (l: shippingAddress, item: any, index: number) => {
-        return item.default && <div style={{ color: "#2a2a86" }}>Mặc định</div>;
+      render: (l: billingAddress, item: any, index: number) => {
+        return (
+          <Checkbox
+            checked={item.default}
+            onClick={(value) => handleBillingDefault(value, item)}
+          />
+        );
       },
     },
+    actionColumn(handleBillingEdit, handleBillingDelete),
   ];
-
+  const handleBillingDefault = (value: any, item: any) => {
+    let _item = { ...item };
+    _item.is_default = value.target.checked;
+    if (customer)
+      dispatch(
+        UpdateBillingAddress(
+          _item.id,
+          customer.id,
+          _item,
+          (data: billingAddress) => {
+            history.replace(`${UrlConfig.CUSTOMER}/` + customer.id);
+            if (data) {
+              data.default
+                ? showSuccess("Đặt mặc định thành công")
+                : showSuccess("Bỏ mặc định thành công");
+            } else {
+              showError("Đặt mặc định thất bại");
+            }
+          }
+        )
+      );
+  };
+  //end
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -449,6 +672,7 @@ const CustomerEdit = (props: any) => {
   const [isShowModalContacts, setIsShowModalContacts] = React.useState(false);
   const [customerDetailState, setCustomerDetailState] =
     React.useState<number>(1);
+
   interface ShipmentButtonModel {
     name: string | null;
     value: number;
@@ -457,20 +681,26 @@ const CustomerEdit = (props: any) => {
 
   const customerDetailButtons: Array<ShipmentButtonModel> = [
     {
-      name: "Thông tin liên hệ",
+      name: "Lịch sử mua hàng",
       value: 1,
-      icon: people,
+      icon: customerBuyHistory,
     },
     {
-      name: "Địa chỉ giao hàng",
+      name: "Thông tin liên hệ",
       value: 2,
-      icon: delivery,
+      icon: customerContact,
     },
     {
       name: "Địa chỉ nhận hóa đơn",
       value: 3,
-      icon: delivery,
+      icon: customerRecipt,
     },
+    {
+      name: "Địa chỉ giao hàng",
+      value: 4,
+      icon: customerShipping,
+    },
+    
   ];
 
   // add contact
@@ -530,6 +760,7 @@ const CustomerEdit = (props: any) => {
 
   const handleShippingAddressForm = {
     create: (formValue: CustomerShippingAddress) => {
+      formValue.is_default = false;
       if (customer)
         dispatch(
           CreateShippingAddress(
@@ -546,6 +777,7 @@ const CustomerEdit = (props: any) => {
         );
     },
     edit: (formValue: CustomerShippingAddress) => {
+      formValue.is_default = formValue.default;
       if (modalSingleShippingAddress) {
         if (customer)
           dispatch(
@@ -586,6 +818,7 @@ const CustomerEdit = (props: any) => {
   // handle billing
   const handleBillingAddressForm = {
     create: (formValue: CustomerBillingAddress) => {
+      formValue.is_default = false;
       if (customer)
         dispatch(
           CreateBillingAddress(
@@ -602,6 +835,7 @@ const CustomerEdit = (props: any) => {
         );
     },
     edit: (formValue: CustomerBillingAddress) => {
+      formValue.is_default = formValue.default;
       if (modalSingleBillingAddress) {
         if (customer)
           dispatch(
@@ -883,25 +1117,79 @@ const CustomerEdit = (props: any) => {
                         className="saleorder_shipment_button"
                         key={button.value}
                         onClick={() => setCustomerDetailState(button.value)}
+                        style={{padding: "10px 20px"}} 
                       >
                         <img src={button.icon} alt="icon"></img>
-                        <span>{button.name}</span>
+                        <span style={{fontWeight: 500}}>{button.name}</span>
                       </div>
                     ) : (
                       <div
                         className="saleorder_shipment_button_active"
                         key={button.value}
+                        style={{padding: "10px 20px"}} 
                       >
                         <img src={button.icon} alt="icon"></img>
-                        <span>{button.name}</span>
+                        <span style={{fontWeight: 500}}>{button.name}</span>
                       </div>
                     )}
                   </div>
                 ))}
               </Space>
             </div>
-            {customerDetailState === 1 && (
-              <Row>
+            {customerDetailState === 2 && (
+              <Row style={{ marginTop: 16 }}>
+                
+                <Col span={24}>
+                  <CustomTable
+                    showColumnSetting={false}
+                    // scroll={{ x: 1080 }}
+                    // pagination={{
+                    //   pageSize: customer
+                    //     ? customer.contacts
+                    //       ? customer.contacts.length
+                    //       : 0
+                    //     : 0,
+                    //   total: customer
+                    //     ? customer.contacts
+                    //       ? customer.contacts.length
+                    //       : 0
+                    //     : 0,
+                    //   current: 1,
+                    //   showSizeChanger: true,
+                    //   // onChange: onPageChange,
+                    //   // onShowSizeChange: onPageChange,
+                    // }}
+                    pagination={false }
+                    dataSource={customer ? customer.contacts : []}
+                    columns={columnFinal()}
+                    rowKey={(item: contact) => item.id}
+                    onRow={(record: CustomerContact) => {
+                      return {
+                        onClick: (event) => {
+                          console.log(record);
+                          setModalSingleContact(record);
+                          setModalAction("edit");
+                        }, // click row
+                      };
+                    }}
+                  />
+                  <CustomerModal
+                    visible={isShowModalContacts}
+                    onCreate={(formValue: CustomerContact) =>
+                      handleContactForm.create(formValue)
+                    }
+                    onEdit={(formValue: CustomerContact) =>
+                      handleContactForm.edit(formValue)
+                    }
+                    onDelete={() => {}}
+                    onCancel={() => setIsShowModalContacts(false)}
+                    modalAction={modalAction}
+                    modalTypeText="Địa chỉ liên hệ"
+                    componentForm={FormCustomerContact}
+                    formItem={modalSingleContact}
+                    deletedItemTitle={modalSingleContact?.name}
+                  />
+                </Col>
                 <div
                   style={{
                     padding: "0 16px 10px 0",
@@ -912,62 +1200,64 @@ const CustomerEdit = (props: any) => {
                 >
                   {addContact()}
                 </div>
+              </Row>
+            )}
+
+            {customerDetailState === 4 && (
+              <Row style={{ marginTop: 16 }}>
+                
                 <Col span={24}>
                   <CustomTable
                     showColumnSetting={false}
                     // scroll={{ x: 1080 }}
-                    pagination={{
-                      pageSize: customer
-                        ? customer.contacts
-                          ? customer.contacts.length
-                          : 0
-                        : 0,
-                      total: customer
-                        ? customer.contacts
-                          ? customer.contacts.length
-                          : 0
-                        : 0,
-                      current: 1,
-                      showSizeChanger: true,
-                      // onChange: onPageChange,
-                      // onShowSizeChange: onPageChange,
-                    }}
-                    dataSource={customer ? customer.contacts : []}
-                    columns={columnFinal()}
-                    rowKey={(item: contact) => item.id}
-                    onRow={(record: CustomerContact) => {
+                    // pagination={{
+                    //   pageSize: customer
+                    //     ? customer.shipping_addresses
+                    //       ? customer.shipping_addresses.length
+                    //       : 0
+                    //     : 0,
+                    //   total: customer
+                    //     ? customer.shipping_addresses
+                    //       ? customer.shipping_addresses.length
+                    //       : 0
+                    //     : 0,
+                    //   current: 1,
+                    //   showSizeChanger: true,
+                    //   // onChange: onPageChange,
+                    //   // onShowSizeChange: onPageChange,
+                    // }}
+                    pagination={false}
+                    dataSource={customer ? customer.shipping_addresses : []}
+                    columns={shippingColumnFinal()}
+                    rowKey={(item: shippingAddress) => item.id}
+                    onRow={(record: CustomerShippingAddress) => {
                       return {
                         onClick: (event) => {
                           console.log(record);
-                          setModalSingleContact(record);
+                          setModalShippingAddress(record);
                           setModalAction("edit");
-                          setIsShowModalContacts(true);
+                          // setIsShowModalShipping(true);
                         }, // click row
                       };
                     }}
                   />
-                  <CustomModal
-                    visible={isShowModalContacts}
-                    onCreate={(formValue: CustomerContact) =>
-                      handleContactForm.create(formValue)
+                  <CustomerModal
+                    visible={isShowModalShipping}
+                    onCreate={(formValue: CustomerShippingAddress) =>
+                      handleShippingAddressForm.create(formValue)
                     }
-                    onEdit={(formValue: CustomerContact) =>
-                      handleContactForm.edit(formValue)
+                    onEdit={(formValue: CustomerShippingAddress) =>
+                      handleShippingAddressForm.edit(formValue)
                     }
-                    onDelete={() => handleContactForm.delete()}
-                    onCancel={() => setIsShowModalContacts(false)}
+                    onDelete={() => {}}
+                    onCancel={() => setIsShowModalShipping(false)}
                     modalAction={modalAction}
-                    modalTypeText="Địa chỉ liên hệ"
-                    componentForm={FormCustomerContact}
-                    formItem={modalSingleContact}
-                    deletedItemTitle={modalSingleContact?.name}
+                    modalTypeText="Địa chỉ giao hàng"
+                    componentForm={FormCustomerShippingAddress}
+                    formItem={modalSingleShippingAddress}
+                    deletedItemTitle={modalSingleShippingAddress?.name}
                   />
                 </Col>
-              </Row>
-            )}
-
-            {customerDetailState === 2 && (
-              <Row>
                 <div
                   style={{
                     padding: "0 16px 10px 0",
@@ -978,91 +1268,31 @@ const CustomerEdit = (props: any) => {
                 >
                   {addShippingAddress()}
                 </div>
-                <Col span={24}>
-                  <CustomTable
-                    showColumnSetting={false}
-                    // scroll={{ x: 1080 }}
-                    pagination={{
-                      pageSize: customer
-                        ? customer.shipping_addresses
-                          ? customer.shipping_addresses.length
-                          : 0
-                        : 0,
-                      total: customer
-                        ? customer.shipping_addresses
-                          ? customer.shipping_addresses.length
-                          : 0
-                        : 0,
-                      current: 1,
-                      showSizeChanger: true,
-                      // onChange: onPageChange,
-                      // onShowSizeChange: onPageChange,
-                    }}
-                    dataSource={customer ? customer.shipping_addresses : []}
-                    columns={shippingColumnFinal()}
-                    rowKey={(item: shippingAddress) => item.id}
-                    onRow={(record: CustomerShippingAddress) => {
-                      return {
-                        onClick: (event) => {
-                          console.log(record);
-                          setModalShippingAddress(record);
-                          setModalAction("edit");
-                          setIsShowModalShipping(true);
-                        }, // click row
-                      };
-                    }}
-                  />
-                  <CustomModal
-                    visible={isShowModalShipping}
-                    onCreate={(formValue: CustomerShippingAddress) =>
-                      handleShippingAddressForm.create(formValue)
-                    }
-                    onEdit={(formValue: CustomerShippingAddress) =>
-                      handleShippingAddressForm.edit(formValue)
-                    }
-                    onDelete={() => handleShippingAddressForm.delete()}
-                    onCancel={() => setIsShowModalShipping(false)}
-                    modalAction={modalAction}
-                    modalTypeText="Địa chỉ giao hàng"
-                    componentForm={FormCustomerShippingAddress}
-                    formItem={modalSingleShippingAddress}
-                    deletedItemTitle={modalSingleShippingAddress?.name}
-                  />
-                </Col>
               </Row>
             )}
             {customerDetailState === 3 && (
-              <Row>
-                <div
-                  style={{
-                    padding: "0 16px 10px 0",
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    width: "100%",
-                  }}
-                >
-                  {addBillingAddress()}
-                </div>
+              <Row style={{ marginTop: 16 }}>
                 <Col span={24}>
                   <CustomTable
                     showColumnSetting={false}
                     // scroll={{ x: 1080 }}
-                    pagination={{
-                      pageSize: customer
-                        ? customer.billing_addresses
-                          ? customer.billing_addresses.length
-                          : 0
-                        : 0,
-                      total: customer
-                        ? customer.billing_addresses
-                          ? customer.billing_addresses.length
-                          : 0
-                        : 0,
-                      current: 1,
-                      showSizeChanger: true,
-                      // onChange: onPageChange,
-                      // onShowSizeChange: onPageChange,
-                    }}
+                    // pagination={{
+                    //   pageSize: customer
+                    //     ? customer.billing_addresses
+                    //       ? customer.billing_addresses.length
+                    //       : 0
+                    //     : 0,
+                    //   total: customer
+                    //     ? customer.billing_addresses
+                    //       ? customer.billing_addresses.length
+                    //       : 0
+                    //     : 0,
+                    //   current: 1,
+                    //   showSizeChanger: true,
+                    //   // onChange: onPageChange,
+                    //   // onShowSizeChange: onPageChange,
+                    // }}
+                    pagination={false}
                     dataSource={customer ? customer.billing_addresses : []}
                     columns={billingColumnFinal()}
                     rowKey={(item: billingAddress) => item.id}
@@ -1072,12 +1302,12 @@ const CustomerEdit = (props: any) => {
                           console.log(record);
                           setModalBillingAddress(record);
                           setModalAction("edit");
-                          setIsShowModalBilling(true);
+                          // setIsShowModalBilling(true);
                         }, // click row
                       };
                     }}
                   />
-                  <CustomModal
+                  <CustomerModal
                     visible={isShowModalBilling}
                     onCreate={(formValue: CustomerBillingAddress) =>
                       handleBillingAddressForm.create(formValue)
@@ -1094,52 +1324,69 @@ const CustomerEdit = (props: any) => {
                     deletedItemTitle={modalSingleBillingAddress?.name}
                   />
                 </Col>
+                <div
+                  style={{
+                    padding: "0 16px 10px 0",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    width: "100%",
+                  }}
+                >
+                  {addBillingAddress()}
+                </div>
               </Row>
             )}
           </Card>
         </Col>
       </Row>
-      {/* <Row style={{ marginTop: 16 }}>
-        <Col span={24}>
-          <Card
-            style={{ marginTop: 16 }}
-            title={
-              <div className="d-flex">
-                <span className="title-card">THÔNG TIN LIÊN HỆ</span>
-              </div>
-            }
-            extra={addContact()}
-          ></Card>
-        </Col>
-      </Row> */}
-      {/** shipping*/}
-      {/* <Row>
-        <Col span={24}>
-          <Card
-            style={{ marginTop: 16 }}
-            title={
-              <div className="d-flex">
-                <span className="title-card">ĐỊA CHỈ GIAO HÀNG</span>
-              </div>
-            }
-            extra={addShippingAddress()}
-          ></Card>
-        </Col>
-      </Row> */}
-
-      {/* <Row>
-        <Col span={24}>
-          <Card
-            style={{ marginTop: 16 }}
-            title={
-              <div className="d-flex">
-                <span className="title-card">ĐỊA CHỈ NHẬN HÓA ĐƠN</span>
-              </div>
-            }
-            extra={addBillingAddress()}
-          ></Card>
-        </Col>
-      </Row> */}
+      <SaveAndConfirmOrder
+        onCancel={onCancelContactDelete}
+        onOk={onOkContactDelete}
+        visible={isVisibleContactModal}
+        okText="Đồng ý"
+        cancelText="Hủy"
+        title=""
+        text="Bạn có chắc chắn xóa thông tin liên hệ này không?"
+        icon={DeleteIcon}
+      />
+      <SaveAndConfirmOrder
+        onCancel={onCancelShippingDelete}
+        onOk={onOkShippingDelete}
+        visible={isVisibleShippingModal}
+        okText="Đồng ý"
+        cancelText="Hủy"
+        title=""
+        text="Bạn có chắc chắn xóa địa chỉ giao hàng này không?"
+        icon={DeleteIcon}
+      />
+      <SaveAndConfirmOrder
+        onCancel={onCancelBillingDelete}
+        onOk={onOkBillingDelete}
+        visible={isVisibleBillingModal}
+        okText="Đồng ý"
+        cancelText="Hủy"
+        title=""
+        text="Bạn có chắc chắn xóa địa chỉ gửi hóa đơn này không?"
+        icon={DeleteIcon}
+      />
+       <div className="customer-bottom-button">
+          <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
+            <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+            Quay lại danh sách khách hàng
+          </div>
+          <div>
+            <Button
+              onClick={() => history.goBack()}
+              style={{ marginLeft: ".75rem", marginRight: ".75rem", color: "red"}}
+              type="ghost"
+            >
+              Xóa khách hàng
+            </Button>
+            <Button type="primary" >
+              Tạo phiếu thu chi
+            </Button>
+          </div>
+        </div>
     </ContentContainer>
   );
 };

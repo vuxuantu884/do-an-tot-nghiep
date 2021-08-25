@@ -21,7 +21,7 @@ import CustomDatepicker from "component/custom/date-picker.custom";
 import React from "react";
 import Popup from "./popup";
 import { useSelector } from "react-redux";
-import CustomerAdd from "./add";
+import CustomerAdd from "./create.customer";
 import ButtonCreate from "component/header/ButtonCreate";
 import arrowDownloadRight from "../../assets/icon/arrow-download-right.svg";
 import arrowDownloadDown from "../../assets/icon/arrow-download-down.svg";
@@ -117,7 +117,7 @@ const Customer = () => {
       render: (value: any, item: any, index: number) => <div>{index + 1}</div>,
       align: "center",
       visible: true,
-      width: "5%",
+      width: "3%",
     },
     {
       title: "Mã khách hàng",
@@ -127,21 +127,21 @@ const Customer = () => {
       render: (value: string, i: any) => (
         <Link to={`/customers/${i.id}`}>{value}</Link>
       ),
-      width: "10%",
+      // width: "10%",
     },
     {
       title: "Tên khách hàng",
       dataIndex: "full_name",
-      align: "center",
+      align: "left",
       visible: true,
-      width: "20%",
+      width: "10%",
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone",
       align: "center",
       visible: true,
-      width: "15%",
+      // width: "15%",
     },
     {
       title: "Giới tính",
@@ -158,50 +158,50 @@ const Customer = () => {
       dataIndex: "customer_group",
       align: "center",
       visible: true,
-      width: "15%",
+      // width: "15%",
     },
     {
       title: "Thư điện tử",
       dataIndex: "email",
       align: "center",
-      visible: false,
-      width: "15%",
+      visible: true,
+      // width: "15%",
     },
 
     {
       title: "Loại khách hàng",
       dataIndex: "customer_type",
       align: "center",
-      visible: false,
-      width: "15%",
+      visible: true,
+      // width: "15%",
     },
     {
       title: "Nhân viên phụ trách",
       dataIndex: "responsible_staff",
       visible: true,
-      width: "15%",
+      // width: "15%",
     },
     {
       title: "Hạng thẻ hiện tại",
       dataIndex: "customer_level",
       align: "center",
       visible: true,
-      width: "15%",
+      // width: "15%",
     },
 
     {
       title: "Người tạo",
       dataIndex: "created_by",
       align: "center",
-      visible: false,
-      width: "15%",
+      visible: true,
+      // width: "15%",
     },
     {
       title: "Ngày tạo",
       dataIndex: "created_date",
       align: "center",
-      visible: false,
-      width: "15%",
+      visible: true,
+      // width: "15%",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
@@ -209,7 +209,7 @@ const Customer = () => {
       dataIndex: "birthday",
       align: "center",
       visible: false,
-      width: "15%",
+      // width: "15%",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
@@ -217,7 +217,7 @@ const Customer = () => {
       dataIndex: "wedding_date",
       align: "center",
       visible: false,
-      width: "15%",
+      // width: "15%",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
@@ -225,49 +225,49 @@ const Customer = () => {
       dataIndex: "website",
       align: "center",
       visible: false,
-      width: "15%",
+      // width: "15%",
     },
     {
       title: "Ngày kích hoạt thẻ",
       dataIndex: "",
       align: "center",
       visible: false,
-      width: "15%",
+      // width: "15%",
     },
     {
       title: "Ngày hết hạn thẻ",
       dataIndex: "",
       align: "center",
       visible: false,
-      width: "15%",
+      // width: "15%",
     },
     {
       title: "Cửa hàng kích hoạt",
       dataIndex: "",
       align: "center",
       visible: false,
-      width: "15%",
+      // width: "15%",
     },
     {
       title: "Mã số thẻ",
       dataIndex: "",
       align: "center",
       visible: false,
-      width: "15%",
+      // width: "15%",
     },
     {
       title: "Đơn vị",
       dataIndex: "company",
       align: "center",
       visible: false,
-      width: "15%",
+      // width: "15%",
     },
     {
       title: "Điểm hiện tại",
       align: "center",
       dataIndex: "",
       visible: false,
-      width: "15%",
+      // width: "15%",
     },
   ]);
 
@@ -488,12 +488,12 @@ const Customer = () => {
       }
     >
       <Card>
-        <div className="padding-20">
+        <div className="padding-20 customer-search-filter">
           <CustomFilter menu={actions}>
             <Form onFinish={onFinish} initialValues={params} layout="inline">
               <Form.Item name="request">
                 <Input
-                  style={{ width: "500px" }}
+                  // style={{ marginLeft: 16, width: "100%" }}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="Tên khách hàng, mã khách hàng , số điện thoại, email"
                 />
@@ -504,7 +504,6 @@ const Customer = () => {
                   Lọc
                 </Button>
               </Form.Item>
-
               <Form.Item>
                 <Button onClick={openFilter}>Thêm bộ lọc</Button>
               </Form.Item>
@@ -517,7 +516,8 @@ const Customer = () => {
             isLoading={tableLoading}
             onSelectedChange={onSelectTable}
             showColumnSetting={true}
-            scroll={{ x: 1080 }}
+            scroll={{ x: 3000 }}
+            sticky={{offsetScroll: 5}}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,

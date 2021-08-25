@@ -1,6 +1,6 @@
 import { RouteMenu } from "model/other"
-import CustomerAdd from "screens/customer/add"
-import CustomerEdit from "screens/customer/edit";
+import CustomerAdd from "screens/customer/create.customer"
+import CustomerEdit from "screens/customer/update.customer";
 import CustomerDetail from "screens/customer/customer.detail"
 
 const extra: Array<RouteMenu> = [
