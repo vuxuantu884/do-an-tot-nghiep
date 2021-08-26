@@ -109,7 +109,11 @@ const CustomerEdit = (props: any) => {
     let details: any = [];
     if (customer) {
       details = [
-        { name: "Họ tên khách hàng", value: customer.full_name },
+        {
+          name: "Họ tên khách hàng",
+          value: customer.full_name,
+          position: "left",
+        },
 
         {
           name: "Giới tính",
@@ -119,24 +123,29 @@ const CustomerEdit = (props: any) => {
               : customer.gender === "female"
               ? "Nữ"
               : "Khác",
+          position: "right",
         },
         {
           name: "Số điện thoại",
           value: customer.phone,
+          position: "left",
         },
         {
           name: "Loại khách hàng",
           value: customer.customer_type,
+          position: "right",
         },
         {
           name: "Ngày sinh",
           value: customer.birthday
             ? moment(customer.birthday).format("DD/MM/YYYY")
             : null,
+          position: "left",
         },
         {
           name: "Nhóm khách hàng",
           value: customer.customer_group,
+          position: "right",
         },
       ];
     }
@@ -160,32 +169,39 @@ const CustomerEdit = (props: any) => {
           }${
             customer.responsible_staff ? "-" + customer.responsible_staff : ""
           }`,
+          position: "left",
         },
         {
           name: "Email",
           value: customer.email,
+          position: "right",
         },
         {
           name: "Mã khách hàng",
           value: customer.code,
+          position: "left",
         },
         {
           name: "Ngày cưới",
           value: customer.wedding_date
             ? moment(customer.wedding_date).format("DD/MM/YYYY")
             : null,
+          position: "right",
         },
         {
           name: "Website/Facebook",
           value: customer.website,
+          position: "left",
         },
         {
           name: "Đơn vị",
           value: customer.company,
+          position: "right",
         },
         {
           name: "Mã số thuế",
           value: customer.tax_code,
+          position: "left",
         },
         {
           name: "Địa chỉ",
@@ -194,6 +210,7 @@ const CustomerEdit = (props: any) => {
           }${customer.district ? " - " + customer.district : ""}${
             customer.city ? " - " + customer.city : ""
           }`,
+          position: "right",
         },
         {
           name: "Ghi chú",
@@ -963,26 +980,63 @@ const CustomerEdit = (props: any) => {
             }
             extra={[<Link to={`/customers/edit/${params.id}`}>Cập nhật</Link>]}
           >
-            <Row style={{ padding: "16px 30px" }}>
-              {customerDetail &&
-                customerDetail.map((detail: any, index: number) => (
-                  <Col
-                    key={index}
-                    span={12}
-                    style={{
-                      display: "flex",
-                      marginBottom: 20,
-                      color: "#222222",
-                    }}
-                  >
-                    <Col span={12}>
-                      <span>{detail.name}</span>
-                    </Col>
-                    <Col span={12}>
-                      <b>: {detail.value ? detail.value : "---"}</b>
-                    </Col>
-                  </Col>
-                ))}
+            <Row gutter={30} style={{ paddingTop: 16 }}>
+              <Col span={12}>
+                {customerDetail &&
+                  customerDetail
+                    .filter((detail: any) => detail.position === "left")
+                    .map((detail: any, index: number) => (
+                      <Col
+                        key={index}
+                        span={24}
+                        style={{
+                          display: "flex",
+                          marginBottom: 20,
+                          color: "#222222",
+                        }}
+                      >
+                        <Col span={12}>
+                          <span>{detail.name}</span>
+                        </Col>
+                        <Col span={12}>
+                          <span
+                            style={{ wordWrap: "break-word", fontWeight: 500 }}
+                          >
+                            : {detail.value ? detail.value : "---"}
+                          </span>
+                        </Col>
+                      </Col>
+                    ))}
+              </Col>
+              <Col span={12}>
+                {customerDetail &&
+                  customerDetail
+                    .filter((detail: any) => detail.position === "right")
+                    .map((detail: any, index: number) => (
+                      <Col
+                        key={index}
+                        span={24}
+                        style={{
+                          display: "flex",
+                          marginBottom: 20,
+                          color: "#222222",
+                        }}
+                      >
+                        <Col span={12}>
+                          <span>{detail.name}</span>
+                        </Col>
+                        <Col span={12}>
+                          <span
+                            style={{ wordWrap: "break-word", fontWeight: 500 }}
+                          >
+                            : {detail.value ? detail.value : "---"}
+                          </span>
+                        </Col>
+                      </Col>
+                    ))}
+              </Col>
+            </Row>
+            <Row style={{ marginBottom: 16 }}>
               <Col span={24}>
                 <Collapse ghost>
                   <Panel
@@ -991,28 +1045,67 @@ const CustomerEdit = (props: any) => {
                       <span style={{ color: "#5656A1" }}>Xem thêm</span>,
                     ]}
                   >
-                    <Row>
-                      {customerDetailCollapse &&
-                        customerDetailCollapse.map(
-                          (detail: any, index: number) => (
-                            <Col
-                              key={index}
-                              span={12}
-                              style={{
-                                display: "flex",
-                                marginBottom: 20,
-                                color: "#222222",
-                              }}
-                            >
-                              <Col span={12}>
-                                <span>{detail.name}</span>
+                    <Row gutter={30}>
+                      <Col span={12}>
+                        {customerDetailCollapse &&
+                          customerDetailCollapse
+                            .filter((detail: any) => detail.position === "left")
+                            .map((detail: any, index: number) => (
+                              <Col
+                                key={index}
+                                span={24}
+                                style={{
+                                  display: "flex",
+                                  marginBottom: 20,
+                                  color: "#222222",
+                                }}
+                              >
+                                <Col span={12}>
+                                  <span>{detail.name}</span>
+                                </Col>
+                                <Col span={12}>
+                                  <span
+                                    style={{
+                                      wordWrap: "break-word",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    : {detail.value ? detail.value : "---"}
+                                  </span>
+                                </Col>
                               </Col>
-                              <Col span={12}>
-                                <b>: {detail.value ? detail.value : "---"}</b>
+                            ))}
+                      </Col>
+                      <Col span={12}>
+                        {customerDetailCollapse &&
+                          customerDetailCollapse
+                            .filter((detail: any) => detail.position === "right")
+                            .map((detail: any, index: number) => (
+                              <Col
+                                key={index}
+                                span={24}
+                                style={{
+                                  display: "flex",
+                                  marginBottom: 20,
+                                  color: "#222222",
+                                }}
+                              >
+                                <Col span={12}>
+                                  <span>{detail.name}</span>
+                                </Col>
+                                <Col span={12}>
+                                  <span
+                                    style={{
+                                      wordWrap: "break-word",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    : {detail.value ? detail.value : "---"}
+                                  </span>
+                                </Col>
                               </Col>
-                            </Col>
-                          )
-                        )}
+                            ))}
+                      </Col>
                     </Row>
                   </Panel>
                 </Collapse>
