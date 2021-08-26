@@ -5,13 +5,13 @@ import {
 } from "model/response/printer.response";
 
 export const actionFetchListPrinter = (
-  params = {},
+  queryParams = {},
   handleData: (data: PrinterResponseModel) => void
 ) => {
   return {
     type: PRINTER_TYPES.listPrinter,
     payload: {
-      params,
+      queryParams,
       handleData,
     },
   };
@@ -19,14 +19,14 @@ export const actionFetchListPrinter = (
 
 export const actionFetchPrinterDetail = (
   id: number,
-  query: {},
+  queryParams: {},
   handleData: (data: PrinterModel) => void
 ) => {
   return {
     type: PRINTER_TYPES.getPrinterDetail,
     payload: {
       id,
-      query,
+      queryParams,
       handleData,
     },
   };

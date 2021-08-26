@@ -15,12 +15,12 @@ import {
 import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listDataPrinterSaga(action: YodyAction) {
-  const { params, handleData } = action.payload;
+  const { queryParams, handleData } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<PrinterResponseModel>> = yield call(
       getListPrinterService,
-      params
+      queryParams
     );
 
     switch (response.code) {

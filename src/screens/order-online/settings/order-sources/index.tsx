@@ -91,7 +91,7 @@ const OrderSources: React.FC = () => {
 
   const history = useHistory();
 
-  let [params, setParams] = useState({
+  let [queryParams, setQueryParams] = useState({
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
     sort_type: "desc",
@@ -99,14 +99,14 @@ const OrderSources: React.FC = () => {
   });
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
-      let queryParam = generateQuery(params);
-      setParams({ ...params });
+      queryParams.page = page;
+      queryParams.limit = size;
+      let queryParam = generateQuery(queryParams);
+      setQueryParams({ ...queryParams });
       history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [history, params]
+    [history, queryParams]
   );
 
   const createOrderSourceHtml = () => {
@@ -128,10 +128,10 @@ const OrderSources: React.FC = () => {
 
   const gotoFirstPage = () => {
     const newParams = {
-      ...params,
+      ...queryParams,
       page: 1,
     };
-    setParams({ ...newParams });
+    setQueryParams({ ...newParams });
     let queryParam = generateQuery(newParams);
     history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
     window.scrollTo(0, 0);
@@ -152,7 +152,7 @@ const OrderSources: React.FC = () => {
           actionEditOrderSource(modalSingleOrderSource.id, formValue, () => {
             dispatch(
               actionFetchListOrderSources(
-                params,
+                queryParams,
                 (data: OrderSourceResponseModel) => {
                   setListOrderSources(data.items);
                 }
@@ -181,13 +181,16 @@ const OrderSources: React.FC = () => {
      */
     setTableLoading(true);
     dispatch(
-      actionFetchListOrderSources(params, (data: OrderSourceResponseModel) => {
-        setListOrderSources(data.items);
-        setTotal(data.metadata.total);
-        setTableLoading(false);
-      })
+      actionFetchListOrderSources(
+        queryParams,
+        (data: OrderSourceResponseModel) => {
+          setListOrderSources(data.items);
+          setTotal(data.metadata.total);
+          setTableLoading(false);
+        }
+      )
     );
-  }, [dispatch, params]);
+  }, [dispatch, queryParams]);
 
   return (
     <StyledComponent>
@@ -215,9 +218,9 @@ const OrderSources: React.FC = () => {
               showColumnSetting={false}
               scroll={{ x: 1080 }}
               pagination={{
-                pageSize: params.limit,
+                pageSize: queryParams.limit,
                 total: total,
-                current: params.page,
+                current: queryParams.page,
                 showSizeChanger: true,
                 onChange: onPageChange,
                 onShowSizeChange: onPageChange,

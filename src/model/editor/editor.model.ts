@@ -3,6 +3,7 @@ export interface keywordsModel {
   value: string;
   example?: string;
   isShow?: boolean;
+  key?: number | string;
 }
 
 export interface productKeywordsModel {

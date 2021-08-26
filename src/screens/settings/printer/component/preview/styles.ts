@@ -37,7 +37,7 @@ export const StyledComponent = styled.div`
     }
   }
   .button {
-    &--print {
+    &__print {
       border-color: #2a2a86;
       color: #2a2a86;
       .icon {

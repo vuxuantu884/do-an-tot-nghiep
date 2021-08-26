@@ -39,9 +39,11 @@ function SinglePrinter() {
     (state: RootReducerType) => state.bootstrapReducer
   );
 
-  const params = useMemo(() => {
+  const defaultPrintSize = bootstrapReducer.data?.print_size[0].value || "a4";
+
+  const queryParams = useMemo(() => {
     let result = {
-      "print-size": bootstrapReducer.data?.print_size[0].value || "a4",
+      "print-size": defaultPrintSize,
     };
     if (queryPrintSize) {
       result = {
@@ -49,7 +51,7 @@ function SinglePrinter() {
       };
     }
     return result;
-  }, [bootstrapReducer.data?.print_size, queryPrintSize]);
+  }, [defaultPrintSize, queryPrintSize]);
 
   useEffect(() => {
     const findPrinter = (printerType: string) => {
@@ -58,7 +60,7 @@ function SinglePrinter() {
       });
     };
     dispatch(
-      actionFetchPrinterDetail(+id, params, (data: PrinterModel) => {
+      actionFetchPrinterDetail(+id, queryParams, (data: PrinterModel) => {
         setSinglePrinterContent(data);
         const printer = findPrinter(data.type);
         if (printer) {
@@ -66,7 +68,7 @@ function SinglePrinter() {
         }
       })
     );
-  }, [dispatch, id, params]);
+  }, [dispatch, id, queryParams]);
 
   return (
     <StyledComponent>

@@ -38,22 +38,22 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
     const onSearch = (value: string) => {
       if (listKeywordShow) {
         let cloneList = [...listKeywordShow];
-        cloneList.map((single) => {
-          if (single.list) {
-            single.list.map((single1) => {
-              if (
-                single1.name.toLowerCase().includes(value.toLowerCase()) ||
-                single1.value.toLowerCase().includes(value.toLowerCase())
-              ) {
-                single1.isShow = true;
-              } else {
-                single1.isShow = false;
-              }
-              return "";
-            });
-          }
-          return "";
-        });
+        // cloneList.map((single) => {
+        //   if (single.list) {
+        //     single.list.map((single1) => {
+        //       if (
+        //         single1.name.toLowerCase().includes(value.toLowerCase()) ||
+        //         single1.value.toLowerCase().includes(value.toLowerCase())
+        //       ) {
+        //         single1.isShow = true;
+        //       } else {
+        //         single1.isShow = false;
+        //       }
+        //       return "";
+        //     });
+        //   }
+        //   return "";
+        // });
         setListKeywordShow(cloneList);
       }
     };
@@ -73,17 +73,22 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
   };
 
   const renderSinglePart = (arr: keywordsModel[]) => {
+    for (let i = 0; i < arr.length; i++) {
+      arr[i].key = i;
+    }
     let cloneArr = arr.filter((single) => {
       return single.isShow !== false;
     });
     const columns = [
       {
         title: "Diễn giải",
-        dataIndex: "title",
+        dataIndex: "name",
+        key: "name",
       },
       {
         title: "Mã code",
-        dataIndex: "key",
+        dataIndex: "value",
+        key: "value",
       },
       {
         title: "Chọn",
@@ -109,7 +114,7 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
         onRow={(record: keywordsModel) => {
           return {
             onClick: (event) => {
-              handleInsertKeyword(record.name);
+              handleInsertKeyword(record.value);
             }, // click row
           };
         }}

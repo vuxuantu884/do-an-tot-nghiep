@@ -35,7 +35,7 @@ const SettingPrinter: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  let [params, setParams] = useState({
+  let [queryParams, setQueryParams] = useState({
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
     sort_type: "desc",
@@ -43,14 +43,14 @@ const SettingPrinter: React.FC = () => {
   });
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
-      let queryParam = generateQuery(params);
-      setParams({ ...params });
-      history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
+      queryParams.page = page;
+      queryParams.limit = size;
+      let queryParam = generateQuery(queryParams);
+      setQueryParams({ ...queryParams });
+      history.replace(`${UrlConfig.PRINTER}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [history, params]
+    [history, queryParams]
   );
 
   const goToPageDetail = (id: string | number) => {
@@ -67,7 +67,9 @@ const SettingPrinter: React.FC = () => {
       visible: true,
       width: "5%",
       render: (value, row, index) => {
-        return <span>{(params.page - 1) * params.limit + index + 1}</span>;
+        return (
+          <span>{(queryParams.page - 1) * queryParams.limit + index + 1}</span>
+        );
       },
     },
     {
@@ -148,15 +150,14 @@ const SettingPrinter: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("params", params);
     dispatch(
-      actionFetchListPrinter(params, (data: PrinterResponseModel) => {
+      actionFetchListPrinter(queryParams, (data: PrinterResponseModel) => {
         setListPrinter(data.items);
         setTotal(data.metadata.total);
         setTableLoading(false);
       })
     );
-  }, [dispatch, params]);
+  }, [dispatch, queryParams]);
 
   return (
     <StyledComponent>
@@ -183,9 +184,9 @@ const SettingPrinter: React.FC = () => {
             showColumnSetting={false}
             scroll={{ x: 1080 }}
             pagination={{
-              pageSize: params.limit,
+              pageSize: queryParams.limit,
               total: total,
-              current: params.page,
+              current: queryParams.page,
               showSizeChanger: true,
               onChange: onPageChange,
               onShowSizeChange: onPageChange,

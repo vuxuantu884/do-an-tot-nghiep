@@ -13,18 +13,17 @@ interface PrintParams extends BaseQuery {
 }
 
 export const getListPrinterService = (
-  query: BaseQuery
+  queryParams: BaseQuery
 ): Promise<BaseResponse<PrinterResponseModel>> => {
-  const queryString = generateQuery(query);
+  const queryString = generateQuery(queryParams);
   return BaseAxios.get(`${ApiConfig.CORE}/print-template?${queryString}`);
 };
 
 export const getPrinterDetailService = (
   id: number,
-  query: PrintParams = {}
+  queryParams: PrintParams = {}
 ): Promise<BaseResponse<PrinterResponseModel>> => {
-  const queryString = generateQuery(query);
-  console.log("query", query);
+  const queryString = generateQuery(queryParams);
   return BaseAxios.get(`${ApiConfig.CORE}/print-template/${id}?${queryString}`);
 };
 

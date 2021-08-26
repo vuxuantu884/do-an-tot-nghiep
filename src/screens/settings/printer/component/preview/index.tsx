@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { Button, Tooltip } from "antd";
 import {
   PrintPreviewModel,
   productKeywordsModel,
@@ -157,7 +157,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             <div>
               <ReactToPrint
                 trigger={() => (
-                  <Button className="button--print">
+                  <Button className="button__print">
                     <div className="icon">
                       <img
                         src={IconPrintHover}
@@ -170,12 +170,20 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
                 )}
                 content={() => printElementRef.current}
               />
-              <img
-                src={IconEdit}
-                alt=""
-                className="iconEdit"
-                onClick={() => onChangeShowEditor(true)}
-              />
+              <Tooltip
+                title="Chỉnh sửa"
+                color="#FCAF17"
+                mouseEnterDelay={0}
+                mouseLeaveDelay={0}
+                overlayInnerStyle={{ textAlign: "center", padding: "5px 10px" }}
+              >
+                <img
+                  src={IconEdit}
+                  alt=""
+                  className="iconEdit"
+                  onClick={() => onChangeShowEditor(true)}
+                />
+              </Tooltip>
             </div>
           </div>
         </div>
