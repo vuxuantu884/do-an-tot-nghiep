@@ -90,16 +90,3 @@ spec:
               serviceName: $SERVICE_NAME
               servicePort: 80
             path: $SERVICE_PATH/
----
-apiVersion: autoscaling/v1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: $SERVICE_NAME
-spec:
-  scaleTargetRef:
-    apiVersion: extensions/v1beta1
-    kind: Deployment
-    name: $SERVICE_NAME
-  minReplicas: 1
-  maxReplicas: 2
-  targetCPUUtilizationPercentage: 75
