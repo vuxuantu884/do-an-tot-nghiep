@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
 import { RegUtil } from "utils/RegUtils";
+import CustomInput from "screens/customer/customInput";
 
 type FormValueType = {
   code: string;
@@ -56,9 +57,9 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
       >
         <Row gutter={20}>
           <Col span={24}>
-            <Form.Item
+            {/* <Form.Item
               name="name"
-              label="Tên nhóm khách hàng"
+              label="Tên nhóm khách hàng 1"
               rules={[
                 {
                   required: true,
@@ -76,10 +77,19 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
                 style={{ width: "100%" }}
                 maxLength={255}
               />
-            </Form.Item>
+            </Form.Item> */}
+            <CustomInput
+                name="name"
+                label="Tên nhóm khách hàng:"
+                form={form}
+                message="Vui lòng nhập tên nhóm khách hàng"
+                placeholder="Nhập tên nhóm khách hàng"
+                isRequired={true}
+                maxLength={255}
+              />
             <Form.Item
               name="note"
-              label="Mô tả"
+              label={<b>Mô tả:</b>}
               rules={[{ max: 499, message: "Không được nhập quá 500 ký tự!" }]}
             >
               <Input.TextArea

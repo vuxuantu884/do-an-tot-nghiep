@@ -105,31 +105,47 @@ const CustomerEdit = (props: any) => {
     },
     []
   );
+  const genreEnum: any = {
+    male: "Nam",
+    female: "Nữ",
+    other: "Khác"
+  }
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
       details = [
-        { name: "Họ tên khách hàng", value: customer.full_name },
+        {
+          name: "Họ tên khách hàng",
+          value: customer.full_name,
+          position: "left",
+        },
 
         {
           name: "Giới tính",
-          value: customer.gender === "male" ? "Nam" : "Nữ",
+          value: genreEnum[customer.gender],
+          position: "right",
         },
         {
           name: "Số điện thoại",
           value: customer.phone,
+          position: "left",
         },
         {
           name: "Loại khách hàng",
           value: customer.customer_type,
+          position: "right",
         },
         {
           name: "Ngày sinh",
-          value: moment(customer.birthday).format("DD/MM/YYYY"),
+          value: customer.birthday
+            ? moment(customer.birthday).format("DD/MM/YYYY")
+            : null,
+          position: "left",
         },
         {
           name: "Nhóm khách hàng",
           value: customer.customer_group,
+          position: "right",
         },
       ];
     }
@@ -153,38 +169,54 @@ const CustomerEdit = (props: any) => {
           }${
             customer.responsible_staff ? "-" + customer.responsible_staff : ""
           }`,
+          position: "right",
         },
         {
           name: "Email",
           value: customer.email,
+          position: "left"
         },
         {
           name: "Mã khách hàng",
           value: customer.code,
+          position: "right",
         },
         {
           name: "Ngày cưới",
-          value: moment(customer.wedding_date).format("DD/MM/YYYY"),
+          value: customer.wedding_date
+            ? moment(customer.wedding_date).format("DD/MM/YYYY")
+            : null,
+            position: "left"
         },
         {
           name: "Website/Facebook",
           value: customer.website,
+          position: "right",
+          isWebsite: true,
         },
         {
-          name: "Đơn vị",
+          name: "Tên đơn vị",
           value: customer.company,
+          position: "left"
         },
         {
           name: "Mã số thuế",
           value: customer.tax_code,
+          position: "right",
         },
         {
           name: "Địa chỉ",
-          value: customer.full_address,
+          value: `${customer.full_address ? customer.full_address : ""}${
+            customer.ward ? " - " + customer.ward : ""
+          }${customer.district ? " - " + customer.district : ""}${
+            customer.city ? " - " + customer.city : ""
+          }`,
+          position: "left"
         },
         {
           name: "Ghi chú",
           value: customer.description,
+          position: "right",
         },
       ];
     }
@@ -245,22 +277,24 @@ const CustomerEdit = (props: any) => {
                 Chỉnh sửa
               </Button>
             </Menu.Item>
-            <Menu.Item key="2">
-              <Button
-                icon={<img style={{ marginRight: 12 }} src={deleteIcon} />}
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                  color: "red",
-                }}
-                onClick={handleDelete}
-              >
-                Xóa
-              </Button>
-            </Menu.Item>
+            {customerDetailState !== 2 && (
+              <Menu.Item key="2">
+                <Button
+                  icon={<img style={{ marginRight: 12 }} src={deleteIcon} />}
+                  type="text"
+                  className=""
+                  style={{
+                    paddingLeft: 24,
+                    background: "transparent",
+                    border: "none",
+                    color: "red",
+                  }}
+                  onClick={handleDelete}
+                >
+                  Xóa
+                </Button>
+              </Menu.Item>
+            )}
           </Menu>
         );
         return (
@@ -322,10 +356,8 @@ const CustomerEdit = (props: any) => {
       visible: true,
       width: "5%",
       render: (value, row, index) => {
-        return (
-          <span>{index+1}</span>
-        );
-      }
+        return <span>{index + 1}</span>;
+      },
     },
     {
       title: "Tiêu đề",
@@ -338,11 +370,9 @@ const CustomerEdit = (props: any) => {
       dataIndex: "",
       visible: true,
       width: "20%",
-      render: (value, row, index) =>{
-        return(
-          <div style={{width: 200}}>{row.name}</div>
-        )
-      }
+      render: (value, row, index) => {
+        return <div style={{ width: 200 }}>{row.name}</div>;
+      },
     },
 
     {
@@ -365,7 +395,11 @@ const CustomerEdit = (props: any) => {
       // width: "20%",
       render: (value, row, index) => {
         return (
-          <div className="text" title={value} style={{ color: "#666666", width: 200 }}>
+          <div
+            className="text"
+            title={value}
+            style={{ color: "#666666", width: 200 }}
+          >
             {value}
           </div>
         );
@@ -394,6 +428,7 @@ const CustomerEdit = (props: any) => {
   };
   const handleShippingDefault = (value: any, item: any) => {
     let _item = { ...item };
+    if (_item.default === true) return showError("Không thể bỏ mặc định");
     _item.is_default = value.target.checked;
     if (customer)
       dispatch(
@@ -404,9 +439,7 @@ const CustomerEdit = (props: any) => {
           (data: shippingAddress) => {
             history.replace(`${UrlConfig.CUSTOMER}/` + customer.id);
             if (data) {
-              data.default
-                ? showSuccess("Đặt mặc định thành công")
-                : showSuccess("Bỏ mặc định thành công");
+              showSuccess("Đặt mặc định thành công");
             } else {
               showError("Đặt mặc định thất bại");
             }
@@ -422,29 +455,27 @@ const CustomerEdit = (props: any) => {
       visible: true,
       width: "5%",
       render: (value, row, index) => {
-        return (
-          <span>{index+1}</span>
-        );
-      }
+        return <span>{index + 1}</span>;
+      },
     },
     {
       title: "Họ tên người nhận",
       dataIndex: "name",
       visible: true,
-      width: "20%"
+      width: "20%",
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone",
       visible: true,
     },
+    // {
+    //   title: "Quốc gia",
+    //   dataIndex: "country",
+    //   visible: true,
+    // },
     {
-      title: "Quốc gia",
-      dataIndex: "country",
-      visible: true,
-    },
-    {
-      title: "Khu vực, phường/ xã, địa chỉ chi tiết",
+      title: "Khu vực",
       dataIndex: "full_address",
       visible: true,
       render: (value, row, index) => {
@@ -453,18 +484,18 @@ const CustomerEdit = (props: any) => {
             <span
               className="text"
               title={row.code}
-              style={{ color: "#222222", display: "block" }}
+              style={{ color: "#666666" }}
             >
-              {`${row.ward ? row.ward : "---"} - ${
-                row.district ? row.district : "---"
-              } - ${row.city ? row.city : "---"}`}
+              {`${row.full_address}`}
             </span>
             <span
               className="text"
               title={row.code}
-              style={{ color: "#666666" }}
+              style={{ color: "#222222", display: "block" }}
             >
-              {`${row.full_address}`}
+              {`${row.ward ? row.ward : ""}${
+                row.district ? " - " + row.district : ""
+              }${row.city ? " - " + row.city : ""}`}
             </span>
           </div>
         );
@@ -512,10 +543,8 @@ const CustomerEdit = (props: any) => {
       visible: true,
       width: "5%",
       render: (value, row, index) => {
-        return (
-          <span>{index+1}</span>
-        );
-      }
+        return <span>{index + 1}</span>;
+      },
     },
     {
       title: "Họ tên người nhận",
@@ -539,7 +568,7 @@ const CustomerEdit = (props: any) => {
       visible: true,
     },
     {
-      title: "Khu vực, phường/ xã, địa chỉ chi tiết",
+      title: "Khu vực",
       dataIndex: "full_address",
       visible: true,
       render: (value, row, index) => {
@@ -550,9 +579,9 @@ const CustomerEdit = (props: any) => {
               title={row.code}
               style={{ color: "#222222", display: "block" }}
             >
-              {`${row.ward ? row.ward : "--"} - ${
-                row.district ? row.district : "--"
-              } - ${row.city ? row.city : "--"}`}
+              {`${row.ward ? row.ward : ""}${
+                row.district ? " - " + row.district : ""
+              }${row.city ? " - " + row.city : ""}`}
             </span>
             <span
               className="text"
@@ -584,6 +613,7 @@ const CustomerEdit = (props: any) => {
   ];
   const handleBillingDefault = (value: any, item: any) => {
     let _item = { ...item };
+    if (_item.default === true) return showError("Không thể bỏ mặc định");
     _item.is_default = value.target.checked;
     if (customer)
       dispatch(
@@ -653,6 +683,16 @@ const CustomerEdit = (props: any) => {
   }, [customer, customerForm]);
 
   const columnFinal = () => columns.filter((item) => item.visible === true);
+  const customerContactFiltered = customer?.contacts?.filter((contact) => {
+    if (
+      contact.title ||
+      contact.name ||
+      contact.email ||
+      contact.phone ||
+      contact.note
+    )
+      return true;
+  });
   const shippingColumnFinal = () =>
     shippingColumns.filter((item) => item.visible === true);
   const billingColumnFinal = () =>
@@ -700,7 +740,11 @@ const CustomerEdit = (props: any) => {
       value: 4,
       icon: customerShipping,
     },
-    
+    {
+      name: "Ghi chú",
+      value: 5,
+      icon: customerShipping,
+    },
   ];
 
   // add contact
@@ -879,55 +923,8 @@ const CustomerEdit = (props: any) => {
     window.scrollTo(0, 0);
   };
 
-  const addContact = () => {
-    return (
-      <Button
-        type="primary"
-        className="ant-btn-primary"
-        size="large"
-        onClick={() => {
-          setModalAction("create");
-          setIsShowModalContacts(true);
-        }}
-        icon={<PlusOutlined />}
-      >
-        Thêm mới liên hệ
-      </Button>
-    );
-  };
   console.log(customer);
-  const addShippingAddress = () => {
-    return (
-      <Button
-        type="primary"
-        className="ant-btn-primary"
-        size="large"
-        onClick={() => {
-          setModalAction("create");
-          setIsShowModalShipping(true);
-        }}
-        icon={<PlusOutlined />}
-      >
-        Thêm mới địa chỉ giao hàng
-      </Button>
-    );
-  };
-  const addBillingAddress = () => {
-    return (
-      <Button
-        type="primary"
-        className="ant-btn-primary"
-        size="large"
-        onClick={() => {
-          setModalAction("create");
-          setIsShowModalBilling(true);
-        }}
-        icon={<PlusOutlined />}
-      >
-        Thêm mới địa chỉ nhận hóa đơn
-      </Button>
-    );
-  };
+
   return (
     <ContentContainer
       title={customer ? customer.full_name : ""}
@@ -985,26 +982,63 @@ const CustomerEdit = (props: any) => {
             }
             extra={[<Link to={`/customers/edit/${params.id}`}>Cập nhật</Link>]}
           >
-            <Row style={{ padding: "16px 30px" }}>
-              {customerDetail &&
-                customerDetail.map((detail: any, index: number) => (
-                  <Col
-                    key={index}
-                    span={12}
-                    style={{
-                      display: "flex",
-                      marginBottom: 20,
-                      color: "#222222",
-                    }}
-                  >
-                    <Col span={12}>
-                      <span>{detail.name}</span>
-                    </Col>
-                    <Col span={12}>
-                      <b>: {detail.value ? detail.value : "---"}</b>
-                    </Col>
-                  </Col>
-                ))}
+            <Row gutter={30} style={{ paddingTop: 16 }}>
+              <Col span={12}>
+                {customerDetail &&
+                  customerDetail
+                    .filter((detail: any) => detail.position === "left")
+                    .map((detail: any, index: number) => (
+                      <Col
+                        key={index}
+                        span={24}
+                        style={{
+                          display: "flex",
+                          marginBottom: 20,
+                          color: "#222222",
+                        }}
+                      >
+                        <Col span={12}>
+                          <span>{detail.name}</span>
+                        </Col>
+                        <Col span={12}>
+                          <span
+                            style={{ wordWrap: "break-word", fontWeight: 500 }}
+                          >
+                            : {detail.value ? detail.value : "---"}
+                          </span>
+                        </Col>
+                      </Col>
+                    ))}
+              </Col>
+              <Col span={12}>
+                {customerDetail &&
+                  customerDetail
+                    .filter((detail: any) => detail.position === "right")
+                    .map((detail: any, index: number) => (
+                      <Col
+                        key={index}
+                        span={24}
+                        style={{
+                          display: "flex",
+                          marginBottom: 20,
+                          color: "#222222",
+                        }}
+                      >
+                        <Col span={12}>
+                          <span>{detail.name}</span>
+                        </Col>
+                        <Col span={12}>
+                          <span
+                            style={{ wordWrap: "break-word", fontWeight: 500 }}
+                          >
+                            : {detail.value ? detail.value : "---"}
+                          </span>
+                        </Col>
+                      </Col>
+                    ))}
+              </Col>
+            </Row>
+            <Row style={{ marginBottom: 16 }}>
               <Col span={24}>
                 <Collapse ghost>
                   <Panel
@@ -1013,28 +1047,76 @@ const CustomerEdit = (props: any) => {
                       <span style={{ color: "#5656A1" }}>Xem thêm</span>,
                     ]}
                   >
-                    <Row>
-                      {customerDetailCollapse &&
-                        customerDetailCollapse.map(
-                          (detail: any, index: number) => (
-                            <Col
-                              key={index}
-                              span={12}
-                              style={{
-                                display: "flex",
-                                marginBottom: 20,
-                                color: "#222222",
-                              }}
-                            >
-                              <Col span={12}>
-                                <span>{detail.name}</span>
+                    <Row gutter={30}>
+                      <Col span={12}>
+                        {customerDetailCollapse &&
+                          customerDetailCollapse
+                            .filter((detail: any) => detail.position === "left")
+                            .map((detail: any, index: number) => (
+                              <Col
+                                key={index}
+                                span={24}
+                                style={{
+                                  display: "flex",
+                                  marginBottom: 20,
+                                  color: "#222222",
+                                }}
+                              >
+                                <Col span={12}>
+                                  <span>{detail.name}</span>
+                                </Col>
+                                <Col span={12}>
+                                  <span
+                                    style={{
+                                      wordWrap: "break-word",
+                                      fontWeight: 500,
+                                    }}
+                                  >: {detail.value ? detail.value : "---"}
+                                    
+                                  </span>
+                                </Col>
                               </Col>
-                              <Col span={12}>
-                                <b>: {detail.value ? detail.value : "---"}</b>
+                            ))}
+                      </Col>
+                      <Col span={12}>
+                        {customerDetailCollapse &&
+                          customerDetailCollapse
+                            .filter(
+                              (detail: any) => detail.position === "right"
+                            )
+                            .map((detail: any, index: number) => (
+                              <Col
+                                key={index}
+                                span={24}
+                                style={{
+                                  display: "flex",
+                                  marginBottom: 20,
+                                  color: "#222222",
+                                }}
+                              >
+                                <Col span={12}>
+                                  <span>{detail.name}</span>
+                                </Col>
+                                <Col span={12}>
+                                  <span
+                                    style={{
+                                      wordWrap: "break-word",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    :{" "}
+                                    {detail.isWebsite ? (
+                                      <a href={detail.value}>{detail.value}</a>
+                                    ) : detail.value ? (
+                                      detail.value
+                                    ) : (
+                                      "---"
+                                    )}
+                                  </span>
+                                </Col>
                               </Col>
-                            </Col>
-                          )
-                        )}
+                            ))}
+                      </Col>
                     </Row>
                   </Panel>
                 </Collapse>
@@ -1117,19 +1199,19 @@ const CustomerEdit = (props: any) => {
                         className="saleorder_shipment_button"
                         key={button.value}
                         onClick={() => setCustomerDetailState(button.value)}
-                        style={{padding: "10px 20px"}} 
+                        style={{ padding: "10px 20px" }}
                       >
                         <img src={button.icon} alt="icon"></img>
-                        <span style={{fontWeight: 500}}>{button.name}</span>
+                        <span style={{ fontWeight: 500 }}>{button.name}</span>
                       </div>
                     ) : (
                       <div
                         className="saleorder_shipment_button_active"
                         key={button.value}
-                        style={{padding: "10px 20px"}} 
+                        style={{ padding: "10px 20px" }}
                       >
                         <img src={button.icon} alt="icon"></img>
-                        <span style={{fontWeight: 500}}>{button.name}</span>
+                        <span style={{ fontWeight: 500 }}>{button.name}</span>
                       </div>
                     )}
                   </div>
@@ -1138,7 +1220,40 @@ const CustomerEdit = (props: any) => {
             </div>
             {customerDetailState === 2 && (
               <Row style={{ marginTop: 16 }}>
-                
+                <div
+                  style={{
+                    padding: "0 16px 10px 0",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    width: "100%",
+                    color: "#2A2A86",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div>
+                      <PlusOutlined />
+                    </div>
+                    <span
+                      style={{
+                        marginLeft: 10,
+                      }}
+                      onClick={() => {
+                        setModalAction("create");
+                        setIsShowModalContacts(true);
+                      }}
+                    >
+                      Thêm liên hệ
+                    </span>
+                  </div>
+                </div>
                 <Col span={24}>
                   <CustomTable
                     showColumnSetting={false}
@@ -1159,8 +1274,10 @@ const CustomerEdit = (props: any) => {
                     //   // onChange: onPageChange,
                     //   // onShowSizeChange: onPageChange,
                     // }}
-                    pagination={false }
-                    dataSource={customer ? customer.contacts : []}
+                    pagination={false}
+                    dataSource={
+                      customerContactFiltered ? customerContactFiltered : []
+                    }
                     columns={columnFinal()}
                     rowKey={(item: contact) => item.id}
                     onRow={(record: CustomerContact) => {
@@ -1197,15 +1314,46 @@ const CustomerEdit = (props: any) => {
                     justifyContent: "flex-end",
                     width: "100%",
                   }}
-                >
-                  {addContact()}
-                </div>
+                ></div>
               </Row>
             )}
 
             {customerDetailState === 4 && (
               <Row style={{ marginTop: 16 }}>
-                
+                <div
+                  style={{
+                    padding: "0 16px 10px 0",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    width: "100%",
+                    color: "#2A2A86",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div>
+                      <PlusOutlined />
+                    </div>
+                    <span
+                      style={{
+                        marginLeft: 10,
+                      }}
+                      onClick={() => {
+                        setModalAction("create");
+                        setIsShowModalShipping(true);
+                      }}
+                    >
+                      Thêm địa chỉ
+                    </span>
+                  </div>
+                </div>
                 <Col span={24}>
                   <CustomTable
                     showColumnSetting={false}
@@ -1265,13 +1413,45 @@ const CustomerEdit = (props: any) => {
                     justifyContent: "flex-end",
                     width: "100%",
                   }}
-                >
-                  {addShippingAddress()}
-                </div>
+                ></div>
               </Row>
             )}
             {customerDetailState === 3 && (
               <Row style={{ marginTop: 16 }}>
+                <div
+                  style={{
+                    padding: "0 16px 10px 0",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    width: "100%",
+                    color: "#2A2A86",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div>
+                      <PlusOutlined />
+                    </div>
+                    <span
+                      style={{
+                        marginLeft: 10,
+                      }}
+                      onClick={() => {
+                        setModalAction("create");
+                        setIsShowModalBilling(true);
+                      }}
+                    >
+                      Thêm địa chỉ
+                    </span>
+                  </div>
+                </div>
                 <Col span={24}>
                   <CustomTable
                     showColumnSetting={false}
@@ -1324,16 +1504,6 @@ const CustomerEdit = (props: any) => {
                     deletedItemTitle={modalSingleBillingAddress?.name}
                   />
                 </Col>
-                <div
-                  style={{
-                    padding: "0 16px 10px 0",
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    width: "100%",
-                  }}
-                >
-                  {addBillingAddress()}
-                </div>
               </Row>
             )}
           </Card>
@@ -1369,24 +1539,26 @@ const CustomerEdit = (props: any) => {
         text="Bạn có chắc chắn xóa địa chỉ gửi hóa đơn này không?"
         icon={DeleteIcon}
       />
-       <div className="customer-bottom-button">
-          <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
-            <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-            Quay lại danh sách khách hàng
-          </div>
-          <div>
-            <Button
-              onClick={() => history.goBack()}
-              style={{ marginLeft: ".75rem", marginRight: ".75rem", color: "red"}}
-              type="ghost"
-            >
-              Xóa khách hàng
-            </Button>
-            <Button type="primary" >
-              Tạo phiếu thu chi
-            </Button>
-          </div>
+      <div className="customer-bottom-button">
+        <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
+          <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+          Quay lại danh sách khách hàng
         </div>
+        <div>
+          <Button
+            onClick={() => history.goBack()}
+            style={{
+              marginLeft: ".75rem",
+              marginRight: ".75rem",
+              color: "red",
+            }}
+            type="ghost"
+          >
+            Xóa khách hàng
+          </Button>
+          {/* <Button type="primary">Tạo phiếu thu chi</Button> */}
+        </div>
+      </div>
     </ContentContainer>
   );
 };
