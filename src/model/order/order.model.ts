@@ -66,49 +66,39 @@ export interface OrderModel {
 export interface OrderSearchQuery {
   page: number;
   limit: number;
-  sort_type: string;
-  sort_column: string;
-  code: string;
-  customer: string;
-  store_address: string;
-  source: string;
-  issued_on_min: string;
-  issued_on_max: string;
-  issued_on_predefined: string;
-  finalized_on_min: string;
-  finalized_on_max: string;
-  finalized_on_predefined: string;
-  ship_on_min: string;
-  ship_on_max: string;
-  ship_on_predefined: string;
-  completed_on_min: string;
-  completed_on_max: string;
-  completed_on_predefined: string;
-  cancelled_on_min: string;
-  cancelled_on_max: string;
-  cancelled_on_predefined: string;
-  order_status: [
-    string
-  ];
-  fulfillment_status: [
-    string
-  ];
-  payment_status: [
-    string
-  ];
-  return_status: [
-    string
-  ];
-  account: string;
-  assignee: string;
+  sort_type: string|null;
+  sort_column: string|null;
+  code: string|null;
+  customer: string|null;
+  store_address: string|null;
+  source: string|null;
+  issued_on_min: string|null;
+  issued_on_max: string|null;
+  issued_on_predefined: string|null;
+  finalized_on_min: string|null;
+  finalized_on_max: string|null;
+  finalized_on_predefined: string|null;
+  ship_on_min: string|null;
+  ship_on_max: string|null;
+  ship_on_predefined: string|null;
+  completed_on_min: string|null;
+  completed_on_max: string|null;
+  completed_on_predefined: string|null;
+  cancelled_on_min: string|null;
+  cancelled_on_max: string|null;
+  cancelled_on_predefined: string|null;
+  order_status: [];
+  fulfillment_status: [];
+  payment_status: [];
+  return_status: [];
+  account: string|undefined;
+  assignee: string|undefined;
   price_min: number;
   price_max: number;
-  payment_method_ids: [
-    number
-  ];
-  ship_by: string;
-  note: string;
-  customer_note: string;
-  tags: string;
-  reference_code: string
+  payment_method_ids: [];
+  ship_by: string|null;
+  note: string|null;
+  customer_note: string|null;
+  tags: [];
+  reference_code: string|null
 }

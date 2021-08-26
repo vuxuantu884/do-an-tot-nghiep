@@ -40,53 +40,43 @@ const actions: Array<MenuAction> = [
 ];
 
 const initQuery: OrderSearchQuery = {
-  page: 0,
-  limit: 0,
-  sort_type: "",
-  sort_column: "",
-  code: "",
-  customer: "",
-  store_address: "",
-  source: "",
-  issued_on_min: "",
-  issued_on_max: "",
-  issued_on_predefined: "",
-  finalized_on_min: "",
-  finalized_on_max: "",
-  finalized_on_predefined: "",
-  ship_on_min: "",
-  ship_on_max: "",
-  ship_on_predefined: "",
-  completed_on_min: "",
-  completed_on_max: "",
-  completed_on_predefined: "",
-  cancelled_on_min: "",
-  cancelled_on_max: "",
-  cancelled_on_predefined: "",
-  order_status: [
-    ""
-  ],
-  fulfillment_status: [
-    ""
-  ],
-  payment_status: [
-    ""
-  ],
-  return_status: [
-    ""
-  ],
-  account: "",
-  assignee: "",
+  page: 1,
+  limit: 30,
+  sort_type: null,
+  sort_column: null,
+  code: null,
+  customer: null,
+  store_address: null,
+  source: null,
+  issued_on_min: null,
+  issued_on_max: null,
+  issued_on_predefined: null,
+  finalized_on_min: null,
+  finalized_on_max: null,
+  finalized_on_predefined: null,
+  ship_on_min: null,
+  ship_on_max: null,
+  ship_on_predefined: null,
+  completed_on_min: null,
+  completed_on_max: null,
+  completed_on_predefined: null,
+  cancelled_on_min: null,
+  cancelled_on_max: null,
+  cancelled_on_predefined: null,
+  order_status: [],
+  fulfillment_status: [],
+  payment_status: [],
+  return_status: [],
+  account: undefined,
+  assignee: undefined,
   price_min: 0,
   price_max: 0,
-  payment_method_ids: [
-    0
-  ],
-  ship_by: "",
-  note: "",
-  customer_note: "",
-  tags: "",
-  reference_code: ""
+  payment_method_ids: [],
+  ship_by: null,
+  note: null,
+  customer_note: null,
+  tags: [],
+  reference_code: null
 };
 
 const initAccountQuery: AccountSearchQuery = {
@@ -187,6 +177,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Đóng gói",
       dataIndex: "packed_status",
+      key: "packed",
       render: (value: string) => {
         let processIcon = null;
         switch (value) {
@@ -213,6 +204,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Xuất kho",
       dataIndex: "received_status",
+      key: "received",
       render: (value: string) => {
         let processIcon = null;
         switch (value) {
@@ -239,6 +231,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Thanh toán",
       dataIndex: "payment_status",
+      key: "payment",
       render: (value: string) => {
         let processIcon = null;
         switch (value) {
@@ -265,6 +258,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Trả hàng",
       dataIndex: "return_status",
+      key: "return",
       render: (value: string) => {
         let processIcon = null;
         switch (value) {
@@ -423,10 +417,12 @@ const ListOrderScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
+      console.log('values', values)
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.push(`${UrlConfig.PRODUCT}?${queryParam}`);
+      console.log('filter start', `${UrlConfig.PRODUCT}?${queryParam}`)
+      // history.push(`${UrlConfig.PRODUCT}?${queryParam}`);
     },
     [history, params]
   );

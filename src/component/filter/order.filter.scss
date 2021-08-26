@@ -12,6 +12,7 @@
     }
   }
 }
+
 .order-filter {
   .page-filter {
     .page-filter-heading {
@@ -61,4 +62,32 @@
       }
     }
   }
+  
+  
+}
+
+.custom-table {
+  .ant-table-tbody {
+    tr {
+      td {
+        // .items {
+        //   padding: 0 !important;
+        // }
+        // .items {
+        //   padding: 0 !important;
+        // }
+      }
+    }
+  }
+}
+#price_min {
+  border-right: none;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+#price_max {
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
