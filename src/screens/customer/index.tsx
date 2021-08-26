@@ -106,6 +106,11 @@ const Customer = () => {
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<Array<CustomerResponse>>([]);
 
+  const genreEnum: any = {
+    male: "Nam",
+    female: "Nữ",
+    other: "Khác"
+  }
   const [columns, setColumn] = React.useState<
     Array<ICustomTableColumType<any>>
   >([
@@ -134,6 +139,9 @@ const Customer = () => {
       // align: "left",
       visible: true,
       width: "10%",
+      render: (value: string, i: any) => (
+        <span className="customer-name-textoverflow">{i.full_name}</span>
+      )
     },
     {
       title: "Số điện thoại",
@@ -147,7 +155,7 @@ const Customer = () => {
       dataIndex: "gender",
       // align: "center",
       render: (value: any, item: any) => (
-        <div>{LIST_GENDER?.filter((g) => g.value == value)[0].name}</div>
+        <div>{genreEnum[value]}</div>
       ),
       visible: true,
       width: "5%",

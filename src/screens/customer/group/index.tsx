@@ -339,7 +339,7 @@ const SettingCustomerGroup: React.FC = () => {
         extra={addCustomerGroup()}
       >
         {listCustomerGroup && (
-          <Card style={{ padding: "35px 15px" }}>
+          <Card style={{ padding: "35px 15px" }} className="customer-group-table">
             <CustomTable
               isRowSelection
               onSelectedChange={onSelectTable}
