@@ -57,6 +57,9 @@ const initQuery: OrderSearchQuery = {
   ship_on_min: null,
   ship_on_max: null,
   ship_on_predefined: null,
+  expected_receive_on_min: null,
+  expected_receive_on_max: null,
+  expected_receive_predefined: null,
   completed_on_min: null,
   completed_on_max: null,
   completed_on_predefined: null,
@@ -177,7 +180,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Đóng gói",
       dataIndex: "packed_status",
-      key: "packed",
+      key: "packed_status",
       render: (value: string) => {
         let processIcon = null;
         switch (value) {
@@ -204,7 +207,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Xuất kho",
       dataIndex: "received_status",
-      key: "received",
+      key: "received_status",
       render: (value: string) => {
         let processIcon = null;
         switch (value) {
@@ -231,7 +234,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Thanh toán",
       dataIndex: "payment_status",
-      key: "payment",
+      key: "payment_status",
       render: (value: string) => {
         let processIcon = null;
         switch (value) {
@@ -258,7 +261,7 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Trả hàng",
       dataIndex: "return_status",
-      key: "return",
+      key: "return_status",
       render: (value: string) => {
         let processIcon = null;
         switch (value) {

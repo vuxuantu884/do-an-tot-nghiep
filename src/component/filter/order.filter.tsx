@@ -72,6 +72,15 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const status = [
+    {name: "DRAFT", value: "draft"},
+    {name: "FINALIZED", value: "finalized"},
+    {name: "COMPLETED", value: "completed"},
+    {name: "FINISHED", value: "finished"},
+    {name: "Đã huỷ", value: "cancelled"},
+    {name: "Đã hết hạn", value: "expired"},
+    
+  ]
   const fulfillmentStatus = [
     {name: "Chưa giao", value: "unshipped"},
     {name: "Đã lấy hàng", value: "picked"},
@@ -96,7 +105,24 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   ]
   const formRef = createRef<FormInstance>();
   const onFinish = useCallback(
-    (values: OrderSearchQuery) => {
+    (values) => {
+      values = {
+        ...values,
+        // mapping and format date 
+        expected_receive_predefined: values.expected_receive_predefined? values.expected_receive_predefined.format('DD-MM-YYYY') : null,
+        issued_on_min: values.issued && values.issued[0] ? values.issued[0].format('DD-MM-YYYY') : null,
+        issued_on_max: values.issued && values.issued[1] ? values.issued[1].format('DD-MM-YYYY') : null,
+        issued_on_predefined: values.issued_on_predefined? values.issued_on_predefined.format('DD-MM-YYYY') : null,
+        ship_on_min: values.ship && values.ship[0] ? values.ship[0].format('DD-MM-YYYY') : null,
+        ship_on_max: values.ship && values.ship[1] ? values.ship[1].format('DD-MM-YYYY') : null,
+        ship_on_predefined: values.ship_on_predefined? values.ship_on_predefined.format('DD-MM-YYYY') : null,
+        completed_on_min: values.completed && values.completed[0] ? values.completed[0].format('DD-MM-YYYY') : null,
+        completed_on_max: values.completed && values.completed[1] ? values.completed[1].format('DD-MM-YYYY') : null,
+        completed_on_predefined: values.completed_on_predefined? values.completed_on_predefined.format('DD-MM-YYYY') : null,
+        cancelled_on_min: values.cancelled && values.cancelled[0] ? values.cancelled[0].format('DD-MM-YYYY') : null,
+        cancelled_on_max: values.cancelled && values.cancelled[1] ? values.cancelled[1].format('DD-MM-YYYY') : null,
+        cancelled_on_predefined: values.cancelled_on_predefined? values.cancelled_on_predefined.format('DD-MM-YYYY') : null,
+      }
       onFilter && onFilter(values);
     },
     [onFilter]
@@ -120,7 +146,15 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "pos");
   }, [listSource]);
-  
+  const initialValues = useMemo(() => {
+    return {
+      ...params,
+      issued: [params.issued_on_min ? params.issued_on_min : null, params.issued_on_max ? params.issued_on_max : null],
+      ship: [params.ship_on_min ? params.ship_on_min : null, params.ship_on_max ? params.ship_on_max : null],
+      completed: [params.completed_on_min ? params.completed_on_min : null, params.completed_on_max ? params.completed_on_max : null],
+      cancelled: [params.cancelled_on_min ? params.cancelled_on_min : null, params.cancelled_on_max ? params.cancelled_on_max : null],
+    }
+  }, [params]);
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -145,7 +179,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   return (
     <div className="order-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
-        <Form onFinish={onFinish} initialValues={params} layout="inline">
+        <Form onFinish={onFinish} initialValues={initialValues} layout="inline">
           <Item name="search_term" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
@@ -287,9 +321,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     <Button>Tháng trước</Button>
                   </div>
                   <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                  <Item name="issue">
+                  <Item name="issued">
                     <DatePicker.RangePicker
-                      defaultValue={[null, null]}
+                      format="DD-MM-YYYY"
                       style={{width: "100%"}}
                     />
                   </Item>
@@ -315,7 +349,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                   <Item name="ship">
                     <DatePicker.RangePicker
-                      defaultValue={[null, null]}
+                      format="DD-MM-YYYY"
                       style={{width: "100%"}}
                     />
                   </Item>
@@ -340,7 +374,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                   <Item name="completed">
                     <DatePicker.RangePicker
-                      defaultValue={[null, null]}
+                      format="DD-MM-YYYY"
                       style={{width: "100%"}}
                     />
                   </Item>
@@ -365,7 +399,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                   <Item name="cancelled">
                     <DatePicker.RangePicker
-                      defaultValue={[null, null]}
+                      format="DD-MM-YYYY"
                       style={{width: "100%"}}
                     />
                   </Item>
@@ -379,11 +413,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1">
                   <Item name="order_status">
                   <Select mode="multiple" showSearch placeholder="Chọn trạng thái đơn hàng" style={{width: '100%'}}>
-                    {/* {listCountries?.map((item) => (
-                      <Option key={item.id} value={item.id}>
+                    {status?.map((item) => (
+                      <Option key={item.value} value={item.value}>
                         {item.name}
                       </Option>
-                    ))} */}
+                    ))}
                   </Select>
                   </Item>
                 </Panel>
