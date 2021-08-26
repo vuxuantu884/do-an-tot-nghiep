@@ -69,7 +69,7 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
       >
         <Row gutter={20}>
           <Col span={24}>
-            <Form.Item name="title" label={<b>Tiêu đề:</b>} rules={[]}>
+            <Form.Item name="title" label={<b>Chức vụ/phòng ban:</b>} rules={[]}>
               <Input placeholder="Nhập tiêu đề" style={{ width: "100%" }} />
             </Form.Item>
             {/* <Form.Item
