@@ -23,11 +23,14 @@ import { useDispatch } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import "./customer.scss";
 import moment from "moment";
-import { showSuccess } from "utils/ToastUtils";
+import { showSuccess, showError } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import GeneralInformation from "./general.information";
-import { AccountResponse } from "model/account/account.model";
+import {
+  AccountResponse,
+  AccountSearchQuery,
+} from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { WardResponse } from "model/content/ward.model";
@@ -58,12 +61,24 @@ const CustomerEdit = (props: any) => {
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
 
+  const initQueryAccount: AccountSearchQuery = {
+    info: "",
+  };
+  const AccountChangeSearch = React.useCallback(
+    (value) => {
+      initQueryAccount.info = value;
+      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
+    },
+    [dispatch, initQueryAccount]
+  );
+
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
         return;
       }
-      setAccounts(data.items);
+      const _items = data.items.filter((item) => item.status === "active");
+      setAccounts(_items);
     },
     []
   );
@@ -93,7 +108,7 @@ const CustomerEdit = (props: any) => {
   }, [dispatch, districtId]);
 
   React.useEffect(() => {
-    if (customer) {
+    if (customer?.district_id) {
       dispatch(WardGetByDistrictAction(customer.district_id, setWards));
     }
   }, [dispatch, customer]);
@@ -116,7 +131,9 @@ const CustomerEdit = (props: any) => {
     if (customer) {
       customerForm.setFieldsValue({
         ...customer,
-        birthday: moment(customer.birthday, "YYYY-MM-DD"),
+        birthday: customer.birthday
+          ? moment(customer.birthday, "YYYY-MM-DD")
+          : null,
         wedding_date: customer.wedding_date
           ? moment(customer.wedding_date, "YYYY-MM-DD")
           : null,
@@ -138,11 +155,15 @@ const CustomerEdit = (props: any) => {
   );
   const handleSubmit = (values: any) => {
     console.log("Success:", values);
+    values.full_name = values.full_name.trim();
+    if (!values.full_name) return showError("Vui lòng nhập họ tên khách hàng");
     const processValue = {
       ...values,
-      birthday: moment(values.birthday, "YYYY-MM-DD").format("YYYY-MM-DD"),
+      birthday: values.birthday
+      ? new Date(values.birthday).toUTCString()
+      : null,
       wedding_date: values.wedding_date
-        ? moment(values.wedding_date, "YYYY-MM-DD").format("YYYY-MM-DD")
+        ? new Date(values.wedding_date).toUTCString()
         : null,
       status: status,
       version: customer.version,
@@ -194,6 +215,7 @@ const CustomerEdit = (props: any) => {
               districtId={districtId}
               handleChangeArea={handleChangeArea}
               isEdit={true}
+              AccountChangeSearch={AccountChangeSearch}
             />
           </Col>
         </Row>

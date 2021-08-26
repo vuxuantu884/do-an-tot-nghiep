@@ -16,7 +16,7 @@ export interface CustomerResponse extends BaseObject {
   customer_level: string | null;
   wedding_date: number;
   birthday: number;
-  gender: string | null;
+  gender: string;
   website: string | null;
   responsible_staff_code: number;
   responsible_staff: string;
@@ -29,6 +29,9 @@ export interface CustomerResponse extends BaseObject {
   customer_group: string | null;
   status: string;
   description: string | null;
+  ward: string | null;
+  district: string | null;
+  city: string | null;
 }
 
 export interface BillingAddress extends BaseObject {
