@@ -59,6 +59,7 @@ function SinglePrinter() {
         return singlePrinter.value === printerType;
       });
     };
+    console.log("queryParams", queryParams);
     dispatch(
       actionFetchPrinterDetail(+id, queryParams, (data: PrinterModel) => {
         setSinglePrinterContent(data);

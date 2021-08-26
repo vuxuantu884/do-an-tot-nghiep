@@ -46,13 +46,13 @@ function* listDataPrinterSaga(action: YodyAction) {
 }
 
 function* getPrinterDetailSaga(action: YodyAction) {
-  const { id, query, handleData } = action.payload;
+  const { id, queryParams, handleData } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<PrinterResponseModel>> = yield call(
       getPrinterDetailService,
       id,
-      query
+      queryParams
     );
 
     switch (response.code) {

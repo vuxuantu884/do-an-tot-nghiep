@@ -8,12 +8,13 @@ import UrlConfig from "config/UrlConfig";
 import { actionFetchListPrinter } from "domain/actions/printer/printer.action";
 import { FormPrinterModel } from "model/editor/editor.model";
 import { VariantResponse } from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   PrinterModel,
   PrinterResponseModel,
 } from "model/response/printer.response";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { generateQuery } from "utils/AppUtils";
@@ -34,6 +35,10 @@ const SettingPrinter: React.FC = () => {
 
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
 
   let [queryParams, setQueryParams] = useState({
     page: +(query.get("page") || 1),
@@ -91,6 +96,20 @@ const SettingPrinter: React.FC = () => {
       visible: true,
       width: "30%",
       className: "printSize",
+      render: (value, row, index) => {
+        let result = value;
+        if (bootstrapReducer) {
+          const selectedPrintSize = bootstrapReducer.data?.print_size.find(
+            (singlePrinterSize) => {
+              return singlePrinterSize.value === value;
+            }
+          );
+          if (selectedPrintSize) {
+            result = selectedPrintSize.name;
+          }
+        }
+        return result;
+      },
     },
     {
       title: "Thao tác ",
