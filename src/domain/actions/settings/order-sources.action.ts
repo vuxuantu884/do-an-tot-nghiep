@@ -6,13 +6,13 @@ import {
 } from "model/response/order/order-source.response";
 
 export const actionFetchListOrderSources = (
-  params = {},
+  queryParams = {},
   handleData: (data: OrderSourceResponseModel) => void
 ) => {
   return {
     type: SETTING_TYPES.orderSources.listData,
     payload: {
-      params,
+      queryParams,
       handleData,
     },
   };

@@ -1,8 +1,8 @@
 export interface OrderDiscountModel {
-  rate: number|null;
-  value: number|null;
+  rate: number | null;
+  value: number | null;
   amount: number;
-  promotion_id: number|null;
+  promotion_id: number | null;
   reason: string;
   source: string;
 }
@@ -42,4 +42,9 @@ export interface OrderItemModel {
   discount_value: number;
   discount_amount: number;
   gifts: Array<OrderItemModel>;
+}
+
+export interface OrderSettingsModel {
+  chonCuaHangTruocMoiChonSanPham: boolean;
+  cauHinhInNhieuLienHoaDon: number;
 }
