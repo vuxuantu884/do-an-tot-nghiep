@@ -39,17 +39,19 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
       if (listKeywordShow) {
         let cloneList = [...listKeywordShow];
         cloneList.map((single) => {
-          single.list.map((single1) => {
-            if (
-              single1.title.toLowerCase().includes(value.toLowerCase()) ||
-              single1.key.toLowerCase().includes(value.toLowerCase())
-            ) {
-              single1.isShow = true;
-            } else {
-              single1.isShow = false;
-            }
-            return "";
-          });
+          if (single.list) {
+            single.list.map((single1) => {
+              if (
+                single1.name.toLowerCase().includes(value.toLowerCase()) ||
+                single1.value.toLowerCase().includes(value.toLowerCase())
+              ) {
+                single1.isShow = true;
+              } else {
+                single1.isShow = false;
+              }
+              return "";
+            });
+          }
           return "";
         });
         setListKeywordShow(cloneList);
@@ -107,7 +109,7 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
         onRow={(record: keywordsModel) => {
           return {
             onClick: (event) => {
-              handleInsertKeyword(record.key);
+              handleInsertKeyword(record.name);
             }, // click row
           };
         }}
@@ -125,19 +127,21 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
   const renderSingleSectionListKeyword = (
     singleListKeyword: listKeywordsModel
   ) => {
-    let objDividedToTwo = divideArrayKeywordToTwoEqualPart(
-      singleListKeyword.list
-    );
-    const { firstPart, secondPart } = objDividedToTwo;
-    return (
-      <div className="single">
-        <h3 className="title">{singleListKeyword.name}</h3>
-        <Row gutter={20}>
-          <Col span={12}>{renderSinglePart(firstPart)}</Col>
-          <Col span={12}>{renderSinglePart(secondPart)}</Col>
-        </Row>
-      </div>
-    );
+    if (singleListKeyword.list) {
+      let objDividedToTwo = divideArrayKeywordToTwoEqualPart(
+        singleListKeyword.list
+      );
+      const { firstPart, secondPart } = objDividedToTwo;
+      return (
+        <div className="single">
+          <h3 className="title">{singleListKeyword.name}</h3>
+          <Row gutter={20}>
+            <Col span={12}>{renderSinglePart(firstPart)}</Col>
+            <Col span={12}>{renderSinglePart(secondPart)}</Col>
+          </Row>
+        </div>
+      );
+    }
   };
   return (
     <Modal

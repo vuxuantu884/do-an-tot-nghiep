@@ -1,7 +1,7 @@
 export interface keywordsModel {
-  title: string;
-  key: string;
+  name: string;
   value: string;
+  example?: string;
   isShow?: boolean;
 }
 
@@ -13,7 +13,7 @@ export interface productKeywordsModel {
 
 export interface listKeywordsModel {
   name: string;
-  list: keywordsModel[];
+  list?: keywordsModel[];
 }
 
 export interface EditorModel {

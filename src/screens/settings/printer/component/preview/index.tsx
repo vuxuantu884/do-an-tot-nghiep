@@ -5,8 +5,8 @@ import {
 } from "model/editor/editor.model";
 import React, { useRef } from "react";
 import ReactToPrint from "react-to-print";
-import IconPrintHover from "./images/iconPrintHover.svg";
 import IconEdit from "./images/iconEdit.svg";
+import IconPrintHover from "./images/iconPrintHover.svg";
 import { StyledComponent } from "./styles";
 
 const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
@@ -42,20 +42,24 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
    */
   const replaceSymbolByText = (text: string) => {
     let resultText = text;
-    // console.log("resultText", resultText);
     const replaceKeyword = () => {
       if (listKeywords) {
         let replacementLength = listKeywords.length;
         if (replacementLength > 0) {
           for (let i = 0; i < replacementLength; i++) {
             let singleListKeywords = listKeywords[i].list;
-            let singleListKeywordsLength = listKeywords[i].list.length;
-            if (singleListKeywordsLength > 0) {
+            let singleListKeywordsLength = listKeywords[i].list?.length;
+            if (singleListKeywordsLength && singleListKeywordsLength > 0) {
               for (let j = 0; j < singleListKeywordsLength; j++) {
-                resultText = resultText.replaceAll(
-                  singleListKeywords[j].key,
-                  singleListKeywords[j].value
-                );
+                if (singleListKeywords && singleListKeywords[j].example) {
+                  let singleExample = singleListKeywords[j].example;
+                  if (singleExample) {
+                    resultText = resultText.replaceAll(
+                      singleListKeywords[j].value,
+                      singleExample
+                    );
+                  }
+                }
               }
             }
           }

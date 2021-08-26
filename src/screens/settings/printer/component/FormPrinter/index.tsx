@@ -8,15 +8,13 @@ import {
   actionFetchPrinterDetail,
 } from "domain/actions/printer/printer.action";
 import { StoreResponse } from "model/core/store.model";
-import { listKeywordsModel } from "model/editor/editor.model";
+import { keywordsModel, listKeywordsModel } from "model/editor/editor.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { PrinterModel } from "model/response/printer.response";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import {
-  LIST_PRINTER_SIZES,
-  LIST_PRINTER_TYPES,
-} from "utils/Printer.constants";
+import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
 import Preview from "../preview";
 import { StyledComponent } from "./styles";
 
@@ -43,6 +41,9 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [selectedPrintSize, setSelectedPrintSize] = useState("");
   const componentRef = useRef(null);
   const history = useHistory();
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
 
   const handleOnChangeEditor = (value: string) => {
     setHtmlContent(value);
@@ -51,65 +52,46 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const sprintConfigure = {
     listPrinterTypes: LIST_PRINTER_TYPES,
     listStores: listStores,
-    listPrinterSizes: LIST_PRINTER_SIZES,
+    listPrinterSizes: bootstrapReducer.data?.print_size,
   };
 
-  const FAKE_WORDS: listKeywordsModel[] = [
+  let print_variable = bootstrapReducer.data?.print_variable;
+  let printer_variable_formatted: keywordsModel[] | undefined = print_variable;
+  if (printer_variable_formatted && printer_variable_formatted.length > 0) {
+    const printer_variable_formattedLength = printer_variable_formatted.length;
+    for (let i = 0; i < printer_variable_formattedLength; i++) {
+      printer_variable_formatted[i].example =
+        printer_variable_formatted[i].name;
+    }
+  }
+  /**
+   * các biến printer
+   */
+  const LIST_PRINTER_VARIABLES: listKeywordsModel[] = [
     {
       name: "Thông tin cửa hàng",
-      list: [
-        {
-          title: "tên công ty",
-          key: "{company_name}",
-          value: "YODY",
-        },
-        {
-          title: "địa chỉ công ty",
-          key: "{dia_chi_cong_ty}",
-          value: "Hải dương",
-        },
-        {
-          title: "Email cửa hàng",
-          key: "{email_cua_hang}",
-          value: "test@gmail.com",
-        },
-        {
-          title: "SĐT cửa hàng",
-          key: "{sdt_cua_hang}",
-          value: "0123456789",
-        },
-        {
-          title: "Mã đơn hàng",
-          key: "{ma_don_hang}",
-          value: "MASO1111",
-        },
-        {
-          title: "Tiền tệ",
-          key: "{tien_te}",
-          value: "VNĐ",
-        },
-      ],
+      list: printer_variable_formatted,
     },
   ];
 
-  const FAKE_PRODUCT_WORDS = [
+  /**
+   * list product lặp
+   */
+  const LIST_PRINTER_PRODUCT_VARIABLES = [
     {
       title: "tên sản phẩm",
       key: "{product_name}",
       value: ["sản phẩm 1", "sản phẩm 2"],
-      isRepeat: true,
     },
     {
       title: "giá sản phẩm",
       key: "{gia_san_pham}",
       value: ["100", "200"],
-      isRepeat: true,
     },
     {
       title: "màu sắc",
       key: "{mau_sac_san_pham}",
       value: ["xanh", "vàng"],
-      isRepeat: true,
     },
   ];
 
@@ -289,7 +271,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                       <Editor
                         onChange={handleOnChangeEditor}
                         initialHtmlContent={htmlContent}
-                        listKeywords={FAKE_WORDS}
+                        listKeywords={LIST_PRINTER_VARIABLES}
                         selectedPrintSize={selectedPrintSize}
                         previewHeaderHeight={handleEditorToolbarHeight}
                       />
@@ -304,8 +286,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               <div className="printContent" ref={componentRef}>
                 <Preview
                   htmlContent={htmlContent}
-                  listKeywords={FAKE_WORDS}
-                  listProductKeywords={FAKE_PRODUCT_WORDS}
+                  listKeywords={LIST_PRINTER_VARIABLES}
+                  listProductKeywords={LIST_PRINTER_PRODUCT_VARIABLES}
                   previewHeaderHeight={previewHeaderHeight}
                   isShowEditor={isShowEditor}
                   onChangeShowEditor={(isShow: boolean) => {

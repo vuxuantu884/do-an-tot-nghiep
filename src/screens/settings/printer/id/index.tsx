@@ -1,10 +1,11 @@
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import { actionFetchPrinterDetail } from "domain/actions/printer/printer.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { PrinterModel } from "model/response/printer.response";
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useParams, useLocation } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useParams } from "react-router-dom";
 import { DEFAULT_FORM_VALUE } from "utils/Constants";
 import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
 import FormPrinter from "../component/FormPrinter";
@@ -32,9 +33,23 @@ function SinglePrinter() {
   const { id } = paramsId;
   const [printerName, setPrinterName] = useState("");
   const query = useQuery();
-  const params = {
-    "print-size": query.get("print-size") ? query.get("print-size") : "a4",
-  };
+  let queryPrintSize = query.get("print-size");
+
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+
+  const params = useMemo(() => {
+    let result = {
+      "print-size": bootstrapReducer.data?.print_size[0].value || "a4",
+    };
+    if (queryPrintSize) {
+      result = {
+        "print-size": queryPrintSize,
+      };
+    }
+    return result;
+  }, [bootstrapReducer.data?.print_size, queryPrintSize]);
 
   useEffect(() => {
     const findPrinter = (printerType: string) => {
@@ -51,7 +66,7 @@ function SinglePrinter() {
         }
       })
     );
-  }, [dispatch, id]);
+  }, [dispatch, id, params]);
 
   return (
     <StyledComponent>
