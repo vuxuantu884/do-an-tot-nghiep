@@ -3,8 +3,9 @@ import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { BaseQuery } from "model/base/base.query";
 import {
-  PrinterModel,
+  BasePrinterModel,
   PrinterResponseModel,
+  PrinterVariableResponseModel,
 } from "model/response/printer.response";
 import { generateQuery } from "utils/AppUtils";
 
@@ -13,23 +14,30 @@ interface PrintParams extends BaseQuery {
 }
 
 export const getListPrinterService = (
-  query: BaseQuery
+  queryParams: BaseQuery
 ): Promise<BaseResponse<PrinterResponseModel>> => {
-  const queryString = generateQuery(query);
+  const queryString = generateQuery(queryParams);
   return BaseAxios.get(`${ApiConfig.CORE}/print-template?${queryString}`);
 };
 
 export const getPrinterDetailService = (
   id: number,
-  query: PrintParams = {}
+  queryParams: PrintParams = {}
 ): Promise<BaseResponse<PrinterResponseModel>> => {
-  const queryString = generateQuery(query);
-  console.log("query", query);
+  const queryString = generateQuery(queryParams);
   return BaseAxios.get(`${ApiConfig.CORE}/print-template/${id}?${queryString}`);
 };
 
 export const createPrinterService = (
-  formValue: PrinterModel
+  formValue: BasePrinterModel
 ): Promise<BaseResponse<PrinterResponseModel>> => {
   return BaseAxios.post(`${ApiConfig.CORE}/print-template`, formValue);
+};
+
+export const getListPrinterVariablesService = (): Promise<
+  BaseResponse<PrinterVariableResponseModel>
+> => {
+  return BaseAxios.get(
+    `${ApiConfig.CONTENT}/common/enums?fields=PRINT_SIZE, PRINT_ORDER_VARIABLE, PRINT_STORE_VARIABLE, PRINT_PRODUCT_VARIABLE, PRINT_SHIPMENT_VARIABLE`
+  );
 };

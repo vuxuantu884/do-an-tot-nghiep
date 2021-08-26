@@ -16,12 +16,12 @@ import {
 import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listDataOrderProcessingStatusSaga(action: YodyAction) {
-  const { params, handleData } = action.payload;
+  const { queryParams, handleData } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>
-    > = yield call(getOrderProcessingStatusService, params);
+    > = yield call(getOrderProcessingStatusService, queryParams);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
