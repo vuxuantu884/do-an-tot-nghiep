@@ -2,19 +2,20 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import { actionFetchPrinterDetail } from "domain/actions/printer/printer.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { PrinterModel } from "model/response/printer.response";
+import { BasePrinterModel } from "model/response/printer.response";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { DEFAULT_FORM_VALUE } from "utils/Constants";
 import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
+import { useQuery } from "utils/useQuery";
 import FormPrinter from "../component/FormPrinter";
 import { StyledComponent } from "./styles";
 
 function SinglePrinter() {
   const dispatch = useDispatch();
   const [singlePrinterContent, setSinglePrinterContent] =
-    useState<PrinterModel>({
+    useState<BasePrinterModel>({
       company: DEFAULT_FORM_VALUE.company,
       company_id: DEFAULT_FORM_VALUE.company_id,
       store_id: 0,
@@ -24,10 +25,6 @@ function SinglePrinter() {
       template: "",
       type: "",
     });
-
-  const useQuery = () => {
-    return new URLSearchParams(useLocation().search);
-  };
 
   const paramsId = useParams<{ id: string }>();
   const { id } = paramsId;
@@ -59,9 +56,8 @@ function SinglePrinter() {
         return singlePrinter.value === printerType;
       });
     };
-    console.log("queryParams", queryParams);
     dispatch(
-      actionFetchPrinterDetail(+id, queryParams, (data: PrinterModel) => {
+      actionFetchPrinterDetail(+id, queryParams, (data: BasePrinterModel) => {
         setSinglePrinterContent(data);
         const printer = findPrinter(data.type);
         if (printer) {

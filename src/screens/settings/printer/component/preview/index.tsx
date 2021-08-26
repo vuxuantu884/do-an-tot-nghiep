@@ -51,8 +51,8 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             let singleListKeywordsLength = listKeywords[i].list?.length;
             if (singleListKeywordsLength && singleListKeywordsLength > 0) {
               for (let j = 0; j < singleListKeywordsLength; j++) {
-                if (singleListKeywords && singleListKeywords[j].example) {
-                  let singleExample = singleListKeywords[j].example;
+                if (singleListKeywords && singleListKeywords[j].preview_value) {
+                  let singleExample = singleListKeywords[j].preview_value;
                   if (singleExample) {
                     resultText = resultText.replaceAll(
                       singleListKeywords[j].value,

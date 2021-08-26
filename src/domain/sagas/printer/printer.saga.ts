@@ -6,10 +6,14 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PRINTER_TYPES } from "domain/types/printer.type";
 import { PageResponse } from "model/base/base-metadata.response";
-import { PrinterResponseModel } from "model/response/printer.response";
+import {
+  PrinterResponseModel,
+  PrinterVariableResponseModel,
+} from "model/response/printer.response";
 import {
   createPrinterService,
   getListPrinterService,
+  getListPrinterVariablesService,
   getPrinterDetailService,
 } from "service/printer/printer.service";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -107,8 +111,41 @@ function* createPrinterSaga(action: YodyAction) {
   }
 }
 
+function* fetchListPrinterVariablesSaga(action: YodyAction) {
+  const { handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<PageResponse<PrinterVariableResponseModel>> =
+      yield call(getListPrinterVariablesService);
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        /**
+         * call function handleData in payload, variables are taken from the response -> use when dispatch
+         */
+        handleData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
 export function* settingPrinterSaga() {
   yield takeLatest(PRINTER_TYPES.listPrinter, listDataPrinterSaga);
   yield takeLatest(PRINTER_TYPES.getPrinterDetail, getPrinterDetailSaga);
   yield takeLatest(PRINTER_TYPES.createPrinter, createPrinterSaga);
+  yield takeLatest(
+    PRINTER_TYPES.getListPrinterVariables,
+    fetchListPrinterVariablesSaga
+  );
 }

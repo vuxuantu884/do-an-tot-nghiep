@@ -1,9 +1,17 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  .ant-table-tbody {
-    tr {
-      cursor: pointer;
+  section {
+    margin-bottom: 35px;
+  }
+  .ant-table {
+    td {
+      word-break: break-word;
+    }
+    .ant-table-tbody {
+      tr {
+        cursor: pointer;
+      }
     }
   }
   .modal__title {
@@ -20,6 +28,11 @@ export const StyledComponent = styled.div`
     margin-bottom: 20px;
   }
   .sectionSearch {
-    margin-bottom: 35px;
+  }
+  .boxListKeywords {
+    padding-top: 35px;
+    max-height: calc(100vh - 450px);
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 `;

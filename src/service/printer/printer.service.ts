@@ -3,8 +3,9 @@ import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { BaseQuery } from "model/base/base.query";
 import {
-  PrinterModel,
+  BasePrinterModel,
   PrinterResponseModel,
+  PrinterVariableResponseModel,
 } from "model/response/printer.response";
 import { generateQuery } from "utils/AppUtils";
 
@@ -28,7 +29,15 @@ export const getPrinterDetailService = (
 };
 
 export const createPrinterService = (
-  formValue: PrinterModel
+  formValue: BasePrinterModel
 ): Promise<BaseResponse<PrinterResponseModel>> => {
   return BaseAxios.post(`${ApiConfig.CORE}/print-template`, formValue);
+};
+
+export const getListPrinterVariablesService = (): Promise<
+  BaseResponse<PrinterVariableResponseModel>
+> => {
+  return BaseAxios.get(
+    `${ApiConfig.CONTENT}/common/enums?fields=PRINT_SIZE, PRINT_ORDER_VARIABLE, PRINT_STORE_VARIABLE, PRINT_PRODUCT_VARIABLE, PRINT_SHIPMENT_VARIABLE`
+  );
 };

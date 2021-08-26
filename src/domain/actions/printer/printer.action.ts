@@ -1,7 +1,8 @@
 import { PRINTER_TYPES } from "domain/types/printer.type";
 import {
-  PrinterModel,
+  BasePrinterModel,
   PrinterResponseModel,
+  PrinterVariableResponseModel,
 } from "model/response/printer.response";
 
 export const actionFetchListPrinter = (
@@ -20,7 +21,7 @@ export const actionFetchListPrinter = (
 export const actionFetchPrinterDetail = (
   id: number,
   queryParams: {},
-  handleData: (data: PrinterModel) => void
+  handleData: (data: BasePrinterModel) => void
 ) => {
   return {
     type: PRINTER_TYPES.getPrinterDetail,
@@ -32,11 +33,22 @@ export const actionFetchPrinterDetail = (
   };
 };
 
-export const actionCreatePrinter = (formValue: PrinterModel) => {
+export const actionCreatePrinter = (formValue: BasePrinterModel) => {
   return {
     type: PRINTER_TYPES.createPrinter,
     payload: {
       formValue,
+    },
+  };
+};
+
+export const actionFetchListPrinterVariables = (
+  handleData: (data: PrinterVariableResponseModel) => void
+) => {
+  return {
+    type: PRINTER_TYPES.getListPrinterVariables,
+    payload: {
+      handleData,
     },
   };
 };

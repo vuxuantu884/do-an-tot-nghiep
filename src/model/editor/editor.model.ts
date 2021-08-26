@@ -1,7 +1,7 @@
 export interface keywordsModel {
   name: string;
   value: string;
-  example?: string;
+  preview_value?: string;
   isShow?: boolean;
   key?: number | string;
 }
@@ -45,21 +45,11 @@ export interface PrintPreviewModel {
   onChangeShowEditor: (isShow: boolean) => void;
 }
 
-export type SinglePrinterContentModel = string;
-
-export interface FormValueModel {
-  tenMauIn: string;
-  chiNhanhApDung: string;
-  khoIn: string;
-  apDung: boolean;
-  formIn: SinglePrinterContentModel;
-}
-
 export interface FormPrinterModel {
   id: string | number;
   tenMauIn: string;
   chiNhanhApDung: string;
   khoIn: string;
   apDung: boolean;
-  formIn?: SinglePrinterContentModel;
+  formIn?: string;
 }

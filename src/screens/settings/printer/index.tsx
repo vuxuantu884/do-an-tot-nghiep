@@ -10,7 +10,7 @@ import { FormPrinterModel } from "model/editor/editor.model";
 import { VariantResponse } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  PrinterModel,
+  BasePrinterModel,
   PrinterResponseModel,
 } from "model/response/printer.response";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -26,7 +26,7 @@ const SettingPrinter: React.FC = () => {
   const FAKE_PRINT_CONTENT = "<p>This is fake print content print screen</p>";
   const printElementRef = useRef(null);
   const [tableLoading, setTableLoading] = useState(false);
-  const [listPrinter, setListPrinter] = useState<PrinterModel[]>([]);
+  const [listPrinter, setListPrinter] = useState<BasePrinterModel[]>([]);
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
