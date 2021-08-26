@@ -42,9 +42,9 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { OrderModel } from "model/order/order.model";
 
 function* getListOrderSaga(action: YodyAction) {
-  let { setData } = action.payload;
+  let { query, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi);
+    let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);

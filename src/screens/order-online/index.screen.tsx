@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Card } from "antd";
+import { Button, Card, Tag } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { generateQuery, Products } from "utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch, useSelector } from "react-redux";
-// import ProductFilter from "component/filter/product.filter";
 import OrderFilter from "component/filter/order.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
@@ -21,12 +20,9 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { getListOrderAction } from "domain/actions/order/order.action";
-import ColumnGroup from "antd/lib/table/ColumnGroup";
-import Column from "antd/lib/table/Column";
+import { DeliveryServicesGetList, getListOrderAction } from "domain/actions/order/order.action";
 import './scss/index.screen.scss'
-import { PoPaymentStatus } from "utils/Constants";
-import { SettingOutlined } from "@ant-design/icons";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
 
 const actions: Array<MenuAction> = [
   {
@@ -45,9 +41,8 @@ const initQuery: OrderSearchQuery = {
   sort_type: null,
   sort_column: null,
   code: null,
-  customer: null,
-  store_address: null,
-  source: null,
+  store_ids: [],
+  source_ids: [],
   issued_on_min: null,
   issued_on_max: null,
   issued_on_predefined: null,
@@ -72,8 +67,8 @@ const initQuery: OrderSearchQuery = {
   return_status: [],
   account: undefined,
   assignee: undefined,
-  price_min: 0,
-  price_max: 0,
+  price_min: undefined,
+  price_max: undefined,
   payment_method_ids: [],
   ship_by: null,
   note: null,
@@ -111,7 +106,8 @@ const ListOrderScreen: React.FC = () => {
     },
     items: [],
   });
-
+  const [deliveryServices, setDeliveryServices] =
+    useState<Array<DeliveryServiceResponse> | null>(null);
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
       title: "ID đơn hàng",
@@ -133,28 +129,18 @@ const ListOrderScreen: React.FC = () => {
         <div className="items">
           {items.map((item, i) => {
             return (
-              <div className="item-details">{item.variant_id}</div>
+              <div className="item">
+                <div className="item-sku">{item.sku}</div>
+                <div className="item-quantity">{item.quantity}</div>
+              </div>
             )
           })}
         </div>
       ),
       visible: true,
+      align: "center",
     },
-    {
-      title: "Số lượng",
-      dataIndex: "items",
-      key: "item.quantity",
-      render: (items: Array<OrderItemModel>) => (
-        <div className="items">
-          {items.map((item, i) => {
-            return (
-              <div className="item-details">{item.sku}</div>
-            )
-          })}
-        </div>
-      ),
-      visible: true,
-    },
+    
     {
       title: "Khách phải trả",
       dataIndex: "total_line_amount_after_line_discount",
@@ -165,9 +151,20 @@ const ListOrderScreen: React.FC = () => {
       title: "Hình thức vận chuyển",
       dataIndex: "fulfillments",
       key: "shipment.type",
-      render: (fulfillments: Array<OrderFulfillmentsModel>) => (
-        fulfillments && fulfillments[0].shipment ? fulfillments[0].shipment.delivery_service_provider_id : ""
-      ),
+      render: (fulfillments: Array<OrderFulfillmentsModel>) => {
+        // const service_id = fulfillments && fulfillments[0].shipment ? fulfillments[0].shipment.delivery_service_provider_id : null
+        // const service = deliveryServices ? deliveryServices.find(service => service.id === service_id) : null
+        return(
+          <div></div>
+          // service && (
+          //   <img
+          //     src={service.logo ? service.logo : ""}
+          //     alt=""
+          //     style={{ width: "184px", height: "41px" }}
+          //   />
+          // )
+        )
+    },
       visible: true,
     },
     {
@@ -347,12 +344,11 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "payments",
       key: "payments.type",
       render: (payments: Array<OrderPaymentModel>) => (
-          123
-          // payments.map(payment => {
-          //   return (
-          //     <div>{payment.payment_method}</div>
-          //   )
-          // })
+          payments.map(payment => {
+            return (
+              <Tag>{payment.payment_method}</Tag>
+            )
+          })
       ),
       visible: true,
     },
@@ -414,7 +410,7 @@ const ListOrderScreen: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.PRODUCT}?${queryParam}`);
+      history.replace(`${UrlConfig.ORDER}/list?${queryParam}`);
     },
     [history, params]
   );
@@ -424,8 +420,8 @@ const ListOrderScreen: React.FC = () => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      console.log('filter start', `${UrlConfig.PRODUCT}?${queryParam}`)
-      // history.push(`${UrlConfig.PRODUCT}?${queryParam}`);
+      console.log('filter start', `${UrlConfig.ORDER}/list?${queryParam}`)
+      history.push(`${UrlConfig.ORDER}/list?${queryParam}`);
     },
     [history, params]
   );
@@ -446,12 +442,14 @@ const ListOrderScreen: React.FC = () => {
   
   useEffect(() => {
     if (isFirstLoad.current) {
+      // dispatch(DeliveryServicesGetList(setDeliveryServices));
       setTableLoading(true);
     }
     isFirstLoad.current = false;
     dispatch(getListOrderAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
+  
   return (
     <ContentContainer
       title="Quản lý đơn hàng"
@@ -473,7 +471,6 @@ const ListOrderScreen: React.FC = () => {
           actions={actions}
           onFilter={onFilter}
           params={params}
-          listStatus={listStatus}
           onShowColumnSetting={() => setShowSettingColumn(true)}
         />
         <CustomTable

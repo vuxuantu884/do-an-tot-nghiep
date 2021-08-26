@@ -1,3 +1,22 @@
+.ant-table-content{
+  .ant-table-tbody {
+    .ant-table-row {
+      
+      .ant-table-cell .items {
+        .item {
+          display: flex;
+          .item-sku {
+            width: 80%
+          }
+          .item-quantity {
+            width: 20%;
+          }
+        }
+      }
+      
+    }
+  }
+}
 @import "assets/css/variable";
 .order-list {
   .txt-muted {

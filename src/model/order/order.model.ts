@@ -1,5 +1,6 @@
 export interface OrderItemModel {
   variant_id: number;
+  quantity: number;
   sku: string;
 }
 export interface OrderPaymentModel {
@@ -69,9 +70,8 @@ export interface OrderSearchQuery {
   sort_type: string|null;
   sort_column: string|null;
   code: string|null;
-  customer: string|null;
-  store_address: string|null;
-  source: string|null;
+  store_ids: [];
+  source_ids: [];
   issued_on_min: string|null;
   issued_on_max: string|null;
   issued_on_predefined: string|null;
@@ -96,8 +96,8 @@ export interface OrderSearchQuery {
   return_status: [];
   account: string|undefined;
   assignee: string|undefined;
-  price_min: number;
-  price_max: number;
+  price_min: number|undefined;
+  price_max: number|undefined;
   payment_method_ids: [];
   ship_by: string|null;
   note: string|null;

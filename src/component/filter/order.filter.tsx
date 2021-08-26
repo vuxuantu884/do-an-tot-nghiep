@@ -8,23 +8,17 @@ import {
   Row,
   Select,
   Tooltip,
-  Collapse
+  Collapse,
+  Tag
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
-import { SizeResponse } from "model/product/size.model";
-import { ColorResponse } from "model/product/color.model";
-import { SupplierResponse } from "model/core/supplier.model";
-import { CountryResponse } from "model/content/country.model";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined, SettingOutlined, FilterOutlined } from "@ant-design/icons";
-// import NumberInput from "component/custom/number-input.custom";
-// import CustomDatepicker from "component/custom/date-picker.custom";
 import './order.filter.scss'
 import { useDispatch } from "react-redux";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -35,17 +29,11 @@ import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery } from "model/order/order.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PageResponse } from "model/base/base-metadata.response";
+import { remove } from "lodash";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
   params: OrderSearchQuery;
-  listStatus?: Array<BaseBootstrapResponse>;
-  listMerchandisers?: Array<AccountResponse>;
-  listSize?: Array<SizeResponse>;
-  listCountries?: Array<CountryResponse>;
-  listMainColors?: Array<ColorResponse>;
-  listColors?: Array<ColorResponse>;
-  listSupplier?: Array<SupplierResponse>;
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery) => void;
@@ -99,9 +87,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "Đang hoàn lại", value: "refunding"}
   ];
   const paymentType = [
-    {name: "Tiền mặt", value: "cash"},
-    {name: "Chuyển khoản", value: "banking"},
-    {name: "COD", value: "cod"},
+    {name: "Tiền mặt", value: 1},
+    {name: "Chuyển khoản", value: 3},
+    {name: "QR Pay", value: 4},
+    {name: "Tiêu điểm", value: 5},
+    {name: "COD", value: 0},
   ]
   const formRef = createRef<FormInstance>();
   const onFinish = useCallback(
@@ -155,6 +145,34 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       cancelled: [params.cancelled_on_min ? params.cancelled_on_min : null, params.cancelled_on_max ? params.cancelled_on_max : null],
     }
   }, [params]);
+
+  const filters = useMemo(() => {
+    let list: any = []
+    if (params.store_ids) {
+      let textStores = ""
+      params.store_ids.forEach(store_id => {
+        const store = listStore?.find(store => store.id === store_id)
+        textStores = store ? textStores + "; " + store.name : textStores
+      })
+      list.push({
+        name: 'Cửa hàng',
+        value: textStores
+      })
+    }
+    if (params.source_ids) {
+      let textSource = ""
+      params.source_ids.forEach(source_id => {
+        const source = listSources?.find(source => source.id === source_id)
+        textSource = source ? textSource + "; " + source.name : textSource
+      })
+      list.push({
+        name: 'Nguồn',
+        value: textSource
+      })
+    }
+    return list
+  }, [params]);
+
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -177,261 +195,283 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   }, [formRef, visible]);
 
   return (
-    <div className="order-filter">
-      <CustomFilter onMenuClick={onActionClick} menu={actions}>
-        <Form onFinish={onFinish} initialValues={initialValues} layout="inline">
-          <Item name="search_term" className="input-search">
-            <Input
-              prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
-            />
-          </Item>
-          
-          <Item>
-            <Button type="primary" htmlType="submit">
-              Lọc
-            </Button>
-          </Item>
-          <Item>
-            <Tooltip overlay="Lưu bộ lọc" placement="top">
-              <Button icon={<StarOutlined />} />
-            </Tooltip>
-          </Item>
-          <Item>
-            <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
-          </Item>
-          <Button icon={<SettingOutlined/>} onClick={onShowColumnSetting}></Button>
-        </Form>
-      </CustomFilter>
+    <div>
+      <div className="order-filter">
+        <CustomFilter onMenuClick={onActionClick} menu={actions}>
+          <Form onFinish={onFinish} initialValues={initialValues} layout="inline">
+            <Item name="search_term" className="input-search">
+              <Input
+                prefix={<img src={search} alt="" />}
+                placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
+              />
+            </Item>
+            
+            <Item>
+              <Button type="primary" htmlType="submit">
+                Lọc
+              </Button>
+            </Item>
+            <Item>
+              <Tooltip overlay="Lưu bộ lọc" placement="top">
+                <Button icon={<StarOutlined />} />
+              </Tooltip>
+            </Item>
+            <Item>
+              <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+            </Item>
+            <Button icon={<SettingOutlined/>} onClick={onShowColumnSetting}></Button>
+          </Form>
+        </CustomFilter>
 
-      <BaseFilter
-        onClearFilter={onClearFilter}
-        onFilter={onFilterClick}
-        onCancel={onCancelFilter}
-        visible={visible}
-        width={500}
-      >
-        <Form
-          onFinish={onFinish}
-          ref={formRef}
-          initialValues={params}
-          layout="vertical"
+        <BaseFilter
+          onClearFilter={onClearFilter}
+          onFilter={onFilterClick}
+          onCancel={onCancelFilter}
+          visible={visible}
+          width={500}
         >
-          {/* <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="KHU VỰC" key="1">
-                  <Item name="area">
-                  <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
-                    <Option value="">Chọn khu vực</Option>
-                    
-                  </Select>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row> */}
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="KHO CỬA HÀNG" key="1">
-                  <Item name="store_ids">
-                    <CustomSelect
-                      mode="multiple"
-                      showArrow
-                      showSearch
-                      placeholder="Cửa hàng"
-                      style={{
-                        width: '100%'
-                      }}
-                      filterOption={(input, option) => {
-                        if (option) {
-                          return (
-                            option.children
-                              .toLowerCase()
-                              .indexOf(input.toLowerCase()) >= 0
-                          );
-                        }
-                        return false;
-                      }}
-                    >
-                      {listStore?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.id}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="NGUỒN ĐƠN HÀNG" key="1">
-                  <Item name="source_ids" style={{ margin: "10px 0px" }}>
-                    <CustomSelect
-                      mode="multiple"
-                      style={{ width: '100%'}}
-                      showArrow
-                      showSearch
-                      placeholder="Nguồn đơn hàng"
-                      notFoundContent="Không tìm thấy kết quả"
-                      filterOption={(input, option) => {
-                        if (option) {
-                          return (
-                            option.children
-                              .toLowerCase()
-                              .indexOf(input.toLowerCase()) >= 0
-                          );
-                        }
-                        return false;
-                      }}
+          <Form
+            onFinish={onFinish}
+            ref={formRef}
+            initialValues={params}
+            layout="vertical"
+          >
+            {/* <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="KHU VỰC" key="1">
+                    <Item name="area">
+                    <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
+                      <Option value="">Chọn khu vực</Option>
                       
-                    >
-                      {listSources.map((item, index) => (
-                        <CustomSelect.Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.id}
-                        >
+                    </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row> */}
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="KHO CỬA HÀNG" key="1">
+                    <Item name="store_ids">
+                      <CustomSelect
+                        mode="multiple"
+                        showArrow
+                        showSearch
+                        placeholder="Cửa hàng"
+                        style={{
+                          width: '100%'
+                        }}
+                        filterOption={(input, option) => {
+                          if (option) {
+                            return (
+                              option.children
+                                .toLowerCase()
+                                .indexOf(input.toLowerCase()) >= 0
+                            );
+                          }
+                          return false;
+                        }}
+                      >
+                        {listStore?.map((item) => (
+                          <CustomSelect.Option key={item.id} value={item.id}>
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="NGUỒN ĐƠN HÀNG" key="1">
+                    <Item name="source_ids" style={{ margin: "10px 0px" }}>
+                      <CustomSelect
+                        mode="multiple"
+                        style={{ width: '100%'}}
+                        showArrow
+                        showSearch
+                        placeholder="Nguồn đơn hàng"
+                        notFoundContent="Không tìm thấy kết quả"
+                        filterOption={(input, option) => {
+                          if (option) {
+                            return (
+                              option.children
+                                .toLowerCase()
+                                .indexOf(input.toLowerCase()) >= 0
+                            );
+                          }
+                          return false;
+                        }}
+                        
+                      >
+                        {listSources.map((item, index) => (
+                          <CustomSelect.Option
+                            style={{ width: "100%" }}
+                            key={index.toString()}
+                            value={item.id}
+                          >
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Panel>
+                  
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="NGÀY TẠO ĐƠN" key="1">
+                    <div className="date-option">
+                      <Button>Hôm qua</Button>
+                      <Button>Hôm nay</Button>
+                      <Button>Tuần này</Button>
+                    </div>
+                    <div className="date-option">
+                      <Button>Tuần trước</Button>
+                      <Button>Tháng này</Button>
+                      <Button>Tháng trước</Button>
+                    </div>
+                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
+                    <Item name="issued">
+                      <DatePicker.RangePicker
+                        format="DD-MM-YYYY"
+                        style={{width: "100%"}}
+                      />
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="NGÀY DUYỆT ĐƠN" key="1">
+                    <div className="date-option">
+                      <Button>Hôm qua</Button>
+                      <Button>Hôm nay</Button>
+                      <Button>Tuần này</Button>
+                    </div>
+                    <div className="date-option">
+                      <Button>Tuần trước</Button>
+                      <Button>Tháng này</Button>
+                      <Button>Tháng trước</Button>
+                    </div>
+                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
+                    <Item name="ship">
+                      <DatePicker.RangePicker
+                        format="DD-MM-YYYY"
+                        style={{width: "100%"}}
+                      />
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1">
+                    <div className="date-option">
+                      <Button>Hôm qua</Button>
+                      <Button>Hôm nay</Button>
+                      <Button>Tuần này</Button>
+                    </div>
+                    <div className="date-option">
+                      <Button>Tuần trước</Button>
+                      <Button>Tháng này</Button>
+                      <Button>Tháng trước</Button>
+                    </div>
+                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
+                    <Item name="completed">
+                      <DatePicker.RangePicker
+                        format="DD-MM-YYYY"
+                        style={{width: "100%"}}
+                      />
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="NGÀY HUỶ ĐƠN" key="1">
+                    <div className="date-option">
+                      <Button>Hôm qua</Button>
+                      <Button>Hôm nay</Button>
+                      <Button>Tuần này</Button>
+                    </div>
+                    <div className="date-option">
+                      <Button>Tuần trước</Button>
+                      <Button>Tháng này</Button>
+                      <Button>Tháng trước</Button>
+                    </div>
+                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
+                    <Item name="cancelled">
+                      <DatePicker.RangePicker
+                        format="DD-MM-YYYY"
+                        style={{width: "100%"}}
+                      />
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1">
+                    <Item name="order_status">
+                    <Select mode="multiple" showSearch placeholder="Chọn trạng thái đơn hàng" style={{width: '100%'}}>
+                      {status?.map((item) => (
+                        <Option key={item.value} value={item.value}>
                           {item.name}
-                        </CustomSelect.Option>
+                        </Option>
                       ))}
-                    </CustomSelect>
-                  </Item>
-                </Panel>
-                
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="NGÀY TẠO ĐƠN" key="1">
-                  <div className="date-option">
-                    <Button>Hôm qua</Button>
-                    <Button>Hôm nay</Button>
-                    <Button>Tuần này</Button>
-                  </div>
-                  <div className="date-option">
-                    <Button>Tuần trước</Button>
-                    <Button>Tháng này</Button>
-                    <Button>Tháng trước</Button>
-                  </div>
-                  <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                  <Item name="issued">
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="NGÀY DUYỆT ĐƠN" key="1">
-                  <div className="date-option">
-                    <Button>Hôm qua</Button>
-                    <Button>Hôm nay</Button>
-                    <Button>Tuần này</Button>
-                  </div>
-                  <div className="date-option">
-                    <Button>Tuần trước</Button>
-                    <Button>Tháng này</Button>
-                    <Button>Tháng trước</Button>
-                  </div>
-                  <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                  <Item name="ship">
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1">
-                  <div className="date-option">
-                    <Button>Hôm qua</Button>
-                    <Button>Hôm nay</Button>
-                    <Button>Tuần này</Button>
-                  </div>
-                  <div className="date-option">
-                    <Button>Tuần trước</Button>
-                    <Button>Tháng này</Button>
-                    <Button>Tháng trước</Button>
-                  </div>
-                  <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                  <Item name="completed">
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="NGÀY HUỶ ĐƠN" key="1">
-                  <div className="date-option">
-                    <Button>Hôm qua</Button>
-                    <Button>Hôm nay</Button>
-                    <Button>Tuần này</Button>
-                  </div>
-                  <div className="date-option">
-                    <Button>Tuần trước</Button>
-                    <Button>Tháng này</Button>
-                    <Button>Tháng trước</Button>
-                  </div>
-                  <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                  <Item name="cancelled">
-                    <DatePicker.RangePicker
-                      format="DD-MM-YYYY"
-                      style={{width: "100%"}}
-                    />
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1">
-                  <Item name="order_status">
-                  <Select mode="multiple" showSearch placeholder="Chọn trạng thái đơn hàng" style={{width: '100%'}}>
-                    {status?.map((item) => (
-                      <Option key={item.value} value={item.value}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="GIAO HÀNG" key="1">
-                  <Item name="fulfillment_status">
-                    <Select mode="multiple" showSearch placeholder="Chọn trạng thái giao hàng" style={{width: '100%'}}>
-                        {fulfillmentStatus.map((item, index) => (
+                    </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="GIAO HÀNG" key="1">
+                    <Item name="fulfillment_status">
+                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái giao hàng" style={{width: '100%'}}>
+                          {fulfillmentStatus.map((item, index) => (
+                            <Option
+                              style={{ width: "100%" }}
+                              key={index.toString()}
+                              value={item.value}
+                            >
+                              {item.name}
+                            </Option>
+                          ))}
+                      </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="THANH TOÁN" key="1">
+                    <Item name="payment_status">
+                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" style={{width: '100%'}}>
+                        {paymentStatus.map((item, index) => (
                           <Option
                             style={{ width: "100%" }}
                             key={index.toString()}
@@ -440,60 +480,60 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                             {item.name}
                           </Option>
                         ))}
-                    </Select>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="THANH TOÁN" key="1">
-                  <Item name="payment_status">
-                    <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" style={{width: '100%'}}>
-                      {paymentStatus.map((item, index) => (
-                        <Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.value}
-                        >
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="TRẢ HÀNG" key="1">
-                  <Item name="payment_status">
-                    <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" style={{width: '100%'}}>
-                      {paymentStatus.map((item, index) => (
-                        <Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.value}
-                        >
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="NHÂN VIÊN BÁN HÀNG" key="1">
-                  <Item name="assignee">
-                    <Select mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng" style={{width: '100%'}}>
+                      </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            {/* <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="TRẢ HÀNG" key="1">
+                    <Item name="payment_status">
+                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" style={{width: '100%'}}>
+                        {paymentStatus.map((item, index) => (
+                          <Option
+                            style={{ width: "100%" }}
+                            key={index.toString()}
+                            value={item.value}
+                          >
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row> */}
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="NHÂN VIÊN BÁN HÀNG" key="1">
+                    <Item name="assignee">
+                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng" style={{width: '100%'}}>
+                          {accounts.map((item, index) => (
+                            <Option
+                              style={{ width: "100%" }}
+                              key={index.toString()}
+                              value={item.code}
+                            >
+                              {`${item.full_name} - ${item.code}`}
+                            </Option>
+                          ))}
+                      </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1">
+                    <Item name="account">
+                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" style={{width: '100%'}}>
                         {accounts.map((item, index) => (
                           <Option
                             style={{ width: "100%" }}
@@ -503,162 +543,149 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                             {`${item.full_name} - ${item.code}`}
                           </Option>
                         ))}
-                    </Select>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1">
-                  <Item name="account">
-                    <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" style={{width: '100%'}}>
-                      {accounts.map((item, index) => (
+                      </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}} className="price">
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="TỔNG TIỀN" key="1">
+                    <Input.Group compact>
+                      <Item name="price_min" style={{ width: '45%', textAlign: 'center' }}>
+                        <Input className="price_min"  placeholder="Minimum" />
+                      </Item>
+                      
+                      <Input
+                        className="site-input-split"
+                        style={{
+                          width: '10%',
+                          borderLeft: 0,
+                          borderRight: 0,
+                          pointerEvents: 'none',
+                        }}
+                        placeholder="~"
+                        readOnly
+                      />
+                      <Item name="price_max" style={{width: '45%',textAlign: 'center'}}>
+                        <Input
+                          className="site-input-right price_max"
+                          placeholder="Maximum"
+                        />
+                      </Item>
+                    </Input.Group>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="PHƯƠNG THỨC THANH TOÁN" key="1">
+                    <Item name="payment_method_ids">
+                    <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}>
+                      {paymentType.map((item, index) => (
                         <Option
                           style={{ width: "100%" }}
                           key={index.toString()}
-                          value={item.code}
+                          value={item.value}
                         >
-                          {`${item.full_name} - ${item.code}`}
+                          {item.name}
                         </Option>
                       ))}
                     </Select>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}} className="price">
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="TỔNG TIỀN" key="1">
-                  <Input.Group compact>
-                    <Item name="price_min" style={{ width: '45%', textAlign: 'center' }}>
-                      <Input className="price_min"  placeholder="Minimum" />
                     </Item>
-                    
-                    <Input
-                      className="site-input-split"
-                      style={{
-                        width: '10%',
-                        borderLeft: 0,
-                        borderRight: 0,
-                        pointerEvents: 'none',
-                      }}
-                      placeholder="~"
-                      readOnly
-                    />
-                    <Item name="price_max" style={{width: '45%',textAlign: 'center'}}>
-                      <Input
-                        className="site-input-right price_max"
-                        placeholder="Maximum"
-                      />
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="NGÀY DỰ KIẾN NHẬN HÀNG" key="1">
+                    <Item name="expected_receive_predefined">
+                      <DatePicker placeholder="Chọn ngày" style={{width: "100%"}}/>
                     </Item>
-                  </Input.Group>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="PHƯƠNG THỨC THANH TOÁN" key="1">
-                  <Item name="payment_method_ids">
-                  <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}>
-                    {paymentType.map((item, index) => (
-                      <Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.value}
-                      >
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="NGÀY DỰ KIẾN NHẬN HÀNG" key="1">
-                  <Item name="expected_receive_predefined">
-                    <DatePicker placeholder="Chọn ngày" style={{width: "100%"}}/>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1">
-                  <Item name="ship_by">
-                    <Select optionFilterProp="children" showSearch placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
-                      <Option value="">Hình thức vận chuyển</Option>
-                      {/* {listCountries?.map((item) => (
-                        <Option key={item.id} value={item.id}>
-                          {item.name}
-                        </Option>
-                      ))} */}
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1">
+                    <Item name="ship_by">
+                      <Select optionFilterProp="children" showSearch placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
+                        <Option value="">Hình thức vận chuyển</Option>
+                        {/* {listCountries?.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.name}
+                          </Option>
+                        ))} */}
+                      </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="GHI CHÚ NỘI BỘ" key="1">
+                    <Item name="note">
+                      <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="GHI CHÚ CỦA KHÁCH" key="1">
+                    <Item name="customer_note">
+                    <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="TAG" key="1">
+                    <Item name="tags">
+                    <Select mode="tags" optionFilterProp="children" showSearch placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
+                      
                     </Select>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="GHI CHÚ NỘI BỘ" key="1">
-                  <Item name="note">
-                    <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="GHI CHÚ CỦA KHÁCH" key="1">
-                  <Item name="customer_note">
-                  <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="TAG" key="1">
-                  <Item name="tags">
-                  <Select mode="tags" optionFilterProp="children" showSearch placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
-                    
-                  </Select>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-          <Row gutter={12} style={{marginTop: '10px'}}>
-            <Col span={24}>
-              <Collapse defaultActiveKey={[]}>
-                <Panel header="MÃ THAM CHIẾU" key="1">
-                  <Item name="reference_code">
-                    <Input placeholder="Tìm kiếm theo mã tham chiếu"/>
-                  </Item>
-                </Panel>
-              </Collapse>
-            </Col>
-          </Row>
-        </Form>
-      </BaseFilter>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={[]}>
+                  <Panel header="MÃ THAM CHIẾU" key="1">
+                    <Item name="reference_code">
+                      <Input placeholder="Tìm kiếm theo mã tham chiếu"/>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+          </Form>
+        </BaseFilter>
+      </div>
+      <div>
+        {filters.map((filter: any) => {
+          return (
+            <Tag>{filter.name}: {filter.value}</Tag>
+          )
+        })}
+      </div>
     </div>
   );
 };

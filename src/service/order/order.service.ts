@@ -2,7 +2,7 @@ import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
 import { BaseQuery } from "model/base/base.query";
-import { OrderModel } from "model/order/order.model";
+import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import {
   OrderRequest,
   ShippingGHTKRequest,
@@ -30,8 +30,9 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { SourceResponse } from "model/response/order/source.response";
 import { generateQuery } from "utils/AppUtils";
 
-export const getListOrderApi = (): Promise<BaseResponse<OrderModel>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/orders`);
+export const getListOrderApi = (query: OrderSearchQuery ): Promise<BaseResponse<OrderModel>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders?${queryString}`);
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
