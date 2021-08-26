@@ -105,6 +105,11 @@ const CustomerEdit = (props: any) => {
     },
     []
   );
+  const genreEnum: any = {
+    male: "Nam",
+    female: "Nữ",
+    other: "Khác"
+  }
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -117,12 +122,7 @@ const CustomerEdit = (props: any) => {
 
         {
           name: "Giới tính",
-          value:
-            customer.gender === "male"
-              ? "Nam"
-              : customer.gender === "female"
-              ? "Nữ"
-              : "Khác",
+          value: genreEnum[customer.gender],
           position: "right",
         },
         {
@@ -169,39 +169,40 @@ const CustomerEdit = (props: any) => {
           }${
             customer.responsible_staff ? "-" + customer.responsible_staff : ""
           }`,
-          position: "left",
+          position: "right",
         },
         {
           name: "Email",
           value: customer.email,
-          position: "right",
+          position: "left"
         },
         {
           name: "Mã khách hàng",
           value: customer.code,
-          position: "left",
+          position: "right",
         },
         {
           name: "Ngày cưới",
           value: customer.wedding_date
             ? moment(customer.wedding_date).format("DD/MM/YYYY")
             : null,
-          position: "right",
+            position: "left"
         },
         {
           name: "Website/Facebook",
           value: customer.website,
-          position: "left",
+          position: "right",
+          isWebsite: true,
         },
         {
-          name: "Đơn vị",
+          name: "Tên đơn vị",
           value: customer.company,
-          position: "right",
+          position: "left"
         },
         {
           name: "Mã số thuế",
           value: customer.tax_code,
-          position: "left",
+          position: "right",
         },
         {
           name: "Địa chỉ",
@@ -210,11 +211,12 @@ const CustomerEdit = (props: any) => {
           }${customer.district ? " - " + customer.district : ""}${
             customer.city ? " - " + customer.city : ""
           }`,
-          position: "right",
+          position: "left"
         },
         {
           name: "Ghi chú",
           value: customer.description,
+          position: "right",
         },
       ];
     }
@@ -1069,8 +1071,8 @@ const CustomerEdit = (props: any) => {
                                       wordWrap: "break-word",
                                       fontWeight: 500,
                                     }}
-                                  >
-                                    : {detail.value ? detail.value : "---"}
+                                  >: {detail.value ? detail.value : "---"}
+                                    
                                   </span>
                                 </Col>
                               </Col>
@@ -1079,7 +1081,9 @@ const CustomerEdit = (props: any) => {
                       <Col span={12}>
                         {customerDetailCollapse &&
                           customerDetailCollapse
-                            .filter((detail: any) => detail.position === "right")
+                            .filter(
+                              (detail: any) => detail.position === "right"
+                            )
                             .map((detail: any, index: number) => (
                               <Col
                                 key={index}
@@ -1100,7 +1104,14 @@ const CustomerEdit = (props: any) => {
                                       fontWeight: 500,
                                     }}
                                   >
-                                    : {detail.value ? detail.value : "---"}
+                                    :{" "}
+                                    {detail.isWebsite ? (
+                                      <a href={detail.value}>{detail.value}</a>
+                                    ) : detail.value ? (
+                                      detail.value
+                                    ) : (
+                                      "---"
+                                    )}
                                   </span>
                                 </Col>
                               </Col>
@@ -1545,7 +1556,7 @@ const CustomerEdit = (props: any) => {
           >
             Xóa khách hàng
           </Button>
-          <Button type="primary">Tạo phiếu thu chi</Button>
+          {/* <Button type="primary">Tạo phiếu thu chi</Button> */}
         </div>
       </div>
     </ContentContainer>

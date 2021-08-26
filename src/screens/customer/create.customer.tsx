@@ -111,7 +111,8 @@ const CustomerAdd = (props: any) => {
     dispatch(CustomerLevels(setLevels));
   }, [dispatch]);
   React.useEffect(() => {
-    customerForm.setFieldsValue(new CustomerModel());
+    let customer_type_id = 2
+    customerForm.setFieldsValue({...new CustomerModel(), customer_type_id});
   }, [customerForm]);
   const setResult = React.useCallback(
     (result) => {
@@ -128,14 +129,13 @@ const CustomerAdd = (props: any) => {
     let piece = {
       ...values,
       birthday: values.birthday
-      ? new Date(values.birthday).toISOString()
+      ? new Date(values.birthday).toUTCString()
       : null,
       wedding_date: values.wedding_date
-        ? new Date(values.wedding_date).toISOString()
+        ? new Date(values.wedding_date).toUTCString()
         : null,
       status: status,
       city_id: area ? area.city_id : null,
-      gender: "other",
       contacts: [
         {
           ...CustomerContactClass,
@@ -218,32 +218,6 @@ const CustomerAdd = (props: any) => {
               >
                 <Row gutter={30} style={{ padding: "0 15px" }}>
                   <CustomInputContact  form={customerForm}/>
-                  <Col span={12}>
-                    <Form.Item
-                      label={<b>Email:</b>}
-                      name="contact_email"
-                      // rules={[
-                      //   {
-                      //     required: true,
-                      //     message: "Vui lòng nhập thư điện tử",
-                      //   },
-                      // ]}
-                    >
-                      <Input maxLength={255} placeholder="Nhập email" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={24} style={{ padding: "0 1rem" }}>
-                    <Row gutter={8}>
-                      <Col span={24}>
-                        <Form.Item label={<b>Ghi chú:</b>} name="contact_note">
-                          <Input.TextArea
-                            maxLength={500}
-                            placeholder="Nhập ghi chú"
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Col>
                 </Row>
               </Panel>
             </Collapse>

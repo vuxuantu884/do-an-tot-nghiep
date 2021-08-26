@@ -160,10 +160,10 @@ const CustomerEdit = (props: any) => {
     const processValue = {
       ...values,
       birthday: values.birthday
-        ? moment(values.birthday, "YYYY-MM-DD").format("YYYY-MM-DD")
-        : null,
+      ? new Date(values.birthday).toUTCString()
+      : null,
       wedding_date: values.wedding_date
-        ? moment(values.wedding_date, "YYYY-MM-DD").format("YYYY-MM-DD")
+        ? new Date(values.wedding_date).toUTCString()
         : null,
       status: status,
       version: customer.version,
