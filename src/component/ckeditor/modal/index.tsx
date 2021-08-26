@@ -73,9 +73,10 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
   };
 
   const renderSinglePart = (arr: keywordsModel[]) => {
-    for (let i = 0; i < arr.length; i++) {
-      arr[i].key = i;
-    }
+    // add thêm key:unique vào để ant table ko báo lỗi
+    arr.forEach((single) => {
+      single.key = single.value;
+    });
     let cloneArr = arr.filter((single) => {
       return single.isShow !== false;
     });
@@ -133,10 +134,10 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
     singleListKeyword: listKeywordsModel
   ) => {
     if (singleListKeyword.list) {
-      let objDividedToTwo = divideArrayKeywordToTwoEqualPart(
+      let objDividedToTwoEqualPart = divideArrayKeywordToTwoEqualPart(
         singleListKeyword.list
       );
-      const { firstPart, secondPart } = objDividedToTwo;
+      const { firstPart, secondPart } = objDividedToTwoEqualPart;
       return (
         <div className="single">
           <h3 className="title">{singleListKeyword.name}</h3>

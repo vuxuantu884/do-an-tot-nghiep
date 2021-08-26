@@ -41,6 +41,7 @@ import {
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
+import { OrderSettingsModel } from "model/other/Order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   ShippingGHTKRequest,
@@ -108,6 +109,7 @@ type UpdateShipmentCardProps = {
   paymentType: number | null;
   customerDetail: CustomerResponse | null;
   OrderDetailAllFullfilment: OrderResponse | null;
+  orderSettings?: OrderSettingsModel;
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
@@ -122,6 +124,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setPaymentType,
     setShipmentMethod,
     OrderDetail,
+    orderSettings,
   } = props;
 
   // node dom
@@ -995,7 +998,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               />
                             </div>
                             <FulfillmentStatusTag fulfillment={fulfillment} />
-                            <PrintShippingLabel fulfillment={fulfillment}/>
+                            <PrintShippingLabel
+                              fulfillment={fulfillment}
+                              orderSettings={orderSettings}
+                            />
                           </div>
 
                           <div className="saleorder-header-content__date">
