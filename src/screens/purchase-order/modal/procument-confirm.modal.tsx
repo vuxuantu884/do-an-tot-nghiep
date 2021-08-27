@@ -24,6 +24,7 @@ type ProcumentConfirmProps = {
   items: Array<PurchaseOrderLineItem>;
   defaultStore: number;
   onOk: (value: PurchaseProcument) => void;
+  onDelete: (value: PurchaseProcument) => void;
   loading: boolean;
 };
 
@@ -38,6 +39,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
     item,
     defaultStore,
     onOk,
+    onDelete,
     loading,
     items,
     isEdit,
@@ -55,14 +57,15 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
       visible={visible}
       cancelText="Hủy"
       onOk={onOk}
+      onDelete={onDelete}
       loading={loading}
       title={
         <div>
-          {isEdit ? "Sửa phiếu nháp " : "Duyệt phiếu nháp "}
+          {isEdit ? "Sửa phiếu duyệt " : "Duyệt phiếu nháp "}
           <span style={{ color: "#2A2A86" }}>{item?.code}</span>
         </div>
       }
-      okText={isEdit ? "Lưu phiếu nháp" : "Duyệt phiếu nháp"}
+      okText={isEdit ? "Lưu phiếu duyệt" : "Duyệt phiếu nháp"}
     >
       {(onQuantityChange, onRemove, line_items) => {
         return (
