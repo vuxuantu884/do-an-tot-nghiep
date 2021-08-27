@@ -18,7 +18,7 @@ import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
-import Calculate from "assets/icon/caculate.svg";
+import Caculate from "assets/icon/caculate.svg";
 
 // @ts-ignore
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
@@ -48,23 +48,25 @@ type PaymentCardProps = {
 };
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
+  const { paymentMethod } = props;
+  const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
+    []
+  );
   const changePaymentMethod = (value: number) => {
+    console.log("change");
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
       handlePickPaymentMethod(PaymentMethodCode.CASH);
+    } else {
+      setPaymentData([]);
+      props.setPayments([]);
     }
-    console.log("valuePayment", value);
-    console.log("paymentData", paymentData);
   };
 
   const dispatch = useDispatch();
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
-
-  const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
-    []
-  );
 
   const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter(
@@ -181,7 +183,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
             </Space>
           </Radio.Group>
           {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+            props.shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <div className="order-cod-payment-footer">
                 <span>
                   Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
@@ -190,7 +192,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
               </div>
             )}
           {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.DELIVERLATER && (
+            props.shipmentMethod === ShipmentMethodOption.DELIVER_LATER && (
               <div className="order-cod-payment-footer">
                 <span>
                   Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
@@ -199,12 +201,12 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
               </div>
             )}
           {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+            props.shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
               <div className="order-cod-payment-footer" style={{ height: 83 }}>
                 <div>
                   <div>
                     <div>
-                      <img src={Calculate} alt=""></img>
+                      <img src={Caculate} alt=""></img>
                     </div>
                   </div>
                 </div>

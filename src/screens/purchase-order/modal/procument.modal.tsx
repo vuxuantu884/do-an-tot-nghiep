@@ -21,8 +21,10 @@ type ProcumentModalProps = {
   stores: Array<StoreResponse>;
   onCancle: () => void;
   items: Array<PurchaseOrderLineItem>;
+  item: PurchaseProcument | null;
   defaultStore: number;
   onOk: (value: PurchaseProcument) => void;
+  onDelete: (value: PurchaseProcument) => void;
   loading: boolean;
   isEdit: boolean;
 };
@@ -36,8 +38,10 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
     stores,
     onCancle,
     items,
+    item,
     defaultStore,
     onOk,
+    onDelete,
     loading,
     isEdit,
   } = props;
@@ -45,6 +49,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
     <ProcumentCommonModal
       type="draft"
       items={items}
+      item={item}
       onCancle={onCancle}
       now={now}
       stores={stores}
@@ -52,9 +57,10 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
       visible={visible}
       cancelText="Hủy"
       onOk={onOk}
+      onDelete={onDelete}
       loading={loading}
-      title={"Tạo phiếu nháp"}
-      okText={"Tạo phiếu nháp"}
+      title={isEdit ? "Sửa phiếu nháp" : "Tạo phiếu nháp"}
+      okText={isEdit ? "Lưu phiếu nháp" : "Tạo phiếu nháp"}
       isEdit={isEdit}
     >
       {(onQuantityChange, onRemove, line_items) => {

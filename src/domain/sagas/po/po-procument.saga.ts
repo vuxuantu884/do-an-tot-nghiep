@@ -1,5 +1,9 @@
-import { updatePurchaseProcumentService, updateStatusPO } from 'service/purchase-order/purchase-procument.service';
-import { createPurchaseProcumentService } from 'service/purchase-order/purchase-procument.service';
+import {
+  updatePurchaseProcumentService,
+  updateStatusPO,
+  deletePurchaseProcumentService,
+} from "service/purchase-order/purchase-procument.service";
+import { createPurchaseProcumentService } from "service/purchase-order/purchase-procument.service";
 import { YodyAction } from "base/BaseAction";
 import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
@@ -7,7 +11,7 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { showError } from "utils/ToastUtils";
 import { POProcumentType } from "domain/types/purchase-order.type";
-import { PurchaseProcument } from 'model/purchase-order/purchase-procument';
+import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 
 function* poProcumentCreateSaga(action: YodyAction) {
   const { poId, request, createCallback } = action.payload;
@@ -72,7 +76,7 @@ function* poProcumentFinishSaga(action: YodyAction) {
     let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
       updateStatusPO,
       poId,
-      status,
+      status
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -93,10 +97,49 @@ function* poProcumentFinishSaga(action: YodyAction) {
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
-
+function* poProcumentDeleteSaga(action: YodyAction) {
+  const { poId, procumentId, deleteCallback } = action.payload;
+  try {
+    let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
+      deletePurchaseProcumentService,
+      poId,
+      procumentId
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response.data);
+        deleteCallback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        deleteCallback(null);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        deleteCallback(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    deleteCallback(null);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
 
 export function* poProcumentSaga() {
-  yield takeLatest(POProcumentType.CREATE_PO_PROCUMENT_REQUEST, poProcumentCreateSaga);
-  yield takeLatest(POProcumentType.UPDATE_PO_PROCUMENT_REQUEST, poProcumentUpdateSaga);
-  yield takeLatest(POProcumentType.FINNISH_PO_PROCUMENT_REQUEST , poProcumentFinishSaga)
+  yield takeLatest(
+    POProcumentType.CREATE_PO_PROCUMENT_REQUEST,
+    poProcumentCreateSaga
+  );
+  yield takeLatest(
+    POProcumentType.UPDATE_PO_PROCUMENT_REQUEST,
+    poProcumentUpdateSaga
+  );
+  yield takeLatest(
+    POProcumentType.FINNISH_PO_PROCUMENT_REQUEST,
+    poProcumentFinishSaga
+  );
+  yield takeLatest(
+    POProcumentType.DELETE_PO_PROCUMENT_REQUEST,
+    poProcumentDeleteSaga
+  );
 }

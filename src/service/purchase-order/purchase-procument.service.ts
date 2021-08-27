@@ -24,11 +24,20 @@ export const updatePurchaseProcumentService = (
     data
   );
 };
+export const deletePurchaseProcumentService = (
+  poId: number,
+  procumentId: number
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.delete(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/${procumentId}`
+  );
+};
 
 export const updateStatusPO = (
   poId: number,
-  status: string,
+  status: string
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.put(
-    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/receive-status/${status}`);
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/receive-status/${status}`
+  );
 };
