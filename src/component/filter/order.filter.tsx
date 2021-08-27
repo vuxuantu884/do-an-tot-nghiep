@@ -30,6 +30,7 @@ import { OrderSearchQuery } from "model/order/order.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { remove } from "lodash";
+import moment from "moment";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
@@ -96,6 +97,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const formRef = createRef<FormInstance>();
   const onFinish = useCallback(
     (values) => {
+      console.log('values', values);
+      
       values = {
         ...values,
         // mapping and format date 
@@ -137,41 +140,79 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     return listSource.filter((item) => item.code !== "pos");
   }, [listSource]);
   const initialValues = useMemo(() => {
+    console.log('initialValues', params);
+    
     return {
       ...params,
-      issued: [params.issued_on_min ? params.issued_on_min : null, params.issued_on_max ? params.issued_on_max : null],
-      ship: [params.ship_on_min ? params.ship_on_min : null, params.ship_on_max ? params.ship_on_max : null],
-      completed: [params.completed_on_min ? params.completed_on_min : null, params.completed_on_max ? params.completed_on_max : null],
-      cancelled: [params.cancelled_on_min ? params.cancelled_on_min : null, params.cancelled_on_max ? params.cancelled_on_max : null],
+      store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
+      source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
+      order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
+      fulfillment_status: Array.isArray(params.fulfillment_status) ? params.fulfillment_status : [params.fulfillment_status],
+      payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
+      return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
+      payment_method_ids: Array.isArray(params.payment_method_ids) ? params.payment_method_ids : [params.payment_method_ids],
+      tags: Array.isArray(params.tags) ? params.tags : [params.tags],
+      issued: params.issued_on_min && params.issued_on_max ? [moment(params.issued_on_min, 'DD/MM/YYYY'), moment(params.issued_on_max, 'DD/MM/YYYY')] : null,
+      ship: params.ship_on_min && params.ship_on_max ? [moment(params.ship_on_min, 'DD/MM/YYYY'), moment(params.ship_on_max, 'DD/MM/YYYY')] : null,
+      completed: params.completed_on_min && params.completed_on_max ? [moment(params.completed_on_min, 'DD/MM/YYYY'), moment(params.completed_on_max, 'DD/MM/YYYY')] : null,
+      cancelled: params.cancelled_on_min && params.cancelled_on_max ? [moment(params.cancelled_on_min, 'DD/MM/YYYY'), moment(params.cancelled_on_max, 'DD/MM/YYYY')] : null,
     }
   }, [params]);
 
   const filters = useMemo(() => {
     let list: any = []
-    if (params.store_ids) {
+    if (initialValues.store_ids.length) {
       let textStores = ""
-      params.store_ids.forEach(store_id => {
+      initialValues.store_ids.forEach(store_id => {
         const store = listStore?.find(store => store.id === store_id)
-        textStores = store ? textStores + "; " + store.name : textStores
+        textStores = store ? textStores + store.name + ";" : textStores
       })
       list.push({
         name: 'Cửa hàng',
         value: textStores
       })
     }
-    if (params.source_ids) {
+    if (initialValues.source_ids.length) {
       let textSource = ""
-      params.source_ids.forEach(source_id => {
+      initialValues.source_ids.forEach(source_id => {
         const source = listSources?.find(source => source.id === source_id)
-        textSource = source ? textSource + "; " + source.name : textSource
+        textSource = source ? textSource + source.name + ";" : textSource
       })
       list.push({
         name: 'Nguồn',
         value: textSource
       })
     }
+    if (initialValues.issued_on_min || initialValues.issued_on_max) {
+      let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
+      list.push({
+        name: 'Ngày tạo đơn',
+        value: textOrderCreateDate
+      })
+    }
+    if (initialValues.ship_on_min || initialValues.ship_on_max) {
+      let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
+      list.push({
+        name: 'Ngày duyệt đơn',
+        value: textOrderShipDate
+      })
+    }
+    if (initialValues.completed_on_min || initialValues.completed_on_max) {
+      let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
+      list.push({
+        name: 'Ngày hoàn tất đơn',
+        value: textOrderCompleteDate
+      })
+    }
+    if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
+      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
+      list.push({
+        name: 'Ngày huỷ đơn',
+        value: textOrderCancelDate
+      })
+    }
     return list
-  }, [params]);
+  }, [initialValues]);
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -275,7 +316,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         }}
                       >
                         {listStore?.map((item) => (
-                          <CustomSelect.Option key={item.id} value={item.id}>
+                          <CustomSelect.Option key={item.id} value={item.id.toString()}>
                             {item.name}
                           </CustomSelect.Option>
                         ))}
@@ -307,13 +348,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                           }
                           return false;
                         }}
-                        
                       >
                         {listSources.map((item, index) => (
                           <CustomSelect.Option
                             style={{ width: "100%" }}
                             key={index.toString()}
-                            value={item.id}
+                            value={item.id.toString()}
                           >
                             {item.name}
                           </CustomSelect.Option>
@@ -433,7 +473,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     <Item name="order_status">
                     <Select mode="multiple" showSearch placeholder="Chọn trạng thái đơn hàng" style={{width: '100%'}}>
                       {status?.map((item) => (
-                        <Option key={item.value} value={item.value}>
+                        <Option key={item.value} value={item.value.toString()}>
                           {item.name}
                         </Option>
                       ))}
@@ -454,7 +494,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                             <Option
                               style={{ width: "100%" }}
                               key={index.toString()}
-                              value={item.value}
+                              value={item.value.toString()}
                             >
                               {item.name}
                             </Option>
@@ -475,7 +515,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                           <Option
                             style={{ width: "100%" }}
                             key={index.toString()}
-                            value={item.value}
+                            value={item.value.toString()}
                           >
                             {item.name}
                           </Option>
@@ -496,7 +536,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                           <Option
                             style={{ width: "100%" }}
                             key={index.toString()}
-                            value={item.value}
+                            value={item.value.toString()}
                           >
                             {item.name}
                           </Option>
@@ -517,7 +557,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                             <Option
                               style={{ width: "100%" }}
                               key={index.toString()}
-                              value={item.code}
+                              value={item.code.toString()}
                             >
                               {`${item.full_name} - ${item.code}`}
                             </Option>
@@ -538,7 +578,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                           <Option
                             style={{ width: "100%" }}
                             key={index.toString()}
-                            value={item.code}
+                            value={item.code.toString()}
                           >
                             {`${item.full_name} - ${item.code}`}
                           </Option>
@@ -590,7 +630,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         <Option
                           style={{ width: "100%" }}
                           key={index.toString()}
-                          value={item.value}
+                          value={item.value.toString()}
                         >
                           {item.name}
                         </Option>
@@ -620,7 +660,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Select optionFilterProp="children" showSearch placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
                         <Option value="">Hình thức vận chuyển</Option>
                         {/* {listCountries?.map((item) => (
-                          <Option key={item.id} value={item.id}>
+                          <Option key={item.id} value={item.id.toString()}>
                             {item.name}
                           </Option>
                         ))} */}
@@ -679,13 +719,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           </Form>
         </BaseFilter>
       </div>
-      <div>
+      {/* <div>
         {filters.map((filter: any) => {
           return (
             <Tag>{filter.name}: {filter.value}</Tag>
           )
         })}
-      </div>
+      </div> */}
     </div>
   );
 };

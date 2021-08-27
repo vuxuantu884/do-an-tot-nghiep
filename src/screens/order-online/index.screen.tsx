@@ -23,6 +23,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { DeliveryServicesGetList, getListOrderAction } from "domain/actions/order/order.action";
 import './scss/index.screen.scss'
 import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 const actions: Array<MenuAction> = [
   {
@@ -369,12 +370,14 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Ngày hoàn tất đơn",
       dataIndex: "finalized_on",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "finalized_on",
       visible: true,
     },
     {
       title: "Ngày huỷ đơn",
       dataIndex: "cancelled_on",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "cancelled_on",
       visible: true,
     },
@@ -417,9 +420,20 @@ const ListOrderScreen: React.FC = () => {
   const onFilter = useCallback(
     (values) => {
       console.log('values', values)
-      let newPrams = { ...params, ...values, page: 1 };
+      let newPrams = {
+        ...params,
+        ...values,
+        page: 1,
+      };
+      
       setPrams(newPrams);
-      let queryParam = generateQuery(newPrams);
+      let queryParam = generateQuery({
+        ...newPrams,
+        issued: null,
+        ship: null,
+        completed: null,
+        cancelled: null
+      });
       console.log('filter start', `${UrlConfig.ORDER}/list?${queryParam}`)
       history.push(`${UrlConfig.ORDER}/list?${queryParam}`);
     },

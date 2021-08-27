@@ -225,7 +225,7 @@ export const generateQuery = (obj: any) => {
     let a: string = Object.keys(obj)
       .map((key, index) => {
         let url = "";
-        if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") {
+        if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "" && obj[key].length !== 0  ) {
           let value = obj[key];
           if (obj[key] instanceof Array) {
             value = obj[key].join(",");
