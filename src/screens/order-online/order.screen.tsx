@@ -19,7 +19,7 @@ import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { orderCreateAction } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderSettingsModel } from "model/other/order/order-model";
+import { OrderSettingsModel } from "model/other/Order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,

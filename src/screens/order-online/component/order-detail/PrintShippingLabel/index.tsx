@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import { OrderSettingsModel } from "model/other/order/order-model";
+import { OrderSettingsModel } from "model/other/Order/order-model";
 import { FulFillmentResponse } from "model/response/order/order.response";
 import React, { useRef } from "react";
 import { useReactToPrint } from "react-to-print";

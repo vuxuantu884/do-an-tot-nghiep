@@ -59,7 +59,7 @@ import { Type } from "config/TypeConfig";
 import {
   OrderItemDiscountModel,
   OrderSettingsModel,
-} from "model/other/order/order-model";
+} from "model/other/Order/order-model";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
