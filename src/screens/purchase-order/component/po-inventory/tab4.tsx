@@ -1,12 +1,15 @@
 import { Button, Form, Table, Typography } from "antd";
 import { POField } from "model/purchase-order/po-field";
-import { POProcumentField, PurchaseProcument } from "model/purchase-order/purchase-procument";
+import {
+  POProcumentField,
+  PurchaseProcument,
+} from "model/purchase-order/purchase-procument";
 import { ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 
 type TabDraftProps = {
-  confirmDraft: (item: PurchaseProcument) => void;
+  confirmDraft: (item: PurchaseProcument, isEdit: boolean) => void;
 };
 const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
   const { confirmDraft } = props;
@@ -53,11 +56,18 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                 ),
                 dataIndex: "code",
                 render: (value, item, index) => (
-                  <Typography.Link
-                    style={{ color: "#5D5D8A", textDecoration: "underline" }}
+                  <Button
+                    type="link"
+                    onClick={() => {
+                      confirmDraft(item, true);
+                    }}
                   >
-                    {value}
-                  </Typography.Link>
+                    <div
+                      style={{ color: "#5D5D8A", textDecoration: "underline" }}
+                    >
+                      {value}
+                    </div>
+                  </Button>
                 ),
               },
               {
@@ -86,7 +96,10 @@ const TabDraft: React.FC<TabDraftProps> = (props: TabDraftProps) => {
                 width: 200,
                 render: (value, item, index: number) => (
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button onClick={() => confirmDraft(item)} type="primary">
+                    <Button
+                      onClick={() => confirmDraft(item, false)}
+                      type="primary"
+                    >
                       Duyệt phiếu
                     </Button>
                   </div>

@@ -16,6 +16,7 @@ import ProcumentCommonModal from "./procument.common.modal";
 
 type ProcumentConfirmProps = {
   visible: boolean;
+  isEdit: boolean;
   now: Moment;
   stores: Array<StoreResponse>;
   onCancel: () => void;
@@ -39,10 +40,12 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
     onOk,
     loading,
     items,
+    isEdit,
   } = props;
   return (
     <ProcumentCommonModal
       type="confirm"
+      isEdit={isEdit}
       item={item}
       items={items}
       onCancle={onCancel}
@@ -55,11 +58,11 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
       loading={loading}
       title={
         <div>
-          Duyệt phiếu nháp{" "}
+          {isEdit ? "Sửa phiếu nháp " : "Duyệt phiếu nháp "}
           <span style={{ color: "#2A2A86" }}>{item?.code}</span>
         </div>
       }
-      okText="Duyệt phiếu nháp"
+      okText={isEdit ? "Lưu phiếu nháp" : "Duyệt phiếu nháp"}
     >
       {(onQuantityChange, onRemove, line_items) => {
         return (
