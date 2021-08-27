@@ -295,7 +295,7 @@ export default function Order() {
       office_time: officeTime,
     };
 
-    if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
+    if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER) {
       objShipment.delivery_service_provider_id = hvc;
       objShipment.delivery_service_provider_type = "external_service";
       objShipment.sender_address_id = storeId;
@@ -310,7 +310,7 @@ export default function Order() {
       return objShipment;
     }
 
-    if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
+    if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
       objShipment.delivery_service_provider_type = "Shipper";
       objShipment.shipper_code = value.shipper_code;
       objShipment.shipping_fee_informed_to_customer =
@@ -453,7 +453,7 @@ export default function Order() {
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
-        if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
+        if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
@@ -461,7 +461,7 @@ export default function Order() {
           }
         } else {
           if (
-            shipmentMethod === ShipmentMethodOption.DELIVERPARNER &&
+            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
             !serviceType
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
@@ -569,7 +569,7 @@ export default function Order() {
       chonCuaHangTruocMoiChonSanPham: true,
       cauHinhInNhieuLienHoaDon: 3,
     });
-  }, [scroll]);
+  }, []);
 
   return (
     <ContentContainer
@@ -660,6 +660,8 @@ export default function Order() {
                 setServiceType={setServiceType}
                 setHVC={setHvc}
                 setFeeGhtk={setFeeGhtk}
+                payments={payments}
+                onPayments={onPayments}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}

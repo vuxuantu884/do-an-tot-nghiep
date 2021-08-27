@@ -25,6 +25,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   GHNFeeRequest,
   OrderLineItemRequest,
+  OrderPaymentRequest,
   ShippingGHTKRequest,
   VTPFeeRequest,
 } from "model/request/order.request";
@@ -67,12 +68,13 @@ type ShipmentCardProps = {
   officeTime: boolean | undefined;
   setFeeGhtk: (value: number) => void;
   OrderDetail?: OrderResponse | null;
+  payments?: OrderPaymentRequest[];
+  onPayments: (value: Array<OrderPaymentRequest>) => void;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
   props: ShipmentCardProps
 ) => {
-  console.log("propsShipment", props);
   const {
     OrderDetail,
     paymentMethod,
@@ -91,6 +93,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     officeTime,
     setOfficeTime,
     shipmentMethod,
+    payments,
+    onPayments,
   } = props;
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
@@ -105,17 +109,21 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     setPaymentMethod(value);
     setShipmentMethodProps(value);
     if (paymentMethod !== PaymentMethodOption.PREPAYMENT) {
-      if (value === ShipmentMethodOption.SELFDELIVER) {
+      if (value === ShipmentMethodOption.SELF_DELIVER) {
         setPaymentMethod(PaymentMethodOption.COD);
       }
     }
 
-    if (value === ShipmentMethodOption.DELIVERPARNER) {
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       console.log("start request fees");
       getInfoDeliveryGHTK();
       getInfoDeliveryGHN();
       getInfoDeliveryVTP();
-      setPaymentMethod(PaymentMethodOption.COD);
+      // setPaymentMethod(PaymentMethodOption.COD);
+    }
+    if (value !== ShipmentMethodOption.DELIVER_PARTNER) {
+      console.log("222333");
+      onPayments([]);
     }
   };
 
@@ -272,6 +280,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       coupon: null,
       cod: amount,
     };
+    console.log("customerInfo", customerInfo);
+    console.log("request", request);
 
     if (
       request.sender_country_id &&
@@ -331,7 +341,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       icon: IconSelfDelivery,
     },
     {
-      name: "Nhận tại cửa hàng 1",
+      name: "Nhận tại cửa hàng",
       value: 3,
       icon: IconShoppingBag,
     },
@@ -341,6 +351,39 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       icon: IconWallClock,
     },
   ];
+
+  const renderShipmentTabHeader = () => {
+    return (
+      <React.Fragment>
+        {shipmentButton.map((button) => (
+          <div key={button.value}>
+            {shipmentMethod !== button.value ? (
+              <div
+                className="saleorder_shipment_button"
+                key={button.value}
+                onClick={() => ShipMethodOnChange(button.value)}
+              >
+                <img src={button.icon} alt="icon"></img>
+                <span>{button.name}</span>
+              </div>
+            ) : (
+              <div
+                className={
+                  shipmentMethod === ShipmentMethodOption.DELIVER_LATER
+                    ? "saleorder_shipment_button saleorder_shipment_button_border"
+                    : "saleorder_shipment_button_active"
+                }
+                key={button.value}
+              >
+                <img src={button.icon} alt="icon"></img>
+                <span>{button.name}</span>
+              </div>
+            )}
+          </div>
+        ))}
+      </React.Fragment>
+    );
+  };
 
   return (
     <StyledComponent>
@@ -419,43 +462,16 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             <div
               className="saleorder_shipment_method_btn"
               style={
-                shipmentMethod === ShipmentMethodOption.DELIVERLATER
+                shipmentMethod === ShipmentMethodOption.DELIVER_LATER
                   ? { border: "none" }
                   : { borderBottom: "1px solid #2A2A86" }
               }
             >
-              <Space size={10}>
-                {shipmentButton.map((button) => (
-                  <div key={button.value}>
-                    {shipmentMethod !== button.value ? (
-                      <div
-                        className="saleorder_shipment_button"
-                        key={button.value}
-                        onClick={() => ShipMethodOnChange(button.value)}
-                      >
-                        <img src={button.icon} alt="icon"></img>
-                        <span>{button.name}</span>
-                      </div>
-                    ) : (
-                      <div
-                        className={
-                          shipmentMethod === ShipmentMethodOption.DELIVERLATER
-                            ? "saleorder_shipment_button saleorder_shipment_button_border"
-                            : "saleorder_shipment_button_active"
-                        }
-                        key={button.value}
-                      >
-                        <img src={button.icon} alt="icon"></img>
-                        <span>{button.name}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </Space>
+              <Space size={10}>{renderShipmentTabHeader()}</Space>
             </div>
           </Row>
           {/*--- Chuyển hãng vận chuyển ----*/}
-          {shipmentMethodState === ShipmentMethodOption.DELIVERPARNER && (
+          {shipmentMethodState === ShipmentMethodOption.DELIVER_PARTNER && (
             <ShipmentMethodDeliverPartner
               amount={amount}
               changeServiceType={changeServiceType}
@@ -467,10 +483,11 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
               shippingFeeCustomer={shippingFeeCustomer}
               OrderDetail={OrderDetail}
+              payments={payments}
             />
           )}
 
-          {shipmentMethodState === ShipmentMethodOption.SELFDELIVER && (
+          {shipmentMethodState === ShipmentMethodOption.SELF_DELIVER && (
             <ShipmentMethodSelfDelivery
               amount={amount}
               discountValue={discountValue}
@@ -482,7 +499,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           )}
 
           {/*--- Nhận tại cửa hàng ----*/}
-          {shipmentMethodState === ShipmentMethodOption.PICKATSTORE && (
+          {shipmentMethodState === ShipmentMethodOption.PICK_AT_STORE && (
             <ShipmentMethodReceiveAtHome storeDetail={storeDetail} />
           )}
         </div>

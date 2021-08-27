@@ -48,10 +48,12 @@ type PaymentCardProps = {
 };
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
+  const { paymentMethod } = props;
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
   const changePaymentMethod = (value: number) => {
+    console.log("change");
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
       handlePickPaymentMethod(PaymentMethodCode.CASH);
@@ -129,7 +131,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     props.setPayments([...paymentData]);
   };
 
-  const caculateMax = (totalAmount: number, index: number) => {
+  const calculateMax = (totalAmount: number, index: number) => {
     let total = totalAmount;
     for (let i = 0; i < index; i++) {
       if (paymentData[i].code === PaymentMethodCode.POINT) {
@@ -181,7 +183,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
             </Space>
           </Radio.Group>
           {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+            props.shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <div className="order-cod-payment-footer">
                 <span>
                   Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
@@ -190,7 +192,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
               </div>
             )}
           {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.DELIVERLATER && (
+            props.shipmentMethod === ShipmentMethodOption.DELIVER_LATER && (
               <div className="order-cod-payment-footer">
                 <span>
                   Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
@@ -199,7 +201,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
               </div>
             )}
           {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+            props.shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
               <div className="order-cod-payment-footer" style={{ height: 83 }}>
                 <div>
                   <div>
@@ -396,7 +398,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                     }
                                     min={0}
                                     max={
-                                      caculateMax(props.amount, index) / 1000
+                                      calculateMax(props.amount, index) / 1000
                                     }
                                     onChange={(value) => {
                                       handleInputPoint(index, value);
@@ -436,7 +438,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                               <InputNumber
                                 size="middle"
                                 min={0}
-                                max={caculateMax(props.amount, index)}
+                                max={calculateMax(props.amount, index)}
                                 value={method.amount}
                                 disabled={
                                   method.code === PaymentMethodCode.POINT

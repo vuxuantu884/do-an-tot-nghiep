@@ -39,6 +39,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     infoVTP,
     changeServiceType,
   } = props;
+  console.log("props", props);
   const totalAmountPaid = () => {
     let total = 0;
     if (payments) {
@@ -51,7 +52,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
       <div className="shipmentMethod__deliverPartner">
         <Row gutter={20}>
           <Col md={12}>
-            <Form.Item label="Tiền thu hộ: 4">
+            <Form.Item label="Tiền thu hộ:">
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
