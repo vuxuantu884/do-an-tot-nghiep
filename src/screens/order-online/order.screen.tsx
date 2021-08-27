@@ -16,7 +16,10 @@ import CreateBillStep from "component/header/create-bill-step";
 import UrlConfig from "config/UrlConfig";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { orderCreateAction } from "domain/actions/order/order.action";
+import {
+  orderCreateAction,
+  OrderDetailAction,
+} from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/Order/order-model";
@@ -37,7 +40,13 @@ import {
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { createRef, useCallback, useEffect, useState } from "react";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import {
@@ -97,12 +106,30 @@ export default function Order() {
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
+  const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer
+  );
   const query = useQuery();
 
-  const queryParams = {
-    action: query.get("action") || null,
-    cloneId: query.get("cloneId") || null,
-  };
+  // const queryParams = {
+  //   action: query.get("action") || null,
+  //   cloneId: query.get("cloneId") || null,
+  // };
+  const queryAction = query.get("action");
+  const queryCloneId = query.get("cloneId");
+  const queryParams = useMemo(() => {
+    let result = {
+      action: "",
+      cloneId: "",
+    };
+    if (queryAction && queryCloneId) {
+      result = {
+        action: queryAction,
+        cloneId: queryCloneId,
+      };
+    }
+    return result;
+  }, [queryAction, queryCloneId]);
 
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
@@ -135,9 +162,6 @@ export default function Order() {
   };
   //#endregion
   //#region Product
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
@@ -206,17 +230,22 @@ export default function Order() {
     payments: [],
   };
 
+  const [formValueFromActionClone, setFormValueFormActionClone] =
+    useState<OrderRequest>(initialRequest);
+
   //#region Order
   // let initialForm: OrderRequest = {
   //   ...initialRequest,
   //   shipping_address: shippingAddress,
   //   billing_address: billingAddress,
   // };
-  const [initialForm, setInitialForm] = useState<OrderRequest>({
-    ...initialRequest,
-    shipping_address: shippingAddress,
-    billing_address: billingAddress,
-  });
+  const initialForm = queryParams?.action
+    ? formValueFromActionClone
+    : {
+        ...initialRequest,
+        shipping_address: shippingAddress,
+        billing_address: billingAddress,
+      };
 
   const onChangeTag = useCallback(
     (value: []) => {
@@ -516,50 +545,57 @@ export default function Order() {
   useEffect(() => {
     if (queryParams) {
       if (queryParams.cloneId) {
-        // dispatch(
-        //   OrderDetailAction(+queryParams.cloneId, (response) => {
-        //     console.log("response", response);
-        //     setInitialForm({
-        //       account_code: "YD11122",
-        //       action: "",
-        //       assignee_code: null,
-        //       billing_address: null,
-        //       currency: "VNĐ",
-        //       customer_id: null,
-        //       customer_note: response.customer_note,
-        //       // dating_ship: "",
-        //       delivery_fee: null,
-        //       delivery_service_provider_id: null,
-        //       discounts: [],
-        //       fulfillments: [],
-        //       items: [],
-        //       note: "",
-        //       payments: [],
-        //       price_type: "retail_price",
-        //       reference_code: "",
-        //       requirements: null,
-        //       shipper_code: null,
-        //       shipper_name: "",
-        //       shipping_address: null,
-        //       shipping_fee_informed_to_customer: null,
-        //       shipping_fee_paid_to_three_pls: null,
-        //       source_id: null,
-        //       store_id: null,
-        //       tags: "",
-        //       tax_treatment: "inclusive",
-        //       total: null,
-        //       total_discount: null,
-        //       total_line_amount_after_line_discount: null,
-        //       total_tax: "",
-        //       url: "",
-        //     });
-        //   })
-        // );
+        dispatch(
+          OrderDetailAction(+queryParams.cloneId, (response) => {
+            console.log("response", response);
+            setFormValueFormActionClone({
+              ...initialRequest,
+              account_code: "YD11122",
+              action: "",
+              assignee_code: response.assignee_code,
+              billing_address: null,
+              currency: "VNĐ",
+              customer_id: response.customer_id,
+              customer_note: response.customer_note,
+              // dating_ship: "",
+              delivery_fee: null,
+              delivery_service_provider_id: null,
+              discounts: [],
+              fulfillments: [],
+              items: [],
+              note: "",
+              payments: [],
+              price_type: "retail_price",
+              reference_code: "",
+              requirements: null,
+              shipper_code: null,
+              shipper_name: "",
+              shipping_address: null,
+              shipping_fee_informed_to_customer: null,
+              shipping_fee_paid_to_three_pls: null,
+              source_id: response.source_id,
+              store_id: null,
+              tags: "",
+              tax_treatment: "inclusive",
+              total: null,
+              total_discount: null,
+              total_line_amount_after_line_discount: null,
+              total_tax: "",
+              url: "",
+            });
+          })
+        );
         console.log("queryParams", queryParams);
         console.log("initialForm", initialForm);
       }
     }
-  }, [dispatch]);
+  }, [dispatch, queryParams]);
+
+  useEffect(() => {
+    if (formRef.current) {
+      formRef.current.resetFields();
+    }
+  }, [formRef, formValueFromActionClone]);
 
   /**
    * orderSettings
