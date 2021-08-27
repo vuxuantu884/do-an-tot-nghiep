@@ -28,6 +28,7 @@ import { POField } from "model/purchase-order/po-field";
 
 type ProcumentModalProps = {
   type: "draft" | "confirm" | "inventory";
+  isEdit: boolean;
   visible: boolean;
   now: Moment;
   stores: Array<StoreResponse>;
@@ -62,6 +63,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     loading,
     item,
     type,
+    isEdit,
   } = props;
   const [form] = Form.useForm();
   const [data, setData] = useState<Array<PurchaseProcumentLineItem>>([]);
@@ -154,12 +156,15 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     [form]
   );
 
-  const onRemove = (index: number) => {
-    let procurement_items: Array<PurchaseProcumentLineItem> =
-      form.getFieldValue(POProcumentField.procurement_items);
-    procurement_items.splice(index, 1);
-    form.setFieldsValue({ procurement_items: [...procurement_items] });
-  };
+  const onRemove = useCallback(
+    (index: number) => {
+      let procurement_items: Array<PurchaseProcumentLineItem> =
+        form.getFieldValue(POProcumentField.procurement_items);
+      procurement_items.splice(index, 1);
+      form.setFieldsValue({ procurement_items: [...procurement_items] });
+    },
+    [form]
+  );
 
   const fillAll = (checked: boolean) => {
     if (checked) {
@@ -194,7 +199,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       form.setFieldsValue(JSON.parse(JSON.stringify(item)));
     } else {
       form.setFieldsValue({
-        procurement_items: allProcurementItems,
+        procurement_items: [...allProcurementItems],
       });
     }
   }, [form, item, allProcurementItems]);
@@ -207,9 +212,13 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       cancelText={cancelText}
       onOk={() => {
         if (type === "confirm") {
-          form.setFieldsValue({ status: ProcumentStatus.NOT_RECEIVED });
+          if (!isEdit) {
+            form.setFieldsValue({ status: ProcumentStatus.NOT_RECEIVED });
+          }
         } else if (type === "inventory") {
-          form.setFieldsValue({ status: ProcumentStatus.RECEIVED });
+          if (!isEdit) {
+            form.setFieldsValue({ status: ProcumentStatus.RECEIVED });
+          }
         }
         form.submit();
       }}
@@ -344,6 +353,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
             <CustomAutoComplete
               id="#product_procument_search"
               dropdownClassName="product"
+              textEmpty="Sản phẩm tìm kiếm không có trong đơn mua hàng, xin vui lòng chọn sản phẩm khác"
               placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
               onSearch={onSearch}
               dropdownMatchSelectWidth={456}
@@ -369,7 +379,9 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
               return (
                 <Checkbox
                   checked={checked}
-                  onChange={(e) => fillAll(e.target.checked)}
+                  onChange={(e) => {
+                    fillAll(e.target.checked);
+                  }}
                 >
                   Chọn tất cả sản phẩm
                 </Checkbox>
