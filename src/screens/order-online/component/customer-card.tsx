@@ -23,11 +23,11 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import bithdayIcon from "assets/img/bithday.svg";
+import birthdayIcon from "assets/img/bithday.svg";
 import addIcon from "assets/img/plus_1.svg";
 import pointIcon from "assets/img/point.svg";
 import callIcon from "assets/img/call.svg";
-import imgdefault from "assets/icon/img-default.svg";
+import imgDefault from "assets/icon/img-default.svg";
 import editBlueIcon from "assets/img/edit_icon.svg";
 import addressIcon from "assets/img/user-pin.svg";
 import noteCustomer from "assets/img/note-customer.svg";
@@ -49,29 +49,30 @@ import { CustomerSearch } from "domain/actions/customer/customer.action";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
-//#endregion
+//#end region
 
 type CustomerCardProps = {
   InfoCustomerSet: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
+  customerParent?: CustomerResponse | null;
 };
 
 //Add query for search Customer
 const initQueryCustomer: CustomerSearchQuery = {
-    request: "",
-    limit: 10,
-    page: 1,
-    gender: null,
-    from_birthday:  null,
-    to_birthday: null,
-    company: null,
-    from_wedding_date: null,
-    to_wedding_date: null,
-    customer_type_id: null,
-    customer_group_id: null,
-    customer_level_id: null,
-    responsible_staff_code: null
+  request: "",
+  limit: 10,
+  page: 1,
+  gender: null,
+  from_birthday: null,
+  to_birthday: null,
+  company: null,
+  from_wedding_date: null,
+  to_wedding_date: null,
+  customer_type_id: null,
+  customer_group_id: null,
+  customer_level_id: null,
+  responsible_staff_code: null,
 };
 
 const CustomerCard: React.FC<CustomerCardProps> = (
@@ -82,7 +83,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
-  const [keysearchCustomer, setKeySearchCustomer] = useState("");
+  const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -91,12 +92,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
 
+  if (props.customerParent) {
+    setCustomer(props.customerParent);
+  }
+
+  console.log("customer", customer);
   //#region Modal
   const ShowAddressModal = () => {
     setVisibleAddress(true);
   };
 
-  const CancleConfirmAddress = useCallback(() => {
+  const CancelConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
 
@@ -108,7 +114,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleCustomer(true);
   };
 
-  const CancleConfirmCustomer = useCallback(() => {
+  const CancelConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
 
@@ -119,12 +125,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const ShowBillingAddress = () => {
     setVisibleBilling(!isVisibleBilling);
   };
-  //#endregion
+  //#end region
 
   //#region Search and Render result
   //Search and render customer by name, phone, code
   const CustomerChangeSearch = useCallback(
     (value) => {
+      console.log("value", value);
       setKeySearchCustomer(value);
       initQueryCustomer.request = value;
       dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
@@ -138,9 +145,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       <div className="row-search w-100">
         <div className="rs-left w-100" style={{ lineHeight: "35px" }}>
           <img
-            src={imgdefault}
+            src={imgDefault}
             alt="anh"
-            placeholder={imgdefault}
+            placeholder={imgDefault}
             className="logo-customer"
           />
           <div className="rs-info w-100">
@@ -179,7 +186,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     props.InfoCustomerSet(null);
   };
 
-  //#endregion
+  //#end region
 
   const SearchCustomerSelect = useCallback(
     (value, o) => {
@@ -223,8 +230,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
-  }, [dispatch, props]);
-
+  }, [dispatch]);
 
   return (
     <Card
@@ -270,12 +276,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 }
                 return false;
               }}
-              // suffix={
-              //   <Button
-              //     style={{ width: 36, height: 36 }}
-              //     icon={<PlusOutlined />}
-              //   />
-              // }
             >
               {listSources.map((item, index) => (
                 <CustomSelect.Option
@@ -296,12 +296,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           <div>
             <AutoComplete
               notFoundContent={
-                keysearchCustomer.length >= 3
+                keySearchCustomer.length >= 3
                   ? "Không tìm thấy khách hàng"
                   : undefined
               }
               id="search_customer"
-              value={keysearchCustomer}
+              value={keySearchCustomer}
               ref={autoCompleteRef}
               onSelect={SearchCustomerSelect}
               dropdownClassName="search-layout-customer dropdown-search-header"
@@ -336,16 +336,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             >
               <Input
                 placeholder="Tìm hoặc thêm khách hàng... (F4)"
-                // enterButton={
-                //   <Button
-                //     style={{ width: 40, height: 36 }}
-                //     icon={<PlusOutlined />}
-                //   ></Button>
-                // }
                 prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
               />
             </AutoComplete>
-            {/* <Divider className="margin-0" /> */}
           </div>
         </div>
       )}
@@ -400,7 +393,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               <Space className="customer-detail-birthday">
                 <span className="customer-detail-icon">
                   <img
-                    src={bithdayIcon}
+                    src={birthdayIcon}
                     alt=""
                     className="icon-customer-info"
                   />
@@ -704,12 +697,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
       <AddAddressModal
         visible={isVisibleAddress}
-        onCancel={CancleConfirmAddress}
+        onCancel={CancelConfirmAddress}
         onOk={OkConfirmAddress}
       />
       <EditCustomerModal
         visible={isVisibleCustomer}
-        onCancel={CancleConfirmCustomer}
+        onCancel={CancelConfirmCustomer}
         onOk={OkConfirmCustomer}
       />
     </Card>

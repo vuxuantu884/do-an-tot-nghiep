@@ -121,6 +121,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
+  const [isShowProductSearch, setIsShowProductSearch] = useState(false);
+  const [isInputSearchProductFocus, setIsInputSearchProductFocus] =
+    useState(false);
   //Function
   useEffect(() => {
     let _itemGifts: any = [];
@@ -651,8 +654,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
       if (value) {
         formRef.current?.validateFields(["store_id"]);
-      } else {
-        formRef.current?.resetFields(["store_id"]);
       }
     }
     setKeySearchVariant(value);
@@ -742,6 +743,15 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));
   }, [dispatch]);
+
+  const onInputSearchProductFocus = () => {
+    setIsInputSearchProductFocus(true);
+  };
+
+  const onInputSearchProductBlur = () => {
+    setIsInputSearchProductFocus(false);
+  };
+
   return (
     <Card
       className="margin-top-20"
@@ -793,10 +803,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               <Select
                 className="select-with-search"
                 showSearch
+                // allowClear
                 style={{ width: "100%" }}
                 placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
-                onChange={props.selectStore}
+                onChange={(value?: number) => {
+                  if (value) {
+                    props.selectStore(value);
+                    setIsShowProductSearch(true);
+                  } else {
+                    setIsShowProductSearch(false);
+                  }
+                }}
                 filterOption={(input, option) => {
                   if (option) {
                     return (
@@ -834,6 +852,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 onSearch={onChangeProductSearch}
                 options={convertResultSearchVariant}
                 maxLength={255}
+                open={isShowProductSearch && isInputSearchProductFocus}
+                onFocus={onInputSearchProductFocus}
+                onBlur={onInputSearchProductBlur}
                 dropdownRender={(menu) => (
                   <div>
                     <div
