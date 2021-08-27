@@ -264,7 +264,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               style={{ width: 300, borderRadius: "6px" }}
               showArrow
               showSearch
-              placeholder="Nguồn đơn hàng 1"
+              placeholder="Nguồn đơn hàng"
               notFoundContent="Không tìm thấy kết quả"
               filterOption={(input, option) => {
                 if (option) {
