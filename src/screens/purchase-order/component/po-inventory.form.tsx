@@ -47,6 +47,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const [procumentInventory, setProcumentInventory] =
     useState<PurchaseProcument | null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
+  const [isEdit, setIsEdit] = useState(false);
   const { stores, status, now, idNumber, onAddProcumentSuccess, code } = props;
   const onAddProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
@@ -218,11 +219,13 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             onSuccess={() => {
               onAddProcumentSuccess && onAddProcumentSuccess();
             }}
-            confirmDraft={(value: PurchaseProcument) => {
+            confirmDraft={(value: PurchaseProcument, isEdit: boolean) => {
+              setIsEdit(isEdit);
               setProcumentDraft(value);
               setVisibleDraft(true);
             }}
-            confirmInventory={(value: PurchaseProcument) => {
+            confirmInventory={(value: PurchaseProcument, isEdit: boolean) => {
+              setIsEdit(isEdit);
               setProcumentInventory(value);
               setVisibleConfirm(true);
             }}
@@ -233,6 +236,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onCancle={() => {
           setVisible(false);
         }}
+        isEdit={isEdit}
         loading={loaddingCreate}
         stores={stores}
         now={now}
@@ -244,6 +248,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         }}
       />
       <ProcumentConfirmModal
+        isEdit={isEdit}
         items={poItems}
         stores={stores}
         now={now}
@@ -259,6 +264,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         }}
       />
       <ProducmentInventoryModal
+        isEdit={isEdit}
         items={poItems}
         stores={stores}
         now={now}

@@ -16,6 +16,7 @@ import ProcumentCommonModal from "./procument.common.modal";
 
 type ProducmentInventoryModalProps = {
   visible: boolean;
+  isEdit: boolean;
   now: Moment;
   stores: Array<StoreResponse>;
   onCancel: () => void;
@@ -39,10 +40,12 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     loading,
     items,
     stores,
+    isEdit,
   } = props;
   return (
     <ProcumentCommonModal
       type="inventory"
+      isEdit={isEdit}
       items={items}
       item={item}
       onCancle={onCancel}
@@ -55,11 +58,11 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
       loading={loading}
       title={
         <div>
-          Xác nhận nhập kho phiếu nháp{" "}
+          {isEdit ? "Sửa phiếu duyệt " : "Xác nhận nhập kho phiếu nháp "}
           <span style={{ color: "#2A2A86" }}>{item?.code}</span>
         </div>
       }
-      okText="Xác nhận nhập"
+      okText={isEdit ? "Lưu phiếu duyệt" : "Xác nhận nhập"}
     >
       {(onQuantityChange, onRemove, line_items) => {
         return (

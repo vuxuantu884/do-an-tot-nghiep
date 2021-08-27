@@ -38,8 +38,8 @@ type POInventoryViewProps = {
   id?: number;
   code?: string;
   onSuccess: () => void;
-  confirmDraft: (item: PurchaseProcument) => void;
-  confirmInventory: (item: PurchaseProcument) => void;
+  confirmDraft: (item: PurchaseProcument, isEdit: boolean) => void;
+  confirmInventory: (item: PurchaseProcument, isEdit: boolean) => void;
 };
 
 const POInventoryView: React.FC<POInventoryViewProps> = (
