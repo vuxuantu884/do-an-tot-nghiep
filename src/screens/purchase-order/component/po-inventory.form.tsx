@@ -112,7 +112,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       if (value === null) {
       } else {
         showSuccess("Thêm phiếu nháp kho thành công");
-        setVisible(false);
+        setVisibleDraft(false);
         onAddProcumentSuccess && onAddProcumentSuccess();
       }
     },
@@ -141,6 +141,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       if (value === null) {
       } else {
         showSuccess("Xác nhận nhập kho thành công");
+        setVisibleConfirm(false);
         setLoadingRecive(false);
         onAddProcumentSuccess && onAddProcumentSuccess();
       }
