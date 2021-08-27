@@ -1,6 +1,6 @@
 import { LoadingOutlined, SettingOutlined } from "@ant-design/icons";
 import { Button, Spin, Table as ANTTable, TableProps } from "antd";
-import { ColumnGroupType, ColumnType, TableLocale } from "antd/lib/table/interface";
+import { ColumnType, TableLocale } from "antd/lib/table/interface";
 import { PageConfig } from "config/PageConfig";
 import React, { useCallback } from "react";
 import CustomPagination from "./CustomPagination";
@@ -17,10 +17,6 @@ export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
 export interface ICustomTableColumType<T> extends ColumnType<T> {
   visible: boolean;
 }
-export interface ICustomTableGroupColumType<T> extends ColumnGroupType<T> {
-  visible: boolean;
-}
-// ColumnGroupType
 
 export interface ICustomTablePaginationConfig {
   total: number;
