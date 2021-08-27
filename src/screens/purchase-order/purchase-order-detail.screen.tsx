@@ -220,7 +220,7 @@ const PODetailScreen: React.FC = () => {
     [setConfirmDelete, poData]
   );
   const redirectToReturn = useCallback(() => {
-    history.push(`${UrlConfig.PURCHASE_ORDER}/${id}/return`, {
+    history.push(`${UrlConfig.PURCHASE_ORDER}/return/${id}`, {
       params: poData,
     });
   }, [history, poData]);

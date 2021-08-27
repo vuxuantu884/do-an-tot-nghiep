@@ -333,6 +333,7 @@ const POUtils = {
     data.forEach((item) => {
       result.push({
         line_item_id: item.id ? item.id : new Date().getTime(),
+        code: item.code,
         sku: item.sku,
         variant: item.variant,
         variant_image: item.variant_image,

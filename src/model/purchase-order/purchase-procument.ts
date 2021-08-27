@@ -14,6 +14,7 @@ export interface PurchaseProcument extends BaseObject {
 
 export interface PurchaseProcumentLineItem {
   id?: number;
+  code?: string;
   line_item_id: number;
   sku: string;
   variant: string;

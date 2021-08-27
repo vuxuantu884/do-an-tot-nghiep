@@ -1,5 +1,6 @@
 export interface PurchaseOrderLineItem {
   id?: number;
+  code?: string;
   sku: string;
   variant_id: number;
   product_id: number;

@@ -129,6 +129,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     },
     [dispatch, idNumber, onReciveProcumentCallback]
   );
+
   return (
     <Card
       className="po-form margin-top-20"
@@ -178,18 +179,18 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
           }
         >
           {({ getFieldValue }) => {
-            let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
-              POField.line_items
-            );
             let expect_store_id: number = getFieldValue(
               POField.expect_store_id
             );
+            let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
+              POField.line_items
+            );
+            setPOItem(line_items);
             return (
               status !== POStatus.DRAFT && (
                 <Button
                   onClick={() => {
                     setStoreExpect(expect_store_id);
-                    setPOItem(line_items);
                     setVisible(true);
                   }}
                   style={{
@@ -243,6 +244,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         }}
       />
       <ProcumentConfirmModal
+        items={poItems}
         stores={stores}
         now={now}
         visible={visibleDraft}
@@ -257,6 +259,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         }}
       />
       <ProducmentInventoryModal
+        items={poItems}
         stores={stores}
         now={now}
         visible={visibleConfirm}
