@@ -119,10 +119,11 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       getInfoDeliveryGHTK();
       getInfoDeliveryGHN();
       getInfoDeliveryVTP();
-      // setPaymentMethod(PaymentMethodOption.COD);
+      setPaymentMethod(PaymentMethodOption.COD);
+      //reset payment
+      onPayments([]);
     }
     if (value !== ShipmentMethodOption.DELIVER_PARTNER) {
-      console.log("222333");
       onPayments([]);
     }
   };

@@ -567,7 +567,6 @@ export default function Order() {
                 InfoCustomerSet={onChangeInfoCustomer}
                 ShippingAddressChange={onChangeShippingAddress}
                 BillingAddressChange={onChangeBillingAddress}
-                customerParent={customer}
               />
               {/*--- product ---*/}
               <CardProduct
