@@ -79,9 +79,8 @@ const SettingPrinter: React.FC = () => {
     },
     {
       title: "Tên mẫu in",
-      dataIndex: "tenMauIn",
+      dataIndex: "name",
       visible: true,
-      className: "columnTitle",
       width: "20%",
     },
     {
