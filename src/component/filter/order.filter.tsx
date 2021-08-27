@@ -519,7 +519,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             {/* <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="KHU VỰC" key="1">
+                  <Panel header="KHU VỰC" key="1" className="header-filter">
                     <Item name="area">
                     <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
                       <Option value="">Chọn khu vực</Option>
@@ -533,7 +533,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="KHO CỬA HÀNG" key="1">
+                  <Panel header="KHO CỬA HÀNG" key="1" className="header-filter">
                     <Item name="store_ids">
                       <CustomSelect
                         mode="multiple"
@@ -568,7 +568,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="NGUỒN ĐƠN HÀNG" key="1">
+                  <Panel header="NGUỒN ĐƠN HÀNG" key="1" className="header-filter">
                     <Item name="source_ids" style={{ margin: "10px 0px" }}>
                       <CustomSelect
                         mode="multiple"
@@ -607,7 +607,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="NGÀY TẠO ĐƠN" key="1">
+                  <Panel header="NGÀY TẠO ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
                       <Button>Hôm qua</Button>
                       <Button>Hôm nay</Button>
@@ -635,7 +635,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="NGÀY DUYỆT ĐƠN" key="1">
+                  <Panel header="NGÀY DUYỆT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
                       <Button>Hôm qua</Button>
                       <Button>Hôm nay</Button>
@@ -662,7 +662,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1">
+                  <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
                       <Button>Hôm qua</Button>
                       <Button>Hôm nay</Button>
@@ -689,7 +689,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="NGÀY HUỶ ĐƠN" key="1">
+                  <Panel header="NGÀY HUỶ ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
                       <Button>Hôm qua</Button>
                       <Button>Hôm nay</Button>
@@ -716,7 +716,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1">
+                  <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1" className="header-filter">
                     <Item name="order_status">
                     <Select mode="multiple" showSearch placeholder="Chọn trạng thái đơn hàng" style={{width: '100%'}}>
                       {status?.map((item) => (
@@ -734,7 +734,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="GIAO HÀNG" key="1">
+                  <Panel header="GIAO HÀNG" key="1" className="header-filter">
                     <Item name="fulfillment_status">
                       <Select mode="multiple" showSearch placeholder="Chọn trạng thái giao hàng" style={{width: '100%'}}>
                           {fulfillmentStatus.map((item, index) => (
@@ -755,7 +755,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="THANH TOÁN" key="1">
+                  <Panel header="THANH TOÁN" key="1" className="header-filter">
                     <Item name="payment_status">
                       <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" style={{width: '100%'}}>
                         {paymentStatus.map((item, index) => (
@@ -776,7 +776,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             {/* <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="TRẢ HÀNG" key="1">
+                  <Panel header="TRẢ HÀNG" key="1" className="header-filter">
                     <Item name="payment_status">
                       <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" style={{width: '100%'}}>
                         {paymentStatus.map((item, index) => (
@@ -797,7 +797,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="NHÂN VIÊN BÁN HÀNG" key="1">
+                  <Panel header="NHÂN VIÊN BÁN HÀNG" key="1" className="header-filter">
                     <Item name="assignee">
                       <Select mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng" style={{width: '100%'}}>
                           {accounts.map((item, index) => (
@@ -818,7 +818,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1">
+                  <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1" className="header-filter">
                     <Item name="account">
                       <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" style={{width: '100%'}}>
                         {accounts.map((item, index) => (
@@ -839,7 +839,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}} className="price">
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="TỔNG TIỀN" key="1">
+                  <Panel header="TỔNG TIỀN" key="1" className="header-filter">
                     <Input.Group compact>
                       <Item name="price_min" style={{ width: '45%', textAlign: 'center' }}>
                         <InputNumber className="price_min"  placeholder="Minimum" />
@@ -870,7 +870,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="PHƯƠNG THỨC THANH TOÁN" key="1">
+                  <Panel header="PHƯƠNG THỨC THANH TOÁN" key="1" className="header-filter">
                     <Item name="payment_method_ids">
                     <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}>
                       {paymentType.map((item, index) => (
@@ -891,7 +891,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             {/* <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="NGÀY DỰ KIẾN NHẬN HÀNG" key="1">
+                  <Panel header="NGÀY DỰ KIẾN NHẬN HÀNG" key="1" className="header-filter">
                     <Item name="expected_receive_predefined">
                       <DatePicker
                         placeholder="Chọn ngày"
@@ -906,7 +906,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1">
+                  <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
                     <Item name="ship_by">
                       <Select optionFilterProp="children" showSearch placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
                         <Option value="">Hình thức vận chuyển</Option>
@@ -924,7 +924,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="GHI CHÚ NỘI BỘ" key="1">
+                  <Panel header="GHI CHÚ NỘI BỘ" key="1" className="header-filter">
                     <Item name="note">
                       <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
                     </Item>
@@ -935,7 +935,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="GHI CHÚ CỦA KHÁCH" key="1">
+                  <Panel header="GHI CHÚ CỦA KHÁCH" key="1" className="header-filter">
                     <Item name="customer_note">
                     <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
                     </Item>
@@ -946,7 +946,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="TAG" key="1">
+                  <Panel header="TAG" key="1" className="header-filter">
                     <Item name="tags">
                     <Select mode="tags" optionFilterProp="children" showSearch placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
                       
@@ -959,7 +959,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
-                  <Panel header="MÃ THAM CHIẾU" key="1">
+                  <Panel header="MÃ THAM CHIẾU" key="1" className="header-filter">
                     <Item name="reference_code">
                       <Input placeholder="Tìm kiếm theo mã tham chiếu"/>
                     </Item>

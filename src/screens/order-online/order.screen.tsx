@@ -19,7 +19,7 @@ import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { orderCreateAction } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderSettingsModel } from "model/other/order/order-model";
+import { OrderSettingsModel } from "model/other/Order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -51,12 +51,11 @@ import {
   TaxTreatment,
 } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { useQuery } from "utils/useQuery";
 import CustomeInputTags from "./component/custom-input-tags";
 import CustomerCard from "./component/customer-card";
 import CardProduct from "./component/order-detail/CardProduct";
+import ShipmentCard from "./component/order-detail/CardShipment";
 import PaymentCard from "./component/payment-card";
-import ShipmentCard from "./component/shipment-card";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 //#endregion
 
@@ -97,12 +96,9 @@ export default function Order() {
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
-  const query = useQuery();
-
-  const queryParams = {
-    action: query.get("action") || null,
-    cloneId: query.get("cloneId") || null,
-  };
+  const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer
+  );
 
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
@@ -135,9 +131,6 @@ export default function Order() {
   };
   //#endregion
   //#region Product
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
@@ -207,16 +200,11 @@ export default function Order() {
   };
 
   //#region Order
-  // let initialForm: OrderRequest = {
-  //   ...initialRequest,
-  //   shipping_address: shippingAddress,
-  //   billing_address: billingAddress,
-  // };
-  const [initialForm, setInitialForm] = useState<OrderRequest>({
+  let initialForm: OrderRequest = {
     ...initialRequest,
     shipping_address: shippingAddress,
     billing_address: billingAddress,
-  });
+  };
 
   const onChangeTag = useCallback(
     (value: []) => {
@@ -295,7 +283,7 @@ export default function Order() {
       office_time: officeTime,
     };
 
-    if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
+    if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER) {
       objShipment.delivery_service_provider_id = hvc;
       objShipment.delivery_service_provider_type = "external_service";
       objShipment.sender_address_id = storeId;
@@ -310,7 +298,7 @@ export default function Order() {
       return objShipment;
     }
 
-    if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
+    if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
       objShipment.delivery_service_provider_type = "Shipper";
       objShipment.shipper_code = value.shipper_code;
       objShipment.shipping_fee_informed_to_customer =
@@ -453,7 +441,7 @@ export default function Order() {
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
-        if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
+        if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
@@ -461,7 +449,7 @@ export default function Order() {
           }
         } else {
           if (
-            shipmentMethod === ShipmentMethodOption.DELIVERPARNER &&
+            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
             !serviceType
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
@@ -513,54 +501,6 @@ export default function Order() {
     };
   }, [scroll]);
 
-  useEffect(() => {
-    if (queryParams) {
-      if (queryParams.cloneId) {
-        // dispatch(
-        //   OrderDetailAction(+queryParams.cloneId, (response) => {
-        //     console.log("response", response);
-        //     setInitialForm({
-        //       account_code: "YD11122",
-        //       action: "",
-        //       assignee_code: null,
-        //       billing_address: null,
-        //       currency: "VNĐ",
-        //       customer_id: null,
-        //       customer_note: response.customer_note,
-        //       // dating_ship: "",
-        //       delivery_fee: null,
-        //       delivery_service_provider_id: null,
-        //       discounts: [],
-        //       fulfillments: [],
-        //       items: [],
-        //       note: "",
-        //       payments: [],
-        //       price_type: "retail_price",
-        //       reference_code: "",
-        //       requirements: null,
-        //       shipper_code: null,
-        //       shipper_name: "",
-        //       shipping_address: null,
-        //       shipping_fee_informed_to_customer: null,
-        //       shipping_fee_paid_to_three_pls: null,
-        //       source_id: null,
-        //       store_id: null,
-        //       tags: "",
-        //       tax_treatment: "inclusive",
-        //       total: null,
-        //       total_discount: null,
-        //       total_line_amount_after_line_discount: null,
-        //       total_tax: "",
-        //       url: "",
-        //     });
-        //   })
-        // );
-        console.log("queryParams", queryParams);
-        console.log("initialForm", initialForm);
-      }
-    }
-  }, [dispatch]);
-
   /**
    * orderSettings
    */
@@ -569,7 +509,7 @@ export default function Order() {
       chonCuaHangTruocMoiChonSanPham: true,
       cauHinhInNhieuLienHoaDon: 3,
     });
-  }, [scroll]);
+  }, []);
 
   return (
     <ContentContainer
@@ -652,7 +592,7 @@ export default function Order() {
                 paymentMethod={paymentMethod}
                 shippingFeeCustomer={shippingFeeCustomer}
                 shippingFeeCustomerHVC={shippingFeeCustomerHVC}
-                cusomerInfo={customer}
+                customerInfo={customer}
                 items={items}
                 discountValue={discountValue}
                 setOfficeTime={setOfficeTime}
@@ -660,6 +600,8 @@ export default function Order() {
                 setServiceType={setServiceType}
                 setHVC={setHvc}
                 setFeeGhtk={setFeeGhtk}
+                payments={payments}
+                onPayments={onPayments}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
@@ -833,7 +775,7 @@ export default function Order() {
                     "formRef.current.value",
                     formRef?.current?.getFieldsValue()
                   );
-                  // formRef.current?.submit();
+                  formRef.current?.submit();
                 }}
               >
                 Lưu và Xác nhận

@@ -56,10 +56,10 @@ export const PaymentMethodOption = {
 };
 
 export const ShipmentMethodOption = {
-  DELIVERPARNER: 1,
-  SELFDELIVER: 2,
-  PICKATSTORE: 3,
-  DELIVERLATER: 4,
+  DELIVER_PARTNER: 1,
+  SELF_DELIVER: 2,
+  PICK_AT_STORE: 3,
+  DELIVER_LATER: 4,
 };
 
 export const TRANSPORTS = {

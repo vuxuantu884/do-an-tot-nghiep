@@ -168,7 +168,7 @@ const product: Array<RouteMenu> = [
         pathIgnore: ["create"],
       },
       {
-        path: `${UrlConfig.PURCHASE_ORDER}/:id/return`,
+        path: `${UrlConfig.PURCHASE_ORDER}/return/:id`,
         exact: true,
         title: "Trả hàng cho đơn mua hàng",
         icon: "icon-dot",

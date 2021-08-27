@@ -105,6 +105,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     let result =
       isEdit && formValue
         ? {
+            name: formValue.name,
             company: formValue.company,
             company_id: formValue.company_id,
             default: formValue.default,
@@ -115,6 +116,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             type: formValue.type,
           }
         : {
+            name: null,
             company: null,
             company_id: null,
             default: false,
@@ -145,7 +147,9 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   };
 
   const onChangeStoreId = (value: string) => {
-    history.push(`${UrlConfig.PRINTER}/${id}?store-id=${value}`);
+    if (isEdit && id) {
+      history.push(`${UrlConfig.PRINTER}/${id}?store-id=${value}`);
+    }
   };
 
   const handleSubmitForm = () => {

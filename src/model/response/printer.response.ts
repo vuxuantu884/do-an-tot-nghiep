@@ -4,7 +4,8 @@ export interface BasePrinterModel {
   company: string;
   company_id: number;
   default: boolean;
-  id?: number;
+  id: number;
+  name: string;
   print_size: string;
   store?: string;
   store_id: number;

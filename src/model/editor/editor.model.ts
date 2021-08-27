@@ -44,12 +44,3 @@ export interface PrintPreviewModel {
   isShowEditor?: boolean;
   onChangeShowEditor: (isShow: boolean) => void;
 }
-
-export interface FormPrinterModel {
-  id: string | number;
-  tenMauIn: string;
-  chiNhanhApDung: string;
-  khoIn: string;
-  apDung: boolean;
-  formIn?: string;
-}

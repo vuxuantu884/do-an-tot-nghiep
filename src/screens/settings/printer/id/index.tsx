@@ -20,6 +20,7 @@ function SinglePrinter() {
       company_id: DEFAULT_FORM_VALUE.company_id,
       store_id: 0,
       id: 0,
+      name: "",
       print_size: "",
       default: false,
       template: "",
