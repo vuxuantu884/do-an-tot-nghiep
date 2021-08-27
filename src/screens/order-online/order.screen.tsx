@@ -589,13 +589,15 @@ export default function Order() {
         console.log("initialForm", initialForm);
       }
     }
-  }, [dispatch, queryParams]);
+  }, [dispatch]);
 
   useEffect(() => {
-    if (formRef.current) {
-      formRef.current.resetFields();
+    if (queryParams?.action) {
+      if (formRef.current) {
+        formRef.current.resetFields();
+      }
     }
-  }, [formRef, formValueFromActionClone]);
+  }, [formRef, queryParams?.action]);
 
   /**
    * orderSettings
@@ -663,6 +665,7 @@ export default function Order() {
                 InfoCustomerSet={onChangeInfoCustomer}
                 ShippingAddressChange={onChangeShippingAddress}
                 BillingAddressChange={onChangeBillingAddress}
+                customerParent={customer}
               />
               {/*--- product ---*/}
               <CardProduct
