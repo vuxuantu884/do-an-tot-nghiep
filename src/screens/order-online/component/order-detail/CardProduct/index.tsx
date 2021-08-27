@@ -101,7 +101,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
-  const [keysearchVariant, setKeySearchVariant] = useState("");
+  const [keySearchVariant, setKeySearchVariant] = useState("");
   const [resultSearchVariant, setResultSearchVariant] = useState<
     PageResponse<VariantResponse>
   >({
@@ -820,12 +820,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             <Form.Item label="Sản phẩm">
               <AutoComplete
                 notFoundContent={
-                  keysearchVariant.length >= 3
+                  keySearchVariant.length >= 3
                     ? "Không tìm thấy sản phẩm"
                     : undefined
                 }
                 id="search_product"
-                value={keysearchVariant}
+                value={keySearchVariant}
                 ref={autoCompleteRef}
                 onSelect={onSearchVariantSelect}
                 dropdownClassName="search-layout dropdown-search-header"
