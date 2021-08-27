@@ -6,8 +6,6 @@ import CustomTable, {
 } from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import { actionFetchListPrinter } from "domain/actions/printer/printer.action";
-import { FormPrinterModel } from "model/editor/editor.model";
-import { VariantResponse } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BasePrinterModel,
@@ -211,8 +209,8 @@ const SettingPrinter: React.FC = () => {
             }}
             dataSource={listPrinter}
             columns={columnFinal()}
-            rowKey={(item: VariantResponse) => item.id}
-            onRow={(record: FormPrinterModel) => {
+            rowKey={(item: BasePrinterModel) => item.id}
+            onRow={(record: BasePrinterModel) => {
               return {
                 onClick: (event) => {
                   goToPageDetail(record.id);
