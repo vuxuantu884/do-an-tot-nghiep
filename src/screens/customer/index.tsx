@@ -131,14 +131,14 @@ const Customer = () => {
       render: (value: string, i: any) => (
         <Link to={`/customers/${i.id}`}>{value}</Link>
       ),
-      width: 200,
+      width: 150,
     },
     {
       title: "Tên khách hàng",
       dataIndex: "full_name",
       // align: "left",
       visible: true,
-      width: "10%",
+      width: 200,
       render: (value: string, i: any) => (
         <span className="customer-name-textoverflow">{i.full_name}</span>
       )
