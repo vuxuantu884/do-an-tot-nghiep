@@ -55,7 +55,6 @@ type CustomerCardProps = {
   InfoCustomerSet: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
-  customerParent?: CustomerResponse | null;
 };
 
 //Add query for search Customer
@@ -92,11 +91,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
 
-  if (props.customerParent) {
-    setCustomer(props.customerParent);
-  }
-
-  console.log("customer", customer);
   //#region Modal
   const ShowAddressModal = () => {
     setVisibleAddress(true);

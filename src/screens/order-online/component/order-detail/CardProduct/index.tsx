@@ -644,6 +644,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       }
       setItems(_items.reverse());
       autoCompleteRef.current?.blur();
+      setIsInputSearchProductFocus(false);
       setKeySearchVariant("");
     },
     [resultSearchVariant, items, splitLine]
