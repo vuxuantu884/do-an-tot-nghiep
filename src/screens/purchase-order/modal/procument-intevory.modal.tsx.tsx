@@ -24,6 +24,7 @@ type ProducmentInventoryModalProps = {
   items: Array<PurchaseOrderLineItem>;
   defaultStore: number;
   onOk: (value: PurchaseProcument) => void;
+  onDelete: (value: PurchaseProcument) => void;
   loading: boolean;
 };
 
@@ -37,6 +38,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
     item,
     defaultStore,
     onOk,
+    onDelete,
     loading,
     items,
     stores,
@@ -55,14 +57,15 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
       visible={visible}
       cancelText="Hủy"
       onOk={onOk}
+      onDelete={onDelete}
       loading={loading}
       title={
         <div>
-          {isEdit ? "Sửa phiếu duyệt " : "Xác nhận nhập kho phiếu nháp "}
+          {isEdit ? "Sửa phiếu nhập kho " : "Xác nhận nhập kho phiếu nháp "}
           <span style={{ color: "#2A2A86" }}>{item?.code}</span>
         </div>
       }
-      okText={isEdit ? "Lưu phiếu duyệt" : "Xác nhận nhập"}
+      okText={isEdit ? "Lưu phiếu nhập kho" : "Xác nhận nhập"}
     >
       {(onQuantityChange, onRemove, line_items) => {
         return (

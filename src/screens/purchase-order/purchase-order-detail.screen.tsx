@@ -93,7 +93,6 @@ const PODetailScreen: React.FC = () => {
   const [formMain] = Form.useForm();
   const [isError, setError] = useState(false);
   const [status, setStatus] = useState<string>(initPurchaseOrder.status);
-  const [isLoading, setLoading] = useState<boolean>(true);
   const [winAccount, setWinAccount] = useState<Array<AccountResponse>>([]);
   const [rdAccount, setRDAccount] = useState<Array<AccountResponse>>([]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
@@ -109,7 +108,6 @@ const PODetailScreen: React.FC = () => {
   const [printContent, setPrintContent] = useState<string>("");
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
-      setLoading(false);
       if (!result) {
         setError(true);
       } else {
@@ -122,9 +120,6 @@ const PODetailScreen: React.FC = () => {
   );
   const loadDetail = useCallback(
     (id: number, isLoading) => {
-      if (isLoading) {
-        setLoading(true);
-      }
       dispatch(PoDetailAction(idNumber, onDetail));
     },
     [dispatch, idNumber, onDetail]
@@ -143,7 +138,6 @@ const PODetailScreen: React.FC = () => {
         return;
       }
       setRDAccount(data.items);
-      setLoading(false);
     },
     []
   );
@@ -350,7 +344,6 @@ const PODetailScreen: React.FC = () => {
 
   return (
     <ContentContainer
-      isLoading={isLoading}
       isError={isError}
       title="Quản lý đơn đặt hàng"
       breadcrumb={[

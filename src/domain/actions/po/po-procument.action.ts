@@ -38,3 +38,14 @@ export const PoProcumentFinishAction = (
     updateCallback,
   });
 };
+export const PoProcumentDeleteAction = (
+  poId: number,
+  procumentId: number,
+  deleteCallback: (result: PurchaseProcument | null) => void
+) => {
+  return BaseAction(POProcumentType.DELETE_PO_PROCUMENT_REQUEST, {
+    poId,
+    procumentId,
+    deleteCallback,
+  });
+};
