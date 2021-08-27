@@ -833,7 +833,7 @@ export default function Order() {
                     "formRef.current.value",
                     formRef?.current?.getFieldsValue()
                   );
-                  // formRef.current?.submit();
+                  formRef.current?.submit();
                 }}
               >
                 Lưu và Xác nhận

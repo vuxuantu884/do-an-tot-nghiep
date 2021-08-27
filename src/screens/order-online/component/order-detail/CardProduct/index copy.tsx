@@ -1,77 +1,76 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
   Card,
   Checkbox,
   Col,
+  Divider,
   Dropdown,
+  Form,
+  FormInstance,
   Input,
   Menu,
   Row,
   Select,
   Space,
   Table,
+  Tag,
   Tooltip,
   Typography,
-  Divider,
-  Tag,
-  Form,
-  FormInstance,
 } from "antd";
-
-import arrowDownIcon from "assets/img/drow-down.svg";
-import giftIcon from "assets/icon/gift.svg";
-import React, {
-  useCallback,
-  useLayoutEffect,
-  useState,
-  useMemo,
-  createRef,
-  useEffect,
-} from "react";
-import { SearchOutlined, EditOutlined } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { showError, showSuccess } from "utils/ToastUtils";
-import NumberInput from "component/custom/number-input.custom";
-import {
-  haveAccess,
-  findPrice,
-  findAvatar,
-  findPriceInVariant,
-  findTaxInVariant,
-  formatCurrency,
-  replaceFormatString,
-  getTotalAmount,
-  getTotalDiscount,
-  getTotalAmountAfferDiscount,
-  getTotalQuantity,
-} from "utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
-import { AppConfig } from "config/AppConfig";
-import imgdefault from "assets/icon/img-default.svg";
 import emptyProduct from "assets/icon/empty_products.svg";
+import giftIcon from "assets/icon/gift.svg";
+import imgdefault from "assets/icon/img-default.svg";
 import Xclosebtn from "assets/icon/X_close.svg";
+import arrowDownIcon from "assets/img/drow-down.svg";
 import addIcon from "assets/img/plus_1.svg";
+import NumberInput from "component/custom/number-input.custom";
+import { AppConfig } from "config/AppConfig";
 import { Type } from "config/TypeConfig";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
 import {
   OrderItemDiscountModel,
   OrderSettingsModel,
 } from "model/other/Order/order-model";
-import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
-import { PageResponse } from "model/base/base-metadata.response";
 import {
   VariantResponse,
   VariantSearchQuery,
 } from "model/product/product.model";
-import { StoreResponse } from "model/core/store.model";
-import { MoneyType } from "utils/Constants";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
-import DiscountGroup from "../../discount-group";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
+import {
+  findAvatar,
+  findPrice,
+  findPriceInVariant,
+  findTaxInVariant,
+  formatCurrency,
+  getTotalAmount,
+  getTotalAmountAfferDiscount,
+  getTotalDiscount,
+  getTotalQuantity,
+  haveAccess,
+  replaceFormatString,
+} from "utils/AppUtils";
+import { MoneyType } from "utils/Constants";
+import { showError, showSuccess } from "utils/ToastUtils";
+import DiscountGroup from "../../discount-group";
 
 type CardProductProps = {
   storeId: number | null;
@@ -96,12 +95,13 @@ const initQueryVariant: VariantSearchQuery = {
 
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const { orderSettings, onChangeProduct, formRef } = props;
+  console.log("props", props);
   const dispatch = useDispatch();
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
-  const [keysearchVariant, setKeySearchVariant] = useState("");
+  const [keySearchVariant, setKeySearchVariant] = useState("");
   const [resultSearchVariant, setResultSearchVariant] = useState<
     PageResponse<VariantResponse>
   >({
@@ -120,7 +120,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [changeMoney, setChangeMoney] = useState<number>(0);
-  const [coupon, setCoupon] = useState<string>("");
+  const [coupon, setCounpon] = useState<string>("");
   //Function
   useEffect(() => {
     let _itemGifts: any = [];
@@ -662,6 +662,38 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     );
   };
 
+  // const onChangeProductSearch = useCallback(
+  //   (value) => {
+  //     console.log("value", value);
+  //     console.log("orderSettings", orderSettings);
+  //     // if (orderSettings?.chonCuaHangTruocMoiChonSanPham) {
+  //     console.log("222");
+  //     // onChangeProduct(value);
+  //     console.log("formRef.current", props.formRef);
+  //     formRef.current
+  //       ?.validateFields()
+  //       .then(() => {
+  //         console.log("3333");
+  //       })
+  //       .catch(() => {
+  //         console.log("444");
+  //       })
+  //       .finally(() => {
+  //         console.log("555");
+  //       });
+  //     // }
+  //     setKeySearchVariant(value);
+  //     initQueryVariant.info = value;
+  //     dispatch(
+  //       searchVariantsOrderRequestAction(
+  //         initQueryVariant,
+  //         setResultSearchVariant
+  //       )
+  //     );
+  //   },
+  //   [dispatch]
+  // );
+
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
@@ -670,7 +702,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     setVisiblePickDiscount(true);
   }, [setVisiblePickDiscount]);
 
-  const onCancelDiscountConfirm = useCallback(() => {
+  const onCancleDiscountConfirm = useCallback(() => {
     setVisiblePickDiscount(false);
   }, []);
 
@@ -687,7 +719,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       setDiscountType(type);
       setDiscountValue(value);
       setDiscountRate(rate);
-      setCoupon(coupon);
+      setCounpon(coupon);
       calculateChangeMoney(items, amount, rate, value);
       showSuccess("Thêm chiết khấu thành công");
     }
@@ -794,7 +826,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 className="select-with-search"
                 showSearch
                 style={{ width: "100%" }}
-                placeholder="Chọn cửa hàng"
+                placeholder="Chọn cửa hàng 1"
                 notFoundContent="Không tìm thấy kết quả"
                 onChange={props.selectStore}
                 filterOption={(input, option) => {
@@ -817,15 +849,15 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             </Form.Item>
           </Col>
           <Col md={16}>
-            <Form.Item label="Sản phẩm">
+            <Form.Item name="search_product" label="Sản phẩm">
               <AutoComplete
                 notFoundContent={
-                  keysearchVariant.length >= 3
+                  keySearchVariant.length >= 3
                     ? "Không tìm thấy sản phẩm"
                     : undefined
                 }
                 id="search_product"
-                value={keysearchVariant}
+                value={keySearchVariant}
                 ref={autoCompleteRef}
                 onSelect={onSearchVariantSelect}
                 dropdownClassName="search-layout dropdown-search-header"
@@ -1106,7 +1138,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         value={discountValue}
         rate={discountRate}
         coupon={coupon}
-        onCancel={onCancelDiscountConfirm}
+        onCancel={onCancleDiscountConfirm}
         onOk={onOkDiscountConfirm}
         visible={isVisiblePickDiscount}
       />
