@@ -10,7 +10,7 @@ import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { OrderDetailAction } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderSettingsModel } from "model/other/order/order-model";
+import { OrderSettingsModel } from "model/other/Order/order-model";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
