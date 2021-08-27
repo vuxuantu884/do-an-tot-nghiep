@@ -44,7 +44,7 @@ export const returnPurchaseOrder = (
   data: PurchaseOrder
 ): Promise<BaseResponse<string>> => {
   return BaseAxios.post(
-    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}/return`,
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/return/${id}`,
     data
   );
 };
