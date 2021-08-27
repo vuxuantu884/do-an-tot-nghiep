@@ -1,4 +1,5 @@
 import { Form, Table, Button } from "antd";
+import { useMemo } from "react";
 import { StoreResponse } from "model/core/store.model";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
@@ -23,13 +24,23 @@ type ProcumentModalProps = {
   defaultStore: number;
   onOk: (value: PurchaseProcument) => void;
   loading: boolean;
+  isEdit: boolean;
 };
 
 const ProcumentModal: React.FC<ProcumentModalProps> = (
   props: ProcumentModalProps
 ) => {
-  const { visible, now, stores, onCancle, items, defaultStore, onOk, loading } =
-    props;
+  const {
+    visible,
+    now,
+    stores,
+    onCancle,
+    items,
+    defaultStore,
+    onOk,
+    loading,
+    isEdit,
+  } = props;
   return (
     <ProcumentCommonModal
       type="draft"
@@ -42,8 +53,9 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
       cancelText="Hủy"
       onOk={onOk}
       loading={loading}
-      title="Tạo phiếu nháp"
-      okText="Tạo phiếu nháp"
+      title={"Tạo phiếu nháp"}
+      okText={"Tạo phiếu nháp"}
+      isEdit={isEdit}
     >
       {(onQuantityChange, onRemove, line_items) => {
         return (
