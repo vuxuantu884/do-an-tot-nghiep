@@ -18,7 +18,7 @@ import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
-import Caculate from "assets/icon/caculate.svg";
+import Calculate from "assets/icon/caculate.svg";
 
 // @ts-ignore
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
@@ -53,6 +53,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     if (value === 2) {
       handlePickPaymentMethod(PaymentMethodCode.CASH);
     }
+    console.log("valuePayment", value);
+    console.log("paymentData", paymentData);
   };
 
   const dispatch = useDispatch();
@@ -127,7 +129,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     props.setPayments([...paymentData]);
   };
 
-  const caculateMax = (totalAmount: number, index: number) => {
+  const calculateMax = (totalAmount: number, index: number) => {
     let total = totalAmount;
     for (let i = 0; i < index; i++) {
       if (paymentData[i].code === PaymentMethodCode.POINT) {
@@ -160,8 +162,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     >
       <div className="padding-20 create-order-payment">
         <Form.Item
-          // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
-          // required
+        // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
+        // required
         >
           <Radio.Group
             value={props.paymentMethod}
@@ -187,7 +189,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 </span>
               </div>
             )}
-            {props.paymentMethod === PaymentMethodOption.COD &&
+          {props.paymentMethod === PaymentMethodOption.COD &&
             props.shipmentMethod === ShipmentMethodOption.DELIVERLATER && (
               <div className="order-cod-payment-footer">
                 <span>
@@ -202,7 +204,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 <div>
                   <div>
                     <div>
-                      <img src={Caculate} alt=""></img>
+                      <img src={Calculate} alt=""></img>
                     </div>
                   </div>
                 </div>
@@ -394,7 +396,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                     }
                                     min={0}
                                     max={
-                                      caculateMax(props.amount, index) / 1000
+                                      calculateMax(props.amount, index) / 1000
                                     }
                                     onChange={(value) => {
                                       handleInputPoint(index, value);
@@ -434,7 +436,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                               <InputNumber
                                 size="middle"
                                 min={0}
-                                max={caculateMax(props.amount, index)}
+                                max={calculateMax(props.amount, index)}
                                 value={method.amount}
                                 disabled={
                                   method.code === PaymentMethodCode.POINT
@@ -466,9 +468,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                 marginLeft: 10,
                               }}
                             >
-                              <span
-                                style={{ padding: "14px", lineHeight: 1 }}
-                              >
+                              <span style={{ padding: "14px", lineHeight: 1 }}>
                                 {formatCurrency(method.amount)}
                               </span>
                             </Col>
@@ -509,9 +509,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       style={{ height: 38, margin: "10px 0 0 0" }}
                     >
                       <Col lg={14} xxl={9} style={{ padding: "8px 0" }}>
-                        <b>
-                          {true ? "Còn phải trả:" : "Tiền thừa:"}
-                        </b>
+                        <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                       </Col>
                       <Col
                         className="lbl-money"
@@ -523,9 +521,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                           fontSize: "20px",
                         }}
                       >
-                        <span
-                          style={{ color: false ? "blue" : "red" }}
-                        >
+                        <span style={{ color: false ? "blue" : "red" }}>
                           {formatCurrency(Math.abs(moneyReturn))}
                         </span>
                       </Col>

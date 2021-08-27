@@ -51,6 +51,7 @@ import {
 import {
   DeliveryServiceResponse,
   GHNFeeResponse,
+  OrderResponse,
   ShippingGHTKResponse,
   StoreCustomResponse,
   VTPFeeResponse,
@@ -74,11 +75,14 @@ type ShipmentCardProps = {
   discountValue: number | null;
   officeTime: boolean | undefined;
   setFeeGhtk: (value: number) => void;
+  OrderDetail?: OrderResponse | null;
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
   props: ShipmentCardProps
 ) => {
+  console.log("propsShipment", props);
+  const { OrderDetail } = props;
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
@@ -484,7 +488,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           <>
             <Row gutter={20}>
               <Col md={12}>
-                <Form.Item label="Tiền thu hộ:">
+                <Form.Item label="Tiền thu hộ: 4">
                   <NumberInput
                     format={(a: string) => formatCurrency(a)}
                     replace={(a: string) => replaceFormatString(a)}
@@ -494,7 +498,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                       (props.shippingFeeCustomer
                         ? props.shippingFeeCustomer
                         : 0) -
-                      (props.discountValue ? props.discountValue : 0)
+                      (props.discountValue ? props.discountValue : 0) -
+                      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
                     }
                     style={{
                       textAlign: "right",
