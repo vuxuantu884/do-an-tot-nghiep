@@ -41,6 +41,7 @@ import {
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
+import { OrderSettingsModel } from "model/other/Order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   ShippingGHTKRequest,
@@ -108,6 +109,7 @@ type UpdateShipmentCardProps = {
   paymentType: number | null;
   customerDetail: CustomerResponse | null;
   OrderDetailAllFullfilment: OrderResponse | null;
+  orderSettings?: OrderSettingsModel;
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
@@ -122,6 +124,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setPaymentType,
     setShipmentMethod,
     OrderDetail,
+    orderSettings,
   } = props;
 
   // node dom
@@ -152,6 +155,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [feeGhtk, setFeeGhtk] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
 
+  console.log("props", props);
   useEffect(() => {
     dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
@@ -195,12 +199,21 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       setPaymentType(PaymentMethodOption.COD);
       props.setVisibleUpdatePayment(true);
     }
+    if (
+      value === ShipmentMethodOption.PICKATSTORE ||
+      value === ShipmentMethodOption.DELIVERLATER
+    ) {
+      props.shippingFeeInformedCustomer(0);
+    } else {
+      props.shippingFeeInformedCustomer(shippingFeeInformedCustomer);
+    }
   };
 
   const changeShippingFeeInformedCustomer = (value: any) => {
     setShippingFeeInformedCustomer(value);
     props.shippingFeeInformedCustomer(value);
   };
+
   const getInfoDeliveryGHTK = useCallback(
     (type: string) => {
       let request: ShippingGHTKRequest = {
@@ -286,7 +299,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   //#region Update Fulfillment Status
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
-    console.log(value);
     showSuccess("Tạo đơn giao hàng thành công");
     setTimeout(() => {
       window.location.reload();
@@ -986,7 +998,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               />
                             </div>
                             <FulfillmentStatusTag fulfillment={fulfillment} />
-                            <PrintShippingLabel />
+                            <PrintShippingLabel
+                              fulfillment={fulfillment}
+                              orderSettings={orderSettings}
+                            />
                           </div>
 
                           <div className="saleorder-header-content__date">

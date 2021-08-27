@@ -25,6 +25,7 @@ export interface CustomerBillingAddress extends BaseObject {
   full_address: string;
   customer_id: number;
   tax_code: string;
+  default: boolean
 }
 
 export class CustomerBillingAddressClass implements CustomerBillingAddress {
@@ -59,7 +60,7 @@ export class CustomerShippingAddressClass implements CustomerShippingAddress {
   is_default = false;
   default = false;
   name = "";
-  email = "";
+  // email = "";
   phone = "";
   country_id = 233;
   country = "";
@@ -84,7 +85,7 @@ export interface CustomerShippingAddress extends BaseObject {
   id: number;
   is_default: boolean;
   name: string;
-  email: string;
+  // email: string;
   phone: string;
   country_id: number | null;
   country: string;
@@ -97,6 +98,7 @@ export interface CustomerShippingAddress extends BaseObject {
   zip_code: string;
   full_address: string;
   customer_id: number;
+  default: boolean
 }
 
 export interface CustomerContact extends BaseObject {
@@ -169,6 +171,7 @@ export interface CustomerRequest extends BaseObject {
   status: string;
   tags: string;
   responsible_staff_code: string | null;
+  responsible_staff: string | null;
   full_address: string | null;
   billing_addresses: Array<CustomerBillingAddress>;
   shipping_addresses: Array<CustomerShippingAddress>;
@@ -203,7 +206,7 @@ export class CustomerModel implements CustomerRequest {
   status = "active";
   tags = "";
   responsible_staff_code = null;
-  responsible_staff_name = null;
+  responsible_staff = null;
   full_address = "";
   billing_addresses: Array<CustomerBillingAddress> = [];
   shipping_addresses: Array<CustomerShippingAddress> = [];

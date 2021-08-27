@@ -1,4 +1,4 @@
-import { Card, Form } from "antd";
+import { Card, Form, Space, Tag } from "antd";
 import { Button } from "antd";
 import {
   PoProcumentCreateAction,
@@ -19,6 +19,7 @@ import ProducmentInventoryModal from "../modal/procument-intevory.modal.tsx";
 import ProcumentModal from "../modal/procument.modal";
 import POInventoryDraft from "./po-inventory/po-intentory.draft";
 import POInventoryView from "./po-inventory/po-inventory.view";
+import { ProcumentStatus } from "utils/Constants";
 
 type POInventoryFormProps = {
   stores: Array<StoreResponse>;
@@ -27,6 +28,7 @@ type POInventoryFormProps = {
   isEdit: boolean;
   onAddProcumentSuccess?: () => void;
   idNumber?: number;
+  code?: string;
 };
 
 const POInventoryForm: React.FC<POInventoryFormProps> = (
@@ -45,7 +47,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const [procumentInventory, setProcumentInventory] =
     useState<PurchaseProcument | null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
-  const { stores, status, now, idNumber, onAddProcumentSuccess } = props;
+  const { stores, status, now, idNumber, onAddProcumentSuccess, code } = props;
   const onAddProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
       setLoadingCreate(false);
@@ -127,13 +129,47 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     },
     [dispatch, idNumber, onReciveProcumentCallback]
   );
+
   return (
     <Card
       className="po-form margin-top-20"
       title={
-        <div className="d-flex">
-          <span className="title-card">NHẬP KHO</span>
-        </div>
+        <Form.Item
+          noStyle
+          shouldUpdate={(prev, current) =>
+            prev[POField.receive_status] !== current[POField.receive_status]
+          }
+        >
+          {({ getFieldValue }) => {
+            let receive_status = getFieldValue(POField.receive_status);
+            let statusName = "Chưa nhập kho";
+            let className = "po-tag";
+            let dotClassName = "icon-dot";
+            if (receive_status === ProcumentStatus.PARTIAL_RECEIVED) {
+              statusName = "Nhập kho 1 phần";
+              className += " po-tag-warning";
+              dotClassName += " partial";
+            }
+            if (
+              receive_status === ProcumentStatus.CANCELLED ||
+              receive_status === ProcumentStatus.FINISHED ||
+              receive_status === ProcumentStatus.RECEIVED
+            ) {
+              statusName = "Đã nhập kho";
+              className += " po-tag-success";
+              dotClassName += " success";
+            }
+            return (
+              <Space>
+                <div className={dotClassName} style={{ fontSize: 8 }} />
+                <div className="d-flex">
+                  <span className="title-card">NHẬP KHO</span>
+                </div>{" "}
+                <Tag className={className}>{statusName}</Tag>
+              </Space>
+            );
+          }}
+        </Form.Item>
       }
       extra={
         <Form.Item
@@ -143,18 +179,18 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
           }
         >
           {({ getFieldValue }) => {
-            let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
-              POField.line_items
-            );
             let expect_store_id: number = getFieldValue(
               POField.expect_store_id
             );
+            let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
+              POField.line_items
+            );
+            setPOItem(line_items);
             return (
               status !== POStatus.DRAFT && (
                 <Button
                   onClick={() => {
                     setStoreExpect(expect_store_id);
-                    setPOItem(line_items);
                     setVisible(true);
                   }}
                   style={{
@@ -177,8 +213,11 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         <POInventoryDraft isEdit={props.isEdit} stores={stores} />
         {status && status !== POStatus.DRAFT && status !== POStatus.COMPLETED && (
           <POInventoryView
+            code={code}
             id={idNumber}
-            onSuccess={() => { onAddProcumentSuccess && onAddProcumentSuccess();}}
+            onSuccess={() => {
+              onAddProcumentSuccess && onAddProcumentSuccess();
+            }}
             confirmDraft={(value: PurchaseProcument) => {
               setProcumentDraft(value);
               setVisibleDraft(true);
@@ -205,6 +244,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         }}
       />
       <ProcumentConfirmModal
+        items={poItems}
         stores={stores}
         now={now}
         visible={visibleDraft}
@@ -219,10 +259,11 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         }}
       />
       <ProducmentInventoryModal
+        items={poItems}
         stores={stores}
         now={now}
         visible={visibleConfirm}
-        item={procumentInventory  }
+        item={procumentInventory}
         onOk={(value: PurchaseProcument) => {
           onReciveProcument(value);
         }}

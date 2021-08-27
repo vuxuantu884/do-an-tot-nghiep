@@ -12,9 +12,10 @@ import { useDispatch } from "react-redux";
 import { PoProcumentFinishAction } from "domain/actions/po/po-procument.action";
 
 type TabAllProps = {
-  id?: number,
-  onSuccess: () => void
-}
+  id?: number;
+  code?: string;
+  onSuccess: () => void;
+};
 const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
   const [visibleWarning, setVisibleWarning] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -213,19 +214,21 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
               }}
               onOk={() => {
                 setLoading(true);
-                if(props.id) {
-                  dispath(PoProcumentFinishAction(props.id, 'finished', (result) => {
-                    setLoading(false);
-                    setVisibleWarning(false);
-                    if(result !== null) {
-                      props.onSuccess();
-                    }
-                  }))
+                if (props.id) {
+                  dispath(
+                    PoProcumentFinishAction(props.id, "finished", (result) => {
+                      setLoading(false);
+                      setVisibleWarning(false);
+                      if (result !== null) {
+                        props.onSuccess();
+                      }
+                    })
+                  );
                 }
               }}
               okText="Đồng ý"
               cancelText="Hủy"
-              title="Bạn có chắc chắn muốn kết thúc nhập kho không?"
+              title={`Bạn có chắc chắn muốn kết thúc nhập hàng cho ${props.code} không?`}
               subTitle="Sau khi kết thúc, số lượng được chốt để tính công nợ cho nhà cung cấp"
               visible={visibleWarning}
               loading={loading}

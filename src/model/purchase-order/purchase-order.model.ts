@@ -6,6 +6,7 @@ import {
   Vat,
   PurchaseOrderLineReturnItem,
 } from "./purchase-item.model";
+import { PurchaseProcument } from "./purchase-procument";
 import { PurchasePayments } from "./purchase-payment.model";
 
 export interface PurchaseOrder extends BaseObject {
@@ -19,6 +20,7 @@ export interface PurchaseOrder extends BaseObject {
   supplier_address: PurchaseAddress;
   line_items: Array<PurchaseOrderLineItem>;
   line_return_items: Array<PurchaseOrderLineReturnItem>;
+  procurements: Array<PurchaseProcument>;
   expect_return_date: string;
   note: string;
   tags: string;
@@ -37,6 +39,7 @@ export interface PurchaseOrder extends BaseObject {
   total_paid: number;
   total_refunds: number;
   receipt_quantity: number;
+  planned_quantity: number;
   status: string;
   financial_status: string;
   receive_status: string;
@@ -78,4 +81,9 @@ export interface PurchaseOrderQuery extends BaseQuery {
   supplier_note?: string;
   tags?: string;
   reference?: string;
+}
+export interface PurchaseOrderPrint {
+  purchaseOrderId: number;
+  htmlContent: string;
+  size: string;
 }

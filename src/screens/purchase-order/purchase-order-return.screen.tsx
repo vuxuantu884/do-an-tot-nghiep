@@ -56,7 +56,6 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const state: any = location.state;
   if (!state) return <Fragment></Fragment>;
   const params: PurchaseOrder = state.params;
-
   return (
     <ContentContainer
       isLoading={isLoading}
@@ -117,7 +116,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
               zIndex: 100,
             }}
           >
-            <POStep status={params?.status} />
+            <POStep poData={params} />
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>

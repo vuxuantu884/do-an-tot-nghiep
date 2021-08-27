@@ -1,12 +1,12 @@
-import { Button } from "antd";
+import { Button, Tooltip } from "antd";
 import {
   PrintPreviewModel,
   productKeywordsModel,
 } from "model/editor/editor.model";
 import React, { useRef } from "react";
 import ReactToPrint from "react-to-print";
-import IconPrintHover from "./images/iconPrintHover.svg";
 import IconEdit from "./images/iconEdit.svg";
+import IconPrintHover from "./images/iconPrintHover.svg";
 import { StyledComponent } from "./styles";
 
 const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
@@ -42,20 +42,24 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
    */
   const replaceSymbolByText = (text: string) => {
     let resultText = text;
-    // console.log("resultText", resultText);
     const replaceKeyword = () => {
       if (listKeywords) {
         let replacementLength = listKeywords.length;
         if (replacementLength > 0) {
           for (let i = 0; i < replacementLength; i++) {
             let singleListKeywords = listKeywords[i].list;
-            let singleListKeywordsLength = listKeywords[i].list.length;
-            if (singleListKeywordsLength > 0) {
+            let singleListKeywordsLength = listKeywords[i].list?.length;
+            if (singleListKeywordsLength && singleListKeywordsLength > 0) {
               for (let j = 0; j < singleListKeywordsLength; j++) {
-                resultText = resultText.replaceAll(
-                  singleListKeywords[j].key,
-                  singleListKeywords[j].value
-                );
+                if (singleListKeywords && singleListKeywords[j].preview_value) {
+                  let singleExample = singleListKeywords[j].preview_value;
+                  if (singleExample) {
+                    resultText = resultText.replaceAll(
+                      singleListKeywords[j].value,
+                      singleExample
+                    );
+                  }
+                }
               }
             }
           }
@@ -153,7 +157,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             <div>
               <ReactToPrint
                 trigger={() => (
-                  <Button className="button--print">
+                  <Button className="button__print">
                     <div className="icon">
                       <img
                         src={IconPrintHover}
@@ -166,12 +170,20 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
                 )}
                 content={() => printElementRef.current}
               />
-              <img
-                src={IconEdit}
-                alt=""
-                className="iconEdit"
-                onClick={() => onChangeShowEditor(true)}
-              />
+              <Tooltip
+                title="Chỉnh sửa"
+                color="#FCAF17"
+                mouseEnterDelay={0}
+                mouseLeaveDelay={0}
+                overlayInnerStyle={{ textAlign: "center", padding: "5px 10px" }}
+              >
+                <img
+                  src={IconEdit}
+                  alt=""
+                  className="iconEdit"
+                  onClick={() => onChangeShowEditor(true)}
+                />
+              </Tooltip>
             </div>
           </div>
         </div>

@@ -21,15 +21,19 @@ import moment from "moment";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import "./customer.scss";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import GeneralInformation from "./general.information";
-import { AccountResponse } from "model/account/account.model";
+import {
+  AccountResponse,
+  AccountSearchQuery,
+} from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { RegUtil } from "utils/RegUtils";
+import CustomInputContact from "./customInputContact";
 
 const { Option } = Select;
 const { Panel } = Collapse;
@@ -49,11 +53,28 @@ const CustomerAdd = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-  const [isShowInput, setIsShowInput] = React.useState<boolean>(true);
-
-  const handleShowInput = (value: any) => {
-    setIsShowInput(value.length > 0);
+  const initQueryAccount: AccountSearchQuery = {
+    info: "",
   };
+  const AccountChangeSearch = React.useCallback(
+    (value) => {
+      initQueryAccount.info = value;
+      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
+    },
+    [dispatch, initQueryAccount]
+  );
+
+  const setDataAccounts = React.useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      const _items = data.items.filter((item) => item.status === "active");
+      setAccounts(_items);
+    },
+    []
+  );
+
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
@@ -79,15 +100,6 @@ const CustomerAdd = (props: any) => {
     }
   }, [dispatch, districtId]);
 
-  const setDataAccounts = React.useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-    },
-    []
-  );
   React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
@@ -99,31 +111,31 @@ const CustomerAdd = (props: any) => {
     dispatch(CustomerLevels(setLevels));
   }, [dispatch]);
   React.useEffect(() => {
-    customerForm.setFieldsValue(new CustomerModel());
+    let customer_type_id = 2
+    customerForm.setFieldsValue({...new CustomerModel(), customer_type_id});
   }, [customerForm]);
   const setResult = React.useCallback(
     (result) => {
       if (result) {
         showSuccess("Thêm khách hàng thành công");
-        history.goBack();
+        history.replace(`/customers/${result.id}`);
       }
     },
     [history]
   );
 
   const handleSubmit = (values: any) => {
-    console.log("Success:", values);
     let area = areas.find((area) => area.id === districtId);
     let piece = {
       ...values,
-      birthday: moment(new Date(values.birthday), "YYYY-MM-DD").format(
-        "YYYY-MM-DD"
-      ),
+      birthday: values.birthday
+      ? new Date(values.birthday).toUTCString()
+      : null,
       wedding_date: values.wedding_date
-        ? new Date(values.wedding_date).toISOString()
+        ? new Date(values.wedding_date).toUTCString()
         : null,
       status: status,
-      city_id: area.city_id,
+      city_id: area ? area.city_id : null,
       contacts: [
         {
           ...CustomerContactClass,
@@ -134,7 +146,6 @@ const CustomerAdd = (props: any) => {
         },
       ],
     };
-    console.log(piece);
     dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
   };
   const handleSubmitFail = (errorInfo: any) => {
@@ -178,6 +189,7 @@ const CustomerAdd = (props: any) => {
               countries={countries}
               wards={wards}
               handleChangeArea={handleChangeArea}
+              AccountChangeSearch={AccountChangeSearch}
             />
           </Col>
         </Row>
@@ -185,10 +197,9 @@ const CustomerAdd = (props: any) => {
           <Col span={18}>
             <Collapse
               className="customer-contact-collapse"
-              defaultActiveKey={["1"]}
               style={{ backgroundColor: "white", marginTop: 16 }}
               expandIconPosition="right"
-              onChange={(value) => handleShowInput(value)}
+              defaultActiveKey={["1"]}
             >
               <Panel
                 className=""
@@ -206,78 +217,7 @@ const CustomerAdd = (props: any) => {
                 key="1"
               >
                 <Row gutter={30} style={{ padding: "0 15px" }}>
-                  <Col span={24}>
-                    <Form.Item
-                      label={<b>Họ và tên:</b>}
-                      name="contact_name"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng nhập họ tên khách hàng",
-                        },
-                        {
-                          pattern: RegUtil.NO_ALL_SPACE,
-                          message: "Tên không được có khoảng trống ở đầu",
-                        },
-                      ]}
-                    >
-                      <Input maxLength={255} placeholder="Nhập họ và tên" />
-                    </Form.Item>
-                  </Col>
-                  {isShowInput && (
-                    <>
-                      <Col span={12}>
-                        <Form.Item
-                          label={<b>Số điện thoại:</b>}
-                          name="contact_phone"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Vui lòng nhập số điện thoại",
-                            },
-                            {
-                              pattern: RegUtil.PHONE,
-                              message: "Số điện thoại chưa đúng định dạng",
-                            },
-                          ]}
-                        >
-                          <Input
-                            style={{ borderRadius: 5, width: "100%" }}
-                            minLength={9}
-                            maxLength={15}
-                            placeholder="Nhập số điện thoại"
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item
-                          label={<b>Email:</b>}
-                          name="contact_email"
-                          // rules={[
-                          //   {
-                          //     required: true,
-                          //     message: "Vui lòng nhập thư điện tử",
-                          //   },
-                          // ]}
-                        >
-                          <Input maxLength={255} placeholder="Nhập email" />
-                        </Form.Item>
-                      </Col>
-                    </>
-                  )}
-
-                  <Col span={24} style={{ padding: "0 1rem" }}>
-                    <Row gutter={8}>
-                      <Col span={24}>
-                        <Form.Item label={<b>Ghi chú:</b>} name="contact_note">
-                          <Input.TextArea
-                            maxLength={500}
-                            placeholder="Nhập ghi chú"
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Col>
+                  <CustomInputContact  form={customerForm}/>
                 </Row>
               </Panel>
             </Collapse>

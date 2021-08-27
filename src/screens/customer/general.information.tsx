@@ -9,13 +9,16 @@ import {
   Space,
   Switch,
 } from "antd";
+import { useState } from "react";
 import { RegUtil } from "utils/RegUtils";
 import "./customer.scss";
+import CustomInput from "./customInput";
 
 const { Option } = Select;
 
 const GeneralInformation = (props: any) => {
   const {
+    form,
     status,
     setStatus,
     areas,
@@ -23,6 +26,7 @@ const GeneralInformation = (props: any) => {
     wards,
     handleChangeArea,
     isEdit,
+    AccountChangeSearch,
   } = props;
 
   return (
@@ -60,25 +64,15 @@ const GeneralInformation = (props: any) => {
         >
           <Row gutter={30} style={{ padding: "16px 30px" }}>
             <Col span={24}>
-              <Form.Item
+              <CustomInput
                 name="full_name"
-                label={<b>Họ tên khách hàng:</b>}
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập họ tên khách hàng",
-                  },
-                  {
-                    pattern: RegUtil.NO_ALL_SPACE,
-                    message: "Tên không được có khoảng trống ở đầu",
-                  },
-                ]}
-              >
-                <Input
-                  maxLength={255}
-                  placeholder="Nhập họ và tên khách hàng"
-                />
-              </Form.Item>
+                label="Họ tên khách hàng:"
+                form={form}
+                message="Vui lòng nhập họ tên khách hàng"
+                placeholder="Nhập họ và tên khách hàng"
+                isRequired={true}
+                maxLength={255}
+              />
             </Col>
             <Col span={12}>
               <Form.Item
@@ -178,13 +172,17 @@ const GeneralInformation = (props: any) => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label={<b>Mã số thuế:</b>} name="tax_code"  rules={[
+                  <Form.Item
+                    label={<b>Mã số thuế:</b>}
+                    name="tax_code"
+                    rules={[
                       {
                         pattern: RegUtil.NUMBERREG,
                         message: "Mã số thuế chỉ được phép nhập số",
                       },
-                    ]}>
-                    <Input maxLength={20} placeholder="Mã số thuế" />
+                    ]}
+                  >
+                    <Input maxLength={255} placeholder="Mã số thuế" />
                   </Form.Item>
                 </Col>
 
@@ -266,7 +264,7 @@ const GeneralInformation = (props: any) => {
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item
+                  {/* <Form.Item
                     label={<b>Địa chỉ chi tiết:</b>}
                     name="full_address"
                     // rules={[
@@ -277,10 +275,19 @@ const GeneralInformation = (props: any) => {
                     // ]}
                   >
                     <Input
-                      maxLength={255}
+                      maxLength={500}
                       placeholder="Nhập địa chỉ chi tiết"
                     />
-                  </Form.Item>
+                  </Form.Item> */}
+                  <CustomInput
+                name="full_address"
+                label="Địa chỉ chi tiết:"
+                form={form}
+                message="Vui lòng nhập địa chỉ"
+                placeholder="Nhập địa chỉ chi tiết"
+                maxLength={500}
+                isRequired={false}
+              />
                 </Col>
               </Row>
             </Col>
@@ -300,12 +307,12 @@ const GeneralInformation = (props: any) => {
               <Form.Item
                 name="customer_type_id"
                 label={<b>Loại khách hàng:</b>}
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn loại khách hàng",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng chọn loại khách hàng",
+                //   },
+                // ]}
               >
                 <Select
                   showSearch
@@ -326,12 +333,12 @@ const GeneralInformation = (props: any) => {
               <Form.Item
                 name="customer_group_id"
                 label={<b>Nhóm khách hàng:</b>}
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn nhóm khách hàng",
-                  },
-                ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng chọn nhóm khách hàng",
+                //   },
+                // ]}
               >
                 <Select
                   showSearch
@@ -342,7 +349,7 @@ const GeneralInformation = (props: any) => {
                   {props.groups &&
                     props.groups.map((group: any) => (
                       <Option key={group.id} value={group.id}>
-                        {group.name + ` - ${group.code}`}
+                        {group.name}
                       </Option>
                     ))}
                 </Select>
@@ -353,23 +360,25 @@ const GeneralInformation = (props: any) => {
               <Form.Item
                 name="responsible_staff_code"
                 label={<b>Nhân viên phụ trách:</b>}
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn cấp độ khách hàng",
-                  },
-                ]}
+
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng chọn cấp độ khách hàng",
+                //   },
+                // ]}
               >
                 <Select
                   showSearch
                   placeholder="Chọn nv phụ trách"
                   allowClear
                   optionFilterProp="children"
+                  onSearch={(value) => AccountChangeSearch(value)}
                 >
                   {props.accounts &&
                     props.accounts.map((c: any) => (
                       <Option key={c.id} value={c.code}>
-                        {c.full_name + " - " + c.code}
+                        {`${c.code} - ${c.full_name}`}
                       </Option>
                     ))}
                 </Select>
@@ -388,32 +397,3 @@ const GeneralInformation = (props: any) => {
 };
 
 export default GeneralInformation;
-
-{
-  /* <Col span={24}>
-                  <Form.Item
-                    name="customer_level_id"
-                    label={<b>Cấp độ khách hàng:</b>}
-
-                    // rules={[
-                    //   {
-                    //     required: true,
-                    //     message: "Vui lòng chọn cấp độ khách hàng",
-                    //   },
-                    // ]}
-                  >
-                    <Select
-                      showSearch
-                      placeholder="Phân loại cấp độ khách hàng"
-                      allowClear
-                      optionFilterProp="children"
-                    >
-                      {levels.map((level) => (
-                        <Option key={level.id} value={level.id}>
-                          {level.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col> */
-}

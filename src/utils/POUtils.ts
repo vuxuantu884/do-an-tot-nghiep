@@ -6,10 +6,58 @@ import {
   PurchaseOrderLineItem,
   Vat,
 } from "model/purchase-order/purchase-item.model";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchaseProcumentLineItem } from "model/purchase-order/purchase-procument";
 import { Products } from "./AppUtils";
+import { POStatus, ProcumentStatus, PoFinancialStatus } from "utils/Constants";
 
 const POUtils = {
+  combinePOStatus: (poData: PurchaseOrder) => {
+    /**
+     * trang thai PO = trang thai nhap kho + trang thai thanh toan
+     * 0: dat hang, 1: xac nhan, 2: phieu nhap, 3: nhap kho, 4: hoan thanh
+     */
+    const {
+      receive_status,
+      financial_status,
+      receipt_quantity,
+      planned_quantity,
+      status,
+      procurements,
+    } = poData;
+    if (status === POStatus.DRAFT || status === POStatus.CANCELLED)
+      return status;
+    if (!receive_status) return POStatus.ORDER;
+    if (
+      [ProcumentStatus.NOT_RECEIVED, ProcumentStatus.PARTIAL_RECEIVED].includes(
+        receive_status
+      )
+    ) {
+      let totalOrdered = 0;
+      procurements &&
+        procurements.map((procurementItem) => {
+          totalOrdered += POUtils.totalQuantityProcument(
+            procurementItem.procurement_items
+          );
+        });
+
+      if (planned_quantity && totalOrdered >= planned_quantity)
+        return POStatus.PROCUREMENT_DRAFT;
+      else return POStatus.FINALIZED;
+    }
+    if (receive_status === ProcumentStatus.RECEIVED) {
+      return POStatus.PROCUREMENT_RECEIVED;
+    }
+    if (receive_status === ProcumentStatus.FINISHED) {
+      if (financial_status === PoFinancialStatus.PAID) {
+        if (!receipt_quantity || !planned_quantity)
+          return POStatus.PROCUREMENT_RECEIVED;
+        if (receipt_quantity >= planned_quantity) return POStatus.COMPLETED;
+        else return POStatus.FINISHED;
+      } else return POStatus.PROCUREMENT_RECEIVED;
+    }
+    return POStatus.DRAFT;
+  },
   convertVariantToLineitem: (
     variants: Array<VariantResponse>
   ): Array<PurchaseOrderLineItem> => {
@@ -285,6 +333,7 @@ const POUtils = {
     data.forEach((item) => {
       result.push({
         line_item_id: item.id ? item.id : new Date().getTime(),
+        code: item.code,
         sku: item.sku,
         variant: item.variant,
         variant_image: item.variant_image,
