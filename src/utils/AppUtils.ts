@@ -225,7 +225,12 @@ export const generateQuery = (obj: any) => {
     let a: string = Object.keys(obj)
       .map((key, index) => {
         let url = "";
-        if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "" && obj[key].length !== 0  ) {
+        if (
+          obj[key] !== undefined &&
+          obj[key] !== null &&
+          obj[key] !== "" &&
+          obj[key].length !== 0
+        ) {
           let value = obj[key];
           if (obj[key] instanceof Array) {
             value = obj[key].join(",");
@@ -788,7 +793,7 @@ export const getDateLastPayment = (items: any) => {
 };
 
 //Lấy ra địa chỉ giao hàng mắc định
-export const getShipingAddresDefault = (items: CustomerResponse | null) => {
+export const getShippingAddressDefault = (items: CustomerResponse | null) => {
   let objShippingAddress = null;
   if (items !== null) {
     for (let i = 0; i < items.shipping_addresses.length; i++) {

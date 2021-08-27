@@ -1,53 +1,40 @@
 // @ts-ignore
 import {
   Card,
-  Row,
+  Checkbox,
   Col,
+  DatePicker,
+  Divider,
+  Form,
+  Row,
+  Select,
   Space,
   Typography,
-  Form,
-  Select,
-  DatePicker,
-  Checkbox,
-  Divider,
 } from "antd";
-import moment from "moment";
-import storeBluecon from "assets/img/storeBlue.svg";
 import deliveryIcon from "assets/icon/delivery.svg";
 import selfdeliver from "assets/icon/self_shipping.svg";
 import shoppingBag from "assets/icon/shopping_bag.svg";
 import wallClock from "assets/icon/wall_clock.svg";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { useDispatch, useSelector } from "react-redux";
-import React, { useCallback, useLayoutEffect, useState } from "react";
-import { AccountResponse } from "model/account/account.model";
-import { ShipperGetListAction } from "domain/actions/account/account.action";
-import CustomSelect from "component/custom/select.custom";
+import storeBluecon from "assets/img/storeBlue.svg";
 import NumberInput from "component/custom/number-input.custom";
+import CustomSelect from "component/custom/select.custom";
+import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
-  formatCurrency,
-  getShipingAddresDefault,
-  replaceFormatString,
-  SumWeight,
-} from "utils/AppUtils";
+  DeliveryServicesGetList,
+  InfoGHNAction,
+  InfoGHTKAction,
+  InfoVTPAction,
+} from "domain/actions/order/order.action";
+import { AccountResponse } from "model/account/account.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  PaymentMethodOption,
-  ShipmentMethodOption,
-  // TRANSPORTS,
-} from "utils/Constants";
-import {
-  OrderLineItemRequest,
-  ShippingGHTKRequest,
   GHNFeeRequest,
+  OrderLineItemRequest,
+  OrderPaymentRequest,
+  ShippingGHTKRequest,
   VTPFeeRequest,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import {
-  DeliveryServicesGetList,
-  InfoGHTKAction,
-  InfoGHNAction,
-  InfoVTPAction,
-} from "domain/actions/order/order.action";
 import {
   DeliveryServiceResponse,
   GHNFeeResponse,
@@ -56,6 +43,16 @@ import {
   StoreCustomResponse,
   VTPFeeResponse,
 } from "model/response/order/order.response";
+import moment from "moment";
+import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  formatCurrency,
+  getShippingAddressDefault,
+  replaceFormatString,
+  SumWeight,
+} from "utils/AppUtils";
+import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 type ShipmentCardProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
@@ -76,13 +73,14 @@ type ShipmentCardProps = {
   officeTime: boolean | undefined;
   setFeeGhtk: (value: number) => void;
   OrderDetail?: OrderResponse | null;
+  payments?: OrderPaymentRequest[];
 };
 
 const ShipmentCard: React.FC<ShipmentCardProps> = (
   props: ShipmentCardProps
 ) => {
   console.log("propsShipment", props);
-  const { OrderDetail } = props;
+  const { OrderDetail, paymentMethod, payments } = props;
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
@@ -93,6 +91,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   const [shipmentMethodState, setshipmentMethod] = useState<number>(4);
   const ShipMethodOnChange = (value: number) => {
     setshipmentMethod(value);
+    props.setPaymentMethod(value);
     props.setShipmentMethodProps(value);
     if (props.paymentMethod !== PaymentMethodOption.PREPAYMENT) {
       if (value === ShipmentMethodOption.SELFDELIVER) {
@@ -132,9 +131,9 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       pick_address: props.storeDetail?.address,
       pick_province: props.storeDetail?.city_name,
       pick_district: props.storeDetail?.district_name,
-      province: getShipingAddresDefault(props.cusomerInfo)?.city,
-      district: getShipingAddresDefault(props.cusomerInfo)?.district,
-      address: getShipingAddresDefault(props.cusomerInfo)?.full_address,
+      province: getShippingAddressDefault(props.cusomerInfo)?.city,
+      district: getShippingAddressDefault(props.cusomerInfo)?.district,
+      address: getShippingAddressDefault(props.cusomerInfo)?.full_address,
       weight: SumWeight(props.items),
       value: props.amount,
       transport: "",
@@ -184,16 +183,17 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       sender_district_id: props.storeDetail?.district_id,
       sender_ward_id: props.storeDetail?.ward_id,
 
-      receive_country_id: getShipingAddresDefault(props.cusomerInfo)
+      receive_country_id: getShippingAddressDefault(props.cusomerInfo)
         ?.country_id,
-      receive_city_id: getShipingAddresDefault(props.cusomerInfo)?.city_id,
-      receive_district_id: getShipingAddresDefault(props.cusomerInfo)
+      receive_city_id: getShippingAddressDefault(props.cusomerInfo)?.city_id,
+      receive_district_id: getShippingAddressDefault(props.cusomerInfo)
         ?.district_id,
-      receive_ward_id: getShipingAddresDefault(props.cusomerInfo)?.ward_id,
+      receive_ward_id: getShippingAddressDefault(props.cusomerInfo)?.ward_id,
 
       sender_address:
         props.storeDetail?.address || props.storeDetail?.full_address,
-      receive_address: getShipingAddresDefault(props.cusomerInfo)?.full_address,
+      receive_address: getShippingAddressDefault(props.cusomerInfo)
+        ?.full_address,
 
       price: 0,
       quantity: 0,
@@ -259,16 +259,17 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       sender_district_id: props.storeDetail?.district_id,
       sender_ward_id: props.storeDetail?.ward_id,
 
-      receive_country_id: getShipingAddresDefault(props.cusomerInfo)
+      receive_country_id: getShippingAddressDefault(props.cusomerInfo)
         ?.country_id,
-      receive_city_id: getShipingAddresDefault(props.cusomerInfo)?.city_id,
-      receive_district_id: getShipingAddresDefault(props.cusomerInfo)
+      receive_city_id: getShippingAddressDefault(props.cusomerInfo)?.city_id,
+      receive_district_id: getShippingAddressDefault(props.cusomerInfo)
         ?.district_id,
-      receive_ward_id: getShipingAddresDefault(props.cusomerInfo)?.ward_id,
+      receive_ward_id: getShippingAddressDefault(props.cusomerInfo)?.ward_id,
 
       sender_address:
         props.storeDetail?.address || props.storeDetail?.full_address,
-      receive_address: getShipingAddresDefault(props.cusomerInfo)?.full_address,
+      receive_address: getShippingAddressDefault(props.cusomerInfo)
+        ?.full_address,
 
       price: 0,
       quantity: 0,
@@ -318,6 +319,14 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     props.storeDetail,
   ]);
 
+  const totalAmountPaid = () => {
+    let total = 0;
+    if (payments) {
+      payments.forEach((p) => (total = total + p.amount));
+    }
+    return total;
+  };
+
   useLayoutEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
   }, [dispatch]);
@@ -344,7 +353,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       icon: selfdeliver,
     },
     {
-      name: "Nhận tại cửa hàng",
+      name: "Nhận tại cửa hàng 1",
       value: 3,
       icon: shoppingBag,
     },
@@ -499,7 +508,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                         ? props.shippingFeeCustomer
                         : 0) -
                       (props.discountValue ? props.discountValue : 0) -
-                      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0)
+                      (OrderDetail?.total_paid ? OrderDetail?.total_paid : 0) -
+                      totalAmountPaid()
                     }
                     style={{
                       textAlign: "right",

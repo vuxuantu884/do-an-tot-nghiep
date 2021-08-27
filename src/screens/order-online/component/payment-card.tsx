@@ -18,7 +18,7 @@ import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
-import Calculate from "assets/icon/caculate.svg";
+import Caculate from "assets/icon/caculate.svg";
 
 // @ts-ignore
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
@@ -48,23 +48,23 @@ type PaymentCardProps = {
 };
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
+  const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
+    []
+  );
   const changePaymentMethod = (value: number) => {
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
       handlePickPaymentMethod(PaymentMethodCode.CASH);
+    } else {
+      setPaymentData([]);
+      props.setPayments([]);
     }
-    console.log("valuePayment", value);
-    console.log("paymentData", paymentData);
   };
 
   const dispatch = useDispatch();
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
-
-  const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
-    []
-  );
 
   const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter(
@@ -129,7 +129,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     props.setPayments([...paymentData]);
   };
 
-  const calculateMax = (totalAmount: number, index: number) => {
+  const caculateMax = (totalAmount: number, index: number) => {
     let total = totalAmount;
     for (let i = 0; i < index; i++) {
       if (paymentData[i].code === PaymentMethodCode.POINT) {
@@ -204,7 +204,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 <div>
                   <div>
                     <div>
-                      <img src={Calculate} alt=""></img>
+                      <img src={Caculate} alt=""></img>
                     </div>
                   </div>
                 </div>
@@ -396,7 +396,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                     }
                                     min={0}
                                     max={
-                                      calculateMax(props.amount, index) / 1000
+                                      caculateMax(props.amount, index) / 1000
                                     }
                                     onChange={(value) => {
                                       handleInputPoint(index, value);
@@ -436,7 +436,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                               <InputNumber
                                 size="middle"
                                 min={0}
-                                max={calculateMax(props.amount, index)}
+                                max={caculateMax(props.amount, index)}
                                 value={method.amount}
                                 disabled={
                                   method.code === PaymentMethodCode.POINT

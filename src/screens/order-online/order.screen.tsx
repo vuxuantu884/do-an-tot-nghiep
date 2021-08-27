@@ -55,8 +55,8 @@ import { useQuery } from "utils/useQuery";
 import CustomeInputTags from "./component/custom-input-tags";
 import CustomerCard from "./component/customer-card";
 import CardProduct from "./component/order-detail/CardProduct";
+import ShipmentCard from "./component/order-detail/CardShipment";
 import PaymentCard from "./component/payment-card";
-import ShipmentCard from "./component/shipment-card";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 //#endregion
 
@@ -652,7 +652,7 @@ export default function Order() {
                 paymentMethod={paymentMethod}
                 shippingFeeCustomer={shippingFeeCustomer}
                 shippingFeeCustomerHVC={shippingFeeCustomerHVC}
-                cusomerInfo={customer}
+                customerInfo={customer}
                 items={items}
                 discountValue={discountValue}
                 setOfficeTime={setOfficeTime}
