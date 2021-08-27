@@ -17,7 +17,7 @@ import { Link } from "react-router-dom";
 import {
   OrderItemDiscountModel,
   OrderItemModel,
-} from "model/other/Order/order-model";
+} from "model/other/order/order-model";
 import {
   VariantResponse,
   VariantSearchQuery,
