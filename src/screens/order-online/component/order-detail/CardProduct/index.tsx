@@ -37,7 +37,7 @@ import { StoreResponse } from "model/core/store.model";
 import {
   OrderItemDiscountModel,
   OrderSettingsModel,
-} from "model/other/Order/order-model";
+} from "model/other/order/order-model";
 import {
   VariantResponse,
   VariantSearchQuery,
