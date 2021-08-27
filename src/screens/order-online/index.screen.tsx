@@ -111,7 +111,8 @@ const ListOrderScreen: React.FC = () => {
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
-      title: "ID đơn hàng",
+      title: "ID",
+      width:"1%",
       dataIndex: "id",
       key: "id",
       visible: true,
@@ -130,7 +131,7 @@ const ListOrderScreen: React.FC = () => {
         <div className="items">
           {items.map((item, i) => {
             return (
-              <div className="item">
+              <div className="item" style={{textAlign: "left"}}>
                 <div className="item-sku">{item.sku}</div>
                 <div className="item-quantity">{item.quantity}</div>
               </div>
@@ -139,7 +140,7 @@ const ListOrderScreen: React.FC = () => {
         </div>
       ),
       visible: true,
-      align: "center",
+      align: "left",
     },
     
     {
