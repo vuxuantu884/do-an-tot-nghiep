@@ -16,6 +16,7 @@ import moment from "moment";
 type PaymentModalProps = {
   visible: boolean;
   poId: number;
+  remainPayment: number;
   purchasePayment?: PurchasePayments;
   onCancel: () => void;
   onOk: (isLoad: boolean) => void;
@@ -25,7 +26,8 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   props: PaymentModalProps
 ) => {
   const dispatch = useDispatch();
-  const { poId, purchasePayment, visible, onCancel, onOk } = props;
+  const { poId, purchasePayment, visible, onCancel, onOk, remainPayment } =
+    props;
   const [formPayment] = Form.useForm();
   const [confirmLoading, setConfirmLoading] = React.useState(false);
   const [disabledRef, setDisabledRef] = React.useState(false);
@@ -171,6 +173,11 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               rules={[
                 { required: true, message: "Vui lòng nhập số tiền thanh toán" },
               ]}
+              help={
+                <div className="text-muted">
+                  {`Số tiền còn phải trả: ${remainPayment}`}
+                </div>
+              }
             >
               <NumberInput
                 format={(a: string) =>

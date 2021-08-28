@@ -473,13 +473,29 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         </Form.Item>
       </Card>
 
-      <PaymentModal
-        visible={isVisiblePaymentModal}
-        onOk={OkPaymentModal}
-        onCancel={CancelPaymentModal}
-        purchasePayment={paymentItem}
-        poId={props.poId}
-      />
+      <Form.Item
+        noStyle
+        shouldUpdate={(prev, current) =>
+          prev[POField.total_paid] !== current[POField.total_paid] ||
+          prev[POField.total] !== current[POField.total]
+        }
+      >
+        {({ getFieldValue }) => {
+          let total_paid = getFieldValue(POField.total_paid);
+          let total = getFieldValue(POField.total);
+          let remainPayment = total - total_paid;
+          return (
+            <PaymentModal
+              visible={isVisiblePaymentModal}
+              onOk={OkPaymentModal}
+              onCancel={CancelPaymentModal}
+              purchasePayment={paymentItem}
+              poId={props.poId}
+              remainPayment={remainPayment}
+            />
+          );
+        }}
+      </Form.Item>
       <ModalConfirm
         onCancel={() => {
           setConfirmPayment(false);
