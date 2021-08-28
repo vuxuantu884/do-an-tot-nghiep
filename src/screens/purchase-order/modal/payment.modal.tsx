@@ -175,7 +175,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
               ]}
               help={
                 <div className="text-muted">
-                  {`Số tiền còn phải trả: ${remainPayment}`}
+                  {`Số tiền còn phải trả: ${formatCurrency(remainPayment)}`}
                 </div>
               }
             >

@@ -103,13 +103,6 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
           procurement_items = [...procurement_items, newProcumentItem];
         }
       }
-      if (type === "draft") {
-        newProcumentItem.quantity = 0;
-      } else if (type === "confirm") {
-        newProcumentItem.quantity = 0;
-      } else if (type === "inventory") {
-        newProcumentItem.real_quantity = 0;
-      }
       form.setFieldsValue({ procurement_items: [...procurement_items] });
     },
     [form, type, allProcurementItems]
