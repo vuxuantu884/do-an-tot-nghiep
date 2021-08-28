@@ -9,6 +9,7 @@ import {
   Divider,
   Col,
   FormInstance,
+  Checkbox,
 } from "antd";
 
 import {
@@ -57,6 +58,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   } = props;
   const [data, setData] = useState<Array<SupplierResponse>>([]);
   const dispatch = useDispatch();
+  const [visibleSupplierAddress, setVisibleSupplierAddress] = useState(false);
   const [isVisibleAddressModal, setVisibleAddressModal] = useState(false);
   const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] =
     useState(false);
@@ -191,10 +193,9 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
     [formMain]
   );
 
-  // useEffect(() => {
-  //   dispatch(CountryGetAllAction(setCountries));
-  //   dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
-  // }, [dispatch, setListDistrict]);
+  const changeVisibleSupplierAddress = () => {
+    setVisibleSupplierAddress(!visibleSupplierAddress);
+  };
 
   return (
     <div className="supplier">
@@ -280,173 +281,327 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
               );
             }}
           </Form.Item>
-          {isSelectSupplier === true && (
-            <div>
-              <Form.Item hidden name="supplier_id">
-                <Input />
-              </Form.Item>
-              <Form.Item hidden name="supplier">
-                <Input />
-              </Form.Item>
-              <Form.Item hidden name="phone">
-                <Input />
-              </Form.Item>
-              <Form.Item hidden name="billing_address">
-                <Input />
-              </Form.Item>
-              <Form.Item hidden name="supplier_address">
-                <Input />
-              </Form.Item>
-              {showSupplierAddress && (
-                <div className="padding-lef-right">
-                  <Row gutter={24}>
-                    <Col
-                      xs={24}
-                      lg={12}
-                      style={{
-                        borderRight: "1px solid #E5E5E5",
-                        paddingTop: "14px",
-                      }}
-                      className="font-weight-500 customer-info-left"
+        </div>
+        {isSelectSupplier === true && (
+          <div>
+            <Form.Item hidden name="supplier_id">
+              <Input />
+            </Form.Item>
+            <Form.Item hidden name="supplier">
+              <Input />
+            </Form.Item>
+            <Form.Item hidden name="phone">
+              <Input />
+            </Form.Item>
+            <Form.Item hidden name="billing_address">
+              <Input />
+            </Form.Item>
+            <Form.Item hidden name="supplier_address">
+              <Input />
+            </Form.Item>
+
+            <div className="padding-lef-right">
+              {showBillingAddress && (
+                <Row gutter={24}>
+                  <Col
+                    xs={24}
+                    lg={12}
+                    style={{
+                      borderRight: "1px solid #E5E5E5",
+                    }}
+                    className="font-weight-500 customer-info-left"
+                  >
+                    <Form.Item
+                      className="margin-bottom-0"
+                      shouldUpdate={(prevValues, curValues) =>
+                        prevValues.supplier_id !== null &&
+                        curValues.supplier_id !== null &&
+                        prevValues.supplier_id !== undefined &&
+                        curValues.supplier_id !== undefined
+                      }
                     >
-                      <Form.Item
-                        className="margin-bottom-0"
-                        shouldUpdate={(prevValues, curValues) =>
-                          prevValues.supplier_id !== null &&
-                          curValues.supplier_id !== null &&
-                          prevValues.supplier_id !== undefined &&
-                          curValues.supplier_id !== undefined
-                        }
-                      >
-                        {({ getFieldValue }) => {
-                          let supplier_id = getFieldValue("supplier_id");
-                          let supplier_address: PurchaseAddress =
-                            getFieldValue("supplier_address");
-                          return supplier_id ? (
-                            <div>
-                              <div className="title-address">
-                                Địa chỉ xuất hàng :
-                              </div>
-                              <Row className="customer-row-info">
-                                <span style={{ fontWeight: 500 }}>
-                                  <img
-                                    src={addressIcon}
-                                    alt=""
-                                    style={{
-                                      width: "18px",
-                                      height: "18px",
-                                    }}
-                                  />{" "}
-                                  {supplier_address.name !== null
-                                    ? supplier_address.name
-                                    : "--"}
-                                </span>
-                              </Row>
-                              <Row className="customer-row-info">
-                                <span>
-                                  <PhoneFilled />{" "}
-                                  {supplier_address.phone !== ""
-                                    ? supplier_address.phone
-                                    : "---"}
-                                </span>
-                              </Row>
-                              <Row className="customer-row-info">
-                                <span>
-                                  <EnvironmentFilled />{" "}
-                                  {supplier_address.full_address !== ""
-                                    ? supplier_address.full_address
-                                    : "---"}
-                                </span>
-                              </Row>
-                              <Row className="customer-row-info">
-                                <span>
-                                  {supplier_address.country !== ""
-                                    ? supplier_address.country
-                                    : ""}
-                                  {supplier_address.city !== null
-                                    ? " - " + supplier_address.city
-                                    : ""}
-                                  {supplier_address.district !== null
-                                    ? " - " + supplier_address.district
-                                    : ""}
-                                  {supplier_address.ward !== null &&
-                                  supplier_address.ward !== undefined
-                                    ? " - " + supplier_address.ward
-                                    : ""}
-                                </span>
-                              </Row>
-                              <Row>
-                                <Button
-                                  type="link"
-                                  className="btn-style"
-                                  onClick={() =>
-                                    ShowEditAddressModal(
-                                      supplier_address,
-                                      AddressType.SUPPLIERADDRESS
-                                    )
-                                  }
-                                >
-                                  Thay đổi địa chỉ xuất hàng
-                                </Button>
-                              </Row>
+                      {({ getFieldValue }) => {
+                        let supplier_id = getFieldValue("supplier_id");
+                        let billing_address: PurchaseAddress =
+                          getFieldValue("billing_address");
+
+                        return supplier_id ? (
+                          <div>
+                            <div className="title-address">
+                              Địa chỉ nhận hóa đơn :
                             </div>
-                          ) : null;
-                        }}
-                      </Form.Item>
-                    </Col>
-                    <Col
-                      xs={24}
-                      lg={12}
-                      className="font-weight-500"
-                      style={{ paddingLeft: "34px", marginTop: "14px" }}
-                    >
-                      {isEdit ? (
-                        <div>
-                          <Form.Item hidden name="supplier_note" noStyle>
-                            <Input />
-                          </Form.Item>
-                          <Form.Item
-                            label={
-                              <label className="title-address">
+                            <Row className="customer-row-info">
+                              <span style={{ fontWeight: 500 }}>
                                 <img
-                                  src={noteCustomer}
+                                  src={addressIcon}
                                   alt=""
                                   style={{
-                                    width: "20px",
-                                    height: "20px",
-                                    marginRight: "10px",
+                                    width: "18px",
+                                    height: "18px",
                                   }}
-                                />
-                                Ghi chú của nhà cung cấp
-                              </label>
-                            }
-                            shouldUpdate={(prevValue, currentValue) =>
-                              prevValue.supplier_note !==
-                              currentValue.supplier_note
-                            }
-                          >
-                            {({ getFieldValue }) => {
-                              let supplier_note =
-                                getFieldValue("supplier_note");
-                              return (
-                                <div
-                                  style={{
-                                    color: "#666666",
-                                    fontWeight: 400,
-                                    fontSize: 14,
-                                  }}
-                                >
-                                  {supplier_note !== ""
-                                    ? supplier_note
-                                    : "Không có ghi chú"}
-                                </div>
-                              );
-                            }}
-                          </Form.Item>
-                        </div>
-                      ) : (
+                                />{" "}
+                                {billing_address.name !== null
+                                  ? billing_address.name
+                                  : "---"}
+                              </span>
+                            </Row>
+                            <Row className="customer-row-info">
+                              <span>
+                                <PhoneFilled />{" "}
+                                {billing_address.phone !== ""
+                                  ? billing_address.phone
+                                  : "---"}
+                              </span>
+                            </Row>
+                            <Row className="customer-row-info">
+                              <span>
+                                <EnvironmentFilled />{" "}
+                                {billing_address.full_address !== ""
+                                  ? billing_address.full_address
+                                  : "---"}
+                              </span>
+                            </Row>
+                            <Row className="customer-row-info">
+                              <span>
+                                {billing_address.country !== ""
+                                  ? billing_address.country
+                                  : ""}
+                                {billing_address.city !== null
+                                  ? " - " + billing_address.city
+                                  : ""}
+                                {billing_address.district !== null
+                                  ? " - " + billing_address.district
+                                  : ""}
+                                {billing_address.ward !== null &&
+                                billing_address.ward !== undefined
+                                  ? " - " + billing_address.ward
+                                  : ""}
+                              </span>
+                            </Row>
+                            <Row>
+                              <Button
+                                type="link"
+                                className="btn-style"
+                                onClick={() =>
+                                  ShowEditAddressModal(
+                                    billing_address,
+                                    AddressType.BILLADDRESS
+                                  )
+                                }
+                              >
+                                Thay đổi địa chỉ nhận hóa đơn
+                              </Button>
+                            </Row>
+                          </div>
+                        ) : null;
+                      }}
+                    </Form.Item>
+                  </Col>
+                  <Col
+                    xs={24}
+                    lg={12}
+                    className="font-weight-500"
+                    style={{ paddingLeft: "34px", marginTop: "14px" }}
+                  >
+                    {isEdit ? (
+                      <div>
                         <Form.Item
-                          name="supplier_note"
+                          shouldUpdate={(prevValues, curValues) =>
+                            prevValues.billing_address !==
+                            curValues.billing_address
+                          }
+                          label={
+                            <label className="title-address">
+                              <img
+                                src={noteCustomer}
+                                alt=""
+                                style={{
+                                  width: "20px",
+                                  height: "20px",
+                                  marginRight: "10px",
+                                }}
+                              />
+                              Email gửi hóa đơn
+                            </label>
+                          }
+                        >
+                          {({ getFieldValue }) => {
+                            let billing_address: PurchaseAddress =
+                              getFieldValue("billing_address");
+                            return (
+                              <div
+                                style={{
+                                  color: "#666666",
+                                  fontWeight: 400,
+                                  fontSize: 14,
+                                }}
+                              >
+                                {billing_address?.email}
+                              </div>
+                            );
+                          }}
+                        </Form.Item>
+                      </div>
+                    ) : (
+                      <Form.Item
+                        name={["billing_address", "email"]}
+                        label={
+                          <label className="title-address">
+                            <img
+                              src={noteCustomer}
+                              alt=""
+                              style={{
+                                width: "20px",
+                                height: "20px",
+                                marginRight: "10px",
+                              }}
+                            />
+                            Email gửi hóa đơn
+                          </label>
+                        }
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng nhập email",
+                          },
+                          {
+                            pattern: RegUtil.EMAIL,
+                            message: "Vui lòng nhập đúng định dạng email",
+                          },
+                        ]}
+                      >
+                        <Input
+                          placeholder="Điền email"
+                          maxLength={255}
+                          style={{ marginTop: "10px" }}
+                        />
+                      </Form.Item>
+                    )}
+                  </Col>
+                </Row>
+              )}
+
+              <Divider style={{ padding: 0, margin: 0 }} />
+
+              <div className="margin-top-bottom-10">
+                <Row>
+                  <Checkbox
+                    className="checkbox-style"
+                    checked={visibleSupplierAddress}
+                    onChange={changeVisibleSupplierAddress}
+                  >
+                    Gửi hoá đơn
+                  </Checkbox>
+                </Row>
+              </div>
+              {showSupplierAddress && visibleSupplierAddress && (
+                <Row gutter={24}>
+                  <Col
+                    xs={24}
+                    lg={12}
+                    style={{
+                      borderRight: "1px solid #E5E5E5",
+                      paddingTop: "14px",
+                    }}
+                    className="font-weight-500 customer-info-left"
+                  >
+                    <Form.Item
+                      className="margin-bottom-0"
+                      shouldUpdate={(prevValues, curValues) =>
+                        prevValues.supplier_id !== null &&
+                        curValues.supplier_id !== null &&
+                        prevValues.supplier_id !== undefined &&
+                        curValues.supplier_id !== undefined
+                      }
+                    >
+                      {({ getFieldValue }) => {
+                        let supplier_id = getFieldValue("supplier_id");
+                        let supplier_address: PurchaseAddress =
+                          getFieldValue("supplier_address");
+                        return supplier_id ? (
+                          <div>
+                            <div className="title-address">
+                              Địa chỉ xuất hàng :
+                            </div>
+                            <Row className="customer-row-info">
+                              <span style={{ fontWeight: 500 }}>
+                                <img
+                                  src={addressIcon}
+                                  alt=""
+                                  style={{
+                                    width: "18px",
+                                    height: "18px",
+                                  }}
+                                />{" "}
+                                {supplier_address.name !== null
+                                  ? supplier_address.name
+                                  : "--"}
+                              </span>
+                            </Row>
+                            <Row className="customer-row-info">
+                              <span>
+                                <PhoneFilled />{" "}
+                                {supplier_address.phone !== ""
+                                  ? supplier_address.phone
+                                  : "---"}
+                              </span>
+                            </Row>
+                            <Row className="customer-row-info">
+                              <span>
+                                <EnvironmentFilled />{" "}
+                                {supplier_address.full_address !== ""
+                                  ? supplier_address.full_address
+                                  : "---"}
+                              </span>
+                            </Row>
+                            <Row className="customer-row-info">
+                              <span>
+                                {supplier_address.country !== ""
+                                  ? supplier_address.country
+                                  : ""}
+                                {supplier_address.city !== null
+                                  ? " - " + supplier_address.city
+                                  : ""}
+                                {supplier_address.district !== null
+                                  ? " - " + supplier_address.district
+                                  : ""}
+                                {supplier_address.ward !== null &&
+                                supplier_address.ward !== undefined
+                                  ? " - " + supplier_address.ward
+                                  : ""}
+                              </span>
+                            </Row>
+                            <Row>
+                              <Button
+                                type="link"
+                                className="btn-style"
+                                onClick={() =>
+                                  ShowEditAddressModal(
+                                    supplier_address,
+                                    AddressType.SUPPLIERADDRESS
+                                  )
+                                }
+                              >
+                                Thay đổi địa chỉ xuất hàng
+                              </Button>
+                            </Row>
+                          </div>
+                        ) : null;
+                      }}
+                    </Form.Item>
+                  </Col>
+                  <Col
+                    xs={24}
+                    lg={12}
+                    className="font-weight-500"
+                    style={{ paddingLeft: "34px", marginTop: "14px" }}
+                  >
+                    {isEdit ? (
+                      <div>
+                        <Form.Item hidden name="supplier_note" noStyle>
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
                           label={
                             <label className="title-address">
                               <img
@@ -461,207 +616,61 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                               Ghi chú của nhà cung cấp
                             </label>
                           }
-                        >
-                          <Input.TextArea
-                            placeholder="Điền ghi chú"
-                            rows={4}
-                            maxLength={500}
-                            style={{ marginTop: "10px" }}
-                          />
-                        </Form.Item>
-                      )}
-                    </Col>
-                  </Row>
-                </div>
-              )}
-              {showBillingAddress && (
-                <div className="padding-lef-right">
-                  <Divider style={{ padding: 0, margin: 0 }} />
-                  <div className="send-order-box">
-                    <Row gutter={24}>
-                      <Col
-                        xs={24}
-                        lg={12}
-                        style={{
-                          borderRight: "1px solid #E5E5E5",
-                          paddingTop: "14px",
-                        }}
-                        className="font-weight-500 customer-info-left"
-                      >
-                        <Form.Item
-                          className="margin-bottom-0"
-                          shouldUpdate={(prevValues, curValues) =>
-                            prevValues.supplier_id !== null &&
-                            curValues.supplier_id !== null &&
-                            prevValues.supplier_id !== undefined &&
-                            curValues.supplier_id !== undefined
+                          shouldUpdate={(prevValue, currentValue) =>
+                            prevValue.supplier_note !==
+                            currentValue.supplier_note
                           }
                         >
                           {({ getFieldValue }) => {
-                            let supplier_id = getFieldValue("supplier_id");
-                            let billing_address: PurchaseAddress =
-                              getFieldValue("billing_address");
-
-                            return supplier_id ? (
-                              <div>
-                                <div className="title-address">
-                                  Địa chỉ nhận hóa đơn :
-                                </div>
-                                <Row className="customer-row-info">
-                                  <span style={{ fontWeight: 500 }}>
-                                    <img
-                                      src={addressIcon}
-                                      alt=""
-                                      style={{
-                                        width: "18px",
-                                        height: "18px",
-                                      }}
-                                    />{" "}
-                                    {billing_address.name !== null
-                                      ? billing_address.name
-                                      : "---"}
-                                  </span>
-                                </Row>
-                                <Row className="customer-row-info">
-                                  <span>
-                                    <PhoneFilled />{" "}
-                                    {billing_address.phone !== ""
-                                      ? billing_address.phone
-                                      : "---"}
-                                  </span>
-                                </Row>
-                                <Row className="customer-row-info">
-                                  <span>
-                                    <EnvironmentFilled />{" "}
-                                    {billing_address.full_address !== ""
-                                      ? billing_address.full_address
-                                      : "---"}
-                                  </span>
-                                </Row>
-                                <Row className="customer-row-info">
-                                  <span>
-                                    {billing_address.country !== ""
-                                      ? billing_address.country
-                                      : ""}
-                                    {billing_address.city !== null
-                                      ? " - " + billing_address.city
-                                      : ""}
-                                    {billing_address.district !== null
-                                      ? " - " + billing_address.district
-                                      : ""}
-                                    {billing_address.ward !== null &&
-                                    billing_address.ward !== undefined
-                                      ? " - " + billing_address.ward
-                                      : ""}
-                                  </span>
-                                </Row>
-                                <Row>
-                                  <Button
-                                    type="link"
-                                    className="btn-style"
-                                    onClick={() =>
-                                      ShowEditAddressModal(
-                                        billing_address,
-                                        AddressType.BILLADDRESS
-                                      )
-                                    }
-                                  >
-                                    Thay đổi địa chỉ nhận hóa đơn
-                                  </Button>
-                                </Row>
+                            let supplier_note = getFieldValue("supplier_note");
+                            return (
+                              <div
+                                style={{
+                                  color: "#666666",
+                                  fontWeight: 400,
+                                  fontSize: 14,
+                                }}
+                              >
+                                {supplier_note !== ""
+                                  ? supplier_note
+                                  : "Không có ghi chú"}
                               </div>
-                            ) : null;
+                            );
                           }}
                         </Form.Item>
-                      </Col>
-                      <Col
-                        xs={24}
-                        lg={12}
-                        className="font-weight-500"
-                        style={{ paddingLeft: "34px", marginTop: "14px" }}
-                      >
-                        {isEdit ? (
-                          <div>
-                            <Form.Item
-                              shouldUpdate={(prevValues, curValues) =>
-                                prevValues.billing_address !==
-                                curValues.billing_address
-                              }
-                              label={
-                                <label className="title-address">
-                                  <img
-                                    src={noteCustomer}
-                                    alt=""
-                                    style={{
-                                      width: "20px",
-                                      height: "20px",
-                                      marginRight: "10px",
-                                    }}
-                                  />
-                                  Email gửi hóa đơn
-                                </label>
-                              }
-                            >
-                              {({ getFieldValue }) => {
-                                let billing_address: PurchaseAddress =
-                                  getFieldValue("billing_address");
-                                return (
-                                  <div
-                                    style={{
-                                      color: "#666666",
-                                      fontWeight: 400,
-                                      fontSize: 14,
-                                    }}
-                                  >
-                                    {billing_address?.email}
-                                  </div>
-                                );
+                      </div>
+                    ) : (
+                      <Form.Item
+                        name="supplier_note"
+                        label={
+                          <label className="title-address">
+                            <img
+                              src={noteCustomer}
+                              alt=""
+                              style={{
+                                width: "20px",
+                                height: "20px",
+                                marginRight: "10px",
                               }}
-                            </Form.Item>
-                          </div>
-                        ) : (
-                          <Form.Item
-                            name={["billing_address", "email"]}
-                            label={
-                              <label className="title-address">
-                                <img
-                                  src={noteCustomer}
-                                  alt=""
-                                  style={{
-                                    width: "20px",
-                                    height: "20px",
-                                    marginRight: "10px",
-                                  }}
-                                />
-                                Email gửi hóa đơn
-                              </label>
-                            }
-                            rules={[
-                              {
-                                required: true,
-                                message: "Vui lòng nhập email",
-                              },
-                              {
-                                pattern: RegUtil.EMAIL,
-                                message: "Vui lòng nhập đúng định dạng email",
-                              },
-                            ]}
-                          >
-                            <Input
-                              placeholder="Điền email"
-                              maxLength={255}
-                              style={{ marginTop: "10px" }}
                             />
-                          </Form.Item>
-                        )}
-                      </Col>
-                    </Row>
-                  </div>
-                </div>
+                            Ghi chú của nhà cung cấp
+                          </label>
+                        }
+                      >
+                        <Input.TextArea
+                          placeholder="Điền ghi chú"
+                          rows={4}
+                          maxLength={500}
+                          style={{ marginTop: "10px" }}
+                        />
+                      </Form.Item>
+                    )}
+                  </Col>
+                </Row>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </Card>
 
       <EditAddressModal
