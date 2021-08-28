@@ -6,7 +6,6 @@ import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import {
   actionCreatePrinter,
   actionFetchListPrinterVariables,
-  actionFetchPrinterDetail,
 } from "domain/actions/printer/printer.action";
 import { StoreResponse } from "model/core/store.model";
 import { listKeywordsModel } from "model/editor/editor.model";
@@ -17,7 +16,8 @@ import {
 } from "model/response/printer.response";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { DEFAULT_FORM_VALUE } from "utils/Constants";
 import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
 import Preview from "../preview";
 import { StyledComponent } from "./styles";
@@ -35,6 +35,7 @@ type StoreType = {
 
 const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const { type, formValue, id } = props;
+  const store_id_allShops = -1;
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
@@ -44,7 +45,6 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [previewHeaderHeight, setPreviewHeaderHeight] = useState(108);
   const [selectedPrintSize, setSelectedPrintSize] = useState("");
   const componentRef = useRef(null);
-  const history = useHistory();
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
@@ -101,6 +101,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     },
   ];
 
+  const isCanEdit = isShowEditor || !isEdit;
+
   const initialFormValue = useMemo(() => {
     let result =
       isEdit && formValue
@@ -117,8 +119,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           }
         : {
             name: null,
-            company: null,
-            company_id: null,
+            company: DEFAULT_FORM_VALUE.company,
+            company_id: DEFAULT_FORM_VALUE.company_id,
             default: false,
             print_size: null,
             store: null,
@@ -128,29 +130,6 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           };
     return result;
   }, [isEdit, formValue]);
-
-  const onChangePrintSize = (value: string) => {
-    if (isEdit && id) {
-      history.push(`${UrlConfig.PRINTER}/${id}?print-size=${value}`);
-      dispatch(
-        actionFetchPrinterDetail(
-          +id,
-          {
-            "print-size": value,
-          },
-          (data: BasePrinterModel) => {
-            setHtmlContent(data.template);
-          }
-        )
-      );
-    }
-  };
-
-  const onChangeStoreId = (value: string) => {
-    if (isEdit && id) {
-      history.push(`${UrlConfig.PRINTER}/${id}?store-id=${value}`);
-    }
-  };
 
   const handleSubmitForm = () => {
     const formComponentValue = form.getFieldsValue();
@@ -207,7 +186,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                   { required: true, message: "Vui lòng nhập tên mẫu in" },
                 ]}
               >
-                <Input type="text" />
+                <Input type="text" disabled={!isCanEdit} />
               </Form.Item>
             </Col>
             <Col span={5}>
@@ -226,6 +205,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                       .toLowerCase()
                       .indexOf(input.toLowerCase()) >= 0
                   }
+                  disabled={!isCanEdit}
                 >
                   {sprintConfigure.listPrinterTypes &&
                     sprintConfigure.listPrinterTypes.map((single, index) => {
@@ -250,9 +230,11 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                       .toLowerCase()
                       .indexOf(input.toLowerCase()) >= 0
                   }
-                  onChange={onChangeStoreId}
+                  disabled={!isCanEdit}
                 >
-                  <Select.Option value={10000}>Tất cả cửa hàng</Select.Option>
+                  <Select.Option value={store_id_allShops}>
+                    Tất cả cửa hàng
+                  </Select.Option>
                   {sprintConfigure.listStores &&
                     sprintConfigure.listStores.map((single, index) => {
                       // console.log("single", single);
@@ -269,8 +251,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               <Form.Item name="print_size" label="Chọn khổ in:">
                 <Select
                   placeholder="Chọn khổ in"
-                  onChange={onChangePrintSize}
                   allowClear
+                  disabled={!isCanEdit}
                 >
                   {sprintConfigure.listPrinterSizes &&
                     sprintConfigure.listPrinterSizes.map((single, index) => {
@@ -285,13 +267,13 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             </Col>
             <Col span={4} className="columnActive">
               <Form.Item name="default" valuePropName="checked">
-                <Checkbox>Áp dụng</Checkbox>
+                <Checkbox disabled={!isCanEdit}>Áp dụng</Checkbox>
               </Form.Item>
             </Col>
           </Row>
         </Card>
         <Row gutter={20}>
-          {(isShowEditor || !isEdit) && (
+          {isCanEdit && (
             <Col span={12}>
               <Card style={{ padding: "15px 15px", height: "100%" }}>
                 {/* <Editor onChange={handleOnChangeEditor} /> */}
@@ -314,7 +296,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               </Card>
             </Col>
           )}
-          <Col span={isShowEditor || !isEdit ? 12 : 24}>
+          <Col span={isCanEdit ? 12 : 24}>
             <Card style={{ padding: "15px 15px", height: "100%" }}>
               <div className="printContent" ref={componentRef}>
                 <Preview
@@ -331,7 +313,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             </Card>
           </Col>
         </Row>
-        {(isShowEditor || !isEdit) && (
+        {isCanEdit && (
           <div className="groupButtons">
             <Button>
               <Link to={`${UrlConfig.PRINTER}`}>Thoát</Link>

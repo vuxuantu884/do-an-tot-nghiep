@@ -21,7 +21,7 @@ const shipments: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: `${UrlConfig.ORDER}/create`,
+    path: `${UrlConfig.SHIPMENTS}/create1`,
     exact: true,
     title: "Cấu hình HVC",
     icon: "icon-dot",
@@ -34,7 +34,7 @@ const shipments: Array<RouteMenu> = [
     object: null,
   },
   {
-    path: `${UrlConfig.ORDER}/create`,
+    path: `${UrlConfig.SHIPMENTS}/create2`,
     exact: true,
     title: "Cấu hình phí giao hàng",
     icon: "icon-dot",
