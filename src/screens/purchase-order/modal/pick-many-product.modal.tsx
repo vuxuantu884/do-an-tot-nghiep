@@ -1,5 +1,9 @@
-import { DoubleLeftOutlined, DoubleRightOutlined, SearchOutlined } from "@ant-design/icons";
-import { Divider, Input, List, Modal, Pagination } from "antd";
+import {
+  DoubleLeftOutlined,
+  DoubleRightOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import { Divider, Input, List, Modal, Pagination, Checkbox } from "antd";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
@@ -14,10 +18,8 @@ import classNames from "classnames";
 type PickManyProductModalType = {
   visible: boolean;
   onCancle: () => void;
-  onSave: (result: Array<VariantResponse>) => void 
+  onSave: (result: Array<VariantResponse>) => void;
 };
-
-
 
 const PickManyProductModal: React.FC<PickManyProductModalType> = (
   props: PickManyProductModalType
@@ -27,23 +29,24 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     page: 1,
     limit: 10,
     status: "active",
-  }
+  };
   const dispatch = useDispatch();
   const [data, setData] = useState<PageResponse<VariantResponse> | null>(null);
   const [selection, setSelection] = useState<Array<VariantResponse>>([]);
   const [query, setQuery] = useState<VariantSearchQuery>(initQuery);
   const handleLastNextPage = (
-    total: number, current: number, pageSize: number,
+    total: number,
+    current: number,
+    pageSize: number,
     type: number
   ) => {
     const totalPage = Math.ceil(total / pageSize);
-   
-  
+
     if (type) {
       if (current === totalPage) return;
       return onPageChange(totalPage, pageSize);
     }
-  
+
     if (current === 1) return;
     return onPageChange(1, pageSize);
   };
@@ -92,11 +95,22 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     [query]
   );
   const totalPage = useMemo(() => {
-    if(data === null) {
+    if (data === null) {
       return 0;
     }
     return Math.ceil(data.metadata.total / data.metadata.limit);
   }, [data]);
+
+  const fillAll = useCallback(
+    (checked: boolean) => {
+      if (checked) {
+        if (data) setSelection(data?.items);
+      } else {
+        setSelection([]);
+      }
+    },
+    [data, setSelection]
+  );
   useEffect(() => {
     dispatch(searchVariantsRequestAction(query, onResultSuccess));
   }, [dispatch, onResultSuccess, query]);
@@ -128,11 +142,20 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
       />
       <Divider />
+      <Checkbox
+        checked={selection.length === data?.metadata.limit}
+        onChange={(e) => {
+          fillAll(e.target.checked);
+        }}
+      >
+        Chọn tất cả
+      </Checkbox>
+      <Divider />
       {data !== null && (
         <div className="modal-product-list">
           <List
             locale={{
-              emptyText: 'Không có dữ liệu'
+              emptyText: "Không có dữ liệu",
             }}
             className="product"
             style={{ maxHeight: 280, overflow: "auto" }}
@@ -168,12 +191,19 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
                   className={classNames(
                     "ant-pagination-prev",
                     data.metadata.page &&
-                    data.metadata.page === 1 &&
+                      data.metadata.page === 1 &&
                       "ant-pagination-disabled"
                   )}
                 >
                   <button
-                    onClick={() => handleLastNextPage(data.metadata.total, data.metadata.page, data.metadata.limit, 0)}
+                    onClick={() =>
+                      handleLastNextPage(
+                        data.metadata.total,
+                        data.metadata.page,
+                        data.metadata.limit,
+                        0
+                      )
+                    }
                     className="ant-pagination-item-link"
                     type="button"
                   >
@@ -192,12 +222,19 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
                   className={classNames(
                     "ant-pagination-prev",
                     data.metadata.page &&
-                    data.metadata.page === totalPage &&
+                      data.metadata.page === totalPage &&
                       "ant-pagination-disabled"
                   )}
                 >
                   <button
-                    onClick={() => handleLastNextPage(data.metadata.total, data.metadata.page, data.metadata.limit, 1)}
+                    onClick={() =>
+                      handleLastNextPage(
+                        data.metadata.total,
+                        data.metadata.page,
+                        data.metadata.limit,
+                        1
+                      )
+                    }
                     className="ant-pagination-item-link"
                     type="button"
                   >

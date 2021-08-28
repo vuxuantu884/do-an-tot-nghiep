@@ -54,7 +54,8 @@ import { PrinterFilled, SaveFilled } from "@ant-design/icons";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
-import iconSave from "assets/icon/save.svg";
+import { showSuccess } from "utils/ToastUtils";
+
 type PurchaseOrderParam = {
   id: string;
 };
@@ -169,6 +170,7 @@ const PODetailScreen: React.FC = () => {
     (result: PurchaseOrder | null) => {
       setLoadingConfirmButton(false);
       if (result !== null) {
+        showSuccess("Cập nhật nhập hàng thành công");
         loadDetail(idNumber, true);
       }
     },
@@ -178,6 +180,7 @@ const PODetailScreen: React.FC = () => {
     (value: PurchaseOrder) => {
       switch (value.status) {
         case POStatus.FINALIZED:
+        case POStatus.CANCELLED:
           setLoadingConfirmButton(true);
           dispatch(PoUpdateAction(idNumber, value, onUpdateCall));
           break;
@@ -195,14 +198,11 @@ const PODetailScreen: React.FC = () => {
   const onAddProcumentSuccess = useCallback(() => {
     loadDetail(idNumber, true);
   }, [idNumber, loadDetail]);
-  const deleteCallback = useCallback(() => {
-    history.replace(`${UrlConfig.PURCHASE_ORDER}`);
-  }, []);
 
-  const onDelete = useCallback(() => {
-    dispatch(PODeleteAction(idNumber, deleteCallback));
-    return;
-  }, [deleteCallback, dispatch]);
+  const onCancel = useCallback(() => {
+    formMain.setFieldsValue({ status: POStatus.CANCELLED });
+    formMain.submit();
+  }, [formMain]);
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
@@ -240,7 +240,7 @@ const PODetailScreen: React.FC = () => {
       subTitle = "",
       okText = "Đồng ý",
       cancelText = "Hủy",
-      deleteFunc = onDelete;
+      deleteFunc = onCancel;
     if (!poData) return;
     const { receipt_quantity, total_paid } = poData;
     if (!receipt_quantity && total_paid && total_paid > 0) {
@@ -256,7 +256,6 @@ const PODetailScreen: React.FC = () => {
         onCancel={() => setConfirmDelete(false)}
         onOk={() => {
           setConfirmDelete(false);
-          // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
           deleteFunc();
         }}
         okText={okText}
@@ -266,7 +265,7 @@ const PODetailScreen: React.FC = () => {
         visible={isConfirmDelete}
       />
     );
-  }, [poData, isConfirmDelete, setConfirmDelete, setConfirmDelete, onDelete]);
+  }, [poData, isConfirmDelete, setConfirmDelete, setConfirmDelete, onCancel]);
   const renderButton = useMemo(() => {
     switch (status) {
       case POStatus.DRAFT:

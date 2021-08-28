@@ -119,7 +119,6 @@ const CustomTable = (props: ICustomTableProps) => {
             : false
         }
         pagination={false}
-        // scroll={{ y: 700 }}
         size="middle"
       />
       {pagination && <CustomPagination pagination={pagination} />}
