@@ -114,7 +114,7 @@ const ListOrderScreen: React.FC = () => {
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
       title: "ID",
-      width:"1%",
+      // width:"1%",
       dataIndex: "id",
       key: "id",
       visible: true,

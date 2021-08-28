@@ -94,8 +94,8 @@ export interface OrderSearchQuery {
   fulfillment_status: [];
   payment_status: [];
   return_status: [];
-  account: [];
-  assignee: [];
+  account?: [];
+  assignee?: [];
   price_min: number|undefined;
   price_max: number|undefined;
   payment_method_ids: [];
