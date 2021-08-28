@@ -101,7 +101,16 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     return Math.ceil(data.metadata.total / data.metadata.limit);
   }, [data]);
 
-  const fillAll = (checked: boolean) => {};
+  const fillAll = useCallback(
+    (checked: boolean) => {
+      if (checked) {
+        if (data) setSelection(data?.items);
+      } else {
+        setSelection([]);
+      }
+    },
+    [data, setSelection]
+  );
   useEffect(() => {
     dispatch(searchVariantsRequestAction(query, onResultSuccess));
   }, [dispatch, onResultSuccess, query]);
@@ -134,6 +143,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       />
       <Divider />
       <Checkbox
+        checked={selection.length === data?.metadata.limit}
         onChange={(e) => {
           fillAll(e.target.checked);
         }}
