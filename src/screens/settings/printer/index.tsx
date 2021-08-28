@@ -53,11 +53,14 @@ const SettingPrinter: React.FC = () => {
 
   const query = useQuery();
 
+  let queryStoreId = query.get('store_id');
+  let queryName = query.get('name');
+
   let [queryParams, setQueryParams] = useState({
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
-    name: query.get("name") || "",
-    store_id: query.get("store_id") || "",
+    name: queryName || "",
+    store_id: queryStoreId || "",
     sort_type: "desc",
     sort_column: "id",
   });
@@ -188,10 +191,10 @@ const SettingPrinter: React.FC = () => {
     const newQuery = {
       ...queryParams,
       name: values.searchInput,
-      store_id: "",
+      store_id: selectStoreId,
     };
     const newQueryParam = generateQuery(newQuery);
-    setSelectStoreId(null);
+    // setSelectStoreId(null);
     setQueryParams(newQuery);
     history.replace(`${UrlConfig.PRINTER}?${newQueryParam}`);
     window.scrollTo(0, 0);
@@ -199,13 +202,13 @@ const SettingPrinter: React.FC = () => {
 
   const handleSelectStore = (value: any, option: any) => {
     setSelectStoreId(value);
-    form.resetFields();
-    queryParams.name = value;
-    const newQuery = { ...queryParams, name: "", store_id: value };
-    const newQueryParam = generateQuery(newQuery);
-    setQueryParams(newQuery);
-    history.replace(`${UrlConfig.PRINTER}?${newQueryParam}`);
-    window.scrollTo(0, 0);
+    // form.resetFields();
+    // queryParams.name = value;
+    // const newQuery = { ...queryParams, name: "", store_id: value };
+    // const newQueryParam = generateQuery(newQuery);
+    // setQueryParams(newQuery);
+    // history.replace(`${UrlConfig.PRINTER}?${newQueryParam}`);
+    // window.scrollTo(0, 0);
   };
 
   const renderSearch = () => {
@@ -267,35 +270,50 @@ const SettingPrinter: React.FC = () => {
   };
 
   useEffect(() => {
+    let newParams = {
+      ...queryParams,
+      name: queryName || "",
+      store_id: queryStoreId || "",
+    }
     dispatch(
-      actionFetchListPrinter(queryParams, (data: PrinterResponseModel) => {
+      actionFetchListPrinter(newParams, (data: PrinterResponseModel) => {
         setListPrinter(data.items);
         setTotal(data.metadata.total);
         setTableLoading(false);
       })
     );
-  }, [dispatch, queryParams]);
+  }, [dispatch, queryParams, queryStoreId, queryName]);
 
   useEffect(() => {
-    let querySearch = queryParams.name;
-    if (querySearch) {
-      setSearchInputValue(querySearch);
+    if (queryName) {
+      setSearchInputValue(queryName);
+      form.resetFields();
+    }else {
+      setSearchInputValue('');
       form.resetFields();
     }
-  }, [form, queryParams, searchInputValue]);
+  }, [form, queryName, searchInputValue]);
+
 
   useEffect(() => {
-    let queryStoreId = queryParams.store_id;
     dispatch(
       getListStoresSimpleAction((data: StoreResponse[]) => {
         setListStores(data);
-        let selectedStore = data.find((singleStore) => {
-          return singleStore.id === +queryStoreId;
-        });
-        setSelectStoreId(selectedStore?.id);
       })
     );
-  }, [dispatch, queryParams.store_id]);
+  }, [dispatch]);
+
+  useEffect(() => {
+    if(queryStoreId) {
+      let storeId = queryStoreId;
+      let selectedStore = listStores.find((singleStore) => {
+        return singleStore.id === +storeId;
+      });
+      setSelectStoreId(selectedStore?.id);
+    }else {
+      setSelectStoreId(null);
+    }
+  }, [listStores, queryStoreId]);
 
   return (
     <StyledComponent>
