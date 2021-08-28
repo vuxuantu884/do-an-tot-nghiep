@@ -1,5 +1,6 @@
 import {
   CheckCircleOutlined,
+  DeleteOutlined,
   EditOutlined,
   MinusCircleOutlined,
 } from "@ant-design/icons";
@@ -46,7 +47,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [isConfirmPayment, setConfirmPayment] = useState<boolean>(false);
   const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
-  const [loadingApproval, setLoaddingApproval] = useState<Array<boolean>>([]);
+  const [loadingApproval, setLoaddingApproval] = useState<any>({});
 
   const CancelPaymentModal = useCallback(() => {
     setVisiblePaymentModal(false);
@@ -86,10 +87,10 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   }, []);
 
   const onApprovalPayment = useCallback(
-    (item: PurchasePayments, index: number) => {
+    (item: PurchasePayments) => {
       if (item.id) {
-        const newLoadings = [...loadingApproval];
-        newLoadings[index] = true;
+        const newLoadings = { ...loadingApproval };
+        newLoadings[item.id] = true;
         setLoaddingApproval(newLoadings);
         let newItem = { ...item };
         newItem.status = PoPaymentStatus.PAID;
@@ -402,7 +403,8 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                       </strong>
                                     </div>
                                   </Col>
-                                ) : (
+                                ) : item.status !==
+                                  PoPaymentStatus.CANCELLED ? (
                                   <Col md={8}>
                                     <div className="timeline__groupButtons">
                                       <Button onClick={() => editPayment(item)}>
@@ -413,16 +415,40 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                       </Button>
                                       <Button
                                         type="primary"
-                                        onClick={() =>
-                                          onApprovalPayment(item, index)
+                                        onClick={() => onApprovalPayment(item)}
+                                        loading={
+                                          item.id
+                                            ? loadingApproval[item.id]
+                                            : false
                                         }
-                                        loading={loadingApproval[index]}
                                       >
                                         <CheckCircleOutlined
                                           style={{ fontSize: "18px" }}
                                         />{" "}
                                         Duyệt
                                       </Button>
+                                    </div>
+                                  </Col>
+                                ) : (
+                                  <Col md={8}>
+                                    <div className="timeline__status">
+                                      <MinusCircleOutlined
+                                        style={{
+                                          fontSize: "18px",
+                                          color: "#E24343",
+                                        }}
+                                      />{" "}
+                                      <div style={{ color: "#E24343" }}>
+                                        Đã hủy
+                                      </div>
+                                    </div>
+                                    <div>
+                                      Hủy thanh toán <br />
+                                      <strong>
+                                        {ConvertUtcToLocalDate(
+                                          item.updated_date
+                                        )}
+                                      </strong>
                                     </div>
                                   </Col>
                                 )}
