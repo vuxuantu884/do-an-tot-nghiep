@@ -199,7 +199,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                     isFloat={false}
                     value={value}
                     min={0}
-                    max={item.ordered_quantity}
+                    // max={item.ordered_quantity}
                     default={0}
                     maxLength={6}
                     onChange={(quantity: number | null) => {

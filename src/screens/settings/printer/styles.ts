@@ -1,6 +1,26 @@
 import styled from "styled-components";
+import IconSearch from "./images/iconSearch.svg";
 
 export const StyledComponent = styled.div`
+  .searchWrapper {
+    margin-bottom: 35px;
+    .searchForm {
+      display: flex;
+      align-items: center;
+    }
+    .ant-input {
+      background-image: url(${IconSearch});
+      background-repeat: no-repeat;
+      background-position: 12px 50%;
+      text-indent: 20px;
+    }
+    .formInput {
+      width: 100%;
+    }
+    .ant-form-item {
+      margin-bottom: 0;
+    }
+  }
   .columnAction {
     .icon {
       display: inline-block;

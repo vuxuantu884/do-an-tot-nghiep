@@ -42,4 +42,11 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .ant-select-disabled.ant-select:not(.ant-select-customize-input)
+    .ant-select-selector {
+    color: inherit;
+  }
+  .ant-checkbox-disabled + span {
+    color: inherit;
+  }
 `;

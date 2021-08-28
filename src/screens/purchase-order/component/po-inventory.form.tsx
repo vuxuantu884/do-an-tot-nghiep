@@ -214,7 +214,10 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         <Form.Item
           noStyle
           shouldUpdate={(prev, current) =>
-            prev[POField.line_items] !== current[POField.line_items]
+            prev[POField.line_items] !== current[POField.line_items] ||
+            prev[POField.expect_store_id] !==
+              current[POField.expect_store_id] ||
+            prev[POField.receive_status] !== current[POField.receive_status]
           }
         >
           {({ getFieldValue }) => {
@@ -224,9 +227,12 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
             let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
               POField.line_items
             );
+            let receive_status: string = getFieldValue(POField.receive_status);
             setPOItem(line_items);
             return (
-              status !== POStatus.DRAFT && (
+              receive_status !== ProcumentStatus.DRAFT &&
+              receive_status !== ProcumentStatus.FINISHED &&
+              receive_status !== ProcumentStatus.CANCELLED && (
                 <Button
                   onClick={() => {
                     setIsEdit(false);
@@ -251,7 +257,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     >
       <div className="padding-20">
         <POInventoryDraft isEdit={props.isEdit} stores={stores} />
-        {status && status !== POStatus.DRAFT && status !== POStatus.COMPLETED && (
+        {status && status !== POStatus.DRAFT && (
           <POInventoryView
             code={code}
             id={idNumber}
