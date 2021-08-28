@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Card, Tag } from "antd";
+import { Button, Card, Row, Space, Tag } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -15,6 +15,8 @@ import {
   AccountResponse,
   AccountSearchQuery,
 } from "model/account/account.model";
+import importIcon from "assets/icon/import.svg";
+import exportIcon from "assets/icon/export.svg";
 import UrlConfig from "config/UrlConfig";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
@@ -66,8 +68,8 @@ const initQuery: OrderSearchQuery = {
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
-  account: undefined,
-  assignee: undefined,
+  account: [],
+  assignee: [],
   price_min: undefined,
   price_max: undefined,
   payment_method_ids: [],
@@ -112,10 +114,12 @@ const ListOrderScreen: React.FC = () => {
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
       title: "ID",
-      width:"1%",
+      // width:"1%",
       dataIndex: "id",
       key: "id",
       visible: true,
+      fixed: 'left',
+      width: '120px'
     },
     {
       title: "Khách hàng",
@@ -154,17 +158,16 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "fulfillments",
       key: "shipment.type",
       render: (fulfillments: Array<OrderFulfillmentsModel>) => {
-        // const service_id = fulfillments && fulfillments[0].shipment ? fulfillments[0].shipment.delivery_service_provider_id : null
-        // const service = deliveryServices ? deliveryServices.find(service => service.id === service_id) : null
+        const service_id = fulfillments && fulfillments[0].shipment ? fulfillments[0].shipment.delivery_service_provider_id : null
+        const service = deliveryServices ? deliveryServices.find(service => service.id === service_id) : null
         return(
-          <div></div>
-          // service && (
-          //   <img
-          //     src={service.logo ? service.logo : ""}
-          //     alt=""
-          //     style={{ width: "184px", height: "41px" }}
-          //   />
-          // )
+          service && (
+            <img
+              src={service.logo ? service.logo : ""}
+              alt=""
+              style={{ width: "184px", height: "41px" }}
+            />
+          )
         )
     },
       visible: true,
@@ -420,21 +423,10 @@ const ListOrderScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      console.log('values', values)
-      let newPrams = {
-        ...params,
-        ...values,
-        page: 1,
-      };
-      
+      console.log('values filter 1', values)
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
-      let queryParam = generateQuery({
-        ...newPrams,
-        issued: null,
-        ship: null,
-        completed: null,
-        cancelled: null
-      });
+      let queryParam = generateQuery(newPrams);
       console.log('filter start', `${UrlConfig.ORDER}/list?${queryParam}`)
       history.push(`${UrlConfig.ORDER}/list?${queryParam}`);
     },
@@ -444,20 +436,24 @@ const ListOrderScreen: React.FC = () => {
 
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel>|false) => {
-      console.log('result', result)
+      // console.log('result', result)
+      // console.log('deliveryServices', deliveryServices)
       setTableLoading(false);
-      if(!!result) {
+      if(!!result && !!deliveryServices) {
         setData(result);
       }
     },
-    []
+    [deliveryServices]
   );
 
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
   
   useEffect(() => {
     if (isFirstLoad.current) {
-      // dispatch(DeliveryServicesGetList(setDeliveryServices));
+      dispatch(DeliveryServicesGetList(setDeliveryServices));
+      // (async () => {
+      //   await dispatch(DeliveryServicesGetList(setDeliveryServices));
+      // })()
       setTableLoading(true);
     }
     isFirstLoad.current = false;
@@ -477,7 +473,34 @@ const ListOrderScreen: React.FC = () => {
           name: "Danh sách đơn hàng",
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.ORDER}/create`} />}
+      extra={
+        <Row>
+          <Space>
+            <Button
+              type="default"
+              className="light"
+              size="large"
+              icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={() => {}}
+            >
+              Nhập file
+            </Button>
+            <Button
+              type="default"
+              className="light"
+              size="large"
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              // onClick={onExport}
+              onClick={() => {
+                // setShowExportModal(true);
+              }}
+            >
+              Xuất file
+            </Button>
+            <ButtonCreate path={`${UrlConfig.ORDER}/create`} />
+          </Space>
+        </Row>
+      }
     >
       <Card>
         <div className="padding-20">
