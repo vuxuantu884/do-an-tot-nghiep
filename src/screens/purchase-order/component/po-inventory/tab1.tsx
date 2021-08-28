@@ -25,7 +25,8 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
       noStyle
       shouldUpdate={(prev, current) =>
         prev[POField.line_items] !== current[POField.line_items] ||
-        prev[POField.procurements] !== current[POField.procurements]
+        prev[POField.procurements] !== current[POField.procurements] ||
+        prev[POField.receive_status] !== current[POField.receive_status]
       }
     >
       {({ getFieldValue }) => {
@@ -35,6 +36,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
         let procurements: Array<PurchaseProcument> = getFieldValue(
           POField.procurements
         );
+        let receive_status: string = getFieldValue(POField.receive_status);
         let items =
           procurements !== undefined
             ? procurements.filter(
@@ -192,22 +194,24 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                 );
               }}
             />
-            {items.length > 0 && (
-              <div
-                style={{
-                  marginTop: 20,
-                  display: "flex",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <Button
-                  onClick={() => setVisibleWarning(true)}
-                  className="create-button-custom ant-btn-outline fixed-button"
+            {items.length > 0 &&
+              receive_status !== ProcumentStatus.FINISHED &&
+              receive_status !== ProcumentStatus.CANCELLED && (
+                <div
+                  style={{
+                    marginTop: 20,
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
                 >
-                  Kết thúc nhập kho
-                </Button>
-              </div>
-            )}
+                  <Button
+                    onClick={() => setVisibleWarning(true)}
+                    className="create-button-custom ant-btn-outline fixed-button"
+                  >
+                    Kết thúc nhập kho
+                  </Button>
+                </div>
+              )}
             <ModalConfirm
               onCancel={() => {
                 setVisibleWarning(false);

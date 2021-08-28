@@ -29,6 +29,7 @@ import {
   PoFinancialStatus,
   PoPaymentMethod,
   PoPaymentStatus,
+  ProcumentStatus,
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -441,7 +442,9 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           noStyle
           shouldUpdate={(prev, current) =>
             prev[POField.payments] !== current[POField.payments] ||
-            prev[POField.financial_status] !== current[POField.financial_status]
+            prev[POField.financial_status] !==
+              current[POField.financial_status] ||
+            prev[POField.receive_status] !== current[POField.receive_status]
           }
         >
           {({ getFieldValue }) => {
@@ -449,11 +452,12 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
               POField.payments
             );
             let financial_status = getFieldValue(POField.financial_status);
+            let receive_status = getFieldValue(POField.receive_status);
             return (
               payments &&
               payments.length > 0 &&
+              receive_status === ProcumentStatus.FINISHED &&
               financial_status !== PoFinancialStatus.CANCELLED &&
-              financial_status !== PoFinancialStatus.PAID &&
               financial_status !== PoFinancialStatus.FINISHED && (
                 <div className="card__footer">
                   <Button
