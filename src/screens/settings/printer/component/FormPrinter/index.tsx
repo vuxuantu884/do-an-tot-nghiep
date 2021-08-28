@@ -5,25 +5,27 @@ import UrlConfig from "config/UrlConfig";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import {
   actionCreatePrinter,
+  actionFetchListPrinterVariables,
   actionFetchPrinterDetail,
 } from "domain/actions/printer/printer.action";
 import { StoreResponse } from "model/core/store.model";
 import { listKeywordsModel } from "model/editor/editor.model";
-import { PrinterModel } from "model/response/printer.response";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  LIST_PRINTER_SIZES,
-  LIST_PRINTER_TYPES,
-} from "utils/Printer.constants";
+  BasePrinterModel,
+  PrinterVariableResponseModel,
+} from "model/response/printer.response";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
 import Preview from "../preview";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   id?: string;
   type?: "create" | "edit";
-  formValue?: PrinterModel;
+  formValue?: BasePrinterModel;
 };
 
 type StoreType = {
@@ -43,6 +45,12 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [selectedPrintSize, setSelectedPrintSize] = useState("");
   const componentRef = useRef(null);
   const history = useHistory();
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+
+  const [printerVariables, setPrinterVariables] =
+    useState<PrinterVariableResponseModel>({});
 
   const handleOnChangeEditor = (value: string) => {
     setHtmlContent(value);
@@ -51,65 +59,45 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const sprintConfigure = {
     listPrinterTypes: LIST_PRINTER_TYPES,
     listStores: listStores,
-    listPrinterSizes: LIST_PRINTER_SIZES,
+    listPrinterSizes: bootstrapReducer.data?.print_size,
   };
 
-  const FAKE_WORDS: listKeywordsModel[] = [
+  /**
+   * các biến printer
+   */
+  const LIST_PRINTER_VARIABLES: listKeywordsModel[] = [
     {
       name: "Thông tin cửa hàng",
-      list: [
-        {
-          title: "tên công ty",
-          key: "{company_name}",
-          value: "YODY",
-        },
-        {
-          title: "địa chỉ công ty",
-          key: "{dia_chi_cong_ty}",
-          value: "Hải dương",
-        },
-        {
-          title: "Email cửa hàng",
-          key: "{email_cua_hang}",
-          value: "test@gmail.com",
-        },
-        {
-          title: "SĐT cửa hàng",
-          key: "{sdt_cua_hang}",
-          value: "0123456789",
-        },
-        {
-          title: "Mã đơn hàng",
-          key: "{ma_don_hang}",
-          value: "MASO1111",
-        },
-        {
-          title: "Tiền tệ",
-          key: "{tien_te}",
-          value: "VNĐ",
-        },
-      ],
+      list: printerVariables.print_store_variable,
+    },
+    {
+      name: "Thông tin đơn hàng",
+      list: printerVariables.print_order_variable,
+    },
+    {
+      name: "Thông tin vận chuyển",
+      list: printerVariables.print_shipment_variable,
     },
   ];
 
-  const FAKE_PRODUCT_WORDS = [
+  /**
+   * list product lặp
+   */
+  const LIST_PRINTER_PRODUCT_VARIABLES = [
     {
       title: "tên sản phẩm",
       key: "{product_name}",
       value: ["sản phẩm 1", "sản phẩm 2"],
-      isRepeat: true,
     },
     {
       title: "giá sản phẩm",
       key: "{gia_san_pham}",
       value: ["100", "200"],
-      isRepeat: true,
     },
     {
       title: "màu sắc",
       key: "{mau_sac_san_pham}",
       value: ["xanh", "vàng"],
-      isRepeat: true,
     },
   ];
 
@@ -117,6 +105,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     let result =
       isEdit && formValue
         ? {
+            name: formValue.name,
             company: formValue.company,
             company_id: formValue.company_id,
             default: formValue.default,
@@ -127,6 +116,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             type: formValue.type,
           }
         : {
+            name: null,
             company: null,
             company_id: null,
             default: false,
@@ -148,7 +138,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           {
             "print-size": value,
           },
-          (data: PrinterModel) => {
+          (data: BasePrinterModel) => {
             setHtmlContent(data.template);
           }
         )
@@ -157,7 +147,9 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   };
 
   const onChangeStoreId = (value: string) => {
-    history.push(`${UrlConfig.PRINTER}/${id}?store-id=${value}`);
+    if (isEdit && id) {
+      history.push(`${UrlConfig.PRINTER}/${id}?store-id=${value}`);
+    }
   };
 
   const handleSubmitForm = () => {
@@ -186,21 +178,44 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     );
   }, [dispatch]);
 
+  useEffect(() => {
+    dispatch(
+      actionFetchListPrinterVariables((data: PrinterVariableResponseModel) => {
+        setPrinterVariables(data);
+      })
+    );
+  }, [dispatch]);
+
   return (
     <StyledComponent>
       <Form form={form} layout="vertical" initialValues={initialFormValue}>
         <Card
           style={{ padding: "20px 15px", marginBottom: 20, borderRadius: 12 }}
         >
+          <Form.Item name="company" hidden>
+            <Input type="text" />
+          </Form.Item>
+          <Form.Item name="company_id" hidden>
+            <Input type="text" />
+          </Form.Item>
           <Row gutter={20} className="sectionFilter">
-            <Col span={6}>
-              <Form.Item name="company" hidden>
+            <Col span={5}>
+              <Form.Item
+                name="name"
+                label="Tên mẫu in:"
+                rules={[
+                  { required: true, message: "Vui lòng nhập tên mẫu in" },
+                ]}
+              >
                 <Input type="text" />
               </Form.Item>
-              <Form.Item name="company_id" hidden>
-                <Input type="text" />
-              </Form.Item>
-              <Form.Item name="type" label="Chọn mẫu in:">
+            </Col>
+            <Col span={5}>
+              <Form.Item
+                name="type"
+                label="Chọn mẫu in:"
+                rules={[{ required: true, message: "Vui lòng chọn mẫu in" }]}
+              >
                 <Select
                   placeholder="Chọn mẫu in"
                   allowClear
@@ -223,7 +238,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={6}>
+            <Col span={5}>
               <Form.Item name="store_id" label="Chọn chi nhánh áp dụng:">
                 <Select
                   placeholder="Chọn chi nhánh áp dụng:"
@@ -250,7 +265,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={6}>
+            <Col span={5}>
               <Form.Item name="print_size" label="Chọn khổ in:">
                 <Select
                   placeholder="Chọn khổ in"
@@ -268,7 +283,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={6}>
+            <Col span={4} className="columnActive">
               <Form.Item name="default" valuePropName="checked">
                 <Checkbox>Áp dụng</Checkbox>
               </Form.Item>
@@ -289,7 +304,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                       <Editor
                         onChange={handleOnChangeEditor}
                         initialHtmlContent={htmlContent}
-                        listKeywords={FAKE_WORDS}
+                        listKeywords={LIST_PRINTER_VARIABLES}
                         selectedPrintSize={selectedPrintSize}
                         previewHeaderHeight={handleEditorToolbarHeight}
                       />
@@ -304,8 +319,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               <div className="printContent" ref={componentRef}>
                 <Preview
                   htmlContent={htmlContent}
-                  listKeywords={FAKE_WORDS}
-                  listProductKeywords={FAKE_PRODUCT_WORDS}
+                  listKeywords={LIST_PRINTER_VARIABLES}
+                  listProductKeywords={LIST_PRINTER_PRODUCT_VARIABLES}
                   previewHeaderHeight={previewHeaderHeight}
                   isShowEditor={isShowEditor}
                   onChangeShowEditor={(isShow: boolean) => {

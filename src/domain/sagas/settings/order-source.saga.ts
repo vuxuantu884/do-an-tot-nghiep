@@ -17,11 +17,11 @@ import {
 import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listAllOrderSourceSaga(action: YodyAction) {
-  const { params, handleData } = action.payload;
+  const { queryParams, handleData } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
-      yield call(getSourcesWithParamsService, params);
+      yield call(getSourcesWithParamsService, queryParams);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:

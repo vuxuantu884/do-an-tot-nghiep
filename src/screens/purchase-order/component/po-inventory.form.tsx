@@ -1,25 +1,25 @@
-import { Card, Form, Space, Tag } from "antd";
+import { Card, Form, Space, Tag, Modal } from "antd";
 import { Button } from "antd";
 import {
   PoProcumentCreateAction,
   PoProcumentUpdateAction,
+  PoProcumentDeleteAction,
 } from "domain/actions/po/po-procument.action";
 import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { Moment } from "moment";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
-import { POStatus } from "utils/Constants";
+import { POStatus, ProcumentStatus } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import ProcumentConfirmModal from "../modal/procument-confirm.modal";
 import ProducmentInventoryModal from "../modal/procument-intevory.modal.tsx";
 import ProcumentModal from "../modal/procument.modal";
 import POInventoryDraft from "./po-inventory/po-intentory.draft";
 import POInventoryView from "./po-inventory/po-inventory.view";
-import { ProcumentStatus } from "utils/Constants";
 
 type POInventoryFormProps = {
   stores: Array<StoreResponse>;
@@ -38,38 +38,73 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const [visible, setVisible] = useState(false);
   const [visibleDraft, setVisibleDraft] = useState(false);
   const [visibleConfirm, setVisibleConfirm] = useState(false);
+  const [visibleDelete, setVisibleDelete] = useState(false);
   const [loaddingCreate, setLoadingCreate] = useState(false);
   const [loadingConfirm, setLoadingConfirm] = useState(false);
   const [loadingRecive, setLoadingRecive] = useState(false);
   const [poItems, setPOItem] = useState<Array<PurchaseOrderLineItem>>([]);
+  const [draft, setDraft] = useState<PurchaseProcument | null>(null);
   const [procumentDraft, setProcumentDraft] =
     useState<PurchaseProcument | null>(null);
   const [procumentInventory, setProcumentInventory] =
     useState<PurchaseProcument | null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
+  const [isEdit, setIsEdit] = useState(false);
   const { stores, status, now, idNumber, onAddProcumentSuccess, code } = props;
   const onAddProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
       setLoadingCreate(false);
       if (value === null) {
       } else {
-        showSuccess("Thêm phiếu nháp kho thành công");
+        if (isEdit) showSuccess("Lưu phiếu nhập kho nháp thành công");
+        else showSuccess("Thêm phiếu nhập kho nháp thành công");
         setVisible(false);
         onAddProcumentSuccess && onAddProcumentSuccess();
       }
     },
     [onAddProcumentSuccess]
   );
+
   const onAddProcument = useCallback(
     (value: PurchaseProcument) => {
       if (idNumber) {
         setLoadingCreate(true);
+        if (isEdit) {
+          dispatch(
+            PoProcumentUpdateAction(
+              idNumber,
+              value.id,
+              value,
+              onAddProcumentCallback
+            )
+          );
+        } else {
+          dispatch(
+            PoProcumentCreateAction(idNumber, value, onAddProcumentCallback)
+          );
+        }
+      }
+    },
+    [dispatch, idNumber, onAddProcumentCallback, isEdit]
+  );
+  const onDeleteProcumentCallback = useCallback(() => {
+    setLoadingCreate(false);
+    showSuccess("Xóa phiếu nháp thành công");
+    setVisible(false);
+    setVisibleDraft(false);
+    setVisibleConfirm(false);
+    onAddProcumentSuccess && onAddProcumentSuccess();
+  }, [onAddProcumentSuccess]);
+  const onDeleteProcument = useCallback(
+    (value: PurchaseProcument) => {
+      if (idNumber && value.id) {
+        setLoadingCreate(true);
         dispatch(
-          PoProcumentCreateAction(idNumber, value, onAddProcumentCallback)
+          PoProcumentDeleteAction(idNumber, value.id, onDeleteProcumentCallback)
         );
       }
     },
-    [dispatch, idNumber, onAddProcumentCallback]
+    [dispatch, idNumber, onDeleteProcumentCallback]
   );
   const onConfirmProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
@@ -77,7 +112,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       if (value === null) {
       } else {
         showSuccess("Thêm phiếu nháp kho thành công");
-        setVisible(false);
+        setVisibleDraft(false);
         onAddProcumentSuccess && onAddProcumentSuccess();
       }
     },
@@ -106,6 +141,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       if (value === null) {
       } else {
         showSuccess("Xác nhận nhập kho thành công");
+        setVisibleConfirm(false);
         setLoadingRecive(false);
         onAddProcumentSuccess && onAddProcumentSuccess();
       }
@@ -129,6 +165,10 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     },
     [dispatch, idNumber, onReciveProcumentCallback]
   );
+
+  useEffect(() => {
+    if (visible === false) setDraft(null);
+  }, [visible]);
   return (
     <Card
       className="po-form margin-top-20"
@@ -174,22 +214,29 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         <Form.Item
           noStyle
           shouldUpdate={(prev, current) =>
-            prev[POField.line_items] !== current[POField.line_items]
+            prev[POField.line_items] !== current[POField.line_items] ||
+            prev[POField.expect_store_id] !==
+              current[POField.expect_store_id] ||
+            prev[POField.receive_status] !== current[POField.receive_status]
           }
         >
           {({ getFieldValue }) => {
-            let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
-              POField.line_items
-            );
             let expect_store_id: number = getFieldValue(
               POField.expect_store_id
             );
+            let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
+              POField.line_items
+            );
+            let receive_status: string = getFieldValue(POField.receive_status);
+            setPOItem(line_items);
             return (
-              status !== POStatus.DRAFT && (
+              receive_status !== ProcumentStatus.DRAFT &&
+              receive_status !== ProcumentStatus.FINISHED &&
+              receive_status !== ProcumentStatus.CANCELLED && (
                 <Button
                   onClick={() => {
+                    setIsEdit(false);
                     setStoreExpect(expect_store_id);
-                    setPOItem(line_items);
                     setVisible(true);
                   }}
                   style={{
@@ -210,18 +257,35 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     >
       <div className="padding-20">
         <POInventoryDraft isEdit={props.isEdit} stores={stores} />
-        {status && status !== POStatus.DRAFT && status !== POStatus.COMPLETED && (
+        {status && status !== POStatus.DRAFT && (
           <POInventoryView
             code={code}
             id={idNumber}
             onSuccess={() => {
               onAddProcumentSuccess && onAddProcumentSuccess();
             }}
-            confirmDraft={(value: PurchaseProcument) => {
-              setProcumentDraft(value);
-              setVisibleDraft(true);
+            confirmDraft={(value: PurchaseProcument, isEdit: boolean) => {
+              setIsEdit(isEdit);
+              if (isEdit) {
+                setVisible(true);
+                setDraft(value);
+              } else {
+                setProcumentDraft(value);
+                setVisibleDraft(true);
+              }
             }}
-            confirmInventory={(value: PurchaseProcument) => {
+            confirmInventory={(value: PurchaseProcument, isEdit: boolean) => {
+              setIsEdit(isEdit);
+              if (isEdit) {
+                setProcumentDraft(value);
+                setVisibleDraft(true);
+              } else {
+                setProcumentInventory(value);
+                setVisibleConfirm(true);
+              }
+            }}
+            confirmImport={(value: PurchaseProcument, isEdit: boolean) => {
+              setIsEdit(isEdit);
               setProcumentInventory(value);
               setVisibleConfirm(true);
             }}
@@ -232,17 +296,22 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onCancle={() => {
           setVisible(false);
         }}
+        isEdit={isEdit}
         loading={loaddingCreate}
         stores={stores}
         now={now}
         visible={visible}
         items={poItems}
+        item={draft}
         defaultStore={storeExpect}
         onOk={(value: PurchaseProcument) => {
           onAddProcument(value);
         }}
+        onDelete={onDeleteProcument}
       />
       <ProcumentConfirmModal
+        isEdit={isEdit}
+        items={poItems}
         stores={stores}
         now={now}
         visible={visibleDraft}
@@ -250,6 +319,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onOk={(value: PurchaseProcument) => {
           onConfirmProcument(value);
         }}
+        onDelete={onDeleteProcument}
         loading={loadingConfirm}
         defaultStore={storeExpect}
         onCancel={() => {
@@ -257,6 +327,8 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         }}
       />
       <ProducmentInventoryModal
+        isEdit={isEdit}
+        items={poItems}
         stores={stores}
         now={now}
         visible={visibleConfirm}
@@ -264,6 +336,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onOk={(value: PurchaseProcument) => {
           onReciveProcument(value);
         }}
+        onDelete={onDeleteProcument}
         loading={loadingRecive}
         defaultStore={storeExpect}
         onCancel={() => {

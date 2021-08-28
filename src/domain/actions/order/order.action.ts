@@ -20,6 +20,8 @@ import {
 } from "model/request/order.request";
 import { OrderType } from "../../types/order.type";
 import BaseAction from "base/BaseAction";
+import { OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { PageResponse } from "model/base/base-metadata.response";
 
 export const orderCreateAction = (
   request: OrderRequest,
@@ -124,3 +126,13 @@ export const getListSubStatusAction = (
 export const setSubStatusAction = (order_id: number, statusId: number) => {
   return BaseAction(OrderType.SET_SUB_STATUS, { order_id, statusId });
 }
+
+export const getListOrderAction = (
+  query: OrderSearchQuery,
+  setData: (data: PageResponse<OrderModel>|false) => void
+) => {
+  return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
+    query,
+    setData,
+  });
+};

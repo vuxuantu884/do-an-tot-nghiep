@@ -1,11 +1,11 @@
 import { BaseMetadata } from "model/base/base-metadata.response";
-import { BaseObject } from "model/base/base.response";
 
-export interface PrinterModel {
+export interface BasePrinterModel {
   company: string;
   company_id: number;
   default: boolean;
-  id?: number;
+  id: number;
+  name: string;
   print_size: string;
   store?: string;
   store_id: number;
@@ -13,12 +13,29 @@ export interface PrinterModel {
   type: string;
 }
 
+/**
+ * List printer response
+ */
 export interface PrinterResponseModel {
-  items: PrinterModel[];
+  items: BasePrinterModel[];
   metadata: BaseMetadata;
 }
 
+/**
+ * single printer detail response
+ */
 export interface SinglePrinterResponseModel {
-  items: PrinterModel[];
+  items: BasePrinterModel[];
   metadata: BaseMetadata;
+}
+
+/**
+ * printer variables response
+ */
+export interface PrinterVariableResponseModel {
+  [key: string]: {
+    preview_value: string;
+    name: string;
+    value: string;
+  }[];
 }

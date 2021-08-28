@@ -6,14 +6,13 @@ import CustomTable, {
 } from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import { actionFetchListPrinter } from "domain/actions/printer/printer.action";
-import { FormPrinterModel } from "model/editor/editor.model";
-import { VariantResponse } from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  PrinterModel,
+  BasePrinterModel,
   PrinterResponseModel,
 } from "model/response/printer.response";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { generateQuery } from "utils/AppUtils";
@@ -25,7 +24,7 @@ const SettingPrinter: React.FC = () => {
   const FAKE_PRINT_CONTENT = "<p>This is fake print content print screen</p>";
   const printElementRef = useRef(null);
   const [tableLoading, setTableLoading] = useState(false);
-  const [listPrinter, setListPrinter] = useState<PrinterModel[]>([]);
+  const [listPrinter, setListPrinter] = useState<BasePrinterModel[]>([]);
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
@@ -35,7 +34,11 @@ const SettingPrinter: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  let [params, setParams] = useState({
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+
+  let [queryParams, setQueryParams] = useState({
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
     sort_type: "desc",
@@ -43,14 +46,14 @@ const SettingPrinter: React.FC = () => {
   });
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
-      let queryParam = generateQuery(params);
-      setParams({ ...params });
-      history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
+      queryParams.page = page;
+      queryParams.limit = size;
+      let queryParam = generateQuery(queryParams);
+      setQueryParams({ ...queryParams });
+      history.replace(`${UrlConfig.PRINTER}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [history, params]
+    [history, queryParams]
   );
 
   const goToPageDetail = (id: string | number) => {
@@ -67,14 +70,15 @@ const SettingPrinter: React.FC = () => {
       visible: true,
       width: "5%",
       render: (value, row, index) => {
-        return <span>{(params.page - 1) * params.limit + index + 1}</span>;
+        return (
+          <span>{(queryParams.page - 1) * queryParams.limit + index + 1}</span>
+        );
       },
     },
     {
       title: "Tên mẫu in",
-      dataIndex: "tenMauIn",
+      dataIndex: "name",
       visible: true,
-      className: "columnTitle",
       width: "20%",
     },
     {
@@ -89,6 +93,20 @@ const SettingPrinter: React.FC = () => {
       visible: true,
       width: "30%",
       className: "printSize",
+      render: (value, row, index) => {
+        let result = value;
+        if (bootstrapReducer) {
+          const selectedPrintSize = bootstrapReducer.data?.print_size.find(
+            (singlePrinterSize) => {
+              return singlePrinterSize.value === value;
+            }
+          );
+          if (selectedPrintSize) {
+            result = selectedPrintSize.name;
+          }
+        }
+        return result;
+      },
     },
     {
       title: "Thao tác ",
@@ -148,15 +166,14 @@ const SettingPrinter: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("params", params);
     dispatch(
-      actionFetchListPrinter(params, (data: PrinterResponseModel) => {
+      actionFetchListPrinter(queryParams, (data: PrinterResponseModel) => {
         setListPrinter(data.items);
         setTotal(data.metadata.total);
         setTableLoading(false);
       })
     );
-  }, [dispatch, params]);
+  }, [dispatch, queryParams]);
 
   return (
     <StyledComponent>
@@ -183,17 +200,17 @@ const SettingPrinter: React.FC = () => {
             showColumnSetting={false}
             scroll={{ x: 1080 }}
             pagination={{
-              pageSize: params.limit,
+              pageSize: queryParams.limit,
               total: total,
-              current: params.page,
+              current: queryParams.page,
               showSizeChanger: true,
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
             dataSource={listPrinter}
             columns={columnFinal()}
-            rowKey={(item: VariantResponse) => item.id}
-            onRow={(record: FormPrinterModel) => {
+            rowKey={(item: BasePrinterModel) => item.id}
+            onRow={(record: BasePrinterModel) => {
               return {
                 onClick: (event) => {
                   goToPageDetail(record.id);

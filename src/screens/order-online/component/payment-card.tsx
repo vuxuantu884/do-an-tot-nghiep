@@ -48,10 +48,18 @@ type PaymentCardProps = {
 };
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
+  const { paymentMethod } = props;
+  const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
+    []
+  );
   const changePaymentMethod = (value: number) => {
+    console.log("change");
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
       handlePickPaymentMethod(PaymentMethodCode.CASH);
+    } else {
+      setPaymentData([]);
+      props.setPayments([]);
     }
   };
 
@@ -59,10 +67,6 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   const [listPaymentMethod, setListPaymentMethod] = useState<
     Array<PaymentMethodResponse>
   >([]);
-
-  const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
-    []
-  );
 
   const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter(
@@ -127,7 +131,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     props.setPayments([...paymentData]);
   };
 
-  const caculateMax = (totalAmount: number, index: number) => {
+  const calculateMax = (totalAmount: number, index: number) => {
     let total = totalAmount;
     for (let i = 0; i < index; i++) {
       if (paymentData[i].code === PaymentMethodCode.POINT) {
@@ -160,8 +164,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     >
       <div className="padding-20 create-order-payment">
         <Form.Item
-          // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
-          // required
+        // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
+        // required
         >
           <Radio.Group
             value={props.paymentMethod}
@@ -179,16 +183,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
             </Space>
           </Radio.Group>
           {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
-              <div className="order-cod-payment-footer">
-                <span>
-                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
-                  có thể nhập giá trị Tiền thu hộ
-                </span>
-              </div>
-            )}
-            {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.DELIVERLATER && (
+            props.shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <div className="order-cod-payment-footer">
                 <span>
                   Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
@@ -197,7 +192,16 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
               </div>
             )}
           {props.paymentMethod === PaymentMethodOption.COD &&
-            props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+            props.shipmentMethod === ShipmentMethodOption.DELIVER_LATER && (
+              <div className="order-cod-payment-footer">
+                <span>
+                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để
+                  có thể nhập giá trị Tiền thu hộ
+                </span>
+              </div>
+            )}
+          {props.paymentMethod === PaymentMethodOption.COD &&
+            props.shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
               <div className="order-cod-payment-footer" style={{ height: 83 }}>
                 <div>
                   <div>
@@ -394,7 +398,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                     }
                                     min={0}
                                     max={
-                                      caculateMax(props.amount, index) / 1000
+                                      calculateMax(props.amount, index) / 1000
                                     }
                                     onChange={(value) => {
                                       handleInputPoint(index, value);
@@ -434,7 +438,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                               <InputNumber
                                 size="middle"
                                 min={0}
-                                max={caculateMax(props.amount, index)}
+                                max={calculateMax(props.amount, index)}
                                 value={method.amount}
                                 disabled={
                                   method.code === PaymentMethodCode.POINT
@@ -466,9 +470,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                 marginLeft: 10,
                               }}
                             >
-                              <span
-                                style={{ padding: "14px", lineHeight: 1 }}
-                              >
+                              <span style={{ padding: "14px", lineHeight: 1 }}>
                                 {formatCurrency(method.amount)}
                               </span>
                             </Col>
@@ -509,9 +511,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       style={{ height: 38, margin: "10px 0 0 0" }}
                     >
                       <Col lg={14} xxl={9} style={{ padding: "8px 0" }}>
-                        <b>
-                          {true ? "Còn phải trả:" : "Tiền thừa:"}
-                        </b>
+                        <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                       </Col>
                       <Col
                         className="lbl-money"
@@ -523,9 +523,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                           fontSize: "20px",
                         }}
                       >
-                        <span
-                          style={{ color: false ? "blue" : "red" }}
-                        >
+                        <span style={{ color: false ? "blue" : "red" }}>
                           {formatCurrency(Math.abs(moneyReturn))}
                         </span>
                       </Col>

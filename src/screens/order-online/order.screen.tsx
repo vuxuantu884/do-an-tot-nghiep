@@ -1,24 +1,26 @@
 //#region Import
-import React, { createRef, useCallback, useEffect, useState } from "react";
+import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import {
-  Card,
   Button,
-  Form,
-  Row,
+  Card,
   Col,
-  Input,
+  Form,
   FormInstance,
+  Input,
+  Row,
   Select,
 } from "antd";
-import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import { useHistory } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { CustomerResponse } from "model/response/customer/customer.response";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { PageResponse } from "model/base/base-metadata.response";
-import { showError, showSuccess } from "utils/ToastUtils";
-import { AccountResponse } from "model/account/account.model";
+import WarningIcon from "assets/icon/ydWarningIcon.svg";
+import ContentContainer from "component/container/content.container";
+import CreateBillStep from "component/header/create-bill-step";
+import UrlConfig from "config/UrlConfig";
 import { AccountSearchAction } from "domain/actions/account/account.action";
+import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { orderCreateAction } from "domain/actions/order/order.action";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderSettingsModel } from "model/other/Order/order-model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
   FulFillmentRequest,
@@ -29,33 +31,32 @@ import {
   ShipmentRequest,
   ShippingAddress,
 } from "model/request/order.request";
-import { orderCreateAction } from "domain/actions/order/order.action";
-import ShipmentCard from "./component/shipment-card";
-import ProductCard from "./component/product-card";
-import PaymentCard from "./component/payment-card";
-import CustomerCard from "./component/customer-card";
-import ContentContainer from "component/container/content.container";
-import CreateBillStep from "component/header/create-bill-step";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
+import moment from "moment";
+import React, { createRef, useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
+import {
+  getAmountPaymentRequest,
+  getTotalAmountAfferDiscount,
+} from "utils/AppUtils";
 import {
   MoneyPayThreePls,
   OrderStatus,
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
-import UrlConfig from "config/UrlConfig";
-import moment from "moment";
-import SaveAndConfirmOrder from "./modal/save-confirm.modal";
-import {
-  getAmountPaymentRequest,
-  getTotalAmountAfferDiscount,
-} from "utils/AppUtils";
-import WarningIcon from "assets/icon/ydWarningIcon.svg";
-import { StoreDetailCustomAction } from "domain/actions/core/store.action";
+import { showError, showSuccess } from "utils/ToastUtils";
 import CustomeInputTags from "./component/custom-input-tags";
+import CustomerCard from "./component/customer-card";
+import CardProduct from "./component/order-detail/CardProduct";
+import ShipmentCard from "./component/order-detail/CardShipment";
+import PaymentCard from "./component/payment-card";
+import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 //#endregion
 
 var typeButton = "";
@@ -89,12 +90,20 @@ export default function Order() {
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
-  const [isvibleSaveAndConfirm, setIsvibleSaveAndConfirm] =
+  const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
     useState<boolean>(false);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
+  const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer
+  );
+
+  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
+    chonCuaHangTruocMoiChonSanPham: false,
+    cauHinhInNhieuLienHoaDon: 1,
+  });
   // const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
   //#rgion Customer
@@ -122,9 +131,6 @@ export default function Order() {
   };
   //#endregion
   //#region Product
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
@@ -194,16 +200,19 @@ export default function Order() {
   };
 
   //#region Order
-  const initialForm: OrderRequest = {
+  let initialForm: OrderRequest = {
     ...initialRequest,
     shipping_address: shippingAddress,
     billing_address: billingAddress,
   };
 
-  const onChangeTag = useCallback((value: []) => {
-    const strTag = value.join(", ");
-    setTag(strTag);
-  },[tags,setTag])
+  const onChangeTag = useCallback(
+    (value: []) => {
+      const strTag = value.join(", ");
+      setTag(strTag);
+    },
+    [tags, setTag]
+  );
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {
     let shipmentRequest = createShipmentRequest(value);
@@ -274,7 +283,7 @@ export default function Order() {
       office_time: officeTime,
     };
 
-    if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
+    if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER) {
       objShipment.delivery_service_provider_id = hvc;
       objShipment.delivery_service_provider_type = "external_service";
       objShipment.sender_address_id = storeId;
@@ -289,7 +298,7 @@ export default function Order() {
       return objShipment;
     }
 
-    if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
+    if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
       objShipment.delivery_service_provider_type = "Shipper";
       objShipment.shipper_code = value.shipper_code;
       objShipment.shipping_fee_informed_to_customer =
@@ -364,18 +373,18 @@ export default function Order() {
 
   //show modal save and confirm order ?
   const onCancelSaveAndConfirm = () => {
-    setIsvibleSaveAndConfirm(false);
+    setIsVisibleSaveAndConfirm(false);
   };
 
   const onOkSaveAndConfirm = () => {
     typeButton = OrderStatus.DRAFT;
     formRef.current?.submit();
-    setIsvibleSaveAndConfirm(false);
+    setIsVisibleSaveAndConfirm(false);
   };
 
   const showSaveAndConfirmModal = () => {
     if (shipmentMethod !== 4 || paymentMethod !== 3) {
-      setIsvibleSaveAndConfirm(true);
+      setIsVisibleSaveAndConfirm(true);
     } else {
       typeButton = OrderStatus.DRAFT;
       formRef.current?.submit();
@@ -432,7 +441,7 @@ export default function Order() {
         const element: any = document.getElementById("search_product");
         element?.focus();
       } else {
-        if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
+        if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
@@ -440,7 +449,7 @@ export default function Order() {
           }
         } else {
           if (
-            shipmentMethod === ShipmentMethodOption.DELIVERPARNER &&
+            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
             !serviceType
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
@@ -452,6 +461,10 @@ export default function Order() {
     }
   };
   //#endregion
+
+  const handleChangeProduct = (value: string) => {
+    console.log("valueParent", value);
+  };
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -487,6 +500,16 @@ export default function Order() {
       window.removeEventListener("scroll", scroll);
     };
   }, [scroll]);
+
+  /**
+   * orderSettings
+   */
+  useEffect(() => {
+    setOrderSettings({
+      chonCuaHangTruocMoiChonSanPham: true,
+      cauHinhInNhieuLienHoaDon: 3,
+    });
+  }, []);
 
   return (
     <ContentContainer
@@ -546,12 +569,15 @@ export default function Order() {
                 BillingAddressChange={onChangeBillingAddress}
               />
               {/*--- product ---*/}
-              <ProductCard
+              <CardProduct
                 changeInfo={onChangeInfoProduct}
                 selectStore={onStoreSelect}
                 storeId={storeId}
                 shippingFeeCustomer={shippingFeeCustomer}
                 setItemGift={setItemGifts}
+                orderSettings={orderSettings}
+                formRef={formRef}
+                onChangeProduct={(value: string) => handleChangeProduct(value)}
               />
               {/*--- end product ---*/}
               {/*--- shipment ---*/}
@@ -566,7 +592,7 @@ export default function Order() {
                 paymentMethod={paymentMethod}
                 shippingFeeCustomer={shippingFeeCustomer}
                 shippingFeeCustomerHVC={shippingFeeCustomerHVC}
-                cusomerInfo={customer}
+                customerInfo={customer}
                 items={items}
                 discountValue={discountValue}
                 setOfficeTime={setOfficeTime}
@@ -574,6 +600,8 @@ export default function Order() {
                 setServiceType={setServiceType}
                 setHVC={setHvc}
                 setFeeGhtk={setFeeGhtk}
+                payments={payments}
+                onPayments={onPayments}
               />
               <PaymentCard
                 setSelectedPaymentMethod={changePaymentMethod}
@@ -693,9 +721,7 @@ export default function Order() {
                     }}
                     // name="tags"
                   >
-                  <CustomeInputTags 
-                    onChangeTag={onChangeTag}
-                  />
+                    <CustomeInputTags onChangeTag={onChangeTag} />
                   </Form.Item>
                 </div>
               </Card>
@@ -745,6 +771,10 @@ export default function Order() {
                 id="save-and-confirm"
                 onClick={() => {
                   typeButton = OrderStatus.FINALIZED;
+                  console.log(
+                    "formRef.current.value",
+                    formRef?.current?.getFieldsValue()
+                  );
                   formRef.current?.submit();
                 }}
               >
@@ -757,7 +787,7 @@ export default function Order() {
       <SaveAndConfirmOrder
         onCancel={onCancelSaveAndConfirm}
         onOk={onOkSaveAndConfirm}
-        visible={isvibleSaveAndConfirm}
+        visible={isVisibleSaveAndConfirm}
         okText="Đồng ý"
         cancelText="Hủy"
         title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
@@ -767,4 +797,3 @@ export default function Order() {
     </ContentContainer>
   );
 }
-

@@ -114,7 +114,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
 
   const history = useHistory();
 
-  const [params, setParams] = useState({
+  const [queryParams, setQueryParams] = useState({
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 30),
     sort_type: "desc",
@@ -122,14 +122,14 @@ const SettingOrderProcessingStatus: React.FC = () => {
   });
   const onPageChange = useCallback(
     (page, size) => {
-      params.page = page;
-      params.limit = size;
-      let queryParam = generateQuery(params);
-      setParams({ ...params });
+      queryParams.page = page;
+      queryParams.limit = size;
+      let queryParam = generateQuery(queryParams);
+      setQueryParams({ ...queryParams });
       history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [history, params]
+    [history, queryParams]
   );
 
   const createOrderServiceSubStatusHtml = () => {
@@ -151,10 +151,10 @@ const SettingOrderProcessingStatus: React.FC = () => {
 
   const gotoFirstPage = () => {
     const newParams = {
-      ...params,
+      ...queryParams,
       page: 1,
     };
-    setParams({ ...newParams });
+    setQueryParams({ ...newParams });
     let queryParam = generateQuery(newParams);
     history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
     window.scrollTo(0, 0);
@@ -178,7 +178,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
             () => {
               dispatch(
                 actionFetchListOrderProcessingStatus(
-                  params,
+                  queryParams,
                   (data: OrderProcessingStatusResponseModel) => {
                     setListOrderProcessingStatus(data.items);
                   }
@@ -212,7 +212,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
     setTableLoading(true);
     dispatch(
       actionFetchListOrderProcessingStatus(
-        params,
+        queryParams,
         (data: OrderProcessingStatusResponseModel) => {
           setListOrderProcessingStatus(data.items);
           setTotal(data.metadata.total);
@@ -220,7 +220,7 @@ const SettingOrderProcessingStatus: React.FC = () => {
         }
       )
     );
-  }, [dispatch, params]);
+  }, [dispatch, queryParams]);
 
   return (
     <StyledComponent>
@@ -248,9 +248,9 @@ const SettingOrderProcessingStatus: React.FC = () => {
               showColumnSetting={false}
               scroll={{ x: 1080 }}
               pagination={{
-                pageSize: params.limit,
+                pageSize: queryParams.limit,
                 total: total,
-                current: params.page,
+                current: queryParams.page,
                 showSizeChanger: true,
                 onChange: onPageChange,
                 onShowSizeChange: onPageChange,

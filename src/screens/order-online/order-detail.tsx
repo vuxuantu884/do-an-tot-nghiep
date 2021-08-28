@@ -10,6 +10,7 @@ import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { OrderDetailAction } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
+import { OrderSettingsModel } from "model/other/Order/order-model";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
@@ -145,6 +146,11 @@ const OrderDetail = () => {
     }
   };
 
+  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
+    chonCuaHangTruocMoiChonSanPham: false,
+    cauHinhInNhieuLienHoaDon: 1,
+  });
+
   // tag status
   let stepsStatusValue = stepsStatus();
 
@@ -206,6 +212,13 @@ const OrderDetail = () => {
     }
   }, [dispatch, OrderDetail?.store_id]);
   //#endregion
+
+  useEffect(() => {
+    setOrderSettings({
+      chonCuaHangTruocMoiChonSanPham: true,
+      cauHinhInNhieuLienHoaDon: 3,
+    });
+  }, []);
 
   // khách cần trả
   const customerNeedToPay: any = () => {
@@ -313,6 +326,7 @@ const OrderDetail = () => {
               isVisibleShipping={isVisibleShipping}
               paymentType={paymentType}
               OrderDetailAllFullfilment={OrderDetailAllFullfilment}
+              orderSettings={orderSettings}
             />
 
             {/*--- end shipment ---*/}

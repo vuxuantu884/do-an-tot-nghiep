@@ -107,7 +107,7 @@ const PurchaseOrderListScreen: React.FC = () => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          if (response.data.status === "FINISH") {
+          if (response.data && response.data.status === "FINISH") {
             let fileCode = response.data.code,
               newListExportFile = listExportFile.filter((item) => {
                 return item !== fileCode;
@@ -500,7 +500,7 @@ const PurchaseOrderListScreen: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630 }}
+            scroll={{ x: 3630, y: "50vh" }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,

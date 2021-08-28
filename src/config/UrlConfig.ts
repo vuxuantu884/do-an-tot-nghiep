@@ -21,6 +21,7 @@ const UrlConfig = {
   THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
+  SHIPMENTS: `/shipments`,
 };
 
 export default UrlConfig;

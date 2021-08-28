@@ -1,8 +1,9 @@
 export interface keywordsModel {
-  title: string;
-  key: string;
+  name: string;
   value: string;
+  preview_value?: string;
   isShow?: boolean;
+  key?: number | string;
 }
 
 export interface productKeywordsModel {
@@ -13,7 +14,7 @@ export interface productKeywordsModel {
 
 export interface listKeywordsModel {
   name: string;
-  list: keywordsModel[];
+  list?: keywordsModel[];
 }
 
 export interface EditorModel {
@@ -42,23 +43,4 @@ export interface PrintPreviewModel {
   previewHeaderHeight?: number;
   isShowEditor?: boolean;
   onChangeShowEditor: (isShow: boolean) => void;
-}
-
-export type SinglePrinterContentModel = string;
-
-export interface FormValueModel {
-  tenMauIn: string;
-  chiNhanhApDung: string;
-  khoIn: string;
-  apDung: boolean;
-  formIn: SinglePrinterContentModel;
-}
-
-export interface FormPrinterModel {
-  id: string | number;
-  tenMauIn: string;
-  chiNhanhApDung: string;
-  khoIn: string;
-  apDung: boolean;
-  formIn?: SinglePrinterContentModel;
 }

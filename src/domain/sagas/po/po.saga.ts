@@ -10,12 +10,16 @@ import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { POType } from "domain/types/purchase-order.type";
 import { PageResponse } from "model/base/base-metadata.response";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import {
+  PurchaseOrder,
+  PurchaseOrderPrint,
+} from "model/purchase-order/purchase-order.model";
 import { call, put, takeLatest } from "redux-saga/effects";
 import {
   createPurchaseOrder,
   getPurchaseOrderApi,
   deletePurchaseOrder,
+  getPrintContent,
 } from "service/purchase-order/purchase-order.service";
 import { showError } from "utils/ToastUtils";
 
@@ -189,12 +193,24 @@ function* poReturnSaga(action: YodyAction) {
         returnCallback(true);
         break;
       case HttpStatus.UNAUTHORIZED:
+        returnCallback(false);
         yield put(unauthorizedAction());
         break;
       default:
         returnCallback(false);
         break;
     }
+  } catch (error) {
+    returnCallback(false);
+    console.log("error ", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+function* poPrintSaga(action: YodyAction) {
+  const { id, updatePrintCallback } = action.payload;
+  try {
+    let response: Array<PurchaseOrderPrint> = yield call(getPrintContent, id);
+    return updatePrintCallback(response);
   } catch (error) {
     console.log("error ", error);
     showError("Có lỗi vui lòng thử lại sau");
@@ -208,6 +224,7 @@ export function* poSaga() {
   yield takeLatest(POType.UPDATE_PO_REQUEST, poUpdateSaga);
   yield takeLatest(POType.DELETE_PO_REQUEST, poDeleteSaga);
   yield takeLatest(POType.RETURN_PO_REQUEST, poReturnSaga);
+  yield takeLatest(POType.GET_PRINT_CONTENT, poPrintSaga);
   yield takeLatest(
     POType.UPDATE_PO_FINANCIAL_STATUS_REQUEST,
     poUpdateFinancialStatusSaga
