@@ -193,6 +193,7 @@ function* poReturnSaga(action: YodyAction) {
         returnCallback(true);
         break;
       case HttpStatus.UNAUTHORIZED:
+        returnCallback(false);
         yield put(unauthorizedAction());
         break;
       default:
@@ -200,6 +201,7 @@ function* poReturnSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
+    returnCallback(false);
     console.log("error ", error);
     showError("Có lỗi vui lòng thử lại sau");
   }

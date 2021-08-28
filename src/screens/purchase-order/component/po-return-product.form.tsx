@@ -31,17 +31,13 @@ import "./po-return-form.scss";
 type POReturnFormProps = {
   formMain: FormInstance;
 };
-interface TempPurchaseOrderLineReturnItem extends PurchaseOrderLineReturnItem {
-  max_price?: number;
-}
-
 const POReturnForm: React.FC<POReturnFormProps> = (
   props: POReturnFormProps
 ) => {
   const { formMain } = props;
   // const [allChecked, setAllChecked] = useState(false);
   let [currentLineReturn, setCurrentLineReturn] = useState<
-    Array<TempPurchaseOrderLineReturnItem>
+    Array<PurchaseOrderLineReturnItem>
   >([]);
   const product_units = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
@@ -53,7 +49,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
   ) => {
     item.quantity_return = value;
     let valueIndex = currentLineReturn.findIndex(
-      (lineItem: TempPurchaseOrderLineReturnItem) => lineItem.id === item.id
+      (lineItem: PurchaseOrderLineReturnItem) => lineItem.id === item.id
     );
     if (valueIndex !== -1) currentLineReturn[valueIndex] = item;
     setCurrentLineReturn([...currentLineReturn]);
@@ -65,7 +61,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
   ) => {
     item.price = value;
     let valueIndex = currentLineReturn.findIndex(
-      (lineItem: TempPurchaseOrderLineReturnItem) => lineItem.id === item.id
+      (lineItem: PurchaseOrderLineReturnItem) => lineItem.id === item.id
     );
     if (valueIndex !== -1) currentLineReturn[valueIndex] = item;
     setCurrentLineReturn([...currentLineReturn]);
@@ -84,14 +80,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
 
   useEffect(() => {
     let allLineReturn = formMain.getFieldValue(POField.line_items);
-
-    currentLineReturn = allLineReturn.map(
-      (item: TempPurchaseOrderLineReturnItem) => {
-        item.max_price = item.price;
-        return item;
-      }
-    );
-    setCurrentLineReturn([...currentLineReturn]);
+    setCurrentLineReturn([...allLineReturn]);
   }, [formMain]);
   useEffect(() => {
     formMain.setFieldsValue({
@@ -385,8 +374,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                               width: 140,
                               dataIndex: "price",
                               render: (value, item, index) => {
-                                let currentValue = 0,
-                                  maxPrice = value;
+                                let currentValue = 0;
                                 if (currentLineReturn.length > 0) {
                                   let valueIndex = currentLineReturn.findIndex(
                                     (lineItem: PurchaseOrderLineReturnItem) =>
@@ -395,8 +383,6 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                   if (valueIndex !== -1) {
                                     currentValue =
                                       currentLineReturn[valueIndex].price;
-                                    maxPrice =
-                                      currentLineReturn[valueIndex].max_price;
                                   }
                                 }
                                 return (
@@ -408,7 +394,6 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                   >
                                     <NumberInput
                                       className="hide-number-handle"
-                                      max={maxPrice}
                                       min={0}
                                       format={(a: string) =>
                                         formatCurrency(
@@ -426,9 +411,8 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                       replace={(a: string) =>
                                         replaceFormatString(a)
                                       }
-                                      placeholder={maxPrice}
                                       value={currentValue}
-                                      default={maxPrice}
+                                      default={currentValue}
                                       onChange={(inputValue) => {
                                         if (inputValue === null) return;
                                         handleChangeReturnPrice(
