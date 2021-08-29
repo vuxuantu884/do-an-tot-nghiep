@@ -10,7 +10,8 @@ import {
   Tooltip,
   Collapse,
   Tag,
-  InputNumber
+  InputNumber,
+  Radio
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
@@ -100,7 +101,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "COD", value: 0},
   ]
   const formRef = createRef<FormInstance>();
-  
+
+  const onChangeOrderOptions = useCallback((e) => {
+    console.log('ok lets go', e.target.value);
+    
+  }, []);
+
   const onFilterClick = useCallback(() => {
     setVisible(false);
     formRef.current?.submit();
@@ -331,9 +337,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   let filters = useMemo(() => {
     let list = []
     // console.log('filters initialValues', initialValues);
-    if (params.store_ids.length) {
+    if (initialValues.store_ids.length) {
       let textStores = ""
-      params.store_ids.forEach(store_id => {
+      initialValues.store_ids.forEach(store_id => {
         const store = listStore?.find(store => store.id.toString() === store_id)
         textStores = store ? textStores + store.name + ";" : textStores
       })
@@ -343,9 +349,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStores
       })
     }
-    if (params.source_ids.length) {
+    if (initialValues.source_ids.length) {
       let textSource = ""
-      params.source_ids.forEach(source_id => {
+      initialValues.source_ids.forEach(source_id => {
         const source = listSources?.find(source => source.id.toString() === source_id)
         textSource = source ? textSource + source.name + ";" : textSource
       })
@@ -355,41 +361,41 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textSource
       })
     }
-    if (params.issued_on_min || params.issued_on_max) {
-      let textOrderCreateDate = (params.issued_on_min ? params.issued_on_min : '??') + " ~ " + (params.issued_on_max ? params.issued_on_max : '??')
+    if (initialValues.issued_on_min || initialValues.issued_on_max) {
+      let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
       list.push({
         key: 'issued',
         name: 'Ngày tạo đơn',
         value: textOrderCreateDate
       })
     }
-    if (params.ship_on_min || params.ship_on_max) {
-      let textOrderShipDate = (params.ship_on_min ? params.ship_on_min : '??') + " ~ " + (params.ship_on_max ? params.ship_on_max : '??')
+    if (initialValues.ship_on_min || initialValues.ship_on_max) {
+      let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
       list.push({
         key: 'ship',
         name: 'Ngày duyệt đơn',
         value: textOrderShipDate
       })
     }
-    if (params.completed_on_min || params.completed_on_max) {
-      let textOrderCompleteDate = (params.completed_on_min ? params.completed_on_min : '??') + " ~ " + (params.completed_on_max ? params.completed_on_max : '??')
+    if (initialValues.completed_on_min || initialValues.completed_on_max) {
+      let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
       list.push({
         key: 'completed',
         name: 'Ngày hoàn tất đơn',
         value: textOrderCompleteDate
       })
     }
-    if (params.cancelled_on_min || params.cancelled_on_max) {
-      let textOrderCancelDate = (params.cancelled_on_min ? params.cancelled_on_min : '??') + " ~ " + (params.cancelled_on_max ? params.cancelled_on_max : '??')
+    if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
+      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
       list.push({
         key: 'cancelled',
         name: 'Ngày huỷ đơn',
         value: textOrderCancelDate
       })
     }
-    if (params.order_status.length) {
+    if (initialValues.order_status.length) {
       let textStatus = ""
-      params.order_status.forEach(i => {
+      initialValues.order_status.forEach(i => {
         const findStatus = status?.find(item => item.value === i)
         textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
       })
@@ -399,9 +405,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (params.fulfillment_status.length) {
+    if (initialValues.fulfillment_status.length) {
       let textStatus = ""
-      params.fulfillment_status.forEach(i => {
+      initialValues.fulfillment_status.forEach(i => {
         const findStatus = fulfillmentStatus?.find(item => item.value === i)
         textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
       })
@@ -412,9 +418,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (params.payment_status.length) {
+    if (initialValues.payment_status.length) {
       let textStatus = ""
-      params.payment_status.forEach(i => {
+      initialValues.payment_status.forEach(i => {
         const findStatus = paymentStatus?.find(item => item.value === i)
         textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
       })
@@ -425,9 +431,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (params.assignee.length) {
+    if (initialValues.assignee.length) {
       let textAccount = ""
-      params.assignee.forEach(i => {
+      initialValues.assignee.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
       })
@@ -438,9 +444,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (params.account.length) {
+    if (initialValues.account.length) {
       let textAccount = ""
-      params.account.forEach(i => {
+      initialValues.account.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
       })
@@ -451,8 +457,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (params.price_min || params.price_max) {
-      let textPrice = (params.price_min ? params.price_min : " ?? ") + " ~ " + (params.price_max ? params.price_max : " ?? ")
+    if (initialValues.price_min || initialValues.price_max) {
+      let textPrice = (initialValues.price_min ? initialValues.price_min : " ?? ") + " ~ " + (initialValues.price_max ? initialValues.price_max : " ?? ")
       list.push({
         key: 'price',
         name: 'Tổng tiền',
@@ -460,9 +466,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (params.payment_method_ids.length) {
+    if (initialValues.payment_method_ids.length) {
       let textStatus = ""
-      params.payment_method_ids.forEach(i => {
+      initialValues.payment_method_ids.forEach(i => {
         const findStatus = paymentType?.find(item => item.value.toString() === i)
         textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
       })
@@ -472,40 +478,40 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (params.ship_by) {
-      const findSerivice = deliveryService.find(item => item.id.toString() === params.ship_by)
+    if (initialValues.ship_by) {
+      const findSerivice = deliveryService.find(item => item.id.toString() === initialValues.ship_by)
       list.push({
         key: 'ship_by',
         name: 'Hình thức vận chuyển',
         value: findSerivice.name
       })
     }
-    if (params.expected_receive_predefined) {
+    if (initialValues.expected_receive_predefined) {
       list.push({
         key: 'expected_receive_predefined',
         name: 'Ngày dự kiến nhận hàng',
-        value: params.expected_receive_predefined
+        value: initialValues.expected_receive_predefined
       })
     }
-    if (params.note) {
+    if (initialValues.note) {
       list.push({
         key: 'note',
         name: 'Ghi chú nội bộ',
-        value: params.note
+        value: initialValues.note
       })
     }
 
-    if (params.customer_note) {
+    if (initialValues.customer_note) {
       list.push({
         key: 'customer_note',
         name: 'Ghi chú của khách',
-        value: params.customer_note
+        value: initialValues.customer_note
       })
     }
 
-    if (params.tags.length) {
+    if (initialValues.tags.length) {
       let textStatus = ""
-      params.tags.forEach(i => {
+      initialValues.tags.forEach(i => {
         textStatus = textStatus + i + ";"
       })
       list.push({
@@ -515,16 +521,16 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (params.reference_code) {
+    if (initialValues.reference_code) {
       list.push({
         key: 'reference_code',
         name: 'Mã tham chiếu',
-        value: params.reference_code
+        value: initialValues.reference_code
       })
     }
     // console.log('filters list', list);
     return list
-  }, [accounts, deliveryService, fulfillmentStatus, params, listSources, listStore, paymentStatus, paymentType, status]);
+  }, [accounts, deliveryService, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status]);
 
   
 
@@ -536,6 +542,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
   return (
     <div>
+      <div className="order-options">
+        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="a">
+          <Radio.Button value="a">Tất cả đơn hàng</Radio.Button>
+          <Radio.Button value="b">Đơn hàng online</Radio.Button>
+          <Radio.Button value="c">Đơn hàng offline</Radio.Button>
+        </Radio.Group>
+      </div>
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form onFinish={onFinish} initialValues={initialValues} layout="inline">
