@@ -12,12 +12,13 @@ import {
 import CustomDatepicker from "component/custom/date-picker.custom";
 import CustomTable from "component/table/CustomTable";
 import moment from "moment";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { StyledComponent } from "./styles";
 
 type PropType = {};
 type EditableTableProps = Parameters<typeof Table>[0];
 type ColumnTypes = Exclude<EditableTableProps["columns"], undefined>;
+const EditableContext = React.createContext(null);
 
 function OrderSettingValue(props: PropType) {
   const [tableLoading, setTableLoading] = useState(false);
@@ -56,7 +57,7 @@ function OrderSettingValue(props: PropType) {
 
   const renderDate = () => {
     return (
-      <Form.Item name="from_date" label="Ngày bắt đầu:">
+      <Form.Item name="from_date">
         <DatePicker
           placeholder="dd/mm/yyyy  hh:mm"
           format="YYYY-MM-DD HH:mm"
@@ -71,27 +72,24 @@ function OrderSettingValue(props: PropType) {
   const FAKE_LOGISTIC_SETTINGS = [
     {
       key: "1",
-      name: "1",
-      style: "Kiểu 1",
+      phiVanChuyen: "1",
+      tinhTp: "HN 1",
       fromDate: "",
       toDate: "",
-      isActive: true,
     },
     {
       key: "2",
-      name: "2",
-      style: "Kiểu 2",
+      phiVanChuyen: "2",
+      tinhTp: "HN 2",
       fromDate: "",
       toDate: "",
-      isActive: false,
     },
     {
       key: "3",
-      name: "3",
-      style: "Kiểu 3",
+      phiVanChuyen: "3",
+      tinhTp: "HN 3",
       fromDate: "",
       toDate: "",
-      isActive: true,
     },
   ];
 
@@ -112,38 +110,37 @@ function OrderSettingValue(props: PropType) {
         return renderDate();
       },
     },
+    {
+      title: "Tỉnh/Thành phố",
+      dataIndex: "tinhTp",
+      key: "tinhTp",
+    },
+    {
+      title: "Phí vận chuyển",
+      dataIndex: "phiVanChuyen",
+      key: "phiVanChuyen",
+    },
   ];
 
-  const components = {
-    body: {
-      // row: EditableRow,
-      // cell: EditableCell,
-    },
-  };
-
   const [dataSource, setDataSource] = useState<any>(FAKE_LOGISTIC_SETTINGS);
-  const [count, setCount] = useState(2);
+  const [count, setCount] = useState(FAKE_LOGISTIC_SETTINGS.length + 1);
 
   const handleAdd = () => {
+    setCount(count + 1);
     const newData: any = {
-      key: "4",
-      name: "4",
-      style: "Kiểu 4",
+      key: count,
+      phiVanChuyen: `3+${count}`,
+      tinhTp: count,
       fromDate: "",
       toDate: "",
-      isActive: true,
     };
-    setDataSource({
-      dataSource: [...dataSource, newData],
-      count: count + 1,
-    });
+    setDataSource([...dataSource, newData]);
   };
 
   return (
     <StyledComponent>
       <Card title="Cài đặt theo giá trị đơn hàng">
         <Table
-          components={components}
           rowClassName={() => "editable-row"}
           bordered
           dataSource={dataSource}

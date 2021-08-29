@@ -141,30 +141,6 @@ function OrderSettings(props: PropType) {
           <OrderSettingValue />
         </Form>
         <Button onClick={() => handleSubmitForm()}>Lưu</Button>
-        <Card title="Thông tin chương trình" extra={renderCardExtra()}>
-          Cho phép bán khi tồn kho <Switch defaultChecked onChange={onChange} />
-        </Card>
-        <Card
-          title="Cài đặt dịch vụ vận chuyển và phí ship báo khách"
-          extra={renderCardExtra()}
-        >
-          <CustomTable
-            isLoading={tableLoading}
-            showColumnSetting={false}
-            scroll={{ x: 1080 }}
-            pagination={false}
-            dataSource={FAKE_LOGISTIC_SETTINGS}
-            columns={FAKE_LOGISTIC_SETTINGS_COLUMN}
-            rowKey={(item: any) => item.key}
-            onRow={(record: any) => {
-              return {
-                onClick: (event) => {
-                  goToPageDetail(record.key);
-                }, // click row
-              };
-            }}
-          />
-        </Card>
       </ContentContainer>
     </StyledComponent>
   );
