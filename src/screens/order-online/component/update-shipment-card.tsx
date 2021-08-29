@@ -41,7 +41,7 @@ import {
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
-import { OrderSettingsModel } from "model/other/Order/order-model";
+import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   ShippingGHTKRequest,
