@@ -19,6 +19,7 @@ const UrlConfig = {
   ORDER_SOURCES: `/${SETTINGS}/order-source`,
   PRINTER: `/${SETTINGS}/printer`,
   THIRD_PARTY_LOGISTICS_INTEGRATION: `/${SETTINGS}/third-party-logistics-integration`,
+  ORDER_SETTINGS: `/${SETTINGS}/order-settings`,
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
   SHIPMENTS: `/shipments`,

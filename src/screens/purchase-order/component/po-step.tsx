@@ -14,6 +14,7 @@ const statusToStep = {
   [POStatus.PROCUREMENT_RECEIVED]: 3,
   [POStatus.COMPLETED]: 4,
   [POStatus.FINISHED]: 5,
+  [POStatus.CANCELLED]: 6,
 };
 export interface POStepProps {
   poData?: PurchaseOrder;
@@ -21,8 +22,13 @@ export interface POStepProps {
 
 const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   const { poData } = props;
-  const { order_date, procurements, activated_date, completed_date } =
-    poData || {};
+  const {
+    order_date,
+    procurements,
+    activated_date,
+    completed_date,
+    cancelled_date,
+  } = poData || {};
   const combineStatus = useMemo(() => {
     if (poData) return POUtils.combinePOStatus(poData);
     return POStatus.DRAFT;
@@ -51,8 +57,16 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
         if (currentStep >= 3 && date) return ConvertUtcToLocalDate(date);
         return null;
       case 4:
-        if (currentStep >= 4 && activated_date)
-          return ConvertUtcToLocalDate(completed_date);
+        if (currentStep >= 4) {
+          if (
+            currentStep === statusToStep[POStatus.CANCELLED] &&
+            cancelled_date
+          ) {
+            return ConvertUtcToLocalDate(cancelled_date);
+          } else if (completed_date) {
+            return ConvertUtcToLocalDate(completed_date);
+          }
+        }
         return null;
     }
   };
@@ -72,7 +86,13 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
       <Steps.Step title="Phiếu nháp" description={getDescription(2)} />
       <Steps.Step title="Nhập kho" description={getDescription(3)} />
       <Steps.Step
-        title={statusToStep[combineStatus] === 5 ? "Kết thúc" : "Hoàn thành"}
+        title={
+          statusToStep[combineStatus] === 4
+            ? "Kết thúc"
+            : statusToStep[combineStatus] === 5
+            ? "Hoàn thành"
+            : "Hủy"
+        }
         description={getDescription(4)}
       />
     </Steps>

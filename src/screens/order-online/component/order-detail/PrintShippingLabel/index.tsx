@@ -22,6 +22,17 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
     content: () => printElementRef.current,
   });
 
+  const isShowPrinterButton = () => {
+    let isShow = true;
+    const LIST_HIDE = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
+    if (fulfillment?.status) {
+      if (LIST_HIDE.includes(fulfillment?.status)) {
+        isShow = false;
+      }
+    }
+    return isShow;
+  };
+
   const renderHtml = (text: string) => {
     let result = text;
     let docFromText = new DOMParser().parseFromString(
@@ -48,7 +59,7 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
 
   return (
     <StyledComponent>
-      {handlePrint && (
+      {handlePrint && isShowPrinterButton() && (
         <React.Fragment>
           <Button
             onClick={(e) => {

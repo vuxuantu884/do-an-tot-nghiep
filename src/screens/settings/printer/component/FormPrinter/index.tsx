@@ -6,25 +6,26 @@ import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import {
   actionCreatePrinter,
   actionFetchListPrinterVariables,
-  actionFetchPrinterDetail,
 } from "domain/actions/printer/printer.action";
 import { StoreResponse } from "model/core/store.model";
 import { listKeywordsModel } from "model/editor/editor.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BasePrinterModel,
+  FormPrinterModel,
   PrinterVariableResponseModel,
 } from "model/response/printer.response";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
+import { DEFAULT_FORM_VALUE } from "utils/Constants";
 import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
 import Preview from "../preview";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   id?: string;
-  type?: "create" | "edit";
+  type?: FormPrinterModel;
   formValue?: BasePrinterModel;
 };
 
@@ -34,12 +35,13 @@ type StoreType = {
 }[];
 
 const FormPrinter: React.FC<PropType> = (props: PropType) => {
-  const { type, formValue, id } = props;
+  const { id, type, formValue } = props;
+  const store_id_allShops = -1;
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
   const [htmlContent, setHtmlContent] = useState("");
-  const [isShowEditor, setIsShowEditor] = useState(isEdit ? false : true);
+  const isShowEditor = isEdit;
   const [listStores, setListStores] = useState<StoreType>([]);
   const [previewHeaderHeight, setPreviewHeaderHeight] = useState(108);
   const [selectedPrintSize, setSelectedPrintSize] = useState("");
@@ -52,15 +54,13 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [printerVariables, setPrinterVariables] =
     useState<PrinterVariableResponseModel>({});
 
-  const handleOnChangeEditor = (value: string) => {
-    setHtmlContent(value);
-  };
-
   const sprintConfigure = {
     listPrinterTypes: LIST_PRINTER_TYPES,
     listStores: listStores,
     listPrinterSizes: bootstrapReducer.data?.print_size,
   };
+
+  const positionProductVariables = 1;
 
   /**
    * các biến printer
@@ -80,30 +80,81 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     },
   ];
 
+  const PRODUCTS_VARIABLES = {
+    name: "Thông tin sản phẩm",
+    list: printerVariables.print_product_variable,
+  };
+
+  const LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES = [
+    ...LIST_PRINTER_VARIABLES.slice(0, positionProductVariables),
+    PRODUCTS_VARIABLES,
+    ...LIST_PRINTER_VARIABLES.slice(positionProductVariables),
+  ];
+
+  console.log(
+    "LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES",
+    LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES
+  );
+
   /**
    * list product lặp
    */
-  const LIST_PRINTER_PRODUCT_VARIABLES = [
-    {
-      title: "tên sản phẩm",
-      key: "{product_name}",
-      value: ["sản phẩm 1", "sản phẩm 2"],
-    },
-    {
-      title: "giá sản phẩm",
-      key: "{gia_san_pham}",
-      value: ["100", "200"],
-    },
-    {
-      title: "màu sắc",
-      key: "{mau_sac_san_pham}",
-      value: ["xanh", "vàng"],
-    },
-  ];
+  // const LIST_PRINTER_PRODUCT_VARIABLES = [
+  //   {
+  //     title: "tên sản phẩm",
+  //     key: "{product_name}",
+  //     value: ["sản phẩm 1", "sản phẩm 2"],
+  //   },
+  //   {
+  //     title: "giá sản phẩm",
+  //     key: "{gia_san_pham}",
+  //     value: ["100", "200"],
+  //   },
+  //   {
+  //     title: "màu sắc",
+  //     key: "{mau_sac_san_pham}",
+  //     value: ["xanh", "vàng"],
+  //   },
+  // ];
+  // for (const abc of printerVariables.print_product_variable) {
+  //   // let [d, e] = abc.preview_value.replaceAll('"', "").split(",");
+  //   abc.preview_value_format = ["vd1", "vd2"];
+  // }
+
+  // console.log("printerVariables.print_product_variable", printerVariables);
+
+  const handleOnChangeEditor = (value: string) => {
+    setHtmlContent(value);
+  };
+
+  if (
+    printerVariables.print_product_variable &&
+    printerVariables.print_product_variable.length
+  ) {
+    for (let i = 0; i < printerVariables.print_product_variable.length; i++) {
+      // printerVariables.print_product_variable[i].preview_value_format  = [
+      //   "vd1",
+      //   "vd2",
+      // ];
+      if (!printerVariables.print_product_variable[i].preview_value_format) {
+        printerVariables.print_product_variable[i].preview_value_format = [
+          printerVariables.print_product_variable[i].preview_value,
+        ];
+      }
+    }
+  }
+  const LIST_PRINTER_PRODUCT_VARIABLES_zzz = {
+    name: "Thông tin sản phẩm",
+    list: printerVariables.print_product_variable,
+  };
+
+  const LIST_PRINTER_PRODUCT_VARIABLES = LIST_PRINTER_PRODUCT_VARIABLES_zzz;
+
+  const isCanEditFormHeader = isShowEditor || type === "create";
 
   const initialFormValue = useMemo(() => {
     let result =
-      isEdit && formValue
+      (isEdit || type === "view") && formValue
         ? {
             name: formValue.name,
             company: formValue.company,
@@ -117,8 +168,8 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           }
         : {
             name: null,
-            company: null,
-            company_id: null,
+            company: DEFAULT_FORM_VALUE.company,
+            company_id: DEFAULT_FORM_VALUE.company_id,
             default: false,
             print_size: null,
             store: null,
@@ -127,34 +178,13 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             type: null,
           };
     return result;
-  }, [isEdit, formValue]);
-
-  const onChangePrintSize = (value: string) => {
-    if (isEdit && id) {
-      history.push(`${UrlConfig.PRINTER}/${id}?print-size=${value}`);
-      dispatch(
-        actionFetchPrinterDetail(
-          +id,
-          {
-            "print-size": value,
-          },
-          (data: BasePrinterModel) => {
-            setHtmlContent(data.template);
-          }
-        )
-      );
-    }
-  };
-
-  const onChangeStoreId = (value: string) => {
-    if (isEdit && id) {
-      history.push(`${UrlConfig.PRINTER}/${id}?store-id=${value}`);
-    }
-  };
+  }, [isEdit, type, formValue]);
 
   const handleSubmitForm = () => {
-    const formComponentValue = form.getFieldsValue();
-    dispatch(actionCreatePrinter(formComponentValue));
+    form.validateFields().then(() => {
+      const formComponentValue = form.getFieldsValue();
+      dispatch(actionCreatePrinter(formComponentValue));
+    });
   };
 
   const handleEditorToolbarHeight = (height: number) => {
@@ -162,13 +192,13 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   };
 
   useEffect(() => {
-    if (isEdit && formValue) {
+    if ((isEdit || type === "view") && formValue) {
       setHtmlContent(formValue.template);
       setSelectedPrintSize(formValue.print_size);
       form.setFieldsValue(initialFormValue);
       // setIsEditorLoad(true);
     }
-  }, [form, formValue, initialFormValue, isEdit]);
+  }, [form, formValue, initialFormValue, isEdit, type]);
 
   useEffect(() => {
     dispatch(
@@ -207,7 +237,11 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                   { required: true, message: "Vui lòng nhập tên mẫu in" },
                 ]}
               >
-                <Input type="text" />
+                <Input
+                  type="text"
+                  disabled={!isCanEditFormHeader}
+                  placeholder="Điền tên mẫu in"
+                />
               </Form.Item>
             </Col>
             <Col span={5}>
@@ -226,6 +260,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                       .toLowerCase()
                       .indexOf(input.toLowerCase()) >= 0
                   }
+                  disabled={!isCanEditFormHeader}
                 >
                   {sprintConfigure.listPrinterTypes &&
                     sprintConfigure.listPrinterTypes.map((single, index) => {
@@ -239,7 +274,16 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               </Form.Item>
             </Col>
             <Col span={5}>
-              <Form.Item name="store_id" label="Chọn chi nhánh áp dụng:">
+              <Form.Item
+                name="store_id"
+                label="Chọn chi nhánh áp dụng:"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn chi nhánh áp dụng",
+                  },
+                ]}
+              >
                 <Select
                   placeholder="Chọn chi nhánh áp dụng:"
                   allowClear
@@ -250,9 +294,11 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                       .toLowerCase()
                       .indexOf(input.toLowerCase()) >= 0
                   }
-                  onChange={onChangeStoreId}
+                  disabled={!isCanEditFormHeader}
                 >
-                  <Select.Option value={10000}>Tất cả cửa hàng</Select.Option>
+                  <Select.Option value={store_id_allShops}>
+                    Tất cả cửa hàng
+                  </Select.Option>
                   {sprintConfigure.listStores &&
                     sprintConfigure.listStores.map((single, index) => {
                       // console.log("single", single);
@@ -266,11 +312,15 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               </Form.Item>
             </Col>
             <Col span={5}>
-              <Form.Item name="print_size" label="Chọn khổ in:">
+              <Form.Item
+                name="print_size"
+                label="Chọn khổ in:"
+                rules={[{ required: true, message: "Vui lòng chọn khổ in" }]}
+              >
                 <Select
                   placeholder="Chọn khổ in"
-                  onChange={onChangePrintSize}
                   allowClear
+                  disabled={!isCanEditFormHeader}
                 >
                   {sprintConfigure.listPrinterSizes &&
                     sprintConfigure.listPrinterSizes.map((single, index) => {
@@ -285,26 +335,25 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             </Col>
             <Col span={4} className="columnActive">
               <Form.Item name="default" valuePropName="checked">
-                <Checkbox>Áp dụng</Checkbox>
+                <Checkbox disabled={!isCanEditFormHeader}>Áp dụng</Checkbox>
               </Form.Item>
             </Col>
           </Row>
         </Card>
         <Row gutter={20}>
-          {(isShowEditor || !isEdit) && (
+          {isCanEditFormHeader && (
             <Col span={12}>
               <Card style={{ padding: "15px 15px", height: "100%" }}>
-                {/* <Editor onChange={handleOnChangeEditor} /> */}
-                {/* <CkEditor onChange={handleOnChangeEditor} /> */}
                 <React.Fragment>
-                  {/* <Input hidden /> */}
-                  {/* {isEditorLoad && selectedPrintSize && ( */}
                   {(!isEdit || selectedPrintSize) && (
                     <Form.Item name="template">
                       <Editor
                         onChange={handleOnChangeEditor}
                         initialHtmlContent={htmlContent}
-                        listKeywords={LIST_PRINTER_VARIABLES}
+                        // listKeywords={LIST_PRINTER_VARIABLES}
+                        listKeywords={
+                          LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES
+                        }
                         selectedPrintSize={selectedPrintSize}
                         previewHeaderHeight={handleEditorToolbarHeight}
                       />
@@ -314,7 +363,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               </Card>
             </Col>
           )}
-          <Col span={isShowEditor || !isEdit ? 12 : 24}>
+          <Col span={isCanEditFormHeader ? 12 : 24}>
             <Card style={{ padding: "15px 15px", height: "100%" }}>
               <div className="printContent" ref={componentRef}>
                 <Preview
@@ -324,14 +373,16 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                   previewHeaderHeight={previewHeaderHeight}
                   isShowEditor={isShowEditor}
                   onChangeShowEditor={(isShow: boolean) => {
-                    setIsShowEditor(isShow);
+                    if (isShow) {
+                      history.push(`${UrlConfig.PRINTER}/${id}?action=edit`);
+                    }
                   }}
                 />
               </div>
             </Card>
           </Col>
         </Row>
-        {(isShowEditor || !isEdit) && (
+        {isCanEditFormHeader && (
           <div className="groupButtons">
             <Button>
               <Link to={`${UrlConfig.PRINTER}`}>Thoát</Link>
