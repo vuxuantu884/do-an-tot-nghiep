@@ -1704,3 +1704,72 @@
     }
   }
 }
+
+@media screen and (max-width: 500px) {
+  .ant-layout-content{
+    padding: 0
+  }
+  .ant-table-wrapper{
+    padding: 0
+  }
+  .page-header {
+    height: 60px;
+  }
+  .ant-breadcrumb,
+  .ant-layout-sider {
+    display: none !important;
+  }
+  .ant-layout-sider-dark {
+    display: none !important;
+  }
+  .container {
+    margin-left: 0;
+  }
+  .ant-steps {
+    display: none !important;
+  }
+  .header-right {
+    display: none !important;
+  }
+  .orders {
+    .ant-card-head-wrapper {
+      display: block !important;
+      .ant-card-head-title {
+        width: 100%;
+        padding: 6px 0 0 0;
+        
+      }
+      .ant-card-extra {
+        width: 100%;
+      }
+    }
+    .ant-select{
+      width: 100% !important;
+    }
+    
+  }
+  .ant-table-cell{
+    padding: 4px 0 !important;
+  }
+  .sale-product-box-table{
+    .ant-input{
+      padding: 0;
+    }
+    .ant-input-number-input{
+      padding: 0
+    }
+    .ant-select-selector{
+      padding: 0 !important
+    }
+  }
+  .ant-row{
+    margin-bottom: 6px;
+  }
+  .ant-select-dropdown{
+    left: 0 !important;
+    width: 100% !important;
+  }
+  .search-layout{
+    left: 0
+  }
+}
