@@ -46,7 +46,8 @@ export const StyledComponent = styled.div`
     .ant-select-selector {
     color: inherit;
   }
-  .ant-checkbox-disabled + span {
+  .ant-checkbox-disabled + span,
+  .ant-input[disabled] {
     color: inherit;
   }
 `;

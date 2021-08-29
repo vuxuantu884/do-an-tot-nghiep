@@ -22,11 +22,6 @@ export const StyledComponent = styled.div`
     }
   }
   .columnAction {
-    .icon {
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 5px;
-    }
     &__singleButton {
       &:not(:last-child) {
         margin-right: 10px;
@@ -40,6 +35,9 @@ export const StyledComponent = styled.div`
       &--print {
         border-color: #2a2a86;
         color: #2a2a86;
+      }
+      img {
+        margin-right: 5px;
       }
     }
   }
