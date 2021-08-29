@@ -53,12 +53,12 @@ const SettingPrinter: React.FC = () => {
 
   const query = useQuery();
 
-  let queryStoreId = query.get('store_id');
-  let queryName = query.get('name');
+  let queryStoreId = query.get("store_id");
+  let queryName = query.get("name");
 
   let [queryParams, setQueryParams] = useState({
     page: +(query.get("page") || 1),
-    limit: +(query.get("limit") || 30),
+    limit: +(query.get("limit") || 20),
     name: queryName || "",
     store_id: queryStoreId || "",
     sort_type: "desc",
@@ -85,6 +85,14 @@ const SettingPrinter: React.FC = () => {
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
   });
+
+  const handleEdit = (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    id: string | number
+  ) => {
+    e.stopPropagation();
+    history.push(`${UrlConfig.PRINTER}/${id}?action=edit`);
+  };
 
   const columns: ICustomTableColumType<any>[] = [
     {
@@ -138,17 +146,15 @@ const SettingPrinter: React.FC = () => {
       render: (value, row, index) => {
         return (
           <div className="columnAction">
-            <Link
-              to={`${history.location.pathname}/${value}`}
+            <Button
               className="columnAction__singleButton columnAction__singleButton--edit"
+              onClick={(e) => {
+                handleEdit(e, value);
+              }}
             >
-              <Button>
-                <div className="icon">
-                  <img src={IconEdit} alt="" className="icon--normal" />
-                </div>
-                Sửa
-              </Button>
-            </Link>
+              <img src={IconEdit} alt="" className="icon--normal" />
+              Sửa
+            </Button>
             {handlePrint && (
               <Button
                 className="columnAction__singleButton columnAction__singleButton--print"
@@ -157,9 +163,7 @@ const SettingPrinter: React.FC = () => {
                   handlePrint();
                 }}
               >
-                <div className="icon">
-                  <img src={IconPrintHover} alt="" className="icon--hover" />
-                </div>
+                <img src={IconPrintHover} alt="" className="icon--hover" />
                 In thử
               </Button>
             )}
@@ -274,7 +278,7 @@ const SettingPrinter: React.FC = () => {
       ...queryParams,
       name: queryName || "",
       store_id: queryStoreId || "",
-    }
+    };
     dispatch(
       actionFetchListPrinter(newParams, (data: PrinterResponseModel) => {
         setListPrinter(data.items);
@@ -288,12 +292,11 @@ const SettingPrinter: React.FC = () => {
     if (queryName) {
       setSearchInputValue(queryName);
       form.resetFields();
-    }else {
-      setSearchInputValue('');
+    } else {
+      setSearchInputValue("");
       form.resetFields();
     }
   }, [form, queryName, searchInputValue]);
-
 
   useEffect(() => {
     dispatch(
@@ -304,13 +307,13 @@ const SettingPrinter: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if(queryStoreId) {
+    if (queryStoreId) {
       let storeId = queryStoreId;
       let selectedStore = listStores.find((singleStore) => {
         return singleStore.id === +storeId;
       });
       setSelectStoreId(selectedStore?.id);
-    }else {
+    } else {
       setSelectStoreId(null);
     }
   }, [listStores, queryStoreId]);

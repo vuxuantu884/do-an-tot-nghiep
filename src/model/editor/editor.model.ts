@@ -7,9 +7,11 @@ export interface keywordsModel {
 }
 
 export interface productKeywordsModel {
-  title: string;
-  key: string;
-  value: string[];
+  name: string;
+  value: string;
+  preview_value: string;
+  isShow?: boolean;
+  preview_value_format?: string[];
 }
 
 export interface listKeywordsModel {
@@ -39,7 +41,10 @@ export interface PrintEditorModel {
 export interface PrintPreviewModel {
   htmlContent: string;
   listKeywords?: listKeywordsModel[];
-  listProductKeywords?: productKeywordsModel[];
+  listProductKeywords?: {
+    name: string;
+    list: productKeywordsModel[];
+  };
   previewHeaderHeight?: number;
   isShowEditor?: boolean;
   onChangeShowEditor: (isShow: boolean) => void;

@@ -75,6 +75,14 @@ const SingleThirdPartyLogisticsIntegrationScreen_GiaoHangTietKiem = React.lazy(
       "screens/settings/third-party-logistics-integration/giao-hang-tiet-kiem"
     )
 );
+
+// OrderSettings: Cài đặt đơn hàng
+const OrderSettingsScreen = React.lazy(
+  () => import("screens/settings/order-settings")
+);
+const OrderSettingsCreateScreen = React.lazy(
+  () => import("screens/settings/order-settings/create")
+);
 const setting: Array<RouteMenu> = [
   {
     path: UrlConfig.ACCOUNTS,
@@ -237,7 +245,7 @@ const setting: Array<RouteMenu> = [
     subTitle: "Thiết lập quy trình xử lý đơn hàng",
     icon: "icon-dot",
     component: SettingFulfillmentScreen,
-    key: "subMenu95",
+    key: UrlConfig.ORDER_PROCESSING_STATUS,
     isShow: true,
     header: null,
     subMenu: [
@@ -267,7 +275,7 @@ const setting: Array<RouteMenu> = [
     subTitle: "Thêm và quản lý nguồn tạo ra đơn hàng",
     icon: "icon-dot",
     component: SettingOrderSourcesScreen,
-    key: "subMenu96",
+    key: UrlConfig.ORDER_SOURCES,
     isShow: true,
     header: null,
     subMenu: [
@@ -301,7 +309,7 @@ const setting: Array<RouteMenu> = [
     ],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {
-      pathCreate: `${UrlConfig.ORDER_PROCESSING_STATUS}/create`,
+      pathCreate: `${UrlConfig.ORDER_SOURCES}/create`,
     },
   },
   {
@@ -373,6 +381,34 @@ const setting: Array<RouteMenu> = [
       },
     ],
 
+    type: HEADER_TYPE.BUTTON_CREATE,
+    object: {},
+  },
+  {
+    path: UrlConfig.ORDER_SETTINGS,
+    exact: true,
+    title: "Cấu hình đơn hàng",
+    subTitle: "",
+    icon: "icon-dot",
+    component: OrderSettingsScreen,
+    key: UrlConfig.ORDER_SETTINGS,
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.ORDER_SETTINGS}/create`,
+        exact: true,
+        title: "Thêm cài đặt dịch vụ vận chuyển & phí ship báo khách",
+        icon: "icon-dot",
+        component: OrderSettingsCreateScreen,
+        key: "create-order-setting",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+    ],
     type: HEADER_TYPE.BUTTON_CREATE,
     object: {},
   },

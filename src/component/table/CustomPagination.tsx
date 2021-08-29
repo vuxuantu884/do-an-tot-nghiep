@@ -62,7 +62,10 @@ const handleSizeChanger = (
 ) => {
   const { current = 1, total = 1, onShowSizeChange } = pagination;
   const totalPage = Math.ceil(total / value);
-  return onShowSizeChange && onShowSizeChange(current > totalPage ? 1 : current, value);
+  return (
+    onShowSizeChange &&
+    onShowSizeChange(current > totalPage ? 1 : current, value)
+  );
 };
 
 const CustomPagination = (props: ICustomPaginationProps) => {
@@ -132,10 +135,7 @@ const CustomPagination = (props: ICustomPaginationProps) => {
                   onChange={pagination.onChange}
                   showSizeChanger={false}
                 />
-                <div
-                  title="Trang cuối"
-                  className="ant-pagination-last"
-                >
+                <div title="Trang cuối" className="ant-pagination-last">
                   <button
                     onClick={() => handleLastNextPage(pagination, 1)}
                     className={classNames(
