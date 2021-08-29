@@ -54,15 +54,13 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [printerVariables, setPrinterVariables] =
     useState<PrinterVariableResponseModel>({});
 
-  const handleOnChangeEditor = (value: string) => {
-    setHtmlContent(value);
-  };
-
   const sprintConfigure = {
     listPrinterTypes: LIST_PRINTER_TYPES,
     listStores: listStores,
     listPrinterSizes: bootstrapReducer.data?.print_size,
   };
+
+  const positionProductVariables = 1;
 
   /**
    * các biến printer
@@ -81,6 +79,22 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
       list: printerVariables.print_shipment_variable,
     },
   ];
+
+  const PRODUCTS_VARIABLES = {
+    name: "Thông tin sản phẩm",
+    list: printerVariables.print_product_variable,
+  };
+
+  const LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES = [
+    ...LIST_PRINTER_VARIABLES.slice(0, positionProductVariables),
+    PRODUCTS_VARIABLES,
+    ...LIST_PRINTER_VARIABLES.slice(positionProductVariables),
+  ];
+
+  console.log(
+    "LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES",
+    LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES
+  );
 
   /**
    * list product lặp
@@ -109,15 +123,24 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
 
   // console.log("printerVariables.print_product_variable", printerVariables);
 
+  const handleOnChangeEditor = (value: string) => {
+    setHtmlContent(value);
+  };
+
   if (
     printerVariables.print_product_variable &&
     printerVariables.print_product_variable.length
   ) {
     for (let i = 0; i < printerVariables.print_product_variable.length; i++) {
-      printerVariables.print_product_variable[i].preview_value_format = [
-        "vd1",
-        "vd2",
-      ];
+      // printerVariables.print_product_variable[i].preview_value_format  = [
+      //   "vd1",
+      //   "vd2",
+      // ];
+      if (!printerVariables.print_product_variable[i].preview_value_format) {
+        printerVariables.print_product_variable[i].preview_value_format = [
+          printerVariables.print_product_variable[i].preview_value,
+        ];
+      }
     }
   }
   const LIST_PRINTER_PRODUCT_VARIABLES_zzz = {
@@ -327,7 +350,10 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                       <Editor
                         onChange={handleOnChangeEditor}
                         initialHtmlContent={htmlContent}
-                        listKeywords={LIST_PRINTER_VARIABLES}
+                        // listKeywords={LIST_PRINTER_VARIABLES}
+                        listKeywords={
+                          LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES
+                        }
                         selectedPrintSize={selectedPrintSize}
                         previewHeaderHeight={handleEditorToolbarHeight}
                       />
