@@ -60,6 +60,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     onShowColumnSetting
   } = props;
   const [visible, setVisible] = useState(false);
+  
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const status = [
     {name: "Nháp", value: "draft"},
@@ -99,13 +100,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "COD", value: 0},
   ]
   const formRef = createRef<FormInstance>();
-  const onFinish = useCallback(
-    (values) => {
-      console.log('values filter 2', values);
-      onFilter && onFilter(values);
-    },
-    [onFilter]
-  );
+  
   const onFilterClick = useCallback(() => {
     setVisible(false);
     formRef.current?.submit();
@@ -128,35 +123,25 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       console.log(dates, dateString, type)
       switch(type) {
         case 'issued':
-          formRef.current?.setFieldsValue({
-            issued_on_min: dateString[0],
-            issued_on_max: dateString[1],
-          });
-          // console.log('formRef.current', formRef.current?.getFieldsValue());
-          
+          setIssuedOnMin(dateString[0])
+          setIssuedOnMax(dateString[1])
           break;
         case 'ship':
-          formRef.current?.setFieldsValue({
-            ship_on_min: dateString[0],
-            ship_on_max: dateString[1],
-          });
+          setShipOnMin(dateString[0])
+          setShipOnMax(dateString[1])
           break;
         case 'completed':
-          formRef.current?.setFieldsValue({
-            completed_on_min: dateString[0],
-            completed_on_max: dateString[1],
-          });
+          setCompletedOnMin(dateString[0])
+          setCompletedOnMax(dateString[1])
           break;
         case 'cancelled':
-          formRef.current?.setFieldsValue({
-            cancelled_on_min: dateString[0],
-            cancelled_on_max: dateString[1],
-          });
+          setCancelledOnMin(dateString[0])
+          setCancelledOnMax(dateString[1])
           break;  
         default: break
       }
     },
-    [formRef]
+    []
   );
 
   const onCloseTag = useCallback(
@@ -172,15 +157,23 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           onFilter && onFilter({...params, source_ids: []});
           break;
         case 'issued':
-            onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
-            break;
+          setIssuedOnMin(null)
+          setIssuedOnMax(null)
+          onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
+          break;
         case 'ship':
+          setShipOnMin(null)
+          setShipOnMax(null)
           onFilter && onFilter({...params, ship_on_min: null, ship_on_max: null});
           break;
         case 'completed':
+          setCompletedOnMin(null)
+          setCompletedOnMax(null)
           onFilter && onFilter({...params, completed_on_min: null, completed_on_max: null});
           break;
         case 'cancelled':
+          setCancelledOnMin(null)
+          setCancelledOnMax(null)
           onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
           break;
         case 'order_status':
@@ -230,46 +223,71 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     [onFilter, params]
   );
   
+
   const clickOptionDate = useCallback(
     (type, value) => {
+    let minValue = null;
+    let maxValue = null;
+
+    console.log('value', value);
+    
+    switch(value) {
+      case 'today':
+        minValue = moment().startOf('day').format('DD-MM-YYYY')
+        maxValue = moment().endOf('day').format('DD-MM-YYYY')
+        break
+      case 'yesterday':
+        minValue = moment().startOf('day').subtract(1, 'days').format('DD-MM-YYYY')
+        maxValue = moment().endOf('day').subtract(1, 'days').format('DD-MM-YYYY')
+        break
+      case 'thisweek':
+        minValue = moment().startOf('week').format('DD-MM-YYYY')
+        maxValue = moment().endOf('week').format('DD-MM-YYYY')
+        break
+      case 'lastweek':
+        minValue = moment().startOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
+        maxValue = moment().endOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
+        break
+      case 'thismonth':
+        minValue = moment().startOf('month').format('DD-MM-YYYY')
+        maxValue = moment().endOf('month').format('DD-MM-YYYY')
+        break
+      case 'lastmonth':
+        minValue = moment().startOf('month').subtract(1, 'months').format('DD-MM-YYYY')
+        maxValue = moment().endOf('month').subtract(1, 'months').format('DD-MM-YYYY')
+        break  
+      default:
+        break
+    }
+    console.log('minValue', minValue);
+    console.log('maxValue', maxValue);
+    
     switch(type) {
       case 'issued':
-        formRef.current?.setFieldsValue({
-          issued_on_min: null,
-          issued_on_max: null,
-        });
-        console.log('ok');
-        
+        setIssuedOnMin(moment(minValue, 'DD-MM-YYYY'))
+        setIssuedOnMax(moment(maxValue, 'DD-MM-YYYY'))
         break
       case 'ship':
-        formRef.current?.setFieldsValue({
-          ship_on_min: null,
-          ship_on_max: null,
-        });
+        setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
+        setShipOnMax(moment(maxValue, 'DD-MM-YYYY'))
         break
       case 'completed':
-        formRef.current?.setFieldsValue({
-          completed_on_min: null,
-          completed_on_max: null,
-        });
+        setCompletedOnMin(moment(minValue, 'DD-MM-YYYY'))
+        setCompletedOnMax(moment(maxValue, 'DD-MM-YYYY'))
         break
       case 'cancelled':
-        formRef.current?.setFieldsValue({
-          cancelled_on_min: null,
-          cancelled_on_max: null,
-        });
+        setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
+        setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
         break
       default:
         break
     }
-  }, [formRef]);
+  }, []);
 
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "pos");
   }, [listSource]);
   const initialValues = useMemo(() => {
-    console.log('initialValues params', params);
-    
     return {
       ...params,
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
@@ -282,19 +300,40 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
       assignee: Array.isArray(params.assignee) ? params.assignee : [params.assignee],
       account: Array.isArray(params.account) ? params.account : [params.account],
-      // issued: params.issued_on_min && params.issued_on_max ? [moment(params.issued_on_min, 'DD-MM-YYYY'), moment(params.issued_on_max, 'DD-MM-YYYY')] : [null, null],
-      // ship: params.ship_on_min && params.ship_on_max ? [moment(params.ship_on_min, 'DD-MM-YYYY'), moment(params.ship_on_max, 'DD-MM-YYYY')] : [null, null],
-      // completed: params.completed_on_min && params.completed_on_max ? [moment(params.completed_on_min, 'DD-MM-YYYY'), moment(params.completed_on_max, 'DD-MM-YYYY')] : [null, null],
-      // cancelled: params.cancelled_on_min && params.cancelled_on_max ? [moment(params.cancelled_on_min, 'DD-MM-YYYY'), moment(params.cancelled_on_max, 'DD-MM-YYYY')] : [null, null],
-    }
-  }, [params]);
-
+  }}, [params])
+  const [issuedOnMin, setIssuedOnMin] = useState(initialValues.issued_on_min? moment(initialValues.issued_on_min, "DD-MM-YYYY") : null);
+  const [issuedOnMax, setIssuedOnMax] = useState(initialValues.issued_on_max? moment(initialValues.issued_on_max, "DD-MM-YYYY") : null);
+  const [shipOnMin, setShipOnMin] = useState(initialValues.ship_on_min? moment(initialValues.ship_on_min, "DD-MM-YYYY") : null);
+  const [shipOnMax, setShipOnMax] = useState(initialValues.ship_on_max? moment(initialValues.ship_on_max, "DD-MM-YYYY") : null);
+  const [completedOnMin, setCompletedOnMin] = useState(initialValues.completed_on_min? moment(initialValues.completed_on_min, "DD-MM-YYYY") : null);
+  const [completedOnMax, setCompletedOnMax] = useState(initialValues.completed_on_min? moment(initialValues.completed_on_min, "DD-MM-YYYY") : null);
+  const [cancelledOnMin, setCancelledOnMin] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
+  const [cancelledOnMax, setCancelledOnMax] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
+  const onFinish = useCallback(
+    (values) => {
+      console.log('values filter 2', values);
+      console.log('issuedOnMin', issuedOnMin);
+      const valuesForm = {
+        ...values,
+        issued_on_min: issuedOnMin ? moment(issuedOnMin, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
+        issued_on_max: issuedOnMax ? moment(issuedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        ship_on_min: shipOnMin ? moment(shipOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        ship_on_max: shipOnMax ? moment(shipOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        completed_on_min: completedOnMin ? moment(completedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        completed_on_max: completedOnMax ? moment(completedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        cancelled_on_min: cancelledOnMin ? moment(cancelledOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        cancelled_on_max: cancelledOnMax ? moment(cancelledOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+      }
+      onFilter && onFilter(valuesForm);
+    },
+    [cancelledOnMax, cancelledOnMin, completedOnMax, completedOnMin, issuedOnMax, issuedOnMin, onFilter, shipOnMax, shipOnMin]
+  );
   let filters = useMemo(() => {
     let list = []
     // console.log('filters initialValues', initialValues);
-    if (initialValues.store_ids.length) {
+    if (params.store_ids.length) {
       let textStores = ""
-      initialValues.store_ids.forEach(store_id => {
+      params.store_ids.forEach(store_id => {
         const store = listStore?.find(store => store.id.toString() === store_id)
         textStores = store ? textStores + store.name + ";" : textStores
       })
@@ -304,9 +343,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStores
       })
     }
-    if (initialValues.source_ids.length) {
+    if (params.source_ids.length) {
       let textSource = ""
-      initialValues.source_ids.forEach(source_id => {
+      params.source_ids.forEach(source_id => {
         const source = listSources?.find(source => source.id.toString() === source_id)
         textSource = source ? textSource + source.name + ";" : textSource
       })
@@ -316,41 +355,41 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textSource
       })
     }
-    if (initialValues.issued_on_min || initialValues.issued_on_max) {
-      let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
+    if (params.issued_on_min || params.issued_on_max) {
+      let textOrderCreateDate = (params.issued_on_min ? params.issued_on_min : '??') + " ~ " + (params.issued_on_max ? params.issued_on_max : '??')
       list.push({
         key: 'issued',
         name: 'Ngày tạo đơn',
         value: textOrderCreateDate
       })
     }
-    if (initialValues.ship_on_min || initialValues.ship_on_max) {
-      let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
+    if (params.ship_on_min || params.ship_on_max) {
+      let textOrderShipDate = (params.ship_on_min ? params.ship_on_min : '??') + " ~ " + (params.ship_on_max ? params.ship_on_max : '??')
       list.push({
         key: 'ship',
         name: 'Ngày duyệt đơn',
         value: textOrderShipDate
       })
     }
-    if (initialValues.completed_on_min || initialValues.completed_on_max) {
-      let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
+    if (params.completed_on_min || params.completed_on_max) {
+      let textOrderCompleteDate = (params.completed_on_min ? params.completed_on_min : '??') + " ~ " + (params.completed_on_max ? params.completed_on_max : '??')
       list.push({
         key: 'completed',
         name: 'Ngày hoàn tất đơn',
         value: textOrderCompleteDate
       })
     }
-    if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
-      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
+    if (params.cancelled_on_min || params.cancelled_on_max) {
+      let textOrderCancelDate = (params.cancelled_on_min ? params.cancelled_on_min : '??') + " ~ " + (params.cancelled_on_max ? params.cancelled_on_max : '??')
       list.push({
         key: 'cancelled',
         name: 'Ngày huỷ đơn',
         value: textOrderCancelDate
       })
     }
-    if (initialValues.order_status.length) {
+    if (params.order_status.length) {
       let textStatus = ""
-      initialValues.order_status.forEach(i => {
+      params.order_status.forEach(i => {
         const findStatus = status?.find(item => item.value === i)
         textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
       })
@@ -360,9 +399,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.fulfillment_status.length) {
+    if (params.fulfillment_status.length) {
       let textStatus = ""
-      initialValues.fulfillment_status.forEach(i => {
+      params.fulfillment_status.forEach(i => {
         const findStatus = fulfillmentStatus?.find(item => item.value === i)
         textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
       })
@@ -373,9 +412,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (initialValues.payment_status.length) {
+    if (params.payment_status.length) {
       let textStatus = ""
-      initialValues.payment_status.forEach(i => {
+      params.payment_status.forEach(i => {
         const findStatus = paymentStatus?.find(item => item.value === i)
         textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
       })
@@ -386,9 +425,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (initialValues.assignee.length) {
+    if (params.assignee.length) {
       let textAccount = ""
-      initialValues.assignee.forEach(i => {
+      params.assignee.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
       })
@@ -399,9 +438,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (initialValues.account.length) {
+    if (params.account.length) {
       let textAccount = ""
-      initialValues.account.forEach(i => {
+      params.account.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
       })
@@ -412,8 +451,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (initialValues.price_min || initialValues.price_max) {
-      let textPrice = (initialValues.price_min ? initialValues.price_min : " ?? ") + " ~ " + (initialValues.price_max ? initialValues.price_max : " ?? ")
+    if (params.price_min || params.price_max) {
+      let textPrice = (params.price_min ? params.price_min : " ?? ") + " ~ " + (params.price_max ? params.price_max : " ?? ")
       list.push({
         key: 'price',
         name: 'Tổng tiền',
@@ -421,9 +460,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (initialValues.payment_method_ids.length) {
+    if (params.payment_method_ids.length) {
       let textStatus = ""
-      initialValues.payment_method_ids.forEach(i => {
+      params.payment_method_ids.forEach(i => {
         const findStatus = paymentType?.find(item => item.value.toString() === i)
         textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
       })
@@ -433,40 +472,40 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.ship_by) {
-      const findSerivice = deliveryService.find(item => item.id.toString() === initialValues.ship_by)
+    if (params.ship_by) {
+      const findSerivice = deliveryService.find(item => item.id.toString() === params.ship_by)
       list.push({
         key: 'ship_by',
         name: 'Hình thức vận chuyển',
         value: findSerivice.name
       })
     }
-    if (initialValues.expected_receive_predefined) {
+    if (params.expected_receive_predefined) {
       list.push({
         key: 'expected_receive_predefined',
         name: 'Ngày dự kiến nhận hàng',
-        value: initialValues.expected_receive_predefined
+        value: params.expected_receive_predefined
       })
     }
-    if (initialValues.note) {
+    if (params.note) {
       list.push({
         key: 'note',
         name: 'Ghi chú nội bộ',
-        value: initialValues.note
+        value: params.note
       })
     }
 
-    if (initialValues.customer_note) {
+    if (params.customer_note) {
       list.push({
         key: 'customer_note',
         name: 'Ghi chú của khách',
-        value: initialValues.customer_note
+        value: params.customer_note
       })
     }
 
-    if (initialValues.tags.length) {
+    if (params.tags.length) {
       let textStatus = ""
-      initialValues.tags.forEach(i => {
+      params.tags.forEach(i => {
         textStatus = textStatus + i + ";"
       })
       list.push({
@@ -476,16 +515,16 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (initialValues.reference_code) {
+    if (params.reference_code) {
       list.push({
         key: 'reference_code',
         name: 'Mã tham chiếu',
-        value: initialValues.reference_code
+        value: params.reference_code
       })
     }
     // console.log('filters list', list);
     return list
-  }, [accounts, deliveryService, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status]);
+  }, [accounts, deliveryService, fulfillmentStatus, params, listSources, listStore, paymentStatus, paymentType, status]);
 
   
 
@@ -617,22 +656,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.issued_on_min && initialValues.issued_on_max ? ["1"]: []}>
                   <Panel header="NGÀY TẠO ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('issued', 'tomorow')}>Hôm qua</Button>
-                      <Button>Hôm nay</Button>
-                      <Button>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'yesterday')}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'today')}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'thisweek')}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button>Tuần trước</Button>
-                      <Button>Tháng này</Button>
-                      <Button>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'lastweek')}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'thismonth')}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'lastmonth')}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="issued_on_min" style={{display: 'none'}}></Item>
-                    <Item name="issued_on_max" style={{display: 'none'}}></Item>
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      defaultValue={[initialValues.issued_on_min? moment(initialValues.issued_on_min, "DD-MM-YYYY") : null, initialValues.issued_on_max? moment(initialValues.issued_on_max, "DD-MM-YYYY") : null]}
+                      value={[issuedOnMin? moment(issuedOnMin, "DD-MM-YYYY") : null, issuedOnMax? moment(issuedOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'issued')}
                     />
                   </Panel>
@@ -645,22 +682,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.ship_on_min && initialValues.ship_on_max ? ["1"]: []}>
                   <Panel header="NGÀY DUYỆT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button>Hôm qua</Button>
-                      <Button>Hôm nay</Button>
-                      <Button>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'yesterday')}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'today')}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'thisweek')}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button>Tuần trước</Button>
-                      <Button>Tháng này</Button>
-                      <Button>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'lastweek')}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'thismonth')}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'lastmonth')}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="ship_on_min" style={{display: 'none'}}></Item>
-                    <Item name="ship_on_max" style={{display: 'none'}}></Item>
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      defaultValue={[initialValues.ship_on_min? moment(initialValues.ship_on_min, "DD-MM-YYYY") : null, initialValues.ship_on_max? moment(initialValues.ship_on_max, "DD-MM-YYYY") : null]}
+                      value={[shipOnMin? moment(shipOnMin, "DD-MM-YYYY") : null, shipOnMax? moment(shipOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'ship')}
                     />
                   </Panel>
@@ -672,22 +707,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.completed_on_min && initialValues.completed_on_max ? ["1"]: []}>
                   <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button>Hôm qua</Button>
-                      <Button>Hôm nay</Button>
-                      <Button>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'yesterday')}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'today')}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'thisweek')}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button>Tuần trước</Button>
-                      <Button>Tháng này</Button>
-                      <Button>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'lastweek')}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'thismonth')}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'lastmonth')}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="completed_on_min" style={{display: 'none'}}></Item>
-                    <Item name="completed_on_max" style={{display: 'none'}}></Item>
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      defaultValue={[initialValues.completed_on_min? moment(initialValues.completed_on_min, "DD-MM-YYYY") : null, initialValues.completed_on_max? moment(initialValues.completed_on_max, "DD-MM-YYYY") : null]}
+                      value={[completedOnMin? moment(completedOnMin, "DD-MM-YYYY") : null, completedOnMax? moment(completedOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'completed')}
                     />
                   </Panel>
@@ -699,22 +732,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.cancelled_on_min && initialValues.cancelled_on_max ? ["1"]: []}>
                   <Panel header="NGÀY HUỶ ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button>Hôm qua</Button>
-                      <Button>Hôm nay</Button>
-                      <Button>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'yesterday')}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'today')}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'thisweek')}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button>Tuần trước</Button>
-                      <Button>Tháng này</Button>
-                      <Button>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'lastweek')}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'thismonth')}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'lastmonth')}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="cancelled_on_min" style={{display: 'none'}}></Item>
-                    <Item name="cancelled_on_max" style={{display: 'none'}}></Item>
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      defaultValue={[initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null, initialValues.cancelled_on_max? moment(initialValues.cancelled_on_max, "DD-MM-YYYY") : null]}
+                      value={[cancelledOnMin? moment(cancelledOnMin, "DD-MM-YYYY") : null, cancelledOnMax? moment(cancelledOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'cancelled')}
                     />
                   </Panel>
