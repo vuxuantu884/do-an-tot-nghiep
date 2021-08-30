@@ -1,10 +1,12 @@
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
 import { actionFetchPrinterDetail } from "domain/actions/printer/printer.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { BasePrinterModel } from "model/response/printer.response";
+import {
+  BasePrinterModel,
+  FormPrinterModel,
+} from "model/response/printer.response";
 import React, { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { DEFAULT_FORM_VALUE } from "utils/Constants";
 import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
@@ -14,6 +16,8 @@ import { StyledComponent } from "./styles";
 
 function SinglePrinter() {
   const dispatch = useDispatch();
+  const viewAction: FormPrinterModel = "view";
+  const editAction: FormPrinterModel = "edit";
   const [singlePrinterContent, setSinglePrinterContent] =
     useState<BasePrinterModel>({
       company: DEFAULT_FORM_VALUE.company,
@@ -30,26 +34,55 @@ function SinglePrinter() {
   const paramsId = useParams<{ id: string }>();
   const { id } = paramsId;
   const [printerName, setPrinterName] = useState("");
+  const [actionSinglePrinter, setActionSinglePrinter] =
+    useState<FormPrinterModel>(viewAction);
   const query = useQuery();
-  let queryPrintSize = query.get("print-size");
-
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
-
-  const defaultPrintSize = bootstrapReducer.data?.print_size[0].value || "a4";
+  let queryAction = query.get("action");
 
   const queryParams = useMemo(() => {
     let result = {
-      "print-size": defaultPrintSize,
+      action: "",
     };
-    if (queryPrintSize) {
+    if (queryAction) {
       result = {
-        "print-size": queryPrintSize,
+        action: queryAction,
       };
     }
     return result;
-  }, [defaultPrintSize, queryPrintSize]);
+  }, [queryAction]);
+
+  const breadCrumb = [
+    {
+      name: "Tổng quan",
+      path: UrlConfig.HOME,
+    },
+    {
+      name: "Cài đặt",
+      path: UrlConfig.ACCOUNTS,
+    },
+    {
+      name: "Danh sách mẫu in",
+      path: UrlConfig.PRINTER,
+    },
+  ];
+
+  const breadCrumbViewDetail = [
+    ...breadCrumb,
+    {
+      name: printerName,
+    },
+  ];
+
+  const breadCrumbEdit = [
+    ...breadCrumb,
+    {
+      name: printerName,
+      path: `${UrlConfig.PRINTER}/${id}`,
+    },
+    {
+      name: "Tùy chỉnh mẫu in",
+    },
+  ];
 
   useEffect(() => {
     const findPrinter = (printerType: string) => {
@@ -60,37 +93,44 @@ function SinglePrinter() {
     dispatch(
       actionFetchPrinterDetail(+id, queryParams, (data: BasePrinterModel) => {
         setSinglePrinterContent(data);
-        const printer = findPrinter(data.type);
-        if (printer) {
-          setPrinterName(printer.name);
+        if (data) {
+          setPrinterName(data.name);
         }
       })
     );
   }, [dispatch, id, queryParams]);
 
+  /**
+   * kiểm tra action là view chi tiết hay sửa
+   */
+  useEffect(() => {
+    let actionParam = queryParams.action;
+    if (actionParam === editAction) {
+      setActionSinglePrinter(editAction);
+    } else {
+      setActionSinglePrinter(viewAction);
+    }
+  }, [dispatch, id, queryParams]);
+
   return (
     <StyledComponent>
       <ContentContainer
-        title="Chi tiết mẫu in"
-        breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
-            name: "Cài đặt",
-            path: UrlConfig.ACCOUNTS,
-          },
-          {
-            name: "Danh sách mẫu in",
-            path: UrlConfig.PRINTER,
-          },
-          {
-            name: printerName,
-          },
-        ]}
+        title={
+          queryParams.action === editAction
+            ? "Tùy chỉnh mẫu in"
+            : "Chi tiết mẫu in"
+        }
+        breadcrumb={
+          queryParams.action === editAction
+            ? breadCrumbEdit
+            : breadCrumbViewDetail
+        }
       >
-        <FormPrinter type="edit" id={id} formValue={singlePrinterContent} />
+        <FormPrinter
+          type={actionSinglePrinter}
+          id={id}
+          formValue={singlePrinterContent}
+        />
       </ContentContainer>
     </StyledComponent>
   );

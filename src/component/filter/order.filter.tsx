@@ -9,7 +9,8 @@ import {
   Select,
   Tooltip,
   Collapse,
-  Tag
+  Tag,
+  InputNumber
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
@@ -37,7 +38,7 @@ type OrderFilterProps = {
   params: OrderSearchQuery;
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
-  onFilter?: (values: OrderSearchQuery) => void;
+  onFilter?: (values: OrderSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
 };
@@ -97,25 +98,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const formRef = createRef<FormInstance>();
   const onFinish = useCallback(
     (values) => {
-      console.log('values', values);
-      
-      values = {
-        ...values,
-        // mapping and format date 
-        expected_receive_predefined: values.expected_receive_predefined? values.expected_receive_predefined.format('DD-MM-YYYY') : null,
-        issued_on_min: values.issued && values.issued[0] ? values.issued[0].format('DD-MM-YYYY') : null,
-        issued_on_max: values.issued && values.issued[1] ? values.issued[1].format('DD-MM-YYYY') : null,
-        issued_on_predefined: values.issued_on_predefined? values.issued_on_predefined.format('DD-MM-YYYY') : null,
-        ship_on_min: values.ship && values.ship[0] ? values.ship[0].format('DD-MM-YYYY') : null,
-        ship_on_max: values.ship && values.ship[1] ? values.ship[1].format('DD-MM-YYYY') : null,
-        ship_on_predefined: values.ship_on_predefined? values.ship_on_predefined.format('DD-MM-YYYY') : null,
-        completed_on_min: values.completed && values.completed[0] ? values.completed[0].format('DD-MM-YYYY') : null,
-        completed_on_max: values.completed && values.completed[1] ? values.completed[1].format('DD-MM-YYYY') : null,
-        completed_on_predefined: values.completed_on_predefined? values.completed_on_predefined.format('DD-MM-YYYY') : null,
-        cancelled_on_min: values.cancelled && values.cancelled[0] ? values.cancelled[0].format('DD-MM-YYYY') : null,
-        cancelled_on_max: values.cancelled && values.cancelled[1] ? values.cancelled[1].format('DD-MM-YYYY') : null,
-        cancelled_on_predefined: values.cancelled_on_predefined? values.cancelled_on_predefined.format('DD-MM-YYYY') : null,
-      }
+      console.log('values filter 2', values);
       onFilter && onFilter(values);
     },
     [onFilter]
@@ -136,11 +119,117 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     },
     [onMenuClick]
   );
+
+  const onChangeRangeDate = useCallback(
+    (dates, dateString, type) => {
+      console.log(dates, dateString, type)
+      switch(type) {
+        case 'issued':
+          formRef.current?.setFieldsValue({
+            issued_on_min: dateString[0],
+            issued_on_max: dateString[1],
+          });
+          // console.log('formRef.current', formRef.current?.getFieldsValue());
+          
+          break;
+        case 'ship':
+          formRef.current?.setFieldsValue({
+            ship_on_min: dateString[0],
+            ship_on_max: dateString[1],
+          });
+          break;
+        case 'completed':
+          formRef.current?.setFieldsValue({
+            completed_on_min: dateString[0],
+            completed_on_max: dateString[1],
+          });
+          break;
+        case 'cancelled':
+          formRef.current?.setFieldsValue({
+            cancelled_on_min: dateString[0],
+            cancelled_on_max: dateString[1],
+          });
+          break;  
+        default: break
+      }
+    },
+    [formRef]
+  );
+
+  const onCloseTag = useCallback(
+    (e, tag) => {
+      e.preventDefault();
+      console.log('key', tag.key)
+      console.log('params', params);
+      switch(tag.key) {
+        case 'store':
+          onFilter && onFilter({...params, store_ids: []});
+          break;
+        case 'source':
+          onFilter && onFilter({...params, source_ids: []});
+          break;
+        case 'issued':
+            onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
+            break;
+        case 'ship':
+          onFilter && onFilter({...params, ship_on_min: null, ship_on_max: null});
+          break;
+        case 'completed':
+          onFilter && onFilter({...params, completed_on_min: null, completed_on_max: null});
+          break;
+        case 'cancelled':
+          onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
+          break;
+        case 'order_status':
+          onFilter && onFilter({...params, order_status: []});
+          break;
+        case 'fulfillment_status':
+          onFilter && onFilter({...params, fulfillment_status: []});
+          break;
+        case 'payment_status':
+          onFilter && onFilter({...params, payment_status: []});
+          break;
+        case 'assignee':
+          onFilter && onFilter({...params, assignee: []});
+          break;
+        case 'account':
+          onFilter && onFilter({...params, account: []});
+          break;
+        case 'price':
+          onFilter && onFilter({...params, price_min: null, price_max: null});
+          break;
+        case 'payment_method':
+          onFilter && onFilter({...params, payment_method_ids: []});
+          break;
+        case 'expected_receive_predefined':
+          onFilter && onFilter({...params, expected_receive_predefined: ""});
+          break;
+        case 'note':
+          onFilter && onFilter({...params, note: ""});
+          break;
+        case 'customer_note':
+          onFilter && onFilter({...params, customer_note: ""});
+          break;
+        case 'tags':
+          onFilter && onFilter({...params, tags: []});
+          break;
+        case 'reference_code':
+          onFilter && onFilter({...params, reference_code: ""});
+          break;  
+        default: break
+      }
+      // const tags = filters.filter((tag: any) => tag.key !== key);
+      // filters = tags
+    },
+    [onFilter, params]
+  );
+  
+
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "pos");
   }, [listSource]);
   const initialValues = useMemo(() => {
-    console.log('initialValues', params);
+    console.log('initialValues params', params);
     
     return {
       ...params,
@@ -152,22 +241,26 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
       payment_method_ids: Array.isArray(params.payment_method_ids) ? params.payment_method_ids : [params.payment_method_ids],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
-      issued: params.issued_on_min && params.issued_on_max ? [moment(params.issued_on_min, 'DD/MM/YYYY'), moment(params.issued_on_max, 'DD/MM/YYYY')] : null,
-      ship: params.ship_on_min && params.ship_on_max ? [moment(params.ship_on_min, 'DD/MM/YYYY'), moment(params.ship_on_max, 'DD/MM/YYYY')] : null,
-      completed: params.completed_on_min && params.completed_on_max ? [moment(params.completed_on_min, 'DD/MM/YYYY'), moment(params.completed_on_max, 'DD/MM/YYYY')] : null,
-      cancelled: params.cancelled_on_min && params.cancelled_on_max ? [moment(params.cancelled_on_min, 'DD/MM/YYYY'), moment(params.cancelled_on_max, 'DD/MM/YYYY')] : null,
+      assignee: Array.isArray(params.assignee) ? params.assignee : [params.assignee],
+      account: Array.isArray(params.account) ? params.account : [params.account],
+      issued: params.issued_on_min && params.issued_on_max ? [moment(params.issued_on_min, 'DD-MM-YYYY'), moment(params.issued_on_max, 'DD-MM-YYYY')] : [null, null],
+      ship: params.ship_on_min && params.ship_on_max ? [moment(params.ship_on_min, 'DD-MM-YYYY'), moment(params.ship_on_max, 'DD-MM-YYYY')] : [null, null],
+      completed: params.completed_on_min && params.completed_on_max ? [moment(params.completed_on_min, 'DD-MM-YYYY'), moment(params.completed_on_max, 'DD-MM-YYYY')] : [null, null],
+      cancelled: params.cancelled_on_min && params.cancelled_on_max ? [moment(params.cancelled_on_min, 'DD-MM-YYYY'), moment(params.cancelled_on_max, 'DD-MM-YYYY')] : [null, null],
     }
   }, [params]);
 
-  const filters = useMemo(() => {
-    let list: any = []
+  let filters = useMemo(() => {
+    let list = []
+    console.log('filters initialValues', initialValues);
     if (initialValues.store_ids.length) {
       let textStores = ""
       initialValues.store_ids.forEach(store_id => {
-        const store = listStore?.find(store => store.id === store_id)
+        const store = listStore?.find(store => store.id.toString() === store_id)
         textStores = store ? textStores + store.name + ";" : textStores
       })
       list.push({
+        key: 'store',
         name: 'Cửa hàng',
         value: textStores
       })
@@ -175,10 +268,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.source_ids.length) {
       let textSource = ""
       initialValues.source_ids.forEach(source_id => {
-        const source = listSources?.find(source => source.id === source_id)
+        const source = listSources?.find(source => source.id.toString() === source_id)
         textSource = source ? textSource + source.name + ";" : textSource
       })
       list.push({
+        key: 'source',
         name: 'Nguồn',
         value: textSource
       })
@@ -186,6 +280,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.issued_on_min || initialValues.issued_on_max) {
       let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
       list.push({
+        key: 'issued',
         name: 'Ngày tạo đơn',
         value: textOrderCreateDate
       })
@@ -193,6 +288,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.ship_on_min || initialValues.ship_on_max) {
       let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
       list.push({
+        key: 'ship',
         name: 'Ngày duyệt đơn',
         value: textOrderShipDate
       })
@@ -200,6 +296,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.completed_on_min || initialValues.completed_on_max) {
       let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
       list.push({
+        key: 'completed',
         name: 'Ngày hoàn tất đơn',
         value: textOrderCompleteDate
       })
@@ -207,12 +304,154 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
       let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
       list.push({
+        key: 'cancelled',
         name: 'Ngày huỷ đơn',
         value: textOrderCancelDate
       })
     }
+    if (initialValues.order_status.length) {
+      let textStatus = ""
+      initialValues.order_status.forEach(i => {
+        const findStatus = status?.find(item => item.value === i)
+        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+      })
+      list.push({
+        key: 'order_status',
+        name: 'Trạng thái đơn hàng',
+        value: textStatus
+      })
+    }
+    if (initialValues.fulfillment_status.length) {
+      let textStatus = ""
+      initialValues.fulfillment_status.forEach(i => {
+        const findStatus = fulfillmentStatus?.find(item => item.value === i)
+        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+      })
+      list.push({
+        key: 'fulfillment_status',
+        name: 'Trạng thái giao hàng',
+        value: textStatus
+      })
+    }
+
+    if (initialValues.payment_status.length) {
+      let textStatus = ""
+      initialValues.payment_status.forEach(i => {
+        const findStatus = paymentStatus?.find(item => item.value === i)
+        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+      })
+      list.push({
+        key: 'payment_status',
+        name: 'Trạng thái thanh toán',
+        value: textStatus
+      })
+    }
+
+    if (initialValues.assignee.length) {
+      let textAccount = ""
+      initialValues.assignee.forEach(i => {
+        const findAccount = accounts?.find(item => item.code === i)
+        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+      })
+      list.push({
+        key: 'assignee',
+        name: 'Nhân viên bán hàng',
+        value: textAccount
+      })
+    }
+
+    if (initialValues.account.length) {
+      let textAccount = ""
+      initialValues.account.forEach(i => {
+        const findAccount = accounts?.find(item => item.code === i)
+        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+      })
+      list.push({
+        key: 'account',
+        name: 'Nhân viên tạo đơn',
+        value: textAccount
+      })
+    }
+
+    if (initialValues.price_min || initialValues.price_max) {
+      let textPrice = (initialValues.price_min ? initialValues.price_min : " ?? ") + " ~ " + (initialValues.price_max ? initialValues.price_max : " ?? ")
+      list.push({
+        key: 'price',
+        name: 'Tổng tiền',
+        value: textPrice
+      })
+    }
+
+    if (initialValues.payment_method_ids.length) {
+      let textStatus = ""
+      initialValues.payment_method_ids.forEach(i => {
+        const findStatus = paymentType?.find(item => item.value.toString() === i)
+        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+      })
+      list.push({
+        key: 'payment_method',
+        name: 'Phương thức thanh toán',
+        value: textStatus
+      })
+    }
+
+    if (initialValues.expected_receive_predefined) {
+      list.push({
+        key: 'expected_receive_predefined',
+        name: 'Ngày dự kiến nhận hàng',
+        value: initialValues.expected_receive_predefined
+      })
+    }
+
+    // if (initialValues.ship_by) {
+    //   let textShipBy = ""
+    //   const findShipBy = paymentType?.find(item => item.value === i)
+    //   textShipBy = findShipBy ? textShipBy + findShipBy.name + ";" : textShipBy
+    //   list.push({
+    //     key: 'payment_method',
+    //     name: 'Phương thức thanh toán',
+    //     value: textShipBy
+    //   })
+    // }
+
+    if (initialValues.note) {
+      list.push({
+        key: 'note',
+        name: 'Ghi chú nội bộ',
+        value: initialValues.note
+      })
+    }
+
+    if (initialValues.customer_note) {
+      list.push({
+        key: 'customer_note',
+        name: 'Ghi chú của khách',
+        value: initialValues.customer_note
+      })
+    }
+
+    if (initialValues.tags.length) {
+      let textStatus = ""
+      initialValues.tags.forEach(i => {
+        textStatus = textStatus + i + ";"
+      })
+      list.push({
+        key: 'tags',
+        name: 'Tags',
+        value: textStatus
+      })
+    }
+
+    if (initialValues.reference_code) {
+      list.push({
+        key: 'reference_code',
+        name: 'Mã tham chiếu',
+        value: initialValues.reference_code
+      })
+    }
+    console.log('filters list', list);
     return list
-  }, [initialValues]);
+  }, [accounts, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status]);
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -380,12 +619,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Button>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="issued">
-                      <DatePicker.RangePicker
-                        format="DD-MM-YYYY"
-                        style={{width: "100%"}}
-                      />
-                    </Item>
+                    <Item name="issued_on_min" style={{display: 'none'}}></Item>
+                    <Item name="issued_on_max" style={{display: 'none'}}></Item>
+                    <DatePicker.RangePicker
+                      format="DD-MM-YYYY"
+                      style={{width: "100%"}}
+                      defaultValue={[initialValues.issued[0], initialValues.issued[1]]}
+                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'issued')}
+                    />
                   </Panel>
                 </Collapse>
               </Col>
@@ -406,12 +647,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Button>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="ship">
-                      <DatePicker.RangePicker
-                        format="DD-MM-YYYY"
-                        style={{width: "100%"}}
-                      />
-                    </Item>
+                    <Item name="ship_on_min" style={{display: 'none'}}></Item>
+                    <Item name="ship_on_max" style={{display: 'none'}}></Item>
+                    <DatePicker.RangePicker
+                      format="DD-MM-YYYY"
+                      style={{width: "100%"}}
+                      defaultValue={[initialValues.ship[0], initialValues.ship[1]]}
+                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'ship')}
+                    />
                   </Panel>
                 </Collapse>
               </Col>
@@ -431,12 +674,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Button>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="completed">
-                      <DatePicker.RangePicker
-                        format="DD-MM-YYYY"
-                        style={{width: "100%"}}
-                      />
-                    </Item>
+                    <Item name="completed_on_min" style={{display: 'none'}}></Item>
+                    <Item name="completed_on_max" style={{display: 'none'}}></Item>
+                    <DatePicker.RangePicker
+                      format="DD-MM-YYYY"
+                      style={{width: "100%"}}
+                      defaultValue={[initialValues.completed[0], initialValues.completed[1]]}
+                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'completed')}
+                    />
                   </Panel>
                 </Collapse>
               </Col>
@@ -456,12 +701,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Button>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="cancelled">
-                      <DatePicker.RangePicker
-                        format="DD-MM-YYYY"
-                        style={{width: "100%"}}
-                      />
-                    </Item>
+                    <Item name="cancelled_on_min" style={{display: 'none'}}></Item>
+                    <Item name="cancelled_on_max" style={{display: 'none'}}></Item>
+                    <DatePicker.RangePicker
+                      format="DD-MM-YYYY"
+                      style={{width: "100%"}}
+                      defaultValue={[initialValues.cancelled[0], initialValues.cancelled[1]]}
+                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'cancelled')}
+                    />
                   </Panel>
                 </Collapse>
               </Col>
@@ -595,7 +842,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Panel header="TỔNG TIỀN" key="1" className="header-filter">
                     <Input.Group compact>
                       <Item name="price_min" style={{ width: '45%', textAlign: 'center' }}>
-                        <Input className="price_min"  placeholder="Minimum" />
+                        <InputNumber className="price_min"  placeholder="Minimum" />
                       </Item>
                       
                       <Input
@@ -610,7 +857,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         readOnly
                       />
                       <Item name="price_max" style={{width: '45%',textAlign: 'center'}}>
-                        <Input
+                        <InputNumber
                           className="site-input-right price_max"
                           placeholder="Maximum"
                         />
@@ -641,17 +888,21 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 </Collapse>
               </Col>
             </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
+            {/* <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
                   <Panel header="NGÀY DỰ KIẾN NHẬN HÀNG" key="1" className="header-filter">
                     <Item name="expected_receive_predefined">
-                      <DatePicker placeholder="Chọn ngày" style={{width: "100%"}}/>
+                      <DatePicker
+                        placeholder="Chọn ngày"
+                        format="DD-MM-YYYY"
+                        style={{width: "100%"}}
+                      />
                     </Item>
                   </Panel>
                 </Collapse>
               </Col>
-            </Row>
+            </Row> */}
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={[]}>
@@ -719,13 +970,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           </Form>
         </BaseFilter>
       </div>
-      {/* <div>
-        {filters.map((filter: any) => {
+      <div className="order-filter-tags">
+        {filters && filters.map((filter: any, index) => {
           return (
-            <Tag>{filter.name}: {filter.value}</Tag>
+            <Tag className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
           )
         })}
-      </div> */}
+      </div>
     </div>
   );
 };

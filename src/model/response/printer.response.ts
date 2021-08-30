@@ -35,7 +35,10 @@ export interface SinglePrinterResponseModel {
 export interface PrinterVariableResponseModel {
   [key: string]: {
     preview_value: string;
+    preview_value_format: string[];
     name: string;
     value: string;
   }[];
 }
+
+export type FormPrinterModel = "create" | "edit" | "view";
