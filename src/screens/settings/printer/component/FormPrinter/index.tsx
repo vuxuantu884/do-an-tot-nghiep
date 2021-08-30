@@ -91,11 +91,6 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     ...LIST_PRINTER_VARIABLES.slice(positionProductVariables),
   ];
 
-  console.log(
-    "LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES",
-    LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES
-  );
-
   /**
    * list product lặp
    */
