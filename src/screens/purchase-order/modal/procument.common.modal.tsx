@@ -4,7 +4,6 @@ import { StoreResponse } from "model/core/store.model";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
   POProcumentField,
-  POProcumentLineItemField,
   PurchaseProcument,
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
@@ -105,7 +104,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       }
       form.setFieldsValue({ procurement_items: [...procurement_items] });
     },
-    [form, type, allProcurementItems]
+    [form, allProcurementItems]
   );
 
   const renderResult = useMemo(() => {
@@ -117,7 +116,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
             <div className="product-item">
               <div className="product-item-image">
                 {item.variant_image !== null && (
-                  <img src={item.variant_image} />
+                  <img src={item.variant_image} alt="" />
                 )}
               </div>
               <div className="product-item-info">
@@ -149,7 +148,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       else procurement_items[index].quantity = quantity;
       form.setFieldsValue({ procurement_items: [...procurement_items] });
     },
-    [form]
+    [form, type]
   );
 
   const onRemove = useCallback(
@@ -169,19 +168,19 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       );
       let allLineId: Array<number> = [],
         lineIdMapping: any = {};
-      allProcurementItems.map((item) => {
+      allProcurementItems.forEach((item) => {
         allLineId.push(item.line_item_id);
         lineIdMapping = {
           ...lineIdMapping,
           [item.line_item_id]: item,
         };
       });
-      currentProcument.map((item: PurchaseProcumentLineItem) => {
+      currentProcument.forEach((item: PurchaseProcumentLineItem) => {
         const index = allLineId.indexOf(item.line_item_id);
         if (index > -1) allLineId.splice(index, 1);
       });
 
-      allLineId.map((line_item_id) => {
+      allLineId.forEach((line_item_id) => {
         onSelectProduct(line_item_id.toString());
       });
     }

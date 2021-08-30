@@ -30,7 +30,6 @@ import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery } from "model/order/order.model";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { remove } from "lodash";
 import moment from "moment";
 
 const { Panel } = Collapse;
@@ -62,7 +61,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const status = [
+  const status = useMemo(() => [
     {name: "DRAFT", value: "draft"},
     {name: "FINALIZED", value: "finalized"},
     {name: "COMPLETED", value: "completed"},
@@ -70,8 +69,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "Đã huỷ", value: "cancelled"},
     {name: "Đã hết hạn", value: "expired"},
     
-  ]
-  const fulfillmentStatus = [
+  ], []);
+  const fulfillmentStatus = useMemo(() => [
     {name: "Chưa giao", value: "unshipped"},
     {name: "Đã lấy hàng", value: "picked"},
     {name: "Giao một phần", value: "partial"},
@@ -81,20 +80,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "Đã hủy", value: "cancelled"},
     {name: "Đang trả lại", value: "returning"},
     {name: "Đã trả lại", value: "returned"}
-  ];
-  const paymentStatus = [
+  ], []);
+  const paymentStatus =  useMemo(() =>[
     {name: "Chưa trả", value: "unpaid"},
     {name: "Đã trả", value: "paid"},
     {name: "Đã trả một phần", value: "partial_paid"},
     {name: "Đang hoàn lại", value: "refunding"}
-  ];
-  const paymentType = [
+  ], []);
+  const paymentType = useMemo(() => [
     {name: "Tiền mặt", value: 1},
     {name: "Chuyển khoản", value: 3},
     {name: "QR Pay", value: 4},
     {name: "Tiêu điểm", value: 5},
     {name: "COD", value: 0},
-  ]
+  ], []);
   const formRef = createRef<FormInstance>();
   const onFinish = useCallback(
     (values) => {

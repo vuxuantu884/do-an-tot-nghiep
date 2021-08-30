@@ -1,13 +1,10 @@
 import { Card, Switch, Form, Input, DatePicker, Row, Col } from "antd";
-import CustomDatepicker from "component/custom/date-picker.custom";
 import moment from "moment";
-import React from "react";
 import { StyledComponent } from "./styles";
 
 type PropType = {};
 
 function OrderSettingInformation(props: PropType) {
-  const { RangePicker } = DatePicker;
   const renderCardExtra = () => {
     return (
       <div>

@@ -20,12 +20,12 @@ type PurchaseOrderReturnParams = {
 };
 
 const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
-  const [isError, setError] = useState(false);
+  const [isError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
   const { id } = useParams<PurchaseOrderReturnParams>();
   const idNumber = parseInt(id);
-  const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
-  const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
+  const [listCountries] = useState<Array<CountryResponse>>([]);
+  const [listDistrict] = useState<Array<DistrictResponse>>([]);
   const [formMain] = Form.useForm();
   const location = useLocation();
   const history = useHistory();

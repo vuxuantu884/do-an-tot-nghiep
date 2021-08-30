@@ -14,7 +14,6 @@ import UrlConfig from "config/UrlConfig";
 import { AppConfig } from "config/AppConfig";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PoSearchAction, PODeleteAction } from "domain/actions/po/po.action";
-import { ExportResponse } from "model/other/File/export-model";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/HttpStatus";
 import { PageResponse } from "model/base/base-metadata.response";

@@ -1,4 +1,4 @@
-import { Card, Form, Space, Tag, Modal } from "antd";
+import { Card, Form, Space, Tag } from "antd";
 import { Button } from "antd";
 import {
   PoProcumentCreateAction,
@@ -38,7 +38,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const [visible, setVisible] = useState(false);
   const [visibleDraft, setVisibleDraft] = useState(false);
   const [visibleConfirm, setVisibleConfirm] = useState(false);
-  const [visibleDelete, setVisibleDelete] = useState(false);
   const [loaddingCreate, setLoadingCreate] = useState(false);
   const [loadingConfirm, setLoadingConfirm] = useState(false);
   const [loadingRecive, setLoadingRecive] = useState(false);
@@ -62,7 +61,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onAddProcumentSuccess && onAddProcumentSuccess();
       }
     },
-    [onAddProcumentSuccess]
+    [isEdit, onAddProcumentSuccess]
   );
 
   const onAddProcument = useCallback(

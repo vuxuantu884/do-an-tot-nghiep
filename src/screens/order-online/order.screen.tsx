@@ -211,7 +211,7 @@ export default function Order() {
       const strTag = value.join(", ");
       setTag(strTag);
     },
-    [tags, setTag]
+    [setTag]
   );
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {

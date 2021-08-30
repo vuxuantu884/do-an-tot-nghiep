@@ -1,4 +1,4 @@
-import { Col, Form, Progress, Row, Space } from "antd";
+import { Form, Row, Space } from "antd";
 import deliveryIcon from "assets/icon/delivery.svg";
 import procument from "assets/icon/procument.svg";
 import React, { useCallback, useState } from "react";
@@ -68,7 +68,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           return <TabDraft confirmDraft={confirmDraft} />;
       }
     },
-    [confirmDraft, confirmInventory, onSuccess, poId]
+    [code, confirmDraft, confirmImport, confirmInventory, onSuccess, poId]
   );
   return (
     <React.Fragment>

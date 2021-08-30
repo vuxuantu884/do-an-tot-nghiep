@@ -1,38 +1,32 @@
 import {
   Card,
-  Switch,
   Form,
-  Input,
   DatePicker,
-  Row,
-  Col,
   Button,
   Table,
 } from "antd";
-import CustomDatepicker from "component/custom/date-picker.custom";
-import CustomTable from "component/table/CustomTable";
 import moment from "moment";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { StyledComponent } from "./styles";
 
 type PropType = {};
 type EditableTableProps = Parameters<typeof Table>[0];
 type ColumnTypes = Exclude<EditableTableProps["columns"], undefined>;
-const EditableContext = React.createContext(null);
+// const EditableContext = React.createContext(null);
 
 function OrderSettingValue(props: PropType) {
-  const [tableLoading, setTableLoading] = useState(false);
-  const { RangePicker } = DatePicker;
-  const renderCardExtra = () => {
-    return (
-      <div>
-        Cho phép bán khi tồn kho <Switch defaultChecked onChange={onChange} />
-      </div>
-    );
-  };
-  const onChange = (checked: any) => {
-    console.log("checked", checked);
-  };
+  // const [tableLoading, setTableLoading] = useState(false);
+  // const { RangePicker } = DatePicker;
+  // const renderCardExtra = () => {
+  //   return (
+  //     <div>
+  //       Cho phép bán khi tồn kho <Switch defaultChecked onChange={onChange} />
+  //     </div>
+  //   );
+  // };
+  // const onChange = (checked: any) => {
+  //   console.log("checked", checked);
+  // };
 
   function range(start: any, end: any) {
     const result = [];

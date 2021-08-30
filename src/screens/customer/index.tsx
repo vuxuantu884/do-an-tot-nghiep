@@ -5,7 +5,6 @@ import {
   AutoComplete,
   Button,
   Form,
-  Tooltip,
   Input,
   Select,
 } from "antd";
@@ -17,13 +16,11 @@ import { SearchOutlined } from "@ant-design/icons";
 
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
-import React from "react";
+import React, { useMemo } from "react";
 import Popup from "./popup";
 import { useSelector } from "react-redux";
 import CustomerAdd from "./create.customer";
 import ButtonCreate from "component/header/ButtonCreate";
-import arrowDownloadRight from "../../assets/icon/arrow-download-right.svg";
-import arrowDownloadDown from "../../assets/icon/arrow-download-down.svg";
 import settingGearIcon from "../../assets/icon/setting-gear-icon.svg";
 import { RefSelectProps } from "antd/lib/select";
 
@@ -34,7 +31,7 @@ import { CustomerSearchQuery } from "model/query/customer.query";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
@@ -54,20 +51,15 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 
 const { Option } = Select;
 
-interface SearchResult {
-  items: Array<any>;
-  metadata?: any;
-}
-
 const Customer = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  // const history = useHistory();
 
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
   const LIST_GENDER = bootstrapReducer.data?.gender;
-  const params: CustomerSearchQuery = {
+  const params: CustomerSearchQuery = useMemo(() => ({
     request: "",
     page: 1,
     limit: 30,
@@ -81,7 +73,7 @@ const Customer = () => {
     customer_group_id: null,
     customer_level_id: null,
     responsible_staff_code: null,
-  };
+  }), []);
   const [query, setQuery] = React.useState<CustomerSearchQuery>({
     page: 1,
     limit: 30,
@@ -97,7 +89,7 @@ const Customer = () => {
     customer_level_id: null,
     responsible_staff_code: "",
   });
-  const [popup, setPopup] = React.useState({
+  const [popup,] = React.useState({
     visible: false,
     x: 0,
     y: 0,
@@ -288,7 +280,6 @@ const Customer = () => {
   });
   console.log(data);
   const [tableLoading, setTableLoading] = React.useState<boolean>(true);
-  const [options, setOptions] = React.useState<SearchResult>({ items: [] });
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -371,16 +362,14 @@ const Customer = () => {
     setVisibleFilter(false);
   }, []);
 
-  let value = formAdvance.getFieldValue("filter");
-
   const onSearch = (value: CustomerSearchQuery) => {
     const querySearch: CustomerSearchQuery = value;
     dispatch(CustomerList(querySearch, setData));
   };
 
-  const initQueryAccount: AccountSearchQuery = {
+  const initQueryAccount: AccountSearchQuery = useMemo(() => ({
     info: "",
-  };
+  }), [])
 
   // const AccountRenderSearchResult = (item: AccountResponse) => {
   //   return (
@@ -411,7 +400,7 @@ const Customer = () => {
         });
       });
     return options;
-  }, [dispatch, resultSearch]);
+  }, [resultSearch]);
 
   const AccountChangeSearch = React.useCallback(
     (value) => {
@@ -443,7 +432,7 @@ const Customer = () => {
         }
       }
     },
-    [autoCompleteRef, dispatch, resultSearch]
+    [autoCompleteRef, resultSearch]
   );
 
   const onFinish = (value: CustomerSearchQuery) => {
@@ -453,9 +442,9 @@ const Customer = () => {
     onSearch(value);
   };
 
-  const onSelect = (value: any, option: any) => {
-    history.push(`/customers/${option.key}`);
-  };
+  // const onSelect = (value: any, option: any) => {
+  //   history.push(`/customers/${option.key}`);
+  // };
 
   const onSelectTable = React.useCallback(
     (selectedRow: Array<CustomerResponse>) => {
