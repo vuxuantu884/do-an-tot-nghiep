@@ -1576,7 +1576,7 @@ const CustomerEdit = (props: any) => {
         text="Bạn có chắc chắn xóa địa chỉ gửi hóa đơn này không?"
         icon={DeleteIcon}
       />
-      <div className="customer-bottom-button">
+      {/* <div className="customer-bottom-button">
         <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
           <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
           Quay lại danh sách khách hàng
@@ -1593,9 +1593,9 @@ const CustomerEdit = (props: any) => {
           >
             Xóa khách hàng
           </Button>
-          {/* <Button type="primary">Tạo phiếu thu chi</Button> */}
+          <Button type="primary">Tạo phiếu thu chi</Button>
         </div>
-      </div>
+      </div> */}
     </ContentContainer>
   );
 };

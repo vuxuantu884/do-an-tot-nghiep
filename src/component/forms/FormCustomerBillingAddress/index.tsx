@@ -67,7 +67,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
       : {
           name: "",
           phone: "",
-          country_id: null,
+          country_id: 233,
           district_id: null,
           ward_id: null,
           full_address: "",

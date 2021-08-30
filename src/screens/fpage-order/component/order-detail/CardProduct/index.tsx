@@ -268,7 +268,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const ProductColumn = {
     title: () => (
       <div className="text-center">
-        <div style={{ textAlign: "left" }}>SP</div>
+        <div style={{ textAlign: "left" }}>Sản phẩm</div>
       </div>
     ),
     width: "18%",
@@ -340,7 +340,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const AmountColumnt = {
     title: () => (
       <div className="text-center">
-        <div style={{ textAlign: "center" }}>SL</div>
+        <div style={{ textAlign: "center" }}>Số lượng</div>
         {getTotalQuantity(items) > 0 && (
           <span style={{ color: "#2A2A86" }}>({getTotalQuantity(items)})</span>
         )}
@@ -367,7 +367,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const PriceColumnt = {
     title: () => (
       <div>
-        <span style={{ color: "#222222", textAlign: "right" }}>ĐG</span>
+        <span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
         <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
           ₫
         </span>
@@ -406,6 +406,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       </div>
     ),
     align: "center",
+    visible: false,
     width: "22%",
     className: "yody-table-discount text-right",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
@@ -435,6 +436,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       </div>
     ),
     align: "right",
+    visible: false,
     className: "yody-table-total-money text-right",
     width: "14%",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
@@ -534,8 +536,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     ProductColumn,
     AmountColumnt,
     PriceColumnt,
-    DiscountColumnt,
-    TotalPriceColumn,
+    // DiscountColumnt,
+    // TotalPriceColumn,
     ActionColumn,
   ];
 

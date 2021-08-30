@@ -528,7 +528,7 @@ export default function FpageOrders() {
       ]}
       extra={<CreateBillStep status="draff" orderDetail={null} />}
     >
-      <div className="orders">
+      <div className="orders fpage-order-screen">
         <Form
           layout="vertical"
           initialValues={initialForm}
