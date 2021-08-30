@@ -83,7 +83,7 @@ function* getPrinterDetailSaga(action: YodyAction) {
   }
 }
 function* createPrinterSaga(action: YodyAction) {
-  const { formValue } = action.payload;
+  const { handleData, formValue } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<PrinterResponseModel>> = yield call(
@@ -97,6 +97,7 @@ function* createPrinterSaga(action: YodyAction) {
          * call function handleData in payload, variables are taken from the response -> use when dispatch
          */
         showSuccess("Tạo mới mẫu in thành công");
+        handleData();
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());

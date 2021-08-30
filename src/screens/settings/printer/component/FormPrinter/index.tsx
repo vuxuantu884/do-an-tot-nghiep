@@ -34,7 +34,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
   const [htmlContent, setHtmlContent] = useState("");
-  const isShowEditor = isEdit;
+  const isShowEditor = isEdit || type === "create";
   const [previewHeaderHeight, setPreviewHeaderHeight] = useState(108);
   const [selectedPrintSize, setSelectedPrintSize] = useState("");
   const componentRef = useRef(null);
@@ -107,7 +107,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
 
   const LIST_PRINTER_PRODUCT_VARIABLES = LIST_PRINTER_PRODUCT_VARIABLES_zzz;
 
-  const isCanEditFormHeader = isShowEditor || type === "create";
+  const isCanEditFormHeader = isShowEditor;
 
   const initialFormValue = useMemo(() => {
     let result =
@@ -142,21 +142,26 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
       const formComponentValue = form.getFieldsValue();
       // console.log("formValue.template", formValue?.template);
       // console.log("formComponentValue", formComponentValue);
-      if (formValue?.template === formComponentValue.template) {
-        history.push(UrlConfig.PRINTER);
-      } else {
+      let newFormComponentValue = {
+        ...formComponentValue,
+      };
+      if (formValue?.name === formComponentValue.name) {
         /**
          * thay tên theo ngày tháng
          */
-        let newFormComponentValue = {
+        newFormComponentValue = {
           ...formComponentValue,
           name: `${formComponentValue.name}-${moment().format(
             "D/M/YYYY,H:mm:ss"
           )}`,
         };
-        // formComponentValue.
-        dispatch(actionCreatePrinter(newFormComponentValue));
       }
+      // formComponentValue.
+      dispatch(
+        actionCreatePrinter(newFormComponentValue, () => {
+          history.push(UrlConfig.PRINTER);
+        })
+      );
     });
   };
 
@@ -170,6 +175,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   };
 
   const handleEditorToolbarHeight = (height: number) => {
+    console.log("height", height);
     setPreviewHeaderHeight(height);
   };
 

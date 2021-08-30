@@ -35,11 +35,15 @@ export const actionFetchPrinterDetail = (
   };
 };
 
-export const actionCreatePrinter = (formValue: BasePrinterModel) => {
+export const actionCreatePrinter = (
+  formValue: BasePrinterModel,
+  handleData: () => void
+) => {
   return {
     type: PRINTER_TYPES.createPrinter,
     payload: {
       formValue,
+      handleData,
     },
   };
 };
