@@ -124,14 +124,14 @@ const Customer = () => {
       render: (value: string, i: any) => (
         <Link to={`/customers/${i.id}`}>{value}</Link>
       ),
-      width: 200,
+      width: 150,
     },
     {
       title: "Tên khách hàng",
       dataIndex: "full_name",
       // align: "left",
       visible: true,
-      width: "10%",
+      width: 200,
       render: (value: string, i: any) => (
         <span className="customer-name-textoverflow">{i.full_name}</span>
       )
@@ -532,7 +532,7 @@ const Customer = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            dataSource={data.items.reverse()}
+            dataSource={data.items.sort((a: any,b: any) => b.id - a.id)}
             columns={columnFinal}
             rowKey={(item: any) => item.id}
           />

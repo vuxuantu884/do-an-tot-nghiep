@@ -33,6 +33,7 @@ import {
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import arrowLeft from "../../assets/icon/arrow-left.svg";
+import { CustomerModel } from "model/request/customer.request";
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
@@ -151,13 +152,24 @@ const CustomerEdit = (props: any) => {
     const processValue = {
       ...values,
       birthday: values.birthday
-      ? new Date(values.birthday).toUTCString()
-      : null,
+        ? new Date(values.birthday).toUTCString()
+        : null,
       wedding_date: values.wedding_date
         ? new Date(values.wedding_date).toUTCString()
         : null,
       status: status,
       version: customer.version,
+      shipping_addresses: customer.shipping_addresses.map((item: any) => {
+        let _item = { ...item };
+        _item.is_default = _item.default;
+        return _item;
+      }),
+      billing_addresses: customer.shipping_addresses.map((item: any) => {
+        let _item = { ...item };
+        _item.is_default = _item.default;
+        return _item;
+      }),
+      contacts: customer.contacts,
     };
     dispatch(UpdateCustomer(params.id, processValue, setResult));
   };

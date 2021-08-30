@@ -8,6 +8,7 @@ const OrderDetail = React.lazy(
   () => import("screens/order-online/order-detail")
 );
 const Order = React.lazy(() => import("screens/order-online/order.screen"));
+const FpageOrder = React.lazy(() => import("screens/fpage-order/order.screen"));
 
 const bill: Array<RouteMenu> = [
   {
@@ -52,7 +53,20 @@ const bill: Array<RouteMenu> = [
         title: "Chi tiết đơn hàng",
         icon: "icon-dot",
         component: OrderDetail,
-        key: "submenu5412",
+        key: "submenu5413",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        type: 0,
+        object: null,
+      },
+      {
+        path: `${UrlConfig.FPAGE_ORDER}/create`,
+        exact: true,
+        title: "Đơn hàng từ Fpage",
+        icon: "icon-dot",
+        component: FpageOrder,
+        key: "submenu5414",
         isShow: true,
         header: null,
         subMenu: [],

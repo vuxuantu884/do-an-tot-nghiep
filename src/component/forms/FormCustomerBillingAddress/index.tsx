@@ -67,7 +67,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
       : {
           name: "",
           phone: "",
-          country_id: 233,
+          country_id: null,
           district_id: null,
           ward_id: null,
           full_address: "",
@@ -129,7 +129,6 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
     <StyledComponent>
       <Form
         form={form}
-        name="form-order-processing-status"
         layout="vertical"
         initialValues={initialFormValue}
       >

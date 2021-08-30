@@ -103,8 +103,8 @@ const CustomerEdit = (props: any) => {
   const genreEnum: any = {
     male: "Nam",
     female: "Nữ",
-    other: "Khác"
-  }
+    other: "Khác",
+  };
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -169,7 +169,7 @@ const CustomerEdit = (props: any) => {
         {
           name: "Email",
           value: customer.email,
-          position: "left"
+          position: "left",
         },
         {
           name: "Mã khách hàng",
@@ -181,7 +181,7 @@ const CustomerEdit = (props: any) => {
           value: customer.wedding_date
             ? moment(customer.wedding_date).format("DD/MM/YYYY")
             : null,
-            position: "left"
+          position: "left",
         },
         {
           name: "Website/Facebook",
@@ -192,7 +192,7 @@ const CustomerEdit = (props: any) => {
         {
           name: "Tên đơn vị",
           value: customer.company,
-          position: "left"
+          position: "left",
         },
         {
           name: "Mã số thuế",
@@ -206,7 +206,7 @@ const CustomerEdit = (props: any) => {
           }${customer.district ? " - " + customer.district : ""}${
             customer.city ? " - " + customer.city : ""
           }`,
-          position: "left"
+          position: "left",
         },
         {
           name: "Ghi chú",
@@ -355,7 +355,7 @@ const CustomerEdit = (props: any) => {
       },
     },
     {
-      title: "Tiêu đề",
+      title: "Chức vụ/phòng ban",
       dataIndex: "title",
       visible: true,
       // width: "20%",
@@ -364,7 +364,7 @@ const CustomerEdit = (props: any) => {
       title: "Tên người liên hệ",
       dataIndex: "",
       visible: true,
-      width: "20%",
+      // width: "20%",
       render: (value, row, index) => {
         return <div style={{ width: 200 }}>{row.name}</div>;
       },
@@ -572,18 +572,18 @@ const CustomerEdit = (props: any) => {
             <span
               className="text"
               title={row.code}
+              style={{ color: "#666666" }}
+            >
+              {`${row.full_address}`}
+            </span>
+            <span
+              className="text"
+              title={row.code}
               style={{ color: "#222222", display: "block" }}
             >
               {`${row.ward ? row.ward : ""}${
                 row.district ? " - " + row.district : ""
               }${row.city ? " - " + row.city : ""}`}
-            </span>
-            <span
-              className="text"
-              title={row.code}
-              style={{ color: "#666666" }}
-            >
-              {`${row.full_address}`}
             </span>
           </div>
         );
@@ -992,14 +992,25 @@ const CustomerEdit = (props: any) => {
                           color: "#222222",
                         }}
                       >
-                        <Col span={12}>
+                        <Col
+                          span={12}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            padding: "0 4px 0 15px",
+                          }}
+                        >
                           <span>{detail.name}</span>
+                          <span style={{ fontWeight: 600 }}>:</span>
                         </Col>
-                        <Col span={12}>
+                        <Col span={12} style={{ paddingLeft: 0 }}>
                           <span
-                            style={{ wordWrap: "break-word", fontWeight: 500 }}
+                            style={{
+                              wordWrap: "break-word",
+                              fontWeight: 500,
+                            }}
                           >
-                            : {detail.value ? detail.value : "---"}
+                            {detail.value ? detail.value : "---"}
                           </span>
                         </Col>
                       </Col>
@@ -1019,14 +1030,25 @@ const CustomerEdit = (props: any) => {
                           color: "#222222",
                         }}
                       >
-                        <Col span={12}>
+                        <Col
+                          span={12}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            padding: "0 4px 0 15px",
+                          }}
+                        >
                           <span>{detail.name}</span>
+                          <span style={{ fontWeight: 600 }}>:</span>
                         </Col>
-                        <Col span={12}>
+                        <Col span={12} style={{ paddingLeft: 0 }}>
                           <span
-                            style={{ wordWrap: "break-word", fontWeight: 500 }}
+                            style={{
+                              wordWrap: "break-word",
+                              fontWeight: 500,
+                            }}
                           >
-                            : {detail.value ? detail.value : "---"}
+                            {detail.value ? detail.value : "---"}
                           </span>
                         </Col>
                       </Col>
@@ -1057,17 +1079,25 @@ const CustomerEdit = (props: any) => {
                                   color: "#222222",
                                 }}
                               >
-                                <Col span={12}>
+                                <Col
+                                  span={12}
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    padding: "0 4px 0 15px",
+                                  }}
+                                >
                                   <span>{detail.name}</span>
+                                  <span style={{ fontWeight: 600 }}>:</span>
                                 </Col>
-                                <Col span={12}>
+                                <Col span={12} style={{ paddingLeft: 0 }}>
                                   <span
                                     style={{
                                       wordWrap: "break-word",
                                       fontWeight: 500,
                                     }}
-                                  >: {detail.value ? detail.value : "---"}
-                                    
+                                  >
+                                    {detail.value ? detail.value : "---"}
                                   </span>
                                 </Col>
                               </Col>
@@ -1089,17 +1119,24 @@ const CustomerEdit = (props: any) => {
                                   color: "#222222",
                                 }}
                               >
-                                <Col span={12}>
+                                <Col
+                                  span={12}
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    padding: "0 4px 0 15px",
+                                  }}
+                                >
                                   <span>{detail.name}</span>
+                                  <span style={{ fontWeight: 600 }}>:</span>
                                 </Col>
-                                <Col span={12}>
+                                <Col span={12} style={{ paddingLeft: 0 }}>
                                   <span
                                     style={{
                                       wordWrap: "break-word",
                                       fontWeight: 500,
                                     }}
                                   >
-                                    :{" "}
                                     {detail.isWebsite ? (
                                       <a href={detail.value}>{detail.value}</a>
                                     ) : detail.value ? (
@@ -1194,7 +1231,7 @@ const CustomerEdit = (props: any) => {
                         className="saleorder_shipment_button"
                         key={button.value}
                         onClick={() => setCustomerDetailState(button.value)}
-                        style={{ padding: "10px 20px" }}
+                        style={{ padding: "10px " }}
                       >
                         <img src={button.icon} alt="icon"></img>
                         <span style={{ fontWeight: 500 }}>{button.name}</span>
@@ -1203,7 +1240,7 @@ const CustomerEdit = (props: any) => {
                       <div
                         className="saleorder_shipment_button_active"
                         key={button.value}
-                        style={{ padding: "10px 20px" }}
+                        style={{ padding: "10px " }}
                       >
                         <img src={button.icon} alt="icon"></img>
                         <span style={{ fontWeight: 500 }}>{button.name}</span>

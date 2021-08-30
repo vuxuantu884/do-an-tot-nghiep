@@ -79,40 +79,43 @@ function CustomInputContact(props: any) {
         </Form.Item>
       </Col>
       <Col span={12}>
-          <Form.Item
-            label={<b>Email:</b>}
-            name="contact_email"
-            // ]}
-          >
-            <Input
-              maxLength={255}
-              placeholder="Nhập email"
-              onChange={(value: any) => {
-                setContactEmail(value.target.value);
-                if (contactName === "") setContactName(undefined);
-                if (contactPhone === "") setContactPhone(undefined);
-              }}
-            />
-          </Form.Item>
-        </Col>
-        <Col span={24}>
-              <Form.Item label={<b>Ghi chú:</b>} name="contact_note">
-                <Input.TextArea
-                  maxLength={500}
-                  placeholder="Nhập ghi chú"
-                  onChange={(value: any) => {
-                    setContactNote(value.target.value);
-                    if (contactName === "") setContactName(undefined);
-                    if (contactPhone === "") setContactPhone(undefined);
-                  }}
-                />
-              </Form.Item>
-            </Col>
-        <Col span={24} style={{ padding: "0 1rem" }}>
-          <Row gutter={8}>
-            
-          </Row>
-        </Col>
+        <Form.Item
+          label={<b>Email:</b>}
+          name="contact_email"
+          rules={[
+            {
+              pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
+              message: "Vui lòng nhập đúng định dạng email",
+            },
+          ]}
+        >
+          <Input
+            maxLength={255}
+            placeholder="Nhập email"
+            onChange={(value: any) => {
+              setContactEmail(value.target.value);
+              if (contactName === "") setContactName(undefined);
+              if (contactPhone === "") setContactPhone(undefined);
+            }}
+          />
+        </Form.Item>
+      </Col>
+      <Col span={24}>
+        <Form.Item label={<b>Ghi chú:</b>} name="contact_note">
+          <Input.TextArea
+            maxLength={500}
+            placeholder="Nhập ghi chú"
+            onChange={(value: any) => {
+              setContactNote(value.target.value);
+              if (contactName === "") setContactName(undefined);
+              if (contactPhone === "") setContactPhone(undefined);
+            }}
+          />
+        </Form.Item>
+      </Col>
+      <Col span={24} style={{ padding: "0 1rem" }}>
+        <Row gutter={8}></Row>
+      </Col>
     </>
   );
 }
