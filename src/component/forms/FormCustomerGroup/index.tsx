@@ -1,11 +1,8 @@
-import { Checkbox, Col, Form, Input, Row, Select } from "antd";
+import {Col, Form, Input, Row } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
-import { RegUtil } from "utils/RegUtils";
 import CustomInput from "screens/customer/customInput";
 
 type FormValueType = {
@@ -20,10 +17,6 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
 ) => {
   const { modalAction, formItem, form, visible } = props;
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
-  // const DEFAULT_FORM_VALUE = {
-  //   company_id: 1,
-  //   company: "YODY",
-  // };
   const initialFormValue: FormValueType =
     !isCreateForm && formItem
       ? {
@@ -38,10 +31,6 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
           note: "",
           active: true,
         };
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
-  const LIST_STATUS = bootstrapReducer.data?.order_main_status;
 
   useEffect(() => {
     form.resetFields();

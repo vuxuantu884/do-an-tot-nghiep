@@ -2,7 +2,6 @@ import {
   Form,
   Row,
   Col,
-  Select,
   Button,
   Card,
   Collapse,
@@ -73,6 +72,12 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 const { Panel } = Collapse;
 
+const genreEnum: any = {
+  male: "Nam",
+  female: "Nữ",
+  other: "Khác",
+};
+
 const CustomerEdit = (props: any) => {
   const params = useParams() as any;
   const [customerForm] = Form.useForm();
@@ -100,11 +105,7 @@ const CustomerEdit = (props: any) => {
     },
     []
   );
-  const genreEnum: any = {
-    male: "Nam",
-    female: "Nữ",
-    other: "Khác",
-  };
+  
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -259,7 +260,7 @@ const CustomerEdit = (props: any) => {
           <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
             <Menu.Item key="1">
               <Button
-                icon={<img style={{ marginRight: 12 }} src={editIcon} />}
+                icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
                 type="text"
                 className=""
                 style={{
@@ -275,7 +276,7 @@ const CustomerEdit = (props: any) => {
             {customerDetailState !== 2 && (
               <Menu.Item key="2">
                 <Button
-                  icon={<img style={{ marginRight: 12 }} src={deleteIcon} />}
+                  icon={<img style={{ marginRight: 12 }} alt="" src={deleteIcon} />}
                   type="text"
                   className=""
                   style={{
@@ -685,8 +686,10 @@ const CustomerEdit = (props: any) => {
       contact.email ||
       contact.phone ||
       contact.note
-    )
+    ) {
       return true;
+    }
+    return false;
   });
   const shippingColumnFinal = () =>
     shippingColumns.filter((item) => item.visible === true);

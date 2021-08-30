@@ -1,8 +1,6 @@
-import { Checkbox, Col, Form, Input, Row, Select } from "antd";
+import { Col, Form, Input, Row } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
 import { RegUtil } from "utils/RegUtils";
@@ -50,10 +48,6 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
           tax_code: "",
           website: "",
         };
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
-  const LIST_STATUS = bootstrapReducer.data?.order_main_status;
 
   useEffect(() => {
     form.resetFields();

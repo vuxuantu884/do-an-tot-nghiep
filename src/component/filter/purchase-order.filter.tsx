@@ -14,6 +14,7 @@ import { StoreResponse } from "model/core/store.model";
 import { POStatus, ProcumentStatus, PoPaymentStatus } from "utils/Constants";
 import { DATE_FORMAT, getDateFromNow } from "utils/DateUtils";
 import { FilterOutlined } from "@ant-design/icons";
+import HashTag from "component/custom/hashtag";
 
 const { Panel } = Collapse;
 const { Item } = Form;
@@ -446,7 +447,7 @@ const AdvanceFormItems = ({
             );
             break;
           case filterFields.tags:
-            collapseChildren = <Input placeholder="Tìm kiếm theo tag" />;
+            collapseChildren = <HashTag placeholder="Tìm kiếm theo tag" />;
             break;
           case filterFields.reference:
             collapseChildren = (

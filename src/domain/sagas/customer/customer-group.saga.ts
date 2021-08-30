@@ -4,7 +4,6 @@ import BaseResponse from "base/BaseResponse";
 import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { SETTING_TYPES } from "domain/types/settings.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CustomerGroupResponseModel } from "model/response/customer/customer-group.response";
 import { CustomerType } from 'domain/types/customer.type';

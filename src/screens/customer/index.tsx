@@ -9,7 +9,6 @@ import {
   Select,
 } from "antd";
 import CustomFilter from "component/table/custom.filter";
-import moment from "moment";
 
 import BaseFilter from "../../component/filter/base.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
