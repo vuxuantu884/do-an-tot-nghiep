@@ -1,5 +1,5 @@
 import { CustomerSearchQuery } from 'model/query/customer.query';
-import BaseAction from 'base/BaseAction';
+import BaseAction from 'base/base.action';
 import { CustomerType } from 'domain/types/customer.type';
 import { CustomerResponse } from 'model/response/customer/customer.response';
 import {

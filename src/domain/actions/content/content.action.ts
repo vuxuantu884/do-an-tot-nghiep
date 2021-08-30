@@ -1,5 +1,5 @@
 import { CountryResponse } from 'model/content/country.model';
-import BaseAction from "base/BaseAction"
+import BaseAction from "base/base.action"
 import { ContentType } from "domain/types/content.type";
 import { DistrictResponse } from 'model/content/district.model';
 import { WardResponse } from 'model/content/ward.model';

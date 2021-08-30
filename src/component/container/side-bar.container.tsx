@@ -5,13 +5,13 @@ import menu from "routes/menu";
 import { findCurrentRoute } from "utils/AppUtils";
 import { Scrollbars } from "react-custom-scrollbars";
 
-type SlidebarContainerProps = {
+type SidebarContainerProps = {
   path: string;
   collapsed: boolean;
 };
 const { Sider } = Layout;
-const SlidebarContainer: React.FC<SlidebarContainerProps> = (
-  props: SlidebarContainerProps
+const SidebarContainer: React.FC<SidebarContainerProps> = (
+  props: SidebarContainerProps
 ) => {
   const { path, collapsed } = props;
   let currentRoute = useMemo(() => findCurrentRoute(menu, path), [path]);
@@ -104,4 +104,4 @@ const SlidebarContainer: React.FC<SlidebarContainerProps> = (
   );
 };
 
-export default SlidebarContainer;
+export default SidebarContainer;

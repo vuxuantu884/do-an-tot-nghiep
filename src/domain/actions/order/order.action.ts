@@ -19,7 +19,7 @@ import {
   UpdatePaymentRequest,
 } from "model/request/order.request";
 import { OrderType } from "../../types/order.type";
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import { PageResponse } from "model/base/base-metadata.response";
 

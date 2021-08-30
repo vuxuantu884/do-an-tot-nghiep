@@ -4,7 +4,7 @@ import {
   VariantSearchQuery,
   VariantUpdateRequest,
 } from "model/product/product.model";
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import { ProductType } from "domain/types/product.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ProductUploadModel } from "model/product/product-upload.model";

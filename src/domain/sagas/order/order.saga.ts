@@ -22,10 +22,10 @@ import {
   orderPostApi,
 } from "../../../service/order/order.service";
 import { OrderType } from "../../types/order.type";
-import BaseResponse from "base/BaseResponse";
+import BaseResponse from "base/base.response";
 import { put, call, takeLatest } from "redux-saga/effects";
 import { HttpStatus } from "config/HttpStatus";
-import { YodyAction } from "../../../base/BaseAction";
+import { YodyAction } from "../../../base/base.action";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {
   DeliveryServiceResponse,

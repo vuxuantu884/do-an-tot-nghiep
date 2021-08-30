@@ -1,9 +1,9 @@
 export interface YodyAction {
-  type: String,
+  type: string,
   payload: any
 }
 
-function BaseAction (type: String, payload: any): YodyAction {
+function BaseAction (type: string, payload: any): YodyAction {
   let action: YodyAction = {type: type, payload: payload};
   return action;
 }
