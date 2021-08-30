@@ -20,7 +20,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   } = props;
   // console.log("htmlContent", htmlContent);
   const printElementRef = useRef(null);
-  console.log("listProductKeywords", listProductKeywords);
+  // console.log("listProductKeywords", listProductKeywords);
   // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   const checkIfStringContainsOneInArray = (
     text: string,
@@ -78,7 +78,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
         // console.log("tableElements", tableElements);
 
         let listProductKeywordsLength = listProductKeywords?.list?.length;
-        console.log("listProductKeywordsLength", listProductKeywordsLength);
+        // console.log("listProductKeywordsLength", listProductKeywordsLength);
         if (
           listProductKeywords &&
           listProductKeywordsLength &&
@@ -88,7 +88,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
           let resultTextReplaced = "";
           // let textReplaced = "";
           for (const item of tableElements) {
-            console.log("2222222222222222222");
+            // console.log("2222222222222222222");
             let tBodyElements = item.getElementsByTagName("tbody");
             if (!tBodyElements[0]) return "";
             let trElements = tBodyElements[0].getElementsByTagName("tr");
@@ -96,7 +96,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             const trLength = trElements.length;
             let productsChange =
               listProductKeywords.list[0].preview_value_format;
-            console.log("productsChange", productsChange);
+            // console.log("productsChange", productsChange);
             let numberOfProducts = productsChange?.length;
 
             if (!numberOfProducts) {

@@ -1,8 +1,10 @@
+import BaseResponse from "base/BaseResponse";
 import { PRINTER_TYPES } from "domain/types/printer.type";
 import {
   BasePrinterModel,
   PrinterResponseModel,
   PrinterVariableResponseModel,
+  PrintFormByOrderIdsResponseModel,
 } from "model/response/printer.response";
 
 export const actionFetchListPrinter = (
@@ -48,6 +50,19 @@ export const actionFetchListPrinterVariables = (
   return {
     type: PRINTER_TYPES.getListPrinterVariables,
     payload: {
+      handleData,
+    },
+  };
+};
+
+export const actionFetchPrintFormByOrderIds = (
+  ids: number[],
+  handleData: (data: BaseResponse<PrintFormByOrderIdsResponseModel>) => void
+) => {
+  return {
+    type: PRINTER_TYPES.getPrintFormByOrderIds,
+    payload: {
+      ids,
       handleData,
     },
   };
