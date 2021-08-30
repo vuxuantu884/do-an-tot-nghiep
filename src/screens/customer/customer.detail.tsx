@@ -475,7 +475,7 @@ const CustomerEdit = (props: any) => {
     //   visible: true,
     // },
     {
-      title: "Khu vực",
+      title: "Địa chỉ",
       dataIndex: "full_address",
       visible: true,
       render: (value, row, index) => {
@@ -550,25 +550,28 @@ const CustomerEdit = (props: any) => {
       title: "Họ tên người nhận",
       dataIndex: "name",
       visible: true,
-      width: "20%",
+      width: 150,
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone",
       visible: true,
+      width: 150
     },
     {
       title: "Email",
       dataIndex: "email",
       visible: true,
+      width: 150
     },
     {
       title: "Mã số thuế",
       dataIndex: "tax_code",
       visible: true,
+      width: 150
     },
     {
-      title: "Khu vực",
+      title: "Địa chỉ",
       dataIndex: "full_address",
       visible: true,
       render: (value, row, index) => {

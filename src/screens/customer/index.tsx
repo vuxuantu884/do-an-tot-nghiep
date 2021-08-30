@@ -138,7 +138,7 @@ const Customer = () => {
       dataIndex: "full_name",
       // align: "left",
       visible: true,
-      width: 200,
+      width: 150,
       render: (value: string, i: any) => (
         <span className="customer-name-textoverflow">{i.full_name}</span>
       )
@@ -148,7 +148,7 @@ const Customer = () => {
       dataIndex: "phone",
       // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Giới tính",
@@ -158,21 +158,21 @@ const Customer = () => {
         <div>{genreEnum[value]}</div>
       ),
       visible: true,
-      width: "5%",
+      width: 100
     },
     {
       title: "Nhóm khách hàng",
       dataIndex: "customer_group",
       // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Thư điện tử",
       dataIndex: "email",
       // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
 
     {
@@ -180,20 +180,20 @@ const Customer = () => {
       dataIndex: "customer_type",
       // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Nhân viên phụ trách",
       dataIndex: "responsible_staff",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Hạng thẻ hiện tại",
       dataIndex: "customer_level",
       // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
 
     {
@@ -201,14 +201,14 @@ const Customer = () => {
       dataIndex: "created_by",
       // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Ngày tạo",
       dataIndex: "created_date",
       // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
@@ -216,7 +216,7 @@ const Customer = () => {
       dataIndex: "birthday",
       // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
@@ -224,7 +224,7 @@ const Customer = () => {
       dataIndex: "wedding_date",
       // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
@@ -232,49 +232,48 @@ const Customer = () => {
       dataIndex: "website",
       // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Ngày kích hoạt thẻ",
       dataIndex: "",
       // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Ngày hết hạn thẻ",
       dataIndex: "",
       // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Cửa hàng kích hoạt",
       dataIndex: "",
       // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Mã số thẻ",
       dataIndex: "",
       // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Đơn vị",
       dataIndex: "company",
       // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Điểm hiện tại",
-      // align: "center",
+      width: 100,
       dataIndex: "",
       visible: false,
-      // width: "15%",
     },
   ]);
 
@@ -533,7 +532,7 @@ const Customer = () => {
             isRowSelection
             isLoading={tableLoading}
             onSelectedChange={onSelectTable}
-            scroll={{ x: 3000 }}
+            scroll={{ x: 2500 }}
             sticky={{ offsetScroll: 5 }}
             pagination={{
               pageSize: data.metadata.limit,
