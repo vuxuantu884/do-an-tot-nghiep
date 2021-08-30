@@ -206,13 +206,6 @@ const SettingPrinter: React.FC = () => {
 
   const handleSelectStore = (value: any, option: any) => {
     setSelectStoreId(value);
-    // form.resetFields();
-    // queryParams.name = value;
-    // const newQuery = { ...queryParams, name: "", store_id: value };
-    // const newQueryParam = generateQuery(newQuery);
-    // setQueryParams(newQuery);
-    // history.replace(`${UrlConfig.PRINTER}?${newQueryParam}`);
-    // window.scrollTo(0, 0);
   };
 
   const renderSearch = () => {
