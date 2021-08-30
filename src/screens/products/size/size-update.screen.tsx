@@ -30,7 +30,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { convertCategory, convertSizeResponeToDetail } from "utils/AppUtils";
 import ContentContainer from "component/container/content.container";
 import { RegUtil } from "utils/RegUtils";
-import { showSuccess } from "../../utils/ToastUtils";
+import { showSuccess } from "../../../utils/ToastUtils";
 
 const { Option } = Select;
 

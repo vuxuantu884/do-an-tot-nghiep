@@ -3,33 +3,33 @@ import React from "react";
 import { RouteMenu } from "model/other";
 
 const ManageUserScreen = React.lazy(
-  () => import("screens/account/account.search.screen")
+  () => import("screens/settings/account/account.search.screen")
 );
 // const ManageStoreScreen = React.lazy(
 //   () => import("screens/setting/manage-store.screen")
 // );
 const RoleListScreen = React.lazy(
-  () => import("screens/roles/role-list.screen")
+  () => import("screens/settings/roles/role-list.screen")
 );
 const RoleCreateScreen = React.lazy(
-  () => import("screens/roles/role-create.screen")
+  () => import("screens/settings/roles/role-create.screen")
 );
 const AccountCreateScreen = React.lazy(
-  () => import("screens/account/account.create.screen")
+  () => import("screens/settings/account/account.create.screen")
 );
 const AccountUpdateScreen = React.lazy(
-  () => import("screens/account/account.update.screen")
+  () => import("screens/settings/account/account.update.screen")
 );
 
 //store
 const StoreCreateScreen = React.lazy(
-  () => import("screens/store/store-create.screen")
+  () => import("screens/settings/store/store-create.screen")
 );
 const StoreListScreen = React.lazy(
-  () => import("screens/store/store-list.screen")
+  () => import("screens/settings/store/store-list.screen")
 );
 const StoreUpdateScreen = React.lazy(
-  () => import("screens/store/store-update.screen")
+  () => import("screens/settings/store/store-update.screen")
 );
 
 // fulfillment: quản lý đơn hàng

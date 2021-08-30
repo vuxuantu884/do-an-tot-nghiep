@@ -1,61 +1,63 @@
 import React from "react";
 import { RouteMenu } from "model/other";
-import ColorUpdateScreen from "screens/color/color-update.screen";
+import ColorUpdateScreen from "screens/products/color/color-update.screen";
 import UrlConfig from "config/url.config";
-import UpdateSupplierScreen from "../../screens/supllier/supplier-update.screen";
 
 const Category = React.lazy(
-  () => import("screens/category/category-list.screen")
+  () => import("screens/products/category/category-list.screen")
 );
 const ProductCreateScreen = React.lazy(
-  () => import("screens/product/product-create.screen")
+  () => import("screens/products/product/product-create.screen")
 );
 const ColorListScreen = React.lazy(
-  () => import("screens/color/color-list.screen")
+  () => import("screens/products/color/color-list.screen")
 );
 const UpdateMaterial = React.lazy(
-  () => import("screens/materials/material-update.screen")
+  () => import("screens/products/materials/material-update.screen")
 );
 const ListMaterial = React.lazy(
-  () => import("screens/materials/materials-list.screen")
+  () => import("screens/products/materials/materials-list.screen")
 );
 const AddMaterial = React.lazy(
-  () => import("screens/materials/material-add.screen")
+  () => import("screens/products/materials/material-add.screen")
 );
 const SizeListScreen = React.lazy(
-  () => import("screens/size/size-list.screen")
+  () => import("screens/products/size/size-list.screen")
 );
 const SizeCreateScreen = React.lazy(
-  () => import("screens/size/size-create.screen")
+  () => import("screens/products/size/size-create.screen")
 );
 const SizeUpdateScreen = React.lazy(
-  () => import("screens/size/size-update.screen")
+  () => import("screens/products/size/size-update.screen")
 );
 const ListSupplier = React.lazy(
-  () => import("screens/supllier/supplier-list.screen")
+  () => import("screens/products/supplier/supplier-list.screen")
 );
 const AddCategory = React.lazy(
-  () => import("screens/category/category-add.screen")
+  () => import("screens/products/category/category-add.screen")
 );
 const UpdateCategory = React.lazy(
-  () => import("screens/category/category-update.screen")
+  () => import("screens/products/category/category-update.screen")
 );
 const SupplierCreateScreen = React.lazy(
-  () => import("screens/supllier/supplier-add.screen")
+  () => import("screens/products/supplier/supplier-add.screen")
+);
+const SupplierUpdateScreen = React.lazy(
+  () => import("screens/products/supplier/supplier-update.screen")
 );
 const ColorCreateScreen = React.lazy(
-  () => import("screens/color/color-create.screen")
+  () => import("screens/products/color/color-create.screen")
 );
 
 //Product
 const Product = React.lazy(
-  () => import("screens/product/product.search.screen")
+  () => import("screens/products/product/product.search.screen")
 );
 const VariantUpdateScreen = React.lazy(
-  () => import("screens/product/variant-update.screen")
+  () => import("screens/products/product/variant-update.screen")
 );
 const ProductUpdateScreen = React.lazy(
-  () => import("screens/product/product-update.screen")
+  () => import("screens/products/product/product-update.screen")
 );
 
 //PO
@@ -332,7 +334,7 @@ const product: Array<RouteMenu> = [
         exact: true,
         title: "Sửa nhà cung cấp",
         icon: "icon-dot",
-        component: UpdateSupplierScreen,
+        component: SupplierUpdateScreen,
         key: "submenu272",
         isShow: true,
         header: null,
