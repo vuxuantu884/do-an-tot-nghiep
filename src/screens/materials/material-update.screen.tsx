@@ -1,6 +1,6 @@
 import {Button, Card, Col, Form, FormInstance, Input, Row, Space} from 'antd';
 import ContentContainer from 'component/container/content.container';
-import UrlConfig from 'config/UrlConfig';
+import UrlConfig from 'config/url.config';
 import {
   detailMaterialAction,
   updateMaterialAction,

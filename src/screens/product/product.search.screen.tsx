@@ -30,7 +30,7 @@ import {
   AccountResponse,
   AccountSearchQuery,
 } from "model/account/account.model";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import ImageProduct from "./component/image-product.component";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";

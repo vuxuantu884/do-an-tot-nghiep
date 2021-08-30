@@ -34,7 +34,7 @@ import CustomDatepicker from "component/custom/date-picker.custom";
 import { useParams } from "react-router-dom";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { RegUtil } from "utils/RegUtils";
 
 const { Item } = Form;

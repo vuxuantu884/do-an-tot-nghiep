@@ -1,7 +1,7 @@
 import { Button, Col, Form, Input, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
-import { AppConfig } from "config/AppConfig";
-import UrlConfig from "config/UrlConfig";
+import { AppConfig } from "config/app.config";
+import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PoDetailAction, PoUpdateAction } from "domain/actions/po/po.action";
 import { AccountResponse } from "model/account/account.model";

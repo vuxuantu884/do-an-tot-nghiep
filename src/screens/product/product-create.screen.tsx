@@ -14,7 +14,7 @@ import {
   Collapse,
 } from "antd";
 import CustomEditor from "component/custom/custom-editor";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
@@ -61,7 +61,7 @@ import {
 } from "model/product/product.model";
 import NumberInput from "component/custom/number-input.custom";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountResponse } from "model/account/account.model";
 import { productCreateAction } from "domain/actions/product/products.action";

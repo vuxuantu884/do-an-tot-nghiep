@@ -43,9 +43,9 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { convertSupplierResponseToDetail } from "utils/AppUtils";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { showSuccess } from "../../utils/ToastUtils";
 import { RegUtil } from "utils/RegUtils";
 import NumberInput from "component/custom/number-input.custom";

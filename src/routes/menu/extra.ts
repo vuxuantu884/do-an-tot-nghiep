@@ -14,8 +14,6 @@ const extra: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
     },
     {
         path: "/customers/edit/:id",
@@ -27,8 +25,6 @@ const extra: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
     },
     {
         path: "/customers/:id",
@@ -40,8 +36,6 @@ const extra: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
     },
 ]
 

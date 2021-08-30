@@ -1,4 +1,4 @@
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
@@ -61,7 +61,7 @@ import NumberInput from "component/custom/number-input.custom";
 import { useMemo } from "react";
 import { createRef } from "react";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { showSuccess } from "utils/ToastUtils";
 
 type VariantUpdateParam = {

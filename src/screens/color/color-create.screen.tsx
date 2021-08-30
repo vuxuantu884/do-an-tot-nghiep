@@ -19,7 +19,7 @@ import {
   getColorAction,
 } from 'domain/actions/product/color.action';
 import ContentContainer from 'component/container/content.container';
-import UrlConfig from 'config/UrlConfig';
+import UrlConfig from 'config/url.config';
 import ColorUpload from './color-upload.component';
 import { showSuccess } from 'utils/ToastUtils';
 import { RegUtil } from 'utils/RegUtils';

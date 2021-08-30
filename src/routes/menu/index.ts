@@ -3,7 +3,7 @@ import { RouteMenu } from "model/other";
 import setting from './setting';
 import product from './product';
 import bill from './bill';
-import UrlConfig from 'config/UrlConfig';
+import UrlConfig from 'config/url.config';
 import customers from "./customer"
 import shipments from "./shipment"
 
@@ -25,8 +25,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
   {
     path: "/products",
@@ -38,8 +36,7 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: product,
-    type: 0,
-    object: null,
+
   },
   {
     path: "/inventory",
@@ -51,8 +48,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
   {
     path: "/unicorn/pos",
@@ -64,8 +59,6 @@ const menu: Array<RouteMenu> = [
     isShow: false,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
   {
     path: UrlConfig.ORDER,
@@ -77,8 +70,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: bill,
-    type: 0,
-    object: null,
   },
   {
     path: UrlConfig.SHIPMENTS,
@@ -90,8 +81,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: shipments,
-    type: 0,
-    object: null,
   },
   {
     path: "/customers",
@@ -103,8 +92,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: customers,
-    type: 0,
-    object: null,
   },
   {
     path: "/promotion",
@@ -116,8 +103,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
   {
     path: "/report",
@@ -129,8 +114,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
   {
     path: "/setting",
@@ -142,8 +125,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: setting,
-    type: 0,
-    object: null,
   },
 ]
 

@@ -1,7 +1,7 @@
 import { Button, Card, Col, Form, Input, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import Editor from "component/ckeditor";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import {
   actionCreatePrinter,

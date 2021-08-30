@@ -1,7 +1,7 @@
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { Col, Pagination, Row, Select, TableProps } from "antd";
 import classNames from "classnames";
-import { PageConfig } from "config/PageConfig";
+import { PageConfig } from "config/page.config";
 import React from "react";
 
 interface ICustomPaginationProps extends Omit<TableProps<any>, "pagination"> {

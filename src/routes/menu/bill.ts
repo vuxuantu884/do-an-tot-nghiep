@@ -1,5 +1,4 @@
-import { HEADER_TYPE } from "config/HeaderConfig";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 
@@ -21,8 +20,6 @@ const bill: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: HEADER_TYPE.STEP,
-    object: null,
   },
   {
     path: `${UrlConfig.ORDER}/list`,
@@ -44,8 +41,6 @@ const bill: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
       {
         path: `${UrlConfig.ORDER}/:id`,
@@ -57,8 +52,6 @@ const bill: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
       {
         path: `${UrlConfig.FPAGE_ORDER}/create`,
@@ -70,12 +63,8 @@ const bill: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
     ],
-    type: 0,
-    object: null,
   },
   {
     path: "/bill/return",
@@ -87,8 +76,6 @@ const bill: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
 ];
 

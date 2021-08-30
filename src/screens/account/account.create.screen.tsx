@@ -56,7 +56,7 @@ import { PositionResponse } from "model/account/position.model";
 import { showSuccess } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 
 const { Item, List } = Form;
 const { Option, OptGroup } = Select;

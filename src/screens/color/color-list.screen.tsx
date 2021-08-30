@@ -21,7 +21,7 @@ import {
 import { isUndefinedOrNull } from "utils/AppUtils";
 import CustomFilter from "component/table/custom.filter";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";

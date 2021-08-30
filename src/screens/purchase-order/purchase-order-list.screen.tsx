@@ -10,12 +10,12 @@ import CustomTable, {
 } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import UrlConfig from "config/UrlConfig";
-import { AppConfig } from "config/AppConfig";
+import UrlConfig from "config/url.config";
+import { AppConfig } from "config/app.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PoSearchAction, PODeleteAction } from "domain/actions/po/po.action";
 import { exportFile, getFile } from "service/other/export.service";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";

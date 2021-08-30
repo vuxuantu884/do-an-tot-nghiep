@@ -1,5 +1,5 @@
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { actionFetchPrinterDetail } from "domain/actions/printer/printer.action";
 import {
   BasePrinterModel,

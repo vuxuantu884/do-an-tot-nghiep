@@ -5,7 +5,7 @@ import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { RoleSearchAction } from "domain/actions/auth/role.action";
 import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
 import { PageResponse } from "model/base/base-metadata.response";

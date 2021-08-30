@@ -15,7 +15,7 @@ import {  PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
 import { showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";

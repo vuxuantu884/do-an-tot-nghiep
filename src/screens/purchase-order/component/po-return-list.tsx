@@ -12,7 +12,7 @@ import {
 import { useHistory } from "react-router-dom";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useMemo, Fragment } from "react";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { POUtils } from "utils/POUtils";
 import { formatCurrency } from "utils/AppUtils";
 

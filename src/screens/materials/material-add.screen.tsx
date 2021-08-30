@@ -1,6 +1,6 @@
 import {Button, Card, Col, Form, FormInstance, Input, Row, Space} from 'antd';
 import ContentContainer from 'component/container/content.container';
-import UrlConfig from 'config/UrlConfig';
+import UrlConfig from 'config/url.config';
 import {createMaterialAction} from 'domain/actions/product/material.action';
 import {MaterialCreateRequest} from 'model/product/material.model';
 import {createRef, useCallback} from 'react';

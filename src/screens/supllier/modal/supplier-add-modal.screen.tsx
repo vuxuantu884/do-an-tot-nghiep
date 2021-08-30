@@ -1,5 +1,5 @@
 import { Col, Form, Input, Modal, Radio, Row, Select } from "antd";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { SupplierCreateAction } from "domain/actions/core/supplier.action";
 import { AccountResponse } from "model/account/account.model";

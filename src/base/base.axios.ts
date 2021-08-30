@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { getToken } from 'utils/LocalStorageUtils';
-import { AppConfig } from '../config/AppConfig';
+import { AppConfig } from '../config/app.config';
 
 const BaseAxios = axios.create({
   baseURL: AppConfig.baseUrl,
