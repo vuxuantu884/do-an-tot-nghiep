@@ -340,8 +340,8 @@ const POUtils = {
         ordered_quantity: item.quantity,
         planned_quantity: item.planned_quantity,
         accepted_quantity: item.receipt_quantity,
-        quantity: 0,
-        real_quantity: 0,
+        quantity: item.quantity,
+        real_quantity: item.quantity,
         note: "",
       });
     });
