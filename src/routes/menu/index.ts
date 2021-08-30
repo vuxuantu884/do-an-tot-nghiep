@@ -1,14 +1,14 @@
 import React from 'react';
 import { RouteMenu } from "model/other";
-import setting from './setting';
-import product from './product';
-import bill from './bill';
+import setting from './setting.route';
+import product from './product.route';
+import bill from './bill.route';
 import UrlConfig from 'config/url.config';
-import customers from "./customer"
-import shipments from "./shipment"
+import customers from "./customer.route"
+import shipments from "./shipment.route"
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
-const Product = React.lazy(() => import ("screens/product/product.search.screen"));
+const Product = React.lazy(() => import ("screens/products/product/product.search.screen"));
 const Inventory = React.lazy(() => import ("screens/inverory"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
