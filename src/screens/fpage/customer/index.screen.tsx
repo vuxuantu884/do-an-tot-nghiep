@@ -6,10 +6,7 @@ import {
   DatePicker,
   Select,
   Card,
-  Space,
-  Switch,
 } from "antd";
-import { useState } from "react";
 import { RegUtil } from "utils/RegUtils";
 import "./customer.scss";
 import CustomInput from "./customInput";
@@ -19,49 +16,17 @@ const { Option } = Select;
 const GeneralInformation = (props: any) => {
   const {
     form,
-    status,
-    setStatus,
     areas,
     countries,
     wards,
     handleChangeArea,
-    isEdit,
     AccountChangeSearch,
   } = props;
 
   return (
     <Row gutter={24}>
       <Col span={18}>
-        <Card
-          title={
-            <div className="d-flex">
-              <span className="title-card">THÔNG TIN CHUNG</span>
-            </div>
-          }
-          extra={[
-            <Space key="status" size={15} style={{ marginRight: "10px" }}>
-              {isEdit && (
-                <>
-                  <label className="text-default">Trạng thái</label>
-                  <Switch
-                    className="ant-switch-success"
-                    checked={status === "active"}
-                    onChange={(checked) => {
-                      setStatus(checked ? "active" : "inactive");
-                    }}
-                  />
-                  <label
-                    className={
-                      status === "active" ? "text-success" : "text-error"
-                    }
-                  >
-                    {status === "active" ? "Đang hoạt động" : "Không hoạt động"}
-                  </label>
-                </>
-              )}
-            </Space>,
-          ]}
-        >
+        <Card>
           <Row gutter={30} style={{ padding: "16px 30px" }}>
             <Col span={24}>
               <CustomInput
@@ -70,7 +35,7 @@ const GeneralInformation = (props: any) => {
                 form={form}
                 message="Vui lòng nhập họ tên khách hàng"
                 placeholder="Nhập họ và tên khách hàng"
-                isRequired={true}
+                // isRequired={true}
                 maxLength={255}
               />
             </Col>
