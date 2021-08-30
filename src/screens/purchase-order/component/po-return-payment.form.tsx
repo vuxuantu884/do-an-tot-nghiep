@@ -93,20 +93,27 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
         <Item
           shouldUpdate={(prev, current) =>
             prev[POField.total_paid] !== current[POField.total_paid] ||
-            prev[POField.total] !== current[POField.total]
+            prev[POField.total] !== current[POField.total] ||
+            prev[POField.payment_condition_name] !==
+              current[POField.payment_condition_name] ||
+            prev[POField.payment_note] !== current[POField.payment_note]
           }
         >
           {({ getFieldValue }) => {
             const total_paid = getFieldValue(POField.total_paid);
+            const payment_condition_name = getFieldValue(
+              POField.payment_condition_name
+            );
+            const payment_note = getFieldValue(POField.payment_note);
             if (total_paid && total_paid > 0) {
               return (
                 <Fragment>
                   <Row>
                     <Col span={12}>
-                      Kho nhận hàng: <strong>Thanh toán 30 ngày</strong>
+                      Kho nhận hàng: <strong>{payment_condition_name}</strong>
                     </Col>
                     <Col span={12}>
-                      Diễn giải: <strong>abc</strong>
+                      Diễn giải: <strong>{payment_note}</strong>
                     </Col>
                   </Row>
                   <Item

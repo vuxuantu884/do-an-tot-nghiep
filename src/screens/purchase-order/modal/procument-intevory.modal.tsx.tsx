@@ -182,7 +182,7 @@ const ProducmentInventoryModal: React.FC<ProducmentInventoryModalProps> = (
                   dataIndex: POProcumentLineItemField.real_quantity,
                   render: (value, item, index) => (
                     <NumberInput
-                      placeholder="Kế hoạch nhận"
+                      placeholder="SL thực nhận"
                       isFloat={false}
                       value={value}
                       min={0}

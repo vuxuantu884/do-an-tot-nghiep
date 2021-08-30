@@ -13,6 +13,8 @@ import POSupplierForm from "./component/po-supplier.form";
 import POReturnProductForm from "./component/po-return-product.form";
 import POReturnPaymentForm from "./component/po-return-payment.form";
 import POStep from "./component/po-step";
+import { POField } from "model/purchase-order/po-field";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 interface POReturnProps {}
 type PurchaseOrderReturnParams = {
@@ -52,6 +54,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const onConfirmButton = useCallback(() => {
     formMain.validateFields().then((values) => {
       setLoading(true);
+      values[POField.expect_return_date] = Date.now();
       onFinish(values);
     });
   }, [formMain, onFinish]);
