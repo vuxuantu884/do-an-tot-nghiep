@@ -211,7 +211,7 @@ export default function FpageOrders() {
       const strTag = value.join(", ");
       setTag(strTag);
     },
-    [tags, setTag]
+    [setTag]
   );
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {

@@ -2,14 +2,14 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Menu, Dropdown } from "antd";
 import ContentContainer from "component/container/content.container";
 import FormCustomerGroup from "component/forms/FormCustomerGroup";
-import CustomerModal from "../../customer/CustomerModal";
+import CustomerModal from "../CustomerModal";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import editIcon from "../../../assets/icon/edit.svg";
-import deleteIcon from "../../../assets/icon/deleteIcon.svg";
-import threeDot from "../../../assets/icon/three-dot.svg";
+import editIcon from "assets/icon/edit.svg";
+import deleteIcon from "assets/icon/deleteIcon.svg";
+import threeDot from "assets/icon/three-dot.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 import {

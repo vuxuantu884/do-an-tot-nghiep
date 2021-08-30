@@ -9,7 +9,6 @@ import {
   Space,
   Switch,
 } from "antd";
-import { useState } from "react";
 import { RegUtil } from "utils/RegUtils";
 import "./customer.scss";
 import CustomInput from "./customInput";
