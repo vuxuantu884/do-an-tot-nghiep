@@ -41,3 +41,9 @@ export const getListPrinterVariablesService = (): Promise<
     `${ApiConfig.CONTENT}/common/enums?fields=PRINT_SIZE, PRINT_ORDER_VARIABLE, PRINT_STORE_VARIABLE, PRINT_PRODUCT_VARIABLE, PRINT_SHIPMENT_VARIABLE`
   );
 };
+
+export const getPrintFormByOrderIdsService = (
+  ids: string[]
+): Promise<BaseResponse<PrinterVariableResponseModel>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/print_forms?ids=${ids}`);
+};
