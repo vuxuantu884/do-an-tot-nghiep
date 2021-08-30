@@ -10,7 +10,6 @@ import {
   Input,
   FormInstance,
   Checkbox,
-  InputNumber,
 } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { POField } from "model/purchase-order/po-field";
@@ -317,19 +316,17 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                       width: "100%",
                                     }}
                                   >
-                                    <InputNumber
-                                      size="small"
+                                    <NumberInput
                                       style={{
                                         width: "50%",
                                       }}
                                       className="hide-number-handle"
-                                      type="number"
                                       max={value}
                                       min={0}
                                       value={currentValue}
-                                      defaultValue={0}
-                                      onFocus={(e) => e.target.select()}
+                                      default={0}
                                       onChange={(inputValue) => {
+                                        if (inputValue === null) return;
                                         handleChangeReturnQuantity(
                                           inputValue,
                                           item,
@@ -393,6 +390,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                     }}
                                   >
                                     <NumberInput
+                                      style={{ width: "70%" }}
                                       className="hide-number-handle"
                                       min={0}
                                       format={(a: string) =>

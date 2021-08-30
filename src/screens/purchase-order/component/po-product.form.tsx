@@ -1271,7 +1271,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
             }}
           </Form.Item>
           <Row gutter={24}>
-            <Col xs={24} lg={12}>
+            <Col span={12} />
+            <Col span={12}>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues[POField.untaxed_amount] !==

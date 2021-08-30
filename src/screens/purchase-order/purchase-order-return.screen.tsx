@@ -26,8 +26,8 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const { id } = useParams<PurchaseOrderReturnParams>();
   const idNumber = parseInt(id);
-  const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
-  const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
+  // const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
+  // const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [formMain] = Form.useForm();
   const location = useLocation();
   const history = useHistory();
@@ -62,6 +62,8 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const state: any = location.state;
   if (!state) return <Fragment></Fragment>;
   const params: PurchaseOrder = state.params;
+  const listCountries: Array<CountryResponse> = state.listCountries;
+  const listDistrict: Array<DistrictResponse> = state.listDistrict;
   return (
     <ContentContainer
       isLoading={isLoading}
@@ -92,6 +94,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
           showSupplierAddress={true}
           showBillingAddress={false}
           isEdit={true}
+          hideExpand={true}
           listCountries={listCountries}
           listDistrict={listDistrict}
           formMain={formMain}

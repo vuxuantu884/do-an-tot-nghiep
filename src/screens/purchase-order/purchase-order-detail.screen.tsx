@@ -216,6 +216,8 @@ const PODetailScreen: React.FC = () => {
   const redirectToReturn = useCallback(() => {
     history.push(`${UrlConfig.PURCHASE_ORDER}/return/${id}`, {
       params: poData,
+      listCountries: listCountries,
+      listDistrict: listDistrict,
     });
   }, [history, poData]);
   const menu: Array<MenuAction> = useMemo(() => {
@@ -446,7 +448,12 @@ const PODetailScreen: React.FC = () => {
             {poData &&
               ((poData.receipt_quantity && poData.receipt_quantity > 0) ||
                 (poData.total_paid && poData.total_paid > 0)) && (
-                <POReturnList id={id} params={formMain.getFieldsValue(true)} />
+                <POReturnList
+                  id={id}
+                  params={formMain.getFieldsValue(true)}
+                  listCountries={listCountries}
+                  listDistrict={listDistrict}
+                />
               )}
           </Col>
           {/* Right Side */}
