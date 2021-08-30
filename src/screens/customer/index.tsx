@@ -10,6 +10,7 @@ import {
   Select,
 } from "antd";
 import CustomFilter from "component/table/custom.filter";
+import moment from "moment";
 
 import BaseFilter from "../../component/filter/base.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -144,7 +145,7 @@ const Customer = () => {
       )
     },
     {
-      title: "Số điện thoại",
+      title: "SĐT",
       dataIndex: "phone",
       // align: "center",
       visible: true,
@@ -168,10 +169,10 @@ const Customer = () => {
       // width: "15%",
     },
     {
-      title: "Thư điện tử",
+      title: "Email",
       dataIndex: "email",
       // align: "center",
-      visible: true,
+      visible: false,
       // width: "15%",
     },
 
@@ -179,7 +180,7 @@ const Customer = () => {
       title: "Loại khách hàng",
       dataIndex: "customer_type",
       // align: "center",
-      visible: true,
+      visible: false,
       // width: "15%",
     },
     {
@@ -189,28 +190,28 @@ const Customer = () => {
       // width: "15%",
     },
     {
-      title: "Hạng thẻ hiện tại",
+      title: "Hạng thẻ",
       dataIndex: "customer_level",
       // align: "center",
       visible: true,
       // width: "15%",
     },
 
-    {
-      title: "Người tạo",
-      dataIndex: "created_by",
-      // align: "center",
-      visible: true,
-      // width: "15%",
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "created_date",
-      // align: "center",
-      visible: true,
-      // width: "15%",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-    },
+    // {
+    //   title: "Người tạo",
+    //   dataIndex: "created_by",
+    //   // align: "center",
+    //   visible: false,
+    //   // width: "15%",
+    // },
+    // {
+    //   title: "Ngày tạo",
+    //   dataIndex: "created_date",
+    //   // align: "center",
+    //   visible: false,
+    //   // width: "15%",
+    //   render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+    // },
     {
       title: "Ngày sinh",
       dataIndex: "birthday",
@@ -324,6 +325,7 @@ const Customer = () => {
         return;
       }
       setAccounts(data.items);
+      setResultSearch(data);
     },
     []
   );
@@ -447,9 +449,7 @@ const Customer = () => {
   );
 
   const onFinish = (value: CustomerSearchQuery) => {
-    value.responsible_staff_code = value.responsible_staff_code
-      ? value.responsible_staff_code.split(" - ")[0]
-      : null;
+    value.responsible_staff_code = value.responsible_staff_code? value.responsible_staff_code.split(" - ")[0]: null;
     onSearch(value);
   };
 
@@ -626,7 +626,7 @@ const Customer = () => {
                 >
                   {groups.map((group) => (
                     <Option key={group.id} value={group.id}>
-                      {group.name + ` - ${group.code}`}
+                      {group.name}
                     </Option>
                   ))}
                 </Select>
