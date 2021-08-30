@@ -543,7 +543,7 @@ const Customer = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            dataSource={data.items.reverse()}
+            dataSource={data.items.sort((a: any,b: any) => b.id - a.id)}
             columns={columnFinal}
             rowKey={(item: any) => item.id}
           />
