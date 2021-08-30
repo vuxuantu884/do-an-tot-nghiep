@@ -1,12 +1,12 @@
-import { Button } from "antd";
+import { Button, Tooltip } from "antd";
 import {
   PrintPreviewModel,
   productKeywordsModel,
 } from "model/editor/editor.model";
 import React, { useRef } from "react";
 import ReactToPrint from "react-to-print";
-import IconPrintHover from "./images/iconPrintHover.svg";
 import IconEdit from "./images/iconEdit.svg";
+import IconPrintHover from "./images/iconPrintHover.svg";
 import { StyledComponent } from "./styles";
 
 const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
@@ -20,6 +20,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   } = props;
   // console.log("htmlContent", htmlContent);
   const printElementRef = useRef(null);
+  console.log("listProductKeywords", listProductKeywords);
   // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   const checkIfStringContainsOneInArray = (
     text: string,
@@ -27,7 +28,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   ) => {
     let result = false;
     arr.find((single) => {
-      if (text.includes(single.key)) {
+      if (text.includes(single.value)) {
         result = true;
       }
       return "";
@@ -42,20 +43,24 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
    */
   const replaceSymbolByText = (text: string) => {
     let resultText = text;
-    // console.log("resultText", resultText);
     const replaceKeyword = () => {
       if (listKeywords) {
         let replacementLength = listKeywords.length;
         if (replacementLength > 0) {
           for (let i = 0; i < replacementLength; i++) {
             let singleListKeywords = listKeywords[i].list;
-            let singleListKeywordsLength = listKeywords[i].list.length;
-            if (singleListKeywordsLength > 0) {
+            let singleListKeywordsLength = listKeywords[i].list?.length;
+            if (singleListKeywordsLength && singleListKeywordsLength > 0) {
               for (let j = 0; j < singleListKeywordsLength; j++) {
-                resultText = resultText.replaceAll(
-                  singleListKeywords[j].key,
-                  singleListKeywords[j].value
-                );
+                if (singleListKeywords && singleListKeywords[j].preview_value) {
+                  let singleExample = singleListKeywords[j].preview_value;
+                  if (singleExample) {
+                    resultText = resultText.replaceAll(
+                      singleListKeywords[j].value,
+                      singleExample
+                    );
+                  }
+                }
               }
             }
           }
@@ -72,7 +77,8 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
         let tableElements = docFromCkEditor.getElementsByTagName("table");
         // console.log("tableElements", tableElements);
 
-        let listProductKeywordsLength = listProductKeywords?.length;
+        let listProductKeywordsLength = listProductKeywords?.list?.length;
+        console.log("listProductKeywordsLength", listProductKeywordsLength);
         if (
           listProductKeywords &&
           listProductKeywordsLength &&
@@ -82,13 +88,20 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
           let resultTextReplaced = "";
           // let textReplaced = "";
           for (const item of tableElements) {
+            console.log("2222222222222222222");
             let tBodyElements = item.getElementsByTagName("tbody");
             if (!tBodyElements[0]) return "";
             let trElements = tBodyElements[0].getElementsByTagName("tr");
             if (!trElements) return "";
             const trLength = trElements.length;
-            let productsChange = listProductKeywords[0].value;
-            let numberOfProducts = productsChange.length;
+            let productsChange =
+              listProductKeywords.list[0].preview_value_format;
+            console.log("productsChange", productsChange);
+            let numberOfProducts = productsChange?.length;
+
+            if (!numberOfProducts) {
+              return;
+            }
 
             // check từng row
             // nếu có thì replace, và thay row bằng kết quả
@@ -97,17 +110,24 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
               let eachRow = trElements[i].outerHTML;
               // console.log("eachRow", eachRow);
               if (
-                checkIfStringContainsOneInArray(eachRow, listProductKeywords)
+                checkIfStringContainsOneInArray(
+                  eachRow,
+                  listProductKeywords.list
+                )
               ) {
                 for (let j = 0; j < numberOfProducts; j++) {
                   resultTextReplacedArray[j] = eachRow;
-                  for (let k = 0; k < listProductKeywords.length; k++) {
-                    let textToReplaced = listProductKeywords[k].key;
-                    let textReplaced = listProductKeywords[k].value[j];
-                    // console.log("textToReplaced", textToReplaced);
-                    resultTextReplacedArray[j] = resultTextReplacedArray[
-                      j
-                    ].replaceAll(textToReplaced, textReplaced);
+                  for (let k = 0; k < listProductKeywords.list.length; k++) {
+                    let textToReplaced = listProductKeywords.list[k].value;
+                    let previewValueFormat =
+                      listProductKeywords.list[k]?.preview_value_format;
+                    if (previewValueFormat) {
+                      let textReplaced = previewValueFormat[j];
+                      // console.log("textToReplaced", textToReplaced);
+                      resultTextReplacedArray[j] = resultTextReplacedArray[
+                        j
+                      ].replaceAll(textToReplaced, textReplaced);
+                    }
                   }
                 }
                 resultTextReplaced = resultTextReplacedArray.join("");
@@ -119,8 +139,19 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
         }
       }
     };
+
+    /**
+     * xóa từ lặp {start_loop_product} và {end_loop}
+     */
+    const removeLoopSpecialCharacter = () => {
+      const listHideCharacters = ["{start_loop_product}", "{end_loop}"];
+      for (const hideCharacter of listHideCharacters) {
+        resultText = resultText.replaceAll(hideCharacter, "");
+      }
+    };
     replaceKeyword();
     replaceProduct();
+    removeLoopSpecialCharacter();
     return resultText;
   };
 
@@ -153,7 +184,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             <div>
               <ReactToPrint
                 trigger={() => (
-                  <Button className="button--print">
+                  <Button className="button__print">
                     <div className="icon">
                       <img
                         src={IconPrintHover}
@@ -166,12 +197,20 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
                 )}
                 content={() => printElementRef.current}
               />
-              <img
-                src={IconEdit}
-                alt=""
-                className="iconEdit"
-                onClick={() => onChangeShowEditor(true)}
-              />
+              <Tooltip
+                title="Chỉnh sửa"
+                color="#FCAF17"
+                mouseEnterDelay={0}
+                mouseLeaveDelay={0}
+                overlayInnerStyle={{ textAlign: "center", padding: "5px 10px" }}
+              >
+                <img
+                  src={IconEdit}
+                  alt=""
+                  className="iconEdit"
+                  onClick={() => onChangeShowEditor(true)}
+                />
+              </Tooltip>
             </div>
           </div>
         </div>

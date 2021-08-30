@@ -14,9 +14,9 @@ import { generateQuery } from "utils/AppUtils";
  */
 
 export const getOrderProcessingStatusService = (
-  query: BaseQuery
+  queryParams: BaseQuery
 ): Promise<BaseResponse<SourceResponse>> => {
-  const queryString = generateQuery(query);
+  const queryString = generateQuery(queryParams);
   return BaseAxios.get(`${ApiConfig.ORDER}/subStatus?${queryString}`);
 };
 

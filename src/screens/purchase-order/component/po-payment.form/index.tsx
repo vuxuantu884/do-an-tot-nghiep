@@ -29,6 +29,7 @@ import {
   PoFinancialStatus,
   PoPaymentMethod,
   PoPaymentStatus,
+  ProcumentStatus,
 } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -45,7 +46,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [isConfirmPayment, setConfirmPayment] = useState<boolean>(false);
   const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
-  const [loadingApproval, setLoaddingApproval] = useState<Array<boolean>>([]);
+  const [loadingApproval, setLoaddingApproval] = useState<any>({});
 
   const CancelPaymentModal = useCallback(() => {
     setVisiblePaymentModal(false);
@@ -85,10 +86,10 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   }, []);
 
   const onApprovalPayment = useCallback(
-    (item: PurchasePayments, index: number) => {
+    (item: PurchasePayments) => {
       if (item.id) {
-        const newLoadings = [...loadingApproval];
-        newLoadings[index] = true;
+        const newLoadings = { ...loadingApproval };
+        newLoadings[item.id] = true;
         setLoaddingApproval(newLoadings);
         let newItem = { ...item };
         newItem.status = PoPaymentStatus.PAID;
@@ -401,7 +402,8 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                       </strong>
                                     </div>
                                   </Col>
-                                ) : (
+                                ) : item.status !==
+                                  PoPaymentStatus.CANCELLED ? (
                                   <Col md={8}>
                                     <div className="timeline__groupButtons">
                                       <Button onClick={() => editPayment(item)}>
@@ -412,16 +414,40 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                       </Button>
                                       <Button
                                         type="primary"
-                                        onClick={() =>
-                                          onApprovalPayment(item, index)
+                                        onClick={() => onApprovalPayment(item)}
+                                        loading={
+                                          item.id
+                                            ? loadingApproval[item.id]
+                                            : false
                                         }
-                                        loading={loadingApproval[index]}
                                       >
                                         <CheckCircleOutlined
                                           style={{ fontSize: "18px" }}
                                         />{" "}
                                         Duyệt
                                       </Button>
+                                    </div>
+                                  </Col>
+                                ) : (
+                                  <Col md={8}>
+                                    <div className="timeline__status">
+                                      <MinusCircleOutlined
+                                        style={{
+                                          fontSize: "18px",
+                                          color: "#E24343",
+                                        }}
+                                      />{" "}
+                                      <div style={{ color: "#E24343" }}>
+                                        Đã hủy
+                                      </div>
+                                    </div>
+                                    <div>
+                                      Hủy thanh toán <br />
+                                      <strong>
+                                        {ConvertUtcToLocalDate(
+                                          item.updated_date
+                                        )}
+                                      </strong>
                                     </div>
                                   </Col>
                                 )}
@@ -441,7 +467,9 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           noStyle
           shouldUpdate={(prev, current) =>
             prev[POField.payments] !== current[POField.payments] ||
-            prev[POField.financial_status] !== current[POField.financial_status]
+            prev[POField.financial_status] !==
+              current[POField.financial_status] ||
+            prev[POField.receive_status] !== current[POField.receive_status]
           }
         >
           {({ getFieldValue }) => {
@@ -449,11 +477,12 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
               POField.payments
             );
             let financial_status = getFieldValue(POField.financial_status);
+            let receive_status = getFieldValue(POField.receive_status);
             return (
               payments &&
               payments.length > 0 &&
+              receive_status === ProcumentStatus.FINISHED &&
               financial_status !== PoFinancialStatus.CANCELLED &&
-              financial_status !== PoFinancialStatus.PAID &&
               financial_status !== PoFinancialStatus.FINISHED && (
                 <div className="card__footer">
                   <Button
@@ -469,13 +498,29 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         </Form.Item>
       </Card>
 
-      <PaymentModal
-        visible={isVisiblePaymentModal}
-        onOk={OkPaymentModal}
-        onCancel={CancelPaymentModal}
-        purchasePayment={paymentItem}
-        poId={props.poId}
-      />
+      <Form.Item
+        noStyle
+        shouldUpdate={(prev, current) =>
+          prev[POField.total_paid] !== current[POField.total_paid] ||
+          prev[POField.total] !== current[POField.total]
+        }
+      >
+        {({ getFieldValue }) => {
+          let total_paid = getFieldValue(POField.total_paid);
+          let total = getFieldValue(POField.total);
+          let remainPayment = total - total_paid;
+          return (
+            <PaymentModal
+              visible={isVisiblePaymentModal}
+              onOk={OkPaymentModal}
+              onCancel={CancelPaymentModal}
+              purchasePayment={paymentItem}
+              poId={props.poId}
+              remainPayment={remainPayment}
+            />
+          );
+        }}
+      </Form.Item>
       <ModalConfirm
         onCancel={() => {
           setConfirmPayment(false);

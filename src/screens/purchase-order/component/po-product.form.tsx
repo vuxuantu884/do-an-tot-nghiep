@@ -1272,26 +1272,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           </Form.Item>
           <Row gutter={24}>
             <Col xs={24} lg={12}>
-              {/* <div className="payment-checkbox">
-                <Checkbox
-                  className=""
-                  onChange={() => console.log(1)}
-                  style={{ fontWeight: 500 }}
-                >
-                  Sử dụng giá nhập gần nhất
-                </Checkbox>
-              </div>
-              <div className="payment-checkbox">
-                <Checkbox
-                  className=""
-                  onChange={() => console.log(1)}
-                  style={{ fontWeight: 500 }}
-                >
-                  Giá đã bao gồm thuế VAT
-                </Checkbox>
-              </div> */}
-            </Col>
-            <Col xs={24} lg={12}>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues[POField.untaxed_amount] !==

@@ -17,7 +17,6 @@ import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { POField } from "model/purchase-order/po-field";
 
-import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import EmptyPlaceholder from "./EmptyPlaceholder";
 import moment from "moment";
 
@@ -31,7 +30,6 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
   props: POReturnPaymentFormProps
 ) => {
   const { formMain } = props;
-  const [payments, setPayments] = useState<Array<PurchasePayments>>([]);
   const [showPayment, setShowPayment] = useState(false);
   const [disabledRef, setDisabledRef] = useState(false);
   const onChangePaymentMethod = (e: any) => {

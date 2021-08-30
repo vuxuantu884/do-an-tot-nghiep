@@ -1,16 +1,21 @@
-import { Button, Form, Table, Typography } from "antd";
+import { Button, Form, Table, } from "antd";
 import { POField } from "model/purchase-order/po-field";
-import { POProcumentField, PurchaseProcument } from "model/purchase-order/purchase-procument";
+import {
+  POProcumentField,
+  PurchaseProcument,
+} from "model/purchase-order/purchase-procument";
 import { ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
 
 type TabConfirmedProps = {
-  confirmInventory: (item: PurchaseProcument) => void;
+  confirmInventory: (item: PurchaseProcument, isEdit: boolean) => void;
 };
 
-const TabConfirmed: React.FC<TabConfirmedProps> = (props: TabConfirmedProps) => {
-  const {confirmInventory} = props;
+const TabConfirmed: React.FC<TabConfirmedProps> = (
+  props: TabConfirmedProps
+) => {
+  const { confirmInventory } = props;
   return (
     <Form.Item
       noStyle
@@ -22,13 +27,16 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (props: TabConfirmedProps) => 
         let procurements: Array<PurchaseProcument> = getFieldValue(
           POField.procurements
         );
-        let items = procurements !== undefined ? procurements.filter(
-          (item) => item.status === ProcumentStatus.NOT_RECEIVED
-        ) : [];
+        let items =
+          procurements !== undefined
+            ? procurements.filter(
+                (item) => item.status === ProcumentStatus.NOT_RECEIVED
+              )
+            : [];
         return (
           <Table
             locale={{
-              emptyText: 'Không có đơn duyệt'
+              emptyText: "Không có đơn duyệt",
             }}
             className="product-table"
             rowKey={(record: PurchaseProcument) =>
@@ -54,11 +62,18 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (props: TabConfirmedProps) => 
                 ),
                 dataIndex: "code",
                 render: (value, item, index) => (
-                  <Typography.Link
-                    style={{ color: "#5D5D8A", textDecoration: "underline" }}
+                  <Button
+                    type="link"
+                    onClick={() => {
+                      confirmInventory(item, true);
+                    }}
                   >
-                    {value}
-                  </Typography.Link>
+                    <div
+                      style={{ color: "#5D5D8A", textDecoration: "underline" }}
+                    >
+                      {value}
+                    </div>
+                  </Button>
                 ),
               },
               {
@@ -78,8 +93,7 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (props: TabConfirmedProps) => 
                 title: "Người duyệt",
                 dataIndex: POProcumentField.activated_by,
                 align: "center",
-                render: (value: string, item, index: number) =>
-                  value,
+                render: (value: string, item, index: number) => value,
               },
               {
                 align: "right",
@@ -93,7 +107,12 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (props: TabConfirmedProps) => 
                 width: 200,
                 render: (value, item, index: number) => (
                   <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Button onClick={() => confirmInventory(item)} type="primary">Xác nhận nhập</Button>
+                    <Button
+                      onClick={() => confirmInventory(item, false)}
+                      type="primary"
+                    >
+                      Xác nhận nhập
+                    </Button>
                   </div>
                 ),
               },
@@ -103,6 +122,6 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (props: TabConfirmedProps) => 
       }}
     </Form.Item>
   );
-}
+};
 
 export default TabConfirmed;

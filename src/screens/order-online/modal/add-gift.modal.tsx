@@ -17,7 +17,7 @@ import { Link } from "react-router-dom";
 import {
   OrderItemDiscountModel,
   OrderItemModel,
-} from "model/other/Order/order-model";
+} from "model/other/order/order-model";
 import {
   VariantResponse,
   VariantSearchQuery,
@@ -45,7 +45,10 @@ export interface AddGiftRef {
 const renderSearch = (item: VariantResponse) => {
   let avatar = findAvatar(item.variant_images);
   return (
-    <div className="row-search w-100" style={{justifyContent: "space-between", padding: "10px 20px" }}>
+    <div
+      className="row-search w-100"
+      style={{ justifyContent: "space-between", padding: "10px 20px" }}
+    >
       <div className="rs-left w-100">
         <img
           src={avatar === "" ? imgdefault : avatar}
@@ -121,17 +124,17 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       title: "Sản phẩm",
       render: (a: OrderItemModel, item: any, index: number) => (
         <div>
-          <div className="yody-pos-sku" >
+          <div className="yody-pos-sku">
             <Link to="">{a.sku}</Link>
           </div>
-          <Badge status="default" text={a.variant} style={{marginLeft: 7, }}/>
+          <Badge status="default" text={a.variant} style={{ marginLeft: 7 }} />
         </div>
       ),
     },
     {
       title: "Số lượng",
       render: (a: OrderItemModel, b: any, index: number) => (
-        <div >
+        <div>
           <Input
             onChange={(e) => {
               const re = /^[0-9\b]+$/;
@@ -147,7 +150,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
             minLength={1}
             maxLength={4}
             onFocus={(e) => e.target.select()}
-            style={{ width: 100, textAlign: "right"}}
+            style={{ width: 100, textAlign: "right" }}
           />
         </div>
       ),
@@ -160,14 +163,14 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       title: "",
       render: (a: any, b: any, index: number) => {
         return (
-          <div style={{textAlign:"center"}}>
-          <Button
-            type="text"
-            onClick={() => deleteItem(index)}
-            className="yody-pos-delete-item ant-btn-custom"
-          >
-            <img src={XCloseBtn} alt="" />
-          </Button>
+          <div style={{ textAlign: "center" }}>
+            <Button
+              type="text"
+              onClick={() => deleteItem(index)}
+              className="yody-pos-delete-item ant-btn-custom"
+            >
+              <img src={XCloseBtn} alt="" />
+            </Button>
           </div>
         );
       },
@@ -215,7 +218,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       variant_image: avatar,
       unit: variant.product.unit,
       weight: variant.weight,
-      weight_unit:variant.weight_unit,
+      weight_unit: variant.weight_unit,
       warranty: variant.product.preservation,
       discount_items: [discountItem],
       discount_amount: 0,
@@ -244,7 +247,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       const item: OrderLineItemRequest = createItem(r);
       if (r.id === newV) {
         if (index === -1) {
-          item.type = Type.GIFT
+          item.type = Type.GIFT;
           _items.push(item);
         } else {
           let lastIndex = index;
@@ -298,7 +301,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
         className="w-100"
         onSearch={onChangeProductSearch}
         options={convertResultSearch}
-        style={{width:"100%", marginBottom:"10px"}}
+        style={{ width: "100%", marginBottom: "10px" }}
       >
         <Input
           className="yody-pos-gift-modal-input"

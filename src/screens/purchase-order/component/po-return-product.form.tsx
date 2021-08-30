@@ -7,13 +7,14 @@ import {
   Table,
   Tooltip,
   Divider,
-  InputNumber,
   Input,
   FormInstance,
   Checkbox,
+  InputNumber,
 } from "antd";
+import NumberInput from "component/custom/number-input.custom";
 import { POField } from "model/purchase-order/po-field";
-import { Fragment, useMemo, useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import POProgressView from "./po-progress-view";
 import {
@@ -23,14 +24,13 @@ import {
 import imgDefIcon from "assets/img/img-def.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { POUtils } from "utils/POUtils";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { useSelector } from "react-redux";
 import EmptyPlaceholder from "./EmptyPlaceholder";
 import "./po-return-form.scss";
 type POReturnFormProps = {
   formMain: FormInstance;
 };
-
 const POReturnForm: React.FC<POReturnFormProps> = (
   props: POReturnFormProps
 ) => {
@@ -51,14 +51,25 @@ const POReturnForm: React.FC<POReturnFormProps> = (
     let valueIndex = currentLineReturn.findIndex(
       (lineItem: PurchaseOrderLineReturnItem) => lineItem.id === item.id
     );
-    if (valueIndex === -1) currentLineReturn.push(item);
-    else currentLineReturn[valueIndex] = item;
+    if (valueIndex !== -1) currentLineReturn[valueIndex] = item;
+    setCurrentLineReturn([...currentLineReturn]);
+  };
+  const handleChangeReturnPrice = (
+    value: number,
+    item: PurchaseOrderLineReturnItem,
+    index: number
+  ) => {
+    item.price = value;
+    let valueIndex = currentLineReturn.findIndex(
+      (lineItem: PurchaseOrderLineReturnItem) => lineItem.id === item.id
+    );
+    if (valueIndex !== -1) currentLineReturn[valueIndex] = item;
     setCurrentLineReturn([...currentLineReturn]);
   };
 
   const fillAllLineReturn = (isFill: boolean) => {
     currentLineReturn = formMain
-      .getFieldValue("line_items")
+      .getFieldValue(POField.line_items)
       .map((item: PurchaseOrderLineReturnItem) => {
         if (isFill) item.quantity_return = item.receipt_quantity;
         else item.quantity_return = 0;
@@ -68,10 +79,14 @@ const POReturnForm: React.FC<POReturnFormProps> = (
   };
 
   useEffect(() => {
+    let allLineReturn = formMain.getFieldValue(POField.line_items);
+    setCurrentLineReturn([...allLineReturn]);
+  }, [formMain]);
+  useEffect(() => {
     formMain.setFieldsValue({
       [POField.line_return_items]: [...currentLineReturn],
     });
-  }, [currentLineReturn]);
+  }, [currentLineReturn, formMain]);
 
   return (
     <Card
@@ -359,6 +374,17 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                               width: 140,
                               dataIndex: "price",
                               render: (value, item, index) => {
+                                let currentValue = 0;
+                                if (currentLineReturn.length > 0) {
+                                  let valueIndex = currentLineReturn.findIndex(
+                                    (lineItem: PurchaseOrderLineReturnItem) =>
+                                      lineItem.id === item.id
+                                  );
+                                  if (valueIndex !== -1) {
+                                    currentValue =
+                                      currentLineReturn[valueIndex].price;
+                                  }
+                                }
                                 return (
                                   <div
                                     style={{
@@ -366,15 +392,36 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                       textAlign: "right",
                                     }}
                                   >
-                                    {formatCurrency(
-                                      Math.round(
-                                        POUtils.caculatePrice(
-                                          value,
-                                          item.discount_rate,
-                                          item.discount_value
+                                    <NumberInput
+                                      className="hide-number-handle"
+                                      min={0}
+                                      format={(a: string) =>
+                                        formatCurrency(
+                                          a
+                                            ? Math.round(
+                                                POUtils.caculatePrice(
+                                                  parseInt(a),
+                                                  item.discount_rate,
+                                                  item.discount_value
+                                                )
+                                              )
+                                            : 0
                                         )
-                                      )
-                                    )}
+                                      }
+                                      replace={(a: string) =>
+                                        replaceFormatString(a)
+                                      }
+                                      value={currentValue}
+                                      default={currentValue}
+                                      onChange={(inputValue) => {
+                                        if (inputValue === null) return;
+                                        handleChangeReturnPrice(
+                                          inputValue,
+                                          item,
+                                          index
+                                        );
+                                      }}
+                                    />
                                   </div>
                                 );
                               },
@@ -499,8 +546,9 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                           let totalReturn = 0,
                             totalVat = 0;
                           line_return_items &&
-                            line_return_items.map(
+                            line_return_items.forEach(
                               (item: PurchaseOrderLineReturnItem) => {
+                                if (!item.quantity_return) return;
                                 totalReturn +=
                                   item.quantity_return *
                                   POUtils.caculatePrice(

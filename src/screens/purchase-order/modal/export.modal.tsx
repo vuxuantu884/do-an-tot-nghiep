@@ -227,7 +227,7 @@ const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
                   {customFields[0].name}
                 </Checkbox>
                 {customFields.map((field, index) => {
-                  if (index === 0) return;
+                  if (index === 0) return null;
                   if (index % 3 === 1)
                     return (
                       <Row>

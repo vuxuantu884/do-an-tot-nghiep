@@ -5,6 +5,7 @@ import product from './product';
 import bill from './bill';
 import UrlConfig from 'config/UrlConfig';
 import customers from "./customer"
+import shipments from "./shipment"
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
@@ -76,6 +77,19 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: bill,
+    type: 0,
+    object: null,
+  },
+  {
+    path: UrlConfig.SHIPMENTS,
+    exact: true,
+    title: "Vận chuyển",
+    icon: 'icon-product',
+    component: OrderOnline,
+    key: "10",
+    isShow: true,
+    header: null,
+    subMenu: shipments,
     type: 0,
     object: null,
   },

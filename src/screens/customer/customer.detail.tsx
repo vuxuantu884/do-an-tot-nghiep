@@ -1,9 +1,7 @@
 import {
-  Input,
   Form,
   Row,
   Col,
-  DatePicker,
   Select,
   Button,
   Card,
@@ -34,7 +32,6 @@ import {
   CustomerGroups,
   CustomerLevels,
   CustomerTypes,
-  UpdateCustomer,
   CreateContact,
   UpdateContact,
   DeleteContact,
@@ -75,7 +72,6 @@ import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 const { Panel } = Collapse;
-const { Option } = Select;
 
 const CustomerEdit = (props: any) => {
   const params = useParams() as any;
@@ -87,7 +83,6 @@ const CustomerEdit = (props: any) => {
   const [types, setTypes] = React.useState<Array<any>>([]);
   const [levels, setLevels] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
-  const [companies, setCompanies] = React.useState<Array<any>>([]);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [customerDetail, setCustomerDetail] = React.useState([]) as any;
   const [customerDetailCollapse, setCustomerDetailCollapse] = React.useState(
