@@ -1,7 +1,8 @@
 import { Button } from "antd";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { FulFillmentResponse } from "model/response/order/order.response";
-import React, { useRef } from "react";
+import { PrintFormByOrderIdsResponseModel } from "model/response/printer.response";
+import React, { useEffect, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { FulFillmentStatus } from "utils/Constants";
 import IconPrint from "./images/iconPrint.svg";
@@ -10,12 +11,17 @@ import { StyledComponent } from "./styles";
 type PropType = {
   fulfillment: FulFillmentResponse | null | undefined;
   orderSettings?: OrderSettingsModel;
+  printForm?: PrintFormByOrderIdsResponseModel;
 };
 
 const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
-  const { fulfillment, orderSettings } = props;
-  const fake_printer_content = () => {
-    return "<div class='test'><p class='testP'>This is fake print content shipping label</p><div>";
+  const { fulfillment, orderSettings, printForm } = props;
+  let printContent = "";
+  if (printForm && printForm[0]) {
+    printContent = printForm[0].html_content;
+  }
+  const printerContentHtml = () => {
+    return `<div class='printerContent'>${printContent}<div>`;
   };
   const printElementRef = useRef(null);
   const handlePrint = useReactToPrint({
@@ -34,6 +40,9 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
   };
 
   const renderHtml = (text: string) => {
+    if (text === "") {
+      return "aaa";
+    }
     let result = text;
     let docFromText = new DOMParser().parseFromString(
       text,
@@ -42,9 +51,10 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
     );
     let numberOfCopies = 1;
     if (orderSettings && orderSettings.cauHinhInNhieuLienHoaDon) {
-      numberOfCopies = orderSettings.cauHinhInNhieuLienHoaDon;
+      // numberOfCopies = orderSettings.cauHinhInNhieuLienHoaDon;
+      numberOfCopies = 1;
     }
-    let body = docFromText.getElementsByClassName("test")[0];
+    let body = docFromText.getElementsByClassName("printerContent")[0];
     let bodyInner = body.innerHTML;
 
     let groupCopies = [];
@@ -57,13 +67,32 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
     return result;
   };
 
+  useEffect(() => {
+    console.log("333");
+
+    const onAfterPrint = () => {
+      console.log("Printing completed...");
+    };
+    //for chrome
+    window.matchMedia("print").addListener(function (mql) {
+      if (mql.matches) {
+        onAfterPrint();
+      }
+    });
+    window.addEventListener("beforeprint ", onAfterPrint);
+    window.addEventListener("onafterprint", onAfterPrint);
+    return () => {
+      window.removeEventListener("beforeprint ", onAfterPrint);
+      window.removeEventListener("onafterprint", onAfterPrint);
+    };
+  }, []);
+
   return (
     <StyledComponent>
       {handlePrint && isShowPrinterButton() && (
         <React.Fragment>
           <Button
             onClick={(e) => {
-              console.log("print");
               e.stopPropagation();
               handlePrint();
             }}
@@ -77,11 +106,9 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
             <div className="printContent" ref={printElementRef}>
               <div
                 dangerouslySetInnerHTML={{
-                  __html: renderHtml(fake_printer_content()),
+                  __html: renderHtml(printerContentHtml()),
                 }}
-              >
-                {/* {renderHtml(fake_printer_content())} */}
-              </div>
+              ></div>
             </div>
           </div>
         </React.Fragment>

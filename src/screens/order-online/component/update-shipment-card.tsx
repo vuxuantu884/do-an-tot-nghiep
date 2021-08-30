@@ -28,6 +28,7 @@ import AlertIcon from "assets/icon/ydAlertIcon.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
+import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
@@ -39,6 +40,7 @@ import {
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
+import { actionFetchPrintFormByOrderIds } from "domain/actions/printer/printer.action";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { OrderSettingsModel } from "model/other/order/order-model";
@@ -58,6 +60,7 @@ import {
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
+import { PrintFormByOrderIdsResponseModel } from "model/response/printer.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -254,6 +257,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setFeeGhtk(fee);
   };
 
+  const [printForm, setPrintForm] = useState<PrintFormByOrderIdsResponseModel>([
+    {
+      html_content: "",
+      order_id: 0,
+      size: "",
+    },
+  ]);
+
   //#endregion
   useEffect(() => {
     dispatch(ShipperGetListAction(setShipper));
@@ -296,6 +307,20 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   }, [dispatch, props.OrderDetail]);
   //#endregion
   console.log(cancelReason);
+
+  useEffect(() => {
+    if (OrderDetail?.id) {
+      dispatch(
+        actionFetchPrintFormByOrderIds(
+          [OrderDetail?.id],
+          (response: BaseResponse<PrintFormByOrderIdsResponseModel>) => {
+            setPrintForm(response.data);
+          }
+        )
+      );
+    }
+  }, [OrderDetail?.id, dispatch]);
+
   //#region Update Fulfillment Status
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
@@ -1004,6 +1029,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             <PrintShippingLabel
                               fulfillment={fulfillment}
                               orderSettings={orderSettings}
+                              printForm={printForm}
                             />
                           </div>
 
