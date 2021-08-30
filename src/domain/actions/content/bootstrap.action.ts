@@ -1,4 +1,4 @@
-import BaseAction from "base/BaseAction"
+import BaseAction from "base/base.action"
 import { BootstrapType } from "domain/types/content.type"
 import { BootstrapResponse } from "model/content/bootstrap.model";
 

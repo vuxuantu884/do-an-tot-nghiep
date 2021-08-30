@@ -62,8 +62,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   } = props;
   const [visible, setVisible] = useState(false);
   
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const status = [
+  const status = useMemo(() => [
     {name: "Nháp", value: "draft"},
     {name: "Đóng gói", value: "packed"},
     {name: "Xuất kho", value: "shipping"},
@@ -72,9 +71,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "Kết thúc", value: "finished"},
     {name: "Đã huỷ", value: "cancelled"},
     {name: "Đã hết hạn", value: "expired"},
-  ]
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fulfillmentStatus = [
+  ], []);
+  const fulfillmentStatus = useMemo(() => [
     {name: "Chưa giao", value: "unshipped"},
     {name: "Đã lấy hàng", value: "picked"},
     {name: "Giao một phần", value: "partial"},
@@ -84,22 +82,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "Đã hủy", value: "cancelled"},
     {name: "Đang trả lại", value: "returning"},
     {name: "Đã trả lại", value: "returned"}
-  ];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const paymentStatus = [
+  ], []);
+  const paymentStatus =  useMemo(() => [
     {name: "Chưa trả", value: "unpaid"},
     {name: "Đã trả", value: "paid"},
     {name: "Đã trả một phần", value: "partial_paid"},
     {name: "Đang hoàn lại", value: "refunding"}
-  ];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const paymentType = [
+  ], []);
+  const paymentType = useMemo(() => [
     {name: "Tiền mặt", value: 1},
     {name: "Chuyển khoản", value: 3},
     {name: "QR Pay", value: 4},
     {name: "Tiêu điểm", value: 5},
     {name: "COD", value: 0},
-  ]
+  ], []);
   const formRef = createRef<FormInstance>();
 
   const onChangeOrderOptions = useCallback((e) => {

@@ -9,7 +9,6 @@ import {
     Select,
     Tooltip,
     Collapse,
-    Tag
   } from "antd";
   
   import { MenuAction } from "component/table/ActionButton";
@@ -158,60 +157,60 @@ import {
       }
     }, [params]);
   
-    const filters = useMemo(() => {
-      let list: any = []
-      if (initialValues.store_ids.length) {
-        let textStores = ""
-        initialValues.store_ids.forEach(store_id => {
-          const store = listStore?.find(store => store.id === store_id)
-          textStores = store ? textStores + store.name + ";" : textStores
-        })
-        list.push({
-          name: 'Cửa hàng',
-          value: textStores
-        })
-      }
-      if (initialValues.source_ids.length) {
-        let textSource = ""
-        initialValues.source_ids.forEach(source_id => {
-          const source = listSources?.find(source => source.id === source_id)
-          textSource = source ? textSource + source.name + ";" : textSource
-        })
-        list.push({
-          name: 'Nguồn',
-          value: textSource
-        })
-      }
-      if (initialValues.issued_on_min || initialValues.issued_on_max) {
-        let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
-        list.push({
-          name: 'Ngày tạo đơn',
-          value: textOrderCreateDate
-        })
-      }
-      if (initialValues.ship_on_min || initialValues.ship_on_max) {
-        let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
-        list.push({
-          name: 'Ngày duyệt đơn',
-          value: textOrderShipDate
-        })
-      }
-      if (initialValues.completed_on_min || initialValues.completed_on_max) {
-        let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
-        list.push({
-          name: 'Ngày hoàn tất đơn',
-          value: textOrderCompleteDate
-        })
-      }
-      if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
-        let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
-        list.push({
-          name: 'Ngày huỷ đơn',
-          value: textOrderCancelDate
-        })
-      }
-      return list
-    }, [initialValues]);
+    // const filters = useMemo(() => {
+    //   let list: any = []
+    //   if (initialValues.store_ids.length) {
+    //     let textStores = ""
+    //     initialValues.store_ids.forEach(store_id => {
+    //       const store = listStore?.find(store => store.id === store_id)
+    //       textStores = store ? textStores + store.name + ";" : textStores
+    //     })
+    //     list.push({
+    //       name: 'Cửa hàng',
+    //       value: textStores
+    //     })
+    //   }
+    //   if (initialValues.source_ids.length) {
+    //     let textSource = ""
+    //     initialValues.source_ids.forEach(source_id => {
+    //       const source = listSources?.find(source => source.id === source_id)
+    //       textSource = source ? textSource + source.name + ";" : textSource
+    //     })
+    //     list.push({
+    //       name: 'Nguồn',
+    //       value: textSource
+    //     })
+    //   }
+    //   if (initialValues.issued_on_min || initialValues.issued_on_max) {
+    //     let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
+    //     list.push({
+    //       name: 'Ngày tạo đơn',
+    //       value: textOrderCreateDate
+    //     })
+    //   }
+    //   if (initialValues.ship_on_min || initialValues.ship_on_max) {
+    //     let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
+    //     list.push({
+    //       name: 'Ngày duyệt đơn',
+    //       value: textOrderShipDate
+    //     })
+    //   }
+    //   if (initialValues.completed_on_min || initialValues.completed_on_max) {
+    //     let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
+    //     list.push({
+    //       name: 'Ngày hoàn tất đơn',
+    //       value: textOrderCompleteDate
+    //     })
+    //   }
+    //   if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
+    //     let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
+    //     list.push({
+    //       name: 'Ngày huỷ đơn',
+    //       value: textOrderCancelDate
+    //     })
+    //   }
+    //   return list
+    // }, [initialValues.cancelled_on_max, initialValues.cancelled_on_min, initialValues.completed_on_max, initialValues.completed_on_min, initialValues.issued_on_max, initialValues.issued_on_min, initialValues.ship_on_max, initialValues.ship_on_min, initialValues.source_ids, initialValues.store_ids, listSources, listStore]);
   
     const setDataAccounts = useCallback(
       (data: PageResponse<AccountResponse> | false) => {

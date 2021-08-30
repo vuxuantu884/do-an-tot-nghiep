@@ -1,8 +1,8 @@
 import { PositionResponse } from "model/account/position.model";
 import { DepartmentResponse } from "model/account/department.model";
 import { call, takeEvery, takeLatest } from "@redux-saga/core/effects";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/HttpStatus";
 import { AccountType } from "domain/types/account.type";
 import { AccountResponse } from "model/account/account.model";

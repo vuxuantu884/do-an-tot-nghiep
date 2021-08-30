@@ -1,4 +1,4 @@
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import { SupplierType } from "domain/types/core.type";
 import { SupplierQuery } from "model/core/supplier.model";
 import { SupplierCreateRequest, SupplierUpdateRequest } from "model/core/supplier.model";

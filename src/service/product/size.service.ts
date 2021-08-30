@@ -1,5 +1,5 @@
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/ApiConfig";
 import { PageResponse } from "model/base/base-metadata.response";
 import { SizeCreateRequest, SizeQuery, SizeResponse, SizeUpdateRequest } from "model/product/size.model";

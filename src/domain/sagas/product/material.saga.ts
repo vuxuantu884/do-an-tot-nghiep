@@ -7,8 +7,8 @@ import {
   updateMaterialApi,
 } from "service/product/material.service";
 import { call, put, takeLatest } from "@redux-saga/core/effects";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/HttpStatus";
 import { MaterialType } from "domain/types/product.type";
 import { PageResponse } from "model/base/base-metadata.response";

@@ -95,7 +95,7 @@ const initQueryVariant: VariantSearchQuery = {
 };
 
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
-  const { orderSettings, onChangeProduct, formRef } = props;
+  const { orderSettings, formRef } = props;
   const dispatch = useDispatch();
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [splitLine, setSplitLine] = useState<boolean>(false);

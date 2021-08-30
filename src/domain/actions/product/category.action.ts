@@ -1,4 +1,4 @@
-import BaseAction from "base/BaseAction"
+import BaseAction from "base/base.action"
 import { CategoryType } from "domain/types/product.type";
 import { CategoryQuery, CategoryResponse, CategoryCreateRequest, CategoryUpdateRequest } from "model/product/category.model";
 

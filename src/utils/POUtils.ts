@@ -35,7 +35,7 @@ const POUtils = {
     ) {
       let totalOrdered = 0;
       procurements &&
-        procurements.map((procurementItem) => {
+        procurements.forEach((procurementItem) => {
           totalOrdered += POUtils.totalQuantityProcument(
             procurementItem.procurement_items
           );

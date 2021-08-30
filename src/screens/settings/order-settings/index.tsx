@@ -3,7 +3,7 @@ import { Card, Switch } from "antd";
 import ContentContainer from "component/container/content.container";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { StyledComponent } from "./styles";
 
@@ -73,7 +73,7 @@ function OrderSettings(props: PropType) {
     },
   ];
 
-  const [tableLoading, setTableLoading] = useState(false);
+  const [tableLoading] = useState(false);
 
   const history = useHistory();
 
