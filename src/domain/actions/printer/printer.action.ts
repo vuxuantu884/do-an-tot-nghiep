@@ -1,4 +1,4 @@
-import BaseResponse from "base/BaseResponse";
+import BaseResponse from "base/base.response";
 import { PRINTER_TYPES } from "domain/types/printer.type";
 import {
   BasePrinterModel,
