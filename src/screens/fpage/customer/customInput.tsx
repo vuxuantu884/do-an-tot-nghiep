@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { Form, Input } from "antd";
 
 function CustomInput(props: any) {
@@ -6,9 +6,9 @@ function CustomInput(props: any) {
     props;
   const [value, setValue] = useState<string>("");
 
-  const handleChange = useCallback((v: any) => {
+  const handleChange = (v: any) => {
     setValue(v.trim());
-  }, []);
+  };
 
   const handleBlur = (v: any) => {
     setValue(v.trim());
@@ -17,7 +17,7 @@ function CustomInput(props: any) {
 
   React.useEffect(() => {
     if(value) form.setFieldsValue({ [name]: value });
-  }, [value, handleChange, form, name]);
+  }, [value, handleChange]);
 
   return (
     <Form.Item
