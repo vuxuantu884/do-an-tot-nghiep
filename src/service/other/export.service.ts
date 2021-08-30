@@ -1,4 +1,4 @@
-import { ExportRequest, ExportResponse } from "model/other/File/export-model";
+import { ExportRequest, ExportResponse } from "model/other/file/export-model";
 import BaseAxios from "base/BaseAxios";
 import BaseResponse from "base/BaseResponse";
 import { ApiConfig } from "config/ApiConfig";
