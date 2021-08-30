@@ -1,5 +1,5 @@
 import AuthRoute from "component/auth.route";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 import { Route, Switch } from "react-router-dom";
@@ -40,12 +40,12 @@ const MainRoute = () => {
     <Switch>
       {
         listMenu().map((item: RouteMenu) => (
-          <AuthRoute type={item.type} object={item.object} key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
+          <AuthRoute  key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
         ))
       }
       {
         listExtraMenu().map((item: RouteMenu) => (
-          <AuthRoute type={item.type} object={item.object} key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
+          <AuthRoute  key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
         ))
       }
       <Route path={UrlConfig.LOGIN} exact={true} component={Login} />

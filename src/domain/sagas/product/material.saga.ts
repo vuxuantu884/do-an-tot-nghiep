@@ -9,7 +9,7 @@ import {
 import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { MaterialType } from "domain/types/product.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MaterialResponse } from "model/product/material.model";

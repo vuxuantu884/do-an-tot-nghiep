@@ -2,7 +2,7 @@ import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
-import { ApiConfig } from "config/ApiConfig";
+import { ApiConfig } from "config/api.config";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
 export const createPurchasePaymentService = (

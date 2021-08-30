@@ -1,6 +1,6 @@
 import {Layout, Button, Badge, Avatar, Dropdown, Menu, Space} from 'antd';
 import logo from 'assets/img/logo.svg';
-import UrlConfig from 'config/UrlConfig';
+import UrlConfig from 'config/url.config';
 import {Link} from 'react-router-dom';
 import {FiMenu} from 'react-icons/fi';
 import {AccountResponse} from 'model/account/account.model';

@@ -59,7 +59,7 @@ import moment from "moment";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
 import { useParams } from "react-router-dom";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 

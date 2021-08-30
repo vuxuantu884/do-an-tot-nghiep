@@ -1,7 +1,6 @@
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import React from "react";
 import { RouteMenu } from "model/other";
-import { HEADER_TYPE } from "config/HeaderConfig";
 
 const ManageUserScreen = React.lazy(
   () => import("screens/account/account.search.screen")
@@ -104,8 +103,6 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
       {
         path: `${UrlConfig.ACCOUNTS}/:id`,
@@ -117,15 +114,9 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
     ],
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {
-      pathCreate: `${UrlConfig.ACCOUNTS}/create`,
-    },
   },
   {
     path: `${UrlConfig.STORE}`,
@@ -147,8 +138,6 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
       {
         path: `${UrlConfig.STORE}/:id`,
@@ -160,15 +149,9 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
     ],
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {
-      pathCreate: `${UrlConfig.STORE}/create`,
-    },
   },
   {
     path: UrlConfig.PRINTER,
@@ -190,8 +173,6 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
       {
         path: `${UrlConfig.PRINTER}/:id`,
@@ -203,13 +184,9 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
     ],
-    type: 0,
-    object: null,
   },
   {
     path: UrlConfig.ROLES,
@@ -231,12 +208,8 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
     ],
-    type: 0,
-    object: null,
   },
   {
     path: UrlConfig.ORDER_PROCESSING_STATUS,
@@ -259,14 +232,8 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
     ],
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {
-      pathCreate: `${UrlConfig.ORDER_PROCESSING_STATUS}/create`,
-    },
   },
   {
     path: UrlConfig.ORDER_SOURCES,
@@ -289,8 +256,6 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
       {
         path: `${UrlConfig.ORDER_SOURCES}/:id`,
@@ -302,15 +267,9 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
     ],
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {
-      pathCreate: `${UrlConfig.ORDER_SOURCES}/create`,
-    },
   },
   {
     path: UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION,
@@ -333,8 +292,6 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
       {
@@ -347,8 +304,6 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
       {
@@ -361,8 +316,6 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
       {
@@ -375,14 +328,9 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
     ],
-
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {},
   },
   {
     path: UrlConfig.ORDER_SETTINGS,
@@ -405,12 +353,8 @@ const setting: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
     ],
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {},
   },
 ];
 

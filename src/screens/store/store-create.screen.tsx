@@ -31,7 +31,7 @@ import { WardResponse } from "model/content/ward.model";
 import { GroupResponse } from "model/content/group.model";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import { RegUtil } from "utils/RegUtils";
 import NumberInput from "component/custom/number-input.custom";

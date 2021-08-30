@@ -20,7 +20,7 @@ import {
 } from "domain/actions/product/size.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined } from "@ant-design/icons";

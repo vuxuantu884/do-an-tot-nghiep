@@ -27,7 +27,7 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import { showSuccess } from "utils/ToastUtils";

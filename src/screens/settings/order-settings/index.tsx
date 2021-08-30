@@ -2,7 +2,7 @@ import { CheckOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons";
 import { Card, Switch } from "antd";
 import ContentContainer from "component/container/content.container";
 import CustomTable from "component/table/CustomTable";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { StyledComponent } from "./styles";

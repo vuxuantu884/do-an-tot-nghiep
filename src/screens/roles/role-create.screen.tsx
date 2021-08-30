@@ -1,6 +1,6 @@
 import { Card, Col, Collapse, Form, Input, List, Row } from "antd";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { permissionGetAll } from "domain/actions/auth/permission.action";
 import { PermissionResponse } from "model/auth/permission.model";
 import { PageResponse } from "model/base/base-metadata.response";

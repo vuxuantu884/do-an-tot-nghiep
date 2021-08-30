@@ -1,8 +1,7 @@
 import React from "react";
 import { RouteMenu } from "model/other";
-import { HEADER_TYPE } from "config/HeaderConfig";
 import ColorUpdateScreen from "screens/color/color-update.screen";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import UpdateSupplierScreen from "../../screens/supllier/supplier-update.screen";
 
 const Category = React.lazy(
@@ -94,8 +93,6 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
       {
         path: `${UrlConfig.PRODUCT}/variants/:id`,
@@ -107,8 +104,6 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
       {
         path: `${UrlConfig.PRODUCT}/:id`,
@@ -120,15 +115,9 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
     ],
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {
-      pathCreate: `${UrlConfig.PRODUCT}/create`,
-    },
   },
   {
     path: UrlConfig.PURCHASE_ORDER,
@@ -150,8 +139,6 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
       {
         path: `${UrlConfig.PURCHASE_ORDER}/:id`,
@@ -163,8 +150,6 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
       {
@@ -177,13 +162,9 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
     ],
-    type: 0,
-    object: {},
   },
   {
     path: UrlConfig.CATEGORIES,
@@ -205,8 +186,6 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
       {
         path: `${UrlConfig.CATEGORIES}/:id`,
@@ -219,14 +198,8 @@ const product: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         pathIgnore: ["create"],
-        type: 0,
-        object: null,
       },
     ],
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {
-      pathCreate: `${UrlConfig.CATEGORIES}/create`,
-    },
   },
   {
     path: UrlConfig.MATERIALS,
@@ -248,8 +221,6 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: {},
       },
       {
         path: `${UrlConfig.MATERIALS}/:id`,
@@ -261,15 +232,9 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: {},
         pathIgnore: ["create"],
       },
     ],
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {
-      pathCreate: `${UrlConfig.MATERIALS}/create`,
-    },
   },
   {
     path: UrlConfig.SIZES,
@@ -291,8 +256,6 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: {},
       },
       {
         path: `${UrlConfig.SIZES}/:id`,
@@ -304,15 +267,9 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: {},
         pathIgnore: ["create"],
       },
     ],
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {
-      pathCreate: `${UrlConfig.SIZES}/create`,
-    },
   },
   {
     path: UrlConfig.COLORS,
@@ -334,8 +291,6 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: {},
       },
       {
         path: `${UrlConfig.COLORS}/:id`,
@@ -347,15 +302,9 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: {},
         pathIgnore: ["create"],
       },
     ],
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {
-      pathCreate: `${UrlConfig.COLORS}/create`,
-    },
   },
   {
     path: UrlConfig.SUPPLIERS,
@@ -377,8 +326,6 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
       },
       {
         path: `${UrlConfig.SUPPLIERS}/:id`,
@@ -390,15 +337,9 @@ const product: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-        type: 0,
-        object: null,
         pathIgnore: ["create"],
       },
     ],
-    type: HEADER_TYPE.BUTTON_CREATE,
-    object: {
-      pathCreate: `${UrlConfig.SUPPLIERS}/create`,
-    },
   },
 ];
 

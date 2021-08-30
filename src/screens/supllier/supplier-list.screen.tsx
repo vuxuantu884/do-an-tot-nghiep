@@ -17,7 +17,7 @@ import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import {
   SupplierDeleteAction,

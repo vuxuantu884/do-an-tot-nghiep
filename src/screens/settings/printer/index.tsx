@@ -4,7 +4,7 @@ import ContentContainer from "component/container/content.container";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { actionFetchListPrinter } from "domain/actions/printer/printer.action";
 import { StoreResponse } from "model/core/store.model";

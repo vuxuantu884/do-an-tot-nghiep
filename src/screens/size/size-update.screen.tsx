@@ -9,7 +9,7 @@ import {
   Select,
   Space,
 } from "antd";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import {
   sizeDetailAction,

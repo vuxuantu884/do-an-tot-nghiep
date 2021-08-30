@@ -1,5 +1,4 @@
-import { HEADER_TYPE } from "config/HeaderConfig";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 
@@ -17,8 +16,6 @@ const customers: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: HEADER_TYPE.STEP,
-    object: null,
   },
   {
     path: `${UrlConfig.CUSTOMER}/groups`,
@@ -30,8 +27,6 @@ const customers: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
 ]
 

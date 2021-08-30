@@ -22,7 +22,7 @@ import { useHistory } from "react-router-dom";
 import { showSuccess } from "utils/ToastUtils";
 import "./customer.scss";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import GeneralInformation from "./general.information";
 import {
   AccountResponse,

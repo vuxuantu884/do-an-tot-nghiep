@@ -6,7 +6,7 @@ import CustomModal from "component/modal/CustomModal";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import {
   actionAddOrderProcessingStatus,
   actionDeleteOrderProcessingStatus,

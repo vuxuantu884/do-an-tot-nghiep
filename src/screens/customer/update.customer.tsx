@@ -19,7 +19,7 @@ import "./customer.scss";
 import moment from "moment";
 import { showSuccess, showError } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import GeneralInformation from "./general.information";
 import {
   AccountResponse,

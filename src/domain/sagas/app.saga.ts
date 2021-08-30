@@ -6,7 +6,7 @@ import { loadUserFromStorageSuccessAction, loadSettingAppResultAction, loadUserF
 import { getAcccountDetail } from 'service/accounts/account.service';
 import BaseResponse from 'base/base.response';
 import { AccountResponse } from 'model/account/account.model';
-import { HttpStatus } from 'config/HttpStatus';
+import { HttpStatus } from 'config/http-status.config';
 import { AppSettingReducerType } from 'model/reducers/AppSettingReducerType';
 import { unauthorizedAction } from 'domain/actions/auth/auth.action';
 

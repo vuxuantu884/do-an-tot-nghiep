@@ -3,7 +3,7 @@ import BaseResponse from "base/base.response";
 import { PageResponse } from "model/base/base-metadata.response";
 import { generateQuery } from 'utils/AppUtils';
 import BaseAxios from 'base/base.axios';
-import { ApiConfig } from 'config/ApiConfig';
+import { ApiConfig } from 'config/api.config';
 
 export const permissionModuleListApi = (query: PermissionQuery): Promise<BaseResponse<PageResponse<PermissionResponse>>> => {
   let params = generateQuery(query);

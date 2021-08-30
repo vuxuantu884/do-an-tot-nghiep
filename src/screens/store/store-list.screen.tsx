@@ -4,7 +4,7 @@ import { MenuAction } from "component/table/ActionButton";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import {
   StoreRankAction,
   StoreSearchAction,

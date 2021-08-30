@@ -10,15 +10,13 @@ import classNames from 'classnames';
 import {saveSettingAction} from 'domain/actions/app.action';
 import {useMemo} from 'react';
 import SplashScreen from 'screens/splash.screen';
-import UrlConfig from 'config/UrlConfig';
+import UrlConfig from 'config/url.config';
 import HeaderContainer from './header.container';
 
 type ContainerProps = {
   title: string;
   header?: React.ReactNode;
   children: React.ReactNode;
-  type: number;
-  object: any;
 };
 
 const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
