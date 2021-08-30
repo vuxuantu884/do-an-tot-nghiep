@@ -1,7 +1,5 @@
 import { Form, Row, Space } from "antd";
-import deliveryIcon from "assets/icon/delivery.svg";
-import procument from "assets/icon/procument.svg";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import classNames from "classnames";
 import TabAll from "./tab1";
 import TabInvetory from "./tab2";
@@ -11,29 +9,6 @@ import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { POField } from "model/purchase-order/po-field";
 import POProgressView from "../po-progress-view";
 
-const TAB = [
-  {
-    name: "Tổng quan",
-    id: 1,
-    icon: deliveryIcon,
-  },
-  {
-    name: "Phiếu nhập kho",
-    id: 2,
-    icon: deliveryIcon,
-  },
-  {
-    name: "Phiếu đã duyệt",
-    id: 3,
-    icon: procument,
-  },
-  {
-    name: "Phiếu nháp",
-    id: 4,
-    icon: deliveryIcon,
-  },
-];
-
 type POInventoryViewProps = {
   id?: number;
   code?: string;
@@ -41,6 +16,9 @@ type POInventoryViewProps = {
   confirmDraft: (item: PurchaseProcument, isEdit: boolean) => void;
   confirmInventory: (item: PurchaseProcument, isEdit: boolean) => void;
   confirmImport: (item: PurchaseProcument, isEdit: boolean) => void;
+  tabs: Array<any>,
+  activeTab: number,
+  selectTabChange: (id: number) => void
 };
 
 const POInventoryView: React.FC<POInventoryViewProps> = (
@@ -53,8 +31,10 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
     id: poId,
     onSuccess,
     code,
+    tabs,
+    activeTab,
+    selectTabChange
   } = props;
-  const [activeTab, setActiveTab] = useState(TAB[0].id);
   const getComponent = useCallback(
     (id: number) => {
       switch (id) {
@@ -99,7 +79,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           style={{ borderBottom: "1px solid #2A2A86" }}
         >
           <Space size={15}>
-            {TAB.map((item) => (
+            {tabs.map((item) => (
               <div
                 className={classNames(
                   "po-inven-view-tab",
@@ -109,7 +89,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
               >
                 <div
                   onClick={() => {
-                    setActiveTab(item.id);
+                    selectTabChange(item.id);
                   }}
                   className="tab"
                 >
@@ -121,7 +101,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           </Space>
         </div>
       </Row>
-      {TAB.map((item) => (
+      {tabs.map((item) => (
         <div
           className={classNames(
             "tab-content",
