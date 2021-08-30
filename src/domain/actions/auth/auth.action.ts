@@ -1,4 +1,4 @@
-import BaseAction from "base/BaseAction"
+import BaseAction from "base/base.action"
 import { AuthType } from "domain/types/auth.type";
 
 export const loginRequestAction = (username: string, password: string, setLoading: (isLoading: boolean) => void) => {

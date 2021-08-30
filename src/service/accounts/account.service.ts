@@ -1,6 +1,6 @@
 import { generateQuery } from 'utils/AppUtils';
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/ApiConfig";
 import { AccountSearchQuery,LoginResponse ,AccountResponse, AccountRequest} from "model/account/account.model";
 import { AuthenRequest } from "model/auth/roles.model";

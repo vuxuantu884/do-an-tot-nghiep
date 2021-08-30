@@ -1,12 +1,11 @@
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/ApiConfig";
 import { BaseQuery } from "model/base/base.query";
 import {
   CustomerGroupModel,
   CustomerGroupResponseModel,
 } from "model/response/customer/customer-group.response";
-import { SourceResponse } from "model/response/order/source.response";
 import { generateQuery } from "utils/AppUtils";
 
 /**

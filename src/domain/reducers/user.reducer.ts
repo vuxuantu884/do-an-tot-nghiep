@@ -1,4 +1,4 @@
-import { YodyAction } from 'base/BaseAction';
+import { YodyAction } from 'base/base.action';
 import { AppType } from 'domain/types/app.type';
 import { AuthType } from 'domain/types/auth.type';
 

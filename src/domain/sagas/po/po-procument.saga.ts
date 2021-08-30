@@ -4,8 +4,8 @@ import {
   deletePurchaseProcumentService,
 } from "service/purchase-order/purchase-procument.service";
 import { createPurchaseProcumentService } from "service/purchase-order/purchase-procument.service";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { call, put, takeLatest } from "redux-saga/effects";

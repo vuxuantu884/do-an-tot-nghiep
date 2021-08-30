@@ -1,4 +1,4 @@
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import { AppType } from "domain/types/app.type";
 import { AccountResponse } from "model/account/account.model";
 import { AppSettingReducerType } from "model/reducers/AppSettingReducerType";

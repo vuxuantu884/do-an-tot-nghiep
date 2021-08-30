@@ -1,6 +1,6 @@
 import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
 import { POType } from "domain/types/purchase-order.type";
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import {
   PurchaseOrder,
   PurchaseOrderPrint,

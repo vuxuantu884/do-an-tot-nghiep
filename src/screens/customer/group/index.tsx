@@ -2,14 +2,14 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Menu, Dropdown } from "antd";
 import ContentContainer from "component/container/content.container";
 import FormCustomerGroup from "component/forms/FormCustomerGroup";
-import CustomerModal from "../../customer/CustomerModal";
+import CustomerModal from "../CustomerModal";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/UrlConfig";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import editIcon from "../../../assets/icon/edit.svg";
-import deleteIcon from "../../../assets/icon/deleteIcon.svg";
-import threeDot from "../../../assets/icon/three-dot.svg";
+import editIcon from "assets/icon/edit.svg";
+import deleteIcon from "assets/icon/deleteIcon.svg";
+import threeDot from "assets/icon/three-dot.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 import {
@@ -20,13 +20,12 @@ import {
 } from "domain/actions/customer/customer.action";
 import { modalActionType } from "model/modal/modal.model";
 import { VariantResponse } from "model/product/product.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   CustomerGroupModel,
   CustomerGroupResponseModel,
 } from "model/response/customer/customer-group.response";
 import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
@@ -50,10 +49,7 @@ const SettingCustomerGroup: React.FC = () => {
   const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] =
     useState<any>(null);
 
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
-  const LIST_STATUS = bootstrapReducer.data?.order_main_status;
+
 
   const columns: Array<ICustomTableColumType<VariantResponse>> = [
     {
@@ -124,7 +120,7 @@ const SettingCustomerGroup: React.FC = () => {
           <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
             <Menu.Item key="1">
               <Button
-                icon={<img style={{ marginRight: 12 }} src={editIcon} />}
+                icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
                 type="text"
                 className=""
                 style={{
@@ -143,7 +139,7 @@ const SettingCustomerGroup: React.FC = () => {
             </Menu.Item>
             <Menu.Item key="2">
               <Button
-                icon={<img style={{ marginRight: 12 }} src={deleteIcon} />}
+                icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
                 type="text"
                 className=""
                 style={{
@@ -313,14 +309,6 @@ const SettingCustomerGroup: React.FC = () => {
       )
     );
   }, [dispatch, params]);
-
-  const renderConfirmDeleteSubtitle = (deletedItemTitle: string) => {
-    return (
-      <React.Fragment>
-        Bạn có chắc chắn muốn xóa "<strong>{deletedItemTitle}</strong>" ?
-      </React.Fragment>
-    );
-  };
 
   return (
     <StyledComponent>

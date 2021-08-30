@@ -7,8 +7,8 @@ import {
   colorUpdateApi,
 } from "service/product/color.service";
 import { call, takeLatest, takeEvery } from "@redux-saga/core/effects";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/HttpStatus";
 import { showError } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";

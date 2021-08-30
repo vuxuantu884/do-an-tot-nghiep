@@ -1,5 +1,5 @@
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/ApiConfig";
 import { BaseQuery } from "model/base/base.query";
 import {
@@ -40,4 +40,10 @@ export const getListPrinterVariablesService = (): Promise<
   return BaseAxios.get(
     `${ApiConfig.CONTENT}/common/enums?fields=PRINT_SIZE, PRINT_ORDER_VARIABLE, PRINT_STORE_VARIABLE, PRINT_PRODUCT_VARIABLE, PRINT_SHIPMENT_VARIABLE`
   );
+};
+
+export const getPrintFormByOrderIdsService = (
+  ids: string[]
+): Promise<BaseResponse<PrinterVariableResponseModel>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/print_forms?ids=${ids}`);
 };

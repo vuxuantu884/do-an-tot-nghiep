@@ -626,7 +626,7 @@ const ListOrderScreen: React.FC = () => {
 };
 
 export default ListOrderScreen;
-function setDataAccounts(arg0: {}, setDataAccounts: any): import("../../base/BaseAction").YodyAction {
+function setDataAccounts(arg0: {}, setDataAccounts: any): import("../../base/base.action").YodyAction {
   throw new Error("Function not implemented.");
 }
 

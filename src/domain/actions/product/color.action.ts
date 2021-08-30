@@ -1,6 +1,6 @@
 import { ColorType } from 'domain/types/product.type';
 import { ColorSearchQuery, ColorResponse, ColorCreateRequest } from 'model/product/color.model';
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import { PageResponse } from 'model/base/base-metadata.response';
 
 export const getColorAction = ( query: ColorSearchQuery,  setData: (data: PageResponse<ColorResponse>) => void) => {

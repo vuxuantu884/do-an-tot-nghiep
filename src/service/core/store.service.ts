@@ -1,6 +1,6 @@
 import { StoreResponse } from "model/core/store.model";
-import BaseResponse from "base/BaseResponse";
-import BaseAxios from "base/BaseAxios";
+import BaseResponse from "base/base.response";
+import BaseAxios from "base/base.axios";
 import { ApiConfig } from "config/ApiConfig";
 
 const getListStore = (): Promise<BaseResponse<Array<StoreResponse>>> => {
