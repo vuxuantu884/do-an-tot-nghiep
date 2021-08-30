@@ -64,7 +64,6 @@ function Editor(props: any) {
     const getPreviewHeaderHeight = () => {
       if (toolbarElement) {
         const toolbarHeight = toolbarElement.offsetHeight;
-        console.log("toolbarHeight", toolbarHeight);
         previewHeaderHeight(toolbarHeight);
       }
     };
@@ -227,7 +226,9 @@ function Editor(props: any) {
               });
               editor.addCommand("insertHtml", {
                 exec: function (editor: any) {
+                  // console.log("keyword", keyword);
                   editor.insertHtml(keyword);
+                  // console.log("initialHtmlContent", initialHtmlContent);
                   setTimeout(() => {
                     editor.focus();
                   }, 500);
@@ -237,6 +238,7 @@ function Editor(props: any) {
                 label: "Insert html",
                 command: "insertHtml",
                 toolbar: "insert",
+                icon: "https://cdn4.iconfinder.com/data/icons/24x24-free-pixel-icons/24/Clock.png",
               });
             },
           });
