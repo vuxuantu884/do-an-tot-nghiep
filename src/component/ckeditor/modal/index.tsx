@@ -122,6 +122,7 @@ const EditorModal: React.FC<EditorModalType> = (props: EditorModalType) => {
         dataSource={cloneArr}
         columns={columns}
         pagination={false}
+        locale={{ emptyText: "Không có kết quả" }}
         onRow={(record: keywordsModel) => {
           return {
             onClick: (event) => {
