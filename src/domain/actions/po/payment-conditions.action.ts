@@ -1,5 +1,5 @@
 import { PaymentConditionsType } from "domain/types/purchase-order.type";
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 
 export const PaymentConditionsGetAllAction = (

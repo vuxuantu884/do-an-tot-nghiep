@@ -1,6 +1,6 @@
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { POPaymentType } from "domain/types/purchase-order.type";

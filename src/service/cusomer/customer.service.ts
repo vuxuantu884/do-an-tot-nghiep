@@ -2,8 +2,8 @@ import { CustomerResponse } from 'model/response/customer/customer.response';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { generateQuery } from 'utils/AppUtils';
 import { CustomerSearchQuery } from 'model/query/customer.query';
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/ApiConfig";
 import { CustomerBillingAddress, CustomerContact, CustomerRequest, CustomerShippingAddress } from 'model/request/customer.request';
 

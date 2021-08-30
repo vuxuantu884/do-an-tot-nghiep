@@ -1,5 +1,5 @@
 import { StoreResponse } from "model/core/store.model";
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import { StoreType } from "domain/types/core.type";
 import { StoreQuery } from "model/core/store.model";
 import { PageResponse } from "model/base/base-metadata.response";

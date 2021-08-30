@@ -1,6 +1,6 @@
 import { call, put, takeLatest } from "@redux-saga/core/effects";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/HttpStatus";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
