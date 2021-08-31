@@ -23,7 +23,7 @@ export const StyledComponent = styled.div`
   }
   .isEditForm {
     .cke_contents {
-      min-height: 800px !important;
+      min-height: 500px !important;
     }
   }
 `;
