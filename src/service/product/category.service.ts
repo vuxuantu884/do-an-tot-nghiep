@@ -1,6 +1,6 @@
 import BaseAxios from "base/base.axios"
 import BaseResponse from "base/base.response";
-import { ApiConfig } from "config/ApiConfig"
+import { ApiConfig } from "config/api.config"
 import { CategoryQuery, CategoryUpdateRequest, CategoryCreateRequest, CategoryResponse } from "model/product/category.model";
 import { generateQuery } from "utils/AppUtils";
 

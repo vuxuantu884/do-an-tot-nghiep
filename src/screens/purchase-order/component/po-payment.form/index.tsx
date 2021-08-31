@@ -367,7 +367,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                         : "Tiền mặt"}
                                     </h3>
                                     <div>
-                                      Yêu cầu thanh toán: <br />
+                                      Yêu cầu hoàn tiền: <br />
                                       <strong>
                                         {ConvertUtcToLocalDate(
                                           item.transaction_date,

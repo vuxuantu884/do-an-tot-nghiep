@@ -3,7 +3,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import BaseResponse from "base/base.response";
 import { YodyAction } from "base/base.action";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import {
   createBillingAddress,
   createContact,

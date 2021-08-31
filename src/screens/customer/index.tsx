@@ -24,7 +24,7 @@ import ButtonCreate from "component/header/ButtonCreate";
 import settingGearIcon from "../../assets/icon/setting-gear-icon.svg";
 import { RefSelectProps } from "antd/lib/select";
 
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { useDispatch } from "react-redux";
 import { CustomerList } from "domain/actions/customer/customer.action";
 import { CustomerSearchQuery } from "model/query/customer.query";

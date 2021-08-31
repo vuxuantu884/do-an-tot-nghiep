@@ -1,6 +1,6 @@
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { SupplierType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";

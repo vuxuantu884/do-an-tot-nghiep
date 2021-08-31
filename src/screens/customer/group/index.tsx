@@ -5,7 +5,7 @@ import FormCustomerGroup from "component/forms/FormCustomerGroup";
 import CustomerModal from "../CustomerModal";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTable from "component/table/CustomTable";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import editIcon from "assets/icon/edit.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
