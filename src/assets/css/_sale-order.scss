@@ -1708,8 +1708,11 @@
 // responsive for Fpage
 @media screen and (max-width: 500px) {
   .create-order-payment .order-cod-payment-footer > span {
-   line-height: 20px; 
-}
+    line-height: 20px;
+  }
+  .ant-layout-header {
+    display: none;
+  }
   .saleorder-product-modal {
     .ant-modal-body {
       .ant-table-cell:last-child {
@@ -1744,6 +1747,7 @@
   }
   .page-header {
     height: 60px;
+    padding: 12px 24px
   }
   .ant-breadcrumb,
   .ant-layout-sider {
@@ -1759,9 +1763,13 @@
     display: none !important;
   }
   .header-right {
+   
     display: none !important;
   }
   .orders {
+    .ant-card-head{
+      padding: 10px 24px;
+    }
     .ant-card-head-wrapper {
       display: block !important;
       .ant-card-head-title {

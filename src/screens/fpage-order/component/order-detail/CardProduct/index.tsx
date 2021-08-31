@@ -399,6 +399,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               width: "100%",
               fontWeight: 500,
               color: "#222222",
+              marginTop: 20
             }}
             maxLength={14}
             minLength={0}
