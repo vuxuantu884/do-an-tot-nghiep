@@ -1,4 +1,4 @@
-import { Card, Col, Form, Input, Row, Select } from "antd";
+import { Col, Form, Input, Row, Select } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";

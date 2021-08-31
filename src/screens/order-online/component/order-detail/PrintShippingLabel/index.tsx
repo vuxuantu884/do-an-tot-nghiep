@@ -1,11 +1,9 @@
 import { Button } from "antd";
 import { actionFetchPrintFormByOrderIds } from "domain/actions/printer/printer.action";
 import { OrderSettingsModel } from "model/other/order/order-model";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { FulFillmentResponse } from "model/response/order/order.response";
-import { PrintFormByOrderIdsResponseModel } from "model/response/printer.response";
-import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useReactToPrint } from "react-to-print";
 import { FulFillmentStatus } from "utils/Constants";
 import IconPrint from "./images/iconPrint.svg";
@@ -19,7 +17,6 @@ type PropType = {
 
 const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
   const { fulfillment, orderSettings, orderId } = props;
-  console.log("orderId", orderId);
   const dispatch = useDispatch();
   const [printContent, setPrintContent] = useState("");
   const printerContentHtml = () => {
@@ -30,12 +27,6 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
     content: () => printElementRef.current,
   });
 
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
-
-  // const LIST_PRINTYPE = bootstrapReducer.data?.print_type
-
   let printType = "";
   const getPrintType = (
     fulfillment: FulFillmentResponse | null | undefined
@@ -44,16 +35,18 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
       return;
     }
     switch (fulfillment.status) {
-      case "shipping":
+      case FulFillmentStatus.SHIPPING:
         printType = "shipment";
         break;
-      case "shipped":
-        printType = "order";
+      case FulFillmentStatus.PACKED:
+        printType = "stock_export";
         break;
       default:
+        printType = "order";
         break;
     }
   };
+  getPrintType(fulfillment);
   const isShowPrinterButton = () => {
     let isShow = true;
     const LIST_HIDE = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
@@ -66,8 +59,9 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
   };
 
   const renderHtml = (text: string) => {
+    console.log("text", text);
     if (text === "") {
-      return "aaa";
+      return "";
     }
     let result = text;
     let docFromText = new DOMParser().parseFromString(
@@ -83,39 +77,35 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
     let body = docFromText.getElementsByClassName("printerContent")[0];
     let bodyInner = body.innerHTML;
 
-    let groupCopies = [];
-    for (let i = 1; i <= numberOfCopies; i++) {
-      let textBreakPage = "<div class='pageBreak'></div>";
-      groupCopies[i] = bodyInner + textBreakPage;
+    if (numberOfCopies > 1) {
+      let groupCopies = [];
+      for (let i = 1; i <= numberOfCopies; i++) {
+        let textBreakPage = "<div class='pageBreak'></div>";
+        groupCopies[i] = bodyInner + textBreakPage;
+      }
+      let groupCopiesHtml = groupCopies.join("");
+      result = "<div>" + groupCopiesHtml + "</div>";
     }
-    let groupCopiesHtml = groupCopies.join("");
-    result = "<div>" + groupCopiesHtml + "</div>";
     return result;
   };
 
-  useEffect(() => {
-    console.log("333");
-
-    const onAfterPrint = () => {
-      console.log("Printing completed...");
-    };
-    //for chrome
-    window.matchMedia("print").addListener(function (mql) {
-      if (mql.matches) {
-        onAfterPrint();
-      }
-    });
-    window.addEventListener("beforeprint ", onAfterPrint);
-    window.addEventListener("onafterprint", onAfterPrint);
-    return () => {
-      window.removeEventListener("beforeprint ", onAfterPrint);
-      window.removeEventListener("onafterprint", onAfterPrint);
-    };
-  }, []);
-
-  useEffect(() => {
-    getPrintType(fulfillment);
-  });
+  // useEffect(() => {
+  //   const onAfterPrint = () => {
+  //     console.log("Printing completed...");
+  //   };
+  //   //for chrome
+  //   window.matchMedia("print").addListener(function (mql) {
+  //     if (mql.matches) {
+  //       onAfterPrint();
+  //     }
+  //   });
+  //   window.addEventListener("beforeprint ", onAfterPrint);
+  //   window.addEventListener("onafterprint", onAfterPrint);
+  //   return () => {
+  //     window.removeEventListener("beforeprint ", onAfterPrint);
+  //     window.removeEventListener("onafterprint", onAfterPrint);
+  //   };
+  // }, []);
 
   return (
     <StyledComponent>
@@ -129,7 +119,10 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
                   [orderId],
                   printType,
                   (response) => {
-                    setPrintContent(response.data[0].html_content);
+                    //xóa thẻ p thừa
+                    let textResponse = response.data[0].html_content;
+                    let result = textResponse.replaceAll("<p></p>", "");
+                    setPrintContent(result);
                     handlePrint();
                   }
                 )
@@ -142,7 +135,7 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
               : "In phiếu giao hàng"}
           </Button>
           <div style={{ display: "none" }}>
-            <div className="printContent" ref={printElementRef}>
+            <div className="printContent333" ref={printElementRef}>
               <div
                 dangerouslySetInnerHTML={{
                   __html: renderHtml(printerContentHtml()),

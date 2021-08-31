@@ -4,6 +4,7 @@ import {
   productKeywordsModel,
 } from "model/editor/editor.model";
 import React, { useRef } from "react";
+import { useEffect } from "react";
 import ReactToPrint from "react-to-print";
 import IconEdit from "./images/iconEdit.svg";
 import IconPrintHover from "./images/iconPrintHover.svg";
@@ -16,6 +17,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
     listProductKeywords,
     previewHeaderHeight,
     isShowEditor,
+    isPrint,
     onChangeShowEditor,
   } = props;
   // console.log("htmlContent", htmlContent);
@@ -166,6 +168,14 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
     return result;
   };
 
+  useEffect(() => {
+    let buttonPrintElement = document.getElementsByClassName(
+      "button__print"
+    )[0] as HTMLElement;
+    if(isPrint && htmlContent) {
+      buttonPrintElement.click();
+    }
+  }, [htmlContent, isPrint])
   return (
     <StyledComponent>
       <div className={`preview ${isShowEditor ? "showEditor" : "hideEditor"}`}>

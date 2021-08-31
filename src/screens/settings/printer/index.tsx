@@ -14,7 +14,6 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { useReactToPrint } from "react-to-print";
 import { generateQuery } from "utils/AppUtils";
 import FormFilter from "./component/FormFilter";
 import IconEdit from "./images/iconEdit.svg";
@@ -79,10 +78,6 @@ const SettingPrinter: React.FC = () => {
   const goToPageDetail = (id: string | number) => {
     history.push(`${UrlConfig.PRINTER}/${id}`);
   };
-
-  const handlePrint = useReactToPrint({
-    content: () => printElementRef.current,
-  });
 
   const handleEdit = (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -164,18 +159,21 @@ const SettingPrinter: React.FC = () => {
               <img src={IconEdit} alt="" className="icon--normal" />
               Sửa
             </Button>
-            {handlePrint && (
-              <Button
-                className="columnAction__singleButton columnAction__singleButton--print"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePrint();
-                }}
+            <Button
+              className="columnAction__singleButton columnAction__singleButton--print"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <a
+                href={`${UrlConfig.PRINTER}/${row.id}?action=edit&print=true`}
+                target="_blank"
+                rel="noreferrer"
               >
                 <img src={IconPrintHover} alt="" className="icon--hover" />
                 In thử
-              </Button>
-            )}
+              </a>
+            </Button>
           </div>
         );
       },
