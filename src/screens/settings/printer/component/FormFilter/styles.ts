@@ -22,6 +22,10 @@ export const StyledComponent = styled.div`
   .ant-form-item {
     margin-bottom: 0;
   }
+  .ant-form-item-label {
+    width: 100%;
+    text-align: left;
+  }
   .ant-select-disabled.ant-select:not(.ant-select-customize-input)
     .ant-select-selector {
     color: inherit;

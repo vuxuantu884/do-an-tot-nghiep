@@ -144,11 +144,11 @@ function* fetchListPrinterVariablesSaga(action: YodyAction) {
 }
 
 function* fetchPrintFormByOrderIdsSaga(action: YodyAction) {
-  const { ids, handleData } = action.payload;
+  const { ids, type, handleData } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<BaseResponse<PrintFormByOrderIdsResponseModel>> =
-      yield call(getPrintFormByOrderIdsService, ids);
+      yield call(getPrintFormByOrderIdsService, ids, type);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:

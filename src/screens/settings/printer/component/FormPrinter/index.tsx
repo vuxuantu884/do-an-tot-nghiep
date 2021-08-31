@@ -1,7 +1,7 @@
 import { Button, Card, Col, Form, Row } from "antd";
 import Editor from "component/ckeditor";
-import UrlConfig from "config/url.config";
 import ModalConfirm from "component/modal/ModalConfirm";
+import UrlConfig from "config/url.config";
 import {
   actionCreatePrinter,
   actionFetchListPrinterVariables,
@@ -12,14 +12,13 @@ import {
   FormPrinterModel,
   PrinterVariableResponseModel,
 } from "model/response/printer.response";
-import moment from "moment";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Prompt } from "react-router";
 import { useHistory } from "react-router-dom";
 import { DEFAULT_FORM_VALUE } from "utils/Constants";
+import FormFilter from "../FormFilter";
 import Preview from "../preview";
-import FormTop from "./FormTop";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -75,7 +74,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   ];
 
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
-  const [isShowPrompt, setIsShowPrompt] = useState(false);
+  const [isFormHasChanged, setIsFormHasChanged] = useState(false);
   const titleConfirmSave = "Bạn có chắc chắn muốn thoát?";
   const subTitleConfirmSave =
     "Toàn bộ thay đổi của bạn sẽ không được ghi nhận.";
@@ -116,7 +115,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             name: formValue.name,
             company: formValue.company,
             company_id: formValue.company_id,
-            default: formValue.default,
+            is_default: formValue.is_default,
             print_size: formValue.print_size,
             store: formValue.store,
             store_id: formValue.store_id,
@@ -127,7 +126,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             name: null,
             company: DEFAULT_FORM_VALUE.company,
             company_id: DEFAULT_FORM_VALUE.company_id,
-            default: false,
+            is_default: false,
             print_size: null,
             store: null,
             store_id: null,
@@ -140,22 +139,12 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const handleSubmitForm = () => {
     form.validateFields().then(() => {
       const formComponentValue = form.getFieldsValue();
-      // console.log("formValue.template", formValue?.template);
-      // console.log("formComponentValue", formComponentValue);
+      console.log("formValue.template", formValue?.template);
+      console.log("formComponentValue", formComponentValue);
       let newFormComponentValue = {
         ...formComponentValue,
       };
-      if (formValue?.name === formComponentValue.name) {
-        /**
-         * thay tên theo ngày tháng
-         */
-        newFormComponentValue = {
-          ...formComponentValue,
-          name: `${formComponentValue.name}-${moment().format(
-            "D/M/YYYY,H:mm:ss"
-          )}`,
-        };
-      }
+      setIsFormHasChanged(false);
       // formComponentValue.
       dispatch(
         actionCreatePrinter(newFormComponentValue, () => {
@@ -196,30 +185,65 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     );
   }, [dispatch]);
 
-  const formComponentValue = form.getFieldsValue();
+  const formValueFormatted = {
+    company: formValue?.company,
+    company_id: formValue?.company_id,
+    is_default: formValue?.is_default,
+    name: formValue?.name,
+    print_size: formValue?.print_size,
+    store_id: formValue?.store_id,
+    template: formValue?.template,
+    type: formValue?.type,
+  };
+
+  const handleChange = (value: any, allValues: any) => {
+    console.log("formValueFormatted", formValueFormatted);
+    console.log("allValues", allValues);
+
+    // if (JSON.stringify(formValue) !== JSON.stringify(allValues)) {
+    if (
+      Object.entries(formValueFormatted).sort().toString() ===
+      Object.entries(allValues).sort().toString()
+    ) {
+      setIsFormHasChanged(false);
+    } else {
+      setIsFormHasChanged(true);
+    }
+  };
 
   useEffect(() => {
     const onChangePage = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = "";
     };
+    // check if is loaded successfully
     if (type === "edit") {
-      if (formValue?.template !== formComponentValue.template) {
-        setIsShowPrompt(true);
+      if (isFormHasChanged) {
         window.addEventListener("beforeunload", onChangePage);
-      } else {
-        setIsShowPrompt(false);
       }
+    } else {
+      setIsFormHasChanged(false);
     }
     return () => {
       window.removeEventListener("beforeunload", onChangePage);
     };
-  }, [form, formComponentValue.template, formValue?.template, type]);
+  }, [isFormHasChanged, type]);
 
   return (
     <StyledComponent>
-      <Form form={form} layout="vertical" initialValues={initialFormValue}>
-        <FormTop isCanEditFormHeader={isCanEditFormHeader} />
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialFormValue}
+        className={isEdit ? "isEditForm" : ""}
+        onValuesChange={handleChange}
+      >
+        <Card style={{ padding: "20px 15px", marginBottom: 35 }}>
+          <FormFilter
+            isCanEditFormHeader={isCanEditFormHeader}
+            isPagePrinterDetail={true}
+          />
+        </Card>
         <Row gutter={20}>
           {isCanEditFormHeader && (
             <Col span={12}>
@@ -293,7 +317,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         subTitle={subTitleConfirmSave}
         visible={isShowModalConfirm}
       />
-      {isShowPrompt && (
+      {isFormHasChanged && (
         <Prompt message="Bạn có chắc chắn muốn thoát? Toàn bộ thay đổi của bạn sẽ không được ghi nhận." />
       )}
     </StyledComponent>

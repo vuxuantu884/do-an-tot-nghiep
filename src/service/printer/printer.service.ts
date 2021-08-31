@@ -43,7 +43,13 @@ export const getListPrinterVariablesService = (): Promise<
 };
 
 export const getPrintFormByOrderIdsService = (
-  ids: string[]
+  ids: string[],
+  type: string
 ): Promise<BaseResponse<PrinterVariableResponseModel>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/orders/print_forms?ids=${ids}`);
+  const queryParams = {
+    ids,
+    type,
+  };
+  const queryString = generateQuery(queryParams);
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/print_forms?${queryString}`);
 };

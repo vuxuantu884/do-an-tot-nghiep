@@ -61,12 +61,14 @@ export const actionFetchListPrinterVariables = (
 
 export const actionFetchPrintFormByOrderIds = (
   ids: number[],
+  type: string,
   handleData: (data: BaseResponse<PrintFormByOrderIdsResponseModel>) => void
 ) => {
   return {
     type: PRINTER_TYPES.getPrintFormByOrderIds,
     payload: {
       ids,
+      type,
       handleData,
     },
   };
