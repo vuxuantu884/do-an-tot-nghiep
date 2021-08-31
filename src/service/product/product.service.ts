@@ -1,6 +1,6 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
-import { ApiConfig } from "config/ApiConfig";
+import { ApiConfig } from "config/api.config";
 import { generateQuery } from "utils/AppUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import {

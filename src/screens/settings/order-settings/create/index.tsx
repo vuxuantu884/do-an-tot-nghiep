@@ -1,6 +1,6 @@
 import { Form, Button } from "antd";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 // import { useHistory } from "react-router-dom";
 import OrderSettingInformation from "./OrderSettingInformation";
 import OrderSettingValue from "./OrderSettingValue";

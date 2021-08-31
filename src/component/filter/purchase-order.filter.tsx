@@ -253,7 +253,7 @@ const AdvanceFormItems = ({
   tempAdvanceFilters,
 }: AdvanceFormItemProps) => {
   return (
-    <Space direction="vertical" style={{ width: "100%" }}>
+    <Space className="po-filter" direction="vertical" style={{ width: "100%" }}>
       {Object.keys(filterFields).map((field) => {
         let collapseChildren = null;
         switch (field) {

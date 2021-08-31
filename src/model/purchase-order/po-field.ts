@@ -39,6 +39,7 @@ const POField = {
   receive_status: "receive_status",
   return_reason: "return_reason",
   quantity_return: "quantity_return",
+  expect_return_date: "expect_return_date",
 };
 
 const CostLineField = {

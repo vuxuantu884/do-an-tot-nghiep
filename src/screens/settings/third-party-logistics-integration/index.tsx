@@ -1,6 +1,6 @@
 import { Button, Card, Col, Row } from "antd";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { useEffect, useState } from "react";

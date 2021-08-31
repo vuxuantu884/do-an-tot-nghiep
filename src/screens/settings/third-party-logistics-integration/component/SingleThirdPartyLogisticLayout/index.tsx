@@ -1,6 +1,6 @@
 import { Card } from "antd";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import React from "react";
 import BottomBar from "../BottomBar";
 import SingleLogisticCardHeader from "../CardHeader";

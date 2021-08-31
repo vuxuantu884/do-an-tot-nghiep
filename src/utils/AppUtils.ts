@@ -2,7 +2,7 @@ import { ConvertDateToUtc } from "./DateUtils";
 import { AccountStoreResponse } from "model/account/account.model";
 import { DistrictResponse } from "model/content/district.model";
 import { CityView } from "model/content/district.model";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import moment from "moment";
@@ -20,7 +20,7 @@ import {
   VariantUpdateRequest,
   VariantUpdateView,
 } from "model/product/product.model";
-import { PriceConfig } from "config/PriceConfig";
+import { PriceConfig } from "config/price.config.";
 import {
   DeliveryServiceResponse,
   OrderLineItemResponse,

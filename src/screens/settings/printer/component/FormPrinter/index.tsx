@@ -1,7 +1,7 @@
 import { Button, Card, Col, Form, Row } from "antd";
 import Editor from "component/ckeditor";
+import UrlConfig from "config/url.config";
 import ModalConfirm from "component/modal/ModalConfirm";
-import UrlConfig from "config/UrlConfig";
 import {
   actionCreatePrinter,
   actionFetchListPrinterVariables,

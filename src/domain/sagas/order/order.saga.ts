@@ -24,7 +24,7 @@ import {
 import { OrderType } from "../../types/order.type";
 import BaseResponse from "base/base.response";
 import { put, call, takeLatest } from "redux-saga/effects";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { YodyAction } from "../../../base/base.action";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {

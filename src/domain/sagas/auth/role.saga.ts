@@ -4,7 +4,7 @@ import { RoleResponse } from "model/auth/roles.model";
 import { call, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { put } from "redux-saga/effects";

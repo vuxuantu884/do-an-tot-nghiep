@@ -82,7 +82,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                   <div className="row-view">
                     <div className="row-view-title">QC:</div>
 
-                    {qc_code !== null ? (
+                    {qc_code !== null && qc_code !== "" && qc !== null && qc !== "" ? (
                       <div className="row-view-result">
                         {`${qc_code} - ${qc}`}
                       </div>
