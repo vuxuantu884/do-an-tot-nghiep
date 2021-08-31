@@ -478,13 +478,13 @@ const ListFulfillmentScreen: React.FC = () => {
     >
       <Card>
         <div className="padding-20">
-          <ShipmentFilter
+          {/* <ShipmentFilter
             onMenuClick={onMenuClick}
             actions={actions}
             onFilter={onFilter}
             params={params}
             onShowColumnSetting={() => setShowSettingColumn(true)}
-          />
+          /> */}
           <CustomTable
             isRowSelection
             isLoading={tableLoading}
