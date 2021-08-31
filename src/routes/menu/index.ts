@@ -138,7 +138,8 @@ const menu: Array<RouteMenu> = [
     key: "10",
     isShow: true,
     header: null,
-    subMenu: setting,
+    subMenu: [],
+    // subMenu: setting,
   },
 ]
 
