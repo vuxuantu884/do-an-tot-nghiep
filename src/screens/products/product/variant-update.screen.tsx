@@ -390,7 +390,7 @@ const VariantUpdateScreen: React.FC = () => {
                     tooltip={{ title: "Tooltip", icon: <InfoCircleOutlined /> }}
                   >
                     <Select showSearch placeholder="Chọn size">
-                      {listSize?.map((item) => (
+                      {listSize?.filter((item) => item.categories.findIndex((item1) => item1.category_id === detail.product.category_id) !== -1).map((item) => (
                         <CustomSelect.Option key={item.id} value={item.id}>
                           {item.code}
                         </CustomSelect.Option>
