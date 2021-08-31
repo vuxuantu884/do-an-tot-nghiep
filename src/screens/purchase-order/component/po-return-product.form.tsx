@@ -14,7 +14,7 @@ import {
 import NumberInput from "component/custom/number-input.custom";
 import { POField } from "model/purchase-order/po-field";
 import { Fragment, useState, useEffect } from "react";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import POProgressView from "./po-progress-view";
 import {
   PurchaseOrderLineReturnItem,
@@ -154,7 +154,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                               <div>
                                 Ngày nhận dự kiến:{" "}
                                 <strong>
-                                  {ConvertUtcToLocalDate(expect_import_date)}
+                                  {ConvertUtcToLocalDate(expect_import_date, DATE_FORMAT.DDMMYYY)}
                                 </strong>
                               </div>
                             </Space>
