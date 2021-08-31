@@ -1705,15 +1705,49 @@
   }
 }
 
+// responsive for Fpage
 @media screen and (max-width: 500px) {
-  .ant-layout-content{
-    padding: 0
+  .create-order-payment .order-cod-payment-footer > span {
+    line-height: 20px;
   }
-  .ant-table-wrapper{
-    padding: 0
+  .ant-layout-header {
+    display: none;
+  }
+  .saleorder-product-modal {
+    .ant-modal-body {
+      .ant-table-cell:last-child {
+        min-width: 50px;
+      }
+      .ant-table-cell:first-child {
+        min-width: 170px;
+      }
+    }
+  }
+
+  .saleorder-product-modal {
+    .ant-table-wrapper {
+      padding: 0;
+    }
+  }
+  .ant-input-group-compact {
+    display: flex !important;
+    :first-child {
+      border-top-left-radius: 5px !important;
+      border-bottom-left-radius: 5px !important;
+    }
+    .ant-input-number-input-wrap > input {
+      height: 36px;
+    }
+  }
+  .ant-layout-content {
+    padding: 0;
+  }
+  .ant-table-wrapper {
+    padding: 0 24px;
   }
   .page-header {
     height: 60px;
+    padding: 12px 24px
   }
   .ant-breadcrumb,
   .ant-layout-sider {
@@ -1729,47 +1763,50 @@
     display: none !important;
   }
   .header-right {
+   
     display: none !important;
   }
   .orders {
+    .ant-card-head{
+      padding: 10px 24px;
+    }
     .ant-card-head-wrapper {
       display: block !important;
       .ant-card-head-title {
         width: 100%;
         padding: 6px 0 0 0;
-        
       }
       .ant-card-extra {
         width: 100%;
       }
     }
-    .ant-select{
+    .ant-select {
       width: 100% !important;
     }
-    
   }
-  .ant-table-cell{
-    padding: 4px 0 !important;
+  .ant-table-cell {
+    padding: 4px 10px !important;
   }
-  .sale-product-box-table{
-    .ant-input{
+  .sale-product-box-table {
+    .ant-input {
+      padding: 0;
+      text-align: center !important;
+    }
+    .ant-input-number-input {
       padding: 0;
     }
-    .ant-input-number-input{
-      padding: 0
-    }
-    .ant-select-selector{
-      padding: 0 !important
+    .ant-select-selector {
+      padding: 0 !important;
     }
   }
-  .ant-row{
+  .ant-row {
     margin-bottom: 6px;
   }
-  .ant-select-dropdown{
-    left: 0 !important;
-    width: 100% !important;
+  .ant-select-dropdown {
+    // left: 0 !important;
+    // width: 100% !important;
   }
-  .search-layout{
-    left: 0
+  .search-layout {
+    left: 0;
   }
 }

@@ -14,7 +14,11 @@ import POReturnProductForm from "./component/po-return-product.form";
 import POReturnPaymentForm from "./component/po-return-payment.form";
 import POStep from "./component/po-step";
 import { POField } from "model/purchase-order/po-field";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { POUtils } from "utils/POUtils";
+import {
+  PurchaseOrderLineReturnItem,
+  Vat,
+} from "model/purchase-order/purchase-item.model";
 
 interface POReturnProps {}
 type PurchaseOrderReturnParams = {
@@ -97,8 +101,43 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
           listDistrict={listDistrict}
           formMain={formMain}
         />
-        <POReturnProductForm formMain={formMain} />
-        <POReturnPaymentForm formMain={formMain} />
+        <Form.Item shouldUpdate={(prevValues, curValues) => true} noStyle>
+          {({ getFieldValue }) => {
+            let tax_lines = getFieldValue(POField.tax_lines),
+              line_return_items = getFieldValue(POField.line_return_items);
+            let totalReturn = 0,
+              totalVat = 0;
+            line_return_items &&
+              line_return_items.forEach((item: PurchaseOrderLineReturnItem) => {
+                if (!item.quantity_return) return;
+                totalReturn +=
+                  item.quantity_return *
+                  POUtils.caculatePrice(
+                    item.price,
+                    item.discount_rate,
+                    item.discount_value
+                  );
+              });
+            tax_lines.map((item: Vat) => {
+              totalVat += item.amount;
+            });
+            return (
+              <Fragment>
+                <POReturnProductForm
+                  formMain={formMain}
+                  totalVat={totalVat}
+                  totalReturn={totalReturn}
+                  tax_lines={tax_lines}
+                />
+                <POReturnPaymentForm
+                  formMain={formMain}
+                  totalReturn={totalReturn}
+                  totalVat={totalVat}
+                />
+              </Fragment>
+            );
+          }}
+        </Form.Item>
         <Row
           gutter={24}
           className="margin-top-10 "

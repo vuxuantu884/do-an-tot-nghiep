@@ -359,7 +359,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </span>
               </Space>
 
-              <Space className="customer-detail-point">
+              {/* <Space className="customer-detail-point">
                 <span className="customer-detail-icon">
                   <img src={pointIcon} alt="" />
                 </span>
@@ -399,22 +399,20 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     style={{ width: "24px", height: "24px" }}
                   />
                 </Button>
-              </Space>
+              </Space> */}
             </Row>
             <Divider
               className="margin-0"
               style={{ padding: 0, marginBottom: 0 }}
             />
 
-            <div className="padding-lef-right">
+            <div style={{padding: "12px 24px"}}>
               {customer.shipping_addresses !== undefined && (
                 <Row gutter={24}>
                   <Col
-                    xs={24}
-                    lg={12}
+                    span={12}
                     style={{
                       borderRight: "1px solid #E5E5E5",
-                      paddingTop: "14px",
                     }}
                     className="font-weight-500 customer-info-left"
                   >
@@ -506,8 +504,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     </Row>
                   </Col>
                   <Col
-                    xs={24}
-                    lg={12}
+                    span={12}
                     className="font-weight-500"
                   >
                     <div>
@@ -650,7 +647,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       xs={24}
                       lg={12}
                       className="font-weight-500"
-                      style={{ paddingLeft: "34px", marginTop: "14px" }}
+                      style={{padding: "0 12px"}}
                     >
                       <div>
                         <img

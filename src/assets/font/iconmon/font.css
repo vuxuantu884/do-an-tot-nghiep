@@ -55,3 +55,6 @@
 .icon-setting:before {
   content: "\e90b";
 }
+.icon-transport:before {
+  content: url("../../icon/menu-transport.svg");
+}
