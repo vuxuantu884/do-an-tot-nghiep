@@ -22,18 +22,21 @@ import {
 } from "model/purchase-order/purchase-item.model";
 import imgDefIcon from "assets/img/img-def.svg";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { POUtils } from "utils/POUtils";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { useSelector } from "react-redux";
 import EmptyPlaceholder from "./EmptyPlaceholder";
+import { POUtils } from "utils/POUtils";
 import "./po-return-form.scss";
 type POReturnFormProps = {
   formMain: FormInstance;
+  totalReturn: number;
+  totalVat: number;
+  tax_lines: Array<Vat>;
 };
 const POReturnForm: React.FC<POReturnFormProps> = (
   props: POReturnFormProps
 ) => {
-  const { formMain } = props;
+  const { formMain, totalReturn, totalVat, tax_lines } = props;
   // const [allChecked, setAllChecked] = useState(false);
   let [currentLineReturn, setCurrentLineReturn] = useState<
     Array<PurchaseOrderLineReturnItem>
@@ -528,78 +531,43 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                       span={8}
                       style={{ display: "flex", flexDirection: "column" }}
                     >
-                      <Form.Item
-                        shouldUpdate={(prevValues, curValues) =>
-                          prevValues.tax_lines !== curValues.tax_lines ||
-                          prevValues.line_return_items !==
-                            curValues.line_return_items
-                        }
-                        noStyle
-                      >
-                        {({ getFieldValue }) => {
-                          let tax_lines = getFieldValue(POField.tax_lines),
-                            line_return_items = getFieldValue(
-                              POField.line_return_items
-                            );
-                          let totalReturn = 0,
-                            totalVat = 0;
-                          line_return_items &&
-                            line_return_items.forEach(
-                              (item: PurchaseOrderLineReturnItem) => {
-                                if (!item.quantity_return) return;
-                                totalReturn +=
-                                  item.quantity_return *
-                                  POUtils.caculatePrice(
-                                    item.price,
-                                    item.discount_rate,
-                                    item.discount_value
-                                  );
-                              }
-                            );
-                          return (
-                            <Fragment>
-                              <Space
-                                size="large"
-                                style={{ flex: 1 }}
-                                direction="vertical"
-                              >
-                                <div className="po-payment-row">
-                                  <div>Tổng tiền:</div>
-                                  <div className="po-payment-row-result">
-                                    {formatCurrency(totalReturn)}
-                                  </div>
-                                </div>
-                                {tax_lines.map((item: Vat) => {
-                                  totalVat += item.amount;
-                                  return (
-                                    <div className="po-payment-row">
-                                      <div>{`VAT (${item.rate}%):`}</div>
-                                      <div className="po-payment-row-result">
-                                        {formatCurrency(
-                                          Math.round(item.amount)
-                                        )}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </Space>
-
-                              <Divider />
+                      <Fragment>
+                        <Space
+                          size="large"
+                          style={{ flex: 1 }}
+                          direction="vertical"
+                        >
+                          <div className="po-payment-row">
+                            <div>Tổng tiền:</div>
+                            <div className="po-payment-row-result">
+                              {formatCurrency(totalReturn)}
+                            </div>
+                          </div>
+                          {tax_lines.map((item: Vat) => {
+                            return (
                               <div className="po-payment-row">
-                                <div>
-                                  <strong>Tổng giá trị trả hàng:</strong>
-                                </div>
-                                <div
-                                  className="po-payment-row-result"
-                                  style={{ color: "#2A2A86", fontSize: 16 }}
-                                >
-                                  {formatCurrency(totalReturn + totalVat)}
+                                <div>{`VAT (${item.rate}%):`}</div>
+                                <div className="po-payment-row-result">
+                                  {formatCurrency(Math.round(item.amount))}
                                 </div>
                               </div>
-                            </Fragment>
-                          );
-                        }}
-                      </Form.Item>
+                            );
+                          })}
+                        </Space>
+
+                        <Divider />
+                        <div className="po-payment-row">
+                          <div>
+                            <strong>Tổng giá trị trả hàng:</strong>
+                          </div>
+                          <div
+                            className="po-payment-row-result"
+                            style={{ color: "#2A2A86", fontSize: 16 }}
+                          >
+                            {formatCurrency(totalReturn + totalVat)}
+                          </div>
+                        </div>
+                      </Fragment>
                     </Col>
                   </Row>
                 </Fragment>

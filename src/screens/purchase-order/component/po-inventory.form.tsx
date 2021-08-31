@@ -312,11 +312,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 setVisibleConfirm(true);
               }
             }}
-            confirmImport={(value: PurchaseProcument, isEdit: boolean) => {
-              setIsEdit(isEdit);
-              setProcumentInventory(value);
-              setVisibleConfirm(true);
-            }}
           />
         )}
       </div>
@@ -334,7 +329,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         defaultStore={storeExpect}
         onOk={(value: PurchaseProcument) => {
           onAddProcument(value);
-          setActiveTab(TAB[3].id)
+          setActiveTab(TAB[3].id);
         }}
         onDelete={onDeleteProcument}
       />
@@ -347,6 +342,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         item={procumentDraft}
         onOk={(value: PurchaseProcument) => {
           onConfirmProcument(value);
+          setActiveTab(TAB[2].id);
         }}
         onDelete={onDeleteProcument}
         loading={loadingConfirm}
@@ -364,6 +360,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         item={procumentInventory}
         onOk={(value: PurchaseProcument) => {
           onReciveProcument(value);
+          setActiveTab(TAB[1].id);
         }}
         onDelete={onDeleteProcument}
         loading={loadingRecive}
