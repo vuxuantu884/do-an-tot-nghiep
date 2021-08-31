@@ -1,46 +1,58 @@
 import { Button, Card, Col, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/UrlConfig";
+import { DeliveryServicesGetList } from "domain/actions/order/order.action";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import IconConnect from "./images/connect.svg";
 import IconEdit from "./images/edit.svg";
-import IconDHL from "./images/iconDHL.svg";
-import IconGiaoHangNhanh from "./images/iconGiaoHangNhanh.svg";
-import IconGiaoHangTietKiem from "./images/iconGiaoHangTietKiem.svg";
-import IconViettelPost from "./images/iconViettelPost.svg";
 import { StyledComponent } from "./styles";
 
+interface DeliveryServiceResponseFormatted extends DeliveryServiceResponse {
+  isConnect?: boolean;
+  slug?: string;
+}
+
 const ThirdPartyLogisticsIntegration: React.FC = () => {
-  const listThirdPartyLogistics = [
-    {
-      id: 1,
-      slug: "giao-hang-nhanh",
-      name: "Giao hàng nhanh",
-      image: IconGiaoHangNhanh,
-      isConnect: true,
-    },
-    {
-      id: 2,
-      slug: "viettel-post",
-      name: "Viettel Post",
-      image: IconViettelPost,
-      isConnect: true,
-    },
-    {
-      id: 3,
-      slug: "giao-hang-tiet-kiem",
-      name: "Giao hàng tiết kiệm",
-      image: IconGiaoHangTietKiem,
-      isConnect: false,
-    },
-    {
-      id: 4,
-      slug: "dhl",
-      name: "DHL",
-      image: IconDHL,
-      isConnect: true,
-    },
-  ];
+  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
+    DeliveryServiceResponseFormatted[]
+  >([]);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        console.log("response", response);
+        let formattedData: DeliveryServiceResponseFormatted[] = [...response];
+        formattedData.forEach((single) => {
+          switch (single.code) {
+            case "ghtk":
+              single.isConnect = true;
+              single.slug = "giao-hang-tiet-kiem";
+              break;
+            case "ghn":
+              single.isConnect = true;
+              single.slug = "giao-hang-nhanh";
+              break;
+            case "vtp":
+              single.isConnect = false;
+              single.slug = "viettel-post";
+              break;
+            case "dhl":
+              single.isConnect = true;
+              single.slug = "dhl";
+              break;
+
+            default:
+              break;
+          }
+        });
+        setListThirdPartyLogistics(formattedData);
+      })
+    );
+  }, [dispatch]);
   return (
     <StyledComponent>
       <ContentContainer
@@ -69,10 +81,22 @@ const ThirdPartyLogisticsIntegration: React.FC = () => {
                     <div className="singleThirdParty">
                       <div className="singleThirdParty__info">
                         <div className="singleThirdParty__logo">
-                          <img src={single.image} alt="" />
+                          <Link
+                            to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.slug}`}
+                          >
+                            <img
+                              src={single.logo}
+                              alt=""
+                              style={{ width: 126 }}
+                            />
+                          </Link>
                         </div>
                         <h3 className="singleThirdParty__title">
-                          {single.name}
+                          <Link
+                            to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.slug}`}
+                          >
+                            {single.name}
+                          </Link>
                         </h3>
                         <div className="singleThirdParty__info-instruction">
                           <Link to={"/"}>Xem hướng dẫn kết nối</Link>
