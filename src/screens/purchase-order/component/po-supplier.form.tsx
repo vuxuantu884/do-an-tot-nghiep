@@ -17,7 +17,7 @@ import {
   PhoneFilled,
   PhoneOutlined,
 } from "@ant-design/icons";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, Fragment } from "react";
 import { useDispatch } from "react-redux";
 import { AiOutlineClose } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
@@ -44,6 +44,7 @@ type POSupplierFormProps = {
   isEdit: boolean;
   showBillingAddress: boolean;
   showSupplierAddress: boolean;
+  hideExpand?: boolean;
 };
 const POSupplierForm: React.FC<POSupplierFormProps> = (
   props: POSupplierFormProps
@@ -55,15 +56,16 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
     isEdit,
     showBillingAddress,
     showSupplierAddress,
+    hideExpand,
   } = props;
   const [data, setData] = useState<Array<SupplierResponse>>([]);
   const dispatch = useDispatch();
-  const [visibleSupplierAddress, setVisibleSupplierAddress] = useState(false);
+  const [visibleSupplierAddress, setVisibleSupplierAddress] = useState(
+    hideExpand ? true : false
+  );
   const [isVisibleAddressModal, setVisibleAddressModal] = useState(false);
   const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] =
     useState(false);
-  // const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
-  // const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const onResult = useCallback((result: PageResponse<SupplierResponse>) => {
     setData(result.items);
   }, []);
@@ -480,20 +482,22 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                   </Col>
                 </Row>
               )}
-
-              <Divider style={{ padding: 0, margin: 0 }} />
-
-              <div className="margin-top-bottom-10">
-                <Row>
-                  <Checkbox
-                    className="checkbox-style"
-                    checked={visibleSupplierAddress}
-                    onChange={changeVisibleSupplierAddress}
-                  >
-                    Gửi hoá đơn
-                  </Checkbox>
-                </Row>
-              </div>
+              {!hideExpand && (
+                <Fragment>
+                  <Divider style={{ padding: 0, margin: 0 }} />
+                  <div className="margin-top-bottom-10">
+                    <Row>
+                      <Checkbox
+                        className="checkbox-style"
+                        checked={visibleSupplierAddress}
+                        onChange={changeVisibleSupplierAddress}
+                      >
+                        Gửi hoá đơn
+                      </Checkbox>
+                    </Row>
+                  </div>
+                </Fragment>
+              )}
               {showSupplierAddress && visibleSupplierAddress && (
                 <Row gutter={24}>
                   <Col

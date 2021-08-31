@@ -7,8 +7,7 @@ import { POUtils } from "utils/POUtils";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
 const statusToStep = {
-  [POStatus.DRAFT]: -1,
-  [POStatus.ORDER]: 0,
+  [POStatus.DRAFT]: 0,
   [POStatus.FINALIZED]: 1,
   [POStatus.PROCUREMENT_DRAFT]: 2,
   [POStatus.PROCUREMENT_RECEIVED]: 3,
@@ -33,7 +32,6 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     if (poData) return POUtils.combinePOStatus(poData);
     return POStatus.DRAFT;
   }, [poData]);
-
   const getDescription = (step: number) => {
     let currentStep = statusToStep[combineStatus];
     switch (step) {
