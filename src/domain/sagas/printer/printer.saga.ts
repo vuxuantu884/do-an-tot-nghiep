@@ -1,7 +1,7 @@
 import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PRINTER_TYPES } from "domain/types/printer.type";
@@ -9,12 +9,14 @@ import { PageResponse } from "model/base/base-metadata.response";
 import {
   PrinterResponseModel,
   PrinterVariableResponseModel,
+  PrintFormByOrderIdsResponseModel,
 } from "model/response/printer.response";
 import {
   createPrinterService,
   getListPrinterService,
   getListPrinterVariablesService,
   getPrinterDetailService,
+  getPrintFormByOrderIdsService,
 } from "service/printer/printer.service";
 import { showError, showSuccess } from "utils/ToastUtils";
 
@@ -140,6 +142,35 @@ function* fetchListPrinterVariablesSaga(action: YodyAction) {
   }
 }
 
+function* fetchPrintFormByOrderIdsSaga(action: YodyAction) {
+  const { ids, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<BaseResponse<PrintFormByOrderIdsResponseModel>> =
+      yield call(getPrintFormByOrderIdsService, ids);
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        /**
+         * call function handleData in payload, variables are taken from the response -> use when dispatch
+         */
+        handleData(response);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
 export function* settingPrinterSaga() {
   yield takeLatest(PRINTER_TYPES.listPrinter, listDataPrinterSaga);
   yield takeLatest(PRINTER_TYPES.getPrinterDetail, getPrinterDetailSaga);
@@ -147,5 +178,9 @@ export function* settingPrinterSaga() {
   yield takeLatest(
     PRINTER_TYPES.getListPrinterVariables,
     fetchListPrinterVariablesSaga
+  );
+  yield takeLatest(
+    PRINTER_TYPES.getPrintFormByOrderIds,
+    fetchPrintFormByOrderIdsSaga
   );
 }

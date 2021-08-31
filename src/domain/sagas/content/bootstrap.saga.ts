@@ -1,7 +1,7 @@
 import { getBootstrapSuccessAction } from "domain/actions/content/bootstrap.action";
 import { takeLatest, call, put } from "@redux-saga/core/effects";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { BootstrapType } from "domain/types/content.type";
 import { BootstrapResponse } from "model/content/bootstrap.model";
 import { getBootsrapAPI } from "service/content/bootstrap.service";

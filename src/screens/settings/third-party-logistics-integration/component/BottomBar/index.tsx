@@ -1,5 +1,5 @@
 import { Button } from "antd";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import React from "react";
 import { Link } from "react-router-dom";
 import IconBack from "./images/iconBack.svg";

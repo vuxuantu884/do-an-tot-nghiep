@@ -1,5 +1,5 @@
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { actionFetchPrinterDetail } from "domain/actions/printer/printer.action";
 import {
   BasePrinterModel,
@@ -9,7 +9,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { DEFAULT_FORM_VALUE } from "utils/Constants";
-import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
 import { useQuery } from "utils/useQuery";
 import FormPrinter from "../component/FormPrinter";
 import { StyledComponent } from "./styles";
@@ -85,11 +84,6 @@ function SinglePrinter() {
   ];
 
   useEffect(() => {
-    const findPrinter = (printerType: string) => {
-      return LIST_PRINTER_TYPES.find((singlePrinter) => {
-        return singlePrinter.value === printerType;
-      });
-    };
     dispatch(
       actionFetchPrinterDetail(+id, queryParams, (data: BasePrinterModel) => {
         setSinglePrinterContent(data);

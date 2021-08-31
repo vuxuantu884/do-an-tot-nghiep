@@ -49,7 +49,7 @@ import "./customer.scss";
 import moment from "moment";
 import { showSuccess, showError } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";

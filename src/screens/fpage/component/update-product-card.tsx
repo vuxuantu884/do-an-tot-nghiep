@@ -19,7 +19,7 @@ import {
   OrderResponse,
 } from "model/response/order/order.response";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
-import { Type } from "config/TypeConfig";
+import { Type } from "config/type.config";
 //#endregion
 
 type ProductCardUpdateProps = {

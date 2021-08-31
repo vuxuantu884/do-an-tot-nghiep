@@ -4,7 +4,7 @@ import { useParams, useLocation, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { POReturnAction } from "domain/actions/po/po.action";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import ContentContainer from "component/container/content.container";
 import { CountryResponse } from "model/content/country.model";
@@ -13,6 +13,8 @@ import POSupplierForm from "./component/po-supplier.form";
 import POReturnProductForm from "./component/po-return-product.form";
 import POReturnPaymentForm from "./component/po-return-payment.form";
 import POStep from "./component/po-step";
+import { POField } from "model/purchase-order/po-field";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 interface POReturnProps {}
 type PurchaseOrderReturnParams = {
@@ -24,8 +26,6 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const { id } = useParams<PurchaseOrderReturnParams>();
   const idNumber = parseInt(id);
-  const [listCountries] = useState<Array<CountryResponse>>([]);
-  const [listDistrict] = useState<Array<DistrictResponse>>([]);
   const [formMain] = Form.useForm();
   const location = useLocation();
   const history = useHistory();
@@ -52,6 +52,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const onConfirmButton = useCallback(() => {
     formMain.validateFields().then((values) => {
       setLoading(true);
+      values[POField.expect_return_date] = Date.now();
       onFinish(values);
     });
   }, [formMain, onFinish]);
@@ -59,6 +60,8 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const state: any = location.state;
   if (!state) return <Fragment></Fragment>;
   const params: PurchaseOrder = state.params;
+  const listCountries: Array<CountryResponse> = state.listCountries;
+  const listDistrict: Array<DistrictResponse> = state.listDistrict;
   return (
     <ContentContainer
       isLoading={isLoading}
@@ -89,6 +92,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
           showSupplierAddress={true}
           showBillingAddress={false}
           isEdit={true}
+          hideExpand={true}
           listCountries={listCountries}
           listDistrict={listDistrict}
           formMain={formMain}

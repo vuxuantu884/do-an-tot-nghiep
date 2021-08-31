@@ -9,7 +9,7 @@ import {
 import { call, takeLatest, takeEvery } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { showError } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { ColorResponse } from "model/product/color.model";

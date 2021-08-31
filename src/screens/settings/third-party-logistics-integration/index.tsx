@@ -1,6 +1,6 @@
 import { Button, Card, Col, Row } from "antd";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { Link } from "react-router-dom";
 import IconConnect from "./images/connect.svg";
 import IconEdit from "./images/edit.svg";
