@@ -11,8 +11,6 @@ import {
 } from "antd";
 import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
-import IconShoppingBag from "assets/icon/shopping_bag.svg";
-import IconWallClock from "assets/icon/wall_clock.svg";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   DeliveryServicesGetList,
@@ -398,7 +396,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       >
         <div className="orders-shipment">
           <Row gutter={24}>
-            <Col md={9}>
+            <Col span={14}>
               <span className="orders-shipment__dateLabel">Hẹn giao:</span>
               <Form.Item name="dating_ship">
                 <DatePicker
@@ -413,7 +411,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               </Form.Item>
             </Col>
 
-            <Col md={6}>
+            <Col span={10}>
               <Form.Item name="office_time">
                 <Checkbox
                   checked={officeTime}
@@ -424,7 +422,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 </Checkbox>
               </Form.Item>
             </Col>
-            <Col span={24}>
+          </Row>
+          <Col span={24} style={{paddingLeft: 0}}>
               <span className="orders-shipment__dateLabel">Yêu cầu:</span>
               <Form.Item name="requirements">
                 <Select
@@ -457,8 +456,6 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 </Select>
               </Form.Item>
             </Col>
-          </Row>
-
           <Row>
             <div
               className="saleorder_shipment_method_btn"

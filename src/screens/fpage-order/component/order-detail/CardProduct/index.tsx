@@ -18,6 +18,7 @@ import {
   Tag,
   Form,
   FormInstance,
+  Modal,
 } from "antd";
 
 import arrowDownIcon from "assets/img/drow-down.svg";
@@ -124,7 +125,16 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] =
     useState(false);
+  const [isShowAddDiscountItemModal, showAddDiscountItemModal] =
+    useState<boolean>(false);
+  const [discountLineItemIndex, setDiscountLineItemIndex] =
+    useState<number>(-1);
+  const [discountLineItem, setDiscountLineItem] =
+    useState<OrderLineItemRequest | null>(null);
   //Function
+  const handleAddDiscountItemModal = () => { showAddDiscountItemModal(false)};
+  const handleCancelDiscountItemModal = () => {showAddDiscountItemModal(false)
+  };
   useEffect(() => {
     let _itemGifts: any = [];
     for (let i = 0; i < items.length; i++) {
@@ -378,6 +388,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     align: "center",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
+        <>
         <div>
           <NumberInput
             format={(a: string) => formatCurrency(a)}
@@ -395,6 +406,13 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             onChange={(value) => onChangePrice(value, index)}
           />
         </div>
+        <span
+        style={{fontSize: "12px" , color: "red"
+        }}
+      >
+        {formatCurrency(items ? items[index].discount_amount : 0)}
+      </span>
+      </>
       );
     },
   };
@@ -454,12 +472,31 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         <div>Thêm</div>
       </div>
     ),
-    width: "12%",
+    width: "10%",
+    align: "center",
     className: "saleorder-product-card-action ",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       const menu = (
         <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
           <Menu.Item key="1">
+            <Button
+              type="text"
+              onClick={() => {
+                showAddDiscountItemModal(true);
+                setDiscountLineItemIndex(index);
+                setDiscountLineItem(l);
+              }}
+              className=""
+              style={{
+                paddingLeft: 24,
+                background: "transparent",
+                border: "none",
+              }}
+            >
+              Thêm chiết khấu
+            </Button>
+          </Menu.Item>
+          <Menu.Item key="2">
             <Button
               type="text"
               onClick={() => showAddGiftModal(index)}
@@ -473,7 +510,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               Thêm quà tặng
             </Button>
           </Menu.Item>
-          <Menu.Item key="2">
+          <Menu.Item key="3">
             <Button
               type="text"
               onClick={() => {
@@ -491,15 +528,30 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               Thêm ghi chú
             </Button>
           </Menu.Item>
+          <Menu.Item key="4">
+            <Button
+              type="text"
+              onClick={() => onDeleteItem(index)}
+              className=""
+              style={{
+                paddingLeft: 24,
+                background: "transparent",
+                border: "none",
+                color: "red",
+              }}
+            >
+              Xóa sản phẩm
+            </Button>
+          </Menu.Item>
         </Menu>
       );
       return (
         <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "0 4px",
-          }}
+        // style={{
+        //   display: "flex",
+        //   justifyContent: "space-between",
+        //   padding: "0 4px",
+        // }}
         >
           <div
             className="site-input-group-wrapper saleorder-input-group-wrapper"
@@ -516,16 +568,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 <img src={arrowDownIcon} alt="" style={{ width: 17 }} />
               </Button>
             </Dropdown>
-          </div>
-          <div className="saleorder-close-btn">
-            <Button
-              style={{ background: "transparent" }}
-              type="text"
-              className="p-0 ant-btn-custom"
-              onClick={() => onDeleteItem(index)}
-            >
-              <img src={Xclosebtn} alt="" style={{ width: 22 }} />
-            </Button>
           </div>
         </div>
       );
@@ -764,15 +806,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         </div>
       }
       extra={
-        <Space style={{display: 'flex', justifyContent: "space-between", marginBottom: 12}} >
+        <Space
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: 12,
+          }}
+        >
           <Checkbox onChange={() => setSplitLine(!splitLine)}>
             Tách dòng
           </Checkbox>
           <Form.Item name="price_type" style={{ margin: "0px" }}>
-            <Select
-             
-              placeholder="Chính sách giá"
-            >
+            <Select placeholder="Chính sách giá">
               <Select.Option value="retail_price" color="#222222">
                 Giá bán lẻ
               </Select.Option>
@@ -938,7 +983,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               <div
                 className="yody-foot-total-text"
                 style={{
-                  width: "37%",
+                  width: "40%",
                   float: "left",
                   fontWeight: 700,
                 }}
@@ -948,31 +993,23 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
               <div
                 style={{
-                  width: "16%",
+                  width: "40%",
                   float: "left",
-                  textAlign: "right",
+                  textAlign: "center",
                   fontWeight: 400,
                 }}
               >
                 {formatCurrency(getTotalAmount(items))}
               </div>
 
-              <div
-                style={{
-                  width: "21%",
-                  float: "left",
-                  textAlign: "right",
-                  fontWeight: 400,
-                }}
-              >
-                {formatCurrency(getTotalDiscount(items))}
-              </div>
+              
 
               <div
                 style={{
-                  width: "14.5%",
+                  width: "20%",
                   float: "left",
-                  textAlign: "right",
+                  textAlign: "center",
+
                   color: "#000000",
                   fontWeight: 700,
                 }}
@@ -1132,6 +1169,34 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         onOk={onOkDiscountConfirm}
         visible={isVisiblePickDiscount}
       />
+      <Modal
+        title="Thêm giảm giá"
+        width={600}
+        onCancel={handleCancelDiscountItemModal}
+        onOk={handleAddDiscountItemModal}
+        visible={isShowAddDiscountItemModal}
+        cancelText="Hủy"
+        okText="Lưu"
+        className="saleorder-product-modal"
+        cancelButtonProps={{ style: { display: 'none' } }}
+        okButtonProps={{ style: { display: 'none' } }}
+      >
+        <DiscountGroup
+          price={discountLineItem ? discountLineItem.price : 0}
+          index={discountLineItemIndex}
+          discountRate={
+            discountLineItem ? discountLineItem.discount_items[0].rate : 0
+          }
+          discountValue={
+            discountLineItem ? discountLineItem.discount_items[0].value : 0
+          }
+          totalAmount={
+            discountLineItem ? discountLineItem.discount_items[0].amount : 0
+          }
+          items={items}
+          setItems={onDiscountItem}
+        />
+      </Modal>
     </Card>
   );
 };

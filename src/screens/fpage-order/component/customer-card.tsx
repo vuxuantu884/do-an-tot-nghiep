@@ -406,14 +406,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               style={{ padding: 0, marginBottom: 0 }}
             />
 
-            <div className="padding-lef-right">
+            <div style={{padding: "12px 24px"}}>
               {customer.shipping_addresses !== undefined && (
                 <Row gutter={24}>
                   <Col
                     span={12}
                     style={{
                       borderRight: "1px solid #E5E5E5",
-                      paddingTop: "14px",
                     }}
                     className="font-weight-500 customer-info-left"
                   >
@@ -648,7 +647,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       xs={24}
                       lg={12}
                       className="font-weight-500"
-                      style={{ paddingLeft: "34px", marginTop: "14px" }}
+                      style={{padding: "0 12px"}}
                     >
                       <div>
                         <img
