@@ -24,11 +24,12 @@ import { StyledComponent } from "./styles";
 type PropType = {
   id?: string;
   type?: FormPrinterModel;
+  isPrint?: boolean;
   formValue?: BasePrinterModel;
 };
 
 const FormPrinter: React.FC<PropType> = (props: PropType) => {
-  const { id, type, formValue } = props;
+  const { id, type, formValue, isPrint } = props;
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
@@ -271,6 +272,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             <Card style={{ padding: "15px 15px", height: "100%" }}>
               <div className="printContent" ref={componentRef}>
                 <Preview
+                  isPrint={isPrint}
                   htmlContent={htmlContent}
                   listKeywords={LIST_PRINTER_VARIABLES}
                   listProductKeywords={LIST_PRINTER_PRODUCT_VARIABLES}
