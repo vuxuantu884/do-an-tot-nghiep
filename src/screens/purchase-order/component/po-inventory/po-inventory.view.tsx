@@ -15,10 +15,9 @@ type POInventoryViewProps = {
   onSuccess: () => void;
   confirmDraft: (item: PurchaseProcument, isEdit: boolean) => void;
   confirmInventory: (item: PurchaseProcument, isEdit: boolean) => void;
-  confirmImport: (item: PurchaseProcument, isEdit: boolean) => void;
-  tabs: Array<any>,
-  activeTab: number,
-  selectTabChange: (id: number) => void
+  tabs: Array<any>;
+  activeTab: number;
+  selectTabChange: (id: number) => void;
 };
 
 const POInventoryView: React.FC<POInventoryViewProps> = (
@@ -27,13 +26,12 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
   let {
     confirmDraft,
     confirmInventory,
-    confirmImport,
     id: poId,
     onSuccess,
     code,
     tabs,
     activeTab,
-    selectTabChange
+    selectTabChange,
   } = props;
   const getComponent = useCallback(
     (id: number) => {
@@ -41,14 +39,14 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
         case 1:
           return <TabAll onSuccess={onSuccess} id={poId} code={code} />;
         case 2:
-          return <TabInvetory confirmImport={confirmImport} />;
+          return <TabInvetory />;
         case 3:
           return <TabConfirmed confirmInventory={confirmInventory} />;
         case 4:
           return <TabDraft confirmDraft={confirmDraft} />;
       }
     },
-    [code, confirmDraft, confirmImport, confirmInventory, onSuccess, poId]
+    [code, confirmDraft, confirmInventory, onSuccess, poId]
   );
   return (
     <React.Fragment>

@@ -3,10 +3,8 @@ import IconSearch from "./images/iconSearch.svg";
 
 export const StyledComponent = styled.div`
   .searchWrapper {
-    margin-bottom: 35px;
     .searchForm {
-      display: flex;
-      align-items: center;
+      margin-bottom: 20px;
     }
     .ant-input {
       background-image: url(${IconSearch});

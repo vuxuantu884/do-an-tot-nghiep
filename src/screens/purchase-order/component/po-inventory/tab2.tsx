@@ -13,11 +13,8 @@ import {
 } from "react-icons/hi";
 import imgDefIcon from "assets/img/img-def.svg";
 
-type TabInventoryProps = {
-  confirmImport: (value: PurchaseProcument, isEdit: boolean) => void;
-};
+type TabInventoryProps = {};
 const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
-  const { confirmImport } = props;
   return (
     <Form.Item
       noStyle
@@ -121,20 +118,7 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                   </div>
                 ),
                 dataIndex: "code",
-                render: (value, item, index) => (
-                  <Button
-                    type="link"
-                    onClick={() => {
-                      confirmImport(item, true);
-                    }}
-                  >
-                    <div
-                      style={{ color: "#5D5D8A", textDecoration: "underline" }}
-                    >
-                      {value}
-                    </div>
-                  </Button>
-                ),
+                render: (value, item, index) => <div>{value}</div>,
               },
               {
                 title: "Kho nhận hàng",

@@ -182,7 +182,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
               </Radio>
             </Space>
           </Radio.Group>
-          {props.paymentMethod === PaymentMethodOption.COD &&
+          {/* {props.paymentMethod === PaymentMethodOption.COD &&
             props.shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <div className="order-cod-payment-footer">
                 <span>
@@ -199,7 +199,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                   có thể nhập giá trị Tiền thu hộ
                 </span>
               </div>
-            )}
+            )} */}
           {props.paymentMethod === PaymentMethodOption.COD &&
             props.shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
               <div className="order-cod-payment-footer" style={{ height: 83 }}>

@@ -387,16 +387,15 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   return (
     <StyledComponent>
       <Card
-        style={{padding: "12px 24px"}}
         title={
           <div className="d-flex">
             <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
           </div>
         }
       >
-        <div className="orders-shipment">
+        <div className="orders-shipment" style={{padding: "0 24px"}}>
           <Row gutter={24}>
-            <Col md={9}>
+            <Col span={14}>
               <span className="orders-shipment__dateLabel">Hẹn giao:</span>
               <Form.Item name="dating_ship">
                 <DatePicker
@@ -411,7 +410,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               </Form.Item>
             </Col>
 
-            <Col md={6}>
+            <Col span={10}>
               <Form.Item name="office_time">
                 <Checkbox
                   checked={officeTime}
@@ -422,41 +421,40 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                 </Checkbox>
               </Form.Item>
             </Col>
-            <Col span={24}>
-              <span className="orders-shipment__dateLabel">Yêu cầu:</span>
-              <Form.Item name="requirements">
-                <Select
-                  className="select-with-search"
-                  showSearch
-                  showArrow
-                  notFoundContent="Không tìm thấy kết quả"
-                  style={{ width: "100%" }}
-                  placeholder="Chọn yêu cầu"
-                  filterOption={(input, option) => {
-                    if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
-                    }
-                    return false;
-                  }}
-                >
-                  {shipping_requirements?.map((item, index) => (
-                    <Select.Option
-                      style={{ width: "100%" }}
-                      key={index.toString()}
-                      value={item.value}
-                    >
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
           </Row>
-
+          <Col span={24} style={{ paddingLeft: 0 }}>
+            <span className="orders-shipment__dateLabel">Yêu cầu:</span>
+            <Form.Item name="requirements">
+              <Select
+                className="select-with-search"
+                showSearch
+                showArrow
+                notFoundContent="Không tìm thấy kết quả"
+                style={{ width: "100%" }}
+                placeholder="Chọn yêu cầu"
+                filterOption={(input, option) => {
+                  if (option) {
+                    return (
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
+              >
+                {shipping_requirements?.map((item, index) => (
+                  <Select.Option
+                    style={{ width: "100%" }}
+                    key={index.toString()}
+                    value={item.value}
+                  >
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
           <Row>
             <div
               className="saleorder_shipment_method_btn"

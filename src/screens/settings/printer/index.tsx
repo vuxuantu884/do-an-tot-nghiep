@@ -1,13 +1,11 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Input, Row, Select } from "antd";
+import { Button, Card, Form } from "antd";
 import ContentContainer from "component/container/content.container";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { actionFetchListPrinter } from "domain/actions/printer/printer.action";
-import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BasePrinterModel,
@@ -18,21 +16,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import { generateQuery } from "utils/AppUtils";
+import FormFilter from "./component/FormFilter";
 import IconEdit from "./images/iconEdit.svg";
 import IconPrintHover from "./images/iconPrintHover.svg";
 import { StyledComponent } from "./styles";
-
-type StoreType = {
-  id: number;
-  name: string;
-}[];
 
 const SettingPrinter: React.FC = () => {
   const FAKE_PRINT_CONTENT = "<p>This is fake print content print screen</p>";
   const printElementRef = useRef(null);
   const [tableLoading, setTableLoading] = useState(false);
   const [searchInputValue, setSearchInputValue] = useState("");
-  const [selectStoreId, setSelectStoreId] = useState<any>(null);
+
   const [listPrinter, setListPrinter] = useState<BasePrinterModel[]>([]);
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
@@ -53,14 +47,20 @@ const SettingPrinter: React.FC = () => {
 
   const query = useQuery();
 
-  let queryStoreId = query.get("store_id");
   let queryName = query.get("name");
+  let queryType = query.get("type");
+  let queryStoreId = query.get("store_id");
+  let queryPrintSize = query.get("print_size");
+  let queryIsDefault = query.get("is_default");
 
   let [queryParams, setQueryParams] = useState({
     page: +(query.get("page") || 1),
     limit: +(query.get("limit") || 20),
     name: queryName || "",
+    type: queryType || "",
     store_id: queryStoreId || "",
+    print_size: queryPrintSize || "",
+    is_default: queryIsDefault || "",
     sort_type: "desc",
     sort_column: "id",
   });
@@ -79,8 +79,6 @@ const SettingPrinter: React.FC = () => {
   const goToPageDetail = (id: string | number) => {
     history.push(`${UrlConfig.PRINTER}/${id}`);
   };
-
-  const [listStores, setListStores] = useState<StoreType>([]);
 
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
@@ -109,19 +107,19 @@ const SettingPrinter: React.FC = () => {
       title: "Tên mẫu in",
       dataIndex: "name",
       visible: true,
-      width: "25%",
+      width: "20%",
     },
     {
       title: "Chi nhánh áp dụng",
       dataIndex: "store",
       visible: true,
-      width: "25%",
+      width: "20%",
     },
     {
       title: "Khổ in",
       dataIndex: "print_size",
       visible: true,
-      width: "20%",
+      width: "15%",
       className: "printSize",
       render: (value, row, index) => {
         let result = value;
@@ -136,6 +134,17 @@ const SettingPrinter: React.FC = () => {
           }
         }
         return result;
+      },
+    },
+    {
+      title: "Mặc định",
+      dataIndex: "is_default",
+      visible: true,
+      width: "15%",
+      render: (value, row, index) => {
+        if (value) {
+          return <span style={{ color: "#27AE60" }}>Áp dụng</span>;
+        }
       },
     },
     {
@@ -194,8 +203,11 @@ const SettingPrinter: React.FC = () => {
   const handleSubmit = (values: any) => {
     const newQuery = {
       ...queryParams,
-      name: values.searchInput,
-      store_id: selectStoreId,
+      name: values.name,
+      type: values.type,
+      store_id: values.store_id,
+      print_size: values.print_size,
+      is_default: values.is_default,
     };
     const newQueryParam = generateQuery(newQuery);
     // setSelectStoreId(null);
@@ -204,64 +216,32 @@ const SettingPrinter: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
-  const handleSelectStore = (value: any, option: any) => {
-    setSelectStoreId(value);
-  };
-
   const renderSearch = () => {
     return (
       <div className="searchWrapper">
-        <Row gutter={20}>
-          <Col span={8}>
-            <Form
-              form={form}
-              initialValues={initialFormValue}
-              onFinish={handleSubmit}
-              className="searchForm"
-              style={{ width: "100%" }}
-            >
-              <div className="formInput">
-                <Form.Item name="searchInput">
-                  <Input placeholder="Tìm kiếm theo tên mẫu in" />
-                </Form.Item>
-              </div>
-            </Form>
-          </Col>
-          <Col span={8}>
-            <Select
-              placeholder="Chọn chi nhánh áp dụng:"
-              allowClear
-              showSearch
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-              }
-              onSelect={handleSelectStore}
-              value={selectStoreId}
-              style={{ width: "100%" }}
-            >
-              {listStores &&
-                listStores.map((single, index) => {
-                  return (
-                    <Select.Option value={single.id} key={index}>
-                      {single.name}
-                    </Select.Option>
-                  );
-                })}
-            </Select>
-          </Col>
-          <Col span={8}>
-            <Button
-              type="primary"
-              className="ant-btn-primary"
-              onClick={() => {
-                form.submit();
-              }}
-            >
-              Lọc
-            </Button>
-          </Col>
-        </Row>
+        <Card style={{ padding: "20px 15px", marginBottom: 25 }}>
+          <Form
+            form={form}
+            initialValues={initialFormValue}
+            onFinish={handleSubmit}
+            className="searchForm"
+            style={{ width: "100%" }}
+          >
+            <FormFilter
+              isCanEditFormHeader={true}
+              isPagePrinterDetail={false}
+            />
+          </Form>
+          <Button
+            type="primary"
+            className="ant-btn-primary"
+            onClick={() => {
+              form.submit();
+            }}
+          >
+            Lọc
+          </Button>
+        </Card>
       </div>
     );
   };
@@ -291,26 +271,6 @@ const SettingPrinter: React.FC = () => {
     }
   }, [form, queryName, searchInputValue]);
 
-  useEffect(() => {
-    dispatch(
-      getListStoresSimpleAction((data: StoreResponse[]) => {
-        setListStores(data);
-      })
-    );
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (queryStoreId) {
-      let storeId = queryStoreId;
-      let selectedStore = listStores.find((singleStore) => {
-        return singleStore.id === +storeId;
-      });
-      setSelectStoreId(selectedStore?.id);
-    } else {
-      setSelectStoreId(null);
-    }
-  }, [listStores, queryStoreId]);
-
   return (
     <StyledComponent>
       <ContentContainer
@@ -330,9 +290,8 @@ const SettingPrinter: React.FC = () => {
         ]}
         extra={createPrinterHtml()}
       >
+        {renderSearch()}
         <Card style={{ padding: "35px 15px" }}>
-          {renderSearch()}
-
           <CustomTable
             isLoading={tableLoading}
             showColumnSetting={false}

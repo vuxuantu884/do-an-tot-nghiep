@@ -164,7 +164,7 @@ const CustomerEdit = (props: any) => {
         _item.is_default = _item.default;
         return _item;
       }),
-      billing_addresses: customer.shipping_addresses.map((item: any) => {
+      billing_addresses: customer.billing_addresses.map((item: any) => {
         let _item = { ...item };
         _item.is_default = _item.default;
         return _item;

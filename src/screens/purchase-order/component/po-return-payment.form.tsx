@@ -16,12 +16,13 @@ import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { POField } from "model/purchase-order/po-field";
-
 import EmptyPlaceholder from "./EmptyPlaceholder";
 import moment from "moment";
 
 type POReturnPaymentFormProps = {
   formMain: FormInstance;
+  totalReturn: number;
+  totalVat: number;
 };
 
 const { Item, List } = Form;
@@ -29,7 +30,7 @@ const { Item, List } = Form;
 const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
   props: POReturnPaymentFormProps
 ) => {
-  const { formMain } = props;
+  const { formMain, totalReturn, totalVat } = props;
   const [showPayment, setShowPayment] = useState(false);
   const [disabledRef, setDisabledRef] = useState(false);
   const onChangePaymentMethod = (e: any) => {
@@ -40,6 +41,23 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
       setDisabledRef(true);
     }
   };
+
+  useEffect(() => {
+    if (showPayment) {
+      formMain.setFieldsValue({
+        payments: [
+          {
+            payment_method_code: null,
+            transaction_date: null,
+            amount: totalReturn + totalVat,
+            reference: null,
+            note: null,
+            status: PoPaymentStatus.REFUND,
+          },
+        ],
+      });
+    }
+  }, [showPayment]);
 
   useEffect(() => {
     formMain.setFieldsValue({
@@ -218,7 +236,6 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
                                       replaceFormatString(a)
                                     }
                                     min={0}
-                                    default={0}
                                     placeholder="Nhập số tiền cần thanh toán"
                                   />
                                 </Item>
