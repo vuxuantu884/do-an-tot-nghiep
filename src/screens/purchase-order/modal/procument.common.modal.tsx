@@ -111,7 +111,10 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
             item.line_item_id === parseInt(lineItemId)
         );
         if (newProcumentItem) {
-          procurement_items = [...procurement_items, newProcumentItem];
+          procurement_items = [
+            ...procurement_items,
+            JSON.parse(JSON.stringify(newProcumentItem)),
+          ];
         }
       }
       form.setFieldsValue({ procurement_items: [...procurement_items] });

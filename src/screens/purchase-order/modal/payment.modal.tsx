@@ -185,6 +185,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
                 }
                 replace={(a: string) => replaceFormatString(a)}
                 min={0}
+                max={remainPayment}
                 default={0}
                 placeholder="Nhập số tiền cần thanh toán"
               />

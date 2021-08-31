@@ -51,7 +51,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     <StyledComponent>
       <div className="shipmentMethod__deliverPartner">
         <Row gutter={20}>
-          <Col md={12}>
+          <Col span={24}>
             <Form.Item label="Tiền thu hộ:">
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
@@ -70,7 +70,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
               />
             </Form.Item>
           </Col>
-          <Col md={12}>
+          <Col span={24}>
             <Form.Item
               label="Phí ship báo khách"
               name="shipping_fee_informed_to_customer"
@@ -112,8 +112,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                       return (
                         <React.Fragment key={index}>
                           <tr>
-                            <td>
+                            <td style={{ width: 100 }}>
                               <img
+                                style={{ width: 100}}
                                 className="logoHVC"
                                 src={single.logo ? single.logo : ""}
                                 alt=""
