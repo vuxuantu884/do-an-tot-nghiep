@@ -26,8 +26,6 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const { id } = useParams<PurchaseOrderReturnParams>();
   const idNumber = parseInt(id);
-  // const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
-  // const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [formMain] = Form.useForm();
   const location = useLocation();
   const history = useHistory();
