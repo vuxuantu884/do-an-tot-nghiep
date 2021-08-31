@@ -1,5 +1,4 @@
-import { HEADER_TYPE } from "config/HeaderConfig";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 
@@ -7,17 +6,15 @@ const fpage_customer = React.lazy(() => import ("screens/fpage/customer/index.sc
 
 const fpage: Array<RouteMenu> = [
   {
-    path: `${UrlConfig.FPAGE}`,
+    path: UrlConfig.FPAGE,
     exact: true,
-    title: "Danh sách khách hàng",
-    icon: 'icon-dot',
+    title: "Danh sách sản phẩm",
+    icon: "icon-dot",
     component: fpage_customer,
-    key: "submenuok",
+    key: "submenu100",
     isShow: true,
     header: null,
     subMenu: [],
-    type: HEADER_TYPE.STEP,
-    object: null,
   }
 ]
 
