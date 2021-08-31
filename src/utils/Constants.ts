@@ -89,8 +89,6 @@ export const POStatus = {
   FINISHED: "finished",
   //huy
   CANCELLED: "cancelled",
-  //dat hang
-  ORDER: "ORDER",
   //phieu nhap
   PROCUREMENT_DRAFT: "procurement_draft",
   //nhap kho

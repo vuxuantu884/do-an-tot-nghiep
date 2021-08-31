@@ -226,9 +226,7 @@ const PODetailScreen: React.FC = () => {
     let poStatus = POUtils.combinePOStatus(poData);
     if (
       poStatus &&
-      [POStatus.ORDER, POStatus.FINALIZED, POStatus.PROCUREMENT_DRAFT].includes(
-        poStatus
-      ) &&
+      [POStatus.FINALIZED, POStatus.PROCUREMENT_DRAFT].includes(poStatus) &&
       poData.receipt_quantity < 1
     )
       menuActions.push({

@@ -25,9 +25,10 @@ const POUtils = {
       status,
       procurements,
     } = poData;
-    if (status === POStatus.DRAFT || status === POStatus.CANCELLED)
+    if (
+      [POStatus.DRAFT, POStatus.CANCELLED, POStatus.FINALIZED].includes(status)
+    )
       return status;
-    if (!receive_status) return POStatus.ORDER;
     if (
       [ProcumentStatus.NOT_RECEIVED, ProcumentStatus.PARTIAL_RECEIVED].includes(
         receive_status
@@ -52,7 +53,7 @@ const POUtils = {
       if (financial_status === PoFinancialStatus.PAID) {
         if (!receipt_quantity || !planned_quantity)
           return POStatus.PROCUREMENT_RECEIVED;
-        if (receipt_quantity >= planned_quantity) return POStatus.COMPLETED;
+        if (receipt_quantity < planned_quantity) return POStatus.COMPLETED;
         else return POStatus.FINISHED;
       } else return POStatus.PROCUREMENT_RECEIVED;
     }
