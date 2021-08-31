@@ -35,7 +35,7 @@ import { POUtils } from "utils/POUtils";
 import ProductItem from "./product-item";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import NumberInput from "component/custom/number-input.custom";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import PriceModal from "../modal/price.modal";
 import DiscountModal from "../modal/discount.modal";
 import PickManyProductModal from "../modal/pick-many-product.modal";
@@ -1145,36 +1145,23 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           type = "money";
                         }
                         return (
-                          <Popover
-                            content={
-                              <PriceModal
-                                price={value}
-                                type={type}
-                                discount={
-                                  type === "percent"
-                                    ? item.discount_rate
-                                    : item.discount_value
-                                }
-                                onChange={(price, type, discount) =>
-                                  onPriceChange(price, type, discount, index)
-                                }
-                              />
-                            }
-                            zIndex={199}
-                            trigger="click"
-                          >
-                            <Button className="product-item-price">
-                              {formatCurrency(
-                                Math.round(
-                                  POUtils.caculatePrice(
-                                    value,
-                                    item.discount_rate,
-                                    item.discount_value
-                                  )
-                                )
-                              )}
-                            </Button>
-                          </Popover>
+                          <NumberInput
+                            // style={{ width: "70%" }}
+                            className="hide-number-handle"
+                            min={0}
+                            format={(a: string) => formatCurrency(a ? a : 0)}
+                            replace={(a: string) => replaceFormatString(a)}
+                            value={value}
+                            onChange={(inputValue) => {
+                              if (inputValue === null) return;
+                              onPriceChange(
+                                inputValue,
+                                DiscountType.money,
+                                0,
+                                index
+                              );
+                            }}
+                          />
                         );
                       },
                     },
@@ -1306,7 +1293,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               <Form.Item name={POField.trade_discount_value} hidden noStyle>
                 <Input />
               </Form.Item>
-              <Form.Item
+              {/* <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues.trade_discount_amount !==
                   curValues.trade_discount_amount
@@ -1377,7 +1364,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     </div>
                   );
                 }}
-              </Form.Item>
+              </Form.Item> */}
               <Form.Item name={POField.payment_discount_amount} hidden noStyle>
                 <Input />
               </Form.Item>
@@ -1405,7 +1392,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   ));
                 }}
               </Form.Item>
-              <Form.Item
+              {/* <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues[POField.payment_discount_amount] !==
                   curValues[POField.payment_discount_amount]
@@ -1485,9 +1472,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     </div>
                   );
                 }}
-              </Form.Item>
+              </Form.Item> */}
 
-              <Form.Item
+              {/* <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues[POField.total_cost_line] !==
                   curValues[POField.total_cost_line]
@@ -1523,7 +1510,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     </div>
                   );
                 }}
-              </Form.Item>
+              </Form.Item> */}
               <Divider className="margin-top-5 margin-bottom-5" />
               <Form.Item name={POField.cost_lines} hidden noStyle>
                 <Input />
