@@ -43,7 +43,7 @@ import ExpenseModal from "../modal/expense.modal";
 import { DiscountType, POField } from "model/purchase-order/po-field";
 import { CostLine } from "model/purchase-order/cost-line.model";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;

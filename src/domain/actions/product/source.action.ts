@@ -1,6 +1,6 @@
 import { SourceResponse } from 'model/response/order/source.response';
 import { OrderType } from '../../types/order.type';
-import BaseAction from 'base/BaseAction';
+import BaseAction from 'base/base.action';
 
 const getListSourceRequest = (setData: (data: Array<SourceResponse>) => void) => {
   return BaseAction(OrderType.GET_LIST_SOURCE_REQUEST, {setData});

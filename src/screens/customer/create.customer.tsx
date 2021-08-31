@@ -1,4 +1,4 @@
-import { Input, Form, Row, Col, Select, Button, Card, Collapse } from "antd";
+import { Form, Row, Col, Button, Collapse } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
   DistrictGetByCountryAction,
@@ -7,7 +7,6 @@ import {
 import {
   CreateCustomer,
   CustomerGroups,
-  CustomerLevels,
   CustomerTypes,
 } from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
@@ -17,14 +16,13 @@ import {
   CustomerContactClass,
 } from "model/request/customer.request";
 import arrowLeft from "../../assets/icon/arrow-left.svg";
-import moment from "moment";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showSuccess } from "utils/ToastUtils";
 import "./customer.scss";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import GeneralInformation from "./general.information";
 import {
   AccountResponse,
@@ -32,37 +30,25 @@ import {
 } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { RegUtil } from "utils/RegUtils";
 import CustomInputContact from "./customInputContact";
 
-const { Option } = Select;
 const { Panel } = Collapse;
-
+const initQueryAccount: AccountSearchQuery = {
+  info: "",
+};
 const CustomerAdd = (props: any) => {
   const [customerForm] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
   const [groups, setGroups] = React.useState<Array<any>>([]);
-  const [companies, setCompanies] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
-  const [levels, setLevels] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
   const [areas, setAreas] = React.useState<Array<any>>([]);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
-  const [countryId, setCountryId] = React.useState<number>(233);
+  const [countryId] = React.useState<number>(233);
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-  const initQueryAccount: AccountSearchQuery = {
-    info: "",
-  };
-  const AccountChangeSearch = React.useCallback(
-    (value) => {
-      initQueryAccount.info = value;
-      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
-    },
-    [dispatch, initQueryAccount]
-  );
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -74,6 +60,15 @@ const CustomerAdd = (props: any) => {
     },
     []
   );
+  const AccountChangeSearch = React.useCallback(
+    (value) => {
+      initQueryAccount.info = value;
+      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
+    },
+    [dispatch, setDataAccounts]
+  );
+
+ 
 
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
@@ -108,10 +103,10 @@ const CustomerAdd = (props: any) => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(CustomerTypes(setTypes));
-    dispatch(CustomerLevels(setLevels));
   }, [dispatch]);
   React.useEffect(() => {
-    customerForm.setFieldsValue(new CustomerModel());
+    let customer_type_id = 2
+    customerForm.setFieldsValue({...new CustomerModel(), customer_type_id});
   }, [customerForm]);
   const setResult = React.useCallback(
     (result) => {
@@ -128,14 +123,13 @@ const CustomerAdd = (props: any) => {
     let piece = {
       ...values,
       birthday: values.birthday
-      ? new Date(values.birthday).toISOString()
+      ? new Date(values.birthday).toUTCString()
       : null,
       wedding_date: values.wedding_date
-        ? new Date(values.wedding_date).toISOString()
+        ? new Date(values.wedding_date).toUTCString()
         : null,
       status: status,
       city_id: area ? area.city_id : null,
-      gender: "other",
       contacts: [
         {
           ...CustomerContactClass,
@@ -218,32 +212,6 @@ const CustomerAdd = (props: any) => {
               >
                 <Row gutter={30} style={{ padding: "0 15px" }}>
                   <CustomInputContact  form={customerForm}/>
-                  <Col span={12}>
-                    <Form.Item
-                      label={<b>Email:</b>}
-                      name="contact_email"
-                      // rules={[
-                      //   {
-                      //     required: true,
-                      //     message: "Vui lòng nhập thư điện tử",
-                      //   },
-                      // ]}
-                    >
-                      <Input maxLength={255} placeholder="Nhập email" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={24} style={{ padding: "0 1rem" }}>
-                    <Row gutter={8}>
-                      <Col span={24}>
-                        <Form.Item label={<b>Ghi chú:</b>} name="contact_note">
-                          <Input.TextArea
-                            maxLength={500}
-                            placeholder="Nhập ghi chú"
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Col>
                 </Row>
               </Panel>
             </Collapse>

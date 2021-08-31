@@ -2,7 +2,7 @@ import { ConvertDateToUtc } from "./DateUtils";
 import { AccountStoreResponse } from "model/account/account.model";
 import { DistrictResponse } from "model/content/district.model";
 import { CityView } from "model/content/district.model";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import moment from "moment";
@@ -20,7 +20,7 @@ import {
   VariantUpdateRequest,
   VariantUpdateView,
 } from "model/product/product.model";
-import { PriceConfig } from "config/PriceConfig";
+import { PriceConfig } from "config/price.config.";
 import {
   DeliveryServiceResponse,
   OrderLineItemResponse,
@@ -225,7 +225,12 @@ export const generateQuery = (obj: any) => {
     let a: string = Object.keys(obj)
       .map((key, index) => {
         let url = "";
-        if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") {
+        if (
+          obj[key] !== undefined &&
+          obj[key] !== null &&
+          obj[key] !== "" &&
+          obj[key].length !== 0
+        ) {
           let value = obj[key];
           if (obj[key] instanceof Array) {
             value = obj[key].join(",");
@@ -788,7 +793,7 @@ export const getDateLastPayment = (items: any) => {
 };
 
 //Lấy ra địa chỉ giao hàng mắc định
-export const getShipingAddresDefault = (items: CustomerResponse | null) => {
+export const getShippingAddressDefault = (items: CustomerResponse | null) => {
   let objShippingAddress = null;
   if (items !== null) {
     for (let i = 0; i < items.shipping_addresses.length; i++) {

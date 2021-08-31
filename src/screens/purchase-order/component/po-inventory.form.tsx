@@ -1,4 +1,4 @@
-import { Card, Form, Space, Tag, Modal } from "antd";
+import { Card, Form, Space, Tag } from "antd";
 import { Button } from "antd";
 import {
   PoProcumentCreateAction,
@@ -20,6 +20,8 @@ import ProducmentInventoryModal from "../modal/procument-intevory.modal.tsx";
 import ProcumentModal from "../modal/procument.modal";
 import POInventoryDraft from "./po-inventory/po-intentory.draft";
 import POInventoryView from "./po-inventory/po-inventory.view";
+import deliveryIcon from "assets/icon/delivery.svg";
+import procument from "assets/icon/procument.svg";
 
 type POInventoryFormProps = {
   stores: Array<StoreResponse>;
@@ -31,14 +33,37 @@ type POInventoryFormProps = {
   code?: string;
 };
 
+const TAB = [
+  {
+    name: "Tổng quan",
+    id: 1,
+    icon: deliveryIcon,
+  },
+  {
+    name: "Phiếu nhập kho",
+    id: 2,
+    icon: deliveryIcon,
+  },
+  {
+    name: "Phiếu đã duyệt",
+    id: 3,
+    icon: procument,
+  },
+  {
+    name: "Phiếu nháp",
+    id: 4,
+    icon: deliveryIcon,
+  },
+];
+
 const POInventoryForm: React.FC<POInventoryFormProps> = (
   props: POInventoryFormProps
 ) => {
+  const [activeTab, setActiveTab] = useState(TAB[0].id);
   const dispatch = useDispatch();
   const [visible, setVisible] = useState(false);
   const [visibleDraft, setVisibleDraft] = useState(false);
   const [visibleConfirm, setVisibleConfirm] = useState(false);
-  const [visibleDelete, setVisibleDelete] = useState(false);
   const [loaddingCreate, setLoadingCreate] = useState(false);
   const [loadingConfirm, setLoadingConfirm] = useState(false);
   const [loadingRecive, setLoadingRecive] = useState(false);
@@ -62,7 +87,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onAddProcumentSuccess && onAddProcumentSuccess();
       }
     },
-    [onAddProcumentSuccess]
+    [isEdit, onAddProcumentSuccess]
   );
 
   const onAddProcument = useCallback(
@@ -259,6 +284,9 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         <POInventoryDraft isEdit={props.isEdit} stores={stores} />
         {status && status !== POStatus.DRAFT && (
           <POInventoryView
+            tabs={TAB}
+            activeTab={activeTab}
+            selectTabChange={(id) => setActiveTab(id)}
             code={code}
             id={idNumber}
             onSuccess={() => {
@@ -306,6 +334,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         defaultStore={storeExpect}
         onOk={(value: PurchaseProcument) => {
           onAddProcument(value);
+          setActiveTab(TAB[3].id)
         }}
         onDelete={onDeleteProcument}
       />

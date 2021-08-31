@@ -12,7 +12,7 @@ import {
 import { useHistory } from "react-router-dom";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useMemo, Fragment } from "react";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { POUtils } from "utils/POUtils";
 import { formatCurrency } from "utils/AppUtils";
 import { CountryResponse } from "model/content/country.model";
@@ -39,7 +39,7 @@ const POReturnList: React.FC<POReturnListProps> = (
   const totalItems = useMemo(() => {
     let total = 0;
     if (!line_return_items) return total;
-    line_return_items.map((item) => {
+    line_return_items.forEach((item) => {
       total += item.quantity_return;
     });
     return total;
@@ -47,7 +47,7 @@ const POReturnList: React.FC<POReturnListProps> = (
   const totalValue = useMemo(() => {
     let total = 0;
     if (!line_return_items) return total;
-    line_return_items.map((item) => {
+    line_return_items.forEach((item) => {
       total +=
         item.quantity_return *
         POUtils.caculatePrice(

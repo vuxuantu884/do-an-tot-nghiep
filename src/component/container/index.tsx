@@ -2,7 +2,7 @@ import {Layout} from 'antd';
 import React, {useCallback, useEffect} from 'react';
 import {Redirect, useHistory} from 'react-router';
 import LoadingScreen from 'screens/loading.screen';
-import SlidebarContainer from './slide-bar.container';
+import SidebarContainer from './side-bar.container';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootReducerType} from 'model/reducers/RootReducerType';
 import {getBootstrapAction} from 'domain/actions/content/bootstrap.action';
@@ -10,15 +10,13 @@ import classNames from 'classnames';
 import {saveSettingAction} from 'domain/actions/app.action';
 import {useMemo} from 'react';
 import SplashScreen from 'screens/splash.screen';
-import UrlConfig from 'config/UrlConfig';
+import UrlConfig from 'config/url.config';
 import HeaderContainer from './header.container';
 
 type ContainerProps = {
   title: string;
   header?: React.ReactNode;
   children: React.ReactNode;
-  type: number;
-  object: any;
 };
 
 const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
@@ -63,7 +61,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
       <LoadingScreen />
       <HeaderContainer account={account} onCollapse={onCollapsed} />
       <Layout>
-        <SlidebarContainer
+        <SidebarContainer
           collapsed={collapsed}
           path={location.pathname}
         />

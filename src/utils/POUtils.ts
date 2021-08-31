@@ -1,5 +1,5 @@
-import { AppConfig } from "config/AppConfig";
-import { Type } from "config/TypeConfig";
+import { AppConfig } from "config/app.config";
+import { Type } from "config/type.config";
 import { VariantResponse } from "model/product/product.model";
 import { CostLine } from "model/purchase-order/cost-line.model";
 import {
@@ -36,7 +36,7 @@ const POUtils = {
     ) {
       let totalOrdered = 0;
       procurements &&
-        procurements.map((procurementItem) => {
+        procurements.forEach((procurementItem) => {
           totalOrdered += POUtils.totalQuantityProcument(
             procurementItem.procurement_items
           );

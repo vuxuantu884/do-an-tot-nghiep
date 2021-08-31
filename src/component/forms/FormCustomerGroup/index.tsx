@@ -1,11 +1,9 @@
-import { Checkbox, Col, Form, Input, Row, Select } from "antd";
+import {Col, Form, Input, Row } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
-import { RegUtil } from "utils/RegUtils";
+import CustomInput from "screens/customer/customInput";
 
 type FormValueType = {
   code: string;
@@ -19,10 +17,6 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
 ) => {
   const { modalAction, formItem, form, visible } = props;
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
-  // const DEFAULT_FORM_VALUE = {
-  //   company_id: 1,
-  //   company: "YODY",
-  // };
   const initialFormValue: FormValueType =
     !isCreateForm && formItem
       ? {
@@ -37,10 +31,6 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
           note: "",
           active: true,
         };
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
-  const LIST_STATUS = bootstrapReducer.data?.order_main_status;
 
   useEffect(() => {
     form.resetFields();
@@ -56,9 +46,9 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
       >
         <Row gutter={20}>
           <Col span={24}>
-            <Form.Item
+            {/* <Form.Item
               name="name"
-              label="Tên nhóm khách hàng"
+              label="Tên nhóm khách hàng 1"
               rules={[
                 {
                   required: true,
@@ -76,10 +66,19 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
                 style={{ width: "100%" }}
                 maxLength={255}
               />
-            </Form.Item>
+            </Form.Item> */}
+            <CustomInput
+                name="name"
+                label="Tên nhóm khách hàng:"
+                form={form}
+                message="Vui lòng nhập tên nhóm khách hàng"
+                placeholder="Nhập tên nhóm khách hàng"
+                isRequired={true}
+                maxLength={255}
+              />
             <Form.Item
               name="note"
-              label="Mô tả"
+              label={<b>Mô tả:</b>}
               rules={[{ max: 499, message: "Không được nhập quá 500 ký tự!" }]}
             >
               <Input.TextArea

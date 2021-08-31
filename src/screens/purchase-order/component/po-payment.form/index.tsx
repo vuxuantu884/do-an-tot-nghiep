@@ -1,6 +1,5 @@
 import {
   CheckCircleOutlined,
-  DeleteOutlined,
   EditOutlined,
   MinusCircleOutlined,
 } from "@ant-design/icons";

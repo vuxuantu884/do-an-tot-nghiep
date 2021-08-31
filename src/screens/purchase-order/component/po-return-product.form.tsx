@@ -13,7 +13,7 @@ import {
 } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { POField } from "model/purchase-order/po-field";
-import { Fragment, useMemo, useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import POProgressView from "./po-progress-view";
 import {
@@ -85,7 +85,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
     formMain.setFieldsValue({
       [POField.line_return_items]: [...currentLineReturn],
     });
-  }, [currentLineReturn]);
+  }, [currentLineReturn, formMain]);
 
   return (
     <Card
@@ -544,7 +544,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                           let totalReturn = 0,
                             totalVat = 0;
                           line_return_items &&
-                            line_return_items.map(
+                            line_return_items.forEach(
                               (item: PurchaseOrderLineReturnItem) => {
                                 if (!item.quantity_return) return;
                                 totalReturn +=

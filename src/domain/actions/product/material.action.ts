@@ -1,4 +1,4 @@
-import BaseAction from "base/BaseAction"
+import BaseAction from "base/base.action"
 import { MaterialType } from "domain/types/product.type";
 import { MaterialQuery, MaterialCreateRequest, MaterialUpdateRequest, MaterialResponse } from "model/product/material.model";
 import { PageResponse } from "model/base/base-metadata.response";

@@ -1,7 +1,7 @@
 import { AccountRequest } from "./../../../model/account/account.model";
 import { PositionResponse } from "model/account/position.model";
 import { DepartmentResponse } from "model/account/department.model";
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import { AccountType } from "domain/types/account.type";
 import {
   AccountSearchQuery,

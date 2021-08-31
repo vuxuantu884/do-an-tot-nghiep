@@ -1,13 +1,14 @@
 import React from 'react';
 import { RouteMenu } from "model/other";
-import setting from './setting';
-import product from './product';
-import bill from './bill';
-import UrlConfig from 'config/UrlConfig';
-import customers from "./customer"
+import setting from './setting.route';
+import product from './product.route';
+import bill from './bill.route';
+import UrlConfig from 'config/url.config';
+import customers from "./customer.route"
+import shipments from "./shipment.route"
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
-const Product = React.lazy(() => import ("screens/product/product.search.screen"));
+const Product = React.lazy(() => import ("screens/products/product/product.search.screen"));
 const Inventory = React.lazy(() => import ("screens/inverory"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
@@ -24,8 +25,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
   {
     path: "/products",
@@ -37,8 +36,7 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: product,
-    type: 0,
-    object: null,
+
   },
   {
     path: "/inventory",
@@ -50,8 +48,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
   {
     path: "/unicorn/pos",
@@ -63,8 +59,6 @@ const menu: Array<RouteMenu> = [
     isShow: false,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
   {
     path: UrlConfig.ORDER,
@@ -76,8 +70,17 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: bill,
-    type: 0,
-    object: null,
+  },
+  {
+    path: UrlConfig.SHIPMENTS,
+    exact: true,
+    title: "Vận chuyển",
+    icon: 'icon-product',
+    component: OrderOnline,
+    key: "10",
+    isShow: true,
+    header: null,
+    subMenu: shipments,
   },
   {
     path: "/customers",
@@ -89,8 +92,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: customers,
-    type: 0,
-    object: null,
   },
   {
     path: "/promotion",
@@ -102,8 +103,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
   {
     path: "/report",
@@ -115,8 +114,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    type: 0,
-    object: null,
   },
   {
     path: "/setting",
@@ -128,8 +125,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: setting,
-    type: 0,
-    object: null,
   },
 ]
 

@@ -13,6 +13,7 @@ import {
   getTrackingLogFulFillment,
   setSubStatusService,
   getTrackingLogFulFillmentError,
+  getListOrderApi,
 } from "./../../../service/order/order.service";
 import { SourceResponse } from "./../../../model/response/order/source.response";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
@@ -21,10 +22,10 @@ import {
   orderPostApi,
 } from "../../../service/order/order.service";
 import { OrderType } from "../../types/order.type";
-import BaseResponse from "base/BaseResponse";
+import BaseResponse from "base/base.response";
 import { put, call, takeLatest } from "redux-saga/effects";
-import { HttpStatus } from "config/HttpStatus";
-import { YodyAction } from "../../../base/BaseAction";
+import { HttpStatus } from "config/http-status.config";
+import { YodyAction } from "../../../base/base.action";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {
   DeliveryServiceResponse,
@@ -38,6 +39,21 @@ import {
 } from "model/response/order/order.response";
 import { getAmountPayment } from "utils/AppUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { OrderModel } from "model/order/order.model";
+
+function* getListOrderSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi, query);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
 
 function* orderCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
@@ -339,6 +355,7 @@ function* setSubStatusSaga(action: YodyAction) {
 }
 
 function* OrderOnlineSaga() {
+  yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);

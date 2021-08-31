@@ -33,7 +33,7 @@ import EditAddressModal from "../modal/edit-address";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { AddressType } from "utils/Constants";
-import SupplierAddModal from "screens/supllier/modal/supplier-add-modal.screen";
+import SupplierAddModal from "screens/products/supplier/modal/supplier-add-modal.screen";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { RegUtil } from "utils/RegUtils";
 

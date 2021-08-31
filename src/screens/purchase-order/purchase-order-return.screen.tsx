@@ -4,7 +4,7 @@ import { useParams, useLocation, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { POReturnAction } from "domain/actions/po/po.action";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import ContentContainer from "component/container/content.container";
 import { CountryResponse } from "model/content/country.model";
@@ -22,7 +22,7 @@ type PurchaseOrderReturnParams = {
 };
 
 const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
-  const [isError, setError] = useState(false);
+  const [isError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
   const { id } = useParams<PurchaseOrderReturnParams>();
   const idNumber = parseInt(id);

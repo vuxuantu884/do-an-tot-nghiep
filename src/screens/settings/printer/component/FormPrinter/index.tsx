@@ -1,122 +1,119 @@
-import { Button, Card, Col, Form, Input, Row, Select } from "antd";
-import Checkbox from "antd/lib/checkbox/Checkbox";
+import { Button, Card, Col, Form, Row } from "antd";
 import Editor from "component/ckeditor";
-import UrlConfig from "config/UrlConfig";
-import { getListStoresSimpleAction } from "domain/actions/core/store.action";
+import UrlConfig from "config/url.config";
+import ModalConfirm from "component/modal/ModalConfirm";
 import {
   actionCreatePrinter,
-  actionFetchPrinterDetail,
+  actionFetchListPrinterVariables,
 } from "domain/actions/printer/printer.action";
-import { StoreResponse } from "model/core/store.model";
 import { listKeywordsModel } from "model/editor/editor.model";
-import { PrinterModel } from "model/response/printer.response";
+import {
+  BasePrinterModel,
+  FormPrinterModel,
+  PrinterVariableResponseModel,
+} from "model/response/printer.response";
+import moment from "moment";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
-import {
-  LIST_PRINTER_SIZES,
-  LIST_PRINTER_TYPES,
-} from "utils/Printer.constants";
+import { Prompt } from "react-router";
+import { useHistory } from "react-router-dom";
+import { DEFAULT_FORM_VALUE } from "utils/Constants";
 import Preview from "../preview";
+import FormTop from "./FormTop";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   id?: string;
-  type?: "create" | "edit";
-  formValue?: PrinterModel;
+  type?: FormPrinterModel;
+  formValue?: BasePrinterModel;
 };
 
-type StoreType = {
-  id: number;
-  name: string;
-}[];
-
 const FormPrinter: React.FC<PropType> = (props: PropType) => {
-  const { type, formValue, id } = props;
+  const { id, type, formValue } = props;
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const isEdit = type === "edit" ? true : false;
   const [htmlContent, setHtmlContent] = useState("");
-  const [isShowEditor, setIsShowEditor] = useState(isEdit ? false : true);
-  const [listStores, setListStores] = useState<StoreType>([]);
+  const isShowEditor = isEdit;
   const [previewHeaderHeight, setPreviewHeaderHeight] = useState(108);
   const [selectedPrintSize, setSelectedPrintSize] = useState("");
   const componentRef = useRef(null);
   const history = useHistory();
 
+  const [printerVariables, setPrinterVariables] =
+    useState<PrinterVariableResponseModel>({});
+
+  const positionProductVariables = 1;
+
+  /**
+   * các biến printer
+   */
+  const LIST_PRINTER_VARIABLES: listKeywordsModel[] = [
+    {
+      name: "Thông tin cửa hàng",
+      list: printerVariables.print_store_variable,
+    },
+    {
+      name: "Thông tin đơn hàng",
+      list: printerVariables.print_order_variable,
+    },
+    {
+      name: "Thông tin vận chuyển",
+      list: printerVariables.print_shipment_variable,
+    },
+  ];
+
+  const PRODUCTS_VARIABLES = {
+    name: "Thông tin sản phẩm",
+    list: printerVariables.print_product_variable,
+  };
+
+  const LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES = [
+    ...LIST_PRINTER_VARIABLES.slice(0, positionProductVariables),
+    PRODUCTS_VARIABLES,
+    ...LIST_PRINTER_VARIABLES.slice(positionProductVariables),
+  ];
+
+  const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
+  const [isShowPrompt, setIsShowPrompt] = useState(false);
+  const titleConfirmSave = "Bạn có chắc chắn muốn thoát?";
+  const subTitleConfirmSave =
+    "Toàn bộ thay đổi của bạn sẽ không được ghi nhận.";
+
   const handleOnChangeEditor = (value: string) => {
     setHtmlContent(value);
   };
 
-  const sprintConfigure = {
-    listPrinterTypes: LIST_PRINTER_TYPES,
-    listStores: listStores,
-    listPrinterSizes: LIST_PRINTER_SIZES,
+  if (
+    printerVariables.print_product_variable &&
+    printerVariables.print_product_variable.length
+  ) {
+    for (let i = 0; i < printerVariables.print_product_variable.length; i++) {
+      // printerVariables.print_product_variable[i].preview_value_format  = [
+      //   "vd1",
+      //   "vd2",
+      // ];
+      if (!printerVariables.print_product_variable[i].preview_value_format) {
+        printerVariables.print_product_variable[i].preview_value_format = [
+          printerVariables.print_product_variable[i].preview_value,
+        ];
+      }
+    }
+  }
+  const LIST_PRINTER_PRODUCT_VARIABLES_zzz = {
+    name: "Thông tin sản phẩm",
+    list: printerVariables.print_product_variable,
   };
 
-  const FAKE_WORDS: listKeywordsModel[] = [
-    {
-      name: "Thông tin cửa hàng",
-      list: [
-        {
-          title: "tên công ty",
-          key: "{company_name}",
-          value: "YODY",
-        },
-        {
-          title: "địa chỉ công ty",
-          key: "{dia_chi_cong_ty}",
-          value: "Hải dương",
-        },
-        {
-          title: "Email cửa hàng",
-          key: "{email_cua_hang}",
-          value: "test@gmail.com",
-        },
-        {
-          title: "SĐT cửa hàng",
-          key: "{sdt_cua_hang}",
-          value: "0123456789",
-        },
-        {
-          title: "Mã đơn hàng",
-          key: "{ma_don_hang}",
-          value: "MASO1111",
-        },
-        {
-          title: "Tiền tệ",
-          key: "{tien_te}",
-          value: "VNĐ",
-        },
-      ],
-    },
-  ];
+  const LIST_PRINTER_PRODUCT_VARIABLES = LIST_PRINTER_PRODUCT_VARIABLES_zzz;
 
-  const FAKE_PRODUCT_WORDS = [
-    {
-      title: "tên sản phẩm",
-      key: "{product_name}",
-      value: ["sản phẩm 1", "sản phẩm 2"],
-      isRepeat: true,
-    },
-    {
-      title: "giá sản phẩm",
-      key: "{gia_san_pham}",
-      value: ["100", "200"],
-      isRepeat: true,
-    },
-    {
-      title: "màu sắc",
-      key: "{mau_sac_san_pham}",
-      value: ["xanh", "vàng"],
-      isRepeat: true,
-    },
-  ];
+  const isCanEditFormHeader = isShowEditor || type === "create";
 
   const initialFormValue = useMemo(() => {
     let result =
-      isEdit && formValue
+      (isEdit || type === "view") && formValue
         ? {
+            name: formValue.name,
             company: formValue.company,
             company_id: formValue.company_id,
             default: formValue.default,
@@ -127,8 +124,9 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             type: formValue.type,
           }
         : {
-            company: null,
-            company_id: null,
+            name: null,
+            company: DEFAULT_FORM_VALUE.company,
+            company_id: DEFAULT_FORM_VALUE.company_id,
             default: false,
             print_size: null,
             store: null,
@@ -137,32 +135,38 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
             type: null,
           };
     return result;
-  }, [isEdit, formValue]);
-
-  const onChangePrintSize = (value: string) => {
-    if (isEdit && id) {
-      history.push(`${UrlConfig.PRINTER}/${id}?print-size=${value}`);
-      dispatch(
-        actionFetchPrinterDetail(
-          +id,
-          {
-            "print-size": value,
-          },
-          (data: PrinterModel) => {
-            setHtmlContent(data.template);
-          }
-        )
-      );
-    }
-  };
-
-  const onChangeStoreId = (value: string) => {
-    history.push(`${UrlConfig.PRINTER}/${id}?store-id=${value}`);
-  };
+  }, [isEdit, type, formValue]);
 
   const handleSubmitForm = () => {
+    form.validateFields().then(() => {
+      const formComponentValue = form.getFieldsValue();
+      // console.log("formValue.template", formValue?.template);
+      // console.log("formComponentValue", formComponentValue);
+      if (formValue?.template === formComponentValue.template) {
+        history.push(UrlConfig.PRINTER);
+      } else {
+        /**
+         * thay tên theo ngày tháng
+         */
+        let newFormComponentValue = {
+          ...formComponentValue,
+          name: `${formComponentValue.name}-${moment().format(
+            "D/M/YYYY,H:mm:ss"
+          )}`,
+        };
+        // formComponentValue.
+        dispatch(actionCreatePrinter(newFormComponentValue));
+      }
+    });
+  };
+
+  const handleClickExit = () => {
     const formComponentValue = form.getFieldsValue();
-    dispatch(actionCreatePrinter(formComponentValue));
+    if (formValue?.template === formComponentValue.template) {
+      history.push(UrlConfig.PRINTER);
+    } else {
+      setIsShowModalConfirm(true);
+    }
   };
 
   const handleEditorToolbarHeight = (height: number) => {
@@ -170,126 +174,60 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   };
 
   useEffect(() => {
-    if (isEdit && formValue) {
+    if ((isEdit || type === "view") && formValue) {
       setHtmlContent(formValue.template);
       setSelectedPrintSize(formValue.print_size);
       form.setFieldsValue(initialFormValue);
       // setIsEditorLoad(true);
     }
-  }, [form, formValue, initialFormValue, isEdit]);
+  }, [form, formValue, initialFormValue, isEdit, type]);
 
   useEffect(() => {
     dispatch(
-      getListStoresSimpleAction((data: StoreResponse[]) => {
-        setListStores(data);
+      actionFetchListPrinterVariables((data: PrinterVariableResponseModel) => {
+        setPrinterVariables(data);
       })
     );
   }, [dispatch]);
 
+  const formComponentValue = form.getFieldsValue();
+
+  useEffect(() => {
+    const onChangePage = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    if (type === "edit") {
+      if (formValue?.template !== formComponentValue.template) {
+        setIsShowPrompt(true);
+        window.addEventListener("beforeunload", onChangePage);
+      } else {
+        setIsShowPrompt(false);
+      }
+    }
+    return () => {
+      window.removeEventListener("beforeunload", onChangePage);
+    };
+  }, [form, formComponentValue.template, formValue?.template, type]);
+
   return (
     <StyledComponent>
       <Form form={form} layout="vertical" initialValues={initialFormValue}>
-        <Card
-          style={{ padding: "20px 15px", marginBottom: 20, borderRadius: 12 }}
-        >
-          <Row gutter={20} className="sectionFilter">
-            <Col span={6}>
-              <Form.Item name="company" hidden>
-                <Input type="text" />
-              </Form.Item>
-              <Form.Item name="company_id" hidden>
-                <Input type="text" />
-              </Form.Item>
-              <Form.Item name="type" label="Chọn mẫu in:">
-                <Select
-                  placeholder="Chọn mẫu in"
-                  allowClear
-                  showSearch
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    option?.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
-                  }
-                >
-                  {sprintConfigure.listPrinterTypes &&
-                    sprintConfigure.listPrinterTypes.map((single, index) => {
-                      return (
-                        <Select.Option value={single.value} key={index}>
-                          {single.name}
-                        </Select.Option>
-                      );
-                    })}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={6}>
-              <Form.Item name="store_id" label="Chọn chi nhánh áp dụng:">
-                <Select
-                  placeholder="Chọn chi nhánh áp dụng:"
-                  allowClear
-                  showSearch
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    option?.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
-                  }
-                  onChange={onChangeStoreId}
-                >
-                  <Select.Option value={10000}>Tất cả cửa hàng</Select.Option>
-                  {sprintConfigure.listStores &&
-                    sprintConfigure.listStores.map((single, index) => {
-                      // console.log("single", single);
-                      return (
-                        <Select.Option value={single.id} key={index}>
-                          {single.name}
-                        </Select.Option>
-                      );
-                    })}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={6}>
-              <Form.Item name="print_size" label="Chọn khổ in:">
-                <Select
-                  placeholder="Chọn khổ in"
-                  onChange={onChangePrintSize}
-                  allowClear
-                >
-                  {sprintConfigure.listPrinterSizes &&
-                    sprintConfigure.listPrinterSizes.map((single, index) => {
-                      return (
-                        <Select.Option value={single.value} key={index}>
-                          {single.name}
-                        </Select.Option>
-                      );
-                    })}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={6}>
-              <Form.Item name="default" valuePropName="checked">
-                <Checkbox>Áp dụng</Checkbox>
-              </Form.Item>
-            </Col>
-          </Row>
-        </Card>
+        <FormTop isCanEditFormHeader={isCanEditFormHeader} />
         <Row gutter={20}>
-          {(isShowEditor || !isEdit) && (
+          {isCanEditFormHeader && (
             <Col span={12}>
               <Card style={{ padding: "15px 15px", height: "100%" }}>
-                {/* <Editor onChange={handleOnChangeEditor} /> */}
-                {/* <CkEditor onChange={handleOnChangeEditor} /> */}
                 <React.Fragment>
-                  {/* <Input hidden /> */}
-                  {/* {isEditorLoad && selectedPrintSize && ( */}
                   {(!isEdit || selectedPrintSize) && (
                     <Form.Item name="template">
                       <Editor
                         onChange={handleOnChangeEditor}
                         initialHtmlContent={htmlContent}
-                        listKeywords={FAKE_WORDS}
+                        // listKeywords={LIST_PRINTER_VARIABLES}
+                        listKeywords={
+                          LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES
+                        }
                         selectedPrintSize={selectedPrintSize}
                         previewHeaderHeight={handleEditorToolbarHeight}
                       />
@@ -299,27 +237,33 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
               </Card>
             </Col>
           )}
-          <Col span={isShowEditor || !isEdit ? 12 : 24}>
+          <Col span={isCanEditFormHeader ? 12 : 24}>
             <Card style={{ padding: "15px 15px", height: "100%" }}>
               <div className="printContent" ref={componentRef}>
                 <Preview
                   htmlContent={htmlContent}
-                  listKeywords={FAKE_WORDS}
-                  listProductKeywords={FAKE_PRODUCT_WORDS}
+                  listKeywords={LIST_PRINTER_VARIABLES}
+                  listProductKeywords={LIST_PRINTER_PRODUCT_VARIABLES}
                   previewHeaderHeight={previewHeaderHeight}
                   isShowEditor={isShowEditor}
                   onChangeShowEditor={(isShow: boolean) => {
-                    setIsShowEditor(isShow);
+                    if (isShow) {
+                      history.push(`${UrlConfig.PRINTER}/${id}?action=edit`);
+                    }
                   }}
                 />
               </div>
             </Card>
           </Col>
         </Row>
-        {(isShowEditor || !isEdit) && (
+        {isCanEditFormHeader && (
           <div className="groupButtons">
-            <Button>
-              <Link to={`${UrlConfig.PRINTER}`}>Thoát</Link>
+            <Button
+              onClick={() => {
+                handleClickExit();
+              }}
+            >
+              Thoát
             </Button>
             <Button
               type="primary"
@@ -332,6 +276,20 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
           </div>
         )}
       </Form>
+      <ModalConfirm
+        onCancel={() => {
+          setIsShowModalConfirm(false);
+        }}
+        onOk={() => {
+          history.push(UrlConfig.PRINTER);
+        }}
+        title={titleConfirmSave}
+        subTitle={subTitleConfirmSave}
+        visible={isShowModalConfirm}
+      />
+      {isShowPrompt && (
+        <Prompt message="Bạn có chắc chắn muốn thoát? Toàn bộ thay đổi của bạn sẽ không được ghi nhận." />
+      )}
     </StyledComponent>
   );
 };

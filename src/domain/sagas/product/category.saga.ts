@@ -1,7 +1,7 @@
 import {call, put, takeLatest} from '@redux-saga/core/effects';
-import {YodyAction} from 'base/BaseAction';
-import BaseResponse from 'base/BaseResponse';
-import {HttpStatus} from 'config/HttpStatus';
+import {YodyAction} from 'base/base.action';
+import BaseResponse from 'base/base.response';
+import {HttpStatus} from 'config/http-status.config';
 import {unauthorizedAction} from 'domain/actions/auth/auth.action';
 import {CategoryType} from 'domain/types/product.type';
 import {CategoryResponse} from 'model/product/category.model';

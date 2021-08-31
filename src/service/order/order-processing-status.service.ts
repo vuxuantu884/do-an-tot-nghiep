@@ -1,6 +1,6 @@
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
-import { ApiConfig } from "config/ApiConfig";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
+import { ApiConfig } from "config/api.config";
 import { BaseQuery } from "model/base/base.query";
 import {
   OrderProcessingStatusModel,
@@ -14,9 +14,9 @@ import { generateQuery } from "utils/AppUtils";
  */
 
 export const getOrderProcessingStatusService = (
-  query: BaseQuery
+  queryParams: BaseQuery
 ): Promise<BaseResponse<SourceResponse>> => {
-  const queryString = generateQuery(query);
+  const queryString = generateQuery(queryParams);
   return BaseAxios.get(`${ApiConfig.ORDER}/subStatus?${queryString}`);
 };
 

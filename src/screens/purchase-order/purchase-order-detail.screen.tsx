@@ -1,8 +1,7 @@
-import { Button, Col, Form, Input, Row, Dropdown, Menu, Space } from "antd";
-import { Fragment } from "react";
+import { Button, Col, Form, Input, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
-import { AppConfig } from "config/AppConfig";
-import UrlConfig from "config/UrlConfig";
+import { AppConfig } from "config/app.config";
+import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PoDetailAction, PoUpdateAction } from "domain/actions/po/po.action";
 import { AccountResponse } from "model/account/account.model";
@@ -19,7 +18,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import {
-  PODeleteAction,
   POGetPrintContentAction,
 } from "domain/actions/po/po.action";
 import {
@@ -211,7 +209,7 @@ const PODetailScreen: React.FC = () => {
           break;
       }
     },
-    [setConfirmDelete, poData]
+    [setConfirmDelete]
   );
   const redirectToReturn = useCallback(() => {
     history.push(`${UrlConfig.PURCHASE_ORDER}/return/${id}`, {
@@ -219,7 +217,7 @@ const PODetailScreen: React.FC = () => {
       listCountries: listCountries,
       listDistrict: listDistrict,
     });
-  }, [history, poData]);
+  }, [history, id, poData]);
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [];
     if (!poData) return [];
@@ -265,7 +263,7 @@ const PODetailScreen: React.FC = () => {
         visible={isConfirmDelete}
       />
     );
-  }, [poData, isConfirmDelete, setConfirmDelete, setConfirmDelete, onCancel]);
+  }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
   const renderButton = useMemo(() => {
     switch (status) {
       case POStatus.DRAFT:
@@ -283,6 +281,17 @@ const PODetailScreen: React.FC = () => {
         return null;
     }
   }, [loadingConfirmButton, onConfirmButton, status]);
+  const printContentCallback = useCallback(
+    (printContent: Array<PurchaseOrderPrint>) => {
+      if (!printContent || printContent.length === 0) return;
+      setPrintContent(printContent[0].htmlContent);
+    },
+    [setPrintContent]
+  );
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
+
   useEffect(() => {
     dispatch(
       AccountSearchAction(
@@ -300,7 +309,7 @@ const PODetailScreen: React.FC = () => {
     } else {
       setError(true);
     }
-  }, [dispatch, idNumber, loadDetail, onResultWin, onStoreResult]);
+  }, [dispatch, idNumber, loadDetail, onResultWin, onStoreResult, printContentCallback]);
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
     return () => {
@@ -308,16 +317,6 @@ const PODetailScreen: React.FC = () => {
     };
   }, [formMain, onScroll]);
 
-  const printContentCallback = useCallback(
-    (printContent: Array<PurchaseOrderPrint>) => {
-      if (!printContent || printContent.length === 0) return;
-      setPrintContent(printContent[0].htmlContent);
-    },
-    [setPrintContent]
-  );
-  const handlePrint = useReactToPrint({
-    content: () => printElementRef.current,
-  });
 
   const handleExport = () => {
     var temp = document.createElement("div");

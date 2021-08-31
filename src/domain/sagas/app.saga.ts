@@ -4,9 +4,9 @@ import { AppType } from "domain/types/app.type";
 import { getSettingApp, getToken } from "utils/LocalStorageUtils";
 import { loadUserFromStorageSuccessAction, loadSettingAppResultAction, loadUserFromStorageFailAction} from 'domain/actions/app.action';
 import { getAcccountDetail } from 'service/accounts/account.service';
-import BaseResponse from 'base/BaseResponse';
+import BaseResponse from 'base/base.response';
 import { AccountResponse } from 'model/account/account.model';
-import { HttpStatus } from 'config/HttpStatus';
+import { HttpStatus } from 'config/http-status.config';
 import { AppSettingReducerType } from 'model/reducers/AppSettingReducerType';
 import { unauthorizedAction } from 'domain/actions/auth/auth.action';
 

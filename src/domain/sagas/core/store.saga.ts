@@ -1,10 +1,10 @@
 import { getListStore, getListStoreSimple } from "service/core/store.service";
-import BaseResponse from "base/BaseResponse";
-import { YodyAction } from "base/BaseAction";
+import BaseResponse from "base/base.response";
+import { YodyAction } from "base/base.action";
 import { showError } from "utils/ToastUtils";
 import { StoreResponse } from "model/core/store.model";
 import { call, put, takeLatest } from "@redux-saga/core/effects";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { StoreType } from "domain/types/core.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
