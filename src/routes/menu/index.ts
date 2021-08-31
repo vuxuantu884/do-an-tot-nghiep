@@ -6,6 +6,7 @@ import bill from './bill';
 import UrlConfig from 'config/UrlConfig';
 import customers from "./customer"
 import shipments from "./shipment"
+import fpage from "./fpage"
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/product/product.search.screen"));
@@ -13,6 +14,7 @@ const Inventory = React.lazy(() => import ("screens/inverory"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
 // const CustomerAdd = React.lazy(() => import ("screens/customer/add"));
+const fpageCustomer = React.lazy(() => import ("screens/fpage/customer/index.screen"));
 
 const menu: Array<RouteMenu> = [
   {
@@ -138,6 +140,19 @@ const menu: Array<RouteMenu> = [
     title: "Cài đặt",
     icon: 'icon-setting',
     component: Inventory,
+    key: "9",
+    isShow: true,
+    header: null,
+    subMenu: setting,
+    type: 0,
+    object: null,
+  },
+  {
+    path: "/fpage",
+    exact: true,
+    title: "Cài đặt",
+    icon: 'icon-setting',
+    component: fpageCustomer,
     key: "9",
     isShow: true,
     header: null,
