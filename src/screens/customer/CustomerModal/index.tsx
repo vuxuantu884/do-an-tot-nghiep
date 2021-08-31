@@ -110,7 +110,7 @@ const CustomModal = (props: CustomModalType) => {
   return (
     <Modal
       width="600px"
-      className="modal-confirm"
+      className="modal-confirm-customer"
       visible={visible}
       okText="Thêm"
       cancelText="Thoát"

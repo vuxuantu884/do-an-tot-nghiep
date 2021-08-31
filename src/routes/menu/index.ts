@@ -78,7 +78,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.SHIPMENTS,
     exact: true,
     title: "Vận chuyển",
-    icon: 'icon-product',
+    icon: 'icon-transport',
     component: OrderOnline,
     key: "10",
     isShow: true,
