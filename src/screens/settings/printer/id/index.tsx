@@ -25,7 +25,7 @@ function SinglePrinter() {
       id: 0,
       name: "",
       print_size: "",
-      default: false,
+      is_default: false,
       template: "",
       type: "",
     });

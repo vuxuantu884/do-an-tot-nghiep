@@ -1,8 +1,11 @@
 import { Button } from "antd";
+import { actionFetchPrintFormByOrderIds } from "domain/actions/printer/printer.action";
 import { OrderSettingsModel } from "model/other/order/order-model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { FulFillmentResponse } from "model/response/order/order.response";
 import { PrintFormByOrderIdsResponseModel } from "model/response/printer.response";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useReactToPrint } from "react-to-print";
 import { FulFillmentStatus } from "utils/Constants";
 import IconPrint from "./images/iconPrint.svg";
@@ -11,15 +14,14 @@ import { StyledComponent } from "./styles";
 type PropType = {
   fulfillment: FulFillmentResponse | null | undefined;
   orderSettings?: OrderSettingsModel;
-  printForm?: PrintFormByOrderIdsResponseModel;
+  orderId?: number;
 };
 
 const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
-  const { fulfillment, orderSettings, printForm } = props;
-  let printContent = "";
-  if (printForm && printForm[0]) {
-    printContent = printForm[0].html_content;
-  }
+  const { fulfillment, orderSettings, orderId } = props;
+  console.log("orderId", orderId);
+  const dispatch = useDispatch();
+  const [printContent, setPrintContent] = useState("");
   const printerContentHtml = () => {
     return `<div class='printerContent'>${printContent}<div>`;
   };
@@ -28,6 +30,30 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
     content: () => printElementRef.current,
   });
 
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+
+  // const LIST_PRINTYPE = bootstrapReducer.data?.print_type
+
+  let printType = "";
+  const getPrintType = (
+    fulfillment: FulFillmentResponse | null | undefined
+  ) => {
+    if (!fulfillment) {
+      return;
+    }
+    switch (fulfillment.status) {
+      case "shipping":
+        printType = "shipment";
+        break;
+      case "shipped":
+        printType = "order";
+        break;
+      default:
+        break;
+    }
+  };
   const isShowPrinterButton = () => {
     let isShow = true;
     const LIST_HIDE = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
@@ -87,14 +113,27 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
     };
   }, []);
 
+  useEffect(() => {
+    getPrintType(fulfillment);
+  });
+
   return (
     <StyledComponent>
-      {handlePrint && isShowPrinterButton() && (
+      {orderId && handlePrint && isShowPrinterButton() && (
         <React.Fragment>
           <Button
             onClick={(e) => {
               e.stopPropagation();
-              handlePrint();
+              dispatch(
+                actionFetchPrintFormByOrderIds(
+                  [orderId],
+                  printType,
+                  (response) => {
+                    setPrintContent(response.data[0].html_content);
+                    handlePrint();
+                  }
+                )
+              );
             }}
           >
             <img src={IconPrint} alt="" />
