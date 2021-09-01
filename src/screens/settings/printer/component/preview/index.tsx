@@ -3,7 +3,7 @@ import {
   PrintPreviewModel,
   productKeywordsModel,
 } from "model/editor/editor.model";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import ReactToPrint from "react-to-print";
 import IconEdit from "./images/iconEdit.svg";
@@ -160,14 +160,21 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
     return result;
   };
 
+  const [hasAlreadyPrint, setHasAlreadyPrint] = useState(false);
+
+  /**
+   * case url has param print=true,  print only one time
+   */
   useEffect(() => {
     let buttonPrintElement = document.getElementsByClassName(
       "button__print"
     )[0] as HTMLElement;
-    if (isPrint && htmlContent) {
+    if (isPrint && htmlContent && !hasAlreadyPrint) {
       buttonPrintElement.click();
+      setHasAlreadyPrint(true);
     }
-  }, [htmlContent, isPrint]);
+  }, [hasAlreadyPrint, htmlContent, isPrint]);
+
   return (
     <StyledComponent>
       <div className={`preview ${isShowEditor ? "showEditor" : "hideEditor"}`}>
