@@ -5,6 +5,7 @@ export interface PurchaseProcument extends BaseObject {
   expect_receipt_date: string;
   procurement_items: Array<PurchaseProcumentLineItem>;
   status: string;
+  status_po: string;
   note: string;
   actived_date: string;
   actived_by: string;
@@ -41,6 +42,7 @@ const POProcumentField = {
   activated_by: "activated_by",
   stock_in_date: "stock_in_date",
   stock_in_by: "stock_in_by",
+  status_po: "status_po",
 };
 
 const POProcumentLineItemField = {

@@ -79,6 +79,14 @@ export const ErrorGHTK = {
   ERRORAPI: "Lỗi tích hợp API",
   WAITTING: "Đang xử lý",
 };
+
+// DRAFT("draft", "Nháp"), //Đặt hàng
+//   FINALIZED("finalized", "Đã xác nhận"), //Xác nhận
+//   DRAFTPO("draftpo", "Phiếu nháp"), //Phiếu nháp
+//   STORED("stored", "Đã nhập kho"),  //Nhập kho
+//   COMPLETED("completed", "Đã hoàn thành"), //Hoàn thành
+//   FINISHED("finished", "Đã kết thúc"), //Kết thúc
+//   CANCELLED("cancelled", "Đã hủy"); //Hủy
 export const POStatus = {
   DRAFT: "draft",
   //xac nhan
@@ -90,9 +98,9 @@ export const POStatus = {
   //huy
   CANCELLED: "cancelled",
   //phieu nhap
-  PROCUREMENT_DRAFT: "procurement_draft",
-  //nhap kho
-  PROCUREMENT_RECEIVED: "procurement_received",
+  DRAFTPO: "draftpo",
+  //da nhap kho
+  STORED: "stored",
   STOCK_IN: "stock_in",
 };
 
