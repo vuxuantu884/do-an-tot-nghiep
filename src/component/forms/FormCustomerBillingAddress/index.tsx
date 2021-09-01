@@ -1,8 +1,6 @@
-import { Checkbox, Col, Form, Input, Row, Select } from "antd";
+import { Col, Form, Input, Row, Select } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import React from "react";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
 import { WardResponse } from "model/content/ward.model";
@@ -41,7 +39,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
   const [areas, setAreas] = React.useState<Array<any>>([]);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [districtId, setDistrictId] = React.useState<any>(null);
-  const [countryId, setCountryId] = React.useState<number>(233);
+  const [countryId] = React.useState<number>(233);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
 
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
@@ -77,16 +75,9 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
           tax_code: "",
           default: null,
         };
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
+
 
   // const LIST_STATUS = bootstrapReducer.data?.order_main_status;
-
-  const handleChangeDefault = (value: any) => {
-    console.log(value.target.checked);
-  };
-
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
       setDistrictId(districtId);

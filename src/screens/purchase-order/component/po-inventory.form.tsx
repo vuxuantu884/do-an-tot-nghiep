@@ -1,4 +1,4 @@
-import { Card, Form, Space, Tag, Modal } from "antd";
+import { Card, Form, Space, Tag } from "antd";
 import { Button } from "antd";
 import {
   PoProcumentCreateAction,
@@ -20,7 +20,10 @@ import ProducmentInventoryModal from "../modal/procument-intevory.modal.tsx";
 import ProcumentModal from "../modal/procument.modal";
 import POInventoryDraft from "./po-inventory/po-intentory.draft";
 import POInventoryView from "./po-inventory/po-inventory.view";
-
+import deliveryIcon from "assets/icon/delivery.svg";
+import procument from "assets/icon/procument.svg";
+import { POUtils } from "utils/POUtils";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 type POInventoryFormProps = {
   stores: Array<StoreResponse>;
   status: string;
@@ -28,17 +31,40 @@ type POInventoryFormProps = {
   isEdit: boolean;
   onAddProcumentSuccess?: () => void;
   idNumber?: number;
-  code?: string;
+  poData?: PurchaseOrder;
 };
+
+const TAB = [
+  {
+    name: "Tổng quan",
+    id: 1,
+    icon: deliveryIcon,
+  },
+  {
+    name: "Phiếu nhập kho",
+    id: 2,
+    icon: deliveryIcon,
+  },
+  {
+    name: "Phiếu đã duyệt",
+    id: 3,
+    icon: procument,
+  },
+  {
+    name: "Phiếu nháp",
+    id: 4,
+    icon: deliveryIcon,
+  },
+];
 
 const POInventoryForm: React.FC<POInventoryFormProps> = (
   props: POInventoryFormProps
 ) => {
+  const [activeTab, setActiveTab] = useState(TAB[0].id);
   const dispatch = useDispatch();
   const [visible, setVisible] = useState(false);
   const [visibleDraft, setVisibleDraft] = useState(false);
   const [visibleConfirm, setVisibleConfirm] = useState(false);
-  const [visibleDelete, setVisibleDelete] = useState(false);
   const [loaddingCreate, setLoadingCreate] = useState(false);
   const [loadingConfirm, setLoadingConfirm] = useState(false);
   const [loadingRecive, setLoadingRecive] = useState(false);
@@ -50,7 +76,8 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     useState<PurchaseProcument | null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
   const [isEdit, setIsEdit] = useState(false);
-  const { stores, status, now, idNumber, onAddProcumentSuccess, code } = props;
+  const { stores, status, now, idNumber, onAddProcumentSuccess, poData } =
+    props;
   const onAddProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {
       setLoadingCreate(false);
@@ -62,12 +89,19 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onAddProcumentSuccess && onAddProcumentSuccess();
       }
     },
-    [onAddProcumentSuccess]
+    [isEdit, onAddProcumentSuccess]
   );
 
   const onAddProcument = useCallback(
     (value: PurchaseProcument) => {
       if (idNumber) {
+        if (!poData) return;
+        value.status_po = POUtils.calculatePOStatus(
+          poData,
+          value,
+          null,
+          "update"
+        );
         setLoadingCreate(true);
         if (isEdit) {
           dispatch(
@@ -85,7 +119,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         }
       }
     },
-    [dispatch, idNumber, onAddProcumentCallback, isEdit]
+    [dispatch, idNumber, onAddProcumentCallback, isEdit, poData]
   );
   const onDeleteProcumentCallback = useCallback(() => {
     setLoadingCreate(false);
@@ -98,6 +132,13 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const onDeleteProcument = useCallback(
     (value: PurchaseProcument) => {
       if (idNumber && value.id) {
+        if (!poData) return;
+        value.status_po = POUtils.calculatePOStatus(
+          poData,
+          value,
+          null,
+          "delete"
+        );
         setLoadingCreate(true);
         dispatch(
           PoProcumentDeleteAction(idNumber, value.id, onDeleteProcumentCallback)
@@ -121,6 +162,13 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const onConfirmProcument = useCallback(
     (value: PurchaseProcument) => {
       if (idNumber && value.id) {
+        if (!poData) return;
+        value.status_po = POUtils.calculatePOStatus(
+          poData,
+          value,
+          null,
+          "update"
+        );
         setLoadingConfirm(true);
         dispatch(
           PoProcumentUpdateAction(
@@ -132,7 +180,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         );
       }
     },
-    [dispatch, idNumber, onConfirmProcumentCallback]
+    [dispatch, idNumber, onConfirmProcumentCallback, poData]
   );
 
   const onReciveProcumentCallback = useCallback(
@@ -152,6 +200,13 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const onReciveProcument = useCallback(
     (value: PurchaseProcument) => {
       if (idNumber && value.id) {
+        if (!poData) return;
+        value.status_po = POUtils.calculatePOStatus(
+          poData,
+          value,
+          null,
+          "update"
+        );
         setLoadingRecive(true);
         dispatch(
           PoProcumentUpdateAction(
@@ -163,7 +218,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         );
       }
     },
-    [dispatch, idNumber, onReciveProcumentCallback]
+    [dispatch, idNumber, onReciveProcumentCallback, poData]
   );
 
   useEffect(() => {
@@ -259,7 +314,10 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         <POInventoryDraft isEdit={props.isEdit} stores={stores} />
         {status && status !== POStatus.DRAFT && (
           <POInventoryView
-            code={code}
+            tabs={TAB}
+            activeTab={activeTab}
+            selectTabChange={(id) => setActiveTab(id)}
+            code={poData ? poData.code : undefined}
             id={idNumber}
             onSuccess={() => {
               onAddProcumentSuccess && onAddProcumentSuccess();
@@ -284,11 +342,6 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 setVisibleConfirm(true);
               }
             }}
-            confirmImport={(value: PurchaseProcument, isEdit: boolean) => {
-              setIsEdit(isEdit);
-              setProcumentInventory(value);
-              setVisibleConfirm(true);
-            }}
           />
         )}
       </div>
@@ -306,6 +359,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         defaultStore={storeExpect}
         onOk={(value: PurchaseProcument) => {
           onAddProcument(value);
+          setActiveTab(TAB[3].id);
         }}
         onDelete={onDeleteProcument}
       />
@@ -318,6 +372,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         item={procumentDraft}
         onOk={(value: PurchaseProcument) => {
           onConfirmProcument(value);
+          setActiveTab(TAB[2].id);
         }}
         onDelete={onDeleteProcument}
         loading={loadingConfirm}
@@ -335,6 +390,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         item={procumentInventory}
         onOk={(value: PurchaseProcument) => {
           onReciveProcument(value);
+          setActiveTab(TAB[1].id);
         }}
         onDelete={onDeleteProcument}
         loading={loadingRecive}

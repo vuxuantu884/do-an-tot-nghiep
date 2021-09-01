@@ -1,5 +1,5 @@
 import { POProcumentType } from "domain/types/purchase-order.type";
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 
 export const PoProcumentCreateAction = (

@@ -10,14 +10,14 @@ import {
   findPriceInVariant,
   findTaxInVariant,
 } from "utils/AppUtils";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import imgdefault from "assets/icon/img-default.svg";
-import { Type } from "config/TypeConfig";
+import { Type } from "config/type.config";
 import { Link } from "react-router-dom";
 import {
   OrderItemDiscountModel,
   OrderItemModel,
-} from "model/other/Order/order-model";
+} from "model/other/order/order-model";
 import {
   VariantResponse,
   VariantSearchQuery,

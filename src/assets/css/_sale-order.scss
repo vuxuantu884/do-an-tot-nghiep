@@ -1754,7 +1754,7 @@
   }
   .page-header {
     height: 60px;
-    padding: 12px 24px
+    padding: 12px 24px;
   }
   .ant-breadcrumb,
   .ant-layout-sider {
@@ -1770,11 +1770,10 @@
     display: none !important;
   }
   .header-right {
-   
     display: none !important;
   }
   .orders {
-    .ant-card-head{
+    .ant-card-head {
       padding: 10px 24px;
     }
     .ant-card-head-wrapper {

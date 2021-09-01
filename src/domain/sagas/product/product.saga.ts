@@ -1,8 +1,8 @@
 import { VariantResponse } from "model/product/product.model";
 import { call, put, takeEvery, takeLatest } from "@redux-saga/core/effects";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
-import { HttpStatus } from "config/HttpStatus";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
 import { ProductType } from "domain/types/product.type";
 import {
   createProductApi,

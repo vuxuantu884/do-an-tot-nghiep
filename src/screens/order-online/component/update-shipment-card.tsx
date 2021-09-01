@@ -41,7 +41,7 @@ import {
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
-import { OrderSettingsModel } from "model/other/Order/order-model";
+import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   ShippingGHTKRequest,
@@ -296,6 +296,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   }, [dispatch, props.OrderDetail]);
   //#endregion
   console.log(cancelReason);
+
   //#region Update Fulfillment Status
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
@@ -1004,6 +1005,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                             <PrintShippingLabel
                               fulfillment={fulfillment}
                               orderSettings={orderSettings}
+                              orderId={OrderDetail?.id}
                             />
                           </div>
 

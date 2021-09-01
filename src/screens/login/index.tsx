@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootReducerType } from 'model/reducers/RootReducerType';
 import { loginRequestAction } from 'domain/actions/auth/auth.action';
 import { useQuery } from 'utils/useQuery';
-import UrlConfig from 'config/UrlConfig';
+import UrlConfig from 'config/url.config';
 
 
 

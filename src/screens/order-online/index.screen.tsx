@@ -17,7 +17,7 @@ import {
 } from "model/account/account.model";
 import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -26,6 +26,11 @@ import { DeliveryServicesGetList, getListOrderAction } from "domain/actions/orde
 import './scss/index.screen.scss'
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { SourceResponse } from "model/response/order/source.response";
+import { StoreResponse } from "model/core/store.model";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 
 const actions: Array<MenuAction> = [
   {
@@ -101,6 +106,9 @@ const ListOrderScreen: React.FC = () => {
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<OrderSearchQuery>(dataQuery);
+  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [listStore, setStore] = useState<Array<StoreResponse>>();
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 30,
@@ -110,16 +118,51 @@ const ListOrderScreen: React.FC = () => {
     items: [],
   });
   const [deliveryServices, setDeliveryServices] =
-    useState<Array<DeliveryServiceResponse> | null>(null);
+    useState<Array<DeliveryServiceResponse>>([]);
+  const status_order = [
+    {name: "Nháp", value: "draft"},
+    {name: "Đóng gói", value: "packed"},
+    {name: "Xuất kho", value: "shipping"},
+    {name: "Đã xác nhận", value: "finalized"},
+    {name: "Hoàn thành", value: "completed"},
+    {name: "Kết thúc", value: "finished"},
+    {name: "Đã huỷ", value: "cancelled"},
+    {name: "Đã hết hạn", value: "expired"},
+  ]
+  const delivery_service = [
+    {
+      code: "ghtk",
+      id: 1,
+      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_8d45e336-6f25-4cec-9fe6-a52162839f35.svg",
+      name: "Giao hàng tiết kiệm"
+    },
+    {
+      code: "ghn",
+      id: 2,
+      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22%22delivery%22%22/2021-07-28-03-09-37_b2a5b9d2-6061-4fbd-99ad-2804eb78d82d.png",
+      name: "Giao hàng nhanh"
+    },
+    {
+      code: "vtp",
+      id: 3,
+      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_7f5b5e68-b208-43b8-bd42-4927ffd45dd4.svg",
+      name: "Viettel Post"
+    },
+    {
+      code: "dhl",
+      id: 4,
+      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_c8c71c38-5753-4159-b8df-5643dc400c7e.svg",
+      name: "DHL"
+    }
+  ]
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
       title: "ID",
-      // width:"1%",
       dataIndex: "id",
       key: "id",
       visible: true,
       fixed: 'left',
-      width: '120px'
+      width:"80px",
     },
     {
       title: "Khách hàng",
@@ -158,24 +201,31 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "fulfillments",
       key: "shipment.type",
       render: (fulfillments: Array<OrderFulfillmentsModel>) => {
-        const service_id = fulfillments && fulfillments[0].shipment ? fulfillments[0].shipment.delivery_service_provider_id : null
-        const service = deliveryServices ? deliveryServices.find(service => service.id === service_id) : null
+        const service_id = fulfillments.length && fulfillments[0].shipment ? fulfillments[0].shipment.delivery_service_provider_id : null
+        const service = delivery_service.find(service => service.id === service_id)
         return(
           service && (
             <img
               src={service.logo ? service.logo : ""}
               alt=""
-              style={{ width: "184px", height: "41px" }}
+              style={{ width: "200px", height: "41px" }}
             />
           )
         )
-    },
+      },
       visible: true,
+      // width: '250px'
     },
     {
       title: "Trạng thái đơn",
       dataIndex: "status",
       key: "status",
+      render: (status_value: string) => {
+        const status = status_order.find(status => status.value === status_value)
+        return(
+          status?.name
+        )
+      },
       visible: true,
       align: "center",
     },
@@ -445,8 +495,28 @@ const ListOrderScreen: React.FC = () => {
     },
     [deliveryServices]
   );
+  
+  // const onGetDeliverService = useCallback(
+  //   (id: number|null,) => {
+  //     console.log('onGetDeliverService', id,  deliveryServices)
+
+  //     const service = deliveryServices?.find(service => service.id === id)
+  //     return service?.logo
+  //   },
+  //   [deliveryServices]
+  // );
 
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
+  
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
   
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -460,6 +530,11 @@ const ListOrderScreen: React.FC = () => {
     dispatch(getListOrderAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
+  useEffect(() => {
+    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(getListSourceRequest(setListSource));
+    dispatch(StoreGetListAction(setStore));
+  }, [dispatch, setDataAccounts]);
   
   return (
     <ContentContainer
@@ -509,6 +584,10 @@ const ListOrderScreen: React.FC = () => {
           actions={actions}
           onFilter={onFilter}
           params={params}
+          listSource={listSource}
+          listStore={listStore}
+          accounts={accounts}
+          deliveryService={delivery_service}
           onShowColumnSetting={() => setShowSettingColumn(true)}
         />
         <CustomTable
@@ -547,3 +626,7 @@ const ListOrderScreen: React.FC = () => {
 };
 
 export default ListOrderScreen;
+function setDataAccounts(arg0: {}, setDataAccounts: any): import("../../base/base.action").YodyAction {
+  throw new Error("Function not implemented.");
+}
+

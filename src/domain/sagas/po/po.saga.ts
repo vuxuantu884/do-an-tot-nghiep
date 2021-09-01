@@ -4,9 +4,9 @@ import {
   updatePurchaseOrder,
   updatePurchaseOrderFinancialStatus,
 } from "service/purchase-order/purchase-order.service";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
-import { HttpStatus } from "config/HttpStatus";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { POType } from "domain/types/purchase-order.type";
 import { PageResponse } from "model/base/base-metadata.response";

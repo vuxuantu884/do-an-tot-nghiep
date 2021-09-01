@@ -30,7 +30,7 @@ import {
   AccountResponse,
   AccountSearchQuery,
 } from "model/account/account.model";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -42,6 +42,11 @@ import {
 import "./scss/index.screen.scss";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { SourceResponse } from "model/response/order/source.response";
+import { StoreResponse } from "model/core/store.model";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 
 const actions: Array<MenuAction> = [
   {
@@ -88,8 +93,8 @@ const initQuery: OrderSearchQuery = {
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
-  account: undefined,
-  assignee: undefined,
+  account: [],
+  assignee: [],
   price_min: undefined,
   price_max: undefined,
   payment_method_ids: [],
@@ -121,6 +126,9 @@ const ListFulfillmentScreen: React.FC = () => {
     ...getQueryParams(query),
   };
   let [params, setPrams] = useState<OrderSearchQuery>(dataQuery);
+  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+  const [listStore, setStore] = useState<Array<StoreResponse>>();
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 30,
@@ -131,6 +139,33 @@ const ListFulfillmentScreen: React.FC = () => {
   });
   const [deliveryServices, setDeliveryServices] =
     useState<Array<DeliveryServiceResponse> | null>(null);
+
+  const delivery_service = [
+    {
+      code: "ghtk",
+      id: 1,
+      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_8d45e336-6f25-4cec-9fe6-a52162839f35.svg",
+      name: "Giao hàng tiết kiệm"
+    },
+    {
+      code: "ghn",
+      id: 2,
+      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22%22delivery%22%22/2021-07-28-03-09-37_b2a5b9d2-6061-4fbd-99ad-2804eb78d82d.png",
+      name: "Giao hàng nhanh"
+    },
+    {
+      code: "vtp",
+      id: 3,
+      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_7f5b5e68-b208-43b8-bd42-4927ffd45dd4.svg",
+      name: "Viettel Post"
+    },
+    {
+      code: "dhl",
+      id: 4,
+      logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_c8c71c38-5753-4159-b8df-5643dc400c7e.svg",
+      name: "DHL"
+    }
+  ]  
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<OrderModel>>
   >([
@@ -415,23 +450,12 @@ const ListFulfillmentScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      console.log("values", values);
-      let newPrams = {
-        ...params,
-        ...values,
-        page: 1,
-      };
-
+      console.log('values filter 1', values)
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
-      let queryParam = generateQuery({
-        ...newPrams,
-        issued: null,
-        ship: null,
-        completed: null,
-        cancelled: null,
-      });
-      console.log("filter start", `${UrlConfig.ORDER}/list?${queryParam}`);
-      history.push(`${UrlConfig.ORDER}/list?${queryParam}`);
+      let queryParam = generateQuery(newPrams);
+      console.log('filter start', `${UrlConfig.ORDER}/list-shipments?${queryParam}`)
+      history.push(`${UrlConfig.ORDER}/list-shipments?${queryParam}`);
     },
     [history, params]
   );
@@ -452,16 +476,31 @@ const ListFulfillmentScreen: React.FC = () => {
     () => columns.filter((item) => item.visible === true),
     [columns]
   );
+  const setDataAccounts = useCallback(
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
+        return;
+      }
+      setAccounts(data.items);
+    },
+    []
+  );
 
   useEffect(() => {
     if (isFirstLoad.current) {
-      // dispatch(DeliveryServicesGetList(setDeliveryServices));
+      dispatch(DeliveryServicesGetList(setDeliveryServices));
       setTableLoading(true);
     }
     isFirstLoad.current = false;
     dispatch(getListOrderAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
+  useEffect(() => {
+    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(getListSourceRequest(setListSource));
+    dispatch(StoreGetListAction(setStore));
+  }, [dispatch, setDataAccounts]);
+  
   return (
     <ContentContainer
       title="Quản lý đơn giao hàng"
@@ -483,6 +522,10 @@ const ListFulfillmentScreen: React.FC = () => {
             actions={actions}
             onFilter={onFilter}
             params={params}
+            listSource={listSource}
+            listStore={listStore}
+            accounts={accounts}
+            deliveryService={delivery_service}
             onShowColumnSetting={() => setShowSettingColumn(true)}
           />
           <CustomTable

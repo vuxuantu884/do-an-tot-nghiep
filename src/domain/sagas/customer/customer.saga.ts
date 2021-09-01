@@ -1,9 +1,9 @@
 import { PageResponse } from "model/base/base-metadata.response";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import BaseResponse from "base/BaseResponse";
-import { YodyAction } from "base/BaseAction";
+import BaseResponse from "base/base.response";
+import { YodyAction } from "base/base.action";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import {
   createBillingAddress,
   createContact,
@@ -61,6 +61,30 @@ function* getCustomerList(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getCustomerByPhone(action: YodyAction) {
+  const { query, setData } = action.payload;
+  try {
+    const response: BaseResponse<CustomerResponse> = yield call(
+      getCustomers,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        console.log(response.data)
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -460,6 +484,9 @@ export default function* customerSagas() {
     CustomerType.CUSTOMER_LIST,
     getCustomerList
   );
+
+  
+  yield takeLatest(CustomerType.CUSTOMER_SEARCH_BY_PHONE, getCustomerByPhone);
   yield takeLatest(CustomerType.CUSTOMER_DETAIL, CustomerDetail);
   yield takeLatest(CustomerType.CREATE_CUSTOMER, CreateCustomer);
   yield takeLatest(CustomerType.UPDATE_CUSTOMER, UpdateCustomer);

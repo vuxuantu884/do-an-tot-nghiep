@@ -3,7 +3,7 @@ import { BaseMetadata } from "model/base/base-metadata.response";
 export interface BasePrinterModel {
   company: string;
   company_id: number;
-  default: boolean;
+  is_default: boolean;
   id: number;
   name: string;
   print_size: string;
@@ -42,3 +42,12 @@ export interface PrinterVariableResponseModel {
 }
 
 export type FormPrinterModel = "create" | "edit" | "view";
+
+/**
+ * print form by order ids response
+ */
+export type PrintFormByOrderIdsResponseModel = {
+  html_content: string;
+  order_id: number;
+  size: string;
+}[];

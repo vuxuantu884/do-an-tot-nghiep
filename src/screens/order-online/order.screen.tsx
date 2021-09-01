@@ -13,13 +13,13 @@ import {
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { orderCreateAction } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderSettingsModel } from "model/other/Order/order-model";
+import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddress,
@@ -211,7 +211,7 @@ export default function Order() {
       const strTag = value.join(", ");
       setTag(strTag);
     },
-    [tags, setTag]
+    [setTag]
   );
   //Fulfillment Request
   const createFulFillmentRequest = (value: OrderRequest) => {

@@ -50,16 +50,16 @@ import {
   getTotalQuantity,
 } from "utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import imgdefault from "assets/icon/img-default.svg";
 import emptyProduct from "assets/icon/empty_products.svg";
 import Xclosebtn from "assets/icon/X_close.svg";
 import addIcon from "assets/img/plus_1.svg";
-import { Type } from "config/TypeConfig";
+import { Type } from "config/type.config";
 import {
   OrderItemDiscountModel,
   OrderSettingsModel,
-} from "model/other/Order/order-model";
+} from "model/other/order/order-model";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
@@ -95,7 +95,7 @@ const initQueryVariant: VariantSearchQuery = {
 };
 
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
-  const { orderSettings, onChangeProduct, formRef } = props;
+  const { orderSettings, formRef } = props;
   const dispatch = useDispatch();
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [splitLine, setSplitLine] = useState<boolean>(false);

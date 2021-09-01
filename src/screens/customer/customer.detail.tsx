@@ -1,10 +1,7 @@
 import {
-  Input,
   Form,
   Row,
   Col,
-  DatePicker,
-  Select,
   Button,
   Card,
   Collapse,
@@ -34,7 +31,6 @@ import {
   CustomerGroups,
   CustomerLevels,
   CustomerTypes,
-  UpdateCustomer,
   CreateContact,
   UpdateContact,
   DeleteContact,
@@ -53,7 +49,7 @@ import "./customer.scss";
 import moment from "moment";
 import { showSuccess, showError } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -75,7 +71,12 @@ import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 const { Panel } = Collapse;
-const { Option } = Select;
+
+const genreEnum: any = {
+  male: "Nam",
+  female: "Nữ",
+  other: "Khác",
+};
 
 const CustomerEdit = (props: any) => {
   const params = useParams() as any;
@@ -87,7 +88,6 @@ const CustomerEdit = (props: any) => {
   const [types, setTypes] = React.useState<Array<any>>([]);
   const [levels, setLevels] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
-  const [companies, setCompanies] = React.useState<Array<any>>([]);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [customerDetail, setCustomerDetail] = React.useState([]) as any;
   const [customerDetailCollapse, setCustomerDetailCollapse] = React.useState(
@@ -105,11 +105,7 @@ const CustomerEdit = (props: any) => {
     },
     []
   );
-  const genreEnum: any = {
-    male: "Nam",
-    female: "Nữ",
-    other: "Khác",
-  };
+  
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -264,7 +260,7 @@ const CustomerEdit = (props: any) => {
           <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
             <Menu.Item key="1">
               <Button
-                icon={<img style={{ marginRight: 12 }} src={editIcon} />}
+                icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
                 type="text"
                 className=""
                 style={{
@@ -280,7 +276,7 @@ const CustomerEdit = (props: any) => {
             {customerDetailState !== 2 && (
               <Menu.Item key="2">
                 <Button
-                  icon={<img style={{ marginRight: 12 }} src={deleteIcon} />}
+                  icon={<img style={{ marginRight: 12 }} alt="" src={deleteIcon} />}
                   type="text"
                   className=""
                   style={{
@@ -693,8 +689,10 @@ const CustomerEdit = (props: any) => {
       contact.email ||
       contact.phone ||
       contact.note
-    )
+    ) {
       return true;
+    }
+    return false;
   });
   const shippingColumnFinal = () =>
     shippingColumns.filter((item) => item.visible === true);

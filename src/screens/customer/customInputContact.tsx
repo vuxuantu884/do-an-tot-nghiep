@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback } from "react";
 import { Form, Input, Row, Col } from "antd";
 import { RegUtil } from "utils/RegUtils";
 
@@ -10,26 +10,26 @@ function CustomInputContact(props: any) {
   const [contactEmail, setContactEmail] = React.useState<string>();
   const [contactNote, setContactNote] = React.useState<string>();
 
-  const handleChangeName = (v: any) => {
+  const handleChangeName = useCallback((v: any) => {
     setContactName(v.trim());
     if (v === "" && contactPhone === "") setContactPhone(undefined);
-  };
+  }, [contactPhone])
 
   const handleBlurName = (v: any) => {
     setContactName(v.trim());
     form?.setFieldsValue({ contact_name: contactName });
   };
-  const handleChangePhone = (v: any) => {
+  const handleChangePhone = useCallback((v: any) => {
     setContactPhone(v);
     if (v === "" && contactName === "") setContactName(undefined);
-  };
+  },[contactName]);
   React.useEffect(() => {
     form.setFieldsValue({ contact_name: contactName });
-  }, [contactName, handleChangeName]);
+  }, [contactName, form, handleChangeName]);
 
   React.useEffect(() => {
     form.setFieldsValue({ contact_phone: contactPhone });
-  }, [contactPhone, handleChangePhone]);
+  }, [contactPhone, form, handleChangePhone]);
 
   return (
     <>

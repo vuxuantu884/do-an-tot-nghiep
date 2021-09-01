@@ -1,8 +1,7 @@
-import { Button, Col, Form, Input, Row, Dropdown, Menu, Space } from "antd";
-import { Fragment } from "react";
+import { Button, Col, Form, Input, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
-import { AppConfig } from "config/AppConfig";
-import UrlConfig from "config/UrlConfig";
+import { AppConfig } from "config/app.config";
+import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PoDetailAction, PoUpdateAction } from "domain/actions/po/po.action";
 import { AccountResponse } from "model/account/account.model";
@@ -14,14 +13,18 @@ import {
   PurchaseOrderPrint,
 } from "model/purchase-order/purchase-order.model";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  Fragment,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import {
-  PODeleteAction,
-  POGetPrintContentAction,
-} from "domain/actions/po/po.action";
+import { POGetPrintContentAction } from "domain/actions/po/po.action";
 import {
   PoFormName,
   POStatus,
@@ -211,22 +214,22 @@ const PODetailScreen: React.FC = () => {
           break;
       }
     },
-    [setConfirmDelete, poData]
+    [setConfirmDelete]
   );
   const redirectToReturn = useCallback(() => {
     history.push(`${UrlConfig.PURCHASE_ORDER}/return/${id}`, {
       params: poData,
+      listCountries: listCountries,
+      listDistrict: listDistrict,
     });
-  }, [history, poData]);
+  }, [history, id, poData]);
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [];
     if (!poData) return [];
-    let poStatus = POUtils.combinePOStatus(poData);
+    let poStatus = poData.status;
     if (
       poStatus &&
-      [POStatus.ORDER, POStatus.FINALIZED, POStatus.PROCUREMENT_DRAFT].includes(
-        poStatus
-      ) &&
+      [POStatus.FINALIZED, POStatus.DRAFTPO].includes(poStatus) &&
       poData.receipt_quantity < 1
     )
       menuActions.push({
@@ -265,7 +268,7 @@ const PODetailScreen: React.FC = () => {
         visible={isConfirmDelete}
       />
     );
-  }, [poData, isConfirmDelete, setConfirmDelete, setConfirmDelete, onCancel]);
+  }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
   const renderButton = useMemo(() => {
     switch (status) {
       case POStatus.DRAFT:
@@ -283,6 +286,17 @@ const PODetailScreen: React.FC = () => {
         return null;
     }
   }, [loadingConfirmButton, onConfirmButton, status]);
+  const printContentCallback = useCallback(
+    (printContent: Array<PurchaseOrderPrint>) => {
+      if (!printContent || printContent.length === 0) return;
+      setPrintContent(printContent[0].htmlContent);
+    },
+    [setPrintContent]
+  );
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
+
   useEffect(() => {
     dispatch(
       AccountSearchAction(
@@ -300,24 +314,20 @@ const PODetailScreen: React.FC = () => {
     } else {
       setError(true);
     }
-  }, [dispatch, idNumber, loadDetail, onResultWin, onStoreResult]);
+  }, [
+    dispatch,
+    idNumber,
+    loadDetail,
+    onResultWin,
+    onStoreResult,
+    printContentCallback,
+  ]);
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
     return () => {
       window.removeEventListener("scroll", onScroll);
     };
   }, [formMain, onScroll]);
-
-  const printContentCallback = useCallback(
-    (printContent: Array<PurchaseOrderPrint>) => {
-      if (!printContent || printContent.length === 0) return;
-      setPrintContent(printContent[0].htmlContent);
-    },
-    [setPrintContent]
-  );
-  const handlePrint = useReactToPrint({
-    content: () => printElementRef.current,
-  });
 
   const handleExport = () => {
     var temp = document.createElement("div");
@@ -358,7 +368,7 @@ const PODetailScreen: React.FC = () => {
           name: `Đơn hàng ${id}`,
         },
       ]}
-      extra={<POStep poData={poData} />}
+      extra={poData && <POStep poData={poData} />}
     >
       <div id="test" className="page-filter">
         <Space direction="horizontal">
@@ -431,7 +441,7 @@ const PODetailScreen: React.FC = () => {
             <POInventoryForm
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
-              code={poData?.code}
+              poData={poData}
               isEdit={true}
               now={now}
               status={status}
@@ -439,14 +449,23 @@ const PODetailScreen: React.FC = () => {
             />
 
             {poData && poData.status !== POStatus.DRAFT ? (
-              <POPaymentForm poId={parseInt(id)} loadDetail={loadDetail} />
+              <POPaymentForm
+                poData={poData}
+                poId={parseInt(id)}
+                loadDetail={loadDetail}
+              />
             ) : (
               <POPaymentConditionsForm listPayment={listPaymentConditions} />
             )}
             {poData &&
               ((poData.receipt_quantity && poData.receipt_quantity > 0) ||
                 (poData.total_paid && poData.total_paid > 0)) && (
-                <POReturnList id={id} params={formMain.getFieldsValue(true)} />
+                <POReturnList
+                  id={id}
+                  params={formMain.getFieldsValue(true)}
+                  listCountries={listCountries}
+                  listDistrict={listDistrict}
+                />
               )}
           </Col>
           {/* Right Side */}
@@ -482,7 +501,7 @@ const PODetailScreen: React.FC = () => {
               zIndex: 100,
             }}
           >
-            <POStep poData={poData} />
+            {poData && <POStep poData={poData} />}
           </Col>
 
           <Col md={9} style={{ marginTop: "8px" }}>

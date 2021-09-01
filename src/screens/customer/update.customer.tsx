@@ -1,19 +1,13 @@
 import {
-  Input,
   Form,
   Row,
   Col,
-  DatePicker,
-  Select,
   Button,
-  Card,
-  Collapse,
 } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
   CustomerDetail,
   CustomerGroups,
-  CustomerLevels,
   CustomerTypes,
   UpdateCustomer,
 } from "domain/actions/customer/customer.action";
@@ -25,7 +19,7 @@ import "./customer.scss";
 import moment from "moment";
 import { showSuccess, showError } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import GeneralInformation from "./general.information";
 import {
   AccountResponse,
@@ -41,9 +35,9 @@ import {
 import arrowLeft from "../../assets/icon/arrow-left.svg";
 import { CustomerModel } from "model/request/customer.request";
 
-const { Option } = Select;
-const { Panel } = Collapse;
-
+const initQueryAccount: AccountSearchQuery = {
+  info: "",
+};
 const CustomerEdit = (props: any) => {
   const params = useParams() as any;
   const [customerForm] = Form.useForm();
@@ -52,26 +46,15 @@ const CustomerEdit = (props: any) => {
   const [customer, setCustomer] = React.useState<any>();
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
-  const [levels, setLevels] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
-  const [companies, setCompanies] = React.useState<Array<any>>([]);
+  // const [companies, setCompanies] = React.useState<Array<any>>([]);
   const [areas, setAreas] = React.useState<Array<any>>([]);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
-  const [countryId, setCountryId] = React.useState<number>(233);
+  const [countryId] = React.useState<number>(233);
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
 
-  const initQueryAccount: AccountSearchQuery = {
-    info: "",
-  };
-  const AccountChangeSearch = React.useCallback(
-    (value) => {
-      initQueryAccount.info = value;
-      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
-    },
-    [dispatch, initQueryAccount]
-  );
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -83,6 +66,15 @@ const CustomerEdit = (props: any) => {
     },
     []
   );
+  const AccountChangeSearch = React.useCallback(
+    (value) => {
+      initQueryAccount.info = value;
+      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
+    },
+    [dispatch, setDataAccounts]
+  );
+
+ 
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
@@ -122,7 +114,6 @@ const CustomerEdit = (props: any) => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(CustomerTypes(setTypes));
-    dispatch(CustomerLevels(setLevels));
   }, [dispatch]);
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
@@ -142,9 +133,9 @@ const CustomerEdit = (props: any) => {
       setStatus(customer.status);
     }
   }, [customer, customerForm]);
-  const reload = React.useCallback(() => {
-    dispatch(CustomerDetail(params.id, setCustomer));
-  }, [dispatch, params.id]);
+  // const reload = React.useCallback(() => {
+  //   dispatch(CustomerDetail(params.id, setCustomer));
+  // }, [dispatch, params.id]);
   const setResult = React.useCallback(
     (result) => {
       if (result) {

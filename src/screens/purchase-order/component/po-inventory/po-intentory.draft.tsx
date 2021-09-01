@@ -3,7 +3,7 @@ import CustomDatepicker from "component/custom/date-picker.custom";
 import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
 import moment from "moment";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
 type POInventoryDraftProps = {
   stores: Array<StoreResponse>;
@@ -91,7 +91,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
             let expect_import_date = getFieldValue(POField.expect_import_date);
             return (
               <div>
-                Ngày nhận dự kiến: <strong>{ConvertUtcToLocalDate(expect_import_date)}</strong>
+                Ngày nhận dự kiến: <strong>{ConvertUtcToLocalDate(expect_import_date, DATE_FORMAT.DDMMYYY)}</strong>
               </div>
             );
           }}

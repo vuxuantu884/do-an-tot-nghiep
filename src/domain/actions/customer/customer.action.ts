@@ -1,5 +1,5 @@
 import { CustomerSearchQuery } from 'model/query/customer.query';
-import BaseAction from 'base/BaseAction';
+import BaseAction from 'base/base.action';
 import { CustomerType } from 'domain/types/customer.type';
 import { CustomerResponse } from 'model/response/customer/customer.response';
 import {
@@ -10,6 +10,10 @@ import {
 
 export const CustomerSearch = (query: CustomerSearchQuery, setData: (data: Array<CustomerResponse>) => void) => {
     return BaseAction(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE, { query, setData });
+}
+
+export const CustomerSearchByPhone = (query: CustomerSearchQuery, setData: (data: CustomerResponse) => void) => {
+  return BaseAction(CustomerType.CUSTOMER_SEARCH_BY_PHONE, { query, setData });
 }
 
 export const CustomerList = (query: CustomerSearchQuery, setData: (data: any) => void) => {

@@ -12,9 +12,11 @@ import {
 import { useHistory } from "react-router-dom";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useMemo, Fragment } from "react";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { POUtils } from "utils/POUtils";
 import { formatCurrency } from "utils/AppUtils";
+import { CountryResponse } from "model/content/country.model";
+import { DistrictResponse } from "model/content/district.model";
 
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -22,12 +24,14 @@ import "./po-return-list.scss";
 interface POReturnListProps {
   id: string;
   params: PurchaseOrder | null;
+  listCountries: Array<CountryResponse>;
+  listDistrict: Array<DistrictResponse>;
 }
 
 const POReturnList: React.FC<POReturnListProps> = (
   props: POReturnListProps
 ) => {
-  const { id, params } = props;
+  const { id, params, listCountries, listDistrict } = props;
   const history = useHistory();
   const line_return_items = useMemo(() => {
     return params?.line_return_items;
@@ -35,7 +39,7 @@ const POReturnList: React.FC<POReturnListProps> = (
   const totalItems = useMemo(() => {
     let total = 0;
     if (!line_return_items) return total;
-    line_return_items.map((item) => {
+    line_return_items.forEach((item) => {
       total += item.quantity_return;
     });
     return total;
@@ -43,7 +47,7 @@ const POReturnList: React.FC<POReturnListProps> = (
   const totalValue = useMemo(() => {
     let total = 0;
     if (!line_return_items) return total;
-    line_return_items.map((item) => {
+    line_return_items.forEach((item) => {
       total +=
         item.quantity_return *
         POUtils.caculatePrice(
@@ -67,6 +71,8 @@ const POReturnList: React.FC<POReturnListProps> = (
           onClick={() => {
             history.push(`${UrlConfig.PURCHASE_ORDER}/return/${id}`, {
               params,
+              listCountries: listCountries,
+              listDistrict: listDistrict,
             });
           }}
           style={{

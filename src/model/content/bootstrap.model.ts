@@ -34,5 +34,6 @@ export interface BootstrapResponse {
   account_status: Array<BaseBootstrapResponse>;
   order_main_status: Array<BaseBootstrapResponse>;
   print_size: Array<BaseBootstrapResponse>;
+  print_type: Array<BaseBootstrapResponse>;
   print_variable: Array<BaseBootstrapResponse>;
 }

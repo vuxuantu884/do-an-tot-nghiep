@@ -1,4 +1,4 @@
-import BaseAction from "base/BaseAction"
+import BaseAction from "base/base.action"
 import LoadingType from "domain/types/loading.type"
 
 export const showLoading = () => {

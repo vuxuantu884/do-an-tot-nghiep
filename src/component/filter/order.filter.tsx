@@ -10,33 +10,32 @@ import {
   Tooltip,
   Collapse,
   Tag,
-  InputNumber
+  InputNumber,
+  Radio
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
 import { StarOutlined, SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import './order.filter.scss'
-import { useDispatch } from "react-redux";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { SourceResponse } from "model/response/order/source.response";
 import CustomSelect from "component/custom/select.custom";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery } from "model/order/order.model";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { remove } from "lodash";
 import moment from "moment";
+import { SourceResponse } from "model/response/order/source.response";
+import { StoreResponse } from "model/core/store.model";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
   params: OrderSearchQuery;
   actions: Array<MenuAction>;
+  listSource: Array<SourceResponse>;
+  listStore: Array<StoreResponse>| undefined;
+  accounts: Array<AccountResponse>;
+  deliveryService: Array<any>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
@@ -52,26 +51,28 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const {
     params,
     actions,
+    listSource,
+    listStore,
+    accounts,
+    deliveryService,
     onMenuClick,
     onClearFilter,
     onFilter,
     onShowColumnSetting
   } = props;
   const [visible, setVisible] = useState(false);
-  const dispatch = useDispatch();
-  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [listStore, setStore] = useState<Array<StoreResponse>>();
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  const status = [
-    {name: "DRAFT", value: "draft"},
-    {name: "FINALIZED", value: "finalized"},
-    {name: "COMPLETED", value: "completed"},
-    {name: "FINISHED", value: "finished"},
+  
+  const status = useMemo(() => [
+    {name: "Nháp", value: "draft"},
+    {name: "Đóng gói", value: "packed"},
+    {name: "Xuất kho", value: "shipping"},
+    {name: "Đã xác nhận", value: "finalized"},
+    {name: "Hoàn thành", value: "completed"},
+    {name: "Kết thúc", value: "finished"},
     {name: "Đã huỷ", value: "cancelled"},
     {name: "Đã hết hạn", value: "expired"},
-    
-  ]
-  const fulfillmentStatus = [
+  ], []);
+  const fulfillmentStatus = useMemo(() => [
     {name: "Chưa giao", value: "unshipped"},
     {name: "Đã lấy hàng", value: "picked"},
     {name: "Giao một phần", value: "partial"},
@@ -81,28 +82,27 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "Đã hủy", value: "cancelled"},
     {name: "Đang trả lại", value: "returning"},
     {name: "Đã trả lại", value: "returned"}
-  ];
-  const paymentStatus = [
+  ], []);
+  const paymentStatus =  useMemo(() => [
     {name: "Chưa trả", value: "unpaid"},
     {name: "Đã trả", value: "paid"},
     {name: "Đã trả một phần", value: "partial_paid"},
     {name: "Đang hoàn lại", value: "refunding"}
-  ];
-  const paymentType = [
+  ], []);
+  const paymentType = useMemo(() => [
     {name: "Tiền mặt", value: 1},
     {name: "Chuyển khoản", value: 3},
     {name: "QR Pay", value: 4},
     {name: "Tiêu điểm", value: 5},
     {name: "COD", value: 0},
-  ]
+  ], []);
   const formRef = createRef<FormInstance>();
-  const onFinish = useCallback(
-    (values) => {
-      console.log('values filter 2', values);
-      onFilter && onFilter(values);
-    },
-    [onFilter]
-  );
+
+  const onChangeOrderOptions = useCallback((e) => {
+    console.log('ok lets go', e.target.value);
+    
+  }, []);
+
   const onFilterClick = useCallback(() => {
     setVisible(false);
     formRef.current?.submit();
@@ -125,35 +125,25 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       console.log(dates, dateString, type)
       switch(type) {
         case 'issued':
-          formRef.current?.setFieldsValue({
-            issued_on_min: dateString[0],
-            issued_on_max: dateString[1],
-          });
-          // console.log('formRef.current', formRef.current?.getFieldsValue());
-          
+          setIssuedOnMin(dateString[0])
+          setIssuedOnMax(dateString[1])
           break;
         case 'ship':
-          formRef.current?.setFieldsValue({
-            ship_on_min: dateString[0],
-            ship_on_max: dateString[1],
-          });
+          setShipOnMin(dateString[0])
+          setShipOnMax(dateString[1])
           break;
         case 'completed':
-          formRef.current?.setFieldsValue({
-            completed_on_min: dateString[0],
-            completed_on_max: dateString[1],
-          });
+          setCompletedOnMin(dateString[0])
+          setCompletedOnMax(dateString[1])
           break;
         case 'cancelled':
-          formRef.current?.setFieldsValue({
-            cancelled_on_min: dateString[0],
-            cancelled_on_max: dateString[1],
-          });
+          setCancelledOnMin(dateString[0])
+          setCancelledOnMax(dateString[1])
           break;  
         default: break
       }
     },
-    [formRef]
+    []
   );
 
   const onCloseTag = useCallback(
@@ -169,15 +159,23 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           onFilter && onFilter({...params, source_ids: []});
           break;
         case 'issued':
-            onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
-            break;
+          setIssuedOnMin(null)
+          setIssuedOnMax(null)
+          onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
+          break;
         case 'ship':
+          setShipOnMin(null)
+          setShipOnMax(null)
           onFilter && onFilter({...params, ship_on_min: null, ship_on_max: null});
           break;
         case 'completed':
+          setCompletedOnMin(null)
+          setCompletedOnMax(null)
           onFilter && onFilter({...params, completed_on_min: null, completed_on_max: null});
           break;
         case 'cancelled':
+          setCancelledOnMin(null)
+          setCancelledOnMax(null)
           onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
           break;
         case 'order_status':
@@ -204,6 +202,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'expected_receive_predefined':
           onFilter && onFilter({...params, expected_receive_predefined: ""});
           break;
+        case 'ship_by':
+          onFilter && onFilter({...params, ship_by: ""});
+          break;
         case 'note':
           onFilter && onFilter({...params, note: ""});
           break;
@@ -225,12 +226,70 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   );
   
 
+  const clickOptionDate = useCallback(
+    (type, value) => {
+    let minValue = null;
+    let maxValue = null;
+
+    console.log('value', value);
+    
+    switch(value) {
+      case 'today':
+        minValue = moment().startOf('day').format('DD-MM-YYYY')
+        maxValue = moment().endOf('day').format('DD-MM-YYYY')
+        break
+      case 'yesterday':
+        minValue = moment().startOf('day').subtract(1, 'days').format('DD-MM-YYYY')
+        maxValue = moment().endOf('day').subtract(1, 'days').format('DD-MM-YYYY')
+        break
+      case 'thisweek':
+        minValue = moment().startOf('week').format('DD-MM-YYYY')
+        maxValue = moment().endOf('week').format('DD-MM-YYYY')
+        break
+      case 'lastweek':
+        minValue = moment().startOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
+        maxValue = moment().endOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
+        break
+      case 'thismonth':
+        minValue = moment().startOf('month').format('DD-MM-YYYY')
+        maxValue = moment().endOf('month').format('DD-MM-YYYY')
+        break
+      case 'lastmonth':
+        minValue = moment().startOf('month').subtract(1, 'months').format('DD-MM-YYYY')
+        maxValue = moment().endOf('month').subtract(1, 'months').format('DD-MM-YYYY')
+        break  
+      default:
+        break
+    }
+    console.log('minValue', minValue);
+    console.log('maxValue', maxValue);
+    
+    switch(type) {
+      case 'issued':
+        setIssuedOnMin(moment(minValue, 'DD-MM-YYYY'))
+        setIssuedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        break
+      case 'ship':
+        setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
+        setShipOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        break
+      case 'completed':
+        setCompletedOnMin(moment(minValue, 'DD-MM-YYYY'))
+        setCompletedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        break
+      case 'cancelled':
+        setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
+        setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        break
+      default:
+        break
+    }
+  }, []);
+
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "pos");
   }, [listSource]);
   const initialValues = useMemo(() => {
-    console.log('initialValues params', params);
-    
     return {
       ...params,
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
@@ -243,16 +302,37 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
       assignee: Array.isArray(params.assignee) ? params.assignee : [params.assignee],
       account: Array.isArray(params.account) ? params.account : [params.account],
-      issued: params.issued_on_min && params.issued_on_max ? [moment(params.issued_on_min, 'DD-MM-YYYY'), moment(params.issued_on_max, 'DD-MM-YYYY')] : [null, null],
-      ship: params.ship_on_min && params.ship_on_max ? [moment(params.ship_on_min, 'DD-MM-YYYY'), moment(params.ship_on_max, 'DD-MM-YYYY')] : [null, null],
-      completed: params.completed_on_min && params.completed_on_max ? [moment(params.completed_on_min, 'DD-MM-YYYY'), moment(params.completed_on_max, 'DD-MM-YYYY')] : [null, null],
-      cancelled: params.cancelled_on_min && params.cancelled_on_max ? [moment(params.cancelled_on_min, 'DD-MM-YYYY'), moment(params.cancelled_on_max, 'DD-MM-YYYY')] : [null, null],
-    }
-  }, [params]);
-
+  }}, [params])
+  const [issuedOnMin, setIssuedOnMin] = useState(initialValues.issued_on_min? moment(initialValues.issued_on_min, "DD-MM-YYYY") : null);
+  const [issuedOnMax, setIssuedOnMax] = useState(initialValues.issued_on_max? moment(initialValues.issued_on_max, "DD-MM-YYYY") : null);
+  const [shipOnMin, setShipOnMin] = useState(initialValues.ship_on_min? moment(initialValues.ship_on_min, "DD-MM-YYYY") : null);
+  const [shipOnMax, setShipOnMax] = useState(initialValues.ship_on_max? moment(initialValues.ship_on_max, "DD-MM-YYYY") : null);
+  const [completedOnMin, setCompletedOnMin] = useState(initialValues.completed_on_min? moment(initialValues.completed_on_min, "DD-MM-YYYY") : null);
+  const [completedOnMax, setCompletedOnMax] = useState(initialValues.completed_on_min? moment(initialValues.completed_on_min, "DD-MM-YYYY") : null);
+  const [cancelledOnMin, setCancelledOnMin] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
+  const [cancelledOnMax, setCancelledOnMax] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
+  const onFinish = useCallback(
+    (values) => {
+      console.log('values filter 2', values);
+      console.log('issuedOnMin', issuedOnMin);
+      const valuesForm = {
+        ...values,
+        issued_on_min: issuedOnMin ? moment(issuedOnMin, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
+        issued_on_max: issuedOnMax ? moment(issuedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        ship_on_min: shipOnMin ? moment(shipOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        ship_on_max: shipOnMax ? moment(shipOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        completed_on_min: completedOnMin ? moment(completedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        completed_on_max: completedOnMax ? moment(completedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        cancelled_on_min: cancelledOnMin ? moment(cancelledOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        cancelled_on_max: cancelledOnMax ? moment(cancelledOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+      }
+      onFilter && onFilter(valuesForm);
+    },
+    [cancelledOnMax, cancelledOnMin, completedOnMax, completedOnMin, issuedOnMax, issuedOnMin, onFilter, shipOnMax, shipOnMin]
+  );
   let filters = useMemo(() => {
     let list = []
-    console.log('filters initialValues', initialValues);
+    // console.log('filters initialValues', initialValues);
     if (initialValues.store_ids.length) {
       let textStores = ""
       initialValues.store_ids.forEach(store_id => {
@@ -394,7 +474,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-
+    if (initialValues.ship_by) {
+      const findSerivice = deliveryService.find(item => item.id.toString() === initialValues.ship_by)
+      list.push({
+        key: 'ship_by',
+        name: 'Hình thức vận chuyển',
+        value: findSerivice.name
+      })
+    }
     if (initialValues.expected_receive_predefined) {
       list.push({
         key: 'expected_receive_predefined',
@@ -402,18 +489,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: initialValues.expected_receive_predefined
       })
     }
-
-    // if (initialValues.ship_by) {
-    //   let textShipBy = ""
-    //   const findShipBy = paymentType?.find(item => item.value === i)
-    //   textShipBy = findShipBy ? textShipBy + findShipBy.name + ";" : textShipBy
-    //   list.push({
-    //     key: 'payment_method',
-    //     name: 'Phương thức thanh toán',
-    //     value: textShipBy
-    //   })
-    // }
-
     if (initialValues.note) {
       list.push({
         key: 'note',
@@ -449,24 +524,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: initialValues.reference_code
       })
     }
-    console.log('filters list', list);
+    // console.log('filters list', list);
     return list
-  }, [accounts, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status]);
+  }, [accounts, deliveryService, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status]);
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-    },
-    []
-  );
-  useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-    dispatch(getListSourceRequest(setListSource));
-    dispatch(StoreGetListAction(setStore));
-  }, [dispatch, setDataAccounts, props]);
+  
 
   useLayoutEffect(() => {
     if (visible) {
@@ -476,6 +538,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
   return (
     <div>
+      <div className="order-options">
+        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="a">
+          <Radio.Button value="a">Tất cả đơn hàng</Radio.Button>
+          <Radio.Button value="b">Đơn hàng online</Radio.Button>
+          <Radio.Button value="c">Đơn hàng offline</Radio.Button>
+        </Radio.Group>
+      </div>
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form onFinish={onFinish} initialValues={initialValues} layout="inline">
@@ -516,23 +585,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             initialValues={params}
             layout="vertical"
           >
-            {/* <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
-                  <Panel header="KHU VỰC" key="1" className="header-filter">
-                    <Item name="area">
-                    <Select optionFilterProp="children" showSearch placeholder="Chọn khu vực" style={{width: '100%'}}>
-                      <Option value="">Chọn khu vực</Option>
-                      
-                    </Select>
-                    </Item>
-                  </Panel>
-                </Collapse>
-              </Col>
-            </Row> */}
+            
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
                   <Panel header="KHO CỬA HÀNG" key="1" className="header-filter">
                     <Item name="store_ids">
                       <CustomSelect
@@ -567,7 +623,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.source_ids.length ? ["1"]: []}>
                   <Panel header="NGUỒN ĐƠN HÀNG" key="1" className="header-filter">
                     <Item name="source_ids" style={{ margin: "10px 0px" }}>
                       <CustomSelect
@@ -606,25 +662,23 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.issued_on_min && initialValues.issued_on_max ? ["1"]: []}>
                   <Panel header="NGÀY TẠO ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button>Hôm qua</Button>
-                      <Button>Hôm nay</Button>
-                      <Button>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'yesterday')}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'today')}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'thisweek')}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button>Tuần trước</Button>
-                      <Button>Tháng này</Button>
-                      <Button>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'lastweek')}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'thismonth')}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'lastmonth')}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="issued_on_min" style={{display: 'none'}}></Item>
-                    <Item name="issued_on_max" style={{display: 'none'}}></Item>
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      defaultValue={[initialValues.issued[0], initialValues.issued[1]]}
+                      value={[issuedOnMin? moment(issuedOnMin, "DD-MM-YYYY") : null, issuedOnMax? moment(issuedOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'issued')}
                     />
                   </Panel>
@@ -634,25 +688,23 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.ship_on_min && initialValues.ship_on_max ? ["1"]: []}>
                   <Panel header="NGÀY DUYỆT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button>Hôm qua</Button>
-                      <Button>Hôm nay</Button>
-                      <Button>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'yesterday')}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'today')}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'thisweek')}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button>Tuần trước</Button>
-                      <Button>Tháng này</Button>
-                      <Button>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'lastweek')}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'thismonth')}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'lastmonth')}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="ship_on_min" style={{display: 'none'}}></Item>
-                    <Item name="ship_on_max" style={{display: 'none'}}></Item>
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      defaultValue={[initialValues.ship[0], initialValues.ship[1]]}
+                      value={[shipOnMin? moment(shipOnMin, "DD-MM-YYYY") : null, shipOnMax? moment(shipOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'ship')}
                     />
                   </Panel>
@@ -661,25 +713,23 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.completed_on_min && initialValues.completed_on_max ? ["1"]: []}>
                   <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button>Hôm qua</Button>
-                      <Button>Hôm nay</Button>
-                      <Button>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'yesterday')}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'today')}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'thisweek')}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button>Tuần trước</Button>
-                      <Button>Tháng này</Button>
-                      <Button>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'lastweek')}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'thismonth')}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'lastmonth')}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="completed_on_min" style={{display: 'none'}}></Item>
-                    <Item name="completed_on_max" style={{display: 'none'}}></Item>
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      defaultValue={[initialValues.completed[0], initialValues.completed[1]]}
+                      value={[completedOnMin? moment(completedOnMin, "DD-MM-YYYY") : null, completedOnMax? moment(completedOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'completed')}
                     />
                   </Panel>
@@ -688,25 +738,23 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.cancelled_on_min && initialValues.cancelled_on_max ? ["1"]: []}>
                   <Panel header="NGÀY HUỶ ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button>Hôm qua</Button>
-                      <Button>Hôm nay</Button>
-                      <Button>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'yesterday')}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'today')}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'thisweek')}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button>Tuần trước</Button>
-                      <Button>Tháng này</Button>
-                      <Button>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'lastweek')}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'thismonth')}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'lastmonth')}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
-                    <Item name="cancelled_on_min" style={{display: 'none'}}></Item>
-                    <Item name="cancelled_on_max" style={{display: 'none'}}></Item>
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      defaultValue={[initialValues.cancelled[0], initialValues.cancelled[1]]}
+                      value={[cancelledOnMin? moment(cancelledOnMin, "DD-MM-YYYY") : null, cancelledOnMax? moment(cancelledOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'cancelled')}
                     />
                   </Panel>
@@ -715,7 +763,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.order_status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1" className="header-filter">
                     <Item name="order_status">
                     <Select mode="multiple" showSearch placeholder="Chọn trạng thái đơn hàng" style={{width: '100%'}}>
@@ -733,7 +781,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.fulfillment_status.length ? ["1"]: []}>
                   <Panel header="GIAO HÀNG" key="1" className="header-filter">
                     <Item name="fulfillment_status">
                       <Select mode="multiple" showSearch placeholder="Chọn trạng thái giao hàng" style={{width: '100%'}}>
@@ -754,7 +802,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.payment_status.length ? ["1"]: []}>
                   <Panel header="THANH TOÁN" key="1" className="header-filter">
                     <Item name="payment_status">
                       <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" style={{width: '100%'}}>
@@ -775,7 +823,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             {/* <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
                   <Panel header="TRẢ HÀNG" key="1" className="header-filter">
                     <Item name="payment_status">
                       <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" style={{width: '100%'}}>
@@ -796,7 +844,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row> */}
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.assignee.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN BÁN HÀNG" key="1" className="header-filter">
                     <Item name="assignee">
                       <Select mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng" style={{width: '100%'}}>
@@ -817,7 +865,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.account.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1" className="header-filter">
                     <Item name="account">
                       <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" style={{width: '100%'}}>
@@ -838,7 +886,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}} className="price">
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.price_min || initialValues.price_max ? ["1"]: []}>
                   <Panel header="TỔNG TIỀN" key="1" className="header-filter">
                     <Input.Group compact>
                       <Item name="price_min" style={{ width: '45%', textAlign: 'center' }}>
@@ -869,7 +917,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.payment_method_ids.length ? ["1"]: []}>
                   <Panel header="PHƯƠNG THỨC THANH TOÁN" key="1" className="header-filter">
                     <Item name="payment_method_ids">
                     <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}>
@@ -890,7 +938,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             {/* <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
                   <Panel header="NGÀY DỰ KIẾN NHẬN HÀNG" key="1" className="header-filter">
                     <Item name="expected_receive_predefined">
                       <DatePicker
@@ -905,16 +953,16 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row> */}
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.ship_by ? ["1"]: []}>
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
                     <Item name="ship_by">
                       <Select optionFilterProp="children" showSearch placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
-                        <Option value="">Hình thức vận chuyển</Option>
-                        {/* {listCountries?.map((item) => (
+                        {/* <Option value="">Hình thức vận chuyển</Option> */}
+                        {deliveryService?.map((item) => (
                           <Option key={item.id} value={item.id.toString()}>
                             {item.name}
                           </Option>
-                        ))} */}
+                        ))}
                       </Select>
                     </Item>
                   </Panel>
@@ -923,7 +971,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.note ? ["1"]: []}>
                   <Panel header="GHI CHÚ NỘI BỘ" key="1" className="header-filter">
                     <Item name="note">
                       <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
@@ -934,7 +982,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.customer_note ? ["1"]: []}>
                   <Panel header="GHI CHÚ CỦA KHÁCH" key="1" className="header-filter">
                     <Item name="customer_note">
                     <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
@@ -945,7 +993,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.tags.length ? ["1"]: []}>
                   <Panel header="TAG" key="1" className="header-filter">
                     <Item name="tags">
                     <Select mode="tags" optionFilterProp="children" showSearch placeholder="Chọn 1 hoặc nhiều tag" style={{width: '100%'}}>
@@ -958,7 +1006,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.reference_code ? ["1"]: []}>
                   <Panel header="MÃ THAM CHIẾU" key="1" className="header-filter">
                     <Item name="reference_code">
                       <Input placeholder="Tìm kiếm theo mã tham chiếu"/>

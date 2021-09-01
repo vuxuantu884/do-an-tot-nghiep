@@ -1,6 +1,5 @@
 import { Card, Col, Row } from "antd";
-import Modal from "antd/lib/modal/Modal";
-import React, { useState } from "react";
+import { useState } from "react";
 import historyAction from "./images/action-history.svg";
 import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";

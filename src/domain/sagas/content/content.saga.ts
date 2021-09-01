@@ -1,8 +1,8 @@
 import { getCityByCountryApi, getDistrictByCityApi, getGroupsApi } from './../../../service/content/content.service';
-import { YodyAction } from "base/BaseAction";
+import { YodyAction } from "base/base.action";
 import { takeLatest, call } from "@redux-saga/core/effects";
-import BaseResponse from "base/BaseResponse";
-import { HttpStatus } from "config/HttpStatus";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
 import { ContentType } from "domain/types/content.type";
 import { countryGetApi, getDistrictApi, getWardApi } from "service/content/content.service";
 import { showError } from "utils/ToastUtils";

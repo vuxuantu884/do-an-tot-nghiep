@@ -1,4 +1,4 @@
-import { Input, Form, Row, Col, Select, Button, Card, Collapse } from "antd";
+import { Form, Row, Col, Button, Collapse } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
   DistrictGetByCountryAction,
@@ -7,7 +7,6 @@ import {
 import {
   CreateCustomer,
   CustomerGroups,
-  CustomerLevels,
   CustomerTypes,
 } from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
@@ -17,14 +16,13 @@ import {
   CustomerContactClass,
 } from "model/request/customer.request";
 import arrowLeft from "../../assets/icon/arrow-left.svg";
-import moment from "moment";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showSuccess } from "utils/ToastUtils";
 import "./customer.scss";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import GeneralInformation from "./general.information";
 import {
   AccountResponse,
@@ -32,37 +30,25 @@ import {
 } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { RegUtil } from "utils/RegUtils";
 import CustomInputContact from "./customInputContact";
 
-const { Option } = Select;
 const { Panel } = Collapse;
-
+const initQueryAccount: AccountSearchQuery = {
+  info: "",
+};
 const CustomerAdd = (props: any) => {
   const [customerForm] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
   const [groups, setGroups] = React.useState<Array<any>>([]);
-  const [companies, setCompanies] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
-  const [levels, setLevels] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
   const [areas, setAreas] = React.useState<Array<any>>([]);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
-  const [countryId, setCountryId] = React.useState<number>(233);
+  const [countryId] = React.useState<number>(233);
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-  const initQueryAccount: AccountSearchQuery = {
-    info: "",
-  };
-  const AccountChangeSearch = React.useCallback(
-    (value) => {
-      initQueryAccount.info = value;
-      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
-    },
-    [dispatch, initQueryAccount]
-  );
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -74,6 +60,15 @@ const CustomerAdd = (props: any) => {
     },
     []
   );
+  const AccountChangeSearch = React.useCallback(
+    (value) => {
+      initQueryAccount.info = value;
+      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
+    },
+    [dispatch, setDataAccounts]
+  );
+
+ 
 
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
@@ -108,7 +103,6 @@ const CustomerAdd = (props: any) => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(CustomerTypes(setTypes));
-    dispatch(CustomerLevels(setLevels));
   }, [dispatch]);
   React.useEffect(() => {
     let customer_type_id = 2

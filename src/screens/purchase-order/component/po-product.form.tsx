@@ -9,13 +9,11 @@ import {
   Form,
   FormInstance,
   Input,
-  Popover,
   Row,
   Select,
   Space,
   Table,
   Tooltip,
-  Typography,
 } from "antd";
 import classNames from "classnames";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -30,20 +28,18 @@ import {
 import React, { createRef, useCallback, useMemo } from "react";
 import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { POUtils } from "utils/POUtils";
 import ProductItem from "./product-item";
-import { RootReducerType } from "model/reducers/RootReducerType";
+// import { RootReducerType } from "model/reducers/RootReducerType";
 import NumberInput from "component/custom/number-input.custom";
-import { formatCurrency } from "utils/AppUtils";
-import PriceModal from "../modal/price.modal";
-import DiscountModal from "../modal/discount.modal";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import PickManyProductModal from "../modal/pick-many-product.modal";
-import ExpenseModal from "../modal/expense.modal";
+// import ExpenseModal from "../modal/expense.modal";
 import { DiscountType, POField } from "model/purchase-order/po-field";
-import { CostLine } from "model/purchase-order/cost-line.model";
+// import { CostLine } from "model/purchase-order/cost-line.model";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
@@ -52,14 +48,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
   const { formMain, isEdit } = props;
   const productSearchRef = createRef<CustomAutoComplete>();
-  const product_units = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
-  );
+  // const product_units = useSelector(
+  //   (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
+  // );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [visibleExpense, setVisibleExpense] = useState<boolean>(false);
+  // const [visibleExpense, setVisibleExpense] = useState<boolean>(false);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [data, setData] = useState<Array<VariantResponse>>([]);
-  const [costLines, setCostLines] = useState<Array<CostLine>>([]);
+  // const [costLines, setCostLines] = useState<Array<CostLine>>([]);
   const renderResult = useMemo(() => {
     let options: any[] = [];
     data.forEach((item: VariantResponse, index: number) => {
@@ -346,105 +342,105 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [formMain]
   );
-  const onPaymentDiscountChange = useCallback(
-    (type: string, discount: number) => {
-      let trade_discount_amount = formMain.getFieldValue(
-        POField.trade_discount_amount
-      );
-      let tax_lines = formMain.getFieldValue(POField.tax_lines);
-      let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
-      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
-      let payment_discount_rate = null;
-      let payment_discount_value = null;
-      if (type === DiscountType.percent) {
-        payment_discount_rate = discount;
-      }
-      if (type === DiscountType.money) {
-        payment_discount_value = discount;
-      }
-      let total_after_tax = POUtils.getTotalAfterTax(
-        untaxed_amount,
-        trade_discount_amount,
-        tax_lines
-      );
-      let payment_discount_amount = POUtils.getTotalDiscount(
-        total_after_tax,
-        payment_discount_rate,
-        payment_discount_value
-      );
-      let total = POUtils.getTotalPayment(
-        untaxed_amount,
-        trade_discount_amount,
-        payment_discount_amount,
-        total_cost_line,
-        tax_lines
-      );
-      formMain.setFieldsValue({
-        payment_discount_rate: payment_discount_rate,
-        payment_discount_value: payment_discount_value,
-        payment_discount_amount: payment_discount_amount,
-        total: total,
-      });
-    },
-    [formMain]
-  );
-  const onTradeDiscountChange = useCallback(
-    (type: string, discount: number) => {
-      let trade_discount_rate = null;
-      let trade_discount_value = null;
-      let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
-      let data = formMain.getFieldValue(POField.line_items);
-      let payment_discount_rate = formMain.getFieldValue(
-        POField.payment_discount_rate
-      );
-      let payment_discount_value = formMain.getFieldValue(
-        POField.payment_discount_value
-      );
-      let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
-      if (type === DiscountType.percent) {
-        trade_discount_rate = discount;
-      }
-      if (type === DiscountType.money) {
-        trade_discount_value = discount;
-      }
-      let tax_lines = POUtils.getVatList(
-        data,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      let trade_discount_amount = POUtils.getTotalDiscount(
-        untaxed_amount,
-        trade_discount_rate,
-        trade_discount_value
-      );
-      let total_after_tax = POUtils.getTotalAfterTax(
-        untaxed_amount,
-        trade_discount_amount,
-        tax_lines
-      );
-      let payment_discount_amount = POUtils.getTotalDiscount(
-        total_after_tax,
-        payment_discount_rate,
-        payment_discount_value
-      );
-      let total = POUtils.getTotalPayment(
-        untaxed_amount,
-        trade_discount_amount,
-        payment_discount_amount,
-        total_cost_line,
-        tax_lines
-      );
-      formMain.setFieldsValue({
-        trade_discount_rate: trade_discount_rate,
-        trade_discount_value: trade_discount_value,
-        trade_discount_amount: trade_discount_amount,
-        payment_discount_amount: payment_discount_amount,
-        total: total,
-        tax_lines: tax_lines,
-      });
-    },
-    [formMain]
-  );
+  // const onPaymentDiscountChange = useCallback(
+  //   (type: string, discount: number) => {
+  //     let trade_discount_amount = formMain.getFieldValue(
+  //       POField.trade_discount_amount
+  //     );
+  //     let tax_lines = formMain.getFieldValue(POField.tax_lines);
+  //     let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
+  //     let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
+  //     let payment_discount_rate = null;
+  //     let payment_discount_value = null;
+  //     if (type === DiscountType.percent) {
+  //       payment_discount_rate = discount;
+  //     }
+  //     if (type === DiscountType.money) {
+  //       payment_discount_value = discount;
+  //     }
+  //     let total_after_tax = POUtils.getTotalAfterTax(
+  //       untaxed_amount,
+  //       trade_discount_amount,
+  //       tax_lines
+  //     );
+  //     let payment_discount_amount = POUtils.getTotalDiscount(
+  //       total_after_tax,
+  //       payment_discount_rate,
+  //       payment_discount_value
+  //     );
+  //     let total = POUtils.getTotalPayment(
+  //       untaxed_amount,
+  //       trade_discount_amount,
+  //       payment_discount_amount,
+  //       total_cost_line,
+  //       tax_lines
+  //     );
+  //     formMain.setFieldsValue({
+  //       payment_discount_rate: payment_discount_rate,
+  //       payment_discount_value: payment_discount_value,
+  //       payment_discount_amount: payment_discount_amount,
+  //       total: total,
+  //     });
+  //   },
+  //   [formMain]
+  // );
+  // const onTradeDiscountChange = useCallback(
+  //   (type: string, discount: number) => {
+  //     let trade_discount_rate = null;
+  //     let trade_discount_value = null;
+  //     let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
+  //     let data = formMain.getFieldValue(POField.line_items);
+  //     let payment_discount_rate = formMain.getFieldValue(
+  //       POField.payment_discount_rate
+  //     );
+  //     let payment_discount_value = formMain.getFieldValue(
+  //       POField.payment_discount_value
+  //     );
+  //     let total_cost_line = formMain.getFieldValue(POField.total_cost_line);
+  //     if (type === DiscountType.percent) {
+  //       trade_discount_rate = discount;
+  //     }
+  //     if (type === DiscountType.money) {
+  //       trade_discount_value = discount;
+  //     }
+  //     let tax_lines = POUtils.getVatList(
+  //       data,
+  //       trade_discount_rate,
+  //       trade_discount_value
+  //     );
+  //     let trade_discount_amount = POUtils.getTotalDiscount(
+  //       untaxed_amount,
+  //       trade_discount_rate,
+  //       trade_discount_value
+  //     );
+  //     let total_after_tax = POUtils.getTotalAfterTax(
+  //       untaxed_amount,
+  //       trade_discount_amount,
+  //       tax_lines
+  //     );
+  //     let payment_discount_amount = POUtils.getTotalDiscount(
+  //       total_after_tax,
+  //       payment_discount_rate,
+  //       payment_discount_value
+  //     );
+  //     let total = POUtils.getTotalPayment(
+  //       untaxed_amount,
+  //       trade_discount_amount,
+  //       payment_discount_amount,
+  //       total_cost_line,
+  //       tax_lines
+  //     );
+  //     formMain.setFieldsValue({
+  //       trade_discount_rate: trade_discount_rate,
+  //       trade_discount_value: trade_discount_value,
+  //       trade_discount_amount: trade_discount_amount,
+  //       payment_discount_amount: payment_discount_amount,
+  //       total: total,
+  //       tax_lines: tax_lines,
+  //     });
+  //   },
+  //   [formMain]
+  // );
   const onPickManyProduct = useCallback(
     (items: Array<VariantResponse>) => {
       setVisibleManyProduct(false);
@@ -601,33 +597,33 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     },
     [formMain]
   );
-  const onOkExpense = useCallback(
-    (result: Array<CostLine>) => {
-      let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
-      let payment_discount_amount = formMain.getFieldValue(
-        POField.payment_discount_amount
-      );
-      let trade_discount_amount = formMain.getFieldValue(
-        POField.trade_discount_amount
-      );
-      let tax_lines = formMain.getFieldValue(POField.tax_lines);
-      let total_cost_line = POUtils.getTotaExpense(result);
-      let total = POUtils.getTotalPayment(
-        untaxed_amount,
-        trade_discount_amount,
-        payment_discount_amount,
-        total_cost_line,
-        tax_lines
-      );
-      formMain.setFieldsValue({
-        total: total,
-        total_cost_line: total_cost_line,
-        cost_lines: result,
-      });
-      setVisibleExpense(false);
-    },
-    [formMain]
-  );
+  // const onOkExpense = useCallback(
+  //   (result: Array<CostLine>) => {
+  //     let untaxed_amount = formMain.getFieldValue(POField.untaxed_amount);
+  //     let payment_discount_amount = formMain.getFieldValue(
+  //       POField.payment_discount_amount
+  //     );
+  //     let trade_discount_amount = formMain.getFieldValue(
+  //       POField.trade_discount_amount
+  //     );
+  //     let tax_lines = formMain.getFieldValue(POField.tax_lines);
+  //     let total_cost_line = POUtils.getTotaExpense(result);
+  //     let total = POUtils.getTotalPayment(
+  //       untaxed_amount,
+  //       trade_discount_amount,
+  //       payment_discount_amount,
+  //       total_cost_line,
+  //       tax_lines
+  //     );
+  //     formMain.setFieldsValue({
+  //       total: total,
+  //       total_cost_line: total_cost_line,
+  //       cost_lines: result,
+  //     });
+  //     setVisibleExpense(false);
+  //   },
+  //   [formMain]
+  // );
   const onSearch = useCallback(
     (value: string) => {
       if (value.trim() !== "" && value.length >= 3) {
@@ -789,25 +785,25 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         </div>
                       ),
                     },
-                    {
-                      align: "center",
-                      title: "Đơn vị",
-                      width: 100,
-                      dataIndex: "unit",
-                      render: (value) => {
-                        let result = "---";
-                        let index = -1;
-                        if (product_units) {
-                          index = product_units.findIndex(
-                            (item) => item.value === value
-                          );
-                          if (index !== -1) {
-                            result = product_units[index].name;
-                          }
-                        }
-                        return result;
-                      },
-                    },
+                    // {
+                    //   align: "center",
+                    //   title: "Đơn vị",
+                    //   width: 100,
+                    //   dataIndex: "unit",
+                    //   render: (value) => {
+                    //     let result = "---";
+                    //     let index = -1;
+                    //     if (product_units) {
+                    //       index = product_units.findIndex(
+                    //         (item) => item.value === value
+                    //       );
+                    //       if (index !== -1) {
+                    //         result = product_units[index].name;
+                    //       }
+                    //     }
+                    //     return result;
+                    //   },
+                    // },
                     {
                       title: (
                         <div
@@ -1062,25 +1058,25 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         </div>
                       ),
                     },
-                    {
-                      align: "center",
-                      title: "Đơn vị",
-                      width: 100,
-                      dataIndex: "unit",
-                      render: (value) => {
-                        let result = "---";
-                        let index = -1;
-                        if (product_units) {
-                          index = product_units.findIndex(
-                            (item) => item.value === value
-                          );
-                          if (index !== -1) {
-                            result = product_units[index].name;
-                          }
-                        }
-                        return result;
-                      },
-                    },
+                    // {
+                    //   align: "center",
+                    //   title: "Đơn vị",
+                    //   width: 100,
+                    //   dataIndex: "unit",
+                    //   render: (value) => {
+                    //     let result = "---";
+                    //     let index = -1;
+                    //     if (product_units) {
+                    //       index = product_units.findIndex(
+                    //         (item) => item.value === value
+                    //       );
+                    //       if (index !== -1) {
+                    //         result = product_units[index].name;
+                    //       }
+                    //     }
+                    //     return result;
+                    //   },
+                    // },
                     {
                       title: (
                         <div
@@ -1145,36 +1141,23 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           type = "money";
                         }
                         return (
-                          <Popover
-                            content={
-                              <PriceModal
-                                price={value}
-                                type={type}
-                                discount={
-                                  type === "percent"
-                                    ? item.discount_rate
-                                    : item.discount_value
-                                }
-                                onChange={(price, type, discount) =>
-                                  onPriceChange(price, type, discount, index)
-                                }
-                              />
-                            }
-                            zIndex={199}
-                            trigger="click"
-                          >
-                            <Button className="product-item-price">
-                              {formatCurrency(
-                                Math.round(
-                                  POUtils.caculatePrice(
-                                    value,
-                                    item.discount_rate,
-                                    item.discount_value
-                                  )
-                                )
-                              )}
-                            </Button>
-                          </Popover>
+                          <NumberInput
+                            // style={{ width: "70%" }}
+                            className="hide-number-handle"
+                            min={0}
+                            format={(a: string) => formatCurrency(a ? a : 0)}
+                            replace={(a: string) => replaceFormatString(a)}
+                            value={value}
+                            onChange={(inputValue) => {
+                              if (inputValue === null) return;
+                              onPriceChange(
+                                inputValue,
+                                DiscountType.money,
+                                0,
+                                index
+                              );
+                            }}
+                          />
                         );
                       },
                     },
@@ -1271,7 +1254,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
             }}
           </Form.Item>
           <Row gutter={24}>
-            <Col xs={24} lg={12}>
+            <Col span={12} />
+            <Col span={12}>
               <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues[POField.untaxed_amount] !==
@@ -1305,7 +1289,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               <Form.Item name={POField.trade_discount_value} hidden noStyle>
                 <Input />
               </Form.Item>
-              <Form.Item
+              {/* <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues.trade_discount_amount !==
                   curValues.trade_discount_amount
@@ -1376,7 +1360,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     </div>
                   );
                 }}
-              </Form.Item>
+              </Form.Item> */}
               <Form.Item name={POField.payment_discount_amount} hidden noStyle>
                 <Input />
               </Form.Item>
@@ -1404,7 +1388,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   ));
                 }}
               </Form.Item>
-              <Form.Item
+              {/* <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues[POField.payment_discount_amount] !==
                   curValues[POField.payment_discount_amount]
@@ -1484,9 +1468,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     </div>
                   );
                 }}
-              </Form.Item>
+              </Form.Item> */}
 
-              <Form.Item
+              {/* <Form.Item
                 shouldUpdate={(prevValues, curValues) =>
                   prevValues[POField.total_cost_line] !==
                   curValues[POField.total_cost_line]
@@ -1522,7 +1506,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     </div>
                   );
                 }}
-              </Form.Item>
+              </Form.Item> */}
               <Divider className="margin-top-5 margin-bottom-5" />
               <Form.Item name={POField.cost_lines} hidden noStyle>
                 <Input />
@@ -1560,12 +1544,12 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           </Row>
         </div>
       </Card>
-      <ExpenseModal
+      {/* <ExpenseModal
         visible={visibleExpense}
         onCancel={() => setVisibleExpense(false)}
         onOk={onOkExpense}
         costLines={costLines}
-      />
+      /> */}
       <PickManyProductModal
         onSave={onPickManyProduct}
         onCancle={() => setVisibleManyProduct(false)}

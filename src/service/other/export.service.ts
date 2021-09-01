@@ -1,7 +1,7 @@
-import { ExportRequest, ExportResponse } from "model/other/File/export-model";
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
-import { ApiConfig } from "config/ApiConfig";
+import { ExportRequest, ExportResponse } from "model/other/files/export-model";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
+import { ApiConfig } from "config/api.config";
 
 export const exportFile = (
   params: ExportRequest

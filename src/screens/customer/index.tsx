@@ -5,7 +5,6 @@ import {
   AutoComplete,
   Button,
   Form,
-  Tooltip,
   Input,
   Select,
 } from "antd";
@@ -17,24 +16,22 @@ import { SearchOutlined } from "@ant-design/icons";
 
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
-import React from "react";
+import React, { useMemo } from "react";
 import Popup from "./popup";
 import { useSelector } from "react-redux";
 import CustomerAdd from "./create.customer";
 import ButtonCreate from "component/header/ButtonCreate";
-import arrowDownloadRight from "../../assets/icon/arrow-download-right.svg";
-import arrowDownloadDown from "../../assets/icon/arrow-download-down.svg";
 import settingGearIcon from "../../assets/icon/setting-gear-icon.svg";
 import { RefSelectProps } from "antd/lib/select";
 
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { useDispatch } from "react-redux";
 import { CustomerList } from "domain/actions/customer/customer.action";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
@@ -54,20 +51,15 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 
 const { Option } = Select;
 
-interface SearchResult {
-  items: Array<any>;
-  metadata?: any;
-}
-
 const Customer = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  // const history = useHistory();
 
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
   const LIST_GENDER = bootstrapReducer.data?.gender;
-  const params: CustomerSearchQuery = {
+  const params: CustomerSearchQuery = useMemo(() => ({
     request: "",
     page: 1,
     limit: 30,
@@ -81,7 +73,7 @@ const Customer = () => {
     customer_group_id: null,
     customer_level_id: null,
     responsible_staff_code: null,
-  };
+  }), []);
   const [query, setQuery] = React.useState<CustomerSearchQuery>({
     page: 1,
     limit: 30,
@@ -97,7 +89,7 @@ const Customer = () => {
     customer_level_id: null,
     responsible_staff_code: "",
   });
-  const [popup, setPopup] = React.useState({
+  const [popup,] = React.useState({
     visible: false,
     x: 0,
     y: 0,
@@ -144,7 +136,7 @@ const Customer = () => {
       )
     },
     {
-      title: "Số điện thoại",
+      title: "SĐT",
       dataIndex: "phone",
       // align: "center",
       visible: true,
@@ -168,7 +160,7 @@ const Customer = () => {
       width: 150,
     },
     {
-      title: "Thư điện tử",
+      title: "Email",
       dataIndex: "email",
       // align: "center",
       visible: true,
@@ -189,28 +181,28 @@ const Customer = () => {
       width: 150,
     },
     {
-      title: "Hạng thẻ hiện tại",
+      title: "Hạng thẻ",
       dataIndex: "customer_level",
       // align: "center",
       visible: true,
       width: 150,
     },
 
-    {
-      title: "Người tạo",
-      dataIndex: "created_by",
-      // align: "center",
-      visible: true,
-      width: 150,
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "created_date",
-      // align: "center",
-      visible: true,
-      width: 150,
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-    },
+    // {
+    //   title: "Người tạo",
+    //   dataIndex: "created_by",
+    //   // align: "center",
+    //   visible: false,
+    //   // width: "15%",
+    // },
+    // {
+    //   title: "Ngày tạo",
+    //   dataIndex: "created_date",
+    //   // align: "center",
+    //   visible: false,
+    //   // width: "15%",
+    //   render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+    // },
     {
       title: "Ngày sinh",
       dataIndex: "birthday",
@@ -287,7 +279,6 @@ const Customer = () => {
   });
   console.log(data);
   const [tableLoading, setTableLoading] = React.useState<boolean>(true);
-  const [options, setOptions] = React.useState<SearchResult>({ items: [] });
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -323,6 +314,7 @@ const Customer = () => {
         return;
       }
       setAccounts(data.items);
+      setResultSearch(data);
     },
     []
   );
@@ -370,16 +362,14 @@ const Customer = () => {
     setVisibleFilter(false);
   }, []);
 
-  let value = formAdvance.getFieldValue("filter");
-
   const onSearch = (value: CustomerSearchQuery) => {
     const querySearch: CustomerSearchQuery = value;
     dispatch(CustomerList(querySearch, setData));
   };
 
-  const initQueryAccount: AccountSearchQuery = {
+  const initQueryAccount: AccountSearchQuery = useMemo(() => ({
     info: "",
-  };
+  }), [])
 
   // const AccountRenderSearchResult = (item: AccountResponse) => {
   //   return (
@@ -410,7 +400,7 @@ const Customer = () => {
         });
       });
     return options;
-  }, [dispatch, resultSearch]);
+  }, [resultSearch]);
 
   const AccountChangeSearch = React.useCallback(
     (value) => {
@@ -442,19 +432,17 @@ const Customer = () => {
         }
       }
     },
-    [autoCompleteRef, dispatch, resultSearch]
+    [autoCompleteRef, resultSearch]
   );
 
   const onFinish = (value: CustomerSearchQuery) => {
-    value.responsible_staff_code = value.responsible_staff_code
-      ? value.responsible_staff_code.split(" - ")[0]
-      : null;
+    value.responsible_staff_code = value.responsible_staff_code? value.responsible_staff_code.split(" - ")[0]: null;
     onSearch(value);
   };
 
-  const onSelect = (value: any, option: any) => {
-    history.push(`/customers/${option.key}`);
-  };
+  // const onSelect = (value: any, option: any) => {
+  //   history.push(`/customers/${option.key}`);
+  // };
 
   const onSelectTable = React.useCallback(
     (selectedRow: Array<CustomerResponse>) => {
@@ -625,7 +613,7 @@ const Customer = () => {
                 >
                   {groups.map((group) => (
                     <Option key={group.id} value={group.id}>
-                      {group.name + ` - ${group.code}`}
+                      {group.name}
                     </Option>
                   ))}
                 </Select>

@@ -1,5 +1,5 @@
 import { SizeType } from 'domain/types/product.type';
-import BaseAction from "base/BaseAction"
+import BaseAction from "base/base.action"
 import { PageResponse } from 'model/base/base-metadata.response';
 import { SizeQuery, SizeResponse, SizeCreateRequest, SizeUpdateRequest} from 'model/product/size.model';
 
