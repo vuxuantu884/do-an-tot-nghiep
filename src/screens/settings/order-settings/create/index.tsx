@@ -98,6 +98,16 @@ function OrderSettings(props: PropType) {
     store_id: null,
     template: null,
     type: null,
+    users: [
+      {
+        age: 1,
+        name: "john",
+      },
+      {
+        age: 2,
+        name: "marry",
+      },
+    ],
   };
 
   // const goToPageDetail = (id: string | number) => {

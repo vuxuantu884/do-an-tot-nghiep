@@ -1,3 +1,4 @@
+import { EditOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -8,6 +9,7 @@ import {
   Select,
   Table,
 } from "antd";
+import Column from "antd/lib/table/Column";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { StyledComponent } from "./styles";
@@ -183,90 +185,93 @@ function OrderSettingValue(props: PropType) {
     setListProvinces(response);
   }, []);
 
-  const EditableRow = (props: any) => {
-    console.log("props", props);
-    return (
-      <tr {...props}>
-        <Form.List name="value">
-          {(fields) =>
-            fields.map((field: any, index: any) => (
-              <div key={field.key}>
-                <Form.Item
-                  name={[index, "name"]}
-                  label="Name"
-                  rules={[{ required: true }]}
-                >
-                  <Input placeholder="field name" />
-                </Form.Item>
-                <Form.Item
-                  label="Type"
-                  name={[index, "type"]}
-                  rules={[{ required: true }]}
-                >
-                  <Input placeholder="field name" />
-                </Form.Item>
-                <Form.Item
-                  label="Type"
-                  name={[index, "222"]}
-                  rules={[{ required: true }]}
-                >
-                  <Input placeholder="field name" />
-                </Form.Item>
-                <Form.Item
-                  label="Type"
-                  name={[index, "333"]}
-                  rules={[{ required: true }]}
-                >
-                  <Input placeholder="field name" />
-                </Form.Item>
-              </div>
-            ))
-          }
-        </Form.List>
-      </tr>
-    );
-  };
-
-  const EditableCell = (props: any) => {
-    console.log("props", props);
+  const EditableUsersTable = (props: any) => {
+    const { users, add, remove } = props;
+    const [editingIndex, setEditingIndex] = useState(undefined);
 
     return (
-      <td {...props}>
-        <Form.Item
-          // name={dataIndex}
-          name={props.dataIndex}
-        >
-          <Input />
-        </Form.Item>
-      </td>
+      <Table
+        dataSource={users}
+        pagination={false}
+        footer={() => {
+          return (
+            <Form.Item>
+              <Button onClick={add}>
+                <PlusOutlined /> Add field
+              </Button>
+            </Form.Item>
+          );
+        }}
+      >
+        <Column
+          dataIndex={"age"}
+          title={"Giá trị từ"}
+          render={(value, row, index) => {
+            // console.log(row);
+            return (
+              <Form.Item name={[index, "age"]}>
+                {({ getFieldValue, getFieldsValue }) => {
+                  console.log(getFieldsValue());
+                  return (
+                    <React.Fragment>
+                      {editingIndex === index ? (
+                        <Input
+                          placeholder="age"
+                          style={{ width: "30%", marginRight: 8 }}
+                        />
+                      ) : (
+                        getFieldValue(["users", index, "age"])
+                      )}
+                    </React.Fragment>
+                  );
+                }}
+              </Form.Item>
+            );
+          }}
+        />
+        <Column
+          dataIndex={"name"}
+          title={"Name"}
+          render={(value, row, index) => {
+            return (
+              <Form.Item name={[index, "name"]}>
+                <Input
+                  placeholder="name"
+                  style={{ width: "30%", marginRight: 8 }}
+                />
+              </Form.Item>
+            );
+          }}
+        />
+        <Column
+          title={"Action"}
+          render={(value, row, index) => {
+            return (
+              <React.Fragment>
+                <Button
+                  icon={<EditOutlined />}
+                  shape={"circle"}
+                  style={{ marginRight: 8 }}
+                />
+              </React.Fragment>
+            );
+          }}
+        />
+      </Table>
     );
-  };
-
-  const handleTableComponent = () => {
-    return {
-      body: {
-        // row: EditableRow,
-        row: () => <EditableRow />,
-        // cell: () => <EditableCell fields={fields} />,
-      },
-    };
   };
 
   return (
     <StyledComponent>
       <Card title="Cài đặt theo giá trị đơn hàng">
         <div>
-          <Table
-            components={handleTableComponent()}
-            bordered
-            dataSource={dataSource}
-            columns={columns}
-          />
-          {/* {fields.map((field) => (
-            <Form.Item {...field}>
-              <Input />
-            </Form.Item>
-          ))} */}
+          <Form.List name="users">
+            {(users, { add, remove }) => {
+              return (
+                <EditableUsersTable users={users} add={add} remove={remove} />
+              );
+            }}
+          </Form.List>
           <Button
             onClick={() => {
               handleAdd();
