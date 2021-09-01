@@ -10,7 +10,6 @@ import {
   Col,
   AutoComplete,
   Space,
-  Typography,
   Popover,
   Form,
   Tag,
@@ -23,9 +22,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import birthdayIcon from "assets/img/bithday.svg";
 import addIcon from "assets/img/plus_1.svg";
-import pointIcon from "assets/img/point.svg";
 import callIcon from "assets/img/call.svg";
 import imgDefault from "assets/icon/img-default.svg";
 import editBlueIcon from "assets/img/edit_icon.svg";
@@ -46,9 +43,10 @@ import {
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import { CustomerSearch } from "domain/actions/customer/customer.action";
-import moment from "moment";
+
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
+import { useQuery, getQueryParams } from "utils/useQuery";
 //#end region
 
 type CustomerCardProps = {
@@ -78,24 +76,24 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
   //State
+  const phoneQuery = useQuery();
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
+  const [fpageResultSearch, setFpageResultSearch] = useState<Array<CustomerResponse>>([]);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
-  let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
-
   //#region Modal
   const ShowAddressModal = () => {
     setVisibleAddress(true);
   };
-
+  console.log(resultSearch);
   const CancelConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
@@ -133,7 +131,47 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     [dispatch, initQueryCustomer]
   );
 
+  const fpageAutoFillCustomerInfor = () => {
+    if (fpageResultSearch.length > 0) {
+      setCustomer(fpageResultSearch[0]);
+      props.InfoCustomerSet(fpageResultSearch[0]);
+
+      //set Shipping Address
+      if (fpageResultSearch[0].shipping_addresses) {
+        fpageResultSearch[0].shipping_addresses.forEach((item, index2) => {
+          if (item.default === true) {
+            setShippingAddress(item);
+            props.ShippingAddressChange(item);
+          }
+        });
+      }
+
+      //set Billing Address
+      if (fpageResultSearch[0].billing_addresses) {
+        fpageResultSearch[0].billing_addresses.forEach((item, index2) => {
+          if (item.default === true) {
+            props.BillingAddressChange(item);
+          }
+        });
+      }
+      autoCompleteRef.current?.blur();
+      setKeySearchCustomer("");
+    }
+  };
+  useEffect(() => {
+    const phoneObj: any = { ...getQueryParams(phoneQuery) };
+    const _queryObj = Object.keys(phoneObj);
+    const value = phoneObj[_queryObj[0]];
+    if(value){
+      initQueryCustomer.request = value;
+      dispatch(CustomerSearch(initQueryCustomer, setFpageResultSearch));
+    }
+  }, [dispatch]);
   //Render result search
+  useEffect(() => {
+    fpageAutoFillCustomerInfor()
+  },[fpageAutoFillCustomerInfor])
+
   const CustomerRenderSearchResult = (item: CustomerResponse) => {
     return (
       <div className="row-search w-100">
@@ -178,12 +216,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const CustomerDeleteInfo = () => {
     setCustomer(null);
     props.InfoCustomerSet(null);
+    setFpageResultSearch([])
   };
 
   //#end region
 
   const SearchCustomerSelect = useCallback(
     (value, o) => {
+      console.log(value);
       let index: number = -1;
       index = resultSearch.findIndex(
         (customerResponse: CustomerResponse) =>
@@ -236,8 +276,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       extra={
         <div>
           <Form.Item
+            className="order-source-selected"
             name="source_id"
-            style={{ margin: "10px 0px" }}
+            style={{ margin: "10px 0px"}}
             rules={[
               {
                 required: true,
@@ -406,7 +447,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               style={{ padding: 0, marginBottom: 0 }}
             />
 
-            <div style={{padding: "12px 24px"}}>
+            <div style={{ padding: "12px 24px" }}>
               {customer.shipping_addresses !== undefined && (
                 <Row gutter={24}>
                   <Col
@@ -503,10 +544,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       </Popover>
                     </Row>
                   </Col>
-                  <Col
-                    span={12}
-                    className="font-weight-500"
-                  >
+                  <Col span={12} className="font-weight-500">
                     <div>
                       <img
                         src={noteCustomer}
@@ -647,7 +685,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       xs={24}
                       lg={12}
                       className="font-weight-500"
-                      style={{padding: "0 12px"}}
+                      style={{ padding: "0 12px" }}
                     >
                       <div>
                         <img

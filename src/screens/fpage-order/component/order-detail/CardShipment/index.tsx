@@ -395,9 +395,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       >
         <div className="orders-shipment" style={{padding: "0 24px"}}>
           <Row gutter={24}>
-            <Col span={14}>
-              <span className="orders-shipment__dateLabel">Hẹn giao:</span>
-              <Form.Item name="dating_ship">
+            <Col span={24}>
+              <Form.Item name="dating_ship" label="Hẹn giao:">
                 <DatePicker
                   format="DD/MM/YYYY"
                   style={{ width: "100%" }}
@@ -410,21 +409,19 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               </Form.Item>
             </Col>
 
-            <Col span={10}>
-              <Form.Item name="office_time">
+            <Col span={24}>
+              <Form.Item name="office_time" label="Giờ hành chính">
                 <Checkbox
                   checked={officeTime}
                   onChange={(e) => setOfficeTime(e.target.checked)}
                   style={{ marginTop: "8px" }}
                 >
-                  Giờ hành chính
                 </Checkbox>
               </Form.Item>
             </Col>
           </Row>
           <Col span={24} style={{ paddingLeft: 0 }}>
-            <span className="orders-shipment__dateLabel">Yêu cầu:</span>
-            <Form.Item name="requirements">
+            <Form.Item name="requirements" label="Yêu cầu:">
               <Select
                 className="select-with-search"
                 showSearch

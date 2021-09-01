@@ -1706,7 +1706,14 @@
 }
 
 // responsive for Fpage
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 600px) {
+  :root{
+    overflow-x: hidden !important;
+    overflow-y: scroll;
+  }
+  .container-login{
+    margin-bottom: 200px;
+  }
   .create-order-payment .order-cod-payment-footer > span {
     line-height: 20px;
   }
@@ -1808,5 +1815,54 @@
   }
   .search-layout {
     left: 0;
+  }
+  .login{
+    width: 400px !important;
+  }
+  .ct-toast{
+    position: fixed !important;
+  }
+  .ant-form-item{
+    flex-direction: row !important;
+  }
+  .ant-form-item-control{
+    width: 100%;
+    flex: 0 0 70% !important;
+  }
+  .ant-form-item-label{
+    width: 100%;
+    flex: 0 0 30% !important;
+    padding: 0 !important;
+    line-height: 0; 
+    &>label{
+      line-height: 14px;
+      height: 38px !important
+    }
+  }
+  .create-order-payment{
+    .ant-form-item{
+      flex-direction: column !important;
+      
+    }
+    .ant-radio-group{
+      width: 100%;
+    }
+    .ant-space-align-center{
+      display: flex;
+      justify-content: space-between;
+      padding: 0 24px
+    }
+    .btn-list-method{
+      padding:  0;
+      justify-content: space-between;
+    .ant-btn{
+     padding: 10px 20px !important;
+     margin-top: 5px;
+     width:  190px;
+    }
+    }
+  }
+  .order-source-selected{
+    flex-direction: column !important;
   }
 }

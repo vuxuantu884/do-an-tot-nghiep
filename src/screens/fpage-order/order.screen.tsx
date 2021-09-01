@@ -362,7 +362,7 @@ export default function FpageOrders() {
     (value: OrderResponse) => {
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
-        setTimeout(() => {window.location.reload()}, 500)
+        setTimeout(() => window.location.replace("/unicorn/admin/fpage-orders/create"), 500)
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
@@ -616,7 +616,7 @@ export default function FpageOrders() {
               />
             </Col>
             {/* Right Side */}
-            <Col span={24} style={{marginTop: 16}}>
+            <Col span={24} style={{marginTop: 12}}>
               <Card
                 title={
                   <div className="d-flex">
@@ -624,7 +624,7 @@ export default function FpageOrders() {
                   </div>
                 }
               >
-                <div className="padding-24">
+                <div style={{ padding: "12px 24px" }}>
                   <Form.Item
                     label="Nhân viên bán hàng"
                     name="assignee_code"
@@ -691,14 +691,14 @@ export default function FpageOrders() {
                 </div>
               </Card>
               <Card
-                className="margin-top-20"
+                style={{marginTop: 12}}
                 title={
                   <div className="d-flex">
                     <span className="title-card">THÔNG TIN BỔ SUNG</span>
                   </div>
                 }
               >
-                <div className="padding-24">
+                <div style={{ padding: "12px 24px" }}>
                   <Form.Item
                     name="note"
                     label="Ghi chú nội bộ"
