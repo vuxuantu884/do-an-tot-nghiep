@@ -46,15 +46,13 @@ function OrderSettingValue(props: PropType) {
 
   const renderDate = () => {
     return (
-      <Form.Item name="from_date">
-        <DatePicker
-          placeholder="dd/mm/yyyy  hh:mm"
-          format="YYYY-MM-DD HH:mm"
-          disabledDate={disabledDate}
-          disabledTime={disabledDateTime}
-          showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
-        />
-      </Form.Item>
+      <DatePicker
+        placeholder="dd/mm/yyyy  hh:mm"
+        format="YYYY-MM-DD HH:mm"
+        disabledDate={disabledDate}
+        disabledTime={disabledDateTime}
+        showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
+      />
     );
   };
 
@@ -188,7 +186,10 @@ function OrderSettingValue(props: PropType) {
   const EditableUsersTable = (props: any) => {
     const { users, add, remove } = props;
     const [editingIndex, setEditingIndex] = useState(undefined);
-
+    function onChange(date: any, dateString: any) {
+      console.log("date", date);
+      console.log("dateString", dateString);
+    }
     return (
       <Table
         dataSource={users}
@@ -204,56 +205,66 @@ function OrderSettingValue(props: PropType) {
         }}
       >
         <Column
-          dataIndex={"age"}
+          dataIndex={"value_date_from"}
           title={"Giá trị từ"}
           render={(value, row, index) => {
-            // console.log(row);
             return (
-              <Form.Item name={[index, "age"]}>
-                {({ getFieldValue, getFieldsValue }) => {
-                  console.log(getFieldsValue());
-                  return (
-                    <React.Fragment>
-                      {editingIndex === index ? (
-                        <Input
-                          placeholder="age"
-                          style={{ width: "30%", marginRight: 8 }}
-                        />
-                      ) : (
-                        getFieldValue(["users", index, "age"])
-                      )}
-                    </React.Fragment>
-                  );
-                }}
+              <Form.Item name={[index, "value_date_from"]}>
+                {renderDate()}
               </Form.Item>
             );
           }}
         />
         <Column
-          dataIndex={"name"}
-          title={"Name"}
+          dataIndex={"value_date_to"}
+          title={"Giá trị đến"}
           render={(value, row, index) => {
             return (
-              <Form.Item name={[index, "name"]}>
-                <Input
-                  placeholder="name"
-                  style={{ width: "30%", marginRight: 8 }}
-                />
+              <Form.Item name={[index, "value_date_to"]}>
+                {renderDate()}
               </Form.Item>
             );
           }}
         />
         <Column
-          title={"Action"}
+          dataIndex={"tinhTp"}
+          title={"Tỉnh/Thành phố"}
           render={(value, row, index) => {
             return (
-              <React.Fragment>
-                <Button
-                  icon={<EditOutlined />}
-                  shape={"circle"}
-                  style={{ marginRight: 8 }}
-                />
-              </React.Fragment>
+              <Form.Item name={[index, "tinhTp"]}>
+                <Select
+                  showSearch
+                  style={{ width: "100%" }}
+                  placeholder="Chọn tỉnh/thành phố"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option?.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
+                  notFoundContent="Không tìm thấy tỉnh/thành phố"
+                >
+                  {listProvinces &&
+                    listProvinces.map((single) => {
+                      return (
+                        <Select.Option value={single.code} key={single.code}>
+                          {single.name}
+                        </Select.Option>
+                      );
+                    })}
+                </Select>
+              </Form.Item>
+            );
+          }}
+        />
+        <Column
+          dataIndex={"fee"}
+          title={"Phí vận chuyển"}
+          render={(value, row, index) => {
+            return (
+              <Form.Item name={[index, "fee"]}>
+                <Input />
+              </Form.Item>
             );
           }}
         />

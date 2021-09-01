@@ -1,6 +1,7 @@
 import { Form, Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import moment from "moment";
 // import { useHistory } from "react-router-dom";
 import OrderSettingInformation from "./OrderSettingInformation";
 import OrderSettingValue from "./OrderSettingValue";
@@ -101,11 +102,7 @@ function OrderSettings(props: PropType) {
     users: [
       {
         age: 1,
-        name: "john",
-      },
-      {
-        age: 2,
-        name: "marry",
+        value_date_to: moment("2015-01-01", "YYYY-MM-DD HH:mm"),
       },
     ],
   };
