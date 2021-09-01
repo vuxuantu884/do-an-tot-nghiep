@@ -197,7 +197,7 @@ function Editor(props: any) {
           // ],
           bodyClass: "document-editor",
           extraPlugins:
-            "colordialog, tableresize, font, colorbutton, justify, timestamp",
+            "colordialog, tableresize, font, colorbutton, justify, timestamp, dialogadvtab",
         }}
         /**
          * https://stackoverflow.com/questions/65339020/how-to-add-custom-plugin-in-ckeditor4-react
