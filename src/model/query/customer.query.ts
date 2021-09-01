@@ -3,6 +3,7 @@ import { BaseQuery } from "../base/base.query";
 export interface CustomerSearchQuery extends BaseQuery {
   request: string | null;
   gender: string | null;
+  phone?: string | null;
   from_birthday: String | null;
   to_birthday: String | null;
   company: string | null;
