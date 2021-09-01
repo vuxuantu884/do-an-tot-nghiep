@@ -102,9 +102,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleAddress(false);
   }, []);
 
-  const ShowCustomerModal = () => {
-    setVisibleCustomer(true);
-  };
+ 
 
   const CancelConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
@@ -268,11 +266,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   return (
     <Card
-      title={
-        <div className="d-flex">
-          <span className="title-card">THÔNG TIN KHÁCH HÀNG</span>
-        </div>
-      }
       extra={
         <div>
           <Form.Item

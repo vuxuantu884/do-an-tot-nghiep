@@ -147,8 +147,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
-  const [errorLogFulfillment, setErrorLogFulfillment] =
-    useState<Array<ErrorLogResponse> | null>(null);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
   const [hvc, setHvc] = useState<number | null>(null);
   const [serviceType, setServiceType] = useState<string>();
@@ -277,25 +275,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
   }, [dispatch, props.OrderDetail]); //logne
 
-  useEffect(() => {
-    if (
-      props.OrderDetail &&
-      props.OrderDetail.fulfillments &&
-      props.OrderDetail.fulfillments.length > 0 &&
-      props.OrderDetail.fulfillments[0].code &&
-      props.OrderDetail.fulfillments[0].shipment &&
-      props.OrderDetail.fulfillments[0].shipment.pushing_status === "failed"
-    ) {
-      dispatch(
-        getTrackingLogError(
-          props.OrderDetail.fulfillments[0].code,
-          setErrorLogFulfillment
-        )
-      );
-    }
-  }, [dispatch, props.OrderDetail]);
-  //#endregion
-  console.log(cancelReason);
+
   //#region Update Fulfillment Status
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {

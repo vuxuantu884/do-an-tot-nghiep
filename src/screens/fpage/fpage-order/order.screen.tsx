@@ -1,5 +1,5 @@
 //#region Import
-import { InfoCircleOutlined, SearchOutlined, WindowsFilled } from "@ant-design/icons";
+import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -13,7 +13,6 @@ import {
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { orderCreateAction } from "domain/actions/order/order.action";
@@ -39,7 +38,6 @@ import {
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
 import {
   getAmountPaymentRequest,
   getTotalAmountAfferDiscount,
@@ -63,7 +61,6 @@ var typeButton = "";
 export default function FpageOrders() {
   //#region State
   const dispatch = useDispatch();
-  const history = useHistory();
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
@@ -368,7 +365,7 @@ export default function FpageOrders() {
         // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
       }
     },
-    [history]
+    []
   );
 
   //show modal save and confirm order ?
@@ -382,14 +379,6 @@ export default function FpageOrders() {
     setIsVisibleSaveAndConfirm(false);
   };
 
-  const showSaveAndConfirmModal = () => {
-    if (shipmentMethod !== 4 || paymentMethod !== 3) {
-      setIsVisibleSaveAndConfirm(true);
-    } else {
-      typeButton = OrderStatus.DRAFT;
-      formRef.current?.submit();
-    }
-  };
   const onFinish = (values: OrderRequest) => {
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
@@ -513,7 +502,7 @@ export default function FpageOrders() {
 
   return (
     <ContentContainer
-      title="Tạo mới đơn hàng"
+      title=""
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -526,7 +515,7 @@ export default function FpageOrders() {
           name: "Tạo mới đơn hàng",
         },
       ]}
-      extra={<CreateBillStep status="draff" orderDetail={null} />}
+      
     >
       <div className="orders fpage-order-screen">
         <Form
@@ -616,13 +605,13 @@ export default function FpageOrders() {
               />
             </Col>
             {/* Right Side */}
-            <Col span={24} style={{marginTop: 12}}>
+            <Col span={24}>
               <Card
-                title={
-                  <div className="d-flex">
-                    <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
-                  </div>
-                }
+                // title={
+                //   <div className="d-flex">
+                //     <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
+                //   </div>
+                // }
               >
                 <div style={{ padding: "12px 24px" }}>
                   <Form.Item
@@ -691,12 +680,11 @@ export default function FpageOrders() {
                 </div>
               </Card>
               <Card
-                style={{marginTop: 12}}
-                title={
-                  <div className="d-flex">
-                    <span className="title-card">THÔNG TIN BỔ SUNG</span>
-                  </div>
-                }
+                // title={
+                //   <div className="d-flex">
+                //     <span className="title-card">THÔNG TIN BỔ SUNG</span>
+                //   </div>
+                // }
               >
                 <div style={{ padding: "12px 24px" }}>
                   <Form.Item
@@ -749,7 +737,7 @@ export default function FpageOrders() {
               <CreateBillStep status="draff" orderDetail={null} />
             </Col>
 
-            <Col md={9} style={{ marginTop: "8px" }}>
+            <Col md={9} style={{ marginTop: "8px" }} className="customer-bottom-button">
               <Button
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"

@@ -7,7 +7,6 @@ import {
   Form,
   Row,
   Select,
-  Space,
 } from "antd";
 import IconDelivery from "assets/icon/delivery.svg";
 import IconSelfDelivery from "assets/icon/self_shipping.svg";
@@ -387,13 +386,9 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   return (
     <StyledComponent>
       <Card
-        title={
-          <div className="d-flex">
-            <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
-          </div>
-        }
+       
       >
-        <div className="orders-shipment" style={{padding: "0 24px"}}>
+        <div className="orders-shipment" style={{padding: "12px 24px"}}>
           <Row gutter={24}>
             <Col span={24}>
               <Form.Item name="dating_ship" label="Hẹn giao:">
@@ -461,7 +456,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
                   : { borderBottom: "1px solid #2A2A86" }
               }
             >
-              <Space size={10}>{renderShipmentTabHeader()}</Space>
+             {renderShipmentTabHeader()}
             </div>
           </Row>
           {/*--- Chuyển hãng vận chuyển ----*/}

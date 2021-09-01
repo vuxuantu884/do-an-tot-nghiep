@@ -48,7 +48,6 @@ type PaymentCardProps = {
 };
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
-  const { paymentMethod } = props;
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
@@ -155,12 +154,11 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
 
   return (
     <Card
-      style={{ marginTop: 12 }}
-      title={
-        <div className="d-flex">
-          <span className="title-card">THANH TOÁN</span>
-        </div>
-      }
+      // title={
+      //   <div className="d-flex">
+      //     <span className="title-card">THANH TOÁN</span>
+      //   </div>
+      // }
     >
       <div className="create-order-payment">
         <Form.Item
