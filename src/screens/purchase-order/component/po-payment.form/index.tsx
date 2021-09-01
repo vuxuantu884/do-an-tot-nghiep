@@ -34,10 +34,12 @@ import {
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
+import { POUtils } from "utils/POUtils";
 
 type POPaymentFormProps = {
   poId: number;
   loadDetail: (poId: number, isLoading: boolean) => void;
+  poData: PurchaseOrder;
 };
 const POPaymentForm: React.FC<POPaymentFormProps> = (
   props: POPaymentFormProps
@@ -47,6 +49,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
   const [isConfirmPayment, setConfirmPayment] = useState<boolean>(false);
   const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
   const [loadingApproval, setLoaddingApproval] = useState<any>({});
+  const { poData } = props;
 
   const CancelPaymentModal = useCallback(() => {
     setVisiblePaymentModal(false);
@@ -93,6 +96,12 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         setLoaddingApproval(newLoadings);
         let newItem = { ...item };
         newItem.status = PoPaymentStatus.PAID;
+        newItem.status_po = POUtils.calculatePOStatus(
+          poData,
+          null,
+          newItem,
+          "update"
+        );
         dispatch(
           PoPaymentUpdateAction(props.poId, item.id, newItem, updateCallback)
         );
@@ -511,6 +520,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           let remainPayment = total - total_paid;
           return (
             <PaymentModal
+              poData={poData}
               visible={isVisiblePaymentModal}
               onOk={OkPaymentModal}
               onCancel={CancelPaymentModal}

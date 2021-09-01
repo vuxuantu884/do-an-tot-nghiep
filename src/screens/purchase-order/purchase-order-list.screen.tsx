@@ -180,12 +180,14 @@ const PurchaseOrderListScreen: React.FC = () => {
         let processIcon = null;
         switch (value) {
           case ProcumentStatus.NOT_RECEIVED:
+          case null:
             processIcon = "icon-blank";
             break;
           case ProcumentStatus.PARTIAL_RECEIVED:
             processIcon = "icon-partial";
             break;
           case ProcumentStatus.RECEIVED:
+          case ProcumentStatus.FINISHED:
             processIcon = "icon-full";
             break;
         }
@@ -207,12 +209,14 @@ const PurchaseOrderListScreen: React.FC = () => {
         let processIcon = null;
         switch (value) {
           case PoPaymentStatus.UNPAID:
+          case null:
             processIcon = "icon-blank";
             break;
           case PoPaymentStatus.PARTIAL_PAID:
             processIcon = "icon-partial";
             break;
           case PoPaymentStatus.PAID:
+          case PoPaymentStatus.FINISHED:
             processIcon = "icon-full";
             break;
         }
