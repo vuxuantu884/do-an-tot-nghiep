@@ -140,8 +140,6 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const handleSubmitForm = () => {
     form.validateFields().then(() => {
       const formComponentValue = form.getFieldsValue();
-      console.log("formValue.template", formValue?.template);
-      console.log("formComponentValue", formComponentValue);
       let newFormComponentValue = {
         ...formComponentValue,
       };
@@ -198,9 +196,6 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   };
 
   const handleChange = (value: any, allValues: any) => {
-    console.log("formValueFormatted", formValueFormatted);
-    console.log("allValues", allValues);
-
     // if (JSON.stringify(formValue) !== JSON.stringify(allValues)) {
     if (
       Object.entries(formValueFormatted).sort().toString() ===
