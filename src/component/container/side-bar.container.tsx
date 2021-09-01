@@ -15,15 +15,14 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
 ) => {
   const { path, collapsed } = props;
   let currentRoute = useMemo(() => findCurrentRoute(menu, path), [path]);
-  const defaultSelectedKeys = [];
+  let defaultSelectedKeys: Array<string> = [];
   if (currentRoute.current != null) {
-    defaultSelectedKeys.push(currentRoute.current);
+    defaultSelectedKeys = [...defaultSelectedKeys, ...currentRoute.current];
   }
-  const defaultOpenKeys = [];
+  let defaultOpenKeys: Array<string> = [];
   if (currentRoute.subMenu != null) {
-    defaultOpenKeys.push(currentRoute.subMenu);
+    defaultOpenKeys = [...defaultOpenKeys, ...currentRoute.subMenu];
   }
-
   return (
     <Sider collapsed={collapsed} collapsedWidth={60} width={240}>
       <Scrollbars autoHide>
@@ -46,6 +45,37 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                   key={route.key}
                 >
                   {route.subMenu.map((item) => {
+                    if (
+                      item.subMenu.length > 0 &&
+                      item.showMenuThird === true
+                    ) {
+                      return (
+                        <Menu.SubMenu
+                          icon={
+                            <i
+                              className={item.icon}
+                              style={{ fontSize: 8, marginRight: 0 }}
+                            />
+                          }
+                          title={item.title}
+                          key={item.key}
+                        >
+                          {item.subMenu.map((item2) => (
+                            <Menu.Item
+                              icon={
+                                <i
+                                  className={item.icon}
+                                  style={{ fontSize: 8, marginRight: 0 }}
+                                />
+                              }
+                              key={item2.key}
+                            >
+                              <Link to={item2.path}>{item2.title}</Link>
+                            </Menu.Item>
+                          ))}
+                        </Menu.SubMenu>
+                      );
+                    }
                     return (
                       <Menu.Item
                         icon={
@@ -56,19 +86,22 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                         }
                         key={item.key}
                       >
-                        {
-                          item.subTitle ? (
-                            <Tooltip title={item.subTitle} color="#FCAF17" mouseEnterDelay={0} mouseLeaveDelay={0} overlayInnerStyle={{textAlign: "center", padding: '5px 10px'}}>
-                              <Link to={item.path}>
-                                {item.title}
-                              </Link>
-                            </Tooltip>
-                          ) : (
-                            <Link to={item.path}>
-                              {item.title}
-                            </Link>
-                          )
-                        }
+                        {item.subTitle ? (
+                          <Tooltip
+                            title={item.subTitle}
+                            color="#FCAF17"
+                            mouseEnterDelay={0}
+                            mouseLeaveDelay={0}
+                            overlayInnerStyle={{
+                              textAlign: "center",
+                              padding: "5px 10px",
+                            }}
+                          >
+                            <Link to={item.path}>{item.title}</Link>
+                          </Tooltip>
+                        ) : (
+                          <Link to={item.path}>{item.title}</Link>
+                        )}
                       </Menu.Item>
                     );
                   })}
