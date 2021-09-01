@@ -35,7 +35,10 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
       return;
     }
     switch (fulfillment.status) {
-      case FulFillmentStatus.SHIPPING:
+      case FulFillmentStatus.UNSHIPPED:
+        printType = "shipment";
+        break;
+      case FulFillmentStatus.PICKED:
         printType = "shipment";
         break;
       case FulFillmentStatus.PACKED:

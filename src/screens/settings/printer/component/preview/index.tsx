@@ -3,7 +3,7 @@ import {
   PrintPreviewModel,
   productKeywordsModel,
 } from "model/editor/editor.model";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import ReactToPrint from "react-to-print";
 import IconEdit from "./images/iconEdit.svg";
@@ -75,12 +75,13 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
         // "text/xml"
         "text/html"
       );
+
       if (docFromCkEditor) {
+        // gán lại biến, trường hợp gõ tiếng Việt bị lỗi
+        resultText = docFromCkEditor.getElementsByTagName("body")[0].innerHTML;
         let tableElements = docFromCkEditor.getElementsByTagName("table");
-        // console.log("tableElements", tableElements);
 
         let listProductKeywordsLength = listProductKeywords?.list?.length;
-        // console.log("listProductKeywordsLength", listProductKeywordsLength);
         if (
           listProductKeywords &&
           listProductKeywordsLength &&
@@ -88,9 +89,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
           tableElements
         ) {
           let resultTextReplaced = "";
-          // let textReplaced = "";
           for (const item of tableElements) {
-            // console.log("2222222222222222222");
             let tBodyElements = item.getElementsByTagName("tbody");
             if (!tBodyElements[0]) return "";
             let trElements = tBodyElements[0].getElementsByTagName("tr");
@@ -98,7 +97,6 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             const trLength = trElements.length;
             let productsChange =
               listProductKeywords.list[0].preview_value_format;
-            // console.log("productsChange", productsChange);
             let numberOfProducts = productsChange?.length;
 
             if (!numberOfProducts) {
@@ -110,7 +108,6 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             for (let i = 0; i < trLength; i++) {
               let resultTextReplacedArray: string[] = [];
               let eachRow = trElements[i].outerHTML;
-              // console.log("eachRow", eachRow);
               if (
                 checkIfStringContainsOneInArray(
                   eachRow,
@@ -125,7 +122,6 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
                       listProductKeywords.list[k]?.preview_value_format;
                     if (previewValueFormat) {
                       let textReplaced = previewValueFormat[j];
-                      // console.log("textToReplaced", textToReplaced);
                       resultTextReplacedArray[j] = resultTextReplacedArray[
                         j
                       ].replaceAll(textToReplaced, textReplaced);
@@ -133,7 +129,6 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
                   }
                 }
                 resultTextReplaced = resultTextReplacedArray.join("");
-                // console.log("resultTextReplaced", resultTextReplaced);
                 resultText = resultText.replaceAll(eachRow, resultTextReplaced);
               }
             }
@@ -158,24 +153,28 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
   };
 
   const renderHtml = (htmlContent: string) => {
-    // console.log("htmlContent", htmlContent);
     let result = htmlContent;
     if (listKeywords) {
       result = replaceSymbolByText(htmlContent);
-      // console.log("htmlContent", htmlContent);
-      // console.log("result", result);
     }
     return result;
   };
 
+  const [hasAlreadyPrint, setHasAlreadyPrint] = useState(false);
+
+  /**
+   * case url has param print=true,  print only one time
+   */
   useEffect(() => {
     let buttonPrintElement = document.getElementsByClassName(
       "button__print"
     )[0] as HTMLElement;
-    if(isPrint && htmlContent) {
+    if (isPrint && htmlContent && !hasAlreadyPrint) {
       buttonPrintElement.click();
+      setHasAlreadyPrint(true);
     }
-  }, [htmlContent, isPrint])
+  }, [hasAlreadyPrint, htmlContent, isPrint]);
+
   return (
     <StyledComponent>
       <div className={`preview ${isShowEditor ? "showEditor" : "hideEditor"}`}>

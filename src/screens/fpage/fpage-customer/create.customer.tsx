@@ -1,23 +1,25 @@
-import {
-  Form,
-  Row,
-  Col,
-  Button,
-} from "antd";
+import { Form, Row, Col, Button, Collapse } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
-  CustomerDetail,
+  DistrictGetByCountryAction,
+  WardGetByDistrictAction,
+} from "domain/actions/content/content.action";
+import {
+  CreateCustomer,
   CustomerGroups,
   CustomerTypes,
-  UpdateCustomer,
 } from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
+import { WardResponse } from "model/content/ward.model";
+import {
+  CustomerModel,
+  CustomerContactClass,
+} from "model/request/customer.request";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { showSuccess } from "utils/ToastUtils";
 import "./customer.scss";
-import moment from "moment";
-import { showSuccess, showError } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import GeneralInformation from "./general.information";
@@ -27,33 +29,25 @@ import {
 } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { WardResponse } from "model/content/ward.model";
-import {
-  DistrictGetByCountryAction,
-  WardGetByDistrictAction,
-} from "domain/actions/content/content.action";
-import arrowLeft from "../../assets/icon/arrow-left.svg";
+import CustomInputContact from "./customInputContact";
 
+const { Panel } = Collapse;
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
-const CustomerEdit = (props: any) => {
-  const params = useParams() as any;
+const CustomerAdd = (props: any) => {
   const [customerForm] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
-  const [customer, setCustomer] = React.useState<any>();
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
   const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
-  // const [companies, setCompanies] = React.useState<Array<any>>([]);
   const [areas, setAreas] = React.useState<Array<any>>([]);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [countryId] = React.useState<number>(233);
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -74,6 +68,7 @@ const CustomerEdit = (props: any) => {
   );
 
  
+
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
@@ -92,18 +87,12 @@ const CustomerEdit = (props: any) => {
       customerForm.setFieldsValue(value);
     }
   };
-  console.log(customer);
+
   React.useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
     }
   }, [dispatch, districtId]);
-
-  React.useEffect(() => {
-    if (customer?.district_id) {
-      dispatch(WardGetByDistrictAction(customer.district_id, setWards));
-    }
-  }, [dispatch, customer]);
 
   React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
@@ -115,69 +104,49 @@ const CustomerEdit = (props: any) => {
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
   React.useEffect(() => {
-    dispatch(CustomerDetail(params.id, setCustomer));
-  }, [dispatch, params]);
-
-  React.useEffect(() => {
-    if (customer) {
-      customerForm.setFieldsValue({
-        ...customer,
-        birthday: customer.birthday
-          ? moment(customer.birthday, "YYYY-MM-DD")
-          : null,
-        wedding_date: customer.wedding_date
-          ? moment(customer.wedding_date, "YYYY-MM-DD")
-          : null,
-      });
-      setStatus(customer.status);
-    }
-  }, [customer, customerForm]);
-  // const reload = React.useCallback(() => {
-  //   dispatch(CustomerDetail(params.id, setCustomer));
-  // }, [dispatch, params.id]);
+    let customer_type_id = 2
+    customerForm.setFieldsValue({...new CustomerModel(), customer_type_id});
+  }, [customerForm]);
   const setResult = React.useCallback(
     (result) => {
       if (result) {
-        showSuccess("Cập nhật khách hàng thành công");
-        history.goBack();
+        showSuccess("Thêm khách hàng thành công");
+        history.replace(`/customers/${result.id}`);
       }
     },
     [history]
   );
+
   const handleSubmit = (values: any) => {
-    console.log("Success:", values);
-    values.full_name = values.full_name.trim();
-    if (!values.full_name) return showError("Vui lòng nhập họ tên khách hàng");
-    const processValue = {
+    let area = areas.find((area) => area.id === districtId);
+    let piece = {
       ...values,
       birthday: values.birthday
-        ? new Date(values.birthday).toUTCString()
-        : null,
+      ? new Date(values.birthday).toUTCString()
+      : null,
       wedding_date: values.wedding_date
         ? new Date(values.wedding_date).toUTCString()
         : null,
       status: status,
-      version: customer.version,
-      shipping_addresses: customer.shipping_addresses.map((item: any) => {
-        let _item = { ...item };
-        _item.is_default = _item.default;
-        return _item;
-      }),
-      billing_addresses: customer.billing_addresses.map((item: any) => {
-        let _item = { ...item };
-        _item.is_default = _item.default;
-        return _item;
-      }),
-      contacts: customer.contacts,
+      city_id: area ? area.city_id : null,
+      contacts: [
+        {
+          ...CustomerContactClass,
+          name: values.contact_name,
+          phone: values.contact_phone,
+          note: values.contact_note,
+          email: values.contact_email,
+        },
+      ],
     };
-    dispatch(UpdateCustomer(params.id, processValue, setResult));
+    dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
   };
   const handleSubmitFail = (errorInfo: any) => {
     console.error("Failed:", errorInfo);
   };
   return (
     <ContentContainer
-      title="Quản lý khách hàng"
+      title="Thêm khách hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -185,66 +154,90 @@ const CustomerEdit = (props: any) => {
         },
         {
           name: "Khách hàng",
-          path: `/customers`,
+          path: `/customer`,
         },
         {
-          name: "Sửa thông tin khách hàng",
+          name: "Thêm khách hàng",
         },
       ]}
     >
       <Form
         form={customerForm}
-        name="customer_edit"
+        name="customer_add"
         onFinish={handleSubmit}
         onFinishFailed={handleSubmitFail}
         layout="vertical"
-        // initialValues={customerInit}
       >
         <Row gutter={24}>
           <Col span={24}>
             <GeneralInformation
-              accounts={accounts}
               form={customerForm}
-              name="general edit"
+              name="general_add"
+              accounts={accounts}
               groups={groups}
               types={types}
-              customer={customer}
               status={status}
               setStatus={setStatus}
               areas={areas}
               countries={countries}
               wards={wards}
-              districtId={districtId}
               handleChangeArea={handleChangeArea}
-              isEdit={true}
               AccountChangeSearch={AccountChangeSearch}
             />
           </Col>
         </Row>
+        <Row gutter={24}>
+          <Col span={24}>
+            <Collapse
+              className="customer-contact-collapse"
+              style={{ backgroundColor: "white", marginTop: 16 }}
+              expandIconPosition="right"
+              defaultActiveKey={["1"]}
+            >
+              <Panel
+                className=""
+                header={
+                  <span
+                    style={{
+                      textTransform: "uppercase",
+                      fontWeight: 500,
+                      padding: "6px",
+                    }}
+                  >
+                    THÔNG TIN LIÊN HỆ
+                  </span>
+                }
+                key="1"
+              >
+                <Row gutter={30} style={{ padding: "0 15px" }}>
+                  <CustomInputContact  form={customerForm}/>
+                </Row>
+              </Panel>
+            </Collapse>
+          </Col>
+          <Col span={6} />
+        </Row>
+        <div className="customer-bottom-button">
+          {/* <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
+            <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+            Quay lại danh sách khách hàng
+          </div> */}
 
-        <div className="customer-bottom-button" style={{}}>
-          <Link to="/customers">
-            <div style={{ cursor: "pointer" }}>
-              <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-              Quay lại danh sách khách hàng
-            </div>
-          </Link>
-          <div>
             <Button
+              style={{marginRight: "10px"}}
               onClick={() => history.goBack()}
-              style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
               type="ghost"
             >
               Hủy
             </Button>
             <Button type="primary" htmlType="submit">
-              Lưu khách hàng
+              Tạo mới khách hàng
             </Button>
-          </div>
+
         </div>
       </Form>
     </ContentContainer>
   );
 };
 
-export default CustomerEdit;
+export default CustomerAdd;

@@ -1,19 +1,23 @@
 import { Card, Switch, Form, Input, DatePicker, Row, Col } from "antd";
 import moment from "moment";
+import { useState } from "react";
 import { StyledComponent } from "./styles";
 
 type PropType = {};
 
 function OrderSettingInformation(props: PropType) {
+  const [trangThai, setTrangThai] = useState(false);
   const renderCardExtra = () => {
     return (
       <div>
-        Cho phép bán khi tồn kho <Switch defaultChecked onChange={onChange} />
+        Trạng thái <Switch defaultChecked={trangThai} onChange={onChange} />
+        {trangThai ? "Hoạt động" : "Dừng hoạt động"}
       </div>
     );
   };
   const onChange = (checked: any) => {
     console.log("checked", checked);
+    setTrangThai(checked);
   };
 
   function range(start: any, end: any) {

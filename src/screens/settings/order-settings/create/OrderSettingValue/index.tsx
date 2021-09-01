@@ -1,3 +1,4 @@
+import { EditOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -8,6 +9,7 @@ import {
   Select,
   Table,
 } from "antd";
+import Column from "antd/lib/table/Column";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { StyledComponent } from "./styles";
@@ -44,15 +46,13 @@ function OrderSettingValue(props: PropType) {
 
   const renderDate = () => {
     return (
-      <Form.Item name="from_date">
-        <DatePicker
-          placeholder="dd/mm/yyyy  hh:mm"
-          format="YYYY-MM-DD HH:mm"
-          disabledDate={disabledDate}
-          disabledTime={disabledDateTime}
-          showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
-        />
-      </Form.Item>
+      <DatePicker
+        placeholder="dd/mm/yyyy  hh:mm"
+        format="YYYY-MM-DD HH:mm"
+        disabledDate={disabledDate}
+        disabledTime={disabledDateTime}
+        showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
+      />
     );
   };
 
@@ -183,90 +183,106 @@ function OrderSettingValue(props: PropType) {
     setListProvinces(response);
   }, []);
 
-  const EditableRow = (props: any) => {
-    console.log("props", props);
+  const EditableUsersTable = (props: any) => {
+    const { users, add, remove } = props;
+    const [editingIndex, setEditingIndex] = useState(undefined);
+    function onChange(date: any, dateString: any) {
+      console.log("date", date);
+      console.log("dateString", dateString);
+    }
     return (
-      <tr {...props}>
-        <Form.List name="value">
-          {(fields) =>
-            fields.map((field: any, index: any) => (
-              <div key={field.key}>
-                <Form.Item
-                  name={[index, "name"]}
-                  label="Name"
-                  rules={[{ required: true }]}
+      <Table
+        dataSource={users}
+        pagination={false}
+        footer={() => {
+          return (
+            <Form.Item>
+              <Button onClick={add}>
+                <PlusOutlined /> Add field
+              </Button>
+            </Form.Item>
+          );
+        }}
+      >
+        <Column
+          dataIndex={"value_date_from"}
+          title={"Giá trị từ"}
+          render={(value, row, index) => {
+            return (
+              <Form.Item name={[index, "value_date_from"]}>
+                {renderDate()}
+              </Form.Item>
+            );
+          }}
+        />
+        <Column
+          dataIndex={"value_date_to"}
+          title={"Giá trị đến"}
+          render={(value, row, index) => {
+            return (
+              <Form.Item name={[index, "value_date_to"]}>
+                {renderDate()}
+              </Form.Item>
+            );
+          }}
+        />
+        <Column
+          dataIndex={"tinhTp"}
+          title={"Tỉnh/Thành phố"}
+          render={(value, row, index) => {
+            return (
+              <Form.Item name={[index, "tinhTp"]}>
+                <Select
+                  showSearch
+                  style={{ width: "100%" }}
+                  placeholder="Chọn tỉnh/thành phố"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option?.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
+                  notFoundContent="Không tìm thấy tỉnh/thành phố"
                 >
-                  <Input placeholder="field name" />
-                </Form.Item>
-                <Form.Item
-                  label="Type"
-                  name={[index, "type"]}
-                  rules={[{ required: true }]}
-                >
-                  <Input placeholder="field name" />
-                </Form.Item>
-                <Form.Item
-                  label="Type"
-                  name={[index, "222"]}
-                  rules={[{ required: true }]}
-                >
-                  <Input placeholder="field name" />
-                </Form.Item>
-                <Form.Item
-                  label="Type"
-                  name={[index, "333"]}
-                  rules={[{ required: true }]}
-                >
-                  <Input placeholder="field name" />
-                </Form.Item>
-              </div>
-            ))
-          }
-        </Form.List>
-      </tr>
+                  {listProvinces &&
+                    listProvinces.map((single) => {
+                      return (
+                        <Select.Option value={single.code} key={single.code}>
+                          {single.name}
+                        </Select.Option>
+                      );
+                    })}
+                </Select>
+              </Form.Item>
+            );
+          }}
+        />
+        <Column
+          dataIndex={"fee"}
+          title={"Phí vận chuyển"}
+          render={(value, row, index) => {
+            return (
+              <Form.Item name={[index, "fee"]}>
+                <Input />
+              </Form.Item>
+            );
+          }}
+        />
+      </Table>
     );
-  };
-
-  const EditableCell = (props: any) => {
-    console.log("props", props);
-
-    return (
-      <td {...props}>
-        <Form.Item
-          // name={dataIndex}
-          name={props.dataIndex}
-        >
-          <Input />
-        </Form.Item>
-      </td>
-    );
-  };
-
-  const handleTableComponent = () => {
-    return {
-      body: {
-        // row: EditableRow,
-        row: () => <EditableRow />,
-        // cell: () => <EditableCell fields={fields} />,
-      },
-    };
   };
 
   return (
     <StyledComponent>
       <Card title="Cài đặt theo giá trị đơn hàng">
         <div>
-          <Table
-            components={handleTableComponent()}
-            bordered
-            dataSource={dataSource}
-            columns={columns}
-          />
-          {/* {fields.map((field) => (
-            <Form.Item {...field}>
-              <Input />
-            </Form.Item>
-          ))} */}
+          <Form.List name="users">
+            {(users, { add, remove }) => {
+              return (
+                <EditableUsersTable users={users} add={add} remove={remove} />
+              );
+            }}
+          </Form.List>
           <Button
             onClick={() => {
               handleAdd();

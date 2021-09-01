@@ -170,3 +170,39 @@
     
   }
 }
+
+.modal-confirm-customer {
+  overflow: hidden;
+  &-container {
+    display: flex;
+    flex-direction: row;
+  }
+  &-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  &-right{
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+  }
+  &-title {
+    font-size: 18px;
+    font-weight: 500;
+    font-style: normal;
+  }
+  &-sub-title {
+    font-weight: normal;
+    font-size: 14px;
+    color: rgba(32, 32, 32, 0.9);
+    opacity: 0.6;
+  }
+  .ant-modal-body{
+    padding: 6px 24px 0 24px
+  }
+}

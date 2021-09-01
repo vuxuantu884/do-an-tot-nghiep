@@ -1,7 +1,7 @@
 import {Button, Col, Input, Modal, Radio, Row, Select, Space} from "antd";
-import arrowDownIcon from "../../../assets/img/drow-down.svg";
+import arrowDownIcon from "assets/img/drow-down.svg";
 import React, {useCallback} from "react";
-import plusBlueIcon from "../../../assets/img/plus-blue.svg";
+import plusBlueIcon from "assets/img/plus-blue.svg";
 
 type EditCustomerModalProps = {
   visible: boolean;
