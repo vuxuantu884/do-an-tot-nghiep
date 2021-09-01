@@ -12,6 +12,10 @@ export const CustomerSearch = (query: CustomerSearchQuery, setData: (data: Array
     return BaseAction(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE, { query, setData });
 }
 
+export const CustomerSearchByPhone = (query: CustomerSearchQuery, setData: (data: CustomerResponse) => void) => {
+  return BaseAction(CustomerType.CUSTOMER_SEARCH_BY_PHONE, { query, setData });
+}
+
 export const CustomerList = (query: CustomerSearchQuery, setData: (data: any) => void) => {
     return BaseAction(CustomerType.CUSTOMER_LIST, { query, setData });
 }
