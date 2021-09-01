@@ -9,7 +9,7 @@ import {
   Table,
 } from "antd";
 import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyledComponent } from "./styles";
 
 type PropType = {};

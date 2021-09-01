@@ -217,7 +217,7 @@ const PODetailScreen: React.FC = () => {
       listCountries: listCountries,
       listDistrict: listDistrict,
     });
-  }, [history, id, poData]);
+  }, [history, id, listCountries, listDistrict, poData]);
   const menu: Array<MenuAction> = useMemo(() => {
     let menuActions = [];
     if (!poData) return [];

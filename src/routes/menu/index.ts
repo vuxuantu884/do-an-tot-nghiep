@@ -6,7 +6,6 @@ import bill from './bill.route';
 import UrlConfig from 'config/url.config';
 import customers from "./customer.route"
 import shipments from "./shipment.route"
-import fpage from "./fpage"
 
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
@@ -42,7 +41,7 @@ const menu: Array<RouteMenu> = [
 
   },
   {
-    path: "/inventory",
+    path: "/kho",
     exact: true,
     title: "Kho hàng",
     icon: 'icon-inventory',
