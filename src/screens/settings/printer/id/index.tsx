@@ -25,7 +25,7 @@ function SinglePrinter() {
       id: 0,
       name: "",
       print_size: "",
-      default: false,
+      is_default: false,
       template: "",
       type: "",
     });
@@ -35,20 +35,31 @@ function SinglePrinter() {
   const [printerName, setPrinterName] = useState("");
   const [actionSinglePrinter, setActionSinglePrinter] =
     useState<FormPrinterModel>(viewAction);
+    const [isPrint, setIsPrint] =
+    useState(false);
   const query = useQuery();
   let queryAction = query.get("action");
+  let queryPrint = query.get("print");
 
   const queryParams = useMemo(() => {
     let result = {
       action: "",
+      print: "",
     };
     if (queryAction) {
       result = {
+        ...result,
         action: queryAction,
       };
     }
+    if (queryPrint) {
+      result = {
+        ...result,
+        print: queryPrint,
+      };
+    }
     return result;
-  }, [queryAction]);
+  }, [queryAction, queryPrint]);
 
   const breadCrumb = [
     {
@@ -99,10 +110,15 @@ function SinglePrinter() {
    */
   useEffect(() => {
     let actionParam = queryParams.action;
+    let printParam = queryParams.print;
     if (actionParam === editAction) {
       setActionSinglePrinter(editAction);
+      if (printParam === "true") {
+        setIsPrint(true);
+      }
     } else {
       setActionSinglePrinter(viewAction);
+      setIsPrint(false)
     }
   }, [dispatch, id, queryParams]);
 
@@ -122,6 +138,7 @@ function SinglePrinter() {
       >
         <FormPrinter
           type={actionSinglePrinter}
+          isPrint={isPrint}
           id={id}
           formValue={singlePrinterContent}
         />

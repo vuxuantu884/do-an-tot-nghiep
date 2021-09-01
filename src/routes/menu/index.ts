@@ -80,7 +80,7 @@ const menu: Array<RouteMenu> = [
     title: "Vận chuyển",
     icon: 'icon-transport',
     component: OrderOnline,
-    key: "10",
+    key: "19",
     isShow: true,
     header: null,
     subMenu: shipments,
@@ -135,10 +135,11 @@ const menu: Array<RouteMenu> = [
     title: "fpage",
     icon: 'icon-setting',
     component: fpageCustomer,
-    key: "10",
+    key: "99",
     isShow: true,
     header: null,
-    subMenu: setting,
+    subMenu: [],
+    // subMenu: setting,
   },
 ]
 
