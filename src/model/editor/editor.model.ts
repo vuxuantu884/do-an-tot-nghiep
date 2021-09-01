@@ -47,5 +47,6 @@ export interface PrintPreviewModel {
   };
   previewHeaderHeight?: number;
   isShowEditor?: boolean;
+  isPrint?: boolean;
   onChangeShowEditor: (isShow: boolean) => void;
 }

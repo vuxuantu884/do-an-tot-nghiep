@@ -9,14 +9,22 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 const statusToStep = {
   [POStatus.DRAFT]: 0,
   [POStatus.FINALIZED]: 1,
-  [POStatus.PROCUREMENT_DRAFT]: 2,
-  [POStatus.PROCUREMENT_RECEIVED]: 3,
+  [POStatus.DRAFTPO]: 2,
+  [POStatus.STORED]: 3,
   [POStatus.COMPLETED]: 4,
   [POStatus.FINISHED]: 5,
   [POStatus.CANCELLED]: 6,
 };
+
+// DRAFT("draft", "Nháp"), //Đặt hàng
+//   FINALIZED("finalized", "Đã xác nhận"), //Xác nhận
+//   DRAFTPO("draftpo", "Phiếu nháp"), //Phiếu nháp
+//   STORED("stored", "Đã nhập kho"),  //Nhập kho
+//   COMPLETED("completed", "Đã hoàn thành"), //Hoàn thành
+//   FINISHED("finished", "Đã kết thúc"), //Kết thúc
+//   CANCELLED("cancelled", "Đã hủy"); //Hủy
 export interface POStepProps {
-  poData?: PurchaseOrder;
+  poData: PurchaseOrder;
 }
 
 const POStep: React.FC<POStepProps> = (props: POStepProps) => {
@@ -27,13 +35,10 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     activated_date,
     completed_date,
     cancelled_date,
-  } = poData || {};
-  const combineStatus = useMemo(() => {
-    if (poData) return POUtils.combinePOStatus(poData);
-    return POStatus.DRAFT;
-  }, [poData]);
+    status: poStatus,
+  } = poData;
   const getDescription = (step: number) => {
-    let currentStep = statusToStep[combineStatus];
+    let currentStep = statusToStep[poStatus];
     switch (step) {
       case 0:
         if (currentStep >= 0 && order_date !== null)
@@ -77,7 +82,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
         </div>
       )}
       size="small"
-      current={statusToStep[combineStatus]}
+      current={statusToStep[poStatus]}
     >
       <Steps.Step title="Đặt hàng" description={getDescription(0)} />
       <Steps.Step title="Xác nhận" description={getDescription(1)} />
@@ -85,10 +90,10 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
       <Steps.Step title="Nhập kho" description={getDescription(3)} />
       <Steps.Step
         title={
-          statusToStep[combineStatus] === 4
-            ? "Kết thúc"
-            : statusToStep[combineStatus] === 5
+          statusToStep[poStatus] === 4
             ? "Hoàn thành"
+            : statusToStep[poStatus] === 5
+            ? "Kết thúc"
             : "Hủy"
         }
         description={getDescription(4)}

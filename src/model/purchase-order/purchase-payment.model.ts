@@ -19,5 +19,6 @@ export interface PurchasePayments {
   note?: string;
   status?: string;
   status_name?: string;
+  status_po: string;
   purchase_order_id?: number;
 }

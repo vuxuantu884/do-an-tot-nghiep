@@ -11,13 +11,16 @@ import {
   PoPaymentUpdateAction,
 } from "domain/actions/po/po-payment.action";
 import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import moment from "moment";
+import { POUtils } from "utils/POUtils";
 
 type PaymentModalProps = {
   visible: boolean;
   poId: number;
   remainPayment: number;
   purchasePayment?: PurchasePayments;
+  poData: PurchaseOrder;
   onCancel: () => void;
   onOk: (isLoad: boolean) => void;
 };
@@ -26,8 +29,15 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   props: PaymentModalProps
 ) => {
   const dispatch = useDispatch();
-  const { poId, purchasePayment, visible, onCancel, onOk, remainPayment } =
-    props;
+  const {
+    poId,
+    purchasePayment,
+    visible,
+    onCancel,
+    onOk,
+    remainPayment,
+    poData,
+  } = props;
   const [formPayment] = Form.useForm();
   const [confirmLoading, setConfirmLoading] = React.useState(false);
   const [disabledRef, setDisabledRef] = React.useState(false);
@@ -66,6 +76,12 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     (values: PurchasePayments) => {
       setConfirmLoading(true);
       let data = formPayment.getFieldsValue(true);
+      values.status_po = POUtils.calculatePOStatus(
+        poData,
+        null,
+        values,
+        "update"
+      );
 
       if (data.id) {
         if (data.status === PoPaymentStatus.REFUND) data.amount = -data.amount;
@@ -185,6 +201,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
                 }
                 replace={(a: string) => replaceFormatString(a)}
                 min={0}
+                max={remainPayment}
                 default={0}
                 placeholder="Nhập số tiền cần thanh toán"
               />

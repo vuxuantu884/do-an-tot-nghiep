@@ -70,10 +70,18 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (
         layout="vertical"
         initialValues={initialFormValue}
       >
-        <Form.Item name="channel_id" label="channel_id" hidden></Form.Item>
-        <Form.Item name="channel" label="channel" hidden></Form.Item>
-        <Form.Item name="company_id" label="company_id" hidden></Form.Item>
-        <Form.Item name="company" label="company" hidden></Form.Item>
+        <Form.Item name="channel_id" label="channel_id" hidden>
+          <Input />
+        </Form.Item>
+        <Form.Item name="channel" label="channel" hidden>
+          <Input />
+        </Form.Item>
+        <Form.Item name="company_id" label="company_id" hidden>
+          <Input />
+        </Form.Item>
+        <Form.Item name="company" label="company" hidden>
+          <Input />
+        </Form.Item>
         <Form.Item
           name="name"
           label="Tên nguồn đơn hàng"

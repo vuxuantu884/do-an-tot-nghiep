@@ -3,7 +3,7 @@ import { BaseMetadata } from "model/base/base-metadata.response";
 export interface BasePrinterModel {
   company: string;
   company_id: number;
-  default: boolean;
+  is_default: boolean;
   id: number;
   name: string;
   print_size: string;
