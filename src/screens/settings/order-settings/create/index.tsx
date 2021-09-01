@@ -1,9 +1,11 @@
 import { Form, Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import moment from "moment";
 // import { useHistory } from "react-router-dom";
 import OrderSettingInformation from "./OrderSettingInformation";
 import OrderSettingValue from "./OrderSettingValue";
+import SelectThirdPartyLogistic from "./SelectThirdPartyLogistic";
 import { StyledComponent } from "./styles";
 
 type PropType = {};
@@ -98,6 +100,22 @@ function OrderSettings(props: PropType) {
     store_id: null,
     template: null,
     type: null,
+    users: [
+      {
+        age: 1,
+        value_date_to: moment("2015-01-01", "YYYY-MM-DD HH:mm"),
+      },
+    ],
+    third_party_logistics: [
+      {
+        age: 1,
+        value_date_to: moment("2015-01-01", "YYYY-MM-DD HH:mm"),
+      },
+      {
+        age: 1,
+        value_date_to: moment("2015-01-01", "YYYY-MM-DD HH:mm"),
+      },
+    ],
   };
 
   // const goToPageDetail = (id: string | number) => {
@@ -136,6 +154,7 @@ function OrderSettings(props: PropType) {
         <Form form={form} layout="vertical" initialValues={initialFormValue}>
           <OrderSettingInformation />
           <OrderSettingValue />
+          <SelectThirdPartyLogistic />
         </Form>
         <Button onClick={() => handleSubmitForm()}>Lưu</Button>
       </ContentContainer>
