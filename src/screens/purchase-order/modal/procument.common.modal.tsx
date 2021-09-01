@@ -71,8 +71,20 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
   const [visibleDelete, setVisibleDelete] = useState<boolean>(false);
   const allProcurementItems = useMemo(() => {
     let result = POUtils.getPOProcumentItem(items);
+    result = result.map((item) => {
+      if (visible) {
+        if (type === "draft") {
+          item.quantity = 0;
+        } else if (type === "confirm") {
+          item.quantity = 0;
+        } else if (type === "inventory") {
+          item.real_quantity = 0;
+        }
+      }
+      return item;
+    });
     return result;
-  }, [items]);
+  }, [items, visible, type]);
 
   const onSearch = useCallback(
     (value: string) => {
@@ -99,7 +111,10 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
             item.line_item_id === parseInt(lineItemId)
         );
         if (newProcumentItem) {
-          procurement_items = [...procurement_items, newProcumentItem];
+          procurement_items = [
+            ...procurement_items,
+            JSON.parse(JSON.stringify(newProcumentItem)),
+          ];
         }
       }
       form.setFieldsValue({ procurement_items: [...procurement_items] });
@@ -190,7 +205,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       form.setFieldsValue(JSON.parse(JSON.stringify(item)));
     } else {
       form.setFieldsValue({
-        procurement_items: [...allProcurementItems],
+        procurement_items: JSON.parse(JSON.stringify(allProcurementItems)),
       });
     }
   }, [form, item, allProcurementItems]);
@@ -357,7 +372,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                     ]}
                     label="Kho nhận hàng"
                   >
-                    <Select>
+                    <Select showSearch showArrow optionFilterProp="children">
                       <Select.Option value="">Chọn kho nhận</Select.Option>
                       {stores.map((item) => (
                         <Select.Option key={item.id} value={item.id}>

@@ -10,9 +10,9 @@ import {
   findPriceInVariant,
   findTaxInVariant,
 } from "utils/AppUtils";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import imgdefault from "assets/icon/img-default.svg";
-import { Type } from "config/TypeConfig";
+import { Type } from "config/type.config";
 import { Link } from "react-router-dom";
 import {
   OrderItemDiscountModel,
@@ -121,7 +121,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
 
   const columns = [
     {
-      title: "Sản phẩm",
+      title: "Sản phẩm", width: 200,
       render: (a: OrderItemModel, item: any, index: number) => (
         <div>
           <div className="yody-pos-sku">
@@ -132,7 +132,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       ),
     },
     {
-      title: "Số lượng",
+      title: "Số lượng", width: 100,
       render: (a: OrderItemModel, b: any, index: number) => (
         <div>
           <Input
@@ -160,7 +160,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     //   render: (a: OrderItemModel) => formatCurrency(a.price),
     // },
     {
-      title: "",
+      title: "",width: 100,
       render: (a: any, b: any, index: number) => {
         return (
           <div style={{ textAlign: "center" }}>

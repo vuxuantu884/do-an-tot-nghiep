@@ -49,7 +49,7 @@ import "./customer.scss";
 import moment from "moment";
 import { showSuccess, showError } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -471,7 +471,7 @@ const CustomerEdit = (props: any) => {
     //   visible: true,
     // },
     {
-      title: "Khu vực",
+      title: "Địa chỉ",
       dataIndex: "full_address",
       visible: true,
       render: (value, row, index) => {
@@ -546,25 +546,28 @@ const CustomerEdit = (props: any) => {
       title: "Họ tên người nhận",
       dataIndex: "name",
       visible: true,
-      width: "20%",
+      width: 150,
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone",
       visible: true,
+      width: 150
     },
     {
       title: "Email",
       dataIndex: "email",
       visible: true,
+      width: 150
     },
     {
       title: "Mã số thuế",
       dataIndex: "tax_code",
       visible: true,
+      width: 150
     },
     {
-      title: "Khu vực",
+      title: "Địa chỉ",
       dataIndex: "full_address",
       visible: true,
       render: (value, row, index) => {
@@ -1574,7 +1577,7 @@ const CustomerEdit = (props: any) => {
         text="Bạn có chắc chắn xóa địa chỉ gửi hóa đơn này không?"
         icon={DeleteIcon}
       />
-      <div className="customer-bottom-button">
+      {/* <div className="customer-bottom-button">
         <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
           <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
           Quay lại danh sách khách hàng
@@ -1591,9 +1594,9 @@ const CustomerEdit = (props: any) => {
           >
             Xóa khách hàng
           </Button>
-          {/* <Button type="primary">Tạo phiếu thu chi</Button> */}
+          <Button type="primary">Tạo phiếu thu chi</Button>
         </div>
-      </div>
+      </div> */}
     </ContentContainer>
   );
 };

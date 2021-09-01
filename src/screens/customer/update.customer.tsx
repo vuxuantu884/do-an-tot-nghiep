@@ -19,7 +19,7 @@ import "./customer.scss";
 import moment from "moment";
 import { showSuccess, showError } from "utils/ToastUtils";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import GeneralInformation from "./general.information";
 import {
   AccountResponse,
@@ -164,7 +164,7 @@ const CustomerEdit = (props: any) => {
         _item.is_default = _item.default;
         return _item;
       }),
-      billing_addresses: customer.shipping_addresses.map((item: any) => {
+      billing_addresses: customer.billing_addresses.map((item: any) => {
         let _item = { ...item };
         _item.is_default = _item.default;
         return _item;

@@ -1,6 +1,6 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
-import { ApiConfig } from "config/ApiConfig";
+import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MaterialResponse, MaterialCreateRequest, MaterialUpdateRequest, MaterialQuery } from "model/product/material.model";
 import { generateQuery } from "utils/AppUtils";

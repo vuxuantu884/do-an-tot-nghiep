@@ -6,7 +6,7 @@ import {
 import { createPurchaseProcumentService } from "service/purchase-order/purchase-procument.service";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { showError } from "utils/ToastUtils";

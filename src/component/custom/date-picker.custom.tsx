@@ -4,7 +4,7 @@ import { CSSProperties } from "react";
 import { isUndefinedOrNull } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 
-type CustomDatepickerProps = {
+type CustomDatePickerProps = {
   value?: string;
   onChange?: (value: string | undefined) => void;
   style?: CSSProperties;
@@ -13,8 +13,8 @@ type CustomDatepickerProps = {
   disableDate?: (date: Moment) => boolean;
 };
 
-const CustomDatepicker: React.FC<CustomDatepickerProps> = (
-  props: CustomDatepickerProps
+const CustomDatePicker: React.FC<CustomDatePickerProps> = (
+  props: CustomDatePickerProps
 ) => {
   const { value, onChange, placeholder, style } = props;
   return (
@@ -22,7 +22,7 @@ const CustomDatepicker: React.FC<CustomDatepickerProps> = (
       style={style}
       value={!isUndefinedOrNull(value) ? moment(value) : undefined}
       placeholder={placeholder}
-      onChange={(v, dateSring) => {
+      onChange={(v, dateString) => {
         onChange && onChange(v?.utc().format());
       }}
       disabledDate={props.disableDate}
@@ -32,4 +32,4 @@ const CustomDatepicker: React.FC<CustomDatepickerProps> = (
   );
 };
 
-export default CustomDatepicker;
+export default CustomDatePicker;

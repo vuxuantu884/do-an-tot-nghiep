@@ -18,7 +18,6 @@ const DiscountGroup: React.FC<DiscountGroupProps> = ( props: DiscountGroupProps 
   const { Text } = Typography;
   const [selected, setSelected] = useState(MoneyType.MONEY);
   let showResult = true;
-
   const changeDiscountType = (value: string) => {
     setSelected(value);
   };

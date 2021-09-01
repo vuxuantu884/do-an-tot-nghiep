@@ -1,7 +1,7 @@
 import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PRINTER_TYPES } from "domain/types/printer.type";
@@ -83,7 +83,7 @@ function* getPrinterDetailSaga(action: YodyAction) {
   }
 }
 function* createPrinterSaga(action: YodyAction) {
-  const { formValue } = action.payload;
+  const { handleData, formValue } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<PrinterResponseModel>> = yield call(
@@ -97,6 +97,7 @@ function* createPrinterSaga(action: YodyAction) {
          * call function handleData in payload, variables are taken from the response -> use when dispatch
          */
         showSuccess("Tạo mới mẫu in thành công");
+        handleData();
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -143,11 +144,11 @@ function* fetchListPrinterVariablesSaga(action: YodyAction) {
 }
 
 function* fetchPrintFormByOrderIdsSaga(action: YodyAction) {
-  const { ids, handleData } = action.payload;
+  const { ids, type, handleData } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<BaseResponse<PrintFormByOrderIdsResponseModel>> =
-      yield call(getPrintFormByOrderIdsService, ids);
+      yield call(getPrintFormByOrderIdsService, ids, type);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:

@@ -50,12 +50,12 @@ import {
   getTotalQuantity,
 } from "utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import imgdefault from "assets/icon/img-default.svg";
 import emptyProduct from "assets/icon/empty_products.svg";
 import Xclosebtn from "assets/icon/X_close.svg";
 import addIcon from "assets/img/plus_1.svg";
-import { Type } from "config/TypeConfig";
+import { Type } from "config/type.config";
 import {
   OrderItemDiscountModel,
   OrderSettingsModel,

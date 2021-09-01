@@ -15,6 +15,8 @@ import { POStatus, ProcumentStatus, PoPaymentStatus } from "utils/Constants";
 import { DATE_FORMAT, getDateFromNow } from "utils/DateUtils";
 import { FilterOutlined } from "@ant-design/icons";
 import HashTag from "component/custom/hashtag";
+import CustomSelectOne from "./component/select-one.custom";
+import CustomSelectMany from "./component/select-many.custom";
 
 const { Panel } = Collapse;
 const { Item } = Form;
@@ -58,7 +60,7 @@ const filterFields = {
   financial_status: "financial_status",
   merchandiser: "merchandiser",
   qc: "qc",
-  cost_included: "cost_included",
+  // cost_included: "cost_included",
   tax_included: "tax_included",
   expected_import_date: "expected_import_date",
   expected_store: "expected_store",
@@ -84,7 +86,7 @@ const filterFieldsMapping: any = {
   [filterFields.financial_status]: "Thanh toán",
   [filterFields.merchandiser]: "Merchandiser",
   [filterFields.qc]: "QC",
-  [filterFields.cost_included]: "Chi phí",
+  // [filterFields.cost_included]: "Chi phí",
   [filterFields.tax_included]: "VAT",
   [filterFields.expected_import_date]: "Ngày nhận hàng dự kiến",
   [filterFields.expected_store]: "Kho nhận hàng dự kiến",
@@ -195,11 +197,11 @@ const FilterList = ({ filters, resetField }: any) => {
             });
             renderTxt = `${filterFieldsMapping[filterKey]} : ${listStatusValue}`;
             break;
-          case filterFields.cost_included:
-            let costTxt = "Có chi phí";
-            if (value === "false") costTxt = "Không chi phí";
-            renderTxt = `${filterFieldsMapping[filterKey]} : ${costTxt}`;
-            break;
+          // case filterFields.cost_included:
+          //   let costTxt = "Có chi phí";
+          //   if (value === "false") costTxt = "Không chi phí";
+          //   renderTxt = `${filterFieldsMapping[filterKey]} : ${costTxt}`;
+          //   break;
           case filterFields.tax_included:
             let taxTxt = "Có VAT";
             if (value === "false") taxTxt = "Không VAT";
@@ -253,7 +255,7 @@ const AdvanceFormItems = ({
   tempAdvanceFilters,
 }: AdvanceFormItemProps) => {
   return (
-    <Space direction="vertical" style={{ width: "100%" }}>
+    <Space className="po-filter" direction="vertical" style={{ width: "100%" }}>
       {Object.keys(filterFields).map((field) => {
         let collapseChildren = null;
         switch (field) {
@@ -288,46 +290,48 @@ const AdvanceFormItems = ({
             break;
           case filterFields.receive_status:
             collapseChildren = (
-              <CustomSelect
-                showArrow
-                placeholder="Chọn 1 hoặc nhiều trạng thái"
-                mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                notFoundContent="Không tìm thấy kết quả"
-                style={{
-                  width: "100%",
-                }}
-                maxTagCount="responsive"
-              >
-                {Object.keys(listProcumentStatus)?.map((key) => (
-                  <CustomSelect.Option key={key} value={key}>
-                    {listProcumentStatus[key]}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
+              // <CustomSelect
+              //   showArrow
+              //   placeholder="Chọn 1 hoặc nhiều trạng thái"
+              //   mode="multiple"
+              //   allowClear
+              //   tagRender={tagRender}
+              //   notFoundContent="Không tìm thấy kết quả"
+              //   style={{
+              //     width: "100%",
+              //   }}
+              //   maxTagCount="responsive"
+              // >
+              //   {Object.keys(listProcumentStatus)?.map((key) => (
+              //     <CustomSelect.Option key={key} value={key}>
+              //       {listProcumentStatus[key]}
+              //     </CustomSelect.Option>
+              //   ))}
+              // </CustomSelect>
+              <CustomSelectOne span={8} data={listProcumentStatus} />
             );
             break;
           case filterFields.financial_status:
             collapseChildren = (
-              <CustomSelect
-                showArrow
-                placeholder="Chọn 1 hoặc nhiều trạng thái"
-                mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                notFoundContent="Không tìm thấy kết quả"
-                style={{
-                  width: "100%",
-                }}
-                maxTagCount="responsive"
-              >
-                {Object.keys(listPaymentStatus).map((key) => (
-                  <CustomSelect.Option key={key} value={key}>
-                    {listPaymentStatus[key]}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
+              // <CustomSelect
+              //   showArrow
+              //   placeholder="Chọn 1 hoặc nhiều trạng thái"
+              //   mode="multiple"
+              //   allowClear
+              //   tagRender={tagRender}
+              //   notFoundContent="Không tìm thấy kết quả"
+              //   style={{
+              //     width: "100%",
+              //   }}
+              //   maxTagCount="responsive"
+              // >
+              //   {Object.keys(listPaymentStatus).map((key) => (
+              //     <CustomSelect.Option key={key} value={key}>
+              //       {listPaymentStatus[key]}
+              //     </CustomSelect.Option>
+              //   ))}
+              // </CustomSelect>
+              <CustomSelectMany data={listPaymentStatus} span={8} />
             );
             break;
           case filterFields.merchandiser:
@@ -337,6 +341,7 @@ const AdvanceFormItems = ({
                 placeholder="Chọn 1 hoặc nhiều merchandiser"
                 mode="multiple"
                 allowClear
+                optionFilterProp="children"
                 tagRender={tagRender}
                 style={{
                   width: "100%",
@@ -363,6 +368,7 @@ const AdvanceFormItems = ({
                 style={{
                   width: "100%",
                 }}
+                optionFilterProp="children"
                 notFoundContent="Không tìm thấy kết quả"
                 maxTagCount="responsive"
               >
@@ -374,44 +380,45 @@ const AdvanceFormItems = ({
               </CustomSelect>
             );
             break;
-          case filterFields.cost_included:
-            collapseChildren = (
-              <CustomSelect
-                showArrow
-                placeholder="Chọn 1 trong 2 đk"
-                tagRender={tagRender}
-                style={{
-                  width: "100%",
-                }}
-                notFoundContent="Không tìm thấy kết quả"
-              >
-                <CustomSelect.Option key="1" value="true">
-                  Có chi phí
-                </CustomSelect.Option>
-                <CustomSelect.Option key="2" value="false">
-                  Không chi phí
-                </CustomSelect.Option>
-              </CustomSelect>
-            );
-            break;
+          // case filterFields.cost_included:
+          //   collapseChildren = (
+          //     <CustomSelect
+          //       showArrow
+          //       placeholder="Chọn 1 trong 2 đk"
+          //       tagRender={tagRender}
+          //       style={{
+          //         width: "100%",
+          //       }}
+          //       notFoundContent="Không tìm thấy kết quả"
+          //     >
+          //       <CustomSelect.Option key="1" value="true">
+          //         Có chi phí
+          //       </CustomSelect.Option>
+          //       <CustomSelect.Option key="2" value="false">
+          //         Không chi phí
+          //       </CustomSelect.Option>
+          //     </CustomSelect>
+          //   );
+          //   break;
           case filterFields.tax_included:
             collapseChildren = (
-              <CustomSelect
-                showArrow
-                placeholder="Chọn 1 trong 2 đk"
-                tagRender={tagRender}
-                style={{
-                  width: "100%",
-                }}
-                notFoundContent="Không tìm thấy kết quả"
-              >
-                <CustomSelect.Option key="1" value="true">
-                  Có VAT
-                </CustomSelect.Option>
-                <CustomSelect.Option key="2" value="false">
-                  Không VAT
-                </CustomSelect.Option>
-              </CustomSelect>
+              // <CustomSelect
+              //   showArrow
+              //   placeholder="Chọn 1 trong 2 đk"
+              //   tagRender={tagRender}
+              //   style={{
+              //     width: "100%",
+              //   }}
+              //   notFoundContent="Không tìm thấy kết quả"
+              // >
+              //   <CustomSelect.Option key="1" value="true">
+              //     Có VAT
+              //   </CustomSelect.Option>
+              //   <CustomSelect.Option key="2" value="false">
+              //     Không VAT
+              //   </CustomSelect.Option>
+              // </CustomSelect>
+              <CustomSelectOne span={12} data={{"true": "Có VAT", "false": "Không VAT"}} />
             );
             break;
           case filterFields.expected_store:
@@ -692,7 +699,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
-          width={396}
+          width={500}
         >
           <Form
             form={formAdvanceFilter}

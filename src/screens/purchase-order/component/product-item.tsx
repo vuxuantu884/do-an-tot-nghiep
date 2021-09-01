@@ -1,7 +1,7 @@
 import { VariantResponse } from "model/product/product.model";
 import imgDefIcon from "assets/img/img-def.svg";
 import { formatCurrency, Products } from "utils/AppUtils";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import { Checkbox } from "antd";
 
 type ProductItemProps = {

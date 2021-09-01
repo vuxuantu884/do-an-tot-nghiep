@@ -1,7 +1,7 @@
 import { LoadingOutlined, SettingOutlined } from "@ant-design/icons";
 import { Button, Spin, Table as ANTTable, TableProps } from "antd";
 import { ColumnType, TableLocale } from "antd/lib/table/interface";
-import { PageConfig } from "config/PageConfig";
+import { PageConfig } from "config/page.config";
 import React, { useCallback } from "react";
 import CustomPagination from "./CustomPagination";
 

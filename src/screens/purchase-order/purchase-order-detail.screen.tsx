@@ -1,7 +1,7 @@
 import { Button, Col, Form, Input, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
-import { AppConfig } from "config/AppConfig";
-import UrlConfig from "config/UrlConfig";
+import { AppConfig } from "config/app.config";
+import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PoDetailAction, PoUpdateAction } from "domain/actions/po/po.action";
 import { AccountResponse } from "model/account/account.model";
@@ -214,6 +214,8 @@ const PODetailScreen: React.FC = () => {
   const redirectToReturn = useCallback(() => {
     history.push(`${UrlConfig.PURCHASE_ORDER}/return/${id}`, {
       params: poData,
+      listCountries: listCountries,
+      listDistrict: listDistrict,
     });
   }, [history, id, poData]);
   const menu: Array<MenuAction> = useMemo(() => {
@@ -222,9 +224,7 @@ const PODetailScreen: React.FC = () => {
     let poStatus = POUtils.combinePOStatus(poData);
     if (
       poStatus &&
-      [POStatus.ORDER, POStatus.FINALIZED, POStatus.PROCUREMENT_DRAFT].includes(
-        poStatus
-      ) &&
+      [POStatus.FINALIZED, POStatus.PROCUREMENT_DRAFT].includes(poStatus) &&
       poData.receipt_quantity < 1
     )
       menuActions.push({
@@ -445,7 +445,12 @@ const PODetailScreen: React.FC = () => {
             {poData &&
               ((poData.receipt_quantity && poData.receipt_quantity > 0) ||
                 (poData.total_paid && poData.total_paid > 0)) && (
-                <POReturnList id={id} params={formMain.getFieldsValue(true)} />
+                <POReturnList
+                  id={id}
+                  params={formMain.getFieldsValue(true)}
+                  listCountries={listCountries}
+                  listDistrict={listDistrict}
+                />
               )}
           </Col>
           {/* Right Side */}

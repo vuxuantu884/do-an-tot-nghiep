@@ -1,5 +1,5 @@
 //#region Import
-import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, SearchOutlined, WindowsFilled } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -13,7 +13,7 @@ import {
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { orderCreateAction } from "domain/actions/order/order.action";
@@ -362,10 +362,10 @@ export default function FpageOrders() {
     (value: OrderResponse) => {
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
-        history.push(`${UrlConfig.ORDER}/${value.id}`);
+        setTimeout(() => {window.location.reload()}, 500)
       } else {
         showSuccess("Đơn được lưu nháp thành công");
-        history.push(`${UrlConfig.ORDER}/${value.id}`);
+        // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
       }
     },
     [history]
@@ -528,7 +528,7 @@ export default function FpageOrders() {
       ]}
       extra={<CreateBillStep status="draff" orderDetail={null} />}
     >
-      <div className="orders">
+      <div className="orders fpage-order-screen">
         <Form
           layout="vertical"
           initialValues={initialForm}
@@ -616,7 +616,7 @@ export default function FpageOrders() {
               />
             </Col>
             {/* Right Side */}
-            <Col md={6}>
+            <Col span={24} style={{marginTop: 16}}>
               <Card
                 title={
                   <div className="d-flex">
@@ -732,13 +732,14 @@ export default function FpageOrders() {
             className="margin-top-10 "
             style={{
               position: "fixed",
+              justifyContent: "space-between",
               textAlign: "right",
               width: "100%",
               height: "55px",
-              bottom: "0%",
+              bottom: "-10px",
               backgroundColor: "#FFFFFF",
-              marginLeft: "-30px",
               display: `${isShowBillStep ? "" : "none"}`,
+              zIndex: 99999
             }}
           >
             <Col
@@ -756,14 +757,14 @@ export default function FpageOrders() {
               >
                 Huỷ
               </Button>
-              <Button
+              {/* <Button
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="create-button-custom ant-btn-outline fixed-button"
                 type="primary"
                 onClick={showSaveAndConfirmModal}
               >
                 Lưu nháp
-              </Button>
+              </Button> */}
               <Button
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 type="primary"
@@ -778,7 +779,7 @@ export default function FpageOrders() {
                   formRef.current?.submit();
                 }}
               >
-                Lưu và Xác nhận
+                Tạo đơn hàng
               </Button>
             </Col>
           </Row>
