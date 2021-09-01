@@ -31,6 +31,9 @@ import { getListSourceRequest } from "domain/actions/product/source.action";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
+import NumberFormat from "react-number-format";
+import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
+import { OrderProcessingStatusModel, OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
 
 const actions: Array<MenuAction> = [
   {
@@ -70,6 +73,7 @@ const initQuery: OrderSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   order_status: [],
+  sub_status: [],
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
@@ -109,6 +113,9 @@ const ListOrderScreen: React.FC = () => {
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
+    OrderProcessingStatusModel[]
+  >([]);
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 30,
@@ -166,7 +173,14 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Khách hàng",
-      dataIndex: "customer",
+      dataIndex: "shipping_address",
+      render: (shipping_address: any) => (
+        <div className="customer">
+          <div className="name">{shipping_address.name}</div>
+          <div>{shipping_address.phone}</div>
+          <div>{shipping_address.full_address}</div>
+        </div>
+      ),
       key: "customer",
       visible: true,
     },
@@ -180,7 +194,7 @@ const ListOrderScreen: React.FC = () => {
             return (
               <div className="item" style={{textAlign: "left"}}>
                 <div className="item-sku">{item.sku}</div>
-                <div className="item-quantity">{item.quantity}</div>
+                <div className="item-quantity">x {item.quantity}</div>
               </div>
             )
           })}
@@ -193,6 +207,14 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Khách phải trả",
       dataIndex: "total_line_amount_after_line_discount",
+      render: (value: number) => (
+        <NumberFormat
+          value={value}
+          className="foo"
+          displayType={"text"}
+          thousandSeparator={true}
+        />
+      ),
       key: "customer.amount_money",
       visible: true,
     },
@@ -349,7 +371,10 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Khu vực",
-      dataIndex: "area",
+      dataIndex: "shipping_address",
+      render: (shipping_address: any) => (
+          <div className="name">{`${shipping_address.ward}, ${shipping_address.district}, ${shipping_address.city}`}</div>
+      ),
       key: "area",
       visible: true,
     },
@@ -375,7 +400,12 @@ const ListOrderScreen: React.FC = () => {
           total +=payment.amount
         })
         return (
-          total
+          <NumberFormat
+              value={total}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
       )},
       visible: true,
     },
@@ -390,7 +420,12 @@ const ListOrderScreen: React.FC = () => {
         })
         const missingPaid = order.total_line_amount_after_line_discount ? order.total_line_amount_after_line_discount - paid : 0
         return (
-          missingPaid > 0 ? missingPaid : 0
+          <NumberFormat
+              value={missingPaid > 0 ? missingPaid : 0}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
       )},
       visible: true,
     },
@@ -527,6 +562,7 @@ const ListOrderScreen: React.FC = () => {
       setTableLoading(true);
     }
     isFirstLoad.current = false;
+    setTableLoading(true);
     dispatch(getListOrderAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
@@ -534,6 +570,14 @@ const ListOrderScreen: React.FC = () => {
     dispatch(AccountSearchAction({}, setDataAccounts));
     dispatch(getListSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
+    dispatch(
+      actionFetchListOrderProcessingStatus(
+        {},
+        (data: OrderProcessingStatusResponseModel) => {
+          setListOrderProcessingStatus(data.items);
+        }
+      )
+    );
   }, [dispatch, setDataAccounts]);
   
   return (
@@ -588,6 +632,7 @@ const ListOrderScreen: React.FC = () => {
           listStore={listStore}
           accounts={accounts}
           deliveryService={delivery_service}
+          subStatus={listOrderProcessingStatus}
           onShowColumnSetting={() => setShowSettingColumn(true)}
         />
         <CustomTable
