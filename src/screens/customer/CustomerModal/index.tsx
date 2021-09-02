@@ -28,6 +28,7 @@ export interface CustomModalType {
   modalAction: modalActionType;
   modalTypeText: string;
   deletedItemTitle?: string;
+  updateBtnTitle?: string;
   componentForm: React.FC<CustomModalFormModel>;
   formItem: any;
   moreFormArguments?: any;
@@ -43,6 +44,7 @@ const CustomModal = (props: CustomModalType) => {
     onCancel,
     modalAction,
     deletedItemTitle,
+    updateBtnTitle,
     formItem,
     modalTypeText,
     componentForm: ComponentForm,
@@ -116,8 +118,12 @@ const CustomModal = (props: CustomModalType) => {
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Thoát
             </Button>
-            <Button key="save" type="primary" onClick={() => formAction.edit()}>
-              Lưu địa chỉ
+            <Button
+              key="save"
+              type="primary"
+              onClick={() => formAction.edit()}
+            >
+              {updateBtnTitle}
             </Button>
           </div>
         </div>

@@ -23,7 +23,7 @@ import customerShipping from "../../assets/icon/c-shipping.svg";
 import customerRecipt from "../../assets/icon/c-recipt.svg";
 import customerContact from "../../assets/icon/c-contact.svg";
 import customerBuyHistory from "../../assets/icon/c-bag.svg";
-
+import {OrderModel,OrderSearchQuery } from "model/order/order.model";
 import {
   CustomerDetail,
   CreateContact,
@@ -31,6 +31,9 @@ import {
   DeleteContact,
   CreateBillingAddress,
   CreateShippingAddress,
+  CreateNote,
+  UpdateNote,
+  DeleteNote,
   DeleteBillingAddress,
   DeleteShippingAddress,
   UpdateBillingAddress,
@@ -47,19 +50,24 @@ import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
+import { getListOrderAction } from "domain/actions/order/order.action";
 import {
   contact,
   CustomerResponse,
   shippingAddress,
   billingAddress,
+  note,
 } from "model/response/customer/customer.response";
 import {
+  CustomerNote,
   CustomerContact,
   CustomerShippingAddress,
   CustomerBillingAddress,
 } from "model/request/customer.request";
 import FormCustomerContact from "component/forms/FormCustomerContact";
 import FormCustomerShippingAddress from "component/forms/FormCustomerShippingAddress";
+import FormCustomerNote from "component/forms/FormCustomerNote";
+
 import FormCustomerBillingAddress from "component/forms/FormCustomerBillingAddress";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
@@ -78,6 +86,8 @@ const CustomerEdit = (props: any) => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [customer, setCustomer] = React.useState<CustomerResponse>();
+  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>();
+
   const [customerDetail, setCustomerDetail] = React.useState([]) as any;
   const [customerDetailCollapse, setCustomerDetailCollapse] = React.useState(
     []
@@ -391,25 +401,108 @@ const CustomerEdit = (props: any) => {
     },
     actionColumn(handleContactEdit, handleContactDelete),
   ];
+
+
+  const columnsHistory: Array<ICustomTableColumType<OrderModel>> = [
+    {
+      title: "STT",
+      dataIndex: "",
+      align: "center",
+      visible: true,
+      width: "5%",
+      render: (value, row, index) => {
+        return <span>{index + 1}</span>;
+      },
+    },
+    {
+      title: "Mã đơn hàng",
+      dataIndex: "code",
+      visible: true,
+      // width: "20%",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      visible: true,
+      // width: "20%",
+      // render: (value, row, index) => {
+      //   return <div style={{ width: 200 }}>{row.name}</div>;
+      // },
+    },
+
+    {
+      title: "Sản phẩm",
+      visible: true,
+      render: (value, row, index) => {
+          return <div >{row.items.length}</div>;
+        }
+    },
+
+    {
+      title: "Giá trị",
+      dataIndex: "total_line_amount_after_line_discount",
+      visible: true,
+      // width: "20%",
+    },
+    {
+      title: "Cửa hàng",
+      dataIndex: "store",
+      visible: true,
+    },
+    {
+      title: "Nhân viên phụ trách",
+      dataIndex: "assignee",
+      visible: true,
+    },
+    {
+      title: "Ngày đặt hàng",
+      render: (value, row, index) => {
+        return <div >{moment(row.created_date).format("DD/MM/YYYY HH:mm:ss")}</div>;
+      },
+      visible: true,
+    },
+  ];
   // shiping column
 
   const [isVisibleShippingModal, setIsVisibleShippingModal] =
+    React.useState<boolean>(false);
+    const [isVisibleNoteModal, setIsVisibleNoteModal] =
     React.useState<boolean>(false);
 
   const handleShippingEdit = () => {
     setIsShowModalShipping(true);
   };
 
+  const handleNoteEdit = () => {
+    setIsShowModalNote(true);
+  };
+
   const handleShippingDelete = () => {
     setIsVisibleShippingModal(true);
   };
+
+  const handleNoteDelete = () => {
+    setIsVisibleNoteModal(true);
+  };
+
   const onOkShippingDelete = () => {
     handleShippingAddressForm.delete();
     setIsVisibleShippingModal(false);
   };
+
+  const onOkNoteDelete = () => {
+    handleNoteForm.delete();
+    setIsVisibleNoteModal(false);
+  };
+
   const onCancelShippingDelete = () => {
     setIsVisibleShippingModal(false);
   };
+
+  const onCancelNoteDelete = () => {
+    setIsVisibleNoteModal(false);
+  };
+
   const handleShippingDefault = (value: any, item: any) => {
     let _item = { ...item };
     if (_item.default === true) return showError("Không thể bỏ mặc định");
@@ -431,6 +524,27 @@ const CustomerEdit = (props: any) => {
         )
       );
   };
+
+  const noteColumns: Array<ICustomTableColumType<note>> = [
+    {
+      title: "STT",
+      dataIndex: "",
+      align: "center",
+      visible: true,
+      width: "5%",
+      render: (value, row, index) => {
+        return <span>{index + 1}</span>;
+      },
+    },
+    {
+      title: "Nội dung",
+      dataIndex: "content",
+      visible: true,
+    },
+    actionColumn(handleNoteEdit, handleNoteDelete),
+
+  ];
+
   const shippingColumns: Array<ICustomTableColumType<shippingAddress>> = [
     {
       title: "STT",
@@ -664,6 +778,76 @@ const CustomerEdit = (props: any) => {
     }
   }, [customer, customerForm]);
 
+  React.useEffect(() => {
+    let queryObject:OrderSearchQuery = {
+      page: 1,
+      limit: 10,
+      sort_type: null,
+      sort_column: null,
+      code: null,
+      store_ids: [],
+      source_ids: [],
+      customer_ids: [params.id],
+      issued_on_min: null,
+      issued_on_max: null,
+      issued_on_predefined: null,
+      finalized_on_min: null,
+      finalized_on_max: null,
+      finalized_on_predefined: null,
+      ship_on_min: null,
+      ship_on_max: null,
+      ship_on_predefined: null,
+      expected_receive_on_min: null,
+      expected_receive_on_max: null,
+      expected_receive_predefined: null,
+      completed_on_min: null,
+      completed_on_max: null,
+      completed_on_predefined: null,
+      cancelled_on_min: null,
+      cancelled_on_max: null,
+      cancelled_on_predefined: null,
+      order_status: [],
+      order_sub_status: [],
+      fulfillment_status: [],
+      payment_status: [],
+      return_status: [],
+      account: [],
+      assignee: [],
+      price_min: undefined,
+      price_max: undefined,
+      payment_method_ids: [],
+      ship_by: null,
+      note: null,
+      customer_note: null,
+      tags: [],
+      reference_code: null
+    }
+    dispatch(getListOrderAction(queryObject, setOrderHistoryItems));
+  }, [dispatch, params]);
+
+  const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
+    if(data){
+      console.log("orderx",data.items)
+      setOrderHistory(data.items);
+    }
+  }
+
+  React.useEffect(() => {
+    if (customer) {
+      customerForm.setFieldsValue({
+        ...customer,
+        birthday: moment(customer.birthday, "YYYY-MM-DD"),
+        wedding_date: customer.wedding_date
+          ? moment(customer.wedding_date, "YYYY-MM-DD")
+          : null,
+      });
+    }
+  }, [customer, customerForm]);
+
+
+  const columnFinalOrderHistory = () => columnsHistory.filter((item) => item.visible === true);
+
+
   const columnFinal = () => columns.filter((item) => item.visible === true);
   const customerContactFiltered = customer?.contacts?.filter((contact) => {
     if (
@@ -679,6 +863,8 @@ const CustomerEdit = (props: any) => {
   });
   const shippingColumnFinal = () =>
     shippingColumns.filter((item) => item.visible === true);
+  const noteColumnFinal = () =>
+    noteColumns.filter((item) => item.visible === true);
   const billingColumnFinal = () =>
     billingColumns.filter((item) => item.visible === true);
 
@@ -686,19 +872,25 @@ const CustomerEdit = (props: any) => {
     React.useState<CustomerContact>();
   const [modalSingleShippingAddress, setModalShippingAddress] =
     React.useState<CustomerShippingAddress>();
+
+    const [modalSingleNote, setModalNote] =
+    React.useState<CustomerNote>();
+
   const [modalSingleBillingAddress, setModalBillingAddress] =
     React.useState<CustomerBillingAddress>();
 
   const [modalAction, setModalAction] =
     React.useState<modalActionType>("create");
   const [isShowModalShipping, setIsShowModalShipping] = React.useState(false);
+  const [isShowModalNote, setIsShowModalNote] = React.useState(false);
+
   const [isShowModalBilling, setIsShowModalBilling] = React.useState(false);
   const [isShowModalContacts, setIsShowModalContacts] = React.useState(false);
   const [customerDetailState, setCustomerDetailState] =
     React.useState<number>(1);
 
   interface ShipmentButtonModel {
-    name: string | null;
+    name: string | null,
     value: number;
     icon: any | undefined;
   }
@@ -784,6 +976,65 @@ const CustomerEdit = (props: any) => {
       }
     },
   };
+
+
+  const handleNoteForm = {
+    create: (formValue: CustomerNote) => {
+      console.log(formValue)
+      if (customer)
+        dispatch(
+          CreateNote(
+            customer.id,
+            formValue,
+            (data: note) => {
+              setIsShowModalNote(false);
+              gotoFirstPage(customer.id);
+              data
+                ? showSuccess("Thêm mới ghi chú thành công")
+                : showError("Thêm mới ghi chú thất bại");
+            }
+          )
+        );
+    },
+    edit: (formValue: CustomerNote) => {
+      if (modalSingleNote) {
+        if (customer)
+          dispatch(
+            UpdateNote(
+              modalSingleNote.id,
+              customer.id,
+              formValue,
+              (data: note) => {
+                setIsShowModalNote(false);
+                gotoFirstPage(customer.id);
+                data
+                  ? showSuccess("Cập nhật ghi chú thành công")
+                  : showError("Cập nhật ghi chú thất bại");
+              }
+            )
+          );
+      }
+    },
+    delete: () => {
+      if (modalSingleNote) {
+        if (customer)
+          dispatch(
+            DeleteNote(
+              modalSingleNote.id,
+              customer.id,
+              (data: note) => {
+                setIsShowModalNote(false);
+                gotoFirstPage(customer.id);
+                data
+                  ? showSuccess("Xóa ghi chú thành công")
+                  : showError("Xóa ghi chú thất bại");
+              }
+            )
+          );
+      }
+    },
+  };
+
   // add shipping
 
   const handleShippingAddressForm = {
@@ -1239,6 +1490,21 @@ const CustomerEdit = (props: any) => {
                 ))}
               </Space>
             </div>
+            {customerDetailState === 1 && (
+              <Row style={{ marginTop: 16 }}>
+                <Col span={24}>
+                  <CustomTable
+                    showColumnSetting={false}
+                    pagination={false}
+                    dataSource={
+                      orderHistory
+                    }
+                    columns={columnFinalOrderHistory()}
+                    rowKey={(item: OrderModel) => item.id}
+                  />
+                  </Col>
+              </Row>
+            )}
             {customerDetailState === 2 && (
               <Row style={{ marginTop: 16 }}>
                 <div
@@ -1278,23 +1544,6 @@ const CustomerEdit = (props: any) => {
                 <Col span={24}>
                   <CustomTable
                     showColumnSetting={false}
-                    // scroll={{ x: 1080 }}
-                    // pagination={{
-                    //   pageSize: customer
-                    //     ? customer.contacts
-                    //       ? customer.contacts.length
-                    //       : 0
-                    //     : 0,
-                    //   total: customer
-                    //     ? customer.contacts
-                    //       ? customer.contacts.length
-                    //       : 0
-                    //     : 0,
-                    //   current: 1,
-                    //   showSizeChanger: true,
-                    //   // onChange: onPageChange,
-                    //   // onShowSizeChange: onPageChange,
-                    // }}
                     pagination={false}
                     dataSource={
                       customerContactFiltered ? customerContactFiltered : []
@@ -1312,7 +1561,8 @@ const CustomerEdit = (props: any) => {
                     }}
                   />
                   <CustomerModal
-                    saveBtnTitle="Tạo mới nhóm khách hàng"
+                    updateBtnTitle="Lưu liên hệ"
+                    saveBtnTitle="Tạo mới liên hệ"
                     visible={isShowModalContacts}
                     onCreate={(formValue: CustomerContact) =>
                       handleContactForm.create(formValue)
@@ -1327,6 +1577,90 @@ const CustomerEdit = (props: any) => {
                     componentForm={FormCustomerContact}
                     formItem={modalSingleContact}
                     deletedItemTitle={modalSingleContact?.name}
+                  />
+                </Col>
+                <div
+                  style={{
+                    padding: "0 16px 10px 0",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    width: "100%",
+                  }}
+                ></div>
+              </Row>
+            )}
+
+            {customerDetailState === 5 && (
+              <Row style={{ marginTop: 16 }}>
+                <div
+                  style={{
+                    padding: "0 16px 10px 0",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    width: "100%",
+                    color: "#2A2A86",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div>
+                      <PlusOutlined />
+                    </div>
+                    <span
+                      style={{
+                        marginLeft: 10,
+                      }}
+                      onClick={() => {
+                        setModalAction("create");
+                        setIsShowModalNote(true);
+                      }}
+                    >
+                      Thêm ghi chú
+                    </span>
+                  </div>
+                </div>
+                <Col span={24}>
+                  <CustomTable
+                    showColumnSetting={false}
+                    pagination={false}
+                    dataSource={customer ? customer.notes : []}
+                    columns={noteColumnFinal()}
+                    rowKey={(item: CustomerNote) => item.id}
+                    onRow={(record: CustomerNote) => {
+                      return {
+                        onClick: (event) => {
+                          console.log(record);
+                          setModalNote(record);
+                          setModalAction("edit");
+                          // setIsShowModalNote(true);
+                        }, // click row
+                      };
+                    }}
+                  />
+                  <CustomerModal
+                    saveBtnTitle="Tạo mới ghi chú"
+                    updateBtnTitle="Lưu ghi chú"
+                    visible={isShowModalNote}
+                    onCreate={(formValue: CustomerNote) =>
+                      handleNoteForm.create(formValue)
+                    }
+                    onEdit={(formValue: CustomerNote) =>
+                      handleNoteForm.edit(formValue)
+                    }
+                    onDelete={() => {}}
+                    onCancel={() => setIsShowModalNote(false)}
+                    modalAction={modalAction}
+                    modalTypeText="Ghi chú"
+                    componentForm={FormCustomerNote}
+                    formItem={modalSingleNote}
+                    deletedItemTitle={modalSingleNote?.content}
                   />
                 </Col>
                 <div
@@ -1379,23 +1713,6 @@ const CustomerEdit = (props: any) => {
                 <Col span={24}>
                   <CustomTable
                     showColumnSetting={false}
-                    // scroll={{ x: 1080 }}
-                    // pagination={{
-                    //   pageSize: customer
-                    //     ? customer.shipping_addresses
-                    //       ? customer.shipping_addresses.length
-                    //       : 0
-                    //     : 0,
-                    //   total: customer
-                    //     ? customer.shipping_addresses
-                    //       ? customer.shipping_addresses.length
-                    //       : 0
-                    //     : 0,
-                    //   current: 1,
-                    //   showSizeChanger: true,
-                    //   // onChange: onPageChange,
-                    //   // onShowSizeChange: onPageChange,
-                    // }}
                     pagination={false}
                     dataSource={customer ? customer.shipping_addresses : []}
                     columns={shippingColumnFinal()}
@@ -1413,6 +1730,7 @@ const CustomerEdit = (props: any) => {
                   />
                   <CustomerModal
                     saveBtnTitle="Tạo mới địa chỉ"
+                    updateBtnTitle="Lưu địa chỉ"
                     visible={isShowModalShipping}
                     onCreate={(formValue: CustomerShippingAddress) =>
                       handleShippingAddressForm.create(formValue)
@@ -1511,7 +1829,8 @@ const CustomerEdit = (props: any) => {
                     }}
                   />
                   <CustomerModal
-                  saveBtnTitle="Tạo mới địa chỉ"
+                    saveBtnTitle="Tạo mới địa chỉ"
+                    updateBtnTitle="Lưu địa chỉ"
                     visible={isShowModalBilling}
                     onCreate={(formValue: CustomerBillingAddress) =>
                       handleBillingAddressForm.create(formValue)
@@ -1551,6 +1870,16 @@ const CustomerEdit = (props: any) => {
         cancelText="Hủy"
         title=""
         text="Bạn có chắc chắn xóa địa chỉ giao hàng này không?"
+        icon={DeleteIcon}
+      />
+      <SaveAndConfirmOrder
+        onCancel={onCancelNoteDelete}
+        onOk={onOkNoteDelete}
+        visible={isVisibleNoteModal}
+        okText="Đồng ý"
+        cancelText="Hủy"
+        title=""
+        text="Bạn có chắc chắn xóa ghi chú này không?"
         icon={DeleteIcon}
       />
       <SaveAndConfirmOrder

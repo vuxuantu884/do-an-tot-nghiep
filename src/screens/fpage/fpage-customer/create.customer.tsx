@@ -42,6 +42,7 @@ const CustomerAdd = (props: any) => {
     customerPhoneList,
     setCustomerPhoneList,
     getCustomerWhenPhoneChange,
+    orderHistory
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -77,35 +78,27 @@ const CustomerAdd = (props: any) => {
   const recentOrder = [
     {
       title: "Ngày",
-      dataIndex: "date",
-      key: "date",
+      render: (value:any, row:any, index:any) => {
+        return <div >{moment(row.created_date).format("DD/MM/YYYY HH:mm:ss")}</div>;
+      },
     },
     {
       title: "Tổng thu",
-      dataIndex: "total",
-      key: "total",
+      dataIndex: "total_line_amount_after_line_discount",
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
-      key: "status",
     },
     {
       title: "Chi tiết",
-      dataIndex: "detail",
-      key: "detail",
+      render: (value:any, row:any, index:any) => {
+        let href = "https://dev.yody.io/unicorn/admin/orders/".concat(row.id)
+        return <a target="blank" href = {href} >Chi tiết</a>;
+      },
     },
   ];
 
-  const data = [
-    {
-      key: "1",
-      date: "01/12",
-      total: "650.000",
-      status: "Hoàn tất",
-      detal: "abc",
-    },
-  ];
 
   //end mock
   React.useEffect(() => {
@@ -267,7 +260,7 @@ const CustomerAdd = (props: any) => {
             </div>
           }
         >
-          <Table columns={recentOrder} dataSource={data} pagination={false} />
+          <Table columns={recentOrder} dataSource={orderHistory} pagination={false} />
         </Card>
         <div className="customer-bottom-button">
           <Button
