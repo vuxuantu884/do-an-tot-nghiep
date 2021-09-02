@@ -7,7 +7,7 @@ const OrderDetail = React.lazy(
   () => import("screens/order-online/order-detail")
 );
 const Order = React.lazy(() => import("screens/order-online/order.screen"));
-const FpageOrder = React.lazy(() => import("screens/fpage/order.screen"));
+const FpageOrder = React.lazy(() => import("screens/fpage/fpage-order/order.screen"));
 
 const bill: Array<RouteMenu> = [
   {

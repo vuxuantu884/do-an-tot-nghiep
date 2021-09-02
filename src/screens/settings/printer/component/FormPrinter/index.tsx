@@ -75,7 +75,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   ];
 
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
-  const [isFormHasChanged, setIsFormHasChanged] = useState(false);
+  const [isShowPrompt, setIsShowPrompt] = useState(false);
   const titleConfirmSave = "Bạn có chắc chắn muốn thoát?";
   const subTitleConfirmSave =
     "Toàn bộ thay đổi của bạn sẽ không được ghi nhận.";
@@ -140,12 +140,10 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   const handleSubmitForm = () => {
     form.validateFields().then(() => {
       const formComponentValue = form.getFieldsValue();
-      console.log("formValue.template", formValue?.template);
-      console.log("formComponentValue", formComponentValue);
       let newFormComponentValue = {
         ...formComponentValue,
       };
-      setIsFormHasChanged(false);
+      setIsShowPrompt(false);
       // formComponentValue.
       dispatch(
         actionCreatePrinter(newFormComponentValue, () => {
@@ -156,16 +154,11 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   };
 
   const handleClickExit = () => {
-    const formComponentValue = form.getFieldsValue();
-    if (formValue?.template === formComponentValue.template) {
-      history.push(UrlConfig.PRINTER);
-    } else {
-      setIsShowModalConfirm(true);
-    }
+    setIsShowModalConfirm(true);
+    setIsShowPrompt(false);
   };
 
   const handleEditorToolbarHeight = (height: number) => {
-    console.log("height", height);
     setPreviewHeaderHeight(height);
   };
 
@@ -198,17 +191,14 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   };
 
   const handleChange = (value: any, allValues: any) => {
-    console.log("formValueFormatted", formValueFormatted);
-    console.log("allValues", allValues);
-
     // if (JSON.stringify(formValue) !== JSON.stringify(allValues)) {
     if (
       Object.entries(formValueFormatted).sort().toString() ===
       Object.entries(allValues).sort().toString()
     ) {
-      setIsFormHasChanged(false);
+      setIsShowPrompt(false);
     } else {
-      setIsFormHasChanged(true);
+      setIsShowPrompt(true);
     }
   };
 
@@ -219,16 +209,16 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
     };
     // check if is loaded successfully
     if (type === "edit") {
-      if (isFormHasChanged) {
+      if (isShowPrompt) {
         window.addEventListener("beforeunload", onChangePage);
       }
     } else {
-      setIsFormHasChanged(false);
+      setIsShowPrompt(false);
     }
     return () => {
       window.removeEventListener("beforeunload", onChangePage);
     };
-  }, [isFormHasChanged, type]);
+  }, [isShowPrompt, type]);
 
   return (
     <StyledComponent>
@@ -255,7 +245,6 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
                       <Editor
                         onChange={handleOnChangeEditor}
                         initialHtmlContent={htmlContent}
-                        // listKeywords={LIST_PRINTER_VARIABLES}
                         listKeywords={
                           LIST_PRINTER_VARIABLES_ADD_PRODUCTS_VARIABLES
                         }
@@ -319,7 +308,7 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
         subTitle={subTitleConfirmSave}
         visible={isShowModalConfirm}
       />
-      {isFormHasChanged && (
+      {isShowPrompt && (
         <Prompt message="Bạn có chắc chắn muốn thoát? Toàn bộ thay đổi của bạn sẽ không được ghi nhận." />
       )}
     </StyledComponent>

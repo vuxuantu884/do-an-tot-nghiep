@@ -165,14 +165,13 @@ const SettingPrinter: React.FC = () => {
                 e.stopPropagation();
               }}
             >
-              <a
-                href={`${UrlConfig.PRINTER}/${row.id}?action=edit&print=true`}
+              <Link
+                to={`${UrlConfig.PRINTER}/${row.id}?action=edit&print=true`}
                 target="_blank"
-                rel="noreferrer"
               >
                 <img src={IconPrintHover} alt="" className="icon--hover" />
                 In thử
-              </a>
+              </Link>
             </Button>
           </div>
         );

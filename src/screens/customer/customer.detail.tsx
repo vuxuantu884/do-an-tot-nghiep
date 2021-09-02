@@ -11,7 +11,6 @@ import {
   Menu,
   Checkbox,
 } from "antd";
-import { CountryGetAllAction } from "domain/actions/content/content.action";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { PlusOutlined } from "@ant-design/icons";
@@ -24,13 +23,9 @@ import customerShipping from "../../assets/icon/c-shipping.svg";
 import customerRecipt from "../../assets/icon/c-recipt.svg";
 import customerContact from "../../assets/icon/c-contact.svg";
 import customerBuyHistory from "../../assets/icon/c-bag.svg";
-import arrowLeft from "../../assets/icon/arrow-left.svg";
 
 import {
   CustomerDetail,
-  CustomerGroups,
-  CustomerLevels,
-  CustomerTypes,
   CreateContact,
   UpdateContact,
   DeleteContact,
@@ -41,7 +36,6 @@ import {
   UpdateBillingAddress,
   UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
-import { CountryResponse } from "model/content/country.model";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -84,11 +78,6 @@ const CustomerEdit = (props: any) => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [customer, setCustomer] = React.useState<CustomerResponse>();
-  const [groups, setGroups] = React.useState<Array<any>>([]);
-  const [types, setTypes] = React.useState<Array<any>>([]);
-  const [levels, setLevels] = React.useState<Array<any>>([]);
-  const [countries, setCountries] = React.useState<Array<CountryResponse>>([]);
-  const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [customerDetail, setCustomerDetail] = React.useState([]) as any;
   const [customerDetailCollapse, setCustomerDetailCollapse] = React.useState(
     []
@@ -101,7 +90,6 @@ const CustomerEdit = (props: any) => {
       if (!data) {
         return;
       }
-      setAccounts(data.items);
     },
     []
   );
@@ -660,12 +648,7 @@ const CustomerEdit = (props: any) => {
   React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
-  React.useEffect(() => {
-    dispatch(CustomerGroups(setGroups));
-    dispatch(CountryGetAllAction(setCountries));
-    dispatch(CustomerTypes(setTypes));
-    dispatch(CustomerLevels(setLevels));
-  }, [dispatch]);
+
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params]);

@@ -118,7 +118,7 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
                     item.discount_value
                   );
               });
-            tax_lines.map((item: Vat) => {
+            tax_lines.forEach((item: Vat) => {
               totalVat += item.amount;
             });
             return (

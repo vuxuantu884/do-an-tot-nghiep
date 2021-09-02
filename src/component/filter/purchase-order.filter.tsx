@@ -308,7 +308,7 @@ const AdvanceFormItems = ({
               //     </CustomSelect.Option>
               //   ))}
               // </CustomSelect>
-              <CustomSelectOne span={8} data={listProcumentStatus} />
+              <CustomSelectMany span={8} data={listProcumentStatus} />
             );
             break;
           case filterFields.financial_status:

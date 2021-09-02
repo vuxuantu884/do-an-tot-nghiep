@@ -190,16 +190,7 @@ const SettingCustomerGroup: React.FC = () => {
     },
   ];
 
-  const [selected, setSelected] = useState<Array<CustomerGroupResponseModel>>(
-    []
-  );
 
-  const onSelectTable = useCallback(
-    (selectedRow: Array<CustomerGroupResponseModel>) => {
-      setSelected(selectedRow);
-    },
-    []
-  );
 
   const columnFinal = () => columns.filter((item) => item.visible === true);
 
@@ -330,7 +321,6 @@ const SettingCustomerGroup: React.FC = () => {
           <Card style={{ padding: "35px 15px" }} className="customer-group-table">
             <CustomTable
               isRowSelection
-              onSelectedChange={onSelectTable}
               isLoading={tableLoading}
               showColumnSetting={false}
               scroll={{ x: 1080 }}

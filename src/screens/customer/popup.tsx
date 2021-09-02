@@ -1,4 +1,4 @@
-import React from "react"
+
 import { HistoryOutlined } from '@ant-design/icons'
 import './customer.scss'
 

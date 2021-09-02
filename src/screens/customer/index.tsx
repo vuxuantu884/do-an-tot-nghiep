@@ -47,7 +47,6 @@ import {
   CustomerLevels,
   CustomerTypes,
 } from "domain/actions/customer/customer.action";
-import { CustomerResponse } from "model/response/customer/customer.response";
 
 const { Option } = Select;
 
@@ -96,7 +95,6 @@ const Customer = () => {
   });
   const [visible, setVisible] = React.useState<boolean>(false);
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-  const [selected, setSelected] = React.useState<Array<CustomerResponse>>([]);
 
   const genreEnum: any = {
     male: "Nam",
@@ -306,14 +304,11 @@ const Customer = () => {
     dispatch(CustomerList(query, setResult));
   }, [dispatch, query, setResult]);
 
-  const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
-
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
         return;
       }
-      setAccounts(data.items);
       setResultSearch(data);
     },
     []
@@ -440,16 +435,7 @@ const Customer = () => {
     onSearch(value);
   };
 
-  // const onSelect = (value: any, option: any) => {
-  //   history.push(`/customers/${option.key}`);
-  // };
 
-  const onSelectTable = React.useCallback(
-    (selectedRow: Array<CustomerResponse>) => {
-      setSelected(selectedRow);
-    },
-    []
-  );
 
   const actions: Array<MenuAction> = [
     {
@@ -519,7 +505,6 @@ const Customer = () => {
           <CustomTable
             isRowSelection
             isLoading={tableLoading}
-            onSelectedChange={onSelectTable}
             scroll={{ x: 2500 }}
             sticky={{ offsetScroll: 5 }}
             pagination={{

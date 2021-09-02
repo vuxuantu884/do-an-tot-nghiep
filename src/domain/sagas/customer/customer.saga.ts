@@ -74,6 +74,30 @@ function* getCustomerList(action: YodyAction) {
   }
 }
 
+function* getCustomerByPhone(action: YodyAction) {
+  const { query, setData } = action.payload;
+  try {
+    const response: BaseResponse<CustomerResponse> = yield call(
+      getCustomers,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        console.log(response.data)
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 function* CustomerDetail(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
@@ -460,6 +484,9 @@ export default function* customerSagas() {
     CustomerType.CUSTOMER_LIST,
     getCustomerList
   );
+
+  
+  yield takeLatest(CustomerType.CUSTOMER_SEARCH_BY_PHONE, getCustomerByPhone);
   yield takeLatest(CustomerType.CUSTOMER_DETAIL, CustomerDetail);
   yield takeLatest(CustomerType.CREATE_CUSTOMER, CreateCustomer);
   yield takeLatest(CustomerType.UPDATE_CUSTOMER, UpdateCustomer);

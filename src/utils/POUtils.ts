@@ -7,57 +7,139 @@ import {
   Vat,
 } from "model/purchase-order/purchase-item.model";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import { PurchaseProcumentLineItem } from "model/purchase-order/purchase-procument";
+import {
+  PurchaseProcumentLineItem,
+  PurchaseProcument,
+} from "model/purchase-order/purchase-procument";
+import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import { Products } from "./AppUtils";
-import { POStatus, ProcumentStatus, PoFinancialStatus } from "utils/Constants";
+import {
+  POStatus,
+  ProcumentStatus,
+  PoFinancialStatus,
+  PoPaymentStatus,
+} from "utils/Constants";
 
 const POUtils = {
-  combinePOStatus: (poData: PurchaseOrder) => {
+  calculatePOStatus: (
+    poData: PurchaseOrder,
+    newProcument: PurchaseProcument | null,
+    newPayment: PurchasePayments | null,
+    action: "update" | "delete"
+  ) => {
+    //new procument --> draft --> return trạng thái poData
+
     /**
      * trang thai PO = trang thai nhap kho + trang thai thanh toan
      * 0: dat hang, 1: xac nhan, 2: phieu nhap, 3: nhap kho, 4: hoan thanh
      */
-    const {
+
+    let {
       receive_status,
       financial_status,
       receipt_quantity,
       planned_quantity,
-      status,
+      status: poStatus,
       procurements,
+      total,
+      payments,
     } = poData;
+
     if (
-      [POStatus.DRAFT, POStatus.CANCELLED, POStatus.FINALIZED].includes(status)
+      poStatus === POStatus.FINISHED ||
+      poStatus === POStatus.COMPLETED ||
+      poStatus === POStatus.CANCELLED
     )
-      return status;
+      return poStatus;
     if (
-      [ProcumentStatus.NOT_RECEIVED, ProcumentStatus.PARTIAL_RECEIVED].includes(
-        receive_status
-      )
+      receive_status === ProcumentStatus.FINISHED ||
+      receive_status === ProcumentStatus.RECEIVED
     ) {
+      if (financial_status === PoFinancialStatus.PAID) {
+        if (receipt_quantity >= planned_quantity) return POStatus.COMPLETED;
+        else return POStatus.FINISHED;
+      }
+    }
+
+    let cloneProcuments = JSON.parse(JSON.stringify(procurements));
+    //truong hop update procument
+    /**
+     * SL thuc nhan > SL da len KH: PO trang thai nhap kho
+     * SL đặt hàng >= SL đã lên KH: PO trang thai phiếu nháp
+     * SL đặt hàng < SL đã lên KH: PO trang thai xác nhận
+     */
+    if (newProcument) {
+      let procumentIndex = cloneProcuments.findIndex(
+        (item: PurchaseProcument) => item.id === newProcument.id
+      );
+
+      if (procumentIndex === -1) {
+        cloneProcuments = [...cloneProcuments, newProcument];
+      } else {
+        if (action === "update") {
+          cloneProcuments[procumentIndex] = newProcument;
+        } else cloneProcuments.splice(procumentIndex, 1);
+      }
+      let totalReceived = 0;
+      cloneProcuments.forEach((procumentItem: PurchaseProcument) => {
+        totalReceived += POUtils.totalRealQuantityProcument(
+          procumentItem.procurement_items
+        );
+      });
+      if (totalReceived >= planned_quantity) return POStatus.STORED;
       let totalOrdered = 0;
-      procurements &&
-        procurements.forEach((procurementItem) => {
-          totalOrdered += POUtils.totalQuantityProcument(
-            procurementItem.procurement_items
-          );
-        });
+      cloneProcuments.forEach((procurementItem: PurchaseProcument) => {
+        totalOrdered += POUtils.totalQuantityProcument(
+          procurementItem.procurement_items
+        );
+      });
 
       if (planned_quantity && totalOrdered >= planned_quantity)
-        return POStatus.PROCUREMENT_DRAFT;
-      else return POStatus.FINALIZED;
+        return POStatus.DRAFTPO;
     }
-    if (receive_status === ProcumentStatus.RECEIVED) {
-      return POStatus.PROCUREMENT_RECEIVED;
+
+    //truong hop update payment
+    /**
+     * nếu là paid | refund ---> tính lại total paid
+     * so sánh total paid --->
+     */
+
+    let clonePayments = JSON.parse(JSON.stringify(payments)),
+      total_paid = 0;
+    if (newPayment) {
+      let paymentIndex = clonePayments.findIndex(
+        (item: PurchaseProcument) => item.id === newPayment.id
+      );
+
+      if (paymentIndex === -1) {
+        clonePayments = [...clonePayments, newPayment];
+      } else {
+        if (action === "update") {
+          clonePayments[paymentIndex] = newPayment;
+        } else clonePayments.splice(paymentIndex, 1);
+      }
+      payments.forEach((payment: PurchasePayments) => {
+        if (
+          payment.status === PoPaymentStatus.PAID ||
+          payment.status === PoPaymentStatus.REFUND
+        ) {
+          if (payment.amount) {
+            total_paid += payment.amount;
+          }
+        }
+      });
+      if (total_paid > total) {
+        if (
+          receive_status === ProcumentStatus.FINISHED ||
+          receive_status === ProcumentStatus.RECEIVED
+        ) {
+          if (receipt_quantity >= planned_quantity) return POStatus.COMPLETED;
+          else return POStatus.FINISHED;
+        }
+      }
     }
-    if (receive_status === ProcumentStatus.FINISHED) {
-      if (financial_status === PoFinancialStatus.PAID) {
-        if (!receipt_quantity || !planned_quantity)
-          return POStatus.PROCUREMENT_RECEIVED;
-        if (receipt_quantity < planned_quantity) return POStatus.COMPLETED;
-        else return POStatus.FINISHED;
-      } else return POStatus.PROCUREMENT_RECEIVED;
-    }
-    return POStatus.DRAFT;
+
+    return poStatus;
   },
   convertVariantToLineitem: (
     variants: Array<VariantResponse>
@@ -341,8 +423,8 @@ const POUtils = {
         ordered_quantity: item.quantity,
         planned_quantity: item.planned_quantity,
         accepted_quantity: item.receipt_quantity,
-        quantity: item.quantity,
-        real_quantity: item.quantity,
+        quantity: 0,
+        real_quantity: 0,
         note: "",
       });
     });
