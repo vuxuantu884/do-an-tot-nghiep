@@ -1,4 +1,4 @@
-import { Form, Row, Col, Button, Collapse } from "antd";
+import { Form, Row, Col, Button, Table, Card } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
   DistrictGetByCountryAction,
@@ -29,13 +29,13 @@ import {
 } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import CustomInputContact from "./customInputContact";
+import moment from "moment";
 
-const { Panel } = Collapse;
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
 const CustomerAdd = (props: any) => {
+  const {setCustomerDetail, setIsButtonSelected, customerDetail} = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -48,7 +48,6 @@ const CustomerAdd = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
-
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -57,7 +56,7 @@ const CustomerAdd = (props: any) => {
       const _items = data.items.filter((item) => item.status === "active");
       setAccounts(_items);
     },
-    []
+    [setAccounts]
   );
   const AccountChangeSearch = React.useCallback(
     (value) => {
@@ -66,9 +65,41 @@ const CustomerAdd = (props: any) => {
     },
     [dispatch, setDataAccounts]
   );
+  //mock
+  const recentOrder = [
+    {
+      title: "Ngày",
+      dataIndex: "date",
+      key: "date",
+    },
+    {
+      title: "Tổng thu",
+      dataIndex: "total",
+      key: "total",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+    },
+    {
+      title: "Chi tiết",
+      dataIndex: "detail",
+      key: "detail",
+    },
+  ];
 
- 
+  const data = [
+    {
+      key: "1",
+      date: "01/12",
+      total: "650.000",
+      status: "Hoàn tất",
+      detal: "abc",
+    },
+  ];
 
+  //end mock
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
@@ -104,14 +135,31 @@ const CustomerAdd = (props: any) => {
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
   React.useEffect(() => {
-    let customer_type_id = 2
-    customerForm.setFieldsValue({...new CustomerModel(), customer_type_id});
+    let customer_type_id = 2;
+    customerForm.setFieldsValue({ ...new CustomerModel(), customer_type_id });
   }, [customerForm]);
+  React.useEffect(() => {
+    if(customerDetail){
+      const field = {
+        full_name: customerDetail.full_name,
+        birthday: moment(customerDetail.birthday, "YYYY-MM-DD"),
+        phone: customerDetail.phone,
+        email: customerDetail.email,
+        gender: customerDetail.gender,
+        district_id: customerDetail.district_id,
+        ward_id: customerDetail.ward,
+        full_address: customerDetail.full_address,
+      }
+      customerForm.setFieldsValue(field)
+    }
+  },[customerDetail])
+  console.log(customerDetail)
   const setResult = React.useCallback(
     (result) => {
       if (result) {
         showSuccess("Thêm khách hàng thành công");
-        history.replace(`/customers/${result.id}`);
+        setCustomerDetail(result);
+        setIsButtonSelected(true)
       }
     },
     [history]
@@ -122,8 +170,8 @@ const CustomerAdd = (props: any) => {
     let piece = {
       ...values,
       birthday: values.birthday
-      ? new Date(values.birthday).toUTCString()
-      : null,
+        ? new Date(values.birthday).toUTCString()
+        : null,
       wedding_date: values.wedding_date
         ? new Date(values.wedding_date).toUTCString()
         : null,
@@ -146,7 +194,7 @@ const CustomerAdd = (props: any) => {
   };
   return (
     <ContentContainer
-      title="Thêm khách hàng"
+      title=""
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -186,54 +234,32 @@ const CustomerAdd = (props: any) => {
             />
           </Col>
         </Row>
-        <Row gutter={24}>
-          <Col span={24}>
-            <Collapse
-              className="customer-contact-collapse"
-              style={{ backgroundColor: "white", marginTop: 16 }}
-              expandIconPosition="right"
-              defaultActiveKey={["1"]}
-            >
-              <Panel
-                className=""
-                header={
-                  <span
-                    style={{
-                      textTransform: "uppercase",
-                      fontWeight: 500,
-                      padding: "6px",
-                    }}
-                  >
-                    THÔNG TIN LIÊN HỆ
-                  </span>
-                }
-                key="1"
-              >
-                <Row gutter={30} style={{ padding: "0 15px" }}>
-                  <CustomInputContact  form={customerForm}/>
-                </Row>
-              </Panel>
-            </Collapse>
-          </Col>
-          <Col span={6} />
-        </Row>
+        <Card
+          title={
+            <div >
+              <span style={{ fontWeight: 500 }} className="title-card">
+                ĐƠN GẦN NHẤT
+              </span>
+            </div>
+          }
+        >
+          <Table
+              columns={recentOrder}
+              dataSource={data}
+              pagination={false}
+            />
+        </Card>
         <div className="customer-bottom-button">
-          {/* <div onClick={() => history.goBack()} style={{ cursor: "pointer" }}>
-            <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-            Quay lại danh sách khách hàng
-          </div> */}
-
-            <Button
-              style={{marginRight: "10px"}}
-              onClick={() => history.goBack()}
-              type="ghost"
-            >
-              Hủy
-            </Button>
-            <Button type="primary" htmlType="submit">
-              Tạo mới khách hàng
-            </Button>
-
+          <Button
+            style={{ marginRight: "10px" }}
+            onClick={() => history.goBack()}
+            type="ghost"
+          >
+            Hủy
+          </Button>
+          <Button type="primary" htmlType="submit">
+            Tạo mới khách hàng
+          </Button>
         </div>
       </Form>
     </ContentContainer>

@@ -23,16 +23,16 @@ export const StyledComponent = styled.div`
     }
   }
   .title {
-    text-align: center;
     font-size: 20px;
     margin-bottom: 20px;
+    text-align: center;
   }
   .sectionSearch {
   }
   .boxListKeywords {
-    padding-top: 35px;
     max-height: calc(100vh - 450px);
     overflow-x: hidden;
     overflow-y: auto;
+    padding-top: 35px;
   }
 `;

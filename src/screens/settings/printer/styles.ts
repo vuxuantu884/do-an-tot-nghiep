@@ -8,8 +8,8 @@ export const StyledComponent = styled.div`
     }
     .ant-input {
       background-image: url(${IconSearch});
-      background-repeat: no-repeat;
       background-position: 12px 50%;
+      background-repeat: no-repeat;
       text-indent: 20px;
     }
     .formInput {
