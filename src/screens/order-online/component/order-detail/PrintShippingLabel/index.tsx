@@ -2,7 +2,7 @@ import { Button } from "antd";
 import { actionFetchPrintFormByOrderIds } from "domain/actions/printer/printer.action";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { FulFillmentResponse } from "model/response/order/order.response";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useReactToPrint } from "react-to-print";
 import { FulFillmentStatus } from "utils/Constants";
@@ -52,7 +52,11 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
   getPrintType(fulfillment);
   const isShowPrinterButton = () => {
     let isShow = true;
-    const LIST_HIDE = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING];
+    const LIST_HIDE = [
+      FulFillmentStatus.RETURNED,
+      FulFillmentStatus.RETURNING,
+      FulFillmentStatus.PICKED,
+    ];
     if (fulfillment?.status) {
       if (LIST_HIDE.includes(fulfillment?.status)) {
         isShow = false;
@@ -92,23 +96,23 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
     return result;
   };
 
-  // useEffect(() => {
-  //   const onAfterPrint = () => {
-  //     console.log("Printing completed...");
-  //   };
-  //   //for chrome
-  //   window.matchMedia("print").addListener(function (mql) {
-  //     if (mql.matches) {
-  //       onAfterPrint();
-  //     }
-  //   });
-  //   window.addEventListener("beforeprint ", onAfterPrint);
-  //   window.addEventListener("onafterprint", onAfterPrint);
-  //   return () => {
-  //     window.removeEventListener("beforeprint ", onAfterPrint);
-  //     window.removeEventListener("onafterprint", onAfterPrint);
-  //   };
-  // }, []);
+  useEffect(() => {
+    const onAfterPrint = () => {
+      console.log("Printing completed...");
+    };
+    //for chrome
+    window.matchMedia("print").addListener(function (mql) {
+      if (mql.matches) {
+        onAfterPrint();
+      }
+    });
+    window.addEventListener("beforeprint ", onAfterPrint);
+    window.addEventListener("onafterprint", onAfterPrint);
+    return () => {
+      window.removeEventListener("beforeprint ", onAfterPrint);
+      window.removeEventListener("onafterprint", onAfterPrint);
+    };
+  }, []);
 
   return (
     <StyledComponent>
