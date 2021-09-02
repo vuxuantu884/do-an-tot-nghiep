@@ -44,12 +44,19 @@ function FpageCRM() {
   }
   
   React.useEffect(() => {
+    let list: any = []
     const phoneObj: any = { ...getQueryParams(phoneQuery) };
     const _queryObj = Object.keys(phoneObj);
     const value = phoneObj[_queryObj[0]];
-    setCustomerPhoneList(value)
-    if (value) {
-      initQueryCustomer.phone = value[0];
+    if(!Array.isArray(value)){
+      list.push(value);
+    }else{
+      list = [...value]
+    }
+    setCustomerPhoneList(list)
+
+    if (list) {
+      initQueryCustomer.phone = list[0];
       dispatch(CustomerSearchByPhone(initQueryCustomer, searchOneCallback));
     }
   }, [dispatch, setCustomerPhoneList]);

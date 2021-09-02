@@ -96,7 +96,7 @@ const GeneralInformation = (props: any) => {
                 }}
               >
                 <Col span={16}>
-                  {phones.map((p: any, index: any) => (
+                  {phones && phones.map((p: any, index: any) => (
                     <Tag
                       key={index}
                       style={{ cursor: "pointer" }}
