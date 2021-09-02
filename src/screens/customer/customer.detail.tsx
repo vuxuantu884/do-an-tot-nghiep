@@ -1312,6 +1312,7 @@ const CustomerEdit = (props: any) => {
                     }}
                   />
                   <CustomerModal
+                    saveBtnTitle="Tạo mới nhóm khách hàng"
                     visible={isShowModalContacts}
                     onCreate={(formValue: CustomerContact) =>
                       handleContactForm.create(formValue)
@@ -1411,6 +1412,7 @@ const CustomerEdit = (props: any) => {
                     }}
                   />
                   <CustomerModal
+                    saveBtnTitle="Tạo mới địa chỉ"
                     visible={isShowModalShipping}
                     onCreate={(formValue: CustomerShippingAddress) =>
                       handleShippingAddressForm.create(formValue)
@@ -1509,6 +1511,7 @@ const CustomerEdit = (props: any) => {
                     }}
                   />
                   <CustomerModal
+                  saveBtnTitle="Tạo mới địa chỉ"
                     visible={isShowModalBilling}
                     onCreate={(formValue: CustomerBillingAddress) =>
                       handleBillingAddressForm.create(formValue)

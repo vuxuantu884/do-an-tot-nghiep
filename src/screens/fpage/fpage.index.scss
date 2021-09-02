@@ -4,13 +4,18 @@
       overflow-x: hidden !important;
       overflow-y: scroll;
     }
+    .note-customer{
+      .ant-form-item{
+        flex-direction: column !important;
+      }
+    }
     .saleorder_shipment_method_btn{
         justify-content: space-between !important;
         .saleorder_shipment_button{
-            padding: 10px 45px
+            padding: 10px 20px
         }
         .saleorder_shipment_button_active{
-            padding: 10px 45px
+            padding: 10px 20px
         }
     }
     .container-login{
@@ -108,7 +113,6 @@
       }
     }
     .ant-row {
-      margin-bottom: 6px;
     }
     .ant-select-dropdown {
       // left: 0 !important;
@@ -122,9 +126,11 @@
     }
     .ct-toast{
       position: fixed !important;
+      top: 50px !important;
     }
     .ant-form-item{
       flex-direction: row !important;
+      margin-bottom: 10px;
     }
     .ant-form-item-control{
       width: 100%;
@@ -169,6 +175,7 @@
   }
   
 .fpage-customer-relationship{
+    padding-bottom: 100px;
     .fpage-customer-head-btn{
         z-index: 9999;
         top: 0;
