@@ -52,6 +52,7 @@ const initQuery: OrderSearchQuery = {
   sort_type: null,
   sort_column: null,
   code: null,
+  customer_ids: [],
   store_ids: [],
   source_ids: [],
   issued_on_min: null,

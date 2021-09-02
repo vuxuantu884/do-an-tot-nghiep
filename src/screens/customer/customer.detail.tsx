@@ -23,7 +23,7 @@ import customerShipping from "../../assets/icon/c-shipping.svg";
 import customerRecipt from "../../assets/icon/c-recipt.svg";
 import customerContact from "../../assets/icon/c-contact.svg";
 import customerBuyHistory from "../../assets/icon/c-bag.svg";
-
+import {OrderModel,OrderSearchQuery } from "model/order/order.model";
 import {
   CustomerDetail,
   CreateContact,
@@ -50,6 +50,7 @@ import UrlConfig from "config/url.config";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
+import { getListOrderAction } from "domain/actions/order/order.action";
 import {
   contact,
   CustomerResponse,
@@ -85,6 +86,8 @@ const CustomerEdit = (props: any) => {
   const history = useHistory();
   const dispatch = useDispatch();
   const [customer, setCustomer] = React.useState<CustomerResponse>();
+  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>();
+
   const [customerDetail, setCustomerDetail] = React.useState([]) as any;
   const [customerDetailCollapse, setCustomerDetailCollapse] = React.useState(
     []
@@ -397,6 +400,67 @@ const CustomerEdit = (props: any) => {
       },
     },
     actionColumn(handleContactEdit, handleContactDelete),
+  ];
+
+
+  const columnsHistory: Array<ICustomTableColumType<OrderModel>> = [
+    {
+      title: "STT",
+      dataIndex: "",
+      align: "center",
+      visible: true,
+      width: "5%",
+      render: (value, row, index) => {
+        return <span>{index + 1}</span>;
+      },
+    },
+    {
+      title: "Mã đơn hàng",
+      dataIndex: "code",
+      visible: true,
+      // width: "20%",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      visible: true,
+      // width: "20%",
+      // render: (value, row, index) => {
+      //   return <div style={{ width: 200 }}>{row.name}</div>;
+      // },
+    },
+
+    {
+      title: "Sản phẩm",
+      visible: true,
+      render: (value, row, index) => {
+          return <div >{row.items.length}</div>;
+        }
+    },
+
+    {
+      title: "Giá trị",
+      dataIndex: "total_line_amount_after_line_discount",
+      visible: true,
+      // width: "20%",
+    },
+    {
+      title: "Cửa hàng",
+      dataIndex: "store",
+      visible: true,
+    },
+    {
+      title: "Nhân viên phụ trách",
+      dataIndex: "assignee",
+      visible: true,
+    },
+    {
+      title: "Ngày đặt hàng",
+      render: (value, row, index) => {
+        return <div >{moment(row.created_date).format("DD/MM/YYYY HH:mm:ss")}</div>;
+      },
+      visible: true,
+    },
   ];
   // shiping column
 
@@ -714,6 +778,76 @@ const CustomerEdit = (props: any) => {
     }
   }, [customer, customerForm]);
 
+  React.useEffect(() => {
+    let queryObject:OrderSearchQuery = {
+      page: 1,
+      limit: 10,
+      sort_type: null,
+      sort_column: null,
+      code: null,
+      store_ids: [],
+      source_ids: [],
+      customer_ids: [params.id],
+      issued_on_min: null,
+      issued_on_max: null,
+      issued_on_predefined: null,
+      finalized_on_min: null,
+      finalized_on_max: null,
+      finalized_on_predefined: null,
+      ship_on_min: null,
+      ship_on_max: null,
+      ship_on_predefined: null,
+      expected_receive_on_min: null,
+      expected_receive_on_max: null,
+      expected_receive_predefined: null,
+      completed_on_min: null,
+      completed_on_max: null,
+      completed_on_predefined: null,
+      cancelled_on_min: null,
+      cancelled_on_max: null,
+      cancelled_on_predefined: null,
+      order_status: [],
+      order_sub_status: [],
+      fulfillment_status: [],
+      payment_status: [],
+      return_status: [],
+      account: [],
+      assignee: [],
+      price_min: undefined,
+      price_max: undefined,
+      payment_method_ids: [],
+      ship_by: null,
+      note: null,
+      customer_note: null,
+      tags: [],
+      reference_code: null
+    }
+    dispatch(getListOrderAction(queryObject, setOrderHistoryItems));
+  }, [dispatch, params]);
+
+  const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
+    if(data){
+      console.log("orderx",data.items)
+      setOrderHistory(data.items);
+    }
+  }
+
+  React.useEffect(() => {
+    if (customer) {
+      customerForm.setFieldsValue({
+        ...customer,
+        birthday: moment(customer.birthday, "YYYY-MM-DD"),
+        wedding_date: customer.wedding_date
+          ? moment(customer.wedding_date, "YYYY-MM-DD")
+          : null,
+      });
+    }
+  }, [customer, customerForm]);
+
+
+  const columnFinalOrderHistory = () => columnsHistory.filter((item) => item.visible === true);
+
+
   const columnFinal = () => columns.filter((item) => item.visible === true);
   const customerContactFiltered = customer?.contacts?.filter((contact) => {
     if (
@@ -756,7 +890,7 @@ const CustomerEdit = (props: any) => {
     React.useState<number>(1);
 
   interface ShipmentButtonModel {
-    name: string | null;
+    name: string | null,
     value: number;
     icon: any | undefined;
   }
@@ -1356,6 +1490,21 @@ const CustomerEdit = (props: any) => {
                 ))}
               </Space>
             </div>
+            {customerDetailState === 1 && (
+              <Row style={{ marginTop: 16 }}>
+                <Col span={24}>
+                  <CustomTable
+                    showColumnSetting={false}
+                    pagination={false}
+                    dataSource={
+                      orderHistory
+                    }
+                    columns={columnFinalOrderHistory()}
+                    rowKey={(item: OrderModel) => item.id}
+                  />
+                  </Col>
+              </Row>
+            )}
             {customerDetailState === 2 && (
               <Row style={{ marginTop: 16 }}>
                 <div
