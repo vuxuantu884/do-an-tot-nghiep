@@ -9,7 +9,7 @@ import {
   Input,
   Row,
   Select,
-} from "antd";
+} from "antd"; 
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -58,7 +58,8 @@ import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 //#endregion
 
 var typeButton = "";
-export default function FpageOrders() {
+export default function FpageOrders(props: any) {
+  const {customerDetail, setCustomerDetail, setIsButtonSelected} = props;
   //#region State
   const dispatch = useDispatch();
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -89,7 +90,6 @@ export default function FpageOrders() {
   const formRef = createRef<FormInstance>();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
     useState<boolean>(false);
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
@@ -104,7 +104,6 @@ export default function FpageOrders() {
   // const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
   //#rgion Customer
-
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
@@ -359,13 +358,15 @@ export default function FpageOrders() {
     (value: OrderResponse) => {
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
-        setTimeout(() => window.location.replace("/unicorn/admin/fpage-orders/create"), 500)
+        setCustomerDetail(null)
+        setIsButtonSelected(false)
+
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
       }
     },
-    []
+    [setCustomerDetail,setIsButtonSelected ]
   );
 
   //show modal save and confirm order ?
@@ -379,7 +380,7 @@ export default function FpageOrders() {
     setIsVisibleSaveAndConfirm(false);
   };
 
-  const onFinish = (values: OrderRequest) => {
+  const onFinishFpage = (values: OrderRequest) => {
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -464,13 +465,6 @@ export default function FpageOrders() {
     },
     []
   );
-  const scroll = useCallback(() => {
-    if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
-    } else {
-      setIsShowBillStep(false);
-    }
-  }, []);
 
   useEffect(() => {
     if (storeId != null) {
@@ -483,12 +477,7 @@ export default function FpageOrders() {
   }, [dispatch, setDataAccounts]);
 
   //windows offset
-  useEffect(() => {
-    window.addEventListener("scroll", scroll);
-    return () => {
-      window.removeEventListener("scroll", scroll);
-    };
-  }, [scroll]);
+
 
   /**
    * orderSettings
@@ -531,7 +520,7 @@ export default function FpageOrders() {
               element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
             window.scrollTo({ top: y, behavior: "smooth" });
           }}
-          onFinish={onFinish}
+          onFinish={onFinishFpage}
         >
           <Form.Item noStyle hidden name="action">
             <Input></Input>
@@ -553,9 +542,11 @@ export default function FpageOrders() {
             <Col md={18}>
               {/*--- customer ---*/}
               <CustomerCard
+                customerDetail={customerDetail}
                 InfoCustomerSet={onChangeInfoCustomer}
                 ShippingAddressChange={onChangeShippingAddress}
                 BillingAddressChange={onChangeBillingAddress}
+                setCustomerDetail={setCustomerDetail}
               />
               {/*--- product ---*/}
               <CardProduct
@@ -726,7 +717,6 @@ export default function FpageOrders() {
               height: "55px",
               bottom: "-10px",
               backgroundColor: "#FFFFFF",
-              display: `${isShowBillStep ? "" : "none"}`,
               zIndex: 99999
             }}
           >

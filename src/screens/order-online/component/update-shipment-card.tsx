@@ -1532,6 +1532,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 type="primary"
                 style={{ marginLeft: "10px", padding: "0 25px" }}
                 className="create-button-custom ant-btn-outline fixed-button"
+                id="btn-go-to-pack"
                 onClick={onOkShippingConfirm}
               >
                 Nhặt hàng

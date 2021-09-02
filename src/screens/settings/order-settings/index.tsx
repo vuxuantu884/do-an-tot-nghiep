@@ -47,7 +47,7 @@ function OrderSettings(props: PropType) {
       key: "name",
     },
     {
-      title: "Sau",
+      title: "Kiểu",
       dataIndex: "style",
       key: "style",
     },
@@ -73,14 +73,14 @@ function OrderSettings(props: PropType) {
     },
   ];
 
-  const [tableLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
 
   const history = useHistory();
 
   const renderCardExtra = () => {
     return (
       <Link to={`${UrlConfig.ORDER_SETTINGS}/create`}>
-        <PlusOutlined />
+        <PlusOutlined style={{ marginRight: 5 }} />
         Thêm cài đặt
       </Link>
     );
@@ -113,7 +113,13 @@ function OrderSettings(props: PropType) {
         ]}
       >
         <Card title={null} className="sectionAllowInventory">
-          Cho phép bán khi tồn kho <Switch defaultChecked onChange={onChange} />
+          Cho phép bán khi tồn kho
+          <Switch
+            defaultChecked
+            onChange={onChange}
+            className="ant-switch-primary"
+            style={{ marginLeft: 20 }}
+          />
         </Card>
         <Card
           title="Cài đặt dịch vụ vận chuyển và phí ship báo khách"

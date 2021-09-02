@@ -2,20 +2,20 @@ import styled from "styled-components";
 
 export const StyledComponent = styled.div`
   .bottomBar {
-    position: fixed;
-    bottom: 0;
-    left: 240px;
-    right: 0px;
-    z-index: 983;
-    padding: 20px 20px;
+    align-items: center;
     background: #fff;
+    bottom: 0;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    left: 240px;
+    padding: 20px 20px;
+    position: fixed;
+    right: 0px;
+    z-index: 983;
     &__right {
+      align-items: center;
       display: flex;
       justify-content: flex-end;
-      align-items: center;
     }
     button {
       &:not(:last-child) {

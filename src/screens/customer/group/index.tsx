@@ -369,6 +369,7 @@ const SettingCustomerGroup: React.FC = () => {
           icon={DeleteIcon}
         />
         <CustomerModal
+          saveBtnTitle="Tạo mới nhóm khách hàng"
           visible={isShowModal}
           onCreate={(formValue: CustomerGroupModel) =>
             handleForm.create(formValue)

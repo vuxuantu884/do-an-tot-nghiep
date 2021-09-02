@@ -21,6 +21,9 @@ import {
   updateContact,
   updateCustomer,
   updateShippingAddress,
+  createNote,
+  updateNote,
+  deleteNote
 } from "service/cusomer/customer.service";
 import { CustomerType } from "domain/types/customer.type";
 import { showError } from "utils/ToastUtils";
@@ -90,7 +93,9 @@ function* getCustomerByPhone(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e) => showError(e));
+        setData(undefined)
+        response.errors.forEach((e) =>showError(e));
+        
         break;
     }
   } catch (error) {
@@ -318,6 +323,59 @@ function* UpdateShippingAddress(action: YodyAction) {
   }
 }
 
+function* UpdateNote(action: YodyAction) {
+  const { customerId, id, note, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      updateNote,
+      id,
+      customerId,
+      note
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* CreateNote(action: YodyAction) {
+  const { customerId, note, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      createNote,
+      customerId,
+      note
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 function* CreateShippingAddress(action: YodyAction) {
   const { customerId, address, setResult } = action.payload;
   try {
@@ -475,6 +533,32 @@ function* DeleteShippingAddress(action: YodyAction) {
   }
 }
 
+function* DeleteNote(action: YodyAction) {
+  const { customerId, id, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      deleteNote,
+      id,
+      customerId,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data || 'OK');
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export default function* customerSagas() {
   yield takeLatest(
     CustomerType.KEY_SEARCH_CUSTOMER_CHANGE,
@@ -496,10 +580,13 @@ export default function* customerSagas() {
   yield takeLatest(CustomerType.CREATE_BILLING_ADDR, CreateBillingAddress);
   yield takeLatest(CustomerType.UPDATE_BILLING_ADDR, UpdateBillingAddress);
   yield takeLatest(CustomerType.CREATE_SHIPPING_ADDR, CreateShippingAddress);
+  yield takeLatest(CustomerType.CREATE_NOTE, CreateNote);
   yield takeLatest(CustomerType.UPDATE_SHIPPING_ADDR, UpdateShippingAddress);
+  yield takeLatest(CustomerType.UPDATE_NOTE, UpdateNote);
   yield takeLatest(CustomerType.CREATE_CONTACT, CreateContact);
   yield takeLatest(CustomerType.UPDATE_CONTACT, UpdateContact);
   yield takeLatest(CustomerType.DELETE_CONTACT, DeleteContact);
   yield takeLatest(CustomerType.DELETE_BILLING_ADDR, DeleteBillingAddress);
   yield takeLatest(CustomerType.DELETE_SHIPPING_ADDR, DeleteShippingAddress);
+  yield takeLatest(CustomerType.DELETE_NOTE, DeleteNote);
 }

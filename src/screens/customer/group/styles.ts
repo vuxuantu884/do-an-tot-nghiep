@@ -14,8 +14,8 @@ export const StyledComponent = styled.div`
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      word-wrap: break-word;
       word-break: break-word;
+      word-wrap: break-word;
       @media screen and (min-width: 1600px) {
         max-width: 600px;
       }

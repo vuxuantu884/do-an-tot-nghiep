@@ -107,8 +107,16 @@ export const CreateShippingAddress = (customerId:number, address: any, setResult
     return BaseAction(CustomerType.CREATE_SHIPPING_ADDR, { customerId, address, setResult });
 }
 
+export const CreateNote = (customerId:number, note: any, setResult: (data: any) => void) => {
+  return BaseAction(CustomerType.CREATE_NOTE, { customerId, note, setResult });
+}
+
 export const UpdateShippingAddress = (id: number,customerId:number, address: any, setResult: (data: any) => void) => {
     return BaseAction(CustomerType.UPDATE_SHIPPING_ADDR, { id, customerId, address, setResult });
+}
+
+export const UpdateNote = (id: number,customerId:number, note: any, setResult: (data: any) => void) => {
+  return BaseAction(CustomerType.UPDATE_NOTE, { id, customerId, note, setResult });
 }
 
 export const CreateBillingAddress = (customerId:number, address: any, setResult: (data: any) => void) => {
@@ -137,5 +145,9 @@ export const DeleteShippingAddress = (id: number,customerId:number, setResult: (
 
 export const DeleteBillingAddress = (id: number,customerId:number, setResult: (data: any) => void) => {
     return BaseAction(CustomerType.DELETE_BILLING_ADDR, { id, customerId, setResult });
+}
+
+export const DeleteNote = (id: number,customerId:number, setResult: (data: any) => void) => {
+  return BaseAction(CustomerType.DELETE_NOTE, { id, customerId, setResult });
 }
 

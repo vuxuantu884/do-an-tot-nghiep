@@ -136,6 +136,7 @@ export class CustomerContactClass implements CustomerContact {
 export interface CustomerNote extends BaseObject {
   id: number;
   content: string;
+  customer_id: number;
 }
 
 export class CustomerNoteClass implements CustomerNote {

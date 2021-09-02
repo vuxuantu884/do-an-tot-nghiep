@@ -7,7 +7,7 @@ const OrderDetail = React.lazy(
   () => import("screens/order-online/order-detail")
 );
 const Order = React.lazy(() => import("screens/order-online/order.screen"));
-const FpageOrder = React.lazy(() => import("screens/fpage/fpage-order/order.screen"));
+const FpageCRM = React.lazy(() => import("screens/fpage"));
 
 const bill: Array<RouteMenu> = [
   {
@@ -54,11 +54,11 @@ const bill: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.FPAGE_ORDER}/create`,
+        path: `${UrlConfig.FPAGE}`,
         exact: true,
         title: "Đơn hàng từ Fpage",
         icon: "icon-dot",
-        component: FpageOrder,
+        component: FpageCRM,
         key: "submenu5414",
         isShow: true,
         header: null,
