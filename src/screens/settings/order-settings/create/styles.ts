@@ -31,10 +31,16 @@ export const StyledComponent = styled.div`
       }
     }
     &__left {
+      align-items: center;
+      display: flex;
     }
     &__right {
+      align-items: center;
       display: flex;
       justify-content: flex-end;
     }
+  }
+  .ant-form-item-explain-error {
+    margin-bottom: 20px;
   }
 `;
