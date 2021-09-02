@@ -1,7 +1,6 @@
-import { Card, Form, Input, Table } from "antd";
+import { Card, Form, Table } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import Column from "antd/lib/table/Column";
-import { useEffect } from "react";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -23,8 +22,16 @@ function SelectThirdPartyLogistic(props: PropType) {
               <>
                 <Form.Item valuePropName="checked" name={[index, "checked"]}>
                   <Checkbox>
-                    {value.name}
-                    <img src={value.logo} alt="" style={{ width: 100 }} />
+                    <div className="inner">
+                      <div className="image">
+                        <img
+                          src={value.logo}
+                          alt=""
+                          style={{ width: 136, marginRight: 15 }}
+                        />
+                      </div>
+                      <h4 className="title">{value.name}</h4>
+                    </div>
                   </Checkbox>
                 </Form.Item>
               </>
@@ -35,6 +42,7 @@ function SelectThirdPartyLogistic(props: PropType) {
           dataIndex="fast_deliver"
           title={"Dịch vụ"}
           colSpan={2}
+          className="columnService"
           render={(value, row, index) => {
             return (
               <Form.Item valuePropName="checked" name={[index, "fast_deliver"]}>

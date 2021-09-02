@@ -6,18 +6,31 @@ import { StyledComponent } from "./styles";
 type PropType = {};
 
 function OrderSettingInformation(props: PropType) {
-  const [trangThai, setTrangThai] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   const renderCardExtra = () => {
     return (
       <div>
-        Trạng thái <Switch defaultChecked={trangThai} onChange={onChange} />
-        {trangThai ? "Hoạt động" : "Dừng hoạt động"}
+        Trạng thái{" "}
+        <Switch
+          defaultChecked={isActive}
+          onChange={onChange}
+          className="ant-switch-primary"
+          style={{ margin: "0 10px" }}
+        />
+        <div className="textExtra">
+          <span className={`shortText ${isActive ? "active" : "inactive"}`}>
+            Hoạt động
+          </span>
+          <span className={`longText ${isActive ? "inactive" : "active"}`}>
+            Dừng hoạt động
+          </span>
+        </div>
       </div>
     );
   };
   const onChange = (checked: any) => {
     console.log("checked", checked);
-    setTrangThai(checked);
+    setIsActive(checked);
   };
 
   function range(start: any, end: any) {

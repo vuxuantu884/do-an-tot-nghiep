@@ -43,6 +43,7 @@ function OrderSettingValue(props: PropType) {
         disabledDate={disabledDate}
         disabledTime={disabledDateTime}
         showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
+        style={{ width: "100%" }}
       />
     );
   };
@@ -67,7 +68,7 @@ function OrderSettingValue(props: PropType) {
   }, []);
 
   const EditableUsersTable = (props: any) => {
-    const { users, add, remove } = props;
+    const { users, add } = props;
     return (
       <Table
         dataSource={users}
@@ -75,9 +76,9 @@ function OrderSettingValue(props: PropType) {
         footer={() => {
           return (
             <Form.Item>
-              <Button onClick={add}>
-                <PlusOutlined /> Add field
-              </Button>
+              <div className="buttonAdd" onClick={add}>
+                <PlusOutlined style={{ marginRight: 5 }} /> Thêm cài đặt
+              </div>
             </Form.Item>
           );
         }}
@@ -107,6 +108,7 @@ function OrderSettingValue(props: PropType) {
         <Column
           dataIndex={"tinhTp"}
           title={"Tỉnh/Thành phố"}
+          width="30%"
           render={(value, row, index) => {
             return (
               <Form.Item name={[index, "tinhTp"]}>
@@ -138,6 +140,7 @@ function OrderSettingValue(props: PropType) {
         <Column
           dataIndex={"fee"}
           title={"Phí vận chuyển"}
+          width="20%"
           render={(value, row, index) => {
             return (
               <Form.Item name={[index, "fee"]}>

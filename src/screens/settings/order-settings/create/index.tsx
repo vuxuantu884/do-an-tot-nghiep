@@ -1,3 +1,4 @@
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Form, Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -6,6 +7,7 @@ import { DeliveryServiceResponse } from "model/response/order/order.response";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
 // import { useHistory } from "react-router-dom";
 import OrderSettingInformation from "./OrderSettingInformation";
 import OrderSettingValue from "./OrderSettingValue";
@@ -17,6 +19,7 @@ type PropType = {};
 function OrderSettings(props: PropType) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const history = useHistory();
 
   const [isLoadedData, setIsLoadedData] = useState(false);
   const [initialFormValue, setInitialFormValue] = useState({
@@ -54,6 +57,10 @@ function OrderSettings(props: PropType) {
       console.log("formValue", formValue);
       console.log("formValue.from_date", formValue.from_date?._d);
     });
+  };
+
+  const handleClickExit = () => {
+    history.push(UrlConfig.ORDER_SETTINGS);
   };
 
   useEffect(() => {
@@ -118,6 +125,31 @@ function OrderSettings(props: PropType) {
             <SelectThirdPartyLogistic initialFormValue={initialFormValue} />
           </Form>
         )}
+        <div className="groupButtons">
+          <div className="groupButtons__left">
+            <Link to={UrlConfig.ORDER_SETTINGS}>
+              <ArrowLeftOutlined style={{ marginRight: 10 }} />
+              Quay lại cấu hình đơn hàng
+            </Link>
+          </div>
+          <div className="groupButtons__right">
+            <Button
+              onClick={() => {
+                handleClickExit();
+              }}
+            >
+              Hủy
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                handleSubmitForm();
+              }}
+            >
+              Lưu
+            </Button>
+          </div>
+        </div>
         <Button onClick={() => handleSubmitForm()}>Lưu</Button>
       </ContentContainer>
     </StyledComponent>
