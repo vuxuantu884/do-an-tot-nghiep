@@ -13,6 +13,7 @@ import {
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
+import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { orderCreateAction } from "domain/actions/order/order.action";
@@ -58,7 +59,8 @@ import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 //#endregion
 
 var typeButton = "";
-export default function FpageOrders() {
+export default function FpageOrders(props: any) {
+  const {customerDetail, setCustomerDetail} = props;
   //#region State
   const dispatch = useDispatch();
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -89,7 +91,6 @@ export default function FpageOrders() {
   const formRef = createRef<FormInstance>();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
     useState<boolean>(false);
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [serviceType, setServiceType] = useState<string>();
@@ -359,7 +360,7 @@ export default function FpageOrders() {
     (value: OrderResponse) => {
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
-        setTimeout(() => window.location.replace("/unicorn/admin/fpage-orders/create"), 500)
+        setTimeout(() => window.location.replace(UrlConfig.FPAGE), 500)
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
@@ -464,13 +465,6 @@ export default function FpageOrders() {
     },
     []
   );
-  const scroll = useCallback(() => {
-    if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
-    } else {
-      setIsShowBillStep(false);
-    }
-  }, []);
 
   useEffect(() => {
     if (storeId != null) {
@@ -483,12 +477,7 @@ export default function FpageOrders() {
   }, [dispatch, setDataAccounts]);
 
   //windows offset
-  useEffect(() => {
-    window.addEventListener("scroll", scroll);
-    return () => {
-      window.removeEventListener("scroll", scroll);
-    };
-  }, [scroll]);
+
 
   /**
    * orderSettings
@@ -553,9 +542,11 @@ export default function FpageOrders() {
             <Col md={18}>
               {/*--- customer ---*/}
               <CustomerCard
+                customerDetail={customerDetail}
                 InfoCustomerSet={onChangeInfoCustomer}
                 ShippingAddressChange={onChangeShippingAddress}
                 BillingAddressChange={onChangeBillingAddress}
+                setCustomerDetail={setCustomerDetail}
               />
               {/*--- product ---*/}
               <CardProduct
@@ -726,7 +717,6 @@ export default function FpageOrders() {
               height: "55px",
               bottom: "-10px",
               backgroundColor: "#FFFFFF",
-              display: `${isShowBillStep ? "" : "none"}`,
               zIndex: 99999
             }}
           >
