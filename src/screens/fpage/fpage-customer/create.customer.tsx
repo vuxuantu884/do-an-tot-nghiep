@@ -147,7 +147,7 @@ const CustomerAdd = (props: any) => {
     customerForm.setFieldsValue({ ...new CustomerModel(), customer_type_id });
   }, [customerForm]);
   React.useEffect(() => {
-    if (customerDetail !== undefined) {
+    if (customerDetail) {
       const field = {
         full_name: customerDetail.full_name,
         birthday: customerDetail.birthday
@@ -166,7 +166,6 @@ const CustomerAdd = (props: any) => {
       const field = {
         full_name: null,
         birthday: "",
-        phone: null,
         email: null,
         gender: null,
         district_id: null,

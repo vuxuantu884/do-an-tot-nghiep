@@ -9,7 +9,7 @@ import {
   Input,
   Row,
   Select,
-} from "antd"; 
+} from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -59,7 +59,12 @@ import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 
 var typeButton = "";
 export default function FpageOrders(props: any) {
-  const {customerDetail, setCustomerDetail, setIsButtonSelected} = props;
+  const {
+    customerDetail,
+    setCustomerDetail,
+    setIsButtonSelected,
+    setIsClearOrderField,
+  } = props;
   //#region State
   const dispatch = useDispatch();
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -358,15 +363,14 @@ export default function FpageOrders(props: any) {
     (value: OrderResponse) => {
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
-        setCustomerDetail(null)
-        setIsButtonSelected(false)
-
+        setIsButtonSelected(false);
+        setIsClearOrderField(true)
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
       }
     },
-    [setCustomerDetail,setIsButtonSelected ]
+    [setCustomerDetail, setIsButtonSelected]
   );
 
   //show modal save and confirm order ?
@@ -478,7 +482,6 @@ export default function FpageOrders(props: any) {
 
   //windows offset
 
-
   /**
    * orderSettings
    */
@@ -504,7 +507,6 @@ export default function FpageOrders(props: any) {
           name: "Tạo mới đơn hàng",
         },
       ]}
-      
     >
       <div className="orders fpage-order-screen">
         <Form
@@ -598,11 +600,11 @@ export default function FpageOrders(props: any) {
             {/* Right Side */}
             <Col span={24}>
               <Card
-                // title={
-                //   <div className="d-flex">
-                //     <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
-                //   </div>
-                // }
+              // title={
+              //   <div className="d-flex">
+              //     <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
+              //   </div>
+              // }
               >
                 <div style={{ padding: "12px 24px" }}>
                   <Form.Item
@@ -671,11 +673,11 @@ export default function FpageOrders(props: any) {
                 </div>
               </Card>
               <Card
-                // title={
-                //   <div className="d-flex">
-                //     <span className="title-card">THÔNG TIN BỔ SUNG</span>
-                //   </div>
-                // }
+              // title={
+              //   <div className="d-flex">
+              //     <span className="title-card">THÔNG TIN BỔ SUNG</span>
+              //   </div>
+              // }
               >
                 <div style={{ padding: "12px 24px" }}>
                   <Form.Item
@@ -717,7 +719,7 @@ export default function FpageOrders(props: any) {
               height: "55px",
               bottom: "-10px",
               backgroundColor: "#FFFFFF",
-              zIndex: 99999
+              zIndex: 99999,
             }}
           >
             <Col
@@ -727,7 +729,11 @@ export default function FpageOrders(props: any) {
               <CreateBillStep status="draff" orderDetail={null} />
             </Col>
 
-            <Col md={9} style={{ marginTop: "8px" }} className="customer-bottom-button">
+            <Col
+              md={9}
+              style={{ marginTop: "8px" }}
+              className="customer-bottom-button"
+            >
               <Button
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 className="ant-btn-outline fixed-button cancle-button"

@@ -1,12 +1,12 @@
 import React from "react";
 import FpageOrders from "./fpage-order/fpage.order";
-import CustomerInformation from "./fpage-customer/create.customer";
+import FpageCustomer from "./fpage-customer/create.customer";
 import { Divider } from "antd";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { useQuery, getQueryParams } from "utils/useQuery";
 import { useDispatch } from "react-redux";
 import { CustomerSearchQuery } from "model/query/customer.query";
-import { CustomerSearchByPhone  } from "domain/actions/customer/customer.action";
+import { CustomerSearchByPhone } from "domain/actions/customer/customer.action";
 import "./fpage.index.scss";
 
 const initQueryCustomer: CustomerSearchQuery = {
@@ -32,39 +32,44 @@ function FpageCRM() {
     React.useState<boolean>(false);
   const [customerDetail, setCustomerDetail] =
     React.useState<CustomerResponse>();
-  const [customerPhoneList, setCustomerPhoneList] = React.useState<Array<any>>([])
+  const [customerPhoneList, setCustomerPhoneList] = React.useState<Array<any>>(
+    []
+  );
+  const [isClearOrderField, setIsClearOrderField] =
+    React.useState<boolean>(false);
 
-  const searchOneCallback = (value: any) => {
-    console.log(value)
-    if(value !== undefined) {
-      setCustomerDetail(value)
-    }else{
-      setCustomerDetail(undefined)
+  const searchByPhoneCallback = (value: any) => {
+    console.log(value);
+    if (value !== undefined) {
+      setCustomerDetail(value);
+    } else {
+      setCustomerDetail(undefined);
     }
-  }
-  
+  };
+
   React.useEffect(() => {
-    let list: any = []
+    let list: any = [];
     const phoneObj: any = { ...getQueryParams(phoneQuery) };
     const _queryObj = Object.keys(phoneObj);
     const value = phoneObj[_queryObj[0]];
-    if(!Array.isArray(value)){
-      list.push(value);
-    }else{
-      list = [...value]
-    }
-    setCustomerPhoneList(list)
 
-    if (list) {
-      initQueryCustomer.phone = list[0];
-      dispatch(CustomerSearchByPhone(initQueryCustomer, searchOneCallback));
+    if (value) {
+      if (!Array.isArray(value)) {
+        list.push(value);
+      } else {
+        list = [...value];
+      }
     }
-  }, [dispatch, setCustomerPhoneList]);
-console.log("123")
-  const getCustomerWhenPhoneChange = React.useCallback((phoneNumber: any) => {
-    initQueryCustomer.phone = phoneNumber;
-    dispatch(CustomerSearchByPhone(initQueryCustomer, searchOneCallback));
-  },[dispatch])
+    setCustomerPhoneList(list);
+  }, [setCustomerPhoneList]);
+
+  const getCustomerWhenPhoneChange = React.useCallback(
+    (phoneNumber: any) => {
+      initQueryCustomer.phone = phoneNumber;
+      dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
+    },
+    [dispatch]
+  );
   //Render result search
   return (
     <div className="fpage-customer-relationship">
@@ -80,7 +85,10 @@ console.log("123")
           KHÁCH HÀNG
         </div>
         <div
-          onClick={() => setIsButtonSelected(true)}
+          onClick={() => {
+            setIsButtonSelected(true);
+            setIsClearOrderField(false);
+          }}
           className={
             isButtonSelected
               ? "fpage-customer-btn fpage-btn-active"
@@ -91,8 +99,8 @@ console.log("123")
         </div>
       </div>
       <Divider />
-      {!isButtonSelected && (
-        <CustomerInformation
+      <div style={{ display: !isButtonSelected ? "block" : "none" }}>
+        <FpageCustomer
           customerDetail={customerDetail}
           setCustomerDetail={setCustomerDetail}
           setIsButtonSelected={setIsButtonSelected}
@@ -100,14 +108,17 @@ console.log("123")
           setCustomerPhoneList={setCustomerPhoneList}
           getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
         />
-      )}
-      {isButtonSelected && (
-        <FpageOrders
-          customerDetail={customerDetail}
-          setCustomerDetail={setCustomerDetail}
-          setIsButtonSelected = {setIsButtonSelected}
-        />
-      )}
+      </div>
+      <div style={{ display: isButtonSelected ? "block" : "none" }}>
+        {!isClearOrderField && (
+          <FpageOrders
+            customerDetail={customerDetail}
+            setCustomerDetail={setCustomerDetail}
+            setIsButtonSelected={setIsButtonSelected}
+            setIsClearOrderField={setIsClearOrderField}
+          />
+        )}
+      </div>
     </div>
   );
 }

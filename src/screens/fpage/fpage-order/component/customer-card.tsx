@@ -43,7 +43,7 @@ import {
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import { CustomerSearch } from "domain/actions/customer/customer.action";
-
+import { RegUtil } from "utils/RegUtils";
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
 //#end region
@@ -80,7 +80,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [isVisibleBilling, setVisibleBilling] = useState(true);
+  const [isVisibleBilling, setVisibleBilling] = useState(false);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
@@ -112,8 +112,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleCustomer(false);
   }, []);
 
-  const ShowBillingAddress = () => {
-    setVisibleBilling(!isVisibleBilling);
+  const ShowBillingAddress = (e: any) => {
+    setVisibleBilling(e.target.checked);
   };
   //#end region
 
@@ -205,6 +205,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setCustomer(null);
     props.InfoCustomerSet(null);
     setCustomerDetail(null)
+    setVisibleBilling(false)
   };
 
   //#end region
@@ -566,7 +567,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </Row>
 
                 {customer.billing_addresses !== undefined && (
-                  <Row gutter={24} hidden={isVisibleBilling}>
+                  <Row gutter={24} hidden={!isVisibleBilling}>
                     <Col
                       xs={24}
                       lg={12}
@@ -690,6 +691,18 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           style={{ marginTop: "10px" }}
                         />
                       </Form.Item>
+                      <Form.Item
+                name="email"
+                label={<b>Email:</b>}
+                rules={[
+                  {
+                    pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
+                    message: "Vui lòng nhập đúng định dạng email",
+                  },
+                ]}
+              >
+                <Input maxLength={255} type="text" placeholder="Nhập email" />
+              </Form.Item>
                     </Col>
                   </Row>
                 )}

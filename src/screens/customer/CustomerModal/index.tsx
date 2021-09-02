@@ -30,7 +30,7 @@ export interface CustomModalType {
   deletedItemTitle?: string;
   componentForm: React.FC<CustomModalFormModel>;
   formItem: any;
-  moreFormArguments?: any; 
+  moreFormArguments?: any;
 }
 
 const CustomModal = (props: CustomModalType) => {
@@ -69,8 +69,10 @@ const CustomModal = (props: CustomModalType) => {
       setIsShowConfirmDelete(false);
     },
     edit: () => {
-      setVisibleForm(false);
-      onEdit(form.getFieldsValue());
+      form.validateFields().then(() => {
+        setVisibleForm(false);
+        onEdit(form.getFieldsValue());
+      });
     },
   };
 
@@ -114,11 +116,7 @@ const CustomModal = (props: CustomModalType) => {
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Thoát
             </Button>
-            <Button
-              key="save"
-              type="primary"
-              onClick={() => formAction.edit()}
-            >
+            <Button key="save" type="primary" onClick={() => formAction.edit()}>
               Lưu địa chỉ
             </Button>
           </div>
