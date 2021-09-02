@@ -193,8 +193,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'order_status':
           onFilter && onFilter({...params, order_status: []});
           break;
-        case 'sub_status':
-          onFilter && onFilter({...params, sub_status: []});
+        case 'order_sub_status':
+          onFilter && onFilter({...params, order_sub_status: []});
           break;
         case 'fulfillment_status':
           onFilter && onFilter({...params, fulfillment_status: []});
@@ -314,7 +314,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
-      sub_status: Array.isArray(params.sub_status) ? params.sub_status : [params.sub_status],
+      order_sub_status: Array.isArray(params.order_sub_status) ? params.order_sub_status : [params.order_sub_status],
       fulfillment_status: Array.isArray(params.fulfillment_status) ? params.fulfillment_status : [params.fulfillment_status],
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
@@ -434,15 +434,15 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.sub_status.length) {
+    if (initialValues.order_sub_status.length) {
       let textStatus = ""
       
-      initialValues.sub_status.forEach(i => {
+      initialValues.order_sub_status.forEach(i => {
         const findStatus = subStatus?.find(item => item.id.toString() === i)
         textStatus = findStatus ? textStatus + findStatus.sub_status + ";" : textStatus
       })
       list.push({
-        key: 'sub_status',
+        key: 'order_sub_status',
         name: 'Trạng thái xử lý đơn',
         value: textStatus
       })
@@ -572,7 +572,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
     // console.log('filters list', list);
     return list
-  }, [accounts, deliveryService, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status]);
+  }, [accounts, deliveryService, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status, subStatus]);
 
   
 
@@ -641,6 +641,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         showArrow
                         showSearch
                         placeholder="Cửa hàng"
+                        notFoundContent="Không tìm thấy kết quả"
                         style={{
                           width: '100%'
                         }}
@@ -811,7 +812,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.order_status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1" className="header-filter">
                     <Item name="order_status">
-                    <Select mode="multiple" showSearch placeholder="Chọn trạng thái đơn hàng" style={{width: '100%'}}>
+                    <Select mode="multiple" showSearch placeholder="Chọn trạng thái đơn hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                       {status?.map((item) => (
                         <Option key={item.value} value={item.value.toString()}>
                           {item.name}
@@ -826,10 +827,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.sub_status.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.order_sub_status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI XỬ LÝ ĐƠN" key="1" className="header-filter">
-                    <Item name="sub_status">
-                    <Select mode="multiple" showSearch placeholder="Chọn trạng thái xử lý đơn" style={{width: '100%'}}>
+                    <Item name="order_sub_status">
+                    <Select mode="multiple" showSearch placeholder="Chọn trạng thái xử lý đơn" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                       {subStatus?.map((item: any) => (
                         <Option key={item.id} value={item.id}>
                           {item.sub_status}
@@ -847,7 +848,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.fulfillment_status.length ? ["1"]: []}>
                   <Panel header="GIAO HÀNG" key="1" className="header-filter">
                     <Item name="fulfillment_status">
-                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái giao hàng" style={{width: '100%'}}>
+                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái giao hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                           {fulfillmentStatus.map((item, index) => (
                             <Option
                               style={{ width: "100%" }}
@@ -868,7 +869,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.payment_status.length ? ["1"]: []}>
                   <Panel header="THANH TOÁN" key="1" className="header-filter">
                     <Item name="payment_status">
-                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" style={{width: '100%'}}>
+                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                         {paymentStatus.map((item, index) => (
                           <Option
                             style={{ width: "100%" }}
@@ -889,7 +890,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
                   <Panel header="TRẢ HÀNG" key="1" className="header-filter">
                     <Item name="payment_status">
-                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái trả hàng" style={{width: '100%'}}>
+                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái trả hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                         <Option
                           style={{ width: "100%" }}
                           key="1"
@@ -908,7 +909,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.assignee.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN BÁN HÀNG" key="1" className="header-filter">
                     <Item name="assignee">
-                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng" style={{width: '100%'}}>
+                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                           {accounts.map((item, index) => (
                             <Option
                               style={{ width: "100%" }}
@@ -929,7 +930,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.account.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1" className="header-filter">
                     <Item name="account">
-                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" style={{width: '100%'}}>
+                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                         {accounts.map((item, index) => (
                           <Option
                             style={{ width: "100%" }}
@@ -981,7 +982,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.payment_method_ids.length ? ["1"]: []}>
                   <Panel header="PHƯƠNG THỨC THANH TOÁN" key="1" className="header-filter">
                     <Item name="payment_method_ids">
-                    <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}>
+                    <Select mode="multiple" optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả" placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}>
                       {paymentType.map((item, index) => (
                         <Option
                           style={{ width: "100%" }}
@@ -1027,7 +1028,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.ship_by ? ["1"]: []}>
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
                     <Item name="ship_by">
-                      <Select optionFilterProp="children" showSearch placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
+                      <Select optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả" placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
                         {/* <Option value="">Hình thức vận chuyển</Option> */}
                         {deliveryService?.map((item) => (
                           <Option key={item.id} value={item.id.toString()}>
