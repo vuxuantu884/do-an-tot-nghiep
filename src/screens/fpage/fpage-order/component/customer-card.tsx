@@ -50,9 +50,11 @@ import { useQuery, getQueryParams } from "utils/useQuery";
 //#end region
 
 type CustomerCardProps = {
+  setCustomerDetail: (items: CustomerResponse | null) => void;
   InfoCustomerSet: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
+  customerDetail: CustomerResponse | null
 };
 
 //Add query for search Customer
@@ -75,15 +77,14 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
+  const {customerDetail, setCustomerDetail} = props;
   //State
-  const phoneQuery = useQuery();
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
-  const [fpageResultSearch, setFpageResultSearch] = useState<Array<CustomerResponse>>([]);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
@@ -130,13 +131,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   );
 
   const fpageAutoFillCustomerInfor = () => {
-    if (fpageResultSearch.length > 0) {
-      setCustomer(fpageResultSearch[0]);
-      props.InfoCustomerSet(fpageResultSearch[0]);
-
+    if (customerDetail) {
+      setCustomer(customerDetail)
+      props.InfoCustomerSet(customerDetail);
       //set Shipping Address
-      if (fpageResultSearch[0].shipping_addresses) {
-        fpageResultSearch[0].shipping_addresses.forEach((item, index2) => {
+      if (customerDetail.shipping_addresses) {
+        customerDetail.shipping_addresses.forEach((item, index2) => {
           if (item.default === true) {
             setShippingAddress(item);
             props.ShippingAddressChange(item);
@@ -145,8 +145,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       }
 
       //set Billing Address
-      if (fpageResultSearch[0].billing_addresses) {
-        fpageResultSearch[0].billing_addresses.forEach((item, index2) => {
+      if (customerDetail.billing_addresses) {
+        customerDetail.billing_addresses.forEach((item, index2) => {
           if (item.default === true) {
             props.BillingAddressChange(item);
           }
@@ -156,15 +156,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       setKeySearchCustomer("");
     }
   };
-  useEffect(() => {
-    const phoneObj: any = { ...getQueryParams(phoneQuery) };
-    const _queryObj = Object.keys(phoneObj);
-    const value = phoneObj[_queryObj[0]];
-    if(value){
-      initQueryCustomer.request = value;
-      dispatch(CustomerSearch(initQueryCustomer, setFpageResultSearch));
-    }
-  }, [dispatch]);
   //Render result search
   useEffect(() => {
     fpageAutoFillCustomerInfor()
@@ -214,7 +205,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const CustomerDeleteInfo = () => {
     setCustomer(null);
     props.InfoCustomerSet(null);
-    setFpageResultSearch([])
+    setCustomerDetail(null)
   };
 
   //#end region
@@ -229,6 +220,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       );
       if (index !== -1) {
         setCustomer(resultSearch[index]);
+        setCustomerDetail(resultSearch[index])
         props.InfoCustomerSet(resultSearch[index]);
 
         //set Shipping Address
@@ -537,7 +529,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       </Popover>
                     </Row>
                   </Col>
-                  <Col span={12} className="font-weight-500">
+                  <Col span={12} className="font-weight-500 note-customer">
                     <div>
                       <img
                         src={noteCustomer}

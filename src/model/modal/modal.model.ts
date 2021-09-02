@@ -25,5 +25,5 @@ export interface CustomModalType {
   deletedItemTitle?: string;
   componentForm: React.FC<CustomModalFormModel>;
   formItem: any;
-  moreFormArguments?: any;
+  moreFormArguments?: any; 
 }
