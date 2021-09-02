@@ -473,7 +473,7 @@ const CustomerEdit = (props: any) => {
       },
     },
     {
-      title: "nội dung",
+      title: "Nội dung",
       dataIndex: "content",
       visible: true,
     },
