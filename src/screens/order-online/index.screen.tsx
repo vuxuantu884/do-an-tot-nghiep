@@ -206,17 +206,31 @@ const ListOrderScreen: React.FC = () => {
     
     {
       title: "Khách phải trả",
-      dataIndex: "total_line_amount_after_line_discount",
-      render: (value: number) => (
-        <NumberFormat
-          value={value}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
+      // dataIndex: "",
+      render: (record: any) => (
+        <>
+          <p>
+            <NumberFormat
+              value={record.total_line_amount_after_line_discount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </p>
+          <p style={{color: '#EF5B5B'}}> -
+          <NumberFormat
+            value={record.total_discount}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+          </p>
+        </>
+        
       ),
       key: "customer.amount_money",
       visible: true,
+      align: 'right'
     },
     {
       title: "Hình thức vận chuyển",
@@ -485,6 +499,13 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Tag",
       dataIndex: "tags",
+      // render: (tags: Array<string>) => (
+      //   tags?.map(tag => {
+      //     return (
+      //       <Tag>{tag}</Tag>
+      //     )
+      //   })
+      // ),
       key: "tags",
       visible: true,
     },
