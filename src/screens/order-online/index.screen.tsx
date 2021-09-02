@@ -175,11 +175,12 @@ const ListOrderScreen: React.FC = () => {
       title: "Khách hàng",
       dataIndex: "shipping_address",
       render: (shipping_address: any) => (
+        shipping_address && (
         <div className="customer">
-          <div className="name">{shipping_address.name}</div>
-          <div>{shipping_address.phone}</div>
-          <div>{shipping_address.full_address}</div>
-        </div>
+          <div className="name">{shipping_address?.name}</div>
+          <div>{shipping_address?.phone}</div>
+          <div>{shipping_address?.full_address}</div>
+        </div>)
       ),
       key: "customer",
       visible: true,
@@ -387,7 +388,8 @@ const ListOrderScreen: React.FC = () => {
       title: "Khu vực",
       dataIndex: "shipping_address",
       render: (shipping_address: any) => (
-          <div className="name">{`${shipping_address.ward}, ${shipping_address.district}, ${shipping_address.city}`}</div>
+
+          shipping_address && (<div className="name">{`${shipping_address.ward}, ${shipping_address.district}, ${shipping_address.city}`}</div>)
       ),
       key: "area",
       visible: true,

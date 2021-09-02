@@ -605,11 +605,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 Lọc
               </Button>
             </Item>
-            <Item>
+            {/* <Item>
               <Tooltip overlay="Lưu bộ lọc" placement="top">
                 <Button icon={<StarOutlined />} />
               </Tooltip>
-            </Item>
+            </Item> */}
             <Item>
               <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>
