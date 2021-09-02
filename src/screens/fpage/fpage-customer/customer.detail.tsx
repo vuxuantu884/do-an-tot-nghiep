@@ -11,11 +11,12 @@ import {
   Menu,
   Checkbox,
 } from "antd";
+import { CountryGetAllAction } from "domain/actions/content/content.action";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { PlusOutlined } from "@ant-design/icons";
 import { modalActionType } from "model/modal/modal.model";
-import CustomerModal from "../customer/CustomerModal";
+import CustomerModal from "../fpage-customer/CustomerModal";
 import threeDot from "../../assets/icon/three-dot.svg";
 import editIcon from "../../assets/icon/edit.svg";
 import deleteIcon from "../../assets/icon/deleteIcon.svg";
@@ -26,6 +27,9 @@ import customerBuyHistory from "../../assets/icon/c-bag.svg";
 
 import {
   CustomerDetail,
+  CustomerGroups,
+  CustomerLevels,
+  CustomerTypes,
   CreateContact,
   UpdateContact,
   DeleteContact,
@@ -36,6 +40,7 @@ import {
   UpdateBillingAddress,
   UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
+import { CountryResponse } from "model/content/country.model";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
