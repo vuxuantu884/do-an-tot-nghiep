@@ -160,7 +160,9 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Mã đơn giao",
       dataIndex: "order_id",
-      key: "order_id",
+      render: (value: string, i: ShipmentModel) => (
+        <Link to={`#`}>{value}</Link>
+      ),
       visible: true,
       fixed: 'left',
       width:"120px",
@@ -171,13 +173,14 @@ const ListOrderScreen: React.FC = () => {
       render: (shipping_address: any) => (
         shipping_address && (
         <div className="customer">
-          <div className="name">{shipping_address.name}</div>
-          <div>{shipping_address.phone}</div>
-          <div>{shipping_address.full_address}</div>
+          <div className="name p-b-3">{shipping_address.name}</div>
+          <div className="p-b-3">{shipping_address.phone}</div>
+          <div className="p-b-3">{shipping_address.full_address}</div>
         </div>
       )),
       key: "customer",
       visible: true,
+      width: "5%",
     },
     {
       title: "Sản phẩm",
@@ -185,18 +188,38 @@ const ListOrderScreen: React.FC = () => {
       key: "items.name",
       render: (items: Array<Item>) => (
         <div className="items">
-          {items.map((item, i) => {
+           {items.map((item, i) => {
             return (
-              <div className="item" style={{textAlign: "left"}}>
-                <div className="item-sku">{item.sku}</div>
-                <div className="item-quantity">x {item.quantity}</div>
+              <div className="item custom-td" style={{ width: "100%" }}>
+                <div className="item-sku">{item.variant}</div>
               </div>
-            )
+            );
           })}
         </div>
       ),
       visible: true,
       align: "left",
+      width: "6.5%",
+    },
+
+    {
+      title: "SL",
+      dataIndex: "items",
+      key: "items.name",
+      render: (items: Array<Item>) => (
+        <div className="items">
+          {items.map((item, i) => {
+            return (
+              <div className="item custom-td" style={{ width: "100%" }}>
+                <div className="item-quantity">{item.quantity}</div>
+              </div>
+            );
+          })}
+        </div>
+      ),
+      visible: true,
+      align: "center",
+      width: "1.3%",
     },
     
     {
@@ -212,9 +235,10 @@ const ListOrderScreen: React.FC = () => {
       ),
       key: "cod",
       visible: true,
+      align:"right"
     },
     {
-      title: "Hình thức vận chuyển",
+      title: "HTVC",
       dataIndex: "shipment",
       render: (shipment: Shipment) => {
         const service_id = shipment.delivery_service_provider_id
@@ -224,14 +248,15 @@ const ListOrderScreen: React.FC = () => {
             <img
               src={service.logo ? service.logo : ""}
               alt=""
-              style={{ width: "200px", height: "41px" }}
+              style={{ width: "100%", height: "30px" }}
             />
           )
         )
       },
       key: "shipment.type",
       visible: true,
-      // width: '250px'
+      width: "3.5%",
+      align:"center"
     },
     {
       title: "Trạng thái giao vận",
@@ -239,12 +264,11 @@ const ListOrderScreen: React.FC = () => {
       key: "status",
       render: (status_value: string) => {
         const status = status_order.find(status => status.value === status_value)
-        return(
-          status?.name
-        )
+        return <div style={{background:"rgba(42, 42, 134, 0.1)", borderRadius:"100px", color:"#2A2A86"}}>{status?.name}</div>;
       },
       visible: true,
       align: "center",
+      width:"4.3%"
     },
     
     {
@@ -474,8 +498,8 @@ const ListOrderScreen: React.FC = () => {
         <CustomTable
           isRowSelection
           isLoading={tableLoading}
-          // showColumnSetting={true}
-          scroll={{ x: 3240 }}
+          showColumnSetting={true}
+          scroll={{ x: 3630, y: "50vh" }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,

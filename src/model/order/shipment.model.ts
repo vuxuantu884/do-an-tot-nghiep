@@ -19,6 +19,7 @@ export interface Shipment {
 }
 export interface ShipmentModel {
   id: number;
+  code: string;
   order_id: string;
   customer: string;
   shipment: Shipment;
