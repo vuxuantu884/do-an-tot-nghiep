@@ -7,13 +7,13 @@ export const StyledComponent = styled.div`
     border-top: 1px solid #e5e5e5;
   }
   .singleThirdParty {
-    padding: 30px 20px;
-    height: 100%;
-    display: flex;
     align-items: center;
-    justify-content: space-between;
-    border-right: 1px solid #e5e5e5;
     border-bottom: 1px solid #e5e5e5;
+    border-right: 1px solid #e5e5e5;
+    display: flex;
+    height: 100%;
+    justify-content: space-between;
+    padding: 30px 20px;
     &__title {
       font-size: 1em;
       font-weight: bold;

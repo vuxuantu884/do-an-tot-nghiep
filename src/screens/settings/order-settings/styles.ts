@@ -2,7 +2,12 @@ import styled from "styled-components";
 
 export const StyledComponent = styled.div`
   .ant-card {
-    margin-bottom: 35px;
+    margin-bottom: 20px;
+    .ant-card-head-title {
+      font-weight: 500;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
     .ant-card-body {
       padding: 20px 20px;
     }
@@ -10,9 +15,9 @@ export const StyledComponent = styled.div`
   .sectionAllowInventory {
     .ant-card-body {
       padding: 20px 20px;
+      text-transform: uppercase;
+      font-size: 1em;
+      font-weight: 500;
     }
-  }
-  .ant-switch-checked {
-    background-color: #2a2a86;
   }
 `;

@@ -3,6 +3,7 @@ import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { BaseQuery } from "model/base/base.query";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
   OrderRequest,
   ShippingGHTKRequest,
@@ -33,6 +34,11 @@ import { generateQuery } from "utils/AppUtils";
 export const getListOrderApi = (query: OrderSearchQuery ): Promise<BaseResponse<OrderModel>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/orders?${queryString}`);
+};
+
+export const getShipmentApi = (query: ShipmentSearchQuery ): Promise<BaseResponse<ShipmentModel>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/shipments?${queryString}`);
 };
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {

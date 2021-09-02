@@ -22,6 +22,7 @@ import { OrderType } from "../../types/order.type";
 import BaseAction from "base/base.action";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import { PageResponse } from "model/base/base-metadata.response";
+import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 
 export const orderCreateAction = (
   request: OrderRequest,
@@ -132,6 +133,16 @@ export const getListOrderAction = (
   setData: (data: PageResponse<OrderModel>|false) => void
 ) => {
   return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
+    query,
+    setData,
+  });
+};
+
+export const getShipmentsAction = (
+  query: ShipmentSearchQuery,
+  setData: (data: PageResponse<ShipmentModel>|false) => void
+) => {
+  return BaseAction(OrderType.GET_SHIPMENTS_REQUEST, {
     query,
     setData,
   });
