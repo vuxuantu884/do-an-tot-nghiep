@@ -1,5 +1,5 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Form, Button } from "antd";
+import { Button, Form } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
@@ -8,7 +8,6 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-// import { useHistory } from "react-router-dom";
 import OrderSettingInformation from "./OrderSettingInformation";
 import OrderSettingValue from "./OrderSettingValue";
 import SelectThirdPartyLogistic from "./SelectThirdPartyLogistic";
@@ -53,10 +52,20 @@ function OrderSettings(props: PropType) {
   });
 
   const handleSubmitForm = () => {
-    form.validateFields().then((formValue: any) => {
-      console.log("formValue", formValue);
-      console.log("formValue.from_date", formValue.from_date?._d);
-    });
+    form
+      .validateFields()
+      .then((formValue: any) => {
+        console.log("formValue", formValue);
+      })
+      .catch((error) => {
+        const element: any = document.getElementById(
+          error.errorFields[0].name.join("")
+        );
+        element?.focus();
+        const offsetY =
+          element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+        window.scrollTo({ top: offsetY, behavior: "smooth" });
+      });
   };
 
   const handleClickExit = () => {
@@ -80,11 +89,6 @@ function OrderSettings(props: PropType) {
           };
         });
         console.log("listDeliveryService", listDeliveryService);
-        let abc = {
-          ...initialFormValue,
-          third_party_logistics: listDeliveryService,
-        };
-        console.log("abc", abc);
         setInitialFormValue({
           ...initialFormValue,
           third_party_logistics: listDeliveryService,

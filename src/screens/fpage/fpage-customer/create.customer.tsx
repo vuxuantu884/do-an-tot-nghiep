@@ -35,7 +35,14 @@ const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
 const CustomerAdd = (props: any) => {
-  const {setCustomerDetail, setIsButtonSelected, customerDetail} = props;
+  const {
+    setCustomerDetail,
+    setIsButtonSelected,
+    customerDetail,
+    customerPhoneList,
+    setCustomerPhoneList,
+    getCustomerWhenPhoneChange,
+  } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -48,6 +55,7 @@ const CustomerAdd = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
+
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -139,30 +147,44 @@ const CustomerAdd = (props: any) => {
     customerForm.setFieldsValue({ ...new CustomerModel(), customer_type_id });
   }, [customerForm]);
   React.useEffect(() => {
-    if(customerDetail){
+    if (customerDetail !== undefined) {
       const field = {
         full_name: customerDetail.full_name,
-        birthday: moment(customerDetail.birthday, "YYYY-MM-DD"),
+        birthday: customerDetail.birthday
+          ? moment(customerDetail.birthday, "YYYY-MM-DD")
+          : "",
         phone: customerDetail.phone,
         email: customerDetail.email,
         gender: customerDetail.gender,
         district_id: customerDetail.district_id,
         ward_id: customerDetail.ward,
         full_address: customerDetail.full_address,
-      }
-      customerForm.setFieldsValue(field)
+      };
+      customerForm.setFieldsValue(field);
+      
+    } else {
+      const field = {
+        full_name: null,
+        birthday: "",
+        phone: null,
+        email: null,
+        gender: null,
+        district_id: null,
+        ward_id: null,
+        full_address: null,
+      };
+      customerForm.setFieldsValue(field);
     }
-  },[customerDetail])
-  console.log(customerDetail)
+  }, [customerDetail, customerForm]);
   const setResult = React.useCallback(
     (result) => {
       if (result) {
         showSuccess("Thêm khách hàng thành công");
         setCustomerDetail(result);
-        setIsButtonSelected(true)
+        setIsButtonSelected(true);
       }
     },
-    [history]
+    [history, setCustomerDetail, setIsButtonSelected]
   );
 
   const handleSubmit = (values: any) => {
@@ -231,23 +253,22 @@ const CustomerAdd = (props: any) => {
               wards={wards}
               handleChangeArea={handleChangeArea}
               AccountChangeSearch={AccountChangeSearch}
+              phones={customerPhoneList}
+              setPhones={setCustomerPhoneList}
+              getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
             />
           </Col>
         </Row>
         <Card
           title={
-            <div >
+            <div>
               <span style={{ fontWeight: 500 }} className="title-card">
                 ĐƠN GẦN NHẤT
               </span>
             </div>
           }
         >
-          <Table
-              columns={recentOrder}
-              dataSource={data}
-              pagination={false}
-            />
+          <Table columns={recentOrder} dataSource={data} pagination={false} />
         </Card>
         <div className="customer-bottom-button">
           <Button
