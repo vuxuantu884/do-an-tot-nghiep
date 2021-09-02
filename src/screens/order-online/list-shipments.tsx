@@ -73,6 +73,7 @@ const initQuery: ShipmentSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   print_status: [],
+  store_ids: [],
   sources: [],
   assignees: [],
   shipping_address: null,
@@ -249,19 +250,17 @@ const ListOrderScreen: React.FC = () => {
     
     {
       title: "Tổng SL sản phẩm",
-      dataIndex: "items",
-      key: "item.quantity.total",
-      render: (items) => (
-        items.length
-      ),
+      dataIndex: "total_quantity",
+      key: "total_quantity",
       visible: true,
       align: "center",
     },
     
     {
       title: "Phí trả đối tác",
-      dataIndex: "shipment.delivery_fee",
-      key: "delivery_fee",
+      dataIndex: "shipment",
+      render: (value) => value.shipping_fee_paid_to_three_pls,
+      key: "shipping_fee_paid_to_three_pls",
       visible: true,
     },
     {
@@ -361,11 +360,11 @@ const ListOrderScreen: React.FC = () => {
       // console.log('result', result)
       // console.log('deliveryServices', deliveryServices)
       setTableLoading(false);
-      if(!!result && !!deliveryServices) {
+      if(!!result) {
         setData(result);
       }
     },
-    [deliveryServices]
+    []
   );
   
   // const onGetDeliverService = useCallback(

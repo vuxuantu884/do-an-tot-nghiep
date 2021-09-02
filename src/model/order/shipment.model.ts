@@ -75,6 +75,7 @@ export interface ShipmentSearchQuery {
   cancelled_on_max: string|null;
   cancelled_on_predefined: string|null;
   print_status: [];
+  store_ids: [],
   sources: [];
   assignees: [];
   shipping_address: string|null;
