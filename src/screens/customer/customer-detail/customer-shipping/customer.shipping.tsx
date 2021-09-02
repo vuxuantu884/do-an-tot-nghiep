@@ -1,18 +1,12 @@
 import {
     Row,
     Col,
-    Button,
-    Dropdown,
-    Menu,
     Checkbox,
   } from "antd";
   import CustomTable from "component/table/CustomTable";
   import { ICustomTableColumType } from "component/table/CustomTable";
   import { PlusOutlined } from "@ant-design/icons";
-  import CustomerModal from "../../customer/CustomerModal";
-  import threeDot from "assets/icon/three-dot.svg";
-  import editIcon from "assets/icon/edit.svg";
-  import deleteIcon from "assets/icon/deleteIcon.svg";
+  import CustomerModal from "../../customer-modal";
   import {
     CreateShippingAddress,
     DeleteShippingAddress,
@@ -29,13 +23,12 @@ import {
   import {
     CustomerShippingAddress,
   } from "model/request/customer.request";
-  import FormCustomerShippingAddress from "component/forms/FormCustomerShippingAddress";
+  import FormCustomerShippingAddress from "screens/customer/customer-detail/customer-shipping/shipping.form.modal";
   import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
   import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-  import actionColumn from './action.column';
+  import actionColumn from '../../common/action.column';
 
 function CustomerShippingAddressInfo(props: any) {
-
     const history = useHistory();
     const dispatch = useDispatch();
     const {customer,customerDetailState,setModalAction, modalAction} = props;
@@ -289,7 +282,8 @@ function CustomerShippingAddressInfo(props: any) {
               }}
             />
             <CustomerModal
-              saveBtnTitle="Tạo mới địa chỉ"
+              createBtnTitle="Tạo mới địa chỉ"
+              updateBtnTitle="Lưu địa chỉ"
               visible={isShowModalShipping}
               onCreate={(formValue: CustomerShippingAddress) =>
                 handleShippingAddressForm.create(formValue)

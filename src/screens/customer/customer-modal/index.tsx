@@ -15,7 +15,7 @@ export interface CustomModalFormModel {
   moreFormArguments?: any;
 }
 export interface CustomModalType {
-  saveBtnTitle: string | null;
+  createBtnTitle: string | null;
   visible: boolean;
   onCreate: (formValue: any) => void;
   onEdit: (formValue: any) => void;
@@ -36,7 +36,7 @@ export interface CustomModalType {
 
 const CustomModal = (props: CustomModalType) => {
   const {
-    saveBtnTitle,
+    createBtnTitle,
     visible,
     onCreate,
     onEdit,
@@ -97,7 +97,7 @@ const CustomModal = (props: CustomModalType) => {
               type="primary"
               onClick={() => formAction.create()}
             >
-              {saveBtnTitle}
+              {createBtnTitle}
             </Button>
           </div>
         );

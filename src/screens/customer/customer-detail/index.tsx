@@ -1,8 +1,5 @@
-import { Form, Row, Col, Button, Card, Space, Dropdown, Menu } from "antd";
+import { Form, Row, Col, Card, Space } from "antd";
 import { modalActionType } from "model/modal/modal.model";
-import threeDot from "assets/icon/three-dot.svg";
-import editIcon from "assets/icon/edit.svg";
-import deleteIcon from "assets/icon/deleteIcon.svg";
 import customerShipping from "assets/icon/c-shipping.svg";
 import customerRecipt from "assets/icon/c-recipt.svg";
 import customerContact from "assets/icon/c-contact.svg";
@@ -14,31 +11,84 @@ import { Link, useParams } from "react-router-dom";
 import moment from "moment";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import CustomerInfo from "./customer.info";
-import CustomerContactInfo from "./customer.contact";
-import CustomerShippingAddressInfo from "./customer.shipping";
-import CustomerShippingInfo from "./customer.billing";
+import CustomerContactInfo from "./customer-contact/customer.contact";
+import CustomerShippingAddressInfo from "./customer-shipping/customer.shipping";
+import CustomerShippingInfo from "./customer-billing/customer.billing";
+import CustomerNoteInfo from "./customer-note/customer.note";
+import CustomerHistoryInfo from "./customer.history";
+import { PageResponse } from "model/base/base-metadata.response";
+import { getListOrderAction } from "domain/actions/order/order.action";
+import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 
-const CustomerEdit = (props: any) => {
+const CustomerDetailIndex = () => {
   const params = useParams() as any;
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
   const [customer, setCustomer] = React.useState<CustomerResponse>();
   const [customerPointInfo, setCustomerPoint] = React.useState([]) as any;
   const [customerBuyDetail, setCustomerBuyDetail] = React.useState([]) as any;
-  const setDataAccounts = React.useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-    },
-    []
-  );
+  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>();
+  const [modalAction, setModalAction] =
+    React.useState<modalActionType>("create");
+  const [customerDetailState, setCustomerDetailState] =
+    React.useState<number>(1);
+  // history
+  React.useEffect(() => {
+    let queryObject: OrderSearchQuery = {
+      page: 1,
+      limit: 10,
+      sort_type: null,
+      sort_column: null,
+      code: null,
+      store_ids: [],
+      source_ids: [],
+      customer_ids: [params.id],
+      issued_on_min: null,
+      issued_on_max: null,
+      issued_on_predefined: null,
+      finalized_on_min: null,
+      finalized_on_max: null,
+      finalized_on_predefined: null,
+      ship_on_min: null,
+      ship_on_max: null,
+      ship_on_predefined: null,
+      expected_receive_on_min: null,
+      expected_receive_on_max: null,
+      expected_receive_predefined: null,
+      completed_on_min: null,
+      completed_on_max: null,
+      completed_on_predefined: null,
+      cancelled_on_min: null,
+      cancelled_on_max: null,
+      cancelled_on_predefined: null,
+      order_status: [],
+      order_sub_status: [],
+      fulfillment_status: [],
+      payment_status: [],
+      return_status: [],
+      account: [],
+      assignee: [],
+      price_min: undefined,
+      price_max: undefined,
+      payment_method_ids: [],
+      ship_by: null,
+      note: null,
+      customer_note: null,
+      tags: [],
+      reference_code: null,
+    };
+    dispatch(getListOrderAction(queryObject, setOrderHistoryItems));
+  }, [dispatch, params]);
 
+  const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
+    if (data) {
+      console.log("orderx", data.items);
+      setOrderHistory(data.items);
+    }
+  };
+  // end
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -70,87 +120,6 @@ const CustomerEdit = (props: any) => {
     setCustomerPoint(details);
   }, [customer, setCustomerPoint]);
 
-  const actionColumn = (handleEdit: any, handleDelete: any) => {
-    const _actionColumn = {
-      title: "",
-      visible: true,
-      width: "5%",
-      className: "saleorder-product-card-action ",
-      render: (l: any, item: any, index: number) => {
-        const menu = (
-          <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-            <Menu.Item key="1">
-              <Button
-                icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                }}
-                onClick={handleEdit}
-              >
-                Chỉnh sửa
-              </Button>
-            </Menu.Item>
-            {customerDetailState !== 2 && (
-              <Menu.Item key="2">
-                <Button
-                  icon={
-                    <img style={{ marginRight: 12 }} alt="" src={deleteIcon} />
-                  }
-                  type="text"
-                  className=""
-                  style={{
-                    paddingLeft: 24,
-                    background: "transparent",
-                    border: "none",
-                    color: "red",
-                  }}
-                  onClick={handleDelete}
-                >
-                  Xóa
-                </Button>
-              </Menu.Item>
-            )}
-          </Menu>
-        );
-        return (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "0 4px",
-            }}
-          >
-            <div
-              className="site-input-group-wrapper saleorder-input-group-wrapper"
-              style={{
-                borderRadius: 5,
-              }}
-            >
-              <Dropdown
-                overlay={menu}
-                trigger={["click"]}
-                placement="bottomRight"
-              >
-                <Button
-                  type="text"
-                  className="p-0 ant-btn-custom"
-                  icon={<img src={threeDot} alt=""></img>}
-                ></Button>
-              </Dropdown>
-            </div>
-          </div>
-        );
-      },
-    };
-    return _actionColumn;
-  };
-
-  // shiping column
-
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -175,10 +144,6 @@ const CustomerEdit = (props: any) => {
   }, [customer, setCustomerBuyDetail]);
 
   React.useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
-
-  React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params]);
   React.useEffect(() => {
@@ -192,11 +157,6 @@ const CustomerEdit = (props: any) => {
       });
     }
   }, [customer, customerForm]);
-
-  const [modalAction, setModalAction] =
-    React.useState<modalActionType>("create");
-  const [customerDetailState, setCustomerDetailState] =
-    React.useState<number>(1);
 
   interface ShipmentButtonModel {
     name: string | null;
@@ -231,10 +191,6 @@ const CustomerEdit = (props: any) => {
       icon: customerShipping,
     },
   ];
-
-  // add contact
-
-  console.log(customer);
 
   return (
     <ContentContainer
@@ -351,6 +307,9 @@ const CustomerEdit = (props: any) => {
                 ))}
               </Space>
             </div>
+            {customerDetailState === 1 && (
+              <CustomerHistoryInfo orderHistory={orderHistory} />
+            )}
             {customerDetailState === 2 && (
               <CustomerContactInfo
                 customer={customer}
@@ -360,6 +319,14 @@ const CustomerEdit = (props: any) => {
               />
             )}
 
+            {customerDetailState === 3 && (
+              <CustomerShippingInfo
+                customer={customer}
+                customerDetailState={customerDetailState}
+                setModalAction={setModalAction}
+                modalAction={modalAction}
+              />
+            )}
             {customerDetailState === 4 && (
               <CustomerShippingAddressInfo
                 customer={customer}
@@ -368,8 +335,8 @@ const CustomerEdit = (props: any) => {
                 modalAction={modalAction}
               />
             )}
-            {customerDetailState === 3 && (
-              <CustomerShippingInfo
+            {customerDetailState === 5 && (
+              <CustomerNoteInfo
                 customer={customer}
                 customerDetailState={customerDetailState}
                 setModalAction={setModalAction}
@@ -383,4 +350,4 @@ const CustomerEdit = (props: any) => {
   );
 };
 
-export default CustomerEdit;
+export default CustomerDetailIndex;

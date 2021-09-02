@@ -2,7 +2,7 @@ import { Row, Col,Checkbox } from "antd";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { PlusOutlined } from "@ant-design/icons";
-import CustomerModal from "../../customer/CustomerModal";
+import CustomerModal from "../../customer-modal";
 
 import {
   CreateBillingAddress,
@@ -16,10 +16,10 @@ import { showSuccess, showError } from "utils/ToastUtils";
 import UrlConfig from "config/url.config";
 import { billingAddress } from "model/response/customer/customer.response";
 import { CustomerBillingAddress } from "model/request/customer.request";
-import FormCustomerBillingAddress from "component/forms/FormCustomerBillingAddress";
+import FormCustomerBillingAddress from "screens/customer/customer-detail/customer-billing/billing.form.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import actionColumn from './action.column';
+import actionColumn from '../../common/action.column';
 
 function CustomerShippingInfo(props: any) {
   const { customer, customerDetailState, setModalAction, modalAction } = props;
@@ -288,7 +288,8 @@ function CustomerShippingInfo(props: any) {
           }}
         />
         <CustomerModal
-          saveBtnTitle="Tạo mới địa chỉ"
+          createBtnTitle="Tạo mới địa chỉ"
+          updateBtnTitle="Lưu địa chỉ"
           visible={isShowModalBilling}
           onCreate={(formValue: CustomerBillingAddress) =>
             handleBillingAddressForm.create(formValue)

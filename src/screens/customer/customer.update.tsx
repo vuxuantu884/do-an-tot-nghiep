@@ -37,7 +37,7 @@ import arrowLeft from "../../assets/icon/arrow-left.svg";
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
-const CustomerEdit = (props: any) => {
+const CustomerUpdate = (props: any) => {
   const params = useParams() as any;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -247,4 +247,4 @@ const CustomerEdit = (props: any) => {
   );
 };
 
-export default CustomerEdit;
+export default CustomerUpdate;

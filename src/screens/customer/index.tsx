@@ -17,9 +17,8 @@ import { SearchOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import React, { useMemo } from "react";
-import Popup from "./popup";
 import { useSelector } from "react-redux";
-import CustomerAdd from "./create.customer";
+import CustomerAdd from "./customer.create";
 import ButtonCreate from "component/header/ButtonCreate";
 import settingGearIcon from "../../assets/icon/setting-gear-icon.svg";
 import { RefSelectProps } from "antd/lib/select";
@@ -88,11 +87,7 @@ const Customer = () => {
     customer_level_id: null,
     responsible_staff_code: "",
   });
-  const [popup,] = React.useState({
-    visible: false,
-    x: 0,
-    y: 0,
-  });
+
   const [visible, setVisible] = React.useState<boolean>(false);
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
 
@@ -519,7 +514,6 @@ const Customer = () => {
             columns={columnFinal}
             rowKey={(item: any) => item.id}
           />
-          <Popup {...popup} />
         </div>
       </Card>
 

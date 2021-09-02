@@ -1,18 +1,11 @@
 import {
   Row,
   Col,
-  Button,
-  Dropdown,
-  Menu,
 } from "antd";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { PlusOutlined } from "@ant-design/icons";
-import { modalActionType } from "model/modal/modal.model";
-import CustomerModal from "../../customer/CustomerModal";
-import threeDot from "assets/icon/three-dot.svg";
-import editIcon from "assets/icon/edit.svg";
-import deleteIcon from "assets/icon/deleteIcon.svg";
+import CustomerModal from "../../customer-modal";
 
 import {
   CreateContact,
@@ -30,10 +23,10 @@ import {
 import {
   CustomerContact,
 } from "model/request/customer.request";
-import FormCustomerContact from "component/forms/FormCustomerContact";
+import FormCustomerContact from "screens/customer/customer-detail/customer-contact/contact.form.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import actionColumn from './action.column';
+import actionColumn from '../../common/action.column';
 
 function CustomerContactInfo(props: any) {
   const { customer, customerDetailState, setModalAction, modalAction } = props;
@@ -261,7 +254,8 @@ function CustomerContactInfo(props: any) {
           }}
         />
         <CustomerModal
-          saveBtnTitle="Tạo mới nhóm khách hàng"
+          createBtnTitle="Tạo mới thông tin liên hệ"
+          updateBtnTitle="Lưu thông tin liên hệ"
           visible={isShowModalContacts}
           onCreate={(formValue: CustomerContact) =>
             handleContactForm.create(formValue)

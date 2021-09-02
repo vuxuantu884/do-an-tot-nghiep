@@ -25,22 +25,26 @@ function CustomerInfo(props: any) {
           name: "Họ tên khách hàng",
           value: customer.full_name,
           position: "left",
+          key: "10",
         },
 
         {
           name: "Giới tính",
           value: genreEnum[customer.gender],
           position: "right",
+          key: "11",
         },
         {
           name: "Số điện thoại",
           value: customer.phone,
           position: "left",
+          key: "12",
         },
         {
           name: "Loại khách hàng",
           value: customer.customer_type,
           position: "right",
+          key: "13",
         },
         {
           name: "Ngày sinh",
@@ -48,11 +52,13 @@ function CustomerInfo(props: any) {
             ? moment(customer.birthday).format("DD/MM/YYYY")
             : null,
           position: "left",
+          key: "14",
         },
         {
           name: "Nhóm khách hàng",
           value: customer.customer_group,
           position: "right",
+          key: "15",
         },
       ];
     }
@@ -76,16 +82,19 @@ function CustomerInfo(props: any) {
             customer.responsible_staff ? "-" + customer.responsible_staff : ""
           }`,
           position: "right",
+          key: "1",
         },
         {
           name: "Email",
           value: customer.email,
           position: "left",
+          key: "2",
         },
         {
           name: "Mã khách hàng",
           value: customer.code,
           position: "right",
+          key: "3",
         },
         {
           name: "Ngày cưới",
@@ -93,22 +102,26 @@ function CustomerInfo(props: any) {
             ? moment(customer.wedding_date).format("DD/MM/YYYY")
             : null,
           position: "left",
+          key: "4",
         },
         {
           name: "Website/Facebook",
           value: customer.website,
           position: "right",
           isWebsite: true,
+          key: "5",
         },
         {
           name: "Tên đơn vị",
           value: customer.company,
           position: "left",
+          key: "6",
         },
         {
           name: "Mã số thuế",
           value: customer.tax_code,
           position: "right",
+          key: "7",
         },
         {
           name: "Địa chỉ",
@@ -118,11 +131,13 @@ function CustomerInfo(props: any) {
             customer.city ? " - " + customer.city : ""
           }`,
           position: "left",
+          key: "8",
         },
         {
           name: "Ghi chú",
           value: customer.description,
           position: "right",
+          key: "9",
         },
       ];
     }
@@ -174,7 +189,7 @@ function CustomerInfo(props: any) {
               .filter((detail: any) => detail.position === "left")
               .map((detail: any, index: number) => (
                 <Col
-                  key={index}
+                  key={detail.key}
                   span={24}
                   style={{
                     display: "flex",
@@ -212,7 +227,7 @@ function CustomerInfo(props: any) {
               .filter((detail: any) => detail.position === "right")
               .map((detail: any, index: number) => (
                 <Col
-                  key={index}
+                  key={detail.key}
                   span={24}
                   style={{
                     display: "flex",
@@ -259,7 +274,7 @@ function CustomerInfo(props: any) {
                       .filter((detail: any) => detail.position === "left")
                       .map((detail: any, index: number) => (
                         <Col
-                          key={index}
+                          key={detail.key}
                           span={24}
                           style={{
                             display: "flex",
@@ -297,7 +312,7 @@ function CustomerInfo(props: any) {
                       .filter((detail: any) => detail.position === "right")
                       .map((detail: any, index: number) => (
                         <Col
-                          key={index}
+                          key={detail.key}
                           span={24}
                           style={{
                             display: "flex",

@@ -30,13 +30,13 @@ import {
 } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import CustomInputContact from "./customInputContact";
+import CustomInputContact from "./common/customInputContact";
 
 const { Panel } = Collapse;
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
-const CustomerAdd = (props: any) => {
+const CustomerCreate = (props: any) => {
   const [customerForm] = Form.useForm();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -241,4 +241,4 @@ const CustomerAdd = (props: any) => {
   );
 };
 
-export default CustomerAdd;
+export default CustomerCreate;
