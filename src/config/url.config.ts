@@ -15,7 +15,6 @@ const UrlConfig = {
   STORE: `/stores`,
   ROLES: `/roles`,
   ORDER: `/orders`,
-  FPAGE_ORDER: `/fpage-orders`,
   ORDER_PROCESSING_STATUS: `/${SETTINGS}/order-processing-status`,
   ORDER_SOURCES: `/${SETTINGS}/order-source`,
   PRINTER: `/${SETTINGS}/printer`,

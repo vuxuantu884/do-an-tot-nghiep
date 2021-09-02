@@ -16,17 +16,15 @@ function CustomInput(props: any) {
   };
 
   React.useEffect(() => {
-    if(value) form.setFieldsValue({ [name]: value });
+    if (value) form.setFieldsValue({ [name]: value });
   }, [value, handleChange, form, name]);
 
+  
   return (
     <Form.Item
       name={name}
       label={<div>{label}</div>}
-      rules={[
-        { required: isRequired, message: `${message}` },
-        
-      ]}
+      rules={[{ required: isRequired, message: `${message}` }]}
     >
       <Input
         maxLength={maxLength}

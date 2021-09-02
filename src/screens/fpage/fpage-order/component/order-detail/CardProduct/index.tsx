@@ -130,8 +130,11 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [discountLineItem, setDiscountLineItem] =
     useState<OrderLineItemRequest | null>(null);
   //Function
-  const handleAddDiscountItemModal = () => { showAddDiscountItemModal(false)};
-  const handleCancelDiscountItemModal = () => {showAddDiscountItemModal(false)
+  const handleAddDiscountItemModal = () => {
+    showAddDiscountItemModal(false);
+  };
+  const handleCancelDiscountItemModal = () => {
+    showAddDiscountItemModal(false);
   };
   useEffect(() => {
     let _itemGifts: any = [];
@@ -387,31 +390,28 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
         <>
-        <div>
-          <NumberInput
-            format={(a: string) => formatCurrency(a)}
-            replace={(a: string) => replaceFormatString(a)}
-            placeholder="VD: 100,000"
-            style={{
-              textAlign: "right",
-              width: "100%",
-              fontWeight: 500,
-              color: "#222222",
-              marginTop: 20
-            }}
-            maxLength={14}
-            minLength={0}
-            value={l.price}
-            onChange={(value) => onChangePrice(value, index)}
-          />
-        </div>
-        <span
-        style={{fontSize: "12px" , color: "red"
-        }}
-      >
-        {formatCurrency(items ? items[index].discount_amount : 0)}
-      </span>
-      </>
+          <div>
+            <NumberInput
+              format={(a: string) => formatCurrency(a)}
+              replace={(a: string) => replaceFormatString(a)}
+              placeholder="VD: 100,000"
+              style={{
+                textAlign: "right",
+                width: "100%",
+                fontWeight: 500,
+                color: "#222222",
+                marginTop: 20,
+              }}
+              maxLength={14}
+              minLength={0}
+              value={l.price}
+              onChange={(value) => onChangePrice(value, index)}
+            />
+          </div>
+          <span style={{ fontSize: "12px", color: "red" }}>
+            {formatCurrency(items ? items[index].discount_amount : 0)}
+          </span>
+        </>
       );
     },
   };
@@ -798,7 +798,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   return (
     <Card
-     
       extra={
         <Space
           style={{
@@ -943,26 +942,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         visible={isVisibleGift}
       />
       <Table
-        locale={{
-          emptyText: (
-            <div className="sale_order_empty_product">
-              <img src={emptyProduct} alt="empty product"></img>
-              <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
-              <Button
-                type="text"
-                className="font-weight-500"
-                style={{
-                  background: "rgba(42,42,134,0.05)",
-                }}
-                onClick={() => {
-                  autoCompleteRef.current?.focus();
-                }}
-              >
-                Thêm sản phẩm ngay (F3)
-              </Button>
-            </div>
-          ),
-        }}
         rowKey={(record) => record.id}
         columns={columns}
         dataSource={items}
@@ -996,8 +975,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 {formatCurrency(getTotalAmount(items))}
               </div>
 
-              
-
               <div
                 style={{
                   width: "20%",
@@ -1018,23 +995,23 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       />
       <div style={{ padding: "12px 24px" }}>
         <Row className="sale-product-box-payment" gutter={24}>
-          <Col xs={24} lg={11}>
-            <div className="payment-row">
-              <Checkbox className="" style={{ fontWeight: 500 }}>
-                Bỏ chiết khấu tự động
-              </Checkbox>
-            </div>
-            <div className="payment-row">
-              <Checkbox className="" style={{ fontWeight: 500 }}>
-                Không tính thuế VAT
-              </Checkbox>
-            </div>
-            <div className="payment-row">
-              <Checkbox className="" style={{ fontWeight: 500 }}>
-                Bỏ tích điểm tự động
-              </Checkbox>
-            </div>
+          <Col span={12}>
+            <Checkbox className="payment-row" style={{ fontWeight: 500 }}>
+              Bỏ chiết khấu tự động
+            </Checkbox>
           </Col>
+          <Col span={12}>
+            <Checkbox className="payment-row" style={{ fontWeight: 500 }}>
+              Không tính thuế VAT
+            </Checkbox>
+          </Col>
+          <Col span={12}>
+            <Checkbox className="payment-row" style={{ fontWeight: 500 }}>
+              Bỏ tích điểm tự động
+            </Checkbox>
+          </Col>
+        </Row>
+        <Row>
           <Col xs={24} lg={10}>
             <Row
               className="payment-row"
@@ -1172,8 +1149,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         cancelText="Hủy"
         okText="Lưu"
         className="saleorder-product-modal"
-        cancelButtonProps={{ style: { display: 'none' } }}
-        okButtonProps={{ style: { display: 'none' } }}
+        cancelButtonProps={{ style: { display: "none" } }}
+        okButtonProps={{ style: { display: "none" } }}
       >
         <DiscountGroup
           price={discountLineItem ? discountLineItem.price : 0}

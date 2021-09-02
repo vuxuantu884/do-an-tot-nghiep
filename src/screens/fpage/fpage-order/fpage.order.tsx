@@ -9,11 +9,10 @@ import {
   Input,
   Row,
   Select,
-} from "antd";
+} from "antd"; 
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
-import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { orderCreateAction } from "domain/actions/order/order.action";
@@ -60,7 +59,7 @@ import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 
 var typeButton = "";
 export default function FpageOrders(props: any) {
-  const {customerDetail, setCustomerDetail} = props;
+  const {customerDetail, setCustomerDetail, setIsButtonSelected} = props;
   //#region State
   const dispatch = useDispatch();
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -105,7 +104,6 @@ export default function FpageOrders(props: any) {
   // const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
   //#rgion Customer
-
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
@@ -360,13 +358,15 @@ export default function FpageOrders(props: any) {
     (value: OrderResponse) => {
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
-        setTimeout(() => window.location.replace(UrlConfig.FPAGE), 500)
+        setCustomerDetail(null)
+        setIsButtonSelected(false)
+
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
       }
     },
-    []
+    [setCustomerDetail,setIsButtonSelected ]
   );
 
   //show modal save and confirm order ?
@@ -380,7 +380,7 @@ export default function FpageOrders(props: any) {
     setIsVisibleSaveAndConfirm(false);
   };
 
-  const onFinish = (values: OrderRequest) => {
+  const onFinishFpage = (values: OrderRequest) => {
     const element2: any = document.getElementById("save-and-confirm");
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
@@ -520,7 +520,7 @@ export default function FpageOrders(props: any) {
               element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
             window.scrollTo({ top: y, behavior: "smooth" });
           }}
-          onFinish={onFinish}
+          onFinish={onFinishFpage}
         >
           <Form.Item noStyle hidden name="action">
             <Input></Input>
