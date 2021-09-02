@@ -46,7 +46,6 @@ import { CustomerSearch } from "domain/actions/customer/customer.action";
 
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
-import { useQuery, getQueryParams } from "utils/useQuery";
 //#end region
 
 type CustomerCardProps = {

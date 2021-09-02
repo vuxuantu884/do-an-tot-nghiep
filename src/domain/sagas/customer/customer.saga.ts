@@ -54,31 +54,6 @@ function* onKeySearchCustomerChange(action: YodyAction) {
   }
 }
 
-function* onKeySearchOneCustomerChange(action: YodyAction) {
-  const { query, setData } = action.payload;
-  try {
-    if (query.request.length >= 3) {
-      const response: BaseResponse<PageResponse<CustomerResponse>> = yield call(
-        getCustomers,
-        query
-      );
-      switch (response.code) {
-        case HttpStatus.SUCCESS:
-          setData(response.data.items[0]);
-          break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
-        default:
-          response.errors.forEach((e) => showError(e));
-          break;
-      }
-    }
-  } catch (error) {
-    showError("Có lỗi vui lòng thử lại sau");
-  }
-}
-
 function* getCustomerList(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
@@ -118,7 +93,9 @@ function* getCustomerByPhone(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e) => showError(e));
+        setData(undefined)
+        response.errors.forEach((e) =>showError(e));
+        
         break;
     }
   } catch (error) {
@@ -586,10 +563,6 @@ export default function* customerSagas() {
   yield takeLatest(
     CustomerType.KEY_SEARCH_CUSTOMER_CHANGE,
     onKeySearchCustomerChange
-  );
-  yield takeLatest(
-    CustomerType.KEY_SEARCH_ONE_CUSTOMER_CHANGE,
-    onKeySearchOneCustomerChange
   );
   yield takeLatest(
     CustomerType.CUSTOMER_LIST,

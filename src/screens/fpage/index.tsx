@@ -1,16 +1,17 @@
 import React from "react";
-import FpageOrders from "./fpage-order/order.screen";
+import FpageOrders from "./fpage-order/fpage.order";
 import CustomerInformation from "./fpage-customer/create.customer";
-import "./fpage.index.scss";
 import { Divider } from "antd";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { useQuery, getQueryParams } from "utils/useQuery";
 import { useDispatch } from "react-redux";
 import { CustomerSearchQuery } from "model/query/customer.query";
-import { CustomerSearchOne } from "domain/actions/customer/customer.action";
+import { CustomerSearchByPhone  } from "domain/actions/customer/customer.action";
+import "./fpage.index.scss";
 
 const initQueryCustomer: CustomerSearchQuery = {
   request: "",
+  phone: null,
   limit: 10,
   page: 1,
   gender: null,
@@ -31,16 +32,39 @@ function FpageCRM() {
     React.useState<boolean>(false);
   const [customerDetail, setCustomerDetail] =
     React.useState<CustomerResponse>();
+  const [customerPhoneList, setCustomerPhoneList] = React.useState<Array<any>>([])
 
+  const searchOneCallback = (value: any) => {
+    console.log(value)
+    if(value !== undefined) {
+      setCustomerDetail(value)
+    }else{
+      setCustomerDetail(undefined)
+    }
+  }
+  
   React.useEffect(() => {
+    let list: any = []
     const phoneObj: any = { ...getQueryParams(phoneQuery) };
     const _queryObj = Object.keys(phoneObj);
     const value = phoneObj[_queryObj[0]];
-    if (value) {
-      initQueryCustomer.request = value;
-      dispatch(CustomerSearchOne(initQueryCustomer, setCustomerDetail));
+    if(!Array.isArray(value)){
+      list.push(value);
+    }else{
+      list = [...value]
     }
-  }, [dispatch]);
+    setCustomerPhoneList(list)
+
+    if (list) {
+      initQueryCustomer.phone = list[0];
+      dispatch(CustomerSearchByPhone(initQueryCustomer, searchOneCallback));
+    }
+  }, [dispatch, setCustomerPhoneList]);
+console.log("123")
+  const getCustomerWhenPhoneChange = React.useCallback((phoneNumber: any) => {
+    initQueryCustomer.phone = phoneNumber;
+    dispatch(CustomerSearchByPhone(initQueryCustomer, searchOneCallback));
+  },[dispatch])
   //Render result search
   return (
     <div className="fpage-customer-relationship">
@@ -72,12 +96,16 @@ function FpageCRM() {
           customerDetail={customerDetail}
           setCustomerDetail={setCustomerDetail}
           setIsButtonSelected={setIsButtonSelected}
+          customerPhoneList={customerPhoneList}
+          setCustomerPhoneList={setCustomerPhoneList}
+          getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
         />
       )}
       {isButtonSelected && (
         <FpageOrders
           customerDetail={customerDetail}
           setCustomerDetail={setCustomerDetail}
+          setIsButtonSelected = {setIsButtonSelected}
         />
       )}
     </div>

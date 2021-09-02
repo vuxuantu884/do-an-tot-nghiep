@@ -15,16 +15,15 @@ const GeneralInformation = (props: any) => {
     wards,
     handleChangeArea,
     AccountChangeSearch,
+    phones,
+    setPhones,
+    getCustomerWhenPhoneChange,
   } = props;
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
-  const [phones, setPhones] = React.useState<Array<String>>([
-    "0987654321",
-    "0123456789",
-    "+84987654321",
-  ]);
 
   const clickPhone = (p: any) => {
-    console.log(p);
+    form.setFieldsValue({ phone: p });
+    getCustomerWhenPhoneChange(p)
   };
   const deletePhone = (p: any, e: any) => {
     e.stopPropagation();
@@ -34,7 +33,6 @@ const GeneralInformation = (props: any) => {
     _phones.splice(index, 1);
     setPhones(_phones);
   };
-  console.log(phones);
   return (
     <Row gutter={24}>
       <Col span={24}>
@@ -98,7 +96,7 @@ const GeneralInformation = (props: any) => {
                 }}
               >
                 <Col span={16}>
-                  {phones.map((p, index) => (
+                  {phones && phones.map((p: any, index: any) => (
                     <Tag
                       key={index}
                       style={{ cursor: "pointer" }}
@@ -106,6 +104,7 @@ const GeneralInformation = (props: any) => {
                     >
                       {p}
                       <img
+                        alt="delete"
                         onClick={(e: any) => deletePhone(p, e)}
                         style={{ width: 16, marginBottom: 2 }}
                         src={XCloseBtn}
