@@ -4,6 +4,15 @@
       overflow-x: hidden !important;
       overflow-y: scroll;
     }
+    .ant-empty{
+      margin: 0;
+      .ant-empty-image{
+        margin: 0;
+      }
+      .ant-empty-img-simple{
+        width: 41px;
+      }
+    }
     .note-customer{
       .ant-form-item{
         flex-direction: column !important;

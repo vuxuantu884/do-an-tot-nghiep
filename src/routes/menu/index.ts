@@ -13,8 +13,6 @@ const Product = React.lazy(() => import ("screens/products/product/product.searc
 const Inventory = React.lazy(() => import ("screens/inverory"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
-// const CustomerAdd = React.lazy(() => import ("screens/customer/add"));
-const FpageCRM = React.lazy(() => import ("screens/fpage"));
 
 const menu: Array<RouteMenu> = [
   {
@@ -127,18 +125,6 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: setting,
-  },
-  {
-    path: "/fpage",
-    exact: true,
-    title: "Đừng để ý",
-    icon: 'icon-setting',
-    component: FpageCRM,
-    key: "99",
-    isShow: true,
-    header: null,
-    subMenu: [],
-    // subMenu: setting,
   },
 ]
 
