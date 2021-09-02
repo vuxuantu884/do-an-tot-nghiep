@@ -585,8 +585,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     <div>
       <div className="order-options">
         <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="true">
-          <Radio.Button value="true">Đơn hàng online</Radio.Button>
-          <Radio.Button value="false">Đơn hàng offline</Radio.Button>
+          <Radio.Button value="a">Tất cả đơn giao hàng</Radio.Button>
+          <Radio.Button value="b">Chờ lấy hàng</Radio.Button>
+          <Radio.Button value="c">Đang giao hàng</Radio.Button>
+          <Radio.Button value="d">Đã giao hàng</Radio.Button>
+          <Radio.Button value="e">Huỷ giao - Chờ nhận</Radio.Button>
+          <Radio.Button value="f">Huỷ giao - Đã nhận</Radio.Button>
         </Radio.Group>
       </div>
       <div className="order-filter">
@@ -595,7 +599,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Item name="search_term" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
-                placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
+                placeholder="Tìm kiếm theo mã đơn giao, mã đơn hàng, sđt người nhận"
               />
             </Item>
             
@@ -604,11 +608,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 Lọc
               </Button>
             </Item>
-            <Item>
+            {/* <Item>
               <Tooltip overlay="Lưu bộ lọc" placement="top">
                 <Button icon={<StarOutlined />} />
               </Tooltip>
-            </Item>
+            </Item> */}
             <Item>
               <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>

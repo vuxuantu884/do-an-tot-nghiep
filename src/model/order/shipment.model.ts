@@ -6,21 +6,23 @@ export interface Item {
 }
 
 export interface Shipment {
+  delivery_service_provider_id: number;
+  delivery_service_provider_type: string;
+  expected_received_date: string|null;
   id: number;
-  shipment: {
-    delivery_service_provider_id: number;
-    delivery_service_provider_name: string|null;
-    delivery_service_provider_type: string;
-    id: number
-  };
-  
-  status: string;
+  sender_address: object;
+  shipping_address: object;
+  shipping_fee_paid_to_three_pls: number;
+  service: string;
+  cancel_reason: string;
+  cod: number;
 }
 export interface ShipmentModel {
   id: number;
   order_id: string;
   customer: string;
-  shipment: ShipmentModel;
+  shipment: Shipment;
+  account_code: string;
   assignee_code: string;
   delivery_type: string;
   status: string;

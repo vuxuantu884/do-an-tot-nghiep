@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import ShipmentFilter from "component/filter/shipment.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { Item, ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
+import { Item, Shipment, ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
   AccountResponse,
   AccountSearchQuery,
@@ -167,14 +167,15 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Người nhận",
-      dataIndex: "shipment",
-      render: (shipment: any) => (
+      dataIndex: "shipping_address",
+      render: (shipping_address: any) => (
+        shipping_address && (
         <div className="customer">
-          {/* <div className="name">{shipment.name}</div>
-          <div>{shipment.phone}</div>
-          <div>{shipment.full_address}</div> */}
+          <div className="name">{shipping_address.name}</div>
+          <div>{shipping_address.phone}</div>
+          <div>{shipping_address.full_address}</div>
         </div>
-      ),
+      )),
       key: "customer",
       visible: true,
     },
@@ -200,10 +201,10 @@ const ListOrderScreen: React.FC = () => {
     
     {
       title: "Tiền COD",
-      dataIndex: "shipment.cod",
-      render: (value: number) => (
+      dataIndex: "shipment",
+      render: (value) => (
         <NumberFormat
-          value={value}
+          value={value.cod}
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
@@ -214,7 +215,20 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Hình thức vận chuyển",
-      dataIndex: "delivery_type",
+      dataIndex: "shipment",
+      render: (shipment: Shipment) => {
+        const service_id = shipment.delivery_service_provider_id
+        const service = delivery_service.find(service => service.id === service_id)
+        return(
+          service && (
+            <img
+              src={service.logo ? service.logo : ""}
+              alt=""
+              style={{ width: "200px", height: "41px" }}
+            />
+          )
+        )
+      },
       key: "shipment.type",
       visible: true,
       // width: '250px'
@@ -325,7 +339,7 @@ const ListOrderScreen: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDER}/list?${queryParam}`);
+      history.replace(`${UrlConfig.SHIPMENTS}?${queryParam}`);
     },
     [history, params]
   );
@@ -335,8 +349,8 @@ const ListOrderScreen: React.FC = () => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      console.log('filter start', `${UrlConfig.ORDER}/list?${queryParam}`)
-      history.push(`${UrlConfig.ORDER}/list?${queryParam}`);
+      console.log('filter start', `${UrlConfig.SHIPMENTS}?${queryParam}`)
+      history.push(`${UrlConfig.SHIPMENTS}?${queryParam}`);
     },
     [history, params]
   );
@@ -461,7 +475,7 @@ const ListOrderScreen: React.FC = () => {
           isRowSelection
           isLoading={tableLoading}
           // showColumnSetting={true}
-          scroll={{ x: 4320 }}
+          scroll={{ x: 3240 }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
