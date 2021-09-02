@@ -47,23 +47,34 @@ export const findCurrentRoute = (
   routes: Array<RouteMenu> = [],
   path: string = ""
 ) => {
-  let obj = {
-    current: "",
-    subMenu: "",
-  };
+  let current: Array<string> = [];
+  let subMenu: Array<string> = [];
   routes.forEach((route) => {
-    if (path.includes(route.path)) {
-      obj.current = route.key;
-    }
     if (route.subMenu.length > 0) {
       route.subMenu.forEach((item) => {
-        if (path.includes(item.path)) {
-          obj.current = item.key;
-          obj.subMenu = route.key;
+        if (item.subMenu.length > 0 && item.showMenuThird) {
+          item.subMenu.forEach((item1) => {
+            if (path === item1.path) {
+              current.push(item1.key);
+              subMenu.push(route.key);
+              subMenu.push(item.key);
+            }
+          });
+        }
+        if (path === item.path) {
+          current.push(item.key);
+          subMenu.push(route.key);
         }
       });
     }
+    if (path === route.path) {
+      current.push(route.key);
+    }
   });
+  let obj = {
+    current: current,
+    subMenu: subMenu,
+  };
   return obj;
 };
 

@@ -210,7 +210,8 @@ function* poPrintSaga(action: YodyAction) {
   const { id, updatePrintCallback } = action.payload;
   try {
     let response: Array<PurchaseOrderPrint> = yield call(getPrintContent, id);
-    return updatePrintCallback(response);
+    console.log('response print', response);
+    updatePrintCallback(response);
   } catch (error) {
     console.log("error ", error);
     showError("Có lỗi vui lòng thử lại sau");
