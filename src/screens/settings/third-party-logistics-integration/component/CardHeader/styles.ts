@@ -2,12 +2,12 @@ import styled from "styled-components";
 
 export const StyledComponent = styled.div`
   .cardHeader {
+    align-items: center;
     display: flex;
     justify-content: space-between;
-    align-items: center;
     &__left {
-      display: flex;
       align-items: center;
+      display: flex;
     }
     .name {
       margin-bottom: 0;

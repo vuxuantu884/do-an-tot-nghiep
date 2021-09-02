@@ -23,21 +23,21 @@ import CustomFilter from "component/table/custom.filter";
 import { StarOutlined, SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
-import { OrderSearchQuery } from "model/order/order.model";
+import { ShipmentSearchQuery } from "model/order/shipment.model";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
-  params: OrderSearchQuery;
+  params: ShipmentSearchQuery;
   actions: Array<MenuAction>;
   listSource: Array<SourceResponse>;
   listStore: Array<StoreResponse>| undefined;
   accounts: Array<AccountResponse>;
   deliveryService: Array<any>;
   onMenuClick?: (index: number) => void;
-  onFilter?: (values: OrderSearchQuery| Object) => void;
+  onFilter?: (values: ShipmentSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
 };
@@ -100,8 +100,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
   const onChangeOrderOptions = useCallback((e) => {
     console.log('ok lets go', e.target.value);
-    
-  }, []);
+    onFilter && onFilter({...params, is_online: e.target.value});
+  }, [onFilter, params]);
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -123,25 +123,29 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const onChangeRangeDate = useCallback(
     (dates, dateString, type) => {
       console.log(dates, dateString, type)
-      switch(type) {
-        case 'issued':
-          setIssuedOnMin(dateString[0])
-          setIssuedOnMax(dateString[1])
-          break;
-        case 'ship':
-          setShipOnMin(dateString[0])
-          setShipOnMax(dateString[1])
-          break;
-        case 'completed':
-          setCompletedOnMin(dateString[0])
-          setCompletedOnMax(dateString[1])
-          break;
-        case 'cancelled':
-          setCancelledOnMin(dateString[0])
-          setCancelledOnMax(dateString[1])
-          break;  
-        default: break
-      }
+      // switch(type) {
+      //   case 'issued':
+      //     setIssuedOnMin(dateString[0])
+      //     setIssuedOnMax(dateString[1])
+      //     break;
+      //   case 'ship':
+      //     setShipOnMin(dateString[0])
+      //     setShipOnMax(dateString[1])
+      //     break;
+      //   case 'completed':
+      //     setCompletedOnMin(dateString[0])
+      //     setCompletedOnMax(dateString[1])
+      //     break;
+      //   case 'cancelled':
+      //     setCancelledOnMin(dateString[0])
+      //     setCancelledOnMax(dateString[1])
+      //     break;
+      //   case 'expected':
+      //     setExpectedReceiveOnMin(dateString[0])
+      //     setExpectedReceiveOnMax(dateString[1])
+      //     break;   
+      //   default: break
+      // }
     },
     []
   );
@@ -158,28 +162,36 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'source':
           onFilter && onFilter({...params, source_ids: []});
           break;
-        case 'issued':
-          setIssuedOnMin(null)
-          setIssuedOnMax(null)
-          onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
-          break;
-        case 'ship':
-          setShipOnMin(null)
-          setShipOnMax(null)
-          onFilter && onFilter({...params, ship_on_min: null, ship_on_max: null});
-          break;
-        case 'completed':
-          setCompletedOnMin(null)
-          setCompletedOnMax(null)
-          onFilter && onFilter({...params, completed_on_min: null, completed_on_max: null});
-          break;
-        case 'cancelled':
-          setCancelledOnMin(null)
-          setCancelledOnMax(null)
-          onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
-          break;
+        // case 'issued':
+        //   setIssuedOnMin(null)
+        //   setIssuedOnMax(null)
+        //   onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
+        //   break;
+        // case 'ship':
+        //   setShipOnMin(null)
+        //   setShipOnMax(null)
+        //   onFilter && onFilter({...params, ship_on_min: null, ship_on_max: null});
+        //   break;
+        // case 'completed':
+        //   setCompletedOnMin(null)
+        //   setCompletedOnMax(null)
+        //   onFilter && onFilter({...params, completed_on_min: null, completed_on_max: null});
+        //   break;
+        // case 'cancelled':
+        //   setCancelledOnMin(null)
+        //   setCancelledOnMax(null)
+        //   onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
+        //   break;
+        // case 'expected':
+        //   setExpectedReceiveOnMin(null)
+        //   setExpectedReceiveOnMax(null)
+        //   onFilter && onFilter({...params, expected_receive_on_min: null, expected_receive_on_max: null});
+        //   break;  
         case 'order_status':
           onFilter && onFilter({...params, order_status: []});
+          break;
+        case 'order_sub_status':
+          onFilter && onFilter({...params, order_sub_status: []});
           break;
         case 'fulfillment_status':
           onFilter && onFilter({...params, fulfillment_status: []});
@@ -264,26 +276,30 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     console.log('minValue', minValue);
     console.log('maxValue', maxValue);
     
-    switch(type) {
-      case 'issued':
-        setIssuedOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setIssuedOnMax(moment(maxValue, 'DD-MM-YYYY'))
-        break
-      case 'ship':
-        setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setShipOnMax(moment(maxValue, 'DD-MM-YYYY'))
-        break
-      case 'completed':
-        setCompletedOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setCompletedOnMax(moment(maxValue, 'DD-MM-YYYY'))
-        break
-      case 'cancelled':
-        setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
-        break
-      default:
-        break
-    }
+    // switch(type) {
+    //   case 'issued':
+    //     setIssuedOnMin(moment(minValue, 'DD-MM-YYYY'))
+    //     setIssuedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+    //     break
+    //   case 'ship':
+    //     setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
+    //     setShipOnMax(moment(maxValue, 'DD-MM-YYYY'))
+    //     break
+    //   case 'completed':
+    //     setCompletedOnMin(moment(minValue, 'DD-MM-YYYY'))
+    //     setCompletedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+    //     break
+    //   case 'cancelled':
+    //     setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
+    //     setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
+    //     break
+    //   case 'expected':
+    //     setExpectedReceiveOnMin(moment(minValue, 'DD-MM-YYYY'))
+    //     setExpectedReceiveOnMax(moment(maxValue, 'DD-MM-YYYY'))
+    //     break  
+    //   default:
+    //     break
+    // }
   }, []);
 
   const listSources = useMemo(() => {
@@ -292,203 +308,230 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const initialValues = useMemo(() => {
     return {
       ...params,
-      store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
-      source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
-      order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
-      fulfillment_status: Array.isArray(params.fulfillment_status) ? params.fulfillment_status : [params.fulfillment_status],
-      payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
-      return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
-      payment_method_ids: Array.isArray(params.payment_method_ids) ? params.payment_method_ids : [params.payment_method_ids],
-      tags: Array.isArray(params.tags) ? params.tags : [params.tags],
-      assignee: Array.isArray(params.assignee) ? params.assignee : [params.assignee],
-      account: Array.isArray(params.account) ? params.account : [params.account],
+      // store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
+      // source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
+      // order_status: Array.isArray(params.order_status) ? params.order_status : [params.order_status],
+      // order_sub_status: Array.isArray(params.order_sub_status) ? params.order_sub_status : [params.order_sub_status],
+      // fulfillment_status: Array.isArray(params.fulfillment_status) ? params.fulfillment_status : [params.fulfillment_status],
+      // payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
+      // return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
+      // payment_method_ids: Array.isArray(params.payment_method_ids) ? params.payment_method_ids : [params.payment_method_ids],
+      // tags: Array.isArray(params.tags) ? params.tags : [params.tags],
+      // assignee: Array.isArray(params.assignee) ? params.assignee : [params.assignee],
+      // account: Array.isArray(params.account) ? params.account : [params.account],
   }}, [params])
-  const [issuedOnMin, setIssuedOnMin] = useState(initialValues.issued_on_min? moment(initialValues.issued_on_min, "DD-MM-YYYY") : null);
-  const [issuedOnMax, setIssuedOnMax] = useState(initialValues.issued_on_max? moment(initialValues.issued_on_max, "DD-MM-YYYY") : null);
-  const [shipOnMin, setShipOnMin] = useState(initialValues.ship_on_min? moment(initialValues.ship_on_min, "DD-MM-YYYY") : null);
-  const [shipOnMax, setShipOnMax] = useState(initialValues.ship_on_max? moment(initialValues.ship_on_max, "DD-MM-YYYY") : null);
-  const [completedOnMin, setCompletedOnMin] = useState(initialValues.completed_on_min? moment(initialValues.completed_on_min, "DD-MM-YYYY") : null);
-  const [completedOnMax, setCompletedOnMax] = useState(initialValues.completed_on_min? moment(initialValues.completed_on_min, "DD-MM-YYYY") : null);
-  const [cancelledOnMin, setCancelledOnMin] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
-  const [cancelledOnMax, setCancelledOnMax] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
+  // const [issuedOnMin, setIssuedOnMin] = useState(initialValues.issued_on_min? moment(initialValues.issued_on_min, "DD-MM-YYYY") : null);
+  // const [issuedOnMax, setIssuedOnMax] = useState(initialValues.issued_on_max? moment(initialValues.issued_on_max, "DD-MM-YYYY") : null);
+  // const [shipOnMin, setShipOnMin] = useState(initialValues.ship_on_min? moment(initialValues.ship_on_min, "DD-MM-YYYY") : null);
+  // const [shipOnMax, setShipOnMax] = useState(initialValues.ship_on_max? moment(initialValues.ship_on_max, "DD-MM-YYYY") : null);
+  // const [completedOnMin, setCompletedOnMin] = useState(initialValues.completed_on_min? moment(initialValues.completed_on_min, "DD-MM-YYYY") : null);
+  // const [completedOnMax, setCompletedOnMax] = useState(initialValues.completed_on_max? moment(initialValues.completed_on_max, "DD-MM-YYYY") : null);
+  // const [cancelledOnMin, setCancelledOnMin] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
+  // const [cancelledOnMax, setCancelledOnMax] = useState(initialValues.cancelled_on_max? moment(initialValues.cancelled_on_max, "DD-MM-YYYY") : null);
+  // const [expectedReceiveOnMin, setExpectedReceiveOnMin] = useState(initialValues.expected_receive_on_min? moment(initialValues.expected_receive_on_min, "DD-MM-YYYY") : null);
+  // const [expectedReceiveOnMax, setExpectedReceiveOnMax] = useState(initialValues.expected_receive_on_max? moment(initialValues.expected_receive_on_max, "DD-MM-YYYY") : null);
   const onFinish = useCallback(
     (values) => {
       console.log('values filter 2', values);
-      console.log('issuedOnMin', issuedOnMin);
       const valuesForm = {
         ...values,
-        issued_on_min: issuedOnMin ? moment(issuedOnMin, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
-        issued_on_max: issuedOnMax ? moment(issuedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        ship_on_min: shipOnMin ? moment(shipOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        ship_on_max: shipOnMax ? moment(shipOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        completed_on_min: completedOnMin ? moment(completedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        completed_on_max: completedOnMax ? moment(completedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        cancelled_on_min: cancelledOnMin ? moment(cancelledOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        cancelled_on_max: cancelledOnMax ? moment(cancelledOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        // issued_on_min: issuedOnMin ? moment(issuedOnMin, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
+        // issued_on_max: issuedOnMax ? moment(issuedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        // ship_on_min: shipOnMin ? moment(shipOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        // ship_on_max: shipOnMax ? moment(shipOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        // completed_on_min: completedOnMin ? moment(completedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        // completed_on_max: completedOnMax ? moment(completedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        // cancelled_on_min: cancelledOnMin ? moment(cancelledOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        // cancelled_on_max: cancelledOnMax ? moment(cancelledOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        // expected_receive_on_min: expectedReceiveOnMin ? moment(expectedReceiveOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        // expected_receive_on_max: expectedReceiveOnMax ? moment(expectedReceiveOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
       }
       onFilter && onFilter(valuesForm);
     },
-    [cancelledOnMax, cancelledOnMin, completedOnMax, completedOnMin, issuedOnMax, issuedOnMin, onFilter, shipOnMax, shipOnMin]
+    []
+    // [cancelledOnMax, cancelledOnMin, completedOnMax, completedOnMin, expectedReceiveOnMax, expectedReceiveOnMin, issuedOnMax, issuedOnMin, onFilter, shipOnMax, shipOnMin]
   );
   let filters = useMemo(() => {
     let list = []
     // console.log('filters initialValues', initialValues);
-    if (initialValues.store_ids.length) {
-      let textStores = ""
-      initialValues.store_ids.forEach(store_id => {
-        const store = listStore?.find(store => store.id.toString() === store_id)
-        textStores = store ? textStores + store.name + ";" : textStores
-      })
-      list.push({
-        key: 'store',
-        name: 'Cửa hàng',
-        value: textStores
-      })
-    }
-    if (initialValues.source_ids.length) {
-      let textSource = ""
-      initialValues.source_ids.forEach(source_id => {
-        const source = listSources?.find(source => source.id.toString() === source_id)
-        textSource = source ? textSource + source.name + ";" : textSource
-      })
-      list.push({
-        key: 'source',
-        name: 'Nguồn',
-        value: textSource
-      })
-    }
-    if (initialValues.issued_on_min || initialValues.issued_on_max) {
-      let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
-      list.push({
-        key: 'issued',
-        name: 'Ngày tạo đơn',
-        value: textOrderCreateDate
-      })
-    }
-    if (initialValues.ship_on_min || initialValues.ship_on_max) {
-      let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
-      list.push({
-        key: 'ship',
-        name: 'Ngày duyệt đơn',
-        value: textOrderShipDate
-      })
-    }
-    if (initialValues.completed_on_min || initialValues.completed_on_max) {
-      let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
-      list.push({
-        key: 'completed',
-        name: 'Ngày hoàn tất đơn',
-        value: textOrderCompleteDate
-      })
-    }
-    if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
-      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
-      list.push({
-        key: 'cancelled',
-        name: 'Ngày huỷ đơn',
-        value: textOrderCancelDate
-      })
-    }
-    if (initialValues.order_status.length) {
-      let textStatus = ""
-      initialValues.order_status.forEach(i => {
-        const findStatus = status?.find(item => item.value === i)
-        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
-      })
-      list.push({
-        key: 'order_status',
-        name: 'Trạng thái đơn hàng',
-        value: textStatus
-      })
-    }
-    if (initialValues.fulfillment_status.length) {
-      let textStatus = ""
-      initialValues.fulfillment_status.forEach(i => {
-        const findStatus = fulfillmentStatus?.find(item => item.value === i)
-        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
-      })
-      list.push({
-        key: 'fulfillment_status',
-        name: 'Trạng thái giao hàng',
-        value: textStatus
-      })
-    }
+    // if (initialValues.store_ids.length) {
+    //   let textStores = ""
+    //   initialValues.store_ids.forEach(store_id => {
+    //     const store = listStore?.find(store => store.id.toString() === store_id)
+    //     textStores = store ? textStores + store.name + ";" : textStores
+    //   })
+    //   list.push({
+    //     key: 'store',
+    //     name: 'Cửa hàng',
+    //     value: textStores
+    //   })
+    // }
+    // if (initialValues.source_ids.length) {
+    //   let textSource = ""
+    //   initialValues.source_ids.forEach(source_id => {
+    //     const source = listSources?.find(source => source.id.toString() === source_id)
+    //     textSource = source ? textSource + source.name + ";" : textSource
+    //   })
+    //   list.push({
+    //     key: 'source',
+    //     name: 'Nguồn',
+    //     value: textSource
+    //   })
+    // }
+    // if (initialValues.issued_on_min || initialValues.issued_on_max) {
+    //   let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??') + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
+    //   list.push({
+    //     key: 'issued',
+    //     name: 'Ngày tạo đơn',
+    //     value: textOrderCreateDate
+    //   })
+    // }
+    // if (initialValues.ship_on_min || initialValues.ship_on_max) {
+    //   let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
+    //   list.push({
+    //     key: 'ship',
+    //     name: 'Ngày duyệt đơn',
+    //     value: textOrderShipDate
+    //   })
+    // }
+    // if (initialValues.completed_on_min || initialValues.completed_on_max) {
+    //   let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
+    //   list.push({
+    //     key: 'completed',
+    //     name: 'Ngày hoàn tất đơn',
+    //     value: textOrderCompleteDate
+    //   })
+    // }
+    // if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
+    //   let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
+    //   list.push({
+    //     key: 'cancelled',
+    //     name: 'Ngày huỷ đơn',
+    //     value: textOrderCancelDate
+    //   })
+    // }
 
-    if (initialValues.payment_status.length) {
-      let textStatus = ""
-      initialValues.payment_status.forEach(i => {
-        const findStatus = paymentStatus?.find(item => item.value === i)
-        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
-      })
-      list.push({
-        key: 'payment_status',
-        name: 'Trạng thái thanh toán',
-        value: textStatus
-      })
-    }
+    // if (initialValues.expected_receive_on_min || initialValues.expected_receive_on_max) {
+    //   let textExpectReceiveDate = (initialValues.expected_receive_on_min ? initialValues.expected_receive_on_min : '??') + " ~ " + (initialValues.expected_receive_on_max ? initialValues.expected_receive_on_max : '??')
+    //   list.push({
+    //     key: 'expected',
+    //     name: 'Ngày dự kiến nhận hàng',
+    //     value: textExpectReceiveDate
+    //   })
+    // }
+    // if (initialValues.order_status.length) {
+    //   let textStatus = ""
+    //   initialValues.order_status.forEach(i => {
+    //     const findStatus = status?.find(item => item.value === i)
+    //     textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+    //   })
+    //   list.push({
+    //     key: 'order_status',
+    //     name: 'Trạng thái đơn hàng',
+    //     value: textStatus
+    //   })
+    // }
+    // if (initialValues.order_sub_status.length) {
+    //   let textStatus = ""
+      
+    //   initialValues.order_sub_status.forEach(i => {
+    //     const findStatus = subStatus?.find(item => item.id.toString() === i)
+    //     textStatus = findStatus ? textStatus + findStatus.sub_status + ";" : textStatus
+    //   })
+    //   list.push({
+    //     key: 'order_sub_status',
+    //     name: 'Trạng thái xử lý đơn',
+    //     value: textStatus
+    //   })
+    // }
+    // if (initialValues.fulfillment_status.length) {
+    //   let textStatus = ""
+    //   initialValues.fulfillment_status.forEach(i => {
+    //     const findStatus = fulfillmentStatus?.find(item => item.value === i)
+    //     textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+    //   })
+    //   list.push({
+    //     key: 'fulfillment_status',
+    //     name: 'Trạng thái giao hàng',
+    //     value: textStatus
+    //   })
+    // }
 
-    if (initialValues.assignee.length) {
-      let textAccount = ""
-      initialValues.assignee.forEach(i => {
-        const findAccount = accounts?.find(item => item.code === i)
-        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
-      })
-      list.push({
-        key: 'assignee',
-        name: 'Nhân viên bán hàng',
-        value: textAccount
-      })
-    }
+    // if (initialValues.payment_status.length) {
+    //   let textStatus = ""
+    //   initialValues.payment_status.forEach(i => {
+    //     const findStatus = paymentStatus?.find(item => item.value === i)
+    //     textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+    //   })
+    //   list.push({
+    //     key: 'payment_status',
+    //     name: 'Trạng thái thanh toán',
+    //     value: textStatus
+    //   })
+    // }
 
-    if (initialValues.account.length) {
-      let textAccount = ""
-      initialValues.account.forEach(i => {
-        const findAccount = accounts?.find(item => item.code === i)
-        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
-      })
-      list.push({
-        key: 'account',
-        name: 'Nhân viên tạo đơn',
-        value: textAccount
-      })
-    }
+    // if (initialValues.assignee.length) {
+    //   let textAccount = ""
+    //   initialValues.assignee.forEach(i => {
+    //     const findAccount = accounts?.find(item => item.code === i)
+    //     textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+    //   })
+    //   list.push({
+    //     key: 'assignee',
+    //     name: 'Nhân viên bán hàng',
+    //     value: textAccount
+    //   })
+    // }
 
-    if (initialValues.price_min || initialValues.price_max) {
-      let textPrice = (initialValues.price_min ? initialValues.price_min : " ?? ") + " ~ " + (initialValues.price_max ? initialValues.price_max : " ?? ")
-      list.push({
-        key: 'price',
-        name: 'Tổng tiền',
-        value: textPrice
-      })
-    }
+    // if (initialValues.account.length) {
+    //   let textAccount = ""
+    //   initialValues.account.forEach(i => {
+    //     const findAccount = accounts?.find(item => item.code === i)
+    //     textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+    //   })
+    //   list.push({
+    //     key: 'account',
+    //     name: 'Nhân viên tạo đơn',
+    //     value: textAccount
+    //   })
+    // }
 
-    if (initialValues.payment_method_ids.length) {
-      let textStatus = ""
-      initialValues.payment_method_ids.forEach(i => {
-        const findStatus = paymentType?.find(item => item.value.toString() === i)
-        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
-      })
-      list.push({
-        key: 'payment_method',
-        name: 'Phương thức thanh toán',
-        value: textStatus
-      })
-    }
-    if (initialValues.ship_by) {
-      const findSerivice = deliveryService.find(item => item.id.toString() === initialValues.ship_by)
-      list.push({
-        key: 'ship_by',
-        name: 'Hình thức vận chuyển',
-        value: findSerivice.name
-      })
-    }
-    if (initialValues.expected_receive_predefined) {
-      list.push({
-        key: 'expected_receive_predefined',
-        name: 'Ngày dự kiến nhận hàng',
-        value: initialValues.expected_receive_predefined
-      })
-    }
+    // if (initialValues.price_min || initialValues.price_max) {
+    //   let textPrice = (initialValues.price_min ? initialValues.price_min : " ?? ") + " ~ " + (initialValues.price_max ? initialValues.price_max : " ?? ")
+    //   list.push({
+    //     key: 'price',
+    //     name: 'Tổng tiền',
+    //     value: textPrice
+    //   })
+    // }
+
+    // if (initialValues.payment_method_ids.length) {
+    //   let textStatus = ""
+    //   initialValues.payment_method_ids.forEach(i => {
+    //     const findStatus = paymentType?.find(item => item.value.toString() === i)
+    //     textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+    //   })
+    //   list.push({
+    //     key: 'payment_method',
+    //     name: 'Phương thức thanh toán',
+    //     value: textStatus
+    //   })
+    // }
+    // if (initialValues.ship_by) {
+    //   const findSerivice = deliveryService.find(item => item.id.toString() === initialValues.ship_by)
+    //   list.push({
+    //     key: 'ship_by',
+    //     name: 'Hình thức vận chuyển',
+    //     value: findSerivice.name
+    //   })
+    // }
+    // if (initialValues.expected_receive_predefined) {
+    //   list.push({
+    //     key: 'expected_receive_predefined',
+    //     name: 'Ngày dự kiến nhận hàng',
+    //     value: initialValues.expected_receive_predefined
+    //   })
+    // }
     if (initialValues.note) {
       list.push({
         key: 'note',
@@ -517,16 +560,18 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (initialValues.reference_code) {
-      list.push({
-        key: 'reference_code',
-        name: 'Mã tham chiếu',
-        value: initialValues.reference_code
-      })
-    }
+    // if (initialValues.reference_code) {
+    //   list.push({
+    //     key: 'reference_code',
+    //     name: 'Mã tham chiếu',
+    //     value: initialValues.reference_code
+    //   })
+    // }
     // console.log('filters list', list);
     return list
-  }, [accounts, deliveryService, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status]);
+  },
+  [accounts, deliveryService, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status]
+  );
 
   
 
@@ -539,10 +584,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   return (
     <div>
       <div className="order-options">
-        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="a">
-          <Radio.Button value="a">Tất cả đơn hàng</Radio.Button>
-          <Radio.Button value="b">Đơn hàng online</Radio.Button>
-          <Radio.Button value="c">Đơn hàng offline</Radio.Button>
+        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="true">
+          <Radio.Button value="a">Tất cả đơn giao hàng</Radio.Button>
+          <Radio.Button value="b">Chờ lấy hàng</Radio.Button>
+          <Radio.Button value="c">Đang giao hàng</Radio.Button>
+          <Radio.Button value="d">Đã giao hàng</Radio.Button>
+          <Radio.Button value="e">Huỷ giao - Chờ nhận</Radio.Button>
+          <Radio.Button value="f">Huỷ giao - Đã nhận</Radio.Button>
         </Radio.Group>
       </div>
       <div className="order-filter">
@@ -551,7 +599,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Item name="search_term" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
-                placeholder="Tìm kiếm theo ID đơn hàng, tên, sđt khách hàng"
+                placeholder="Tìm kiếm theo mã đơn giao, mã đơn hàng, sđt người nhận"
               />
             </Item>
             
@@ -560,11 +608,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 Lọc
               </Button>
             </Item>
-            <Item>
+            {/* <Item>
               <Tooltip overlay="Lưu bộ lọc" placement="top">
                 <Button icon={<StarOutlined />} />
               </Tooltip>
-            </Item>
+            </Item> */}
             <Item>
               <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
             </Item>
@@ -588,7 +636,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="KHO CỬA HÀNG" key="1" className="header-filter">
                     <Item name="store_ids">
                       <CustomSelect
@@ -596,6 +644,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         showArrow
                         showSearch
                         placeholder="Cửa hàng"
+                        notFoundContent="Không tìm thấy kết quả"
                         style={{
                           width: '100%'
                         }}
@@ -623,7 +672,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.source_ids.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="NGUỒN ĐƠN HÀNG" key="1" className="header-filter">
                     <Item name="source_ids" style={{ margin: "10px 0px" }}>
                       <CustomSelect
@@ -662,7 +711,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.issued_on_min && initialValues.issued_on_max ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status && initialValues.status ? ["1"]: []}>
                   <Panel header="NGÀY TẠO ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
                       <Button onClick={() => clickOptionDate('issued', 'yesterday')}>Hôm qua</Button>
@@ -678,7 +727,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      value={[issuedOnMin? moment(issuedOnMin, "DD-MM-YYYY") : null, issuedOnMax? moment(issuedOnMax, "DD-MM-YYYY") : null]}
+                      // value={[issuedOnMin? moment(issuedOnMin, "DD-MM-YYYY") : null, issuedOnMax? moment(issuedOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'issued')}
                     />
                   </Panel>
@@ -704,7 +753,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      value={[shipOnMin? moment(shipOnMin, "DD-MM-YYYY") : null, shipOnMax? moment(shipOnMax, "DD-MM-YYYY") : null]}
+                      // value={[shipOnMin? moment(shipOnMin, "DD-MM-YYYY") : null, shipOnMax? moment(shipOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'ship')}
                     />
                   </Panel>
@@ -713,7 +762,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.completed_on_min && initialValues.completed_on_max ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status && initialValues.status ? ["1"]: []}>
                   <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
                       <Button onClick={() => clickOptionDate('completed', 'yesterday')}>Hôm qua</Button>
@@ -729,7 +778,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      value={[completedOnMin? moment(completedOnMin, "DD-MM-YYYY") : null, completedOnMax? moment(completedOnMax, "DD-MM-YYYY") : null]}
+                      // value={[completedOnMin? moment(completedOnMin, "DD-MM-YYYY") : null, completedOnMax? moment(completedOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'completed')}
                     />
                   </Panel>
@@ -754,7 +803,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      value={[cancelledOnMin? moment(cancelledOnMin, "DD-MM-YYYY") : null, cancelledOnMax? moment(cancelledOnMax, "DD-MM-YYYY") : null]}
+                      // value={[cancelledOnMin? moment(cancelledOnMin, "DD-MM-YYYY") : null, cancelledOnMax? moment(cancelledOnMax, "DD-MM-YYYY") : null]}
                       onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'cancelled')}
                     />
                   </Panel>
@@ -763,10 +812,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.order_status.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI ĐƠN HÀNG" key="1" className="header-filter">
                     <Item name="order_status">
-                    <Select mode="multiple" showSearch placeholder="Chọn trạng thái đơn hàng" style={{width: '100%'}}>
+                    <Select mode="multiple" showSearch placeholder="Chọn trạng thái đơn hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                       {status?.map((item) => (
                         <Option key={item.value} value={item.value.toString()}>
                           {item.name}
@@ -781,10 +830,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.fulfillment_status.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="GIAO HÀNG" key="1" className="header-filter">
                     <Item name="fulfillment_status">
-                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái giao hàng" style={{width: '100%'}}>
+                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái giao hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                           {fulfillmentStatus.map((item, index) => (
                             <Option
                               style={{ width: "100%" }}
@@ -802,10 +851,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.payment_status.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="THANH TOÁN" key="1" className="header-filter">
                     <Item name="payment_status">
-                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" style={{width: '100%'}}>
+                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                         {paymentStatus.map((item, index) => (
                           <Option
                             style={{ width: "100%" }}
@@ -821,33 +870,31 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 </Collapse>
               </Col>
             </Row>
-            {/* <Row gutter={12} style={{marginTop: '10px'}}>
+            <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="TRẢ HÀNG" key="1" className="header-filter">
                     <Item name="payment_status">
-                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái thanh toán" style={{width: '100%'}}>
-                        {paymentStatus.map((item, index) => (
-                          <Option
-                            style={{ width: "100%" }}
-                            key={index.toString()}
-                            value={item.value.toString()}
-                          >
-                            {item.name}
-                          </Option>
-                        ))}
+                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái trả hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
+                        <Option
+                          style={{ width: "100%" }}
+                          key="1"
+                          value="1"
+                        >
+                          Pending trạng thái trả hàng
+                        </Option>
                       </Select>
                     </Item>
                   </Panel>
                 </Collapse>
               </Col>
-            </Row> */}
+            </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.assignee.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN BÁN HÀNG" key="1" className="header-filter">
                     <Item name="assignee">
-                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng" style={{width: '100%'}}>
+                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                           {accounts.map((item, index) => (
                             <Option
                               style={{ width: "100%" }}
@@ -865,10 +912,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.account.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1" className="header-filter">
                     <Item name="account">
-                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" style={{width: '100%'}}>
+                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
                         {accounts.map((item, index) => (
                           <Option
                             style={{ width: "100%" }}
@@ -886,7 +933,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}} className="price">
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.price_min || initialValues.price_max ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status || initialValues.status ? ["1"]: []}>
                   <Panel header="TỔNG TIỀN" key="1" className="header-filter">
                     <Input.Group compact>
                       <Item name="price_min" style={{ width: '45%', textAlign: 'center' }}>
@@ -917,10 +964,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.payment_method_ids.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="PHƯƠNG THỨC THANH TOÁN" key="1" className="header-filter">
                     <Item name="payment_method_ids">
-                    <Select mode="multiple" optionFilterProp="children" showSearch placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}>
+                    <Select mode="multiple" optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả" placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}>
                       {paymentType.map((item, index) => (
                         <Option
                           style={{ width: "100%" }}
@@ -936,27 +983,37 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 </Collapse>
               </Col>
             </Row>
-            {/* <Row gutter={12} style={{marginTop: '10px'}}>
+            <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.store_ids.length ? ["1"]: []}>
-                  <Panel header="NGÀY DỰ KIẾN NHẬN HÀNG" key="1" className="header-filter">
-                    <Item name="expected_receive_predefined">
-                      <DatePicker
-                        placeholder="Chọn ngày"
-                        format="DD-MM-YYYY"
-                        style={{width: "100%"}}
-                      />
-                    </Item>
+                <Collapse defaultActiveKey={initialValues.status && initialValues.status ? ["1"]: []}>
+                  <Panel header="NGÀY DỰ KIẾN NHÂN HÀNG" key="1" className="header-filter">
+                    <div className="date-option">
+                      <Button onClick={() => clickOptionDate('expected', 'yesterday')}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('expected', 'today')}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('expected', 'thisweek')}>Tuần này</Button>
+                    </div>
+                    <div className="date-option">
+                      <Button onClick={() => clickOptionDate('expected', 'lastweek')}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('expected', 'thismonth')}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('expected', 'lastmonth')}>Tháng trước</Button>
+                    </div>
+                    <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
+                    <DatePicker.RangePicker
+                      format="DD-MM-YYYY"
+                      style={{width: "100%"}}
+                      // value={[expectedReceiveOnMin? moment(expectedReceiveOnMin, "DD-MM-YYYY") : null, expectedReceiveOnMax? moment(expectedReceiveOnMax, "DD-MM-YYYY") : null]}
+                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'expected')}
+                    />
                   </Panel>
                 </Collapse>
               </Col>
-            </Row> */}
+            </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.ship_by ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status ? ["1"]: []}>
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
                     <Item name="ship_by">
-                      <Select optionFilterProp="children" showSearch placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
+                      <Select optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả" placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
                         {/* <Option value="">Hình thức vận chuyển</Option> */}
                         {deliveryService?.map((item) => (
                           <Option key={item.id} value={item.id.toString()}>
@@ -1006,7 +1063,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.reference_code ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.status ? ["1"]: []}>
                   <Panel header="MÃ THAM CHIẾU" key="1" className="header-filter">
                     <Item name="reference_code">
                       <Input placeholder="Tìm kiếm theo mã tham chiếu"/>

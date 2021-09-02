@@ -1,22 +1,40 @@
 import { Card, Form, Table } from "antd";
+import Checkbox from "antd/lib/checkbox/Checkbox";
 import Column from "antd/lib/table/Column";
 import { StyledComponent } from "./styles";
 
-type PropType = {};
+type PropType = {
+  initialFormValue: any;
+};
 
 function SelectThirdPartyLogistic(props: PropType) {
-  const EditableUsersTable = (props: any) => {
+  const { initialFormValue } = props;
+  console.log("props", props);
+  const ThirdPartyLogisticsTable = (props: any) => {
     const { third_party_logistics } = props;
+    console.log("third_party_logistics", third_party_logistics);
     return (
       <Table dataSource={third_party_logistics} pagination={false}>
         <Column
-          dataIndex="deliver_company"
           title={"Hãng vận chuyển"}
-          render={(value, row, index) => {
+          render={(value, row: any, index) => {
             return (
-              <Form.Item name={[index, "value_date_from"]}>
-                Hãng vận chuyển
-              </Form.Item>
+              <>
+                <Form.Item valuePropName="checked" name={[index, "checked"]}>
+                  <Checkbox>
+                    <div className="inner">
+                      <div className="image">
+                        <img
+                          src={value.logo}
+                          alt=""
+                          style={{ width: 136, marginRight: 15 }}
+                        />
+                      </div>
+                      <h4 className="title">{value.name}</h4>
+                    </div>
+                  </Checkbox>
+                </Form.Item>
+              </>
             );
           }}
         />
@@ -24,10 +42,11 @@ function SelectThirdPartyLogistic(props: PropType) {
           dataIndex="fast_deliver"
           title={"Dịch vụ"}
           colSpan={2}
+          className="columnService"
           render={(value, row, index) => {
             return (
-              <Form.Item name={[index, "value_date_from"]}>
-                Giao nhanh
+              <Form.Item valuePropName="checked" name={[index, "fast_deliver"]}>
+                <Checkbox>Giao nhanh</Checkbox>
               </Form.Item>
             );
           }}
@@ -36,7 +55,11 @@ function SelectThirdPartyLogistic(props: PropType) {
           dataIndex="slow_deliver"
           colSpan={0}
           render={(value, row, index) => {
-            return <Form.Item name={[index, "fee"]}>Giao chậm</Form.Item>;
+            return (
+              <Form.Item valuePropName="checked" name={[index, "slow_deliver"]}>
+                <Checkbox>Giao chậm</Checkbox>
+              </Form.Item>
+            );
           }}
         />
       </Table>
@@ -49,8 +72,9 @@ function SelectThirdPartyLogistic(props: PropType) {
         <Form.List name="third_party_logistics">
           {(third_party_logistics) => {
             return (
-              <EditableUsersTable
-                third_party_logistics={third_party_logistics}
+              <ThirdPartyLogisticsTable
+                initialFormValue={initialFormValue}
+                third_party_logistics={initialFormValue.third_party_logistics}
               />
             );
           }}
