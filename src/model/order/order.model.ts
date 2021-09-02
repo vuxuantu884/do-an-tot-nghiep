@@ -91,7 +91,7 @@ export interface OrderSearchQuery {
   cancelled_on_max: string|null;
   cancelled_on_predefined: string|null;
   order_status: [];
-  sub_status: [],
+  order_sub_status: [],
   fulfillment_status: [];
   payment_status: [];
   return_status: [];

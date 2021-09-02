@@ -39,7 +39,7 @@ const menu: Array<RouteMenu> = [
 
   },
   {
-    path: "/inventory",
+    path: "/kho",
     exact: true,
     title: "Kho hàng",
     icon: 'icon-inventory',

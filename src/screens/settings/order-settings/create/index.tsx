@@ -1,7 +1,13 @@
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Form, Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import { DeliveryServicesGetList } from "domain/actions/order/order.action";
+import { DeliveryServiceResponse } from "model/response/order/order.response";
 import moment from "moment";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
 // import { useHistory } from "react-router-dom";
 import OrderSettingInformation from "./OrderSettingInformation";
 import OrderSettingValue from "./OrderSettingValue";
@@ -11,88 +17,12 @@ import { StyledComponent } from "./styles";
 type PropType = {};
 
 function OrderSettings(props: PropType) {
-  // const FAKE_LOGISTIC_SETTINGS = [
-  //   {
-  //     key: "1",
-  //     name: "Phí ship free đơn từ 499k, 20k đơn nhỏ hơn 499k 1",
-  //     style: "Kiểu 1",
-  //     date: "15:30 25/08/2021 - 12:00 31/21/2022 1",
-  //     isActive: true,
-  //   },
-  //   {
-  //     key: "2",
-  //     name: "Phí ship free đơn từ 499k, 20k đơn nhỏ hơn 499k 2",
-  //     style: "Kiểu 2",
-  //     date: "15:30 25/08/2021 - 12:00 31/21/2022 2",
-  //     isActive: false,
-  //   },
-  //   {
-  //     key: "3",
-  //     name: "Phí ship free đơn từ 499k, 20k đơn nhỏ hơn 499k 3",
-  //     style: "Kiểu 3",
-  //     date: "15:30 25/08/2021 - 12:00 31/21/2022 3",
-  //     isActive: true,
-  //   },
-  // ];
-
-  // const onChange = (checked: any) => {
-  //   console.log("checked", checked);
-  // };
-
-  // const FAKE_LOGISTIC_SETTINGS_COLUMN = [
-  //   {
-  //     title: "STT",
-  //     render: (value: any, row: any, index: number) => {
-  //       return <span>{index + 1}</span>;
-  //     },
-  //   },
-  //   {
-  //     title: "Tiêu đề",
-  //     dataIndex: "name",
-  //     key: "name",
-  //   },
-  //   {
-  //     title: "Sau",
-  //     dataIndex: "style",
-  //     key: "style",
-  //   },
-  //   {
-  //     title: "Thời gian áp dụng",
-  //     dataIndex: "date",
-  //     key: "date",
-  //   },
-  //   {
-  //     title: "Áp dụng",
-  //     dataIndex: "isActive",
-  //     key: "isActive",
-
-  //     render: (value: any, row: any, index: number) => {
-  //       return <CheckOutlined />;
-  //     },
-  //   },
-  //   {
-  //     title: "",
-  //     render: (value: any, row: any, index: number) => {
-  //       return <MoreOutlined />;
-  //     },
-  //   },
-  // ];
-
-  // const [tableLoading, setTableLoading] = useState(false);
-
-  // const history = useHistory();
-
+  const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const history = useHistory();
 
-  // const renderCardExtra = () => {
-  //   return (
-  //     <div>
-  //       Cho phép bán khi tồn kho <Switch defaultChecked onChange={onChange} />
-  //     </div>
-  //   );
-  // };
-
-  const initialFormValue = {
+  const [isLoadedData, setIsLoadedData] = useState(false);
+  const [initialFormValue, setInitialFormValue] = useState({
     from_date: null,
     to_date: null,
     print_size: null,
@@ -102,25 +32,25 @@ function OrderSettings(props: PropType) {
     type: null,
     users: [
       {
-        age: 1,
+        value_date_from: moment("2015-01-01", "YYYY-MM-DD HH:mm"),
         value_date_to: moment("2015-01-01", "YYYY-MM-DD HH:mm"),
+      },
+      {
+        value_date_from: moment("2017-01-01", "YYYY-MM-DD HH:mm"),
+        value_date_to: moment("2017-01-01", "YYYY-MM-DD HH:mm"),
       },
     ],
     third_party_logistics: [
       {
-        age: 1,
-        value_date_to: moment("2015-01-01", "YYYY-MM-DD HH:mm"),
-      },
-      {
-        age: 1,
-        value_date_to: moment("2015-01-01", "YYYY-MM-DD HH:mm"),
+        key: 0,
+        checked: false,
+        name: "",
+        logo: "",
+        fast_deliver: false,
+        slow_deliver: false,
       },
     ],
-  };
-
-  // const goToPageDetail = (id: string | number) => {
-  //   history.replace(`${UrlConfig.PRINTER}/${id}`);
-  // };
+  });
 
   const handleSubmitForm = () => {
     form.validateFields().then((formValue: any) => {
@@ -128,6 +58,43 @@ function OrderSettings(props: PropType) {
       console.log("formValue.from_date", formValue.from_date?._d);
     });
   };
+
+  const handleClickExit = () => {
+    history.push(UrlConfig.ORDER_SETTINGS);
+  };
+
+  useEffect(() => {
+    const fetchBusinesses = () => {};
+    fetchBusinesses();
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        let listDeliveryService = [];
+        listDeliveryService = response.map((single) => {
+          return {
+            checked: false,
+            key: single.id,
+            name: single.name,
+            logo: single.logo,
+            fast_deliver: false,
+            slow_deliver: false,
+          };
+        });
+        console.log("listDeliveryService", listDeliveryService);
+        let abc = {
+          ...initialFormValue,
+          third_party_logistics: listDeliveryService,
+        };
+        console.log("abc", abc);
+        setInitialFormValue({
+          ...initialFormValue,
+          third_party_logistics: listDeliveryService,
+        });
+        form.resetFields();
+        setIsLoadedData(true);
+      })
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, form]);
 
   return (
     <StyledComponent>
@@ -151,11 +118,38 @@ function OrderSettings(props: PropType) {
           },
         ]}
       >
-        <Form form={form} layout="vertical" initialValues={initialFormValue}>
-          <OrderSettingInformation />
-          <OrderSettingValue />
-          <SelectThirdPartyLogistic />
-        </Form>
+        {isLoadedData && (
+          <Form form={form} layout="vertical" initialValues={initialFormValue}>
+            <OrderSettingInformation />
+            <OrderSettingValue />
+            <SelectThirdPartyLogistic initialFormValue={initialFormValue} />
+          </Form>
+        )}
+        <div className="groupButtons">
+          <div className="groupButtons__left">
+            <Link to={UrlConfig.ORDER_SETTINGS}>
+              <ArrowLeftOutlined style={{ marginRight: 10 }} />
+              Quay lại cấu hình đơn hàng
+            </Link>
+          </div>
+          <div className="groupButtons__right">
+            <Button
+              onClick={() => {
+                handleClickExit();
+              }}
+            >
+              Hủy
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                handleSubmitForm();
+              }}
+            >
+              Lưu
+            </Button>
+          </div>
+        </div>
         <Button onClick={() => handleSubmitForm()}>Lưu</Button>
       </ContentContainer>
     </StyledComponent>

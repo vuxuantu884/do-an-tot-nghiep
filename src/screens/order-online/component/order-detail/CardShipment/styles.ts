@@ -12,8 +12,8 @@ export const StyledComponent = styled.div`
     }
   }
   .formInputAmount {
+    color: #222;
     text-align: right;
     width: 100%;
-    color: #222;
   }
 `;
