@@ -15,7 +15,7 @@ export interface CustomModalFormModel {
   moreFormArguments?: any;
 }
 export interface CustomModalType {
-  saveBtnTitle: string | null;
+  createBtnTitle: string | null;
   visible: boolean;
   onCreate: (formValue: any) => void;
   onEdit: (formValue: any) => void;
@@ -31,12 +31,12 @@ export interface CustomModalType {
   updateBtnTitle?: string;
   componentForm: React.FC<CustomModalFormModel>;
   formItem: any;
-  moreFormArguments?: any; 
+  moreFormArguments?: any;
 }
 
 const CustomModal = (props: CustomModalType) => {
   const {
-    saveBtnTitle,
+    createBtnTitle,
     visible,
     onCreate,
     onEdit,
@@ -71,8 +71,10 @@ const CustomModal = (props: CustomModalType) => {
       setIsShowConfirmDelete(false);
     },
     edit: () => {
-      setVisibleForm(false);
-      onEdit(form.getFieldsValue());
+      form.validateFields().then(() => {
+        setVisibleForm(false);
+        onEdit(form.getFieldsValue());
+      });
     },
   };
 
@@ -95,7 +97,7 @@ const CustomModal = (props: CustomModalType) => {
               type="primary"
               onClick={() => formAction.create()}
             >
-              {saveBtnTitle}
+              {createBtnTitle}
             </Button>
           </div>
         );

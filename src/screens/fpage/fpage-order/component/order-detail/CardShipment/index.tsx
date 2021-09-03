@@ -415,7 +415,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               </Form.Item>
             </Col>
           </Row>
-          <Col span={24} style={{ paddingLeft: 0 }}>
+          <Col span={24} style={{ padding: 0 }}>
             <Form.Item name="requirements" label="Yêu cầu:">
               <Select
                 className="select-with-search"

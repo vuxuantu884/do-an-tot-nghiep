@@ -1,13 +1,16 @@
 import React from "react";
 import FpageOrders from "./fpage-order/fpage.order";
-import CustomerInformation from "./fpage-customer/create.customer";
+import FpageCustomer from "./fpage-customer/create.customer";
 import { Divider } from "antd";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { useQuery, getQueryParams } from "utils/useQuery";
 import { useDispatch } from "react-redux";
 import { CustomerSearchQuery } from "model/query/customer.query";
-import { CustomerSearchByPhone  } from "domain/actions/customer/customer.action";
+import { CustomerSearchByPhone } from "domain/actions/customer/customer.action";
 import "./fpage.index.scss";
+import { getListOrderAction } from "domain/actions/order/order.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import {OrderModel,OrderSearchQuery } from "model/order/order.model";
 
 const initQueryCustomer: CustomerSearchQuery = {
   request: "",
@@ -32,39 +35,100 @@ function FpageCRM() {
     React.useState<boolean>(false);
   const [customerDetail, setCustomerDetail] =
     React.useState<CustomerResponse>();
+  const [isClearOrderField, setIsClearOrderField] =
+    React.useState<boolean>(false);
   const [customerPhoneList, setCustomerPhoneList] = React.useState<Array<any>>([])
+  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>();
 
-  const searchOneCallback = (value: any) => {
-    console.log(value)
-    if(value !== undefined) {
-      setCustomerDetail(value)
-    }else{
-      setCustomerDetail(undefined)
+  const searchByPhoneCallback = (value: any) => {
+    console.log(value);
+    if (value !== undefined) {
+      setCustomerDetail(value);
+    } else {
+      setCustomerDetail(undefined);
+    }
+  };
+
+
+  React.useEffect(() => {
+    if(customerDetail && customerDetail.id != null && customerDetail.id != undefined){
+    let queryObject:OrderSearchQuery = {
+      page: 1,
+      limit: 10,
+      sort_type: null,
+      sort_column: null,
+      code: null,
+      store_ids: [],
+      source_ids: [],
+      customer_ids: [customerDetail.id],
+      issued_on_min: null,
+      issued_on_max: null,
+      issued_on_predefined: null,
+      finalized_on_min: null,
+      finalized_on_max: null,
+      finalized_on_predefined: null,
+      ship_on_min: null,
+      ship_on_max: null,
+      ship_on_predefined: null,
+      expected_receive_on_min: null,
+      expected_receive_on_max: null,
+      expected_receive_predefined: null,
+      completed_on_min: null,
+      completed_on_max: null,
+      completed_on_predefined: null,
+      cancelled_on_min: null,
+      cancelled_on_max: null,
+      cancelled_on_predefined: null,
+      order_status: [],
+      order_sub_status: [],
+      fulfillment_status: [],
+      payment_status: [],
+      return_status: [],
+      account: [],
+      assignee: [],
+      price_min: undefined,
+      price_max: undefined,
+      payment_method_ids: [],
+      ship_by: null,
+      note: null,
+      customer_note: null,
+      tags: [],
+      reference_code: null
+    }
+    dispatch(getListOrderAction(queryObject, setOrderHistoryItems));
+  }
+  }, [dispatch, customerDetail]);
+
+  const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
+    if(data){
+      console.log("orderx",data.items)
+      setOrderHistory(data.items);
     }
   }
   
   React.useEffect(() => {
-    let list: any = []
+    let list: any = [];
     const phoneObj: any = { ...getQueryParams(phoneQuery) };
     const _queryObj = Object.keys(phoneObj);
     const value = phoneObj[_queryObj[0]];
-    if(!Array.isArray(value)){
-      list.push(value);
-    }else{
-      list = [...value]
-    }
-    setCustomerPhoneList(list)
 
-    if (list) {
-      initQueryCustomer.phone = list[0];
-      dispatch(CustomerSearchByPhone(initQueryCustomer, searchOneCallback));
+    if (value) {
+      if (!Array.isArray(value)) {
+        list.push(value);
+      } else {
+        list = [...value];
+      }
     }
-  }, [dispatch, setCustomerPhoneList]);
-console.log("123")
-  const getCustomerWhenPhoneChange = React.useCallback((phoneNumber: any) => {
-    initQueryCustomer.phone = phoneNumber;
-    dispatch(CustomerSearchByPhone(initQueryCustomer, searchOneCallback));
-  },[dispatch])
+    setCustomerPhoneList(list);
+  }, [setCustomerPhoneList]);
+
+  const getCustomerWhenPhoneChange = React.useCallback(
+    (phoneNumber: any) => {
+      initQueryCustomer.phone = phoneNumber;
+      dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
+    },
+    [dispatch]
+  );
   //Render result search
   return (
     <div className="fpage-customer-relationship">
@@ -80,7 +144,10 @@ console.log("123")
           KHÁCH HÀNG
         </div>
         <div
-          onClick={() => setIsButtonSelected(true)}
+          onClick={() => {
+            setIsButtonSelected(true);
+            setIsClearOrderField(false);
+          }}
           className={
             isButtonSelected
               ? "fpage-customer-btn fpage-btn-active"
@@ -91,25 +158,29 @@ console.log("123")
         </div>
       </div>
       <Divider />
-      {!isButtonSelected && (
-        <CustomerInformation
+      <div style={{ display: !isButtonSelected ? "block" : "none" }}>
+        <FpageCustomer
           customerDetail={customerDetail}
           setCustomerDetail={setCustomerDetail}
           setIsButtonSelected={setIsButtonSelected}
           customerPhoneList={customerPhoneList}
           setCustomerPhoneList={setCustomerPhoneList}
           getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
+          orderHistory={orderHistory}
         />
-      )}
-      {isButtonSelected && (
-        <FpageOrders
-          customerDetail={customerDetail}
-          setCustomerDetail={setCustomerDetail}
-          setIsButtonSelected = {setIsButtonSelected}
-        />
-      )}
+      </div>
+      <div style={{ display: isButtonSelected ? "block" : "none" }}>
+        {!isClearOrderField && (
+          <FpageOrders
+            customerDetail={customerDetail}
+            setCustomerDetail={setCustomerDetail}
+            setIsButtonSelected={setIsButtonSelected}
+            setIsClearOrderField={setIsClearOrderField}
+          />
+        )}
+      </div>
     </div>
   );
-}
+        }
 
 export default FpageCRM;

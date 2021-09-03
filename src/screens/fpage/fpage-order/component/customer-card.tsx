@@ -43,7 +43,7 @@ import {
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import { CustomerSearch } from "domain/actions/customer/customer.action";
-
+import { RegUtil } from "utils/RegUtils";
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
 //#end region
@@ -53,7 +53,8 @@ type CustomerCardProps = {
   InfoCustomerSet: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
-  customerDetail: CustomerResponse | null
+  customerDetail: CustomerResponse | null;
+  setIsButtonSelected: (items: boolean) => void;
 };
 
 //Add query for search Customer
@@ -76,11 +77,11 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
-  const {customerDetail, setCustomerDetail} = props;
+  const { customerDetail, setCustomerDetail, setIsButtonSelected } = props;
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [isVisibleBilling, setVisibleBilling] = useState(true);
+  const [isVisibleBilling, setVisibleBilling] = useState(false);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
@@ -91,7 +92,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const autoCompleteRef = createRef<RefSelectProps>();
   //#region Modal
   const ShowAddressModal = () => {
-    setVisibleAddress(true);
+    setVisibleAddress(false);
   };
   console.log(resultSearch);
   const CancelConfirmAddress = useCallback(() => {
@@ -102,8 +103,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleAddress(false);
   }, []);
 
- 
-
   const CancelConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
@@ -112,8 +111,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleCustomer(false);
   }, []);
 
-  const ShowBillingAddress = () => {
-    setVisibleBilling(!isVisibleBilling);
+  const ShowBillingAddress = (e: any) => {
+    setVisibleBilling(e.target.checked);
   };
   //#end region
 
@@ -131,7 +130,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const fpageAutoFillCustomerInfor = () => {
     if (customerDetail) {
-      setCustomer(customerDetail)
+      setCustomer(customerDetail);
       props.InfoCustomerSet(customerDetail);
       //set Shipping Address
       if (customerDetail.shipping_addresses) {
@@ -157,8 +156,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   };
   //Render result search
   useEffect(() => {
-    fpageAutoFillCustomerInfor()
-  },[fpageAutoFillCustomerInfor])
+    fpageAutoFillCustomerInfor();
+  }, [fpageAutoFillCustomerInfor]);
 
   const CustomerRenderSearchResult = (item: CustomerResponse) => {
     return (
@@ -204,7 +203,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const CustomerDeleteInfo = () => {
     setCustomer(null);
     props.InfoCustomerSet(null);
-    setCustomerDetail(null)
+    setCustomerDetail(null);
+    setVisibleBilling(false);
   };
 
   //#end region
@@ -219,7 +219,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       );
       if (index !== -1) {
         setCustomer(resultSearch[index]);
-        setCustomerDetail(resultSearch[index])
+        setCustomerDetail(resultSearch[index]);
         props.InfoCustomerSet(resultSearch[index]);
 
         //set Shipping Address
@@ -254,7 +254,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
-
+  const handleCreateCustomer = () => {
+    setIsButtonSelected(false)
+    console.log(123);
+  };
   return (
     <Card
       extra={
@@ -262,7 +265,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           <Form.Item
             className="order-source-selected"
             name="source_id"
-            style={{ margin: "10px 0px"}}
+            style={{ margin: "10px 0px" }}
             rules={[
               {
                 required: true,
@@ -322,8 +325,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               dropdownRender={(menu) => (
                 <div>
                   <div
+                    onClick={() => handleCreateCustomer()}
                     className="row-search w-100"
-                    style={{ minHeight: "42px", lineHeight: "50px" }}
+                    style={{
+                      minHeight: "42px",
+                      lineHeight: "50px",
+                      cursor: "pointer",
+                    }}
                   >
                     <div className="rs-left w-100">
                       <div style={{ float: "left", marginLeft: "20px" }}>
@@ -522,7 +530,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         trigger="click"
                         className="change-shipping-address"
                       >
-                        <Button type="link" className="btn-style">
+                        <Button type="link" style={{ padding: 0 }}>
                           Thay đổi địa chỉ giao hàng
                         </Button>
                       </Popover>
@@ -566,13 +574,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </Row>
 
                 {customer.billing_addresses !== undefined && (
-                  <Row gutter={24} hidden={isVisibleBilling}>
+                  <Row
+                    gutter={24}
+                    hidden={!isVisibleBilling}
+                    style={{ marginTop: "10px" }}
+                  >
                     <Col
-                      xs={24}
-                      lg={12}
+                      span={12}
                       style={{
                         borderRight: "1px solid #E5E5E5",
-                        paddingTop: "14px",
                       }}
                       className="font-weight-500 customer-info-left"
                     >
@@ -659,16 +669,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           trigger="click"
                           className="change-shipping-address"
                         >
-                          <Button type="link" className="btn-style">
+                          <Button type="link" style={{ padding: 0 }}>
                             Thay đổi địa chỉ giao hàng
                           </Button>
                         </Popover>
                       </Row>
                     </Col>
                     <Col
-                      xs={24}
-                      lg={12}
-                      className="font-weight-500"
+                      span={12}
+                      className="font-weight-500 fpage-order-email"
                       style={{ padding: "0 12px" }}
                     >
                       <div>
@@ -683,11 +692,21 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         />
                         <span>Email gửi hóa đơn:</span>
                       </div>
-                      <Form.Item name="Email_note">
+                      <Form.Item
+                        style={{ marginTop: "10px" }}
+                        name="Email_note"
+                        // label={<b>Email gửi hóa đơn:</b>}
+                        rules={[
+                          {
+                            pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
+                            message: "Vui lòng nhập đúng định dạng email",
+                          },
+                        ]}
+                      >
                         <Input
-                          placeholder="Điền email"
                           maxLength={500}
-                          style={{ marginTop: "10px" }}
+                          type="text"
+                          placeholder="Nhập email"
                         />
                       </Form.Item>
                     </Col>
