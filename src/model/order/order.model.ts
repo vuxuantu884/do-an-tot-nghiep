@@ -2,6 +2,7 @@ export interface OrderItemModel {
   variant_id: number;
   quantity: number;
   sku: string;
+  variant:string;
 }
 export interface OrderPaymentModel {
   id: number;
