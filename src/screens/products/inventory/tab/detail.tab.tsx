@@ -1,9 +1,12 @@
 import { useEffect } from "react";
 
 const DetailTab: React.FC = () => {
+  useEffect(() => {
+      
+  }, []);
   return (
     <div className="padding-20" > 
-      Detail Tab
+
     </div>
   )
 }
