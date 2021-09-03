@@ -86,6 +86,7 @@ type CardProductProps = {
   orderSettings?: OrderSettingsModel;
   formRef: React.RefObject<FormInstance<any>>;
   onChangeProduct: (value: string) => void;
+  cardItemsParent?: Array<OrderLineItemRequest>;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -94,9 +95,10 @@ const initQueryVariant: VariantSearchQuery = {
 };
 
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
-  const { orderSettings, formRef } = props;
+  const { orderSettings, formRef, cardItemsParent } = props;
   const dispatch = useDispatch();
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
+  console.log("cardItemsParent", cardItemsParent);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
@@ -271,7 +273,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       </div>
     ),
     width: "30%",
-    className: "yody-pos-name",
+    className: "yody-pos-name 2",
     render: (l: OrderLineItemRequest, item: any, index: number) => {
       return (
         <div
@@ -752,6 +754,14 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     setIsInputSearchProductFocus(false);
   };
 
+  useEffect(() => {
+    if (cardItemsParent) {
+      console.log("cardItemsParent", cardItemsParent);
+      // setItems(cardItemsParent);
+      setIsShowProductSearch(true);
+    }
+  }, []);
+
   return (
     <Card
       className="margin-top-20"
@@ -1021,7 +1031,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                       color: "#5D5D8A",
                     }}
                   >
-                    Chiết khấu:
+                    Chiết khấu 1:
                   </Typography.Link>
                 ) : (
                   <div>Chiết khấu</div>
