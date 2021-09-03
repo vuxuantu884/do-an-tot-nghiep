@@ -18,6 +18,9 @@ const GeneralInformation = (props: any) => {
     phones,
     setPhones,
     getCustomerWhenPhoneChange,
+    customerId,
+    notes,
+    handleNote,
   } = props;
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
 
@@ -33,6 +36,15 @@ const GeneralInformation = (props: any) => {
     _phones.splice(index, 1);
     setPhones(_phones);
   };
+
+  const addNote = (e: any) => {
+    handleNote.create(e.target.defaultValue);
+  };
+
+  const deleteNote = (note: any, e: any) => {
+    handleNote.delete(note, customerId);
+  };
+
   return (
     <Row gutter={24}>
       <Col span={24}>
@@ -342,7 +354,20 @@ const GeneralInformation = (props: any) => {
           <Row gutter={12} style={{ padding: "16px" }}>
             <Col span={24}>
               <Form.Item label={<b>Ghi chú:</b>} name="note">
-                <Input.TextArea maxLength={500} placeholder="Nhập ghi chú" />
+                <Input.TextArea maxLength={500} placeholder="Viết ghi chú" onPressEnter={(e) => addNote(e)}/>
+                <div>
+                  {notes && notes.map((note: any) => (
+                    <div className="customer-note-item">
+                      <span key={note.id}>{note.content}</span>
+                      <img
+                        alt="delete"
+                        onClick={(e: any) => deleteNote(note, e)}
+                        style={{ width: 20, float: 'right', cursor: 'pointer' }}
+                        src={XCloseBtn}
+                      ></img>
+                    </div>
+                  ))}
+                </div>
               </Form.Item>
             </Col>
           </Row>

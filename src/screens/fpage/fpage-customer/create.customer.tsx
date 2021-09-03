@@ -8,6 +8,8 @@ import {
   CreateCustomer,
   CustomerGroups,
   CustomerTypes,
+  CreateNote,
+  DeleteNote,
 } from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
 import { WardResponse } from "model/content/ward.model";
@@ -18,7 +20,7 @@ import {
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { showSuccess } from "utils/ToastUtils";
+import { showSuccess, showError } from "utils/ToastUtils";
 import "./customer.scss";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -56,6 +58,8 @@ const CustomerAdd = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
+  const notes = customerDetail && customerDetail.notes;
+  const customerId = customerDetail && customerDetail.id;
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -206,6 +210,42 @@ const CustomerAdd = (props: any) => {
   const handleSubmitFail = (errorInfo: any) => {
     console.error("Failed:", errorInfo);
   };
+  
+  const reloadPage = () => {
+    getCustomerWhenPhoneChange(customerDetail.phone);
+  }
+  
+  const handleNote = {
+    create: (noteContent: any) => {
+      if (noteContent) {
+        dispatch(
+          CreateNote(customerDetail.id, {content: noteContent}, (data: any) => {
+            if (data) {
+              showSuccess("Thêm mới ghi chú thành công")
+              reloadPage();
+            } else {
+              showError("Thêm mới ghi chú thất bại");
+            }
+          })
+        );
+      }
+    },
+    delete: (note: any, customerId: any) => {
+      if (note && customerId) {
+        dispatch(
+          DeleteNote(note.id, customerId, (data: any) => {
+            if (data) {
+              showSuccess("Xóa ghi chú thành công")
+              reloadPage();
+            } else {
+              showError("Xóa ghi chú thất bại");
+            }
+          })
+        );
+      }
+    }
+  };
+
   return (
     <ContentContainer
       title=""
@@ -248,6 +288,9 @@ const CustomerAdd = (props: any) => {
               phones={customerPhoneList}
               setPhones={setCustomerPhoneList}
               getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
+              customerId={customerId}
+              notes={notes}
+              handleNote={handleNote}
             />
           </Col>
         </Row>
