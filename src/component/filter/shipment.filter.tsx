@@ -74,6 +74,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   // ], []);
   
   const formRef = createRef<FormInstance>();
+  const formSearchRef = createRef<FormInstance>();
 
   const onChangeOrderOptions = useCallback((e) => {
     console.log('ok lets go', e.target.value);
@@ -544,11 +545,16 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       </div>
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form onFinish={onFinish} initialValues={initialValues} layout="inline">
+          <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
             <Item name="search_term" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo mã đơn giao, mã đơn hàng, sđt người nhận"
+                onBlur={(e) => {
+                  formSearchRef?.current?.setFieldsValue({
+                    search_term: e.target.value.trim()
+                  })
+                }}
               />
             </Item>
             
@@ -574,6 +580,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
+          className="order-filter-drawer"
           width={500}
         >
           <Form
@@ -597,16 +604,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         style={{
                           width: '100%'
                         }}
-                        filterOption={(input, option) => {
-                          if (option) {
-                            return (
-                              option.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            );
-                          }
-                          return false;
-                        }}
+                        optionFilterProp="children"
                       >
                         {listStore?.map((item) => (
                           <CustomSelect.Option key={item.id} value={item.id.toString()}>
@@ -631,16 +629,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         showSearch
                         placeholder="Nguồn đơn hàng"
                         notFoundContent="Không tìm thấy kết quả"
-                        filterOption={(input, option) => {
-                          if (option) {
-                            return (
-                              option.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            );
-                          }
-                          return false;
-                        }}
+                        optionFilterProp="children"
                       >
                         {listSources.map((item, index) => (
                           <CustomSelect.Option
@@ -816,7 +805,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.print_status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI IN" key="1" className="header-filter">
                     <Item name="print_status">
-                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái in" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
+                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái in" notFoundContent="Không tìm thấy kết quả" optionFilterProp="children" style={{width: '100%'}}>
                           
                       </Select>
                     </Item>
@@ -829,7 +818,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1" className="header-filter">
                     <Item name="assignees">
-                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
+                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" notFoundContent="Không tìm thấy kết quả" optionFilterProp="children" style={{width: '100%'}}>
                         {accounts.map((item, index) => (
                           <Option
                             style={{ width: "100%" }}

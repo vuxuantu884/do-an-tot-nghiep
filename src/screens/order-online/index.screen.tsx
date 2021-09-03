@@ -107,7 +107,7 @@ const initQuery: OrderSearchQuery = {
   price_min: undefined,
   price_max: undefined,
   payment_method_ids: [],
-  ship_by: null,
+  delivery_types: [],
   note: null,
   customer_note: null,
   tags: [],
