@@ -1,9 +1,10 @@
-import { Form, Row, Col, Button, Table, Card } from "antd";
+import { Form, Row, Col, Button, Table, Card, Tooltip, Tag } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
   DistrictGetByCountryAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
+import urlCrimson from "assets/icon/url-crimson.svg";
 import {
   CreateCustomer,
   CustomerGroups,
@@ -42,7 +43,7 @@ const CustomerAdd = (props: any) => {
     customerPhoneList,
     setCustomerPhoneList,
     getCustomerWhenPhoneChange,
-    orderHistory
+    orderHistory,
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -74,33 +75,113 @@ const CustomerAdd = (props: any) => {
     },
     [dispatch, setDataAccounts]
   );
-  //mock
-  const recentOrder = [
+  //m
+
+  const status_order = [
+    {
+      name: "Nháp",
+      value: "draft",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Đóng gói",
+      value: "packed",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Xuất kho",
+      value: "shipping",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Đã xác nhận",
+      value: "finalized",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Hoàn thành",
+      value: "completed",
+      color: "#27AE60",
+      background: "rgba(39, 174, 96, 0.1)",
+    },
+    {
+      name: "Kết thúc",
+      value: "finished",
+      color: "#27AE60",
+      background: "rgba(39, 174, 96, 0.1)",
+    },
+    {
+      name: "Đã huỷ",
+      value: "cancelled",
+      color: "#ae2727",
+      background: "rgba(223, 162, 162, 0.1)",
+    },
+    {
+      name: "Đã hết hạn",
+      value: "expired",
+      color: "#ae2727",
+      background: "rgba(230, 171, 171, 0.1)",
+    },
+  ];
+
+  const recentOrder: any = [
     {
       title: "Ngày",
-      render: (value:any, row:any, index:any) => {
-        return <div >{moment(row.created_date).format("DD/MM/YYYY HH:mm:ss")}</div>;
+      render: (value: any, row: any, index: any) => {
+        return (
+          <div>{moment(row.created_date).format("DD/MM/YYYY HH:mm:ss")}</div>
+        );
       },
     },
     {
       title: "Tổng thu",
+      align: "center",
       dataIndex: "total_line_amount_after_line_discount",
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
+      align: "center",
+      render: (value: any, row: any, index: any) => {
+        const statusTag = status_order.find(
+          (status) => status.value === row.status
+        );
+        return (
+          <div>
+            <Tag
+              className="fpage-recent-tag"
+              style={{
+                color: `${statusTag?.color}`,
+                backgroundColor: `${statusTag?.background}`,
+              }}
+            >
+              {statusTag?.name}
+            </Tag>
+          </div>
+        );
+      },
     },
     {
-      title: "Chi tiết",
-      render: (value:any, row:any, index:any) => {
-        let href = "https://dev.yody.io/unicorn/admin/orders/".concat(row.id)
-        return <a target="blank" href = {href} >Chi tiết</a>;
+      title: "",
+      align: "center",
+      render: (value: any, row: any, index: any) => {
+        let href = `https://dev.yody.io/unicorn/admin/orders/${row.id}`;
+        return (
+          <Tooltip placement="topLeft" title="Xem chi tiết">
+            <a target="blank" href={href}>
+              <img src={urlCrimson} alt="link"></img>
+            </a>
+          </Tooltip>
+        );
       },
     },
   ];
 
-
-  //end mock
+  //end
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
@@ -154,7 +235,6 @@ const CustomerAdd = (props: any) => {
         full_address: customerDetail.full_address,
       };
       customerForm.setFieldsValue(field);
-      
     } else {
       const field = {
         full_name: null,
@@ -260,7 +340,11 @@ const CustomerAdd = (props: any) => {
             </div>
           }
         >
-          <Table columns={recentOrder} dataSource={orderHistory} pagination={false} />
+          <Table
+            columns={recentOrder}
+            dataSource={orderHistory}
+            pagination={false}
+          />
         </Card>
         <div className="customer-bottom-button">
           <Button

@@ -54,6 +54,7 @@ type CustomerCardProps = {
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
   customerDetail: CustomerResponse | null;
+  setIsButtonSelected: (items: boolean) => void;
 };
 
 //Add query for search Customer
@@ -76,7 +77,7 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
-  const { customerDetail, setCustomerDetail } = props;
+  const { customerDetail, setCustomerDetail, setIsButtonSelected } = props;
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -91,7 +92,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const autoCompleteRef = createRef<RefSelectProps>();
   //#region Modal
   const ShowAddressModal = () => {
-    setVisibleAddress(true);
+    setVisibleAddress(false);
   };
   console.log(resultSearch);
   const CancelConfirmAddress = useCallback(() => {
@@ -253,7 +254,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
-
+  const handleCreateCustomer = () => {
+    setIsButtonSelected(false)
+    console.log(123);
+  };
   return (
     <Card
       extra={
@@ -321,8 +325,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               dropdownRender={(menu) => (
                 <div>
                   <div
+                    onClick={() => handleCreateCustomer()}
                     className="row-search w-100"
-                    style={{ minHeight: "42px", lineHeight: "50px" }}
+                    style={{
+                      minHeight: "42px",
+                      lineHeight: "50px",
+                      cursor: "pointer",
+                    }}
                   >
                     <div className="rs-left w-100">
                       <div style={{ float: "left", marginLeft: "20px" }}>
@@ -521,7 +530,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         trigger="click"
                         className="change-shipping-address"
                       >
-                        <Button type="link" style={{padding: 0}} >
+                        <Button type="link" style={{ padding: 0 }}>
                           Thay đổi địa chỉ giao hàng
                         </Button>
                       </Popover>
@@ -565,7 +574,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </Row>
 
                 {customer.billing_addresses !== undefined && (
-                  <Row gutter={24} hidden={!isVisibleBilling} style={{ marginTop: "10px" }}>
+                  <Row
+                    gutter={24}
+                    hidden={!isVisibleBilling}
+                    style={{ marginTop: "10px" }}
+                  >
                     <Col
                       span={12}
                       style={{
@@ -656,7 +669,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           trigger="click"
                           className="change-shipping-address"
                         >
-                          <Button type="link" style={{padding: 0}} >
+                          <Button type="link" style={{ padding: 0 }}>
                             Thay đổi địa chỉ giao hàng
                           </Button>
                         </Popover>
@@ -680,7 +693,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         <span>Email gửi hóa đơn:</span>
                       </div>
                       <Form.Item
-                       style={{ marginTop: "10px"}}
+                        style={{ marginTop: "10px" }}
                         name="Email_note"
                         // label={<b>Email gửi hóa đơn:</b>}
                         rules={[
