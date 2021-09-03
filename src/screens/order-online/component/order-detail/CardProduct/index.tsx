@@ -86,7 +86,8 @@ type CardProductProps = {
   orderSettings?: OrderSettingsModel;
   formRef: React.RefObject<FormInstance<any>>;
   onChangeProduct: (value: string) => void;
-  cardItemsParent?: Array<OrderLineItemRequest>;
+  items?: Array<OrderLineItemRequest>;
+  handleCardItems: (items: Array<OrderLineItemRequest>) => void;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -95,10 +96,8 @@ const initQueryVariant: VariantSearchQuery = {
 };
 
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
-  const { orderSettings, formRef, cardItemsParent } = props;
+  const { orderSettings, formRef, items, handleCardItems } = props;
   const dispatch = useDispatch();
-  const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
-  console.log("cardItemsParent", cardItemsParent);
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
@@ -116,6 +115,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [isVisibleGift, setVisibleGift] = useState(false);
   const [indexItem, setIndexItem] = useState<number>(-1);
   const [amount, setAmount] = useState<number>(0);
+  console.log("amount", amount);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
   const [discountValue, setDiscountValue] = useState<number>(0);
@@ -125,78 +125,112 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
   const [isInputSearchProductFocus, setIsInputSearchProductFocus] =
     useState(false);
+
   //Function
+
+  const totalAmount = useCallback(
+    (items: Array<OrderLineItemRequest>) => {
+      if (!items) {
+        return 0;
+      }
+      let _items = [...items];
+      let _amount = 0;
+
+      _items.forEach((i) => {
+        let total_discount_items = 0;
+        i.discount_items.forEach((d) => {
+          total_discount_items = total_discount_items + d.value;
+        });
+        let amountItem = (i.price - total_discount_items) * i.quantity;
+        i.line_amount_after_line_discount = amountItem;
+        i.amount = i.price * i.quantity;
+        _amount += amountItem;
+        if (i.amount !== null) {
+          let totalDiscount = 0;
+          i.discount_items.forEach((a) => {
+            totalDiscount = totalDiscount + a.amount;
+          });
+          i.discount_amount = totalDiscount;
+        }
+      });
+      return _amount;
+    },
+    [items]
+  );
+
   useEffect(() => {
-    let _itemGifts: any = [];
-    for (let i = 0; i < items.length; i++) {
-      _itemGifts = [..._itemGifts, ...items[i].gifts];
+    if (items) {
+      let amount = totalAmount(items);
+      console.log("amount", amount);
+      setChangeMoney(amount);
+      setAmount(amount);
+      let _itemGifts: any = [];
+      for (let i = 0; i < items.length; i++) {
+        if (!items[i].gifts) {
+          return;
+        }
+        _itemGifts = [..._itemGifts, ...items[i].gifts];
+      }
+      props.setItemGift(_itemGifts);
     }
-    props.setItemGift(_itemGifts);
   }, [items]);
 
   const showAddGiftModal = useCallback(
     (index: number) => {
-      setIndexItem(index);
-      setItemGift([...items[index].gifts]);
-      setVisibleGift(true);
+      if (items) {
+        setIndexItem(index);
+        setItemGift([...items[index].gifts]);
+        setVisibleGift(true);
+      }
     },
     [items]
   );
   const onChangeNote = (e: any, index: number) => {
     let value = e.target.value;
-    let _items = [...items];
-    _items[index].note = value;
-    setItems(_items);
-  };
-
-  const onChangeQuantity = (value: number | null, index: number) => {
-    let _items = [...items];
-
-    _items[index].quantity = Number(
-      value == null ? "0" : value.toString().replace(".", "")
-    );
-    setItems(_items);
-    total();
-  };
-  const onChangePrice = (value: number | null, index: number) => {
-    let _items = [...items];
-    if (value !== null) {
-      _items[index].price = value;
+    if (items) {
+      let _items = [...items];
+      _items[index].note = value;
+      handleCardItems(_items);
     }
-    setItems(_items);
-    total();
   };
 
-  const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
-    setItems(_items);
-    total();
-  };
-
-  const total = useCallback(() => {
+  const handleChangeItems = useCallback(() => {
+    if (!items) {
+      return 0;
+    }
     let _items = [...items];
-    let _amount = 0;
-
-    _items.forEach((i) => {
-      let total_discount_items = 0;
-      i.discount_items.forEach((d) => {
-        total_discount_items = total_discount_items + d.value;
-      });
-      let amountItem = (i.price - total_discount_items) * i.quantity;
-      i.line_amount_after_line_discount = amountItem;
-      i.amount = i.price * i.quantity;
-      _amount += amountItem;
-      if (i.amount !== null) {
-        let totalDiscount = 0;
-        i.discount_items.forEach((a) => {
-          totalDiscount = totalDiscount + a.amount;
-        });
-        i.discount_amount = totalDiscount;
-      }
-    });
-    setItems(_items);
+    let _amount = totalAmount(_items);
+    handleCardItems(_items);
     setAmount(_amount);
     calculateChangeMoney(_items, _amount, discountRate, discountValue);
   }, [items]);
+
+  const onChangeQuantity = (value: number | null, index: number) => {
+    if (items) {
+      let _items = [...items];
+
+      _items[index].quantity = Number(
+        value == null ? "0" : value.toString().replace(".", "")
+      );
+      handleCardItems(_items);
+      handleChangeItems();
+    }
+  };
+  const onChangePrice = (value: number | null, index: number) => {
+    if (items) {
+      let _items = [...items];
+      if (value !== null) {
+        _items[index].price = value;
+      }
+      handleCardItems(_items);
+      handleChangeItems();
+    }
+  };
+
+  const onDiscountItem = (_items: Array<OrderLineItemRequest>) => {
+    handleCardItems(_items);
+    handleChangeItems();
+  };
 
   // render
 
@@ -304,16 +338,17 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             </div>
           </div>
           <div style={{ marginTop: 2 }}>
-            {l.gifts.map((a, index1) => (
-              <div key={index1} className="yody-pos-addition yody-pos-gift">
-                <div>
-                  <img src={giftIcon} alt="" />
-                  <i style={{ marginLeft: 7 }}>
-                    {a.variant} ({a.quantity})
-                  </i>
+            {l.gifts &&
+              l.gifts.map((a, index1) => (
+                <div key={index1} className="yody-pos-addition yody-pos-gift">
+                  <div>
+                    <img src={giftIcon} alt="" />
+                    <i style={{ marginLeft: 7 }}>
+                      {a.variant} ({a.quantity})
+                    </i>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
           <div className="yody-pos-note" hidden={!l.show_note && l.note === ""}>
             <Input
@@ -322,9 +357,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               allowClear={true}
               onBlur={() => {
                 if (l.note === "") {
+                  if (!items) {
+                    return;
+                  }
                   let _items = [...items];
                   _items[index].show_note = false;
-                  setItems(_items);
+                  handleCardItems(_items);
                 }
               }}
               className="note"
@@ -342,7 +380,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     title: () => (
       <div className="text-center">
         <div style={{ textAlign: "center" }}>Số lượng</div>
-        {getTotalQuantity(items) > 0 && (
+        {items && getTotalQuantity(items) > 0 && (
           <span style={{ color: "#2A2A86" }}>({getTotalQuantity(items)})</span>
         )}
       </div>
@@ -419,7 +457,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             discountValue={l.discount_items[0].value}
             totalAmount={l.discount_items[0].amount}
             items={items}
-            setItems={onDiscountItem}
+            handleCardItems={onDiscountItem}
           />
         </div>
       );
@@ -476,9 +514,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             <Button
               type="text"
               onClick={() => {
+                if (!items) {
+                  return;
+                }
                 let _items = [...items];
                 _items[index].show_note = true;
-                setItems(_items);
+                handleCardItems(_items);
               }}
               className=""
               style={{
@@ -592,16 +633,22 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   };
 
   const onDeleteItem = (index: number) => {
+    if (!items) {
+      return;
+    }
     let _items = [...items];
     let _amount = amount - _items[index].line_amount_after_line_discount;
     setAmount(_amount);
     _items.splice(index, 1);
-    setItems(_items);
+    handleCardItems(_items);
     calculateChangeMoney(_items, _amount, discountRate, discountValue);
   };
 
   const onSearchVariantSelect = useCallback(
     (v, o) => {
+      if (!items) {
+        return;
+      }
       let newV = parseInt(v);
       let _items = [...items].reverse();
       let indexSearch = resultSearchVariant.items.findIndex(
@@ -643,7 +690,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           );
         }
       }
-      setItems(_items.reverse());
+      handleCardItems(_items.reverse());
       autoCompleteRef.current?.blur();
       setIsInputSearchProductFocus(false);
       setKeySearchVariant("");
@@ -691,7 +738,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       setDiscountValue(value);
       setDiscountRate(rate);
       setCoupon(coupon);
-      calculateChangeMoney(items, amount, rate, value);
+      if (items) {
+        calculateChangeMoney(items, amount, rate, value);
+      }
       showSuccess("Thêm chiết khấu thành công");
     }
   };
@@ -732,6 +781,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   }, []);
 
   const onOkConfirm = useCallback(() => {
+    if (!items) {
+      return;
+    }
     setVisibleGift(false);
     let _items = [...items];
     let _itemGifts = [...itemGifts];
@@ -739,7 +791,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       (itemGift) => (itemGift.position = _items[indexItem].position)
     );
     _items[indexItem].gifts = itemGifts;
-    setItems(_items);
+    handleCardItems(_items);
   }, [items, itemGifts, indexItem]);
 
   useLayoutEffect(() => {
@@ -755,9 +807,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   };
 
   useEffect(() => {
-    if (cardItemsParent) {
-      console.log("cardItemsParent", cardItemsParent);
-      // setItems(cardItemsParent);
+    if (items) {
+      console.log("items", items);
       setIsShowProductSearch(true);
     }
   }, []);
@@ -937,7 +988,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         scroll={{ y: 300 }}
         sticky
         footer={() =>
-          items.length > 0 ? (
+          items && items.length > 0 ? (
             <div className="row-footer-custom">
               <div
                 className="yody-foot-total-text"
@@ -1021,7 +1072,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
             <Row className="payment-row" justify="space-between" align="middle">
               <Space align="center">
-                {items.length > 0 ? (
+                {items && items.length > 0 ? (
                   <Typography.Link
                     className="font-weight-400"
                     onClick={ShowDiscountModal}
@@ -1037,7 +1088,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   <div>Chiết khấu</div>
                 )}
 
-                {discountRate !== 0 && (
+                {discountRate !== 0 && items && (
                   <Tag
                     style={{
                       marginTop: 0,
@@ -1063,7 +1114,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
             <Row className="payment-row" justify="space-between" align="middle">
               <Space align="center">
-                {items.length > 0 ? (
+                {items && items.length > 0 ? (
                   <Typography.Link
                     className="font-weight-400"
                     onClick={ShowDiscountModal}
@@ -1110,7 +1161,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Khách cần phải trả:</strong>
+              <strong className="font-size-text">Khách cần phải trả 1:</strong>
               <strong className="text-success font-size-price">
                 {changeMoney
                   ? formatCurrency(

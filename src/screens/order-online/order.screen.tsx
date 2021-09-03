@@ -198,6 +198,7 @@ export default function Order() {
   //   billing_address: billingAddress,
   // };
   const [isLoadForm, setIsLoadForm] = useState(false);
+  const [isLoadCard, setIsLoadCard] = useState(false);
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
     shipping_address: shippingAddress,
@@ -502,6 +503,10 @@ export default function Order() {
     }
   }, []);
 
+  const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
+    setItems(cardItems);
+  };
+
   const renderCloneOrder = () => {
     if (!cloneIdParam) {
       return;
@@ -580,7 +585,8 @@ export default function Order() {
                     onChangeProduct={(value: string) =>
                       handleChangeProduct(value)
                     }
-                    cardItemsParent={items}
+                    items={items}
+                    handleCardItems={handleCardItems}
                   />
                   <ShipmentCard
                     setShipmentMethodProps={onShipmentSelect}
@@ -696,6 +702,7 @@ export default function Order() {
             if (response) {
               let responseItems: any = [...response.items];
               setItems(responseItems);
+              setIsLoadCard(true);
               setInitialForm({
                 ...initialForm,
                 customer_note: response.customer_note,
