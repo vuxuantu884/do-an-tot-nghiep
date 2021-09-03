@@ -309,7 +309,6 @@ export interface TrackingLogFulfillmentResponse extends BaseObject {
   deleted: boolean;
 }
 
-
 export interface ErrorLogResponse extends BaseObject {
   fulfillment_code: string;
   shipment_id: string;

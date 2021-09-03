@@ -39,7 +39,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     infoVTP,
     changeServiceType,
   } = props;
-  console.log("props", props);
+
   const totalAmountPaid = () => {
     let total = 0;
     if (payments) {

@@ -10,11 +10,14 @@ type DiscountGroupProps = {
   discountRate: number;
   discountValue: number;
   totalAmount: number;
-  items: Array<OrderLineItemRequest>;
-  setItems: (_items: Array<OrderLineItemRequest>) => void;
+  items?: Array<OrderLineItemRequest>;
+  handleCardItems: (_items: Array<OrderLineItemRequest>) => void;
 };
 
-const DiscountGroup: React.FC<DiscountGroupProps> = ( props: DiscountGroupProps ) => {
+const DiscountGroup: React.FC<DiscountGroupProps> = (
+  props: DiscountGroupProps
+) => {
+  const { items } = props;
   const { Text } = Typography;
   const [selected, setSelected] = useState(MoneyType.MONEY);
   let showResult = true;
@@ -23,10 +26,13 @@ const DiscountGroup: React.FC<DiscountGroupProps> = ( props: DiscountGroupProps 
     setSelected(value);
   };
 
-const ChangeValueDiscount = useCallback(
-      (v) => {
-      if(v < 0) v = -v
-      let _items = [...props.items]; 
+  const ChangeValueDiscount = useCallback(
+    (v) => {
+      if (!items) {
+        return;
+      }
+      if (v < 0) v = -v;
+      let _items = [...items];
       let _item = _items[props.index].discount_items[0];
       let _price = _items[props.index].price;
       if (selected === MoneyType.MONEY) {
@@ -38,18 +44,17 @@ const ChangeValueDiscount = useCallback(
         _item.rate = v;
         _item.amount = (v * _price) / 100;
       }
-      props.setItems(_items);
+      props.handleCardItems(_items);
     },
-    [props, selected]
+    [items, props, selected]
   );
 
   return (
     <div>
       <Input.Group compact>
-        <Select 
+        <Select
           onChange={(value: string) => changeDiscountType(value)}
           value={selected}
-          
         >
           <Select.Option value={MoneyType.PERCENT}>%</Select.Option>
           <Select.Option value={MoneyType.MONEY}>₫</Select.Option>
@@ -57,7 +62,13 @@ const ChangeValueDiscount = useCallback(
         <InputNumber
           className="hide-number-handle "
           formatter={(value) => formatCurrency(value ? value : "0")}
-          style={{ width: "100%", textAlign: "right", minHeight:"38px", color:"#222222", fontWeight:500 }}
+          style={{
+            width: "100%",
+            textAlign: "right",
+            minHeight: "38px",
+            color: "#222222",
+            fontWeight: 500,
+          }}
           value={
             selected === MoneyType.PERCENT
               ? props.discountRate
