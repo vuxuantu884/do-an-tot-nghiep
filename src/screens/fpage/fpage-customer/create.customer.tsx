@@ -33,6 +33,9 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import moment from "moment";
+import {
+  formatCurrency,
+} from "utils/AppUtils";
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
@@ -142,9 +145,13 @@ const CustomerAdd = (props: any) => {
       },
     },
     {
-      title: "Tổng thu",
+      title: "Tổng thu", 
       align: "center",
-      dataIndex: "total_line_amount_after_line_discount",
+      render: (value: any, row: any, index: any) => {
+        return (
+          <div>{formatCurrency(row.total_line_amount_after_line_discount)}</div>
+        )
+      }
     },
     {
       title: "Trạng thái",
@@ -297,7 +304,7 @@ const CustomerAdd = (props: any) => {
   
   const handleNote = {
     create: (noteContent: any) => {
-      if (noteContent) {
+      if (noteContent && customerDetail) {
         dispatch(
           CreateNote(customerDetail.id, {content: noteContent}, (data: any) => {
             if (data) {
@@ -371,6 +378,7 @@ const CustomerAdd = (props: any) => {
               customerId={customerId}
               notes={notes}
               handleNote={handleNote}
+              customerDetail={customerDetail}
             />
           </Col>
         </Row>
@@ -397,9 +405,12 @@ const CustomerAdd = (props: any) => {
           >
             Hủy
           </Button>
-          <Button type="primary" htmlType="submit">
+         {!customerDetail &&  <Button type="primary" htmlType="submit">
             Tạo mới khách hàng
-          </Button>
+          </Button>}
+          {customerDetail &&  <Button type="primary" htmlType="submit">
+          Lưu khách hàng
+          </Button>}
         </div>
       </Form>
     </ContentContainer>
