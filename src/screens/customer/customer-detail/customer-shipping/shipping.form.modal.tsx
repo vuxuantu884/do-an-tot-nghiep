@@ -2,7 +2,6 @@ import { Col, Form, Input, Row, Select } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
 import React from "react";
 import * as CONSTANTS from "utils/Constants";
-import { StyledComponent } from "./styles";
 import { WardResponse } from "model/content/ward.model";
 import { CountryResponse } from "model/content/country.model";
 import { useDispatch } from "react-redux";
@@ -12,7 +11,7 @@ import {
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import { RegUtil } from "utils/RegUtils";
-import CustomInput from 'screens/customer/customInput';
+import CustomInput from 'screens/customer/common/customInput';
 
 const { Option } = Select;
 
@@ -112,7 +111,6 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
   }, [form, formItem, visible]);
 
   return (
-    <StyledComponent>
       <Form
         form={form}
         name="form-order-processing-status"
@@ -288,7 +286,6 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
           </Col>
         </Row>
       </Form>
-    </StyledComponent>
   );
 };
 

@@ -23,8 +23,8 @@ export const StyledComponent = styled.div`
     margin-bottom: 0;
   }
   .ant-form-item-label {
-    width: 100%;
     text-align: left;
+    width: 100%;
   }
   .ant-select-disabled.ant-select:not(.ant-select-customize-input)
     .ant-select-selector {

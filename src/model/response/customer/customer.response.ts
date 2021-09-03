@@ -11,7 +11,7 @@ export interface CustomerResponse extends BaseObject {
   company_id: number;
   company: string | null;
   tax_code: string | null;
-  notes: string | null;
+  notes: Array<note>;
   customer_level_id: number;
   customer_level: string | null;
   wedding_date: number;
@@ -32,6 +32,10 @@ export interface CustomerResponse extends BaseObject {
   ward: string | null;
   district: string | null;
   city: string | null;
+}
+
+export interface note extends BaseObject {
+  content: boolean;
 }
 
 export interface BillingAddress extends BaseObject {

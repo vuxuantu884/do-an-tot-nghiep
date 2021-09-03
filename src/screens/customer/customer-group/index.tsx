@@ -1,8 +1,8 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Menu, Dropdown } from "antd";
 import ContentContainer from "component/container/content.container";
-import FormCustomerGroup from "component/forms/FormCustomerGroup";
-import CustomerModal from "../CustomerModal";
+import FormCustomerGroup from "screens/customer/customer-group/group.form.modal";
+import CustomerModal from "../customer-modal";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
@@ -190,16 +190,7 @@ const SettingCustomerGroup: React.FC = () => {
     },
   ];
 
-  const [selected, setSelected] = useState<Array<CustomerGroupResponseModel>>(
-    []
-  );
 
-  const onSelectTable = useCallback(
-    (selectedRow: Array<CustomerGroupResponseModel>) => {
-      setSelected(selectedRow);
-    },
-    []
-  );
 
   const columnFinal = () => columns.filter((item) => item.visible === true);
 
@@ -330,7 +321,6 @@ const SettingCustomerGroup: React.FC = () => {
           <Card style={{ padding: "35px 15px" }} className="customer-group-table">
             <CustomTable
               isRowSelection
-              onSelectedChange={onSelectTable}
               isLoading={tableLoading}
               showColumnSetting={false}
               scroll={{ x: 1080 }}
@@ -379,6 +369,8 @@ const SettingCustomerGroup: React.FC = () => {
           icon={DeleteIcon}
         />
         <CustomerModal
+          createBtnTitle="Tạo mới nhóm khách hàng"
+          updateBtnTitle="Lưu nhóm khách hàng"
           visible={isShowModal}
           onCreate={(formValue: CustomerGroupModel) =>
             handleForm.create(formValue)

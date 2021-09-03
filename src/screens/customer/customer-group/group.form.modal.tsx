@@ -2,8 +2,7 @@ import {Col, Form, Input, Row } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
 import { useEffect } from "react";
 import * as CONSTANTS from "utils/Constants";
-import { StyledComponent } from "./styles";
-import CustomInput from "screens/customer/customInput";
+import CustomInput from "screens/customer/common/customInput";
 
 type FormValueType = {
   code: string;
@@ -37,7 +36,6 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
   }, [form, formItem, visible]);
 
   return (
-    <StyledComponent>
       <Form
         form={form}
         name="form-order-processing-status"
@@ -90,7 +88,6 @@ const FormCustomerGroup: React.FC<CustomModalFormModel> = (
           </Col>
         </Row>
       </Form>
-    </StyledComponent>
   );
 };
 

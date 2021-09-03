@@ -14,6 +14,7 @@ import {
   setSubStatusService,
   getTrackingLogFulFillmentError,
   getListOrderApi,
+  getShipmentApi,
 } from "./../../../service/order/order.service";
 import { SourceResponse } from "./../../../model/response/order/source.response";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
@@ -40,11 +41,26 @@ import {
 import { getAmountPayment } from "utils/AppUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { OrderModel } from "model/order/order.model";
+import { ShipmentModel } from "model/order/shipment.model";
 
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
     let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi, query);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
+function* getShipmentsSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<ShipmentModel>> = yield call(getShipmentApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -356,6 +372,7 @@ function* setSubStatusSaga(action: YodyAction) {
 
 function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
+  yield takeLatest(OrderType.GET_SHIPMENTS_REQUEST, getShipmentsSaga);
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);

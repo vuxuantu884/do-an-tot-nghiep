@@ -11,7 +11,7 @@ import {
 } from "antd";
 import { RegUtil } from "utils/RegUtils";
 import "./customer.scss";
-import CustomInput from "./customInput";
+import CustomInput from "./common/customInput";
 
 const { Option } = Select;
 

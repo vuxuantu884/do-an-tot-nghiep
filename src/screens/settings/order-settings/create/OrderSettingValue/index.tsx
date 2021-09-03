@@ -1,14 +1,5 @@
-import { EditOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Select,
-  Table,
-} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Card, DatePicker, Form, Input, Select, Table } from "antd";
 import Column from "antd/lib/table/Column";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -52,116 +43,9 @@ function OrderSettingValue(props: PropType) {
         disabledDate={disabledDate}
         disabledTime={disabledDateTime}
         showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
+        style={{ width: "100%" }}
       />
     );
-  };
-
-  const renderProvince = (listProvinces: ListProvincesType) => {
-    return (
-      <Form.Item name="province">
-        <Select
-          showSearch
-          style={{ width: "100%" }}
-          placeholder="Chọn tỉnh/thành phố"
-          optionFilterProp="children"
-          filterOption={(input, option) =>
-            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
-          notFoundContent="Không tìm thấy tỉnh/thành phố"
-        >
-          {listProvinces &&
-            listProvinces.map((single) => {
-              return (
-                <Select.Option value={single.code} key={single.code}>
-                  {single.name}
-                </Select.Option>
-              );
-            })}
-        </Select>
-      </Form.Item>
-    );
-  };
-
-  const renderFee = () => {
-    return (
-      <Form.Item name="fee">
-        <InputNumber />
-      </Form.Item>
-    );
-  };
-
-  const FAKE_LOGISTIC_SETTINGS = [
-    {
-      key: "1",
-      phiVanChuyen: "1",
-      tinhTp: "HN 1",
-      fromDate: "",
-      toDate: "",
-    },
-    {
-      key: "2",
-      phiVanChuyen: "2",
-      tinhTp: "HN 2",
-      fromDate: "",
-      toDate: "",
-    },
-    {
-      key: "3",
-      phiVanChuyen: "3",
-      tinhTp: "HN 3",
-      fromDate: "",
-      toDate: "",
-    },
-  ];
-
-  const columns = [
-    {
-      title: "Giá trị từ",
-      dataIndex: "fromDate",
-      key: "fromDate",
-      render: (value: any, row: any, index: number) => {
-        return renderDate();
-      },
-    },
-    {
-      title: "Giá trị đến",
-      dataIndex: "toDate",
-      key: "toDate",
-      render: (value: any, row: any, index: number) => {
-        return renderDate();
-      },
-    },
-    {
-      title: "Tỉnh/Thành phố",
-      dataIndex: "tinhTp",
-      key: "tinhTp",
-      render: (value: any, row: any, index: number) => {
-        return renderProvince(listProvinces);
-      },
-    },
-    {
-      title: "Phí vận chuyển",
-      dataIndex: "phiVanChuyen",
-      key: "phiVanChuyen",
-      render: (value: any, row: any, index: number) => {
-        return renderFee();
-      },
-    },
-  ];
-
-  const [dataSource, setDataSource] = useState<any>(FAKE_LOGISTIC_SETTINGS);
-  const [count, setCount] = useState(FAKE_LOGISTIC_SETTINGS.length + 1);
-
-  const handleAdd = () => {
-    setCount(count + 1);
-    const newData: any = {
-      key: count,
-      phiVanChuyen: `3+${count}`,
-      tinhTp: count,
-      fromDate: "",
-      toDate: "",
-    };
-    setDataSource([...dataSource, newData]);
   };
 
   useEffect(() => {
@@ -184,12 +68,7 @@ function OrderSettingValue(props: PropType) {
   }, []);
 
   const EditableUsersTable = (props: any) => {
-    const { users, add, remove } = props;
-    const [editingIndex, setEditingIndex] = useState(undefined);
-    function onChange(date: any, dateString: any) {
-      console.log("date", date);
-      console.log("dateString", dateString);
-    }
+    const { users, add } = props;
     return (
       <Table
         dataSource={users}
@@ -197,9 +76,9 @@ function OrderSettingValue(props: PropType) {
         footer={() => {
           return (
             <Form.Item>
-              <Button onClick={add}>
-                <PlusOutlined /> Add field
-              </Button>
+              <div className="buttonAdd" onClick={add}>
+                <PlusOutlined style={{ marginRight: 5 }} /> Thêm cài đặt
+              </div>
             </Form.Item>
           );
         }}
@@ -229,6 +108,7 @@ function OrderSettingValue(props: PropType) {
         <Column
           dataIndex={"tinhTp"}
           title={"Tỉnh/Thành phố"}
+          width="30%"
           render={(value, row, index) => {
             return (
               <Form.Item name={[index, "tinhTp"]}>
@@ -260,6 +140,7 @@ function OrderSettingValue(props: PropType) {
         <Column
           dataIndex={"fee"}
           title={"Phí vận chuyển"}
+          width="20%"
           render={(value, row, index) => {
             return (
               <Form.Item name={[index, "fee"]}>
@@ -283,13 +164,6 @@ function OrderSettingValue(props: PropType) {
               );
             }}
           </Form.List>
-          <Button
-            onClick={() => {
-              handleAdd();
-            }}
-          >
-            Thêm cài đặt
-          </Button>
         </div>
         {/* <Form.List name="value">
           {(fields) => (

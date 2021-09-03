@@ -1,20 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button, Card, Tag } from "antd";
+import { Card, Tag } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch, useSelector } from "react-redux";
-import ShipmentFilter from "component/filter/shipment.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable, {
   ICustomTableColumType,
@@ -36,7 +34,6 @@ import ContentContainer from "component/container/content.container";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {
-  DeliveryServicesGetList,
   getListOrderAction,
 } from "domain/actions/order/order.action";
 import "./scss/index.screen.scss";
@@ -64,6 +61,7 @@ const initQuery: OrderSearchQuery = {
   sort_type: null,
   sort_column: null,
   code: null,
+  customer_ids:[],
   store_ids: [],
   source_ids: [],
   issued_on_min: null,
@@ -85,7 +83,7 @@ const initQuery: OrderSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   order_status: [],
-  sub_status: [],
+  order_sub_status: [],
   fulfillment_status: [],
   payment_status: [],
   return_status: [],

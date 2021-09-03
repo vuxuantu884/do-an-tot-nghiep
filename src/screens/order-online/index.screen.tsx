@@ -52,6 +52,7 @@ const initQuery: OrderSearchQuery = {
   sort_type: null,
   sort_column: null,
   code: null,
+  customer_ids: [],
   store_ids: [],
   source_ids: [],
   issued_on_min: null,
@@ -73,7 +74,7 @@ const initQuery: OrderSearchQuery = {
   cancelled_on_max: null,
   cancelled_on_predefined: null,
   order_status: [],
-  sub_status: [],
+  order_sub_status: [],
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
@@ -175,11 +176,12 @@ const ListOrderScreen: React.FC = () => {
       title: "Khách hàng",
       dataIndex: "shipping_address",
       render: (shipping_address: any) => (
+        shipping_address && (
         <div className="customer">
-          <div className="name">{shipping_address.name}</div>
-          <div>{shipping_address.phone}</div>
-          <div>{shipping_address.full_address}</div>
-        </div>
+          <div className="name">{shipping_address?.name}</div>
+          <div>{shipping_address?.phone}</div>
+          <div>{shipping_address?.full_address}</div>
+        </div>)
       ),
       key: "customer",
       visible: true,
@@ -206,17 +208,31 @@ const ListOrderScreen: React.FC = () => {
     
     {
       title: "Khách phải trả",
-      dataIndex: "total_line_amount_after_line_discount",
-      render: (value: number) => (
-        <NumberFormat
-          value={value}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
+      // dataIndex: "",
+      render: (record: any) => (
+        <>
+          <p>
+            <NumberFormat
+              value={record.total_line_amount_after_line_discount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </p>
+          <p style={{color: '#EF5B5B'}}> -
+          <NumberFormat
+            value={record.total_discount}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+          </p>
+        </>
+        
       ),
       key: "customer.amount_money",
       visible: true,
+      align: 'right'
     },
     {
       title: "Hình thức vận chuyển",
@@ -373,7 +389,8 @@ const ListOrderScreen: React.FC = () => {
       title: "Khu vực",
       dataIndex: "shipping_address",
       render: (shipping_address: any) => (
-          <div className="name">{`${shipping_address.ward}, ${shipping_address.district}, ${shipping_address.city}`}</div>
+
+          shipping_address && (<div className="name">{`${shipping_address.ward}, ${shipping_address.district}, ${shipping_address.city}`}</div>)
       ),
       key: "area",
       visible: true,
@@ -485,6 +502,13 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Tag",
       dataIndex: "tags",
+      // render: (tags: Array<string>) => (
+      //   tags?.map(tag => {
+      //     return (
+      //       <Tag>{tag}</Tag>
+      //     )
+      //   })
+      // ),
       key: "tags",
       visible: true,
     },
