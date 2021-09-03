@@ -2,15 +2,30 @@
 import { Button, Card, Row, Space, Tag } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch, useSelector } from "react-redux";
 import OrderFilter from "component/filter/order.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { OrderFulfillmentsModel, OrderItemModel, OrderModel, OrderPaymentModel, OrderSearchQuery } from "model/order/order.model";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
+import {
+  OrderFulfillmentsModel,
+  OrderItemModel,
+  OrderModel,
+  OrderPaymentModel,
+  OrderSearchQuery,
+} from "model/order/order.model";
 import {
   AccountResponse,
   AccountSearchQuery,
@@ -22,9 +37,15 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { DeliveryServicesGetList, getListOrderAction } from "domain/actions/order/order.action";
-import './scss/index.screen.scss'
-import { DeliveryServiceResponse } from "model/response/order/order.response";
+import {
+  DeliveryServicesGetList,
+  getListOrderAction,
+} from "domain/actions/order/order.action";
+import "./scss/index.screen.scss";
+import {
+  DeliveryServiceResponse,
+  OrderResponse,
+} from "model/response/order/order.response";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -33,7 +54,10 @@ import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
-import { OrderProcessingStatusModel, OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
+import {
+  OrderProcessingStatusModel,
+  OrderProcessingStatusResponseModel,
+} from "model/response/order-processing-status.response";
 
 const actions: Array<MenuAction> = [
   {
@@ -87,7 +111,7 @@ const initQuery: OrderSearchQuery = {
   note: null,
   customer_note: null,
   tags: [],
-  reference_code: null
+  reference_code: null,
 };
 
 const initAccountQuery: AccountSearchQuery = {
@@ -98,14 +122,14 @@ const ListOrderScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
- 
+
   const listStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.variant_status;
   });
   const [tableLoading, setTableLoading] = useState(true);
   const isFirstLoad = useRef(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-    useState<Array<AccountResponse>>();
+  useState<Array<AccountResponse>>();
   let dataQuery: OrderSearchQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -125,66 +149,75 @@ const ListOrderScreen: React.FC = () => {
     },
     items: [],
   });
-  const [deliveryServices, setDeliveryServices] =
-    useState<Array<DeliveryServiceResponse>>([]);
+  const [deliveryServices, setDeliveryServices] = useState<
+    Array<DeliveryServiceResponse>
+  >([]);
   const status_order = [
-    {name: "Nháp", value: "draft"},
-    {name: "Đóng gói", value: "packed"},
-    {name: "Xuất kho", value: "shipping"},
-    {name: "Đã xác nhận", value: "finalized"},
-    {name: "Hoàn thành", value: "completed"},
-    {name: "Kết thúc", value: "finished"},
-    {name: "Đã huỷ", value: "cancelled"},
-    {name: "Đã hết hạn", value: "expired"},
-  ]
+    { name: "Nháp", value: "draft" },
+    { name: "Đóng gói", value: "packed" },
+    { name: "Xuất kho", value: "shipping" },
+    { name: "Đã xác nhận", value: "finalized" },
+    { name: "Hoàn thành", value: "completed" },
+    { name: "Kết thúc", value: "finished" },
+    { name: "Đã huỷ", value: "cancelled" },
+    { name: "Đã hết hạn", value: "expired" },
+  ];
   const delivery_service = [
     {
       code: "ghtk",
       id: 1,
       logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_8d45e336-6f25-4cec-9fe6-a52162839f35.svg",
-      name: "Giao hàng tiết kiệm"
+      name: "Giao hàng tiết kiệm",
     },
     {
       code: "ghn",
       id: 2,
       logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22%22delivery%22%22/2021-07-28-03-09-37_b2a5b9d2-6061-4fbd-99ad-2804eb78d82d.png",
-      name: "Giao hàng nhanh"
+      name: "Giao hàng nhanh",
     },
     {
       code: "vtp",
       id: 3,
       logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_7f5b5e68-b208-43b8-bd42-4927ffd45dd4.svg",
-      name: "Viettel Post"
+      name: "Viettel Post",
     },
     {
       code: "dhl",
       id: 4,
       logo: "https://yody-file.s3.ap-southeast-1.amazonaws.com/%22delivery%22/2021-07-28-03-02-12_c8c71c38-5753-4159-b8df-5643dc400c7e.svg",
-      name: "DHL"
-    }
-  ]
-  const [columns, setColumn]  = useState<Array<ICustomTableColumType<OrderModel>>>([
+      name: "DHL",
+    },
+  ];
+  const [columns, setColumn] = useState<
+    Array<ICustomTableColumType<OrderModel>>
+  >([
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: "ID đơn hàng",
+      dataIndex: "code",
+      render: (value: string, i: OrderModel) => (
+        <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
+      ),
       visible: true,
-      fixed: 'left',
-      width:"80px",
+      fixed: "left",
+      className: "custom-shadow-td",
+      width: "3.2%",
     },
     {
       title: "Khách hàng",
       dataIndex: "shipping_address",
-      render: (shipping_address: any) => (
+      render: (shipping_address: any) =>
         shipping_address && (
-        <div className="customer">
-          <div className="name">{shipping_address?.name}</div>
-          <div>{shipping_address?.phone}</div>
-          <div>{shipping_address?.full_address}</div>
-        </div>)
-      ),
+          <div className="customer custom-td">
+            <div className="name p-b-3" style={{ color: "#2A2A86" }}>
+              {shipping_address?.name}
+            </div>
+            <div className="p-b-3">{shipping_address?.phone}</div>
+            <div className="p-b-3">{shipping_address?.full_address}</div>
+          </div>
+        ),
       key: "customer",
       visible: true,
+      width: "5%",
     },
     {
       title: "Sản phẩm",
@@ -194,75 +227,102 @@ const ListOrderScreen: React.FC = () => {
         <div className="items">
           {items.map((item, i) => {
             return (
-              <div className="item" style={{textAlign: "left"}}>
-                <div className="item-sku">{item.sku}</div>
-                <div className="item-quantity">x {item.quantity}</div>
+              <div className="item custom-td" style={{ width: "100%" }}>
+                <div className="item-sku">{item.variant}</div>
               </div>
-            )
+            );
           })}
         </div>
       ),
       visible: true,
       align: "left",
+      width: "6.5%",
     },
-    
+    {
+      title: "SL",
+      dataIndex: "items",
+      key: "items.name",
+      render: (items: Array<OrderItemModel>) => (
+        <div className="items">
+          {items.map((item, i) => {
+            return (
+              <div className="item custom-td" style={{ width: "100%" }}>
+                <div className="item-quantity">{item.quantity}</div>
+              </div>
+            );
+          })}
+        </div>
+      ),
+      visible: true,
+      align: "center",
+      width: "1.3%",
+    },
     {
       title: "Khách phải trả",
       // dataIndex: "",
       render: (record: any) => (
         <>
-          <p>
+          <span>
             <NumberFormat
               value={record.total_line_amount_after_line_discount}
               className="foo"
               displayType={"text"}
               thousandSeparator={true}
             />
-          </p>
-          <p style={{color: '#EF5B5B'}}> -
-          <NumberFormat
-            value={record.total_discount}
-            className="foo"
-            displayType={"text"}
-            thousandSeparator={true}
-          />
-          </p>
+          </span>
+          <br />
+          <span style={{ color: "#EF5B5B" }}>
+            {" "}
+            -
+            <NumberFormat
+              value={record.total_discount}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          </span>
         </>
-        
       ),
       key: "customer.amount_money",
       visible: true,
-      align: 'right'
+      align: "right",
+      width: "3.5%",
     },
     {
-      title: "Hình thức vận chuyển",
+      title: "HTVC",
       dataIndex: "fulfillments",
       key: "shipment.type",
       render: (fulfillments: Array<OrderFulfillmentsModel>) => {
-        const service_id = fulfillments.length && fulfillments[0].shipment ? fulfillments[0].shipment.delivery_service_provider_id : null
-        const service = delivery_service.find(service => service.id === service_id)
-        return(
+        const service_id =
+          fulfillments.length && fulfillments[0].shipment
+            ? fulfillments[0].shipment.delivery_service_provider_id
+            : null;
+        const service = delivery_service.find(
+          (service) => service.id === service_id
+        );
+        return (
           service && (
             <img
               src={service.logo ? service.logo : ""}
               alt=""
-              style={{ width: "200px", height: "41px" }}
+              style={{ width: "100%", height: "30px" }}
             />
           )
-        )
+        );
       },
       visible: true,
-      // width: '250px'
+      width: "3.5%",
+      align:"center"
     },
     {
       title: "Trạng thái đơn",
       dataIndex: "status",
       key: "status",
       render: (status_value: string) => {
-        const status = status_order.find(status => status.value === status_value)
-        return(
-          status?.name
-        )
+        const status = status_order.find(
+          (status) => status.value === status_value
+        );
+        return <div style={{background:"rgba(42, 42, 134, 0.1)", borderRadius:"100px", color:"#2A2A86"}}>{status?.name}</div>;
       },
       visible: true,
       align: "center",
@@ -309,7 +369,7 @@ const ListOrderScreen: React.FC = () => {
             break;
           default:
             processIcon = "icon-blank";
-            break;  
+            break;
         }
         return (
           <div className="text-center">
@@ -336,7 +396,7 @@ const ListOrderScreen: React.FC = () => {
             break;
           default:
             processIcon = "icon-blank";
-            break;  
+            break;
         }
         return (
           <div className="text-center">
@@ -363,7 +423,7 @@ const ListOrderScreen: React.FC = () => {
             break;
           default:
             processIcon = "icon-blank";
-            break;  
+            break;
         }
         return (
           <div className="text-center">
@@ -379,21 +439,20 @@ const ListOrderScreen: React.FC = () => {
       title: "Tổng SL sản phẩm",
       dataIndex: "items",
       key: "item.quantity.total",
-      render: (items) => (
-        items.length
-      ),
+      render: (items) => items.length,
       visible: true,
       align: "center",
     },
     {
       title: "Khu vực",
       dataIndex: "shipping_address",
-      render: (shipping_address: any) => (
-
-          shipping_address && (<div className="name">{`${shipping_address.ward}, ${shipping_address.district}, ${shipping_address.city}`}</div>)
-      ),
+      render: (shipping_address: any) =>
+        shipping_address && (
+          <div className="name">{`${shipping_address.ward}, ${shipping_address.district}, ${shipping_address.city}`}</div>
+        ),
       key: "area",
       visible: true,
+      width: "300px",
     },
     {
       title: "Kho cửa hàng",
@@ -412,18 +471,19 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "payments",
       key: "customer.paid",
       render: (payments: Array<OrderPaymentModel>) => {
-        let total = 0
-        payments.forEach(payment => {
-          total +=payment.amount
-        })
+        let total = 0;
+        payments.forEach((payment) => {
+          total += payment.amount;
+        });
         return (
           <NumberFormat
-              value={total}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-      )},
+            value={total}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+        );
+      },
       visible: true,
     },
 
@@ -431,32 +491,32 @@ const ListOrderScreen: React.FC = () => {
       title: "Còn phải trả",
       key: "customer.pay",
       render: (order: OrderModel) => {
-        let paid = 0
-        order.payments.forEach(payment => {
-          paid +=payment.amount
-        })
-        const missingPaid = order.total_line_amount_after_line_discount ? order.total_line_amount_after_line_discount - paid : 0
+        let paid = 0;
+        order.payments.forEach((payment) => {
+          paid += payment.amount;
+        });
+        const missingPaid = order.total_line_amount_after_line_discount
+          ? order.total_line_amount_after_line_discount - paid
+          : 0;
         return (
           <NumberFormat
-              value={missingPaid > 0 ? missingPaid : 0}
-              className="foo"
-              displayType={"text"}
-              thousandSeparator={true}
-            />
-      )},
+            value={missingPaid > 0 ? missingPaid : 0}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+        );
+      },
       visible: true,
     },
     {
       title: "Phương thức thanh toán",
       dataIndex: "payments",
       key: "payments.type",
-      render: (payments: Array<OrderPaymentModel>) => (
-          payments.map(payment => {
-            return (
-              <Tag>{payment.payment_method}</Tag>
-            )
-          })
-      ),
+      render: (payments: Array<OrderPaymentModel>) =>
+        payments.map((payment) => {
+          return <Tag>{payment.payment_method}</Tag>;
+        }),
       visible: true,
     },
     {
@@ -517,7 +577,7 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "reference_code",
       key: "reference_code",
       visible: true,
-    }
+    },
   ]);
 
   const onPageChange = useCallback(
@@ -532,11 +592,11 @@ const ListOrderScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      console.log('values filter 1', values)
+      console.log("values filter 1", values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      console.log('filter start', `${UrlConfig.ORDER}/list?${queryParam}`)
+      console.log("filter start", `${UrlConfig.ORDER}/list?${queryParam}`);
       history.push(`${UrlConfig.ORDER}/list?${queryParam}`);
     },
     [history, params]
@@ -544,17 +604,17 @@ const ListOrderScreen: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {}, []);
 
   const setSearchResult = useCallback(
-    (result: PageResponse<OrderModel>|false) => {
+    (result: PageResponse<OrderModel> | false) => {
       // console.log('result', result)
       // console.log('deliveryServices', deliveryServices)
       setTableLoading(false);
-      if(!!result && !!deliveryServices) {
+      if (!!result && !!deliveryServices) {
         setData(result);
       }
     },
     [deliveryServices]
   );
-  
+
   // const onGetDeliverService = useCallback(
   //   (id: number|null,) => {
   //     console.log('onGetDeliverService', id,  deliveryServices)
@@ -565,8 +625,11 @@ const ListOrderScreen: React.FC = () => {
   //   [deliveryServices]
   // );
 
-  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
-  
+  const columnFinal = useMemo(
+    () => columns.filter((item) => item.visible === true),
+    [columns]
+  );
+
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -576,7 +639,7 @@ const ListOrderScreen: React.FC = () => {
     },
     []
   );
-  
+
   useEffect(() => {
     if (isFirstLoad.current) {
       dispatch(DeliveryServicesGetList(setDeliveryServices));
@@ -603,14 +666,14 @@ const ListOrderScreen: React.FC = () => {
       )
     );
   }, [dispatch, setDataAccounts]);
-  
+
   return (
     <ContentContainer
       title="Quản lý đơn hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
-         path: UrlConfig.HOME,
+          path: UrlConfig.HOME,
         },
         {
           name: "Danh sách đơn hàng",
@@ -647,55 +710,57 @@ const ListOrderScreen: React.FC = () => {
     >
       <Card>
         <div className="padding-20">
-        <OrderFilter
-          onMenuClick={onMenuClick}
-          actions={actions}
-          onFilter={onFilter}
-          params={params}
-          listSource={listSource}
-          listStore={listStore}
-          accounts={accounts}
-          deliveryService={delivery_service}
-          subStatus={listOrderProcessingStatus}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-        />
-        <CustomTable
-          isRowSelection
-          isLoading={tableLoading}
-          // showColumnSetting={true}
-          scroll={{ x: 4320 }}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          onShowColumnSetting={() => setShowSettingColumn(true)}
-          dataSource={data.items}
-          columns={columnFinal}
-          rowKey={(item: OrderModel) => item.id}
-          className="order-list"
-        />
+          <OrderFilter
+            onMenuClick={onMenuClick}
+            actions={actions}
+            onFilter={onFilter}
+            params={params}
+            listSource={listSource}
+            listStore={listStore}
+            accounts={accounts}
+            deliveryService={delivery_service}
+            subStatus={listOrderProcessingStatus}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+          />
+          <CustomTable
+            isRowSelection
+            isLoading={tableLoading}
+            showColumnSetting={true}
+            scroll={{ x: 3630, y: "50vh" }}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            onShowColumnSetting={() => setShowSettingColumn(true)}
+            dataSource={data.items}
+            columns={columnFinal}
+            rowKey={(item: OrderModel) => item.id}
+            className="order-list"
+          />
         </div>
       </Card>
-      
+
       <ModalSettingColumn
-          visible={showSettingColumn}
-          onCancel={() => setShowSettingColumn(false)}
-          onOk={(data) => {
-            setShowSettingColumn(false);
-            setColumn(data)
-          }}
-          data={columns}
-        />
+        visible={showSettingColumn}
+        onCancel={() => setShowSettingColumn(false)}
+        onOk={(data) => {
+          setShowSettingColumn(false);
+          setColumn(data);
+        }}
+        data={columns}
+      />
     </ContentContainer>
   );
 };
 
 export default ListOrderScreen;
-function setDataAccounts(arg0: {}, setDataAccounts: any): import("../../base/base.action").YodyAction {
+function setDataAccounts(
+  arg0: {},
+  setDataAccounts: any
+): import("../../base/base.action").YodyAction {
   throw new Error("Function not implemented.");
 }
-
