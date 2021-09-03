@@ -918,7 +918,7 @@ const OrderDetail = (props: PropType) => {
                 </Row>
               </div>
             </Card>
-            <ActionHistory />
+            <ActionHistory orderId={id} />
           </Col>
         </Row>
         <OrderDetailBottomBar
