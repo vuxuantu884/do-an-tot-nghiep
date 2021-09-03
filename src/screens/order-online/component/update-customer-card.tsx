@@ -243,7 +243,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                     Ghi chú của khách:
                   </label>
                 </div>
-                <div style={{ marginTop: "10px", wordWrap: "break-word"}}>
+                <div style={{ marginTop: "10px", wordWrap: "break-word" }}>
                   {props.OrderDetail?.customer_note !== ""
                     ? props.OrderDetail?.customer_note
                     : "Không có ghi chú"}

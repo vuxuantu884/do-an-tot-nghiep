@@ -1,77 +1,76 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { EditOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   AutoComplete,
   Button,
   Card,
   Checkbox,
   Col,
+  Divider,
   Dropdown,
+  Form,
+  FormInstance,
   Input,
   Menu,
   Row,
   Select,
   Space,
   Table,
+  Tag,
   Tooltip,
   Typography,
-  Divider,
-  Tag,
-  Form,
-  FormInstance,
 } from "antd";
-
-import arrowDownIcon from "assets/img/drow-down.svg";
-import giftIcon from "assets/icon/gift.svg";
-import React, {
-  useCallback,
-  useLayoutEffect,
-  useState,
-  useMemo,
-  createRef,
-  useEffect,
-} from "react";
-import { SearchOutlined, EditOutlined } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { showError, showSuccess } from "utils/ToastUtils";
-import NumberInput from "component/custom/number-input.custom";
-import {
-  haveAccess,
-  findPrice,
-  findAvatar,
-  findPriceInVariant,
-  findTaxInVariant,
-  formatCurrency,
-  replaceFormatString,
-  getTotalAmount,
-  getTotalDiscount,
-  getTotalAmountAfferDiscount,
-  getTotalQuantity,
-} from "utils/AppUtils";
 import { RefSelectProps } from "antd/lib/select";
-import { AppConfig } from "config/app.config";
-import imgdefault from "assets/icon/img-default.svg";
 import emptyProduct from "assets/icon/empty_products.svg";
-import Xclosebtn from "assets/icon/X_close.svg";
+import giftIcon from "assets/icon/gift.svg";
+import imgDefault from "assets/icon/img-default.svg";
+import XCloseBtn from "assets/icon/X_close.svg";
+import arrowDownIcon from "assets/img/drow-down.svg";
 import addIcon from "assets/img/plus_1.svg";
+import NumberInput from "component/custom/number-input.custom";
+import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
 import {
   OrderItemDiscountModel,
   OrderSettingsModel,
 } from "model/other/order/order-model";
-import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
-import { PageResponse } from "model/base/base-metadata.response";
 import {
   VariantResponse,
   VariantSearchQuery,
 } from "model/product/product.model";
-import { StoreResponse } from "model/core/store.model";
-import { MoneyType } from "utils/Constants";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
-import DiscountGroup from "../../discount-group";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
 import AddGiftModal from "screens/order-online/modal/add-gift.modal";
 import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
+import {
+  findAvatar,
+  findPrice,
+  findPriceInVariant,
+  findTaxInVariant,
+  formatCurrency,
+  getTotalAmount,
+  getTotalAmountAfferDiscount,
+  getTotalDiscount,
+  getTotalQuantity,
+  haveAccess,
+  replaceFormatString,
+} from "utils/AppUtils";
+import { MoneyType } from "utils/Constants";
+import { showError, showSuccess } from "utils/ToastUtils";
+import DiscountGroup from "../../discount-group";
 
 type CardProductProps = {
   storeId: number | null;
@@ -209,9 +208,9 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         <div className="rs-left w-100" style={{ width: "100%" }}>
           <div style={{ marginTop: 10 }}>
             <img
-              src={avatar === "" ? imgdefault : avatar}
+              src={avatar === "" ? imgDefault : avatar}
               alt="anh"
-              placeholder={imgdefault}
+              placeholder={imgDefault}
               style={{ width: "40px", height: "40px", borderRadius: 5 }}
             />
           </div>
@@ -522,7 +521,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               className="p-0 ant-btn-custom"
               onClick={() => onDeleteItem(index)}
             >
-              <img src={Xclosebtn} alt="" style={{ width: 22 }} />
+              <img src={XCloseBtn} alt="" style={{ width: 22 }} />
             </Button>
           </div>
         </div>
@@ -780,11 +779,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               </Select.Option>
             </Select>
           </Form.Item>
-          {/* <Link className="text-focus" to="#" style={{color: "#0080ff"}}>
-            <Space style={{height: "17"}}>
-              <ShopOutlined style={{color: "#0080ff"}}/> Xem tồn <ArrowRightOutlined style={{color: "#0080ff"}}/>
-            </Space>
-          </Link> */}
         </Space>
       }
     >

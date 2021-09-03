@@ -1,15 +1,4 @@
-//#region Import
-import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select,
-} from "antd";
+import { Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -47,21 +36,24 @@ import {
 import {
   MoneyPayThreePls,
   OrderStatus,
+  PaymentMethodOption,
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
-import CustomeInputTags from "./component/custom-input-tags";
+import { useQuery } from "utils/useQuery";
 import CustomerCard from "./component/customer-card";
+import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardProduct from "./component/order-detail/CardProduct";
 import ShipmentCard from "./component/order-detail/CardShipment";
+import OrderDetailSidebar from "./component/order-detail/Sidebar";
 import PaymentCard from "./component/payment-card";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
-//#endregion
+import OrderDetail from "./order-detail";
 
-var typeButton = "";
+let typeButton = "";
+
 export default function Order() {
-  //#region State
   const dispatch = useDispatch();
   const history = useHistory();
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -76,7 +68,9 @@ export default function Order() {
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [discountRate, setDiscountRate] = useState<number>(0);
-  const [shipmentMethod, setShipmentMethod] = useState<number>(4);
+  const [shipmentMethod, setShipmentMethod] = useState<number>(
+    ShipmentMethodOption.DELIVER_LATER
+  );
   const [paymentMethod, setPaymentMethod] = useState<number>(3);
   const [hvc, setHvc] = useState<number | null>(null);
   const [feeGhtk, setFeeGhtk] = useState<number | null>(null);
@@ -104,10 +98,10 @@ export default function Order() {
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
   });
-  // const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
-  //#endregion
-  //#rgion Customer
 
+  const queryParams = useQuery();
+  const actionParam = queryParams.get("action") || null;
+  const cloneIdParam = queryParams.get("cloneId") || null;
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
@@ -129,8 +123,6 @@ export default function Order() {
   const ChangeShippingFeeCustomerHVC = (value: number | null) => {
     setShippingFeeCustomerHVC(value);
   };
-  //#endregion
-  //#region Product
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
@@ -148,8 +140,6 @@ export default function Order() {
     setStoreId(storeId);
   };
 
-  //#endregion
-  //#region Payment
   const changePaymentMethod = (value: number) => {
     setPaymentMethod(value);
   };
@@ -157,8 +147,6 @@ export default function Order() {
   const onPayments = (value: Array<OrderPaymentRequest>) => {
     setPayments(value);
   };
-
-  //#endregion
 
   const onShipmentSelect = (value: number) => {
     setShipmentMethod(value);
@@ -199,12 +187,16 @@ export default function Order() {
     payments: [],
   };
 
-  //#region Order
   let initialForm: OrderRequest = {
     ...initialRequest,
     shipping_address: shippingAddress,
     billing_address: billingAddress,
   };
+
+  let isCloneOrder = false;
+  if (actionParam === "clone" && cloneIdParam) {
+    isCloneOrder = true;
+  }
 
   const onChangeTag = useCallback(
     (value: []) => {
@@ -235,29 +227,33 @@ export default function Order() {
       items: items,
     };
 
-    let listFullfillmentRequest = [];
-    if (paymentMethod !== 3 || shipmentMethod === 2 || shipmentMethod === 3) {
-      listFullfillmentRequest.push(request);
+    let listFulfillmentRequest = [];
+    if (
+      paymentMethod !== PaymentMethodOption.POSTPAYMENT ||
+      shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
+      shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
+    ) {
+      listFulfillmentRequest.push(request);
     }
 
-    if (shipmentMethod === 3) {
+    if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
       request.delivery_type = "pick_at_store";
     }
 
     if (
-      paymentMethod === 3 &&
-      shipmentMethod === 4 &&
+      paymentMethod === PaymentMethodOption.POSTPAYMENT &&
+      shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
       typeButton === OrderStatus.FINALIZED
     ) {
       request.shipment = null;
-      listFullfillmentRequest.push(request);
+      listFulfillmentRequest.push(request);
     }
-    return listFullfillmentRequest;
+    return listFulfillmentRequest;
   };
 
   const createShipmentRequest = (value: OrderRequest) => {
     let objShipment: ShipmentRequest = {
-      delivery_service_provider_id: null, //id dtvc
+      delivery_service_provider_id: null, //id đối tác vận chuyển
       delivery_service_provider_type: "", //shipper
       shipper_code: "",
       shipper_name: "",
@@ -283,60 +279,66 @@ export default function Order() {
       office_time: officeTime,
     };
 
-    if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER) {
-      objShipment.delivery_service_provider_id = hvc;
-      objShipment.delivery_service_provider_type = "external_service";
-      objShipment.sender_address_id = storeId;
-      objShipment.shipping_fee_informed_to_customer =
-        value.shipping_fee_informed_to_customer;
-      objShipment.service = serviceType!;
-      if (hvc === 1) {
-        objShipment.shipping_fee_paid_to_three_pls = feeGhtk;
-      } else {
-        objShipment.shipping_fee_paid_to_three_pls = MoneyPayThreePls.VALUE;
-      }
-      return objShipment;
-    }
+    switch (shipmentMethod) {
+      case ShipmentMethodOption.DELIVER_PARTNER:
+        return {
+          ...objShipment,
+          delivery_service_provider_id: hvc,
+          delivery_service_provider_type: "external_service",
+          sender_address_id: storeId,
+          shipping_fee_informed_to_customer:
+            value.shipping_fee_informed_to_customer,
+          service: serviceType!,
+          shipping_fee_paid_to_three_pls:
+            hvc === 1 ? feeGhtk : MoneyPayThreePls.VALUE,
+        };
 
-    if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-      objShipment.delivery_service_provider_type = "Shipper";
-      objShipment.shipper_code = value.shipper_code;
-      objShipment.shipping_fee_informed_to_customer =
-        value.shipping_fee_informed_to_customer;
-      objShipment.shipping_fee_paid_to_three_pls =
-        value.shipping_fee_paid_to_three_pls;
-
-      objShipment.cod =
-        orderAmount +
-        (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-        getAmountPaymentRequest(payments) -
-        discountValue;
-      return objShipment;
-    }
-    if (shipmentMethod === 3) {
-      objShipment.delivery_service_provider_type = "pick_at_store";
-
-      if (shippingFeeCustomer !== null) {
-        if (
-          orderAmount +
-            shippingFeeCustomer -
-            getAmountPaymentRequest(payments) >
-          0
-        ) {
-          objShipment.cod =
+      case ShipmentMethodOption.SELF_DELIVER:
+        return {
+          ...objShipment,
+          delivery_service_provider_type: "Shipper",
+          shipper_code: value.shipper_code,
+          shipping_fee_informed_to_customer:
+            value.shipping_fee_informed_to_customer,
+          shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
+          cod:
             orderAmount +
-            shippingFeeCustomer -
-            getAmountPaymentRequest(payments);
+            (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+            getAmountPaymentRequest(payments) -
+            discountValue,
+        };
+
+      case ShipmentMethodOption.PICK_AT_STORE:
+        objShipment.delivery_service_provider_type = "pick_at_store";
+        let newCod = orderAmount;
+        if (shippingFeeCustomer !== null) {
+          if (
+            orderAmount +
+              shippingFeeCustomer -
+              getAmountPaymentRequest(payments) >
+            0
+          ) {
+            newCod =
+              orderAmount +
+              shippingFeeCustomer -
+              getAmountPaymentRequest(payments);
+          }
+        } else {
+          if (orderAmount - getAmountPaymentRequest(payments) > 0) {
+            newCod = orderAmount - getAmountPaymentRequest(payments);
+          }
         }
-      } else {
-        if (orderAmount - getAmountPaymentRequest(payments) > 0) {
-          objShipment.cod = orderAmount - getAmountPaymentRequest(payments);
-        }
-      }
-      return objShipment;
-    }
-    if (shipmentMethod === 4) {
-      return null;
+        return {
+          ...objShipment,
+          delivery_service_provider_type: "pick_at_store",
+          cod: newCod,
+        };
+
+      case ShipmentMethodOption.DELIVER_LATER:
+        return null;
+
+      default:
+        break;
     }
   };
 
@@ -371,6 +373,10 @@ export default function Order() {
     [history]
   );
 
+  const handleTypeButton = (type: string) => {
+    typeButton = type;
+  };
+
   //show modal save and confirm order ?
   const onCancelSaveAndConfirm = () => {
     setIsVisibleSaveAndConfirm(false);
@@ -383,7 +389,10 @@ export default function Order() {
   };
 
   const showSaveAndConfirmModal = () => {
-    if (shipmentMethod !== 4 || paymentMethod !== 3) {
+    if (
+      shipmentMethod !== ShipmentMethodOption.DELIVER_LATER ||
+      paymentMethod !== 3
+    ) {
       setIsVisibleSaveAndConfirm(true);
     } else {
       typeButton = OrderStatus.DRAFT;
@@ -460,7 +469,6 @@ export default function Order() {
       }
     }
   };
-  //#endregion
 
   const handleChangeProduct = (value: string) => {
     console.log("valueParent", value);
@@ -482,6 +490,150 @@ export default function Order() {
       setIsShowBillStep(false);
     }
   }, []);
+
+  const renderCloneOrder = () => {
+    if (!cloneIdParam) {
+      return;
+    }
+    return <OrderDetail isCloneOrder={isCloneOrder} id={cloneIdParam} />;
+  };
+
+  const renderOrder = () => {
+    return (
+      <ContentContainer
+        title="Tạo mới đơn hàng"
+        breadcrumb={[
+          {
+            name: "Tổng quan",
+            path: "/",
+          },
+          {
+            name: "Đơn hàng",
+          },
+          {
+            name: "Tạo mới đơn hàng",
+          },
+        ]}
+        extra={<CreateBillStep status="draff" orderDetail={null} />}
+      >
+        <div className="orders">
+          <Form
+            layout="vertical"
+            initialValues={initialForm}
+            ref={formRef}
+            onFinishFailed={({ errorFields }: any) => {
+              const element: any = document.getElementById(
+                errorFields[0].name.join("")
+              );
+              element?.focus();
+              const y =
+                element?.getBoundingClientRect()?.top +
+                window.pageYOffset +
+                -250;
+              window.scrollTo({ top: y, behavior: "smooth" });
+            }}
+            onFinish={onFinish}
+          >
+            <Form.Item noStyle hidden name="action">
+              <Input />
+            </Form.Item>
+            <Form.Item noStyle hidden name="currency">
+              <Input />
+            </Form.Item>
+            <Form.Item noStyle hidden name="account_code">
+              <Input />
+            </Form.Item>
+            <Form.Item noStyle hidden name="tax_treatment">
+              <Input />
+            </Form.Item>
+            <Form.Item noStyle hidden name="tags">
+              <Input />
+            </Form.Item>
+            <Row gutter={20} style={{ marginBottom: "70px" }}>
+              <Col md={18}>
+                <CustomerCard
+                  InfoCustomerSet={onChangeInfoCustomer}
+                  ShippingAddressChange={onChangeShippingAddress}
+                  BillingAddressChange={onChangeBillingAddress}
+                />
+                <CardProduct
+                  changeInfo={onChangeInfoProduct}
+                  selectStore={onStoreSelect}
+                  storeId={storeId}
+                  shippingFeeCustomer={shippingFeeCustomer}
+                  setItemGift={setItemGifts}
+                  orderSettings={orderSettings}
+                  formRef={formRef}
+                  onChangeProduct={(value: string) =>
+                    handleChangeProduct(value)
+                  }
+                />
+                <ShipmentCard
+                  setShipmentMethodProps={onShipmentSelect}
+                  shipmentMethod={shipmentMethod}
+                  storeDetail={storeDetail}
+                  setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
+                  setShippingFeeInformedCustomerHVC={
+                    ChangeShippingFeeCustomerHVC
+                  }
+                  amount={orderAmount}
+                  setPaymentMethod={setPaymentMethod}
+                  paymentMethod={paymentMethod}
+                  shippingFeeCustomer={shippingFeeCustomer}
+                  shippingFeeCustomerHVC={shippingFeeCustomerHVC}
+                  customerInfo={customer}
+                  items={items}
+                  discountValue={discountValue}
+                  setOfficeTime={setOfficeTime}
+                  officeTime={officeTime}
+                  setServiceType={setServiceType}
+                  setHVC={setHvc}
+                  setFeeGhtk={setFeeGhtk}
+                  payments={payments}
+                  onPayments={onPayments}
+                />
+                <PaymentCard
+                  setSelectedPaymentMethod={changePaymentMethod}
+                  setPayments={onPayments}
+                  paymentMethod={paymentMethod}
+                  shipmentMethod={shipmentMethod}
+                  amount={
+                    orderAmount +
+                    (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                    discountValue
+                  }
+                />
+              </Col>
+              <Col md={6}>
+                <OrderDetailSidebar
+                  accounts={accounts}
+                  onChangeTag={onChangeTag}
+                />
+              </Col>
+            </Row>
+            {isShowBillStep && (
+              <OrderDetailBottomBar
+                formRef={formRef}
+                handleTypeButton={handleTypeButton}
+                isVisibleGroupButtons={true}
+                showSaveAndConfirmModal={showSaveAndConfirmModal}
+              />
+            )}
+          </Form>
+        </div>
+        <SaveAndConfirmOrder
+          onCancel={onCancelSaveAndConfirm}
+          onOk={onOkSaveAndConfirm}
+          visible={isVisibleSaveAndConfirm}
+          okText="Đồng ý"
+          cancelText="Hủy"
+          title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
+          text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
+          icon={WarningIcon}
+        />
+      </ContentContainer>
+    );
+  };
 
   useEffect(() => {
     if (storeId != null) {
@@ -512,288 +664,8 @@ export default function Order() {
   }, []);
 
   return (
-    <ContentContainer
-      title="Tạo mới đơn hàng"
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: "/",
-        },
-        {
-          name: "Đơn hàng",
-        },
-        {
-          name: "Tạo mới đơn hàng",
-        },
-      ]}
-      extra={<CreateBillStep status="draff" orderDetail={null} />}
-    >
-      <div className="orders">
-        <Form
-          layout="vertical"
-          initialValues={initialForm}
-          ref={formRef}
-          onFinishFailed={({ errorFields }: any) => {
-            const element: any = document.getElementById(
-              errorFields[0].name.join("")
-            );
-            element?.focus();
-            const y =
-              element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-            window.scrollTo({ top: y, behavior: "smooth" });
-          }}
-          onFinish={onFinish}
-        >
-          <Form.Item noStyle hidden name="action">
-            <Input></Input>
-          </Form.Item>
-          <Form.Item noStyle hidden name="currency">
-            <Input></Input>
-          </Form.Item>
-          <Form.Item noStyle hidden name="account_code">
-            <Input></Input>
-          </Form.Item>
-          <Form.Item noStyle hidden name="tax_treatment">
-            <Input></Input>
-          </Form.Item>
-          <Form.Item noStyle hidden name="tags">
-            <Input></Input>
-          </Form.Item>
-          <Row gutter={20} style={{ marginBottom: "70px" }}>
-            {/* Left Side */}
-            <Col md={18}>
-              {/*--- customer ---*/}
-              <CustomerCard
-                InfoCustomerSet={onChangeInfoCustomer}
-                ShippingAddressChange={onChangeShippingAddress}
-                BillingAddressChange={onChangeBillingAddress}
-              />
-              {/*--- product ---*/}
-              <CardProduct
-                changeInfo={onChangeInfoProduct}
-                selectStore={onStoreSelect}
-                storeId={storeId}
-                shippingFeeCustomer={shippingFeeCustomer}
-                setItemGift={setItemGifts}
-                orderSettings={orderSettings}
-                formRef={formRef}
-                onChangeProduct={(value: string) => handleChangeProduct(value)}
-              />
-              {/*--- end product ---*/}
-              {/*--- shipment ---*/}
-              <ShipmentCard
-                setShipmentMethodProps={onShipmentSelect}
-                shipmentMethod={shipmentMethod}
-                storeDetail={storeDetail}
-                setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
-                setShippingFeeInformedCustomerHVC={ChangeShippingFeeCustomerHVC}
-                amount={orderAmount}
-                setPaymentMethod={setPaymentMethod}
-                paymentMethod={paymentMethod}
-                shippingFeeCustomer={shippingFeeCustomer}
-                shippingFeeCustomerHVC={shippingFeeCustomerHVC}
-                customerInfo={customer}
-                items={items}
-                discountValue={discountValue}
-                setOfficeTime={setOfficeTime}
-                officeTime={officeTime}
-                setServiceType={setServiceType}
-                setHVC={setHvc}
-                setFeeGhtk={setFeeGhtk}
-                payments={payments}
-                onPayments={onPayments}
-              />
-              <PaymentCard
-                setSelectedPaymentMethod={changePaymentMethod}
-                setPayments={onPayments}
-                paymentMethod={paymentMethod}
-                shipmentMethod={shipmentMethod}
-                amount={
-                  orderAmount +
-                  (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-                  discountValue
-                }
-              />
-            </Col>
-            {/* Right Side */}
-            <Col md={6}>
-              <Card
-                title={
-                  <div className="d-flex">
-                    <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
-                  </div>
-                }
-              >
-                <div className="padding-24">
-                  <Form.Item
-                    label="Nhân viên bán hàng"
-                    name="assignee_code"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn nhân viên bán hàng",
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="select-with-search"
-                      notFoundContent="Không tìm thấy kết quả"
-                      showSearch
-                      placeholder={
-                        <React.Fragment>
-                          <SearchOutlined />
-                          <span> Tìm, chọn nhân viên</span>
-                        </React.Fragment>
-                      }
-                      filterOption={(input, option) => {
-                        if (option) {
-                          return (
-                            option.children
-                              .toLowerCase()
-                              .indexOf(input.toLowerCase()) >= 0
-                          );
-                        }
-                        return false;
-                      }}
-                    >
-                      {accounts.map((item, index) => (
-                        <Select.Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.code}
-                        >
-                          {`${item.full_name} - ${item.code}`}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                  <Form.Item
-                    label="Tham chiếu"
-                    name="reference_code"
-                    tooltip={{
-                      title:
-                        "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",
-                      icon: <InfoCircleOutlined />,
-                    }}
-                  >
-                    <Input placeholder="Điền tham chiếu" maxLength={255} />
-                  </Form.Item>
-                  <Form.Item
-                    label="Đường dẫn"
-                    name="url"
-                    tooltip={{
-                      title: "Thêm đường dẫn đơn hàng gốc trên kênh bán hàng",
-                      icon: <InfoCircleOutlined />,
-                    }}
-                  >
-                    <Input placeholder="Điền đường dẫn" maxLength={255} />
-                  </Form.Item>
-                </div>
-              </Card>
-              <Card
-                className="margin-top-20"
-                title={
-                  <div className="d-flex">
-                    <span className="title-card">THÔNG TIN BỔ SUNG</span>
-                  </div>
-                }
-              >
-                <div className="padding-24">
-                  <Form.Item
-                    name="note"
-                    label="Ghi chú nội bộ"
-                    tooltip={{
-                      title: "Thêm thông tin ghi chú chăm sóc khách hàng",
-                      icon: <InfoCircleOutlined />,
-                    }}
-                  >
-                    <Input.TextArea
-                      placeholder="Điền ghi chú"
-                      maxLength={500}
-                      style={{ minHeight: "130px" }}
-                    />
-                  </Form.Item>
-                  <Form.Item
-                    label="Tag"
-                    tooltip={{
-                      title: "Thêm từ khóa để tiện lọc đơn hàng",
-                      icon: <InfoCircleOutlined />,
-                    }}
-                    // name="tags"
-                  >
-                    <CustomeInputTags onChangeTag={onChangeTag} />
-                  </Form.Item>
-                </div>
-              </Card>
-            </Col>
-          </Row>
-          <Row
-            gutter={24}
-            className="margin-top-10 "
-            style={{
-              position: "fixed",
-              textAlign: "right",
-              width: "100%",
-              height: "55px",
-              bottom: "0%",
-              backgroundColor: "#FFFFFF",
-              marginLeft: "-30px",
-              display: `${isShowBillStep ? "" : "none"}`,
-            }}
-          >
-            <Col
-              md={10}
-              style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px" }}
-            >
-              <CreateBillStep status="draff" orderDetail={null} />
-            </Col>
-
-            <Col md={9} style={{ marginTop: "8px" }}>
-              <Button
-                style={{ padding: "0 25px", fontWeight: 400 }}
-                className="ant-btn-outline fixed-button cancle-button"
-                onClick={() => window.location.reload()}
-              >
-                Huỷ
-              </Button>
-              <Button
-                style={{ padding: "0 25px", fontWeight: 400 }}
-                className="create-button-custom ant-btn-outline fixed-button"
-                type="primary"
-                onClick={showSaveAndConfirmModal}
-              >
-                Lưu nháp
-              </Button>
-              <Button
-                style={{ padding: "0 25px", fontWeight: 400 }}
-                type="primary"
-                className="create-button-custom"
-                id="save-and-confirm"
-                onClick={() => {
-                  typeButton = OrderStatus.FINALIZED;
-                  console.log(
-                    "formRef.current.value",
-                    formRef?.current?.getFieldsValue()
-                  );
-                  formRef.current?.submit();
-                }}
-              >
-                Lưu và Xác nhận
-              </Button>
-            </Col>
-          </Row>
-        </Form>
-      </div>
-      <SaveAndConfirmOrder
-        onCancel={onCancelSaveAndConfirm}
-        onOk={onOkSaveAndConfirm}
-        visible={isVisibleSaveAndConfirm}
-        okText="Đồng ý"
-        cancelText="Hủy"
-        title="Bạn có chắc chắn lưu nháp đơn hàng này không?"
-        text="Đơn hàng này sẽ bị xóa thông tin giao hàng hoặc thanh toán nếu có"
-        icon={WarningIcon}
-      />
-    </ContentContainer>
+    <React.Fragment>
+      {isCloneOrder && cloneIdParam ? renderCloneOrder() : renderOrder()}
+    </React.Fragment>
   );
 }
