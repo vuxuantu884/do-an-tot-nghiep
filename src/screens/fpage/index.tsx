@@ -168,6 +168,7 @@ function FpageCRM() {
             setIsCustomerReload={setIsCustomerReload}
             setCustomerPhone={setCustomerPhone}
             setOrderHistory={setOrderHistory}
+            getCustomerByPhone={getCustomerWhenChoicePhone}
           />
         )}
       </div>

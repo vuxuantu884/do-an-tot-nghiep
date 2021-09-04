@@ -37,15 +37,24 @@ import EditCustomerModal from "../modal/edit-customer.modal";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { RefSelectProps } from "antd/lib/select";
 import { CloseOutlined } from "@ant-design/icons";
+import { showSuccess, showError } from "utils/ToastUtils";
+import CustomerModal from "screens/customer/customer-modal";
+import FormCustomerShippingAddress from "screens/customer/customer-detail/customer-shipping/shipping.form.modal";
 import {
   BillingAddress,
   CustomerResponse,
   ShippingAddress,
+  shippingAddress
 } from "model/response/customer/customer.response";
-import { CustomerSearch } from "domain/actions/customer/customer.action";
+import {
+  CustomerSearch,
+  CreateShippingAddress,
+  UpdateShippingAddress
+} from "domain/actions/customer/customer.action";
 import { RegUtil } from "utils/RegUtils";
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
+import { CustomerShippingAddress } from "model/request/customer.request";
 //#end region
 
 type CustomerCardProps = {
@@ -57,6 +66,9 @@ type CustomerCardProps = {
   setIsButtonSelected: (items: boolean) => void;
   setCustomerPhone: (items: string | null) => void;
   setOrderHistory:(items: any) => void;
+  getCustomerByPhone:(items: any) => void;
+  setModalAction:(items: any) => void;
+  modalAction: any
 };
 
 //Add query for search Customer
@@ -79,12 +91,16 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
-  const { customerDetail, setCustomerDetail, setIsButtonSelected,setCustomerPhone ,setOrderHistory} = props;
+  const { customerDetail, setCustomerDetail, setIsButtonSelected,setCustomerPhone ,setOrderHistory, setModalAction, modalAction, getCustomerByPhone } = props;
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
+  const [isVisibleAddressPopover, setVisibleAddressPopover] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(false);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
+  const [isShowModalShipping, setIsShowModalShipping] = React.useState(false);
+  const [modalSingleShippingAddress, setModalShippingAddress] =
+    React.useState<CustomerShippingAddress>();
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -261,6 +277,76 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setIsButtonSelected(false)
     console.log(123);
   };
+
+  const reloadPage = () => {
+    getCustomerByPhone(customerDetail && customerDetail.phone);
+  };
+
+  const handleShippingAddressForm = {
+    create: (formValue: CustomerShippingAddress) => {
+      formValue.is_default = false;
+      if (customer)
+        dispatch(
+          CreateShippingAddress(
+            customer.id,
+            formValue,
+            (data: shippingAddress) => {
+              setIsShowModalShipping(false);
+              reloadPage();
+              data
+                ? showSuccess("Thêm mới địa chỉ thành công")
+                : showError("Thêm mới địa chỉ thất bại");
+            }
+          )
+        );
+    },
+    edit: (formValue: CustomerShippingAddress) => {
+      formValue.is_default = formValue.default;
+      if (modalSingleShippingAddress) {
+        if (customer)
+          dispatch(
+            UpdateShippingAddress(
+              modalSingleShippingAddress.id,
+              customer.id,
+              formValue,
+              (data: shippingAddress) => {
+                setIsShowModalShipping(false);
+                reloadPage();
+                data
+                  ? showSuccess("Cập nhật địa chỉ thành công")
+                  : showError("Cập nhật địa chỉ thất bại");
+              }
+            )
+          );
+      }
+    }
+  };
+
+  const editShippingAddress = (address: any) => {
+    closePopover();
+    setModalAction("edit");
+    setModalShippingAddress(address);
+    setIsShowModalShipping(true);
+  }
+
+  const createShippingAddress = () => {
+    closePopover();
+    setModalAction("create");
+    setIsShowModalShipping(true);
+  }
+  
+  const handleVisibleChange = (visible: any) => {
+    setVisibleAddressPopover(visible);
+  }
+  
+  const openPopover = () => {
+    setVisibleAddressPopover(true);
+  }
+  
+  const closePopover = () => {
+    setVisibleAddressPopover(false);
+  }
+  
   return (
     <Card
       extra={
@@ -491,7 +577,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             </div>
                             <Button
                               type="link"
-                              // onClick={ShowAddressModal}
+                              onClick={() => {createShippingAddress()}}
                             >
                               Thêm địa chỉ mới
                             </Button>
@@ -508,10 +594,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                                 // }
                               >
                                 <div className="shipping-address-name">
-                                  Địa chỉ 1{" "}
+                                  Địa chỉ {index + 1}{" "}
                                   <Button
                                     type="text"
-                                    onClick={ShowAddressModal}
+                                    onClick={() => {editShippingAddress(item)}}
                                     className="p-0"
                                   >
                                     <img src={editBlueIcon} alt="" />
@@ -532,8 +618,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         }
                         trigger="click"
                         className="change-shipping-address"
+                        visible={isVisibleAddressPopover}
+                        onVisibleChange={handleVisibleChange}
                       >
-                        <Button type="link" style={{ padding: 0 }}>
+                        <Button type="link" style={{ padding: 0 }} onClick={openPopover}>
                           Thay đổi địa chỉ giao hàng
                         </Button>
                       </Popover>
@@ -720,6 +808,25 @@ const CustomerCard: React.FC<CustomerCardProps> = (
           </div>
         )}
       </div>
+
+      <CustomerModal
+        createBtnTitle="Tạo mới địa chỉ"
+        updateBtnTitle="Lưu địa chỉ"
+        visible={isShowModalShipping}
+        onCreate={(formValue: CustomerShippingAddress) =>
+          handleShippingAddressForm.create(formValue)
+        }
+        onEdit={(formValue: CustomerShippingAddress) =>
+          handleShippingAddressForm.edit(formValue)
+        }
+        onDelete={() => {}}
+        onCancel={() => setIsShowModalShipping(false)}
+        modalAction={modalAction}
+        modalTypeText="Địa chỉ giao hàng"
+        componentForm={FormCustomerShippingAddress}
+        formItem={modalSingleShippingAddress}
+        deletedItemTitle={modalSingleShippingAddress?.name}
+      />
 
       <AddAddressModal
         visible={isVisibleAddress}
