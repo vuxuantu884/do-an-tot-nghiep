@@ -7,5 +7,6 @@ export const StyledComponent = styled.div`
   }
   td {
     word-break: break-word;
+    vertical-align: top;
   }
 `;

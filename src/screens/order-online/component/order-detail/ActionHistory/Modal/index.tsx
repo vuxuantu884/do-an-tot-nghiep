@@ -1,8 +1,7 @@
 import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { actionGetActionLogDetail } from "domain/actions/order/order.action";
-import { ActionLogDetailResponse } from "model/response/order/action-log.response";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { StyledComponent } from "./styles";
 
@@ -20,8 +19,6 @@ type SingleLogType = {
 };
 
 function ActionHistoryModal(props: PropType) {
-  const [actionHistoryDetail, setActionHistoryDetail] =
-    useState<ActionLogDetailResponse>();
   const dispatch = useDispatch();
   const [singleLogShorten, setSingleLogShorten] = useState<SingleLogType[]>([]);
   const [singleLogDetail, setSingleLogDetail] = useState<SingleLogType[]>([]);
@@ -46,48 +43,7 @@ function ActionHistoryModal(props: PropType) {
     },
   ];
 
-  const FAKE_LOG_DETAIL = [
-    {
-      key: "1",
-      before: `
-      {
-        Array
-        (
-            [requestCarrier] => Array
-                (
-                    [to_name] => c La
-                    [to_phone] => 0915622182
-                    [to_address] => ĐÀO THỊ THÚY LA THON GỐM XÃ THỤY LÔI HUYỆN KIM BẢNG TỈNH HÀ NAM
-                    [to_ward_code] => 240316
-                    [to_district_id] => 1952
-                    [return_phone] => 02499966668
-                    [return_address] => 151 Nguyễn Du, Vị 
-        
-        }
-      `,
-      after: `
-      {
-        {
-        Array
-        (
-            [requestCarrier] => Array
-                (
-                    [to_name] => c La
-                    [to_phone] => 0915622182
-                    [to_address] => ĐÀO THỊ THÚY LA THON GỐM XÃ THỤY LÔI HUYỆN KIM BẢNG TỈNH HÀ NAM
-                    [to_ward_code] => 240316
-                    [to_district_id] => 1952
-                    [return_phone] => 02499966668
-                    [return_address] => 151 Nguyễn Du, Vị 
-        
-        }
-        
-        }
-      `,
-    },
-  ];
-
-  const FAKE_LOG_DETAIL_COLUMN = [
+  const ACTION_LOG_DETAIL_COLUMN = [
     {
       title: "Trước",
       dataIndex: "before",
@@ -170,7 +126,7 @@ function ActionHistoryModal(props: PropType) {
         {isShowLogDetail ? (
           <Table
             dataSource={singleLogDetail}
-            columns={FAKE_LOG_DETAIL_COLUMN}
+            columns={ACTION_LOG_DETAIL_COLUMN}
             pagination={false}
           />
         ) : (
