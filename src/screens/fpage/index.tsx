@@ -8,7 +8,7 @@ import { useDispatch } from "react-redux";
 import { FpageCustomerSearchQuery } from "model/query/customer.query";
 import { CustomerSearchByPhone } from "domain/actions/customer/customer.action";
 import "./fpage.index.scss";
-import { getListOrderAction } from "domain/actions/order/order.action";
+import { getListOrderActionFpage } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 
@@ -18,6 +18,7 @@ const initQueryCustomer: FpageCustomerSearchQuery = {
   page: 1,
   phone: null,
 };
+
 function FpageCRM() {
   let phoneQuery = useQuery();
   const dispatch = useDispatch();
@@ -34,76 +35,52 @@ function FpageCRM() {
   const [customerPhoneString] = React.useState<string | null>(
     phoneQuery?.get("phone")
   );
-
   const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>([]);
+  const [querySearchOrderFpage, setQuerySearchOrderFpage] = React.useState<any>(
+    {
+      limit: 10,
+      page: 1,
+      customer_ids: null,
+    }
+  );
+  const [metaData, setMetaData] = React.useState<any>({});
+
+  const onPageChange = React.useCallback(
+    (page, limit) => {
+      setQuerySearchOrderFpage({ ...querySearchOrderFpage, page, limit });
+    },
+    [querySearchOrderFpage, setQuerySearchOrderFpage]
+  );
 
   const searchByPhoneCallback = (value: any) => {
-    console.log(value);
     if (value !== undefined) {
       setCustomerDetail(value);
     } else {
       setCustomerDetail(undefined);
     }
   };
-
   React.useEffect(() => {
     if (
       customerDetail &&
       customerDetail.id !== null &&
       customerDetail.id !== undefined
     ) {
-      let queryObject: OrderSearchQuery = {
-        page: 1,
-        limit: 10,
-        sort_type: null,
-        sort_column: null,
-        code: null,
-        store_ids: [],
-        source_ids: [],
-        customer_ids: [customerDetail.id],
-        issued_on_min: null,
-        issued_on_max: null,
-        issued_on_predefined: null,
-        finalized_on_min: null,
-        finalized_on_max: null,
-        finalized_on_predefined: null,
-        ship_on_min: null,
-        ship_on_max: null,
-        ship_on_predefined: null,
-        expected_receive_on_min: null,
-        expected_receive_on_max: null,
-        expected_receive_predefined: null,
-        completed_on_min: null,
-        completed_on_max: null,
-        completed_on_predefined: null,
-        cancelled_on_min: null,
-        cancelled_on_max: null,
-        cancelled_on_predefined: null,
-        order_status: [],
-        order_sub_status: [],
-        fulfillment_status: [],
-        payment_status: [],
-        return_status: [],
-        account: [],
-        assignee: [],
-        price_min: undefined,
-        price_max: undefined,
-        payment_method_ids: [],
-        ship_by: null,
-        note: null,
-        customer_note: null,
-        tags: [],
-        reference_code: null,
-      };
-      dispatch(getListOrderAction(queryObject, setOrderHistoryItems));
+      querySearchOrderFpage.customer_ids = [customerDetail.id];
+      dispatch(
+        getListOrderActionFpage(querySearchOrderFpage, setOrderHistoryItems)
+      );
     }
-  }, [dispatch, customerDetail]);
+  }, [customerDetail, dispatch, querySearchOrderFpage]);
 
   const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
     if (data) {
       setOrderHistory(data.items);
+      setMetaData(data.metadata);
+      
+      console.log(data.items)
     }
   };
+
   const deletePhone = useCallback(
     (p: any, e: any) => {
       e.stopPropagation();
@@ -176,6 +153,8 @@ function FpageCRM() {
             setIsClearOrderField={setIsClearOrderField}
             customerPhone={customerPhone}
             deletePhone={deletePhone}
+            metaData={metaData}
+            onPageChange={onPageChange}
           />
         )}
       </div>

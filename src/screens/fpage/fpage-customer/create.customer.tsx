@@ -57,7 +57,7 @@ const CustomerAdd = (props: any) => {
     getCustomerWhenPhoneChange,
     orderHistory,
     setIsClearOrderField,
-    customerPhone,deletePhone
+    customerPhone,deletePhone,metaData,onPageChange
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -479,7 +479,14 @@ const CustomerAdd = (props: any) => {
           <Table
             columns={recentOrder}
             dataSource={orderHistory}
-            pagination={false}
+            pagination={{
+              pageSize: metaData?.limit,
+              total: metaData?.total,
+              current: metaData?.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
           />
         </Card>
         <div className="customer-bottom-button">
