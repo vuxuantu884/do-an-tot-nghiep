@@ -1,8 +1,10 @@
 import { Card, Col, Row } from "antd";
 import { actionGetOrderActionLogs } from "domain/actions/order/order.action";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
+import moment from "moment";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import historyAction from "./images/action-history.svg";
 import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
@@ -20,6 +22,11 @@ function ActionHistory(props: PropType) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [actionId, setActionId] = useState<number | undefined>(undefined);
 
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer
+  );
+  const LIST_STATUS = bootstrapReducer.data?.order_main_status;
+
   const showModal = (actionId: number) => {
     setIsModalVisible(true);
     setActionId(actionId);
@@ -36,6 +43,20 @@ function ActionHistory(props: PropType) {
         <span>Lịch sử thao tác đơn hàng</span>
       </div>
     );
+  };
+
+  const renderSingleActionLogTitle = (action?: string) => {
+    if (!action) {
+      return;
+    }
+    let result = "";
+    const resultAction = LIST_STATUS?.find((singleStatus) => {
+      return singleStatus.value === action;
+    });
+    if (resultAction && resultAction.name) {
+      result = resultAction.name;
+    }
+    return result;
   };
 
   useEffect(() => {
@@ -58,7 +79,6 @@ function ActionHistory(props: PropType) {
           {actionLog &&
             actionLog.length > 0 &&
             actionLog.map((singleActionHistory, index) => {
-              console.log("singleActionHistory", singleActionHistory);
               return (
                 <div
                   className="singleActionHistory"
@@ -71,20 +91,24 @@ function ActionHistory(props: PropType) {
                     <Col span={12}>
                       <div className="singleActionHistory__info">
                         <h4 className="singleActionHistory__title">
-                          {singleActionHistory.id}
+                          {singleActionHistory?.store}
                         </h4>
                         <div className="singleActionHistory__date">
-                          {singleActionHistory.id}
+                          {moment(singleActionHistory.updated_date).format(
+                            "HH:mm DD/MM/YYYY"
+                          )}
                         </div>
                       </div>
                     </Col>
                     <Col span={12}>
                       <div className="singleActionHistory__status">
                         <div className="singleActionHistory__mainStatus">
-                          {singleActionHistory.status}
+                          {renderSingleActionLogTitle(
+                            singleActionHistory?.action
+                          )}
                         </div>
                         <div className="singleActionHistory__subStatus">
-                          {singleActionHistory.status}
+                          {singleActionHistory?.status}
                         </div>
                       </div>
                     </Col>
