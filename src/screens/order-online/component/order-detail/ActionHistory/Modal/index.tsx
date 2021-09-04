@@ -12,33 +12,21 @@ type PropType = {
   onCancel: () => void;
 };
 
+type SingleLogType = {
+  key: string;
+  title: string;
+  before: any;
+  current: any;
+};
+
 function ActionHistoryModal(props: PropType) {
   const [actionHistoryDetail, setActionHistoryDetail] =
     useState<ActionLogDetailResponse>();
   const dispatch = useDispatch();
-  const FAKE_LOG_SHORTEN = [
-    {
-      key: "1",
-      title: "Code",
-      before: null,
-      after: 200,
-    },
-    {
-      key: "2",
-      title: "Data",
-      before: "Mảng dữ liệu",
-      after: "	Mảng dữ liệu",
-    },
-    {
-      key: "3",
-      title: "Message",
-      before: null,
-      after:
-        "Do diễn biến phức tạp của dịch Covid-19, thời gian giao hàng có thể dài hơn dự kiến từ 1-5 ngày.",
-    },
-  ];
+  const [singleLogShorten, setSingleLogShorten] = useState<SingleLogType[]>([]);
+  const [singleLogDetail, setSingleLogDetail] = useState<SingleLogType[]>([]);
 
-  const FAKE_LOG_SHORTEN_COLUMN = [
+  const ACTION_LOG_SHORTEN_COLUMN = [
     {
       title: "Nội dung thay đổi",
       dataIndex: "title",
@@ -53,8 +41,8 @@ function ActionHistoryModal(props: PropType) {
     },
     {
       title: "Sau",
-      dataIndex: "after",
-      key: "after",
+      dataIndex: "current",
+      key: "current",
     },
   ];
 
@@ -108,8 +96,8 @@ function ActionHistoryModal(props: PropType) {
     },
     {
       title: "Sau",
-      dataIndex: "after",
-      key: "after",
+      dataIndex: "current",
+      key: "current",
       width: "50%",
     },
   ];
@@ -126,7 +114,34 @@ function ActionHistoryModal(props: PropType) {
       dispatch(
         actionGetActionLogDetail(actionId, (response) => {
           console.log("response", response);
-          setActionHistoryDetail(response);
+          setSingleLogShorten([
+            {
+              key: "1",
+              title: "Code",
+              before: response.before?.code || "",
+              current: response.current?.code || "",
+            },
+            {
+              key: "2",
+              title: "Data",
+              before: "Mảng dữ liệu",
+              current: "Mảng dữ liệu",
+            },
+            {
+              key: "3",
+              title: "Message",
+              before: response.before?.status || "",
+              current: response.current?.status || "",
+            },
+          ]);
+          setSingleLogDetail([
+            {
+              key: "1",
+              title: "detail",
+              before: response.before?.data || "",
+              current: response.current?.data || "",
+            },
+          ]);
         })
       );
     }
@@ -154,14 +169,14 @@ function ActionHistoryModal(props: PropType) {
         </div>
         {isShowLogDetail ? (
           <Table
-            dataSource={FAKE_LOG_DETAIL}
+            dataSource={singleLogDetail}
             columns={FAKE_LOG_DETAIL_COLUMN}
             pagination={false}
           />
         ) : (
           <Table
-            dataSource={FAKE_LOG_SHORTEN}
-            columns={FAKE_LOG_SHORTEN_COLUMN}
+            dataSource={singleLogShorten}
+            columns={ACTION_LOG_SHORTEN_COLUMN}
             pagination={false}
           />
         )}
