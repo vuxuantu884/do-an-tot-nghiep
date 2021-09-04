@@ -20,6 +20,7 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { modalActionType } from "model/modal/modal.model";
 import {
   BillingAddress,
   FulFillmentRequest,
@@ -67,6 +68,7 @@ export default function FpageOrders(props: any) {
     setIsCustomerReload,
     setCustomerPhone,
     setOrderHistory,
+    getCustomerByPhone
   } = props;
   //#region State
   const dispatch = useDispatch();
@@ -92,6 +94,7 @@ export default function FpageOrders(props: any) {
   const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
     number | null
   >(null);
+  const [modalAction, setModalAction] =  React.useState<modalActionType>("create");
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
@@ -564,6 +567,9 @@ export default function FpageOrders(props: any) {
                 setIsButtonSelected={setIsButtonSelected}
                 setCustomerPhone={setCustomerPhone}
                 setOrderHistory={setOrderHistory}
+                getCustomerByPhone={getCustomerByPhone}
+                setModalAction={setModalAction}
+                modalAction={modalAction}
               />
               {/*--- product ---*/}
               <CardProduct
