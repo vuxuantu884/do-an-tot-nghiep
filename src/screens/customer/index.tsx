@@ -510,7 +510,7 @@ const Customer = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            dataSource={data.items.sort((a: any,b: any) => b.id - a.id)}
+            dataSource={data.items}
             columns={columnFinal}
             rowKey={(item: any) => item.id}
           />

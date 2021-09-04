@@ -1,0 +1,24 @@
+.inventory-filter {
+  .page-filter {
+    &-right {
+      margin-left: 16px;
+      width: 100%;
+      .ant-space {
+        width: 100%;
+        &-item {
+          width: 100%;
+          .ant-form {
+            display: flex;
+            width: 100%;
+            .search {
+              flex: 2;
+            }
+            .store {
+              flex: 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,36 +4,36 @@ import moment from "moment";
 import { useCallback, useEffect, useState } from "react";
 import { OrderResponse } from "model/response/order/order.response";
 
-
 type StepStatusProps = {
   status?: string | null | undefined;
   orderDetail: OrderResponse | null;
 };
 
 const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
-  const [state, setstate] = useState<number>(0);
+  const [currentStep, setCurrentStep] = useState(0);
   const point = useCallback(() => {
     switch (props.status) {
       case "draff":
-        setstate(0);
+        setCurrentStep(0);
         break;
       case "finalized":
       case "picked":
-        setstate(1);
+        setCurrentStep(1);
         break;
       case "packed":
-        setstate(2);
+        setCurrentStep(2);
         break;
       case "shipping":
-        setstate(3);
+        setCurrentStep(3);
         break;
       case "shipped":
-        setstate(4);
+        setCurrentStep(4);
         break;
       default:
         return 0;
     }
   }, [props.status]);
+
   useEffect(() => {
     point();
   }, [point, props.status]);
@@ -45,12 +45,12 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   );
 
   return (
-    <Steps progressDot={progressDot} size="small" current={state}>
+    <Steps progressDot={progressDot} size="small" current={currentStep}>
       <Steps.Step
         title="Đặt hàng"
-        description={moment(props.orderDetail?.created_date).format(
-          "DD/MM/YYYY HH:mm"
-        )}
+        // description={moment(props.orderDetail?.created_date).format(
+        //   "DD/MM/YYYY HH:mm"
+        // )}
       />
       <Steps.Step
         title="Xác nhận"
@@ -105,4 +105,3 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
 };
 
 export default CreateBillStep;
-

@@ -196,6 +196,8 @@ label {
 @import "sale-order";
 @import "po";
 @import "printer";
+@import "inventory";
+@import "numberrange";
 
 .display {
   &-block {

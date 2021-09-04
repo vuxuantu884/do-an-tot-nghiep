@@ -1,28 +1,32 @@
+import BaseAction from "base/base.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
-  DeliveryServiceResponse,
-  ErrorLogResponse,
-  OrderResponse,
-  OrderSubStatusResponse,
-  ShippingGHTKResponse,
-  GHNFeeResponse,
-  VTPFeeResponse,
-  TrackingLogFulfillmentResponse,
-} from "model/response/order/order.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import {
+  GHNFeeRequest,
   OrderRequest,
   ShippingGHTKRequest,
-  GHNFeeRequest,
-  VTPFeeRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   UpdatePaymentRequest,
+  VTPFeeRequest,
 } from "model/request/order.request";
+import {
+  ActionLogDetailResponse,
+  OrderActionLogResponse,
+} from "model/response/order/action-log.response";
+import {
+  DeliveryServiceResponse,
+  ErrorLogResponse,
+  GHNFeeResponse,
+  OrderResponse,
+  OrderSubStatusResponse,
+  ShippingGHTKResponse,
+  TrackingLogFulfillmentResponse,
+  VTPFeeResponse,
+} from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderType } from "../../types/order.type";
-import BaseAction from "base/base.action";
-import { OrderModel, OrderSearchQuery } from "model/order/order.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 
 export const orderCreateAction = (
   request: OrderRequest,
@@ -122,15 +126,15 @@ export const getListSubStatusAction = (
   handleData: (data: Array<OrderSubStatusResponse>) => void
 ) => {
   return BaseAction(OrderType.GET_LIST_SUB_STATUS, { status, handleData });
-}
+};
 
 export const setSubStatusAction = (order_id: number, statusId: number) => {
   return BaseAction(OrderType.SET_SUB_STATUS, { order_id, statusId });
-}
+};
 
 export const getListOrderAction = (
   query: OrderSearchQuery,
-  setData: (data: PageResponse<OrderModel>|false) => void
+  setData: (data: PageResponse<OrderModel> | false) => void
 ) => {
   return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
     query,
@@ -150,10 +154,36 @@ export const getListOrderActionFpage = (
 
 export const getShipmentsAction = (
   query: ShipmentSearchQuery,
-  setData: (data: PageResponse<ShipmentModel>|false) => void
+  setData: (data: PageResponse<ShipmentModel> | false) => void
 ) => {
   return BaseAction(OrderType.GET_SHIPMENTS_REQUEST, {
     query,
     setData,
   });
+};
+
+export const actionGetOrderActionLogs = (
+  id: number,
+  handleData: (data: OrderActionLogResponse[]) => void
+) => {
+  return {
+    type: OrderType.GET_ORDER_ACTION_LOGS,
+    payload: {
+      id,
+      handleData,
+    },
+  };
+};
+
+export const actionGetActionLogDetail = (
+  id: number,
+  handleData: (data: ActionLogDetailResponse) => void
+) => {
+  return {
+    type: OrderType.GET_ACTION_LOG_DETAILS,
+    payload: {
+      id,
+      handleData,
+    },
+  };
 };

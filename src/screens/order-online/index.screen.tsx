@@ -107,7 +107,7 @@ const initQuery: OrderSearchQuery = {
   price_min: undefined,
   price_max: undefined,
   payment_method_ids: [],
-  ship_by: null,
+  delivery_types: [],
   note: null,
   customer_note: null,
   tags: [],
@@ -758,9 +758,3 @@ const ListOrderScreen: React.FC = () => {
 };
 
 export default ListOrderScreen;
-function setDataAccounts(
-  arg0: {},
-  setDataAccounts: any
-): import("../../base/base.action").YodyAction {
-  throw new Error("Function not implemented.");
-}
