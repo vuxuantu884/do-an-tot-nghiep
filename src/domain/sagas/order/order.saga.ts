@@ -99,7 +99,7 @@ function* orderCreateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -119,7 +119,7 @@ function* InfoGHTKSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -139,7 +139,7 @@ function* InfoGHNSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -159,7 +159,7 @@ function* InfoVTPSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -179,7 +179,7 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -200,7 +200,7 @@ function* updatePaymentSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -220,7 +220,7 @@ function* updateShipmentSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

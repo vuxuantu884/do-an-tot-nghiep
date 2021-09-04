@@ -112,17 +112,45 @@
     }
   }
 }
-#price_min {
-  border-right: none;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+.order-filter-drawer {
+  .ant-drawer-content {
+    .price_min {
+      width: 100%;
+    }
+    .price_max {
+      width: 100%;
+      border-left: none;
+    }
+    #price_min {
+      border-right: none;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    
+    #price_max {
+      border-left: none;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    .ant-select {
+      .ant-select-selector {
+        .ant-select-selection-item {
+          background-color: #2A2A86;
+          border-radius: 6px;
+          font-style: normal;
+          font-weight: normal;
+          font-size: 14px;
+          line-height: 18px;
+          font-family: Roboto;
+          .ant-select-selection-item-content, .ant-select-selection-item-remove {
+            color: #FFFFFF;
+          }
+        }
+      }
+    }
+  }
 }
 
-#price_max {
-  border-left: none;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
 
 .header-filter{
   font-weight: 500;
