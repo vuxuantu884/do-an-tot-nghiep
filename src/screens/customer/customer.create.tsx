@@ -23,7 +23,7 @@ import { showSuccess } from "utils/ToastUtils";
 import "./customer.scss";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import GeneralInformation from "./general.information";
+import GeneralInformation from "./common/general.information";
 import {
   AccountResponse,
   AccountSearchQuery,

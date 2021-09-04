@@ -106,6 +106,7 @@ export default function FpageOrders(props: any) {
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
   });
+  const [isDisableSubmitBtn,setIsDisableSubmitBtn] = useState<boolean>(false);
   // const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
   //#rgion Customer
@@ -361,6 +362,7 @@ export default function FpageOrders(props: any) {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
+      setIsDisableSubmitBtn(true)
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
         setIsButtonSelected(false);
@@ -439,6 +441,7 @@ export default function FpageOrders(props: any) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
+            setIsDisableSubmitBtn(true)
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
@@ -448,6 +451,7 @@ export default function FpageOrders(props: any) {
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
+            setIsDisableSubmitBtn(true)
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         }
@@ -549,6 +553,7 @@ export default function FpageOrders(props: any) {
                 ShippingAddressChange={onChangeShippingAddress}
                 BillingAddressChange={onChangeBillingAddress}
                 setCustomerDetail={setCustomerDetail}
+                setIsButtonSelected={setIsButtonSelected}
               />
               {/*--- product ---*/}
               <CardProduct
@@ -750,6 +755,7 @@ export default function FpageOrders(props: any) {
                 Lưu nháp
               </Button> */}
               <Button
+                disabled={isDisableSubmitBtn}
                 style={{ padding: "0 25px", fontWeight: 400 }}
                 type="primary"
                 className="create-button-custom"
@@ -760,6 +766,7 @@ export default function FpageOrders(props: any) {
                     "formRef.current.value",
                     formRef?.current?.getFieldsValue()
                   );
+                  
                   formRef.current?.submit();
                 }}
               >

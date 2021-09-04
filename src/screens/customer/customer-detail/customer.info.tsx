@@ -339,7 +339,11 @@ function CustomerInfo(props: any) {
                               }}
                             >
                               {detail.isWebsite ? (
-                                <a href={detail.value}>{detail.value}</a>
+                                detail.value ? (
+                                  <a href={detail.value}>{detail.value}</a>
+                                ) : (
+                                  "---"
+                                )
                               ) : detail.value ? (
                                 detail.value
                               ) : (

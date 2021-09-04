@@ -1,4 +1,3 @@
-//#region Import
 import { Button, Card, Col, Collapse, Divider, Row, Space, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
@@ -36,33 +35,40 @@ import {
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ActionHistory from "./component/order-detail/ActionHistory";
+import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import UpdateCustomerCard from "./component/update-customer-card";
 import UpdatePaymentCard from "./component/update-payment-card";
 import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
 const { Panel } = Collapse;
-//#endregion
 
+type PropType = {
+  id?: string;
+  isCloneOrder?: boolean;
+};
 type OrderParam = {
   id: string;
 };
 
-const OrderDetail = () => {
-  const { id } = useParams<OrderParam>();
+const OrderDetail = (props: PropType) => {
+  const { isCloneOrder } = props;
+  let { id } = useParams<OrderParam>();
+  if (!id && props.id && isCloneOrder) {
+    id = props.id;
+  }
   let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
 
-  //#region state
   const dispatch = useDispatch();
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  // update payment
+
   const [paymentType, setPaymentType] = useState<number>(3);
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
-  // update shipment
+
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [isVisibleShipping, setVisibleShipping] = useState(false);
-  // end
+
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
@@ -77,8 +83,7 @@ const OrderDetail = () => {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
-  //#endregion
-  //#region Orther
+
   const onPaymentSelect = (paymentType: number) => {
     if (paymentType === 1) {
       setVisibleShipping(true);
@@ -97,8 +102,6 @@ const OrderDetail = () => {
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] =
     useState(false);
 
-  //#endregion
-  //#region Master
   const stepsStatus = () => {
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
@@ -144,6 +147,7 @@ const OrderDetail = () => {
     } else if (OrderDetail?.status === OrderStatus.FINISHED) {
       return FulFillmentStatus.SHIPPED;
     }
+    return "";
   };
 
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
@@ -151,10 +155,8 @@ const OrderDetail = () => {
     cauHinhInNhieuLienHoaDon: 1,
   });
 
-  // tag status
   let stepsStatusValue = stepsStatus();
 
-  //#region Product
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -164,7 +166,6 @@ const OrderDetail = () => {
     },
     []
   );
-  //#endregion
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setLoadingData(false);
     if (!data) {
@@ -197,9 +198,6 @@ const OrderDetail = () => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
 
-  //#endregion
-
-  //#region Update Fulfillment Status
   useEffect(() => {
     if (OrderDetail != null) {
       dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomerDetail));
@@ -211,7 +209,6 @@ const OrderDetail = () => {
       dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
     }
   }, [dispatch, OrderDetail?.store_id]);
-  //#endregion
 
   useEffect(() => {
     setOrderSettings({
@@ -283,7 +280,7 @@ const OrderDetail = () => {
           name: "Đơn hàng",
         },
         {
-          name: "Đơn hàng " + id,
+          name: !isCloneOrder ? `Đơn hàng ${id}` : `Sao chép Đơn hàng ${id}`,
         },
       ]}
       extra={
@@ -921,38 +918,16 @@ const OrderDetail = () => {
                 </Row>
               </div>
             </Card>
-            <ActionHistory />
+            <ActionHistory orderId={id} />
           </Col>
         </Row>
-        <Row
-          gutter={24}
-          className="margin-top-10"
-          style={{
-            position: "fixed",
-            textAlign: "right",
-            width: "100%",
-            height: "55px",
-            bottom: "0%",
-            backgroundColor: "#FFFFFF",
-            marginLeft: "-30px",
-            display: `${isShowBillStep ? "" : "none"}`,
-          }}
-        >
-          <Col
-            md={10}
-            style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px" }}
-          >
-            <CreateBillStep status={stepsStatusValue} orderDetail={null} />
-          </Col>
-        </Row>
+        <OrderDetailBottomBar
+          isVisibleGroupButtons={false}
+          stepsStatusValue={stepsStatusValue}
+        />
       </div>
     </ContentContainer>
   );
 };
 
 export default OrderDetail;
-
-// -
-//                                   (OrderDetail?.fulfillments.length > 0 && OrderDetail?.fulfillments[0].shipment
-//                                     ? OrderDetail?.fulfillments[0].shipment?.cod
-//                                     : 0)

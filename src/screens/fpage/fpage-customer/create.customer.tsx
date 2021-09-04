@@ -1,13 +1,16 @@
-import { Form, Row, Col, Button, Table, Card } from "antd";
+import { Form, Row, Col, Button, Table, Card, Tooltip, Tag } from "antd";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import {
   DistrictGetByCountryAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
+import urlCrimson from "assets/icon/url-crimson.svg";
 import {
   CreateCustomer,
   CustomerGroups,
   CustomerTypes,
+  CreateNote,
+  DeleteNote,
 } from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
 import { WardResponse } from "model/content/ward.model";
@@ -18,7 +21,7 @@ import {
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { showSuccess } from "utils/ToastUtils";
+import { showSuccess, showError } from "utils/ToastUtils";
 import "./customer.scss";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -30,6 +33,9 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import moment from "moment";
+import {
+  formatCurrency,
+} from "utils/AppUtils";
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
@@ -42,7 +48,7 @@ const CustomerAdd = (props: any) => {
     customerPhoneList,
     setCustomerPhoneList,
     getCustomerWhenPhoneChange,
-    orderHistory
+    orderHistory,
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -56,6 +62,8 @@ const CustomerAdd = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
+  const notes = customerDetail && customerDetail.notes;
+  const customerId = customerDetail && customerDetail.id;
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -74,33 +82,117 @@ const CustomerAdd = (props: any) => {
     },
     [dispatch, setDataAccounts]
   );
-  //mock
-  const recentOrder = [
+  //m
+
+  const status_order = [
+    {
+      name: "Nháp",
+      value: "draft",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Đóng gói",
+      value: "packed",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Xuất kho",
+      value: "shipping",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Đã xác nhận",
+      value: "finalized",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Hoàn thành",
+      value: "completed",
+      color: "#27AE60",
+      background: "rgba(39, 174, 96, 0.1)",
+    },
+    {
+      name: "Kết thúc",
+      value: "finished",
+      color: "#27AE60",
+      background: "rgba(39, 174, 96, 0.1)",
+    },
+    {
+      name: "Đã huỷ",
+      value: "cancelled",
+      color: "#ae2727",
+      background: "rgba(223, 162, 162, 0.1)",
+    },
+    {
+      name: "Đã hết hạn",
+      value: "expired",
+      color: "#ae2727",
+      background: "rgba(230, 171, 171, 0.1)",
+    },
+  ];
+
+  const recentOrder: any = [
     {
       title: "Ngày",
-      render: (value:any, row:any, index:any) => {
-        return <div >{moment(row.created_date).format("DD/MM/YYYY HH:mm:ss")}</div>;
+      render: (value: any, row: any, index: any) => {
+        return (
+          <div>{moment(row.created_date).format("DD/MM/YYYY HH:mm:ss")}</div>
+        );
       },
     },
     {
-      title: "Tổng thu",
-      dataIndex: "total_line_amount_after_line_discount",
+      title: "Tổng thu", 
+      align: "center",
+      render: (value: any, row: any, index: any) => {
+        return (
+          <div>{formatCurrency(row.total_line_amount_after_line_discount)}</div>
+        )
+      }
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
+      align: "center",
+      render: (value: any, row: any, index: any) => {
+        const statusTag = status_order.find(
+          (status) => status.value === row.status
+        );
+        return (
+          <div>
+            <Tag
+              className="fpage-recent-tag"
+              style={{
+                color: `${statusTag?.color}`,
+                backgroundColor: `${statusTag?.background}`,
+              }}
+            >
+              {statusTag?.name}
+            </Tag>
+          </div>
+        );
+      },
     },
     {
-      title: "Chi tiết",
-      render: (value:any, row:any, index:any) => {
-        let href = "https://dev.yody.io/unicorn/admin/orders/".concat(row.id)
-        return <a target="blank" href = {href} >Chi tiết</a>;
+      title: "",
+      align: "center",
+      render: (value: any, row: any, index: any) => {
+        let href = `https://dev.yody.io/unicorn/admin/orders/${row.id}`;
+        return (
+          <Tooltip placement="topLeft" title="Xem chi tiết">
+            <a target="blank" href={href}>
+              <img src={urlCrimson} alt="link"></img>
+            </a>
+          </Tooltip>
+        );
       },
     },
   ];
 
-
-  //end mock
+  //end
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
@@ -154,7 +246,6 @@ const CustomerAdd = (props: any) => {
         full_address: customerDetail.full_address,
       };
       customerForm.setFieldsValue(field);
-      
     } else {
       const field = {
         full_name: null,
@@ -206,6 +297,42 @@ const CustomerAdd = (props: any) => {
   const handleSubmitFail = (errorInfo: any) => {
     console.error("Failed:", errorInfo);
   };
+  
+  const reloadPage = () => {
+    getCustomerWhenPhoneChange(customerDetail.phone);
+  }
+  
+  const handleNote = {
+    create: (noteContent: any) => {
+      if (noteContent && customerDetail) {
+        dispatch(
+          CreateNote(customerDetail.id, {content: noteContent}, (data: any) => {
+            if (data) {
+              showSuccess("Thêm mới ghi chú thành công")
+              reloadPage();
+            } else {
+              showError("Thêm mới ghi chú thất bại");
+            }
+          })
+        );
+      }
+    },
+    delete: (note: any, customerId: any) => {
+      if (note && customerId) {
+        dispatch(
+          DeleteNote(note.id, customerId, (data: any) => {
+            if (data) {
+              showSuccess("Xóa ghi chú thành công")
+              reloadPage();
+            } else {
+              showError("Xóa ghi chú thất bại");
+            }
+          })
+        );
+      }
+    }
+  };
+
   return (
     <ContentContainer
       title=""
@@ -248,6 +375,10 @@ const CustomerAdd = (props: any) => {
               phones={customerPhoneList}
               setPhones={setCustomerPhoneList}
               getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
+              customerId={customerId}
+              notes={notes}
+              handleNote={handleNote}
+              customerDetail={customerDetail}
             />
           </Col>
         </Row>
@@ -260,7 +391,11 @@ const CustomerAdd = (props: any) => {
             </div>
           }
         >
-          <Table columns={recentOrder} dataSource={orderHistory} pagination={false} />
+          <Table
+            columns={recentOrder}
+            dataSource={orderHistory}
+            pagination={false}
+          />
         </Card>
         <div className="customer-bottom-button">
           <Button
@@ -270,9 +405,12 @@ const CustomerAdd = (props: any) => {
           >
             Hủy
           </Button>
-          <Button type="primary" htmlType="submit">
+         {!customerDetail &&  <Button type="primary" htmlType="submit">
             Tạo mới khách hàng
-          </Button>
+          </Button>}
+          {customerDetail &&  <Button type="primary" htmlType="submit">
+          Lưu khách hàng
+          </Button>}
         </div>
       </Form>
     </ContentContainer>

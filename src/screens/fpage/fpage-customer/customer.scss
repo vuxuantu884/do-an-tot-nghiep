@@ -206,3 +206,14 @@
     padding: 6px 24px 0 24px
   }
 }
+
+.customer-note-item {
+  background-color: #F5F5F5;
+  margin-top: 10px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  border-radius: 5px;
+  word-wrap: break-word;
+  word-break:break-all
+}

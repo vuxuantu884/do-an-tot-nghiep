@@ -4,10 +4,11 @@ import customerShipping from "assets/icon/c-shipping.svg";
 import customerRecipt from "assets/icon/c-recipt.svg";
 import customerContact from "assets/icon/c-contact.svg";
 import customerBuyHistory from "assets/icon/c-bag.svg";
+import editIcon from "assets/icon/edit.svg";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Link, useParams } from "react-router-dom";
+import { Link, Redirect, useParams, useRouteMatch, useHistory } from "react-router-dom";
 import moment from "moment";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -21,10 +22,14 @@ import CustomerHistoryInfo from "./customer.history";
 import { PageResponse } from "model/base/base-metadata.response";
 import { getListOrderAction } from "domain/actions/order/order.action";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { useQuery, getQueryParams } from "utils/useQuery";
 
 const CustomerDetailIndex = () => {
+  const history = useHistory()
+  const tabQuery = useQuery();
   const params = useParams() as any;
   const dispatch = useDispatch();
+  let { url } = useRouteMatch();
   const [customerForm] = Form.useForm();
   const [customer, setCustomer] = React.useState<CustomerResponse>();
   const [customerPointInfo, setCustomerPoint] = React.useState([]) as any;
@@ -33,8 +38,28 @@ const CustomerDetailIndex = () => {
   const [modalAction, setModalAction] =
     React.useState<modalActionType>("create");
   const [customerDetailState, setCustomerDetailState] =
-    React.useState<number>(1);
+    React.useState<string>("history");
   // history
+
+  React.useEffect(() => {
+    let list: any = [];
+    const tabObj: any = { ...getQueryParams(tabQuery) };
+    const _tabObj = Object.keys(tabObj);
+    const value = tabObj[_tabObj[0]];
+
+    if (value) {
+      if (!Array.isArray(value)) {
+        list.push(value);
+      } else {
+        list = [...value];
+      }
+      setCustomerDetailState(list[0]);
+    }
+    history.replace(`${url}?tab=history`)
+  }, [setCustomerDetailState]);
+
+  // yes
+
   React.useEffect(() => {
     let queryObject: OrderSearchQuery = {
       page: 1,
@@ -162,6 +187,7 @@ const CustomerDetailIndex = () => {
     name: string | null;
     value: number;
     icon: any | undefined;
+    queryString: string;
   }
 
   const customerDetailButtons: Array<ShipmentButtonModel> = [
@@ -169,26 +195,31 @@ const CustomerDetailIndex = () => {
       name: "Lịch sử mua hàng",
       value: 1,
       icon: customerBuyHistory,
+      queryString: "history",
     },
     {
       name: "Thông tin liên hệ",
       value: 2,
       icon: customerContact,
+      queryString: "contact",
     },
     {
       name: "Địa chỉ nhận hóa đơn",
       value: 3,
       icon: customerRecipt,
+      queryString: "billing",
     },
     {
       name: "Địa chỉ giao hàng",
       value: 4,
       icon: customerShipping,
+      queryString: "shipping",
     },
     {
       name: "Ghi chú",
       value: 5,
-      icon: customerShipping,
+      icon: editIcon,
+      queryString: "note",
     },
   ];
 
@@ -282,12 +313,17 @@ const CustomerDetailIndex = () => {
             <div className="saleorder_shipment_method_btn">
               <Space size={10}>
                 {customerDetailButtons.map((button) => (
-                  <div key={button.value}>
-                    {customerDetailState !== button.value ? (
+                  <Link
+                    to={`${url}?tab=${button.queryString}`}
+                    key={button.value}
+                  >
+                    {customerDetailState !== button.queryString ? (
                       <div
                         className="saleorder_shipment_button"
                         key={button.value}
-                        onClick={() => setCustomerDetailState(button.value)}
+                        onClick={() =>
+                          setCustomerDetailState(button.queryString)
+                        }
                         style={{ padding: "10px " }}
                       >
                         <img src={button.icon} alt="icon"></img>
@@ -303,14 +339,15 @@ const CustomerDetailIndex = () => {
                         <span style={{ fontWeight: 500 }}>{button.name}</span>
                       </div>
                     )}
-                  </div>
+                  </Link>
                 ))}
               </Space>
             </div>
-            {customerDetailState === 1 && (
+
+            {customerDetailState === "history" && (
               <CustomerHistoryInfo orderHistory={orderHistory} />
             )}
-            {customerDetailState === 2 && (
+            {customerDetailState === "contact" && (
               <CustomerContactInfo
                 customer={customer}
                 customerDetailState={customerDetailState}
@@ -319,7 +356,7 @@ const CustomerDetailIndex = () => {
               />
             )}
 
-            {customerDetailState === 3 && (
+            {customerDetailState === "billing" && (
               <CustomerShippingInfo
                 customer={customer}
                 customerDetailState={customerDetailState}
@@ -327,7 +364,7 @@ const CustomerDetailIndex = () => {
                 modalAction={modalAction}
               />
             )}
-            {customerDetailState === 4 && (
+            {customerDetailState === "shipping" && (
               <CustomerShippingAddressInfo
                 customer={customer}
                 customerDetailState={customerDetailState}
@@ -335,7 +372,7 @@ const CustomerDetailIndex = () => {
                 modalAction={modalAction}
               />
             )}
-            {customerDetailState === 5 && (
+            {customerDetailState === "note" && (
               <CustomerNoteInfo
                 customer={customer}
                 customerDetailState={customerDetailState}

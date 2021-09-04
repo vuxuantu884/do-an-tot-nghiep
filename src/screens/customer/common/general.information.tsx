@@ -10,8 +10,7 @@ import {
   Switch,
 } from "antd";
 import { RegUtil } from "utils/RegUtils";
-import "./customer.scss";
-import CustomInput from "./common/customInput";
+import CustomInput from "./customInput";
 
 const { Option } = Select;
 

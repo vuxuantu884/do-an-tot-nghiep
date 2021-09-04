@@ -1,14 +1,21 @@
 import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
-import React, { useState } from "react";
+import { actionGetActionLogDetail } from "domain/actions/order/order.action";
+import { ActionLogDetailResponse } from "model/response/order/action-log.response";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   isModalVisible: boolean;
+  actionId?: number;
   onCancel: () => void;
 };
 
 function ActionHistoryModal(props: PropType) {
+  const [actionHistoryDetail, setActionHistoryDetail] =
+    useState<ActionLogDetailResponse>();
+  const dispatch = useDispatch();
   const FAKE_LOG_SHORTEN = [
     {
       key: "1",
@@ -107,12 +114,23 @@ function ActionHistoryModal(props: PropType) {
     },
   ];
 
-  const { onCancel, isModalVisible } = props;
+  const { onCancel, isModalVisible, actionId } = props;
   const [isShowLogDetail, setIsShowLogDetail] = useState(false);
 
   const handleCancel = () => {
     onCancel();
   };
+
+  useEffect(() => {
+    if (actionId) {
+      dispatch(
+        actionGetActionLogDetail(actionId, (response) => {
+          console.log("response", response);
+          setActionHistoryDetail(response);
+        })
+      );
+    }
+  }, [actionId, dispatch]);
 
   return (
     <Modal
