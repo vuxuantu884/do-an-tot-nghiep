@@ -55,6 +55,8 @@ type CustomerCardProps = {
   BillingAddressChange: (items: BillingAddress) => void;
   customerDetail: CustomerResponse | null;
   setIsButtonSelected: (items: boolean) => void;
+  setCustomerPhone: (items: string | null) => void;
+  setOrderHistory:(items: any) => void;
 };
 
 //Add query for search Customer
@@ -77,7 +79,7 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
-  const { customerDetail, setCustomerDetail, setIsButtonSelected } = props;
+  const { customerDetail, setCustomerDetail, setIsButtonSelected,setCustomerPhone ,setOrderHistory} = props;
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -204,6 +206,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setCustomer(null);
     props.InfoCustomerSet(null);
     setCustomerDetail(null);
+    setCustomerPhone(null)
+    setOrderHistory(null)
     setVisibleBilling(false);
   };
 
@@ -211,7 +215,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const SearchCustomerSelect = useCallback(
     (value, o) => {
-      console.log(value);
       let index: number = -1;
       index = resultSearch.findIndex(
         (customerResponse: CustomerResponse) =>
@@ -221,7 +224,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         setCustomer(resultSearch[index]);
         setCustomerDetail(resultSearch[index]);
         props.InfoCustomerSet(resultSearch[index]);
-
+        setCustomerPhone(resultSearch[index]?.phone)
         //set Shipping Address
         if (resultSearch[index].shipping_addresses) {
           resultSearch[index].shipping_addresses.forEach((item, index2) => {

@@ -168,9 +168,8 @@
   .login {
     width: 400px !important;
   }
-  .ct-toast {
-    position: fixed !important;
-    top: 50px !important;
+  #ct-container{
+    top: 50px !important
   }
   .ant-form-item {
     flex-direction: row !important;

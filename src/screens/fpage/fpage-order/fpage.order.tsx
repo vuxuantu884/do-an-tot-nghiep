@@ -64,6 +64,8 @@ export default function FpageOrders(props: any) {
     setCustomerDetail,
     setIsButtonSelected,
     setIsClearOrderField,
+    setIsCustomerReload,
+    setCustomerPhone,setOrderHistory
   } = props;
   //#region State
   const dispatch = useDispatch();
@@ -106,7 +108,7 @@ export default function FpageOrders(props: any) {
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
   });
-  const [isDisableSubmitBtn,setIsDisableSubmitBtn] = useState<boolean>(false);
+  const [isDisableSubmitBtn, setIsDisableSubmitBtn] = useState<boolean>(false);
   // const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
   //#rgion Customer
@@ -362,11 +364,12 @@ export default function FpageOrders(props: any) {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      setIsDisableSubmitBtn(true)
+      setIsDisableSubmitBtn(true);
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
-        setIsButtonSelected(false);
-        setIsClearOrderField(true)
+        setIsButtonSelected(1);
+        setIsClearOrderField(false);
+        setIsCustomerReload(true);
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
@@ -441,7 +444,7 @@ export default function FpageOrders(props: any) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
-            setIsDisableSubmitBtn(true)
+            setIsDisableSubmitBtn(true);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
@@ -451,7 +454,7 @@ export default function FpageOrders(props: any) {
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
-            setIsDisableSubmitBtn(true)
+            setIsDisableSubmitBtn(true);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         }
@@ -554,6 +557,8 @@ export default function FpageOrders(props: any) {
                 BillingAddressChange={onChangeBillingAddress}
                 setCustomerDetail={setCustomerDetail}
                 setIsButtonSelected={setIsButtonSelected}
+                setCustomerPhone={setCustomerPhone}
+                setOrderHistory={setOrderHistory}
               />
               {/*--- product ---*/}
               <CardProduct
@@ -766,7 +771,7 @@ export default function FpageOrders(props: any) {
                     "formRef.current.value",
                     formRef?.current?.getFieldsValue()
                   );
-                  
+
                   formRef.current?.submit();
                 }}
               >
