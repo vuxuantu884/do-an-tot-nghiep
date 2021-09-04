@@ -1,35 +1,25 @@
-import React from "react";
+import React, { useCallback } from "react";
 import FpageOrders from "./fpage-order/fpage.order";
 import FpageCustomer from "./fpage-customer/create.customer";
 import { Divider } from "antd";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import { useQuery, getQueryParams } from "utils/useQuery";
+import { useQuery } from "utils/useQuery";
 import { useDispatch } from "react-redux";
-import { CustomerSearchQuery } from "model/query/customer.query";
+import { FpageCustomerSearchQuery } from "model/query/customer.query";
 import { CustomerSearchByPhone } from "domain/actions/customer/customer.action";
 import "./fpage.index.scss";
 import { getListOrderAction } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 
-const initQueryCustomer: CustomerSearchQuery = {
+const initQueryCustomer: FpageCustomerSearchQuery = {
   request: "",
-  phone: null,
   limit: 10,
   page: 1,
-  gender: null,
-  from_birthday: null,
-  to_birthday: null,
-  company: null,
-  from_wedding_date: null,
-  to_wedding_date: null,
-  customer_type_id: null,
-  customer_group_id: null,
-  customer_level_id: null,
-  responsible_staff_code: null,
+  phone: null,
 };
 function FpageCRM() {
-  const phoneQuery = useQuery();
+  let phoneQuery = useQuery();
   const dispatch = useDispatch();
   const [isButtonSelected, setIsButtonSelected] = React.useState<number>(1);
   const [customerDetail, setCustomerDetail] =
@@ -38,10 +28,14 @@ function FpageCRM() {
     React.useState<boolean>(true);
   const [isCustomerReload, setIsCustomerReload] = React.useState<boolean>(true);
   const [customerPhone, setCustomerPhone] = React.useState<string | null>("");
-  const [customerPhoneList, setCustomerPhoneList] = React.useState<Array<any>>(
-    []
+  const [customerPhoneList, setCustomerPhoneList] = React.useState<
+    Array<string>
+  >([]);
+  const [customerPhoneString] = React.useState<string | null>(
+    phoneQuery?.get("phone")
   );
-  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>();
+
+  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>([]);
 
   const searchByPhoneCallback = (value: any) => {
     console.log(value);
@@ -55,8 +49,8 @@ function FpageCRM() {
   React.useEffect(() => {
     if (
       customerDetail &&
-      customerDetail.id != null &&
-      customerDetail.id != undefined
+      customerDetail.id !== null &&
+      customerDetail.id !== undefined
     ) {
       let queryObject: OrderSearchQuery = {
         page: 1,
@@ -107,28 +101,28 @@ function FpageCRM() {
 
   const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
     if (data) {
-      console.log("orderx", data.items);
       setOrderHistory(data.items);
     }
   };
+  const deletePhone = useCallback(
+    (p: any, e: any) => {
+      e.stopPropagation();
+      let _phones = [...customerPhoneList];
+      const index: any = _phones.indexOf(p);
+      _phones.splice(index, 1);
+      setCustomerPhoneList(_phones);
+    },
+    [customerPhoneList]
+  );
 
   React.useEffect(() => {
-    let list: any = [];
-    const phoneObj: any = { ...getQueryParams(phoneQuery) };
-    const _queryObj = Object.keys(phoneObj);
-    const value = phoneObj[_queryObj[0]];
-
-    if (value) {
-      if (!Array.isArray(value)) {
-        list.push(value);
-      } else {
-        list = [...value];
-      }
+    if (customerPhoneString) {
+      const phoneList: Array<string> = customerPhoneString.split(",");
+      setCustomerPhoneList(phoneList);
     }
-    setCustomerPhoneList(list);
-  }, [setCustomerPhoneList]);
+  }, [setCustomerPhoneList, customerPhoneString]);
 
-  const getCustomerWhenPhoneChange = React.useCallback(
+  const getCustomerWhenChoicePhone = React.useCallback(
     (phoneNumber: any) => {
       setCustomerPhone(phoneNumber);
       initQueryCustomer.phone = phoneNumber;
@@ -177,10 +171,11 @@ function FpageCRM() {
             setIsButtonSelected={setIsButtonSelected}
             customerPhoneList={customerPhoneList}
             setCustomerPhoneList={setCustomerPhoneList}
-            getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
+            getCustomerWhenPhoneChange={getCustomerWhenChoicePhone}
             orderHistory={orderHistory}
             setIsClearOrderField={setIsClearOrderField}
             customerPhone={customerPhone}
+            deletePhone={deletePhone}
           />
         )}
       </div>

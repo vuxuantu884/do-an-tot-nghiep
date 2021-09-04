@@ -8,7 +8,7 @@ import editIcon from "assets/icon/edit.svg";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Link, Redirect, useParams, useRouteMatch, useHistory } from "react-router-dom";
+import { Link, useParams, useRouteMatch } from "react-router-dom";
 import moment from "moment";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -22,10 +22,9 @@ import CustomerHistoryInfo from "./customer.history";
 import { PageResponse } from "model/base/base-metadata.response";
 import { getListOrderAction } from "domain/actions/order/order.action";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
-import { useQuery, getQueryParams } from "utils/useQuery";
+import { useQuery } from "utils/useQuery";
 
 const CustomerDetailIndex = () => {
-  const history = useHistory()
   const tabQuery = useQuery();
   const params = useParams() as any;
   const dispatch = useDispatch();
@@ -38,27 +37,9 @@ const CustomerDetailIndex = () => {
   const [modalAction, setModalAction] =
     React.useState<modalActionType>("create");
   const [customerDetailState, setCustomerDetailState] =
-    React.useState<string>("history");
+    React.useState<string>(tabQuery.get("tab") || "history");
   // history
 
-  React.useEffect(() => {
-    let list: any = [];
-    const tabObj: any = { ...getQueryParams(tabQuery) };
-    const _tabObj = Object.keys(tabObj);
-    const value = tabObj[_tabObj[0]];
-
-    if (value) {
-      if (!Array.isArray(value)) {
-        list.push(value);
-      } else {
-        list = [...value];
-      }
-      setCustomerDetailState(list[0]);
-    }
-    history.replace(`${url}?tab=history`)
-  }, [setCustomerDetailState]);
-
-  // yes
 
   React.useEffect(() => {
     let queryObject: OrderSearchQuery = {

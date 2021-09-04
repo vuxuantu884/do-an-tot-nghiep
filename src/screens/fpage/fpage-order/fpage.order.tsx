@@ -65,7 +65,8 @@ export default function FpageOrders(props: any) {
     setIsButtonSelected,
     setIsClearOrderField,
     setIsCustomerReload,
-    setCustomerPhone,setOrderHistory
+    setCustomerPhone,
+    setOrderHistory,
   } = props;
   //#region State
   const dispatch = useDispatch();
@@ -375,7 +376,11 @@ export default function FpageOrders(props: any) {
         // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
       }
     },
-    [setCustomerDetail, setIsButtonSelected]
+    [
+      setIsButtonSelected,
+      setIsClearOrderField,
+      setIsCustomerReload,
+    ]
   );
 
   //show modal save and confirm order ?

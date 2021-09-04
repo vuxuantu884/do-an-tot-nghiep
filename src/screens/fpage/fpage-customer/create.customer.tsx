@@ -19,7 +19,7 @@ import {
   CustomerModel,
   CustomerContactClass,
 } from "model/request/customer.request";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { showSuccess, showError } from "utils/ToastUtils";
@@ -35,11 +35,17 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import moment from "moment";
 import { formatCurrency } from "utils/AppUtils";
-import { CustomerSearchQuery } from "model/query/customer.query";
+import { FpageCustomerSearchQuery } from "model/query/customer.query";
 import { CustomerSearchByPhone } from "domain/actions/customer/customer.action";
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
+};
+const initQueryCustomer: FpageCustomerSearchQuery = {
+  request: "",
+  phone: null,
+  limit: 10,
+  page: 1,
 };
 const CustomerAdd = (props: any) => {
   const {
@@ -51,7 +57,7 @@ const CustomerAdd = (props: any) => {
     getCustomerWhenPhoneChange,
     orderHistory,
     setIsClearOrderField,
-    customerPhone,
+    customerPhone,deletePhone
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -67,6 +73,7 @@ const CustomerAdd = (props: any) => {
   const [status, setStatus] = React.useState<string>("active");
   const notes = customerDetail && customerDetail.notes;
   const customerId = customerDetail && customerDetail.id;
+
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -276,7 +283,7 @@ const CustomerAdd = (props: any) => {
         }
       }
     },
-    [history, setCustomerDetail, setIsButtonSelected]
+    [setCustomerDetail, setIsClearOrderField]
   );
   const setResultCreate = React.useCallback(
     (result) => {
@@ -288,7 +295,7 @@ const CustomerAdd = (props: any) => {
         }
       }
     },
-    [history, setCustomerDetail, setIsButtonSelected]
+    [setCustomerDetail, setIsButtonSelected]
   );
   const handleSubmitOption = (values: any) => {
     if (customerDetail) {
@@ -392,36 +399,24 @@ const CustomerAdd = (props: any) => {
     },
   };
 
-  const initQueryCustomer: CustomerSearchQuery = {
-    request: "",
-    phone: null,
-    limit: 10,
-    page: 1,
-    gender: null,
-    from_birthday: null,
-    to_birthday: null,
-    company: null,
-    from_wedding_date: null,
-    to_wedding_date: null,
-    customer_type_id: null,
-    customer_group_id: null,
-    customer_level_id: null,
-    responsible_staff_code: null,
-  };
-  const searchByPhoneCallback = (value: any) => {
-    console.log(value);
-    if (value !== undefined) {
-      setCustomerDetail(value);
-    } else {
-      setCustomerDetail(undefined);
-    }
-  };
+  const searchByPhoneCallback = useCallback(
+    (value: any) => {
+      if (value !== undefined) {
+        setCustomerDetail(value);
+      } else {
+        setCustomerDetail(undefined);
+      }
+    },
+    [setCustomerDetail]
+  );
+
   useEffect(() => {
     if (customerPhone) {
       initQueryCustomer.phone = customerPhone;
       dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
     }
-  }, [dispatch]);
+  }, [dispatch, customerPhone, searchByPhoneCallback]);
+
   return (
     <ContentContainer
       title=""
@@ -468,6 +463,7 @@ const CustomerAdd = (props: any) => {
               notes={notes}
               handleNote={handleNote}
               customerDetail={customerDetail}
+              deletePhone={deletePhone}
             />
           </Col>
         </Row>

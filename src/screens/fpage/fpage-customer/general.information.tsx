@@ -16,11 +16,11 @@ const GeneralInformation = (props: any) => {
     handleChangeArea,
     AccountChangeSearch,
     phones,
-    setPhones,
     getCustomerWhenPhoneChange,
     customerId,
     notes,
     handleNote,
+    deletePhone,
     customerDetail,
   } = props;
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
@@ -28,14 +28,6 @@ const GeneralInformation = (props: any) => {
   const clickPhone = (p: any) => {
     form.setFieldsValue({ phone: p });
     getCustomerWhenPhoneChange(p);
-  };
-  const deletePhone = (p: any, e: any) => {
-    e.stopPropagation();
-    let _phones = [...phones];
-    const index: any = _phones.indexOf(p);
-    console.log(index);
-    _phones.splice(index, 1);
-    setPhones(_phones);
   };
 
   const addNote = (e: any) => {
@@ -353,7 +345,7 @@ const GeneralInformation = (props: any) => {
           </Row>
         </Card>
       </Col>
-      <Col span={24}  hidden={!customerDetail}>
+      <Col span={24} hidden={!customerDetail}>
         <Card>
           <Row
             gutter={12}
