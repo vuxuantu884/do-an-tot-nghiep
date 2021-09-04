@@ -22,6 +22,7 @@ interface NumberInputProps {
   default?: number;
   prefix?: React.ReactNode;
   autoFocus?: boolean;
+  onFocus?: () => void
 }
 
 const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
@@ -40,6 +41,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     className,
     prefix,
     id,
+    onFocus
   } = props;
   const [data, setData] = useState<string>('');
   const onChangeText = useCallback(
@@ -111,6 +113,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       minLength={minLength}
       onFocus={(e) => {
         e.target.select();
+        onFocus && onFocus();
       }}
       prefix={prefix}
       autoFocus={props.autoFocus}

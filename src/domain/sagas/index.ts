@@ -10,6 +10,7 @@ import { storeSaga } from "./core/store.saga";
 import { supplierSagas } from "./core/supplier.saga";
 import { customerGroupSaga } from "./customer/customer-group.saga";
 import customerSagas from "./customer/customer.saga";
+import { inventorySaga } from "./invetory/inventory.saga";
 import OrderOnlineSaga from "./order/order.saga";
 import { paymentConditionsSaga } from "./po/payment-conditions.saga";
 import { poPaymentSaga } from "./po/po-payment.saga";
@@ -50,6 +51,7 @@ function* rootSaga() {
     poPaymentSaga(),
     poProcumentSaga(),
     customerGroupSaga(),
+    inventorySaga(),
   ]);
 }
 
