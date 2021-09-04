@@ -5,18 +5,14 @@ import { BaseQuery } from "model/base/base.query";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
 import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
+  GHNFeeRequest,
   OrderRequest,
   ShippingGHTKRequest,
-  GHNFeeRequest,
-  VTPFeeRequest,
   UpdateFulFillmentStatusRequest,
   UpdateLineFulFillment,
   UpdatePaymentRequest,
+  VTPFeeRequest,
 } from "model/request/order.request";
-import {
-  ActionLogDetailResponse,
-  OrderActionLogResponse,
-} from "model/response/order/action-log.response";
 import {
   OrderSourceCompanyModel,
   OrderSourceModel,
@@ -25,11 +21,11 @@ import {
 import {
   DeliveryServiceResponse,
   ErrorLogResponse,
+  GHNFeeResponse,
   OrderResponse,
   ShippingGHTKResponse,
-  GHNFeeResponse,
-  VTPFeeResponse,
   TrackingLogFulfillmentResponse,
+  VTPFeeResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
@@ -93,14 +89,14 @@ export const getOrderDetail = (
 export const updateFulFillmentStatus = (
   request: UpdateFulFillmentStatusRequest
 ): Promise<BaseResponse<OrderResponse>> => {
-  let link = `${ApiConfig.ORDER}/orders/${request.order_id}/fulfillment/${request.fulfillment_id}/status/${request.status}`;
+  let link = `${ApiConfig.ORDER}/orders/${request.order_id}/fulfillment/${request.fulfillment_id}/status/${request.status}/action/${request.action}`;
   return BaseAxios.put(link);
 };
 
 export const updateShipment = (
   request: UpdateLineFulFillment
 ): Promise<BaseResponse<OrderResponse>> => {
-  let link = `${ApiConfig.ORDER}/orders/${request.order_id}/shipment`;
+  let link = `${ApiConfig.ORDER}/orders/${request.order_id}/shipment/action/${request.action}`;
   return BaseAxios.put(link, request);
 };
 
@@ -188,16 +184,4 @@ export const setSubStatusService = (
   return BaseAxios.put(
     `${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusId}`
   );
-};
-
-export const getOrderActionLogsService = (
-  id: number
-): Promise<BaseResponse<OrderActionLogResponse[]>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/orders/${id}/log`);
-};
-
-export const getActionLogDetailService = (
-  id: number
-): Promise<BaseResponse<ActionLogDetailResponse>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/orders/log/${id}`);
 };

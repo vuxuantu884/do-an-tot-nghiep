@@ -1561,7 +1561,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               style={{ marginLeft: "10px" }}
               onClick={onOkShippingConfirm}
             >
-              Đóng gói
+              Đóng gói 1
             </Button>
           )}
           {props.stepsStatusValue === FulFillmentStatus.PACKED &&

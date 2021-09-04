@@ -90,26 +90,34 @@ function ActionHistory(props: PropType) {
                   <Row className="" gutter={15}>
                     <Col span={12}>
                       <div className="singleActionHistory__info">
-                        <h4 className="singleActionHistory__title">
-                          {singleActionHistory?.store}
-                        </h4>
-                        <div className="singleActionHistory__date">
-                          {moment(singleActionHistory.updated_date).format(
-                            "HH:mm DD/MM/YYYY"
-                          )}
-                        </div>
+                        {singleActionHistory?.store && (
+                          <h4 className="singleActionHistory__title">
+                            {singleActionHistory?.store}
+                          </h4>
+                        )}
+                        {singleActionHistory?.updated_date && (
+                          <div className="singleActionHistory__date">
+                            {moment(singleActionHistory?.updated_date).format(
+                              "HH:mm DD/MM/YYYY"
+                            )}
+                          </div>
+                        )}
                       </div>
                     </Col>
                     <Col span={12}>
                       <div className="singleActionHistory__status">
-                        <div className="singleActionHistory__mainStatus">
-                          {renderSingleActionLogTitle(
-                            singleActionHistory?.action
-                          )}
-                        </div>
-                        <div className="singleActionHistory__subStatus">
-                          {singleActionHistory?.status}
-                        </div>
+                        {singleActionHistory?.action && (
+                          <h4 className="singleActionHistory__mainStatus">
+                            {renderSingleActionLogTitle(
+                              singleActionHistory?.action
+                            )}
+                          </h4>
+                        )}
+                        {singleActionHistory?.status && (
+                          <div className="singleActionHistory__subStatus">
+                            {singleActionHistory?.status}
+                          </div>
+                        )}
                       </div>
                     </Col>
                   </Row>
