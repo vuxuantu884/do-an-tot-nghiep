@@ -15,16 +15,18 @@ import {
 } from "model/inventory/field";
 import CustomRagpicker from "component/filter/component/range-picker.custom";
 import NumberInputRange from "component/filter/component/number-input-range";
+import ButtonSetting from "component/table/ButtonSetting";
 
 export interface InventoryFilterProps {
-  id: string
-  isMulti: boolean,
+  id: string;
+  isMulti: boolean;
   params: InventoryQuery;
   listStore: Array<StoreResponse>;
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: InventoryQuery) => void;
   onClearFilter?: () => void;
+  openColumn: () => void;
 }
 
 const { Item } = Form;
@@ -59,7 +61,8 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
     // onClearFilter,
     onFilter,
     isMulti,
-    id
+    openColumn,
+    id,
   } = props;
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
@@ -72,6 +75,41 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
   const onCancelFilter = useCallback(() => {
     setVisible(false);
   }, []);
+  const onActionClick = useCallback(
+    (index: number) => {
+      onMenuClick && onMenuClick(index);
+    },
+    [onMenuClick]
+  );
+
+  const onBaseFinish = useCallback(
+    (values: InventoryQuery) => {
+      let data = formBaseFilter.getFieldsValue(true);
+      onFilter && onFilter(data);
+    },
+    [formBaseFilter, onFilter]
+  );
+
+  const onAdvanceFinish = useCallback(
+    (values: InventoryQuery) => {
+      let data = formAdvanceFilter.getFieldsValue(true);
+      onFilter && onFilter(data);
+    },
+    [formAdvanceFilter, onFilter]
+  );
+  const onFilterClick = useCallback(() => {
+    setVisible(false);
+    formAdvanceFilter.submit();
+  }, [formAdvanceFilter]);
+  const onResetFilter = useCallback(() => {
+    let fields = formAdvanceFilter.getFieldsValue(true);
+    for (let key in fields) {
+      fields[key] = null;
+    }
+    formAdvanceFilter.setFieldsValue(fields);
+    setVisible(false);
+    formAdvanceFilter.submit();
+  }, [formAdvanceFilter]);
   useEffect(() => {
     formBaseFilter.setFieldsValue({ ...advanceFilters });
     formAdvanceFilter.setFieldsValue({ ...advanceFilters });
@@ -83,11 +121,14 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
   return (
     <div className="inventory-filter">
       <Form.Provider>
-        <CustomFilter
-          // onMenuClick={onActionClick}
-          menu={actions}
-        >
-          <Form  initialValues={advanceFilters} form={formBaseFilter} name={`baseInventory_${id}`} layout="inline">
+        <CustomFilter onMenuClick={onActionClick} menu={actions}>
+          <Form
+            onFinish={onBaseFinish}
+            initialValues={advanceFilters}
+            form={formBaseFilter}
+            name={`baseInventory_${id}`}
+            layout="inline"
+          >
             <Item name={InventoryQueryField.condition} className="search">
               <Input
                 prefix={<img src={search} alt="" />}
@@ -127,16 +168,38 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
                 Thêm bộ lọc
               </Button>
             </Item>
+            <Item>
+              <ButtonSetting onClick={openColumn} />
+            </Item>
           </Form>
         </CustomFilter>
         <BaseFilter
-          // onClearFilter={onResetFilter}
-          // onFilter={onFilterClick}
+          onClearFilter={onResetFilter}
+          onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
           width={500}
         >
-          <Form name={`avdInventory_${id}`} form={formAdvanceFilter}>
+          <Form
+            name={`avdInventory_${id}`}
+            onFinish={onAdvanceFinish}
+            form={formAdvanceFilter}
+            onFieldsChange={(changedFields: any, allFields: any) => {
+              let fieldNames =
+                changedFields &&
+                changedFields.length > 0 &&
+                changedFields[0].name;
+              if (!fieldNames) return;
+              let filtersSelected: any = {};
+              fieldNames.forEach((fieldName: any) => {
+                filtersSelected[fieldName] = true;
+              });
+              setTempAdvanceFilters({
+                ...filtersSelected,
+                ...tempAdvanceFilters,
+              });
+            }}
+          >
             <Space
               className="po-filter"
               direction="vertical"
@@ -164,7 +227,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
                   case AvdInventoryFilter.import_price:
                   case AvdInventoryFilter.mac:
                   case AvdInventoryFilter.retail_price:
-                    component = <NumberInputRange placeholderFrom="Giá từ" />
+                    component = <NumberInputRange placeholderFrom="Giá từ" />;
                 }
                 return (
                   <Collapse key={field}>

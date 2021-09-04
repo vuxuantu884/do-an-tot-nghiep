@@ -1,6 +1,4 @@
 import CustomTable from "component/table/CustomTable";
-import { getListStoresSimpleAction } from "domain/actions/core/store.action";
-import { StoreResponse } from "model/core/store.model";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import InventoryFilter from "../filter/inventory.filter";
@@ -17,7 +15,6 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   const history = useHistory();
   const query = useQuery();
   const dispatch = useDispatch();
-  const [stores, setStores] = useState<Array<StoreResponse>>([]);
   let initQuery: InventoryQuery = {};
 
   let dataQuery: InventoryQuery = {
@@ -53,12 +50,6 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     },
     [history, params]
   );
-
-  useEffect(() => {
-    if(props.current === '1') {
-      dispatch(getListStoresSimpleAction((setStores)));
-    }
-  }, [dispatch, props]);
   useEffect(() => {
     if(props.current === '1') {
       dispatch(inventoryGetListAction(params, onResult));
@@ -67,13 +58,14 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
   return (
     <div className="padding-20">
       <InventoryFilter
+        openColumn={() => {}}
         id="all"
         isMulti={true}
         onFilter={(value) => {}}
         params={params}
         actions={[]}
         onClearFilter={() => {}}
-        listStore={stores}
+        listStore={props.stores}
       />
       <CustomTable
         dataSource={data.items}

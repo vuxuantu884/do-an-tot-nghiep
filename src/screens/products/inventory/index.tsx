@@ -1,7 +1,10 @@
 import { Card, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import { getListStoresSimpleAction } from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import AllTab from "./tab/all.tab";
 import DetailTab from "./tab/detail.tab";
@@ -11,7 +14,10 @@ const { TabPane } = Tabs;
 
 const InventoryScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("1");
+  const dispatch = useDispatch();
   const history = useHistory();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [stores, setStores] = useState<Array<StoreResponse>>([]);
   useEffect(() => {
     if (history.location.hash) {
       switch (history.location.hash) {
@@ -27,8 +33,16 @@ const InventoryScreen: React.FC = () => {
       }
     }
   }, [history.location.hash]);
+  useEffect(() => {
+  
+      dispatch(getListStoresSimpleAction((stores) => {
+        setLoading(false);
+        setStores(stores);
+      }));
+  }, [dispatch]);
   return (
     <ContentContainer
+      isLoading={loading}
       title="Danh sách tồn kho"
       breadcrumb={[
         {
@@ -47,10 +61,10 @@ const InventoryScreen: React.FC = () => {
       <Card>
         <Tabs activeKey={activeTab} onChange={(active) => history.replace(`${history.location.pathname}#${active}`)}>
           <TabPane tab="Toàn hệ thống" key="1">
-            <AllTab current={activeTab} />
+            <AllTab stores={stores} current={activeTab} />
           </TabPane>
           <TabPane tab="Chi tiết" key="2">
-            <DetailTab current={activeTab} />
+            <DetailTab  stores={stores} current={activeTab} />
           </TabPane>
           <TabPane tab="Lịch sử tồn kho" key="3">
             <HistoryTab />

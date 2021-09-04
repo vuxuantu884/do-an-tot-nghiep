@@ -14,7 +14,7 @@ export interface InventoryResponse extends BaseObject {
   committed: number | null;
   available: number | null;
   in_coming: number | null;
-  onway: number | null;
+  on_way: number | null;
   transaction_date: string;
   mac: string | null;
   barcode: string | null;
