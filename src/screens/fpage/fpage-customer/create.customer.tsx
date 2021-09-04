@@ -57,7 +57,10 @@ const CustomerAdd = (props: any) => {
     getCustomerWhenPhoneChange,
     orderHistory,
     setIsClearOrderField,
-    customerPhone,deletePhone,metaData,onPageChange
+    customerPhone,
+    deletePhone,
+    metaData,
+    onPageChange,
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -97,6 +100,7 @@ const CustomerAdd = (props: any) => {
       dispatch(WardGetByDistrictAction(customerDetail.district_id, setWards));
     }
   }, [dispatch, customerDetail]);
+
   const status_order = [
     {
       name: "Nháp",
@@ -241,8 +245,7 @@ const CustomerAdd = (props: any) => {
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
   React.useEffect(() => {
-    let customer_type_id = 2;
-    customerForm.setFieldsValue({ ...new CustomerModel(), customer_type_id });
+    customerForm.setFieldsValue({ ...new CustomerModel()});
   }, [customerForm]);
   React.useEffect(() => {
     if (customerDetail) {

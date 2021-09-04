@@ -117,13 +117,12 @@ const CustomerCreate = (props: any) => {
     },
     [history]
   );
-
   const handleSubmit = (values: any) => {
     let area = areas.find((area) => area.id === districtId);
     let piece = {
       ...values,
       birthday: values.birthday
-      ? new Date(values.birthday).toUTCString()
+      ? new Date(values.birthday).toISOString()
       : null,
       wedding_date: values.wedding_date
         ? new Date(values.wedding_date).toUTCString()

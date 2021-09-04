@@ -391,12 +391,6 @@ const GeneralInformation = (props: any) => {
                 label={
                   <span className="customer-field-label">Loại khách hàng:</span>
                 }
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng chọn loại khách hàng",
-                //   },
-                // ]}
               >
                 <Select
                   showSearch
