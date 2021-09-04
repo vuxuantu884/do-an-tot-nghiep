@@ -1,5 +1,5 @@
 import { POProcumentType } from "domain/types/purchase-order.type";
-import BaseAction from "base/BaseAction";
+import BaseAction from "base/base.action";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 
 export const PoProcumentCreateAction = (
@@ -36,5 +36,16 @@ export const PoProcumentFinishAction = (
     poId,
     status,
     updateCallback,
+  });
+};
+export const PoProcumentDeleteAction = (
+  poId: number,
+  procumentId: number,
+  deleteCallback: (result: PurchaseProcument | null) => void
+) => {
+  return BaseAction(POProcumentType.DELETE_PO_PROCUMENT_REQUEST, {
+    poId,
+    procumentId,
+    deleteCallback,
   });
 };

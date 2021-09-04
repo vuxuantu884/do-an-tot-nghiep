@@ -9,8 +9,7 @@ export interface RouteMenu {
   header: React.ReactNode | null;
   icon: string;
   key: string;
-  type: number;
   pathIgnore?: Array<string>;
-  object: any;
   component: React.ReactNode;
+  showMenuThird?: boolean;
 }

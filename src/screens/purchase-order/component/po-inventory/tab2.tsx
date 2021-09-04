@@ -1,4 +1,4 @@
-import { Form, Table, Typography } from "antd";
+import { Button, Form, Table } from "antd";
 import { POField } from "model/purchase-order/po-field";
 import {
   POProcumentField,
@@ -13,7 +13,8 @@ import {
 } from "react-icons/hi";
 import imgDefIcon from "assets/img/img-def.svg";
 
-const TabInvetory = () => {
+type TabInventoryProps = {};
+const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
   return (
     <Form.Item
       noStyle
@@ -91,10 +92,13 @@ const TabInvetory = () => {
                       <div className="item-col item-col-number">
                         {item.quantity}
                       </div>
-                      <div style={{ color: "#27AE60", fontWeight: 700 }} className="item-col item-col-number">
+                      <div
+                        style={{ color: "#27AE60", fontWeight: 700 }}
+                        className="item-col item-col-number"
+                      >
                         {item.real_quantity}
                       </div>
-                      <div className="item-col item-col-empty"/>
+                      <div className="item-col item-col-empty" />
                     </div>
                   ))}
                 </div>
@@ -114,13 +118,7 @@ const TabInvetory = () => {
                   </div>
                 ),
                 dataIndex: "code",
-                render: (value, item, index) => (
-                  <Typography.Link
-                    style={{ color: "#5D5D8A", textDecoration: "underline" }}
-                  >
-                    {value}
-                  </Typography.Link>
-                ),
+                render: (value, item, index) => <div>{value}</div>,
               },
               {
                 title: "Kho nhận hàng",

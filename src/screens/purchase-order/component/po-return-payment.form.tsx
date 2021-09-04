@@ -16,13 +16,13 @@ import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { POField } from "model/purchase-order/po-field";
-
-import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import EmptyPlaceholder from "./EmptyPlaceholder";
 import moment from "moment";
 
 type POReturnPaymentFormProps = {
   formMain: FormInstance;
+  totalReturn: number;
+  totalVat: number;
 };
 
 const { Item, List } = Form;
@@ -30,8 +30,7 @@ const { Item, List } = Form;
 const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
   props: POReturnPaymentFormProps
 ) => {
-  const { formMain } = props;
-  const [payments, setPayments] = useState<Array<PurchasePayments>>([]);
+  const { formMain, totalReturn, totalVat } = props;
   const [showPayment, setShowPayment] = useState(false);
   const [disabledRef, setDisabledRef] = useState(false);
   const onChangePaymentMethod = (e: any) => {
@@ -42,6 +41,23 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
       setDisabledRef(true);
     }
   };
+
+  useEffect(() => {
+    if (showPayment) {
+      formMain.setFieldsValue({
+        payments: [
+          {
+            payment_method_code: null,
+            transaction_date: null,
+            amount: totalReturn + totalVat,
+            reference: null,
+            note: null,
+            status: PoPaymentStatus.REFUND,
+          },
+        ],
+      });
+    }
+  }, [showPayment]);
 
   useEffect(() => {
     formMain.setFieldsValue({
@@ -93,20 +109,27 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
         <Item
           shouldUpdate={(prev, current) =>
             prev[POField.total_paid] !== current[POField.total_paid] ||
-            prev[POField.total] !== current[POField.total]
+            prev[POField.total] !== current[POField.total] ||
+            prev[POField.payment_condition_name] !==
+              current[POField.payment_condition_name] ||
+            prev[POField.payment_note] !== current[POField.payment_note]
           }
         >
           {({ getFieldValue }) => {
             const total_paid = getFieldValue(POField.total_paid);
+            const payment_condition_name = getFieldValue(
+              POField.payment_condition_name
+            );
+            const payment_note = getFieldValue(POField.payment_note);
             if (total_paid && total_paid > 0) {
               return (
                 <Fragment>
                   <Row>
                     <Col span={12}>
-                      Kho nhận hàng: <strong>Thanh toán 30 ngày</strong>
+                      Kho nhận hàng: <strong>{payment_condition_name}</strong>
                     </Col>
                     <Col span={12}>
-                      Diễn giải: <strong>abc</strong>
+                      Diễn giải: <strong>{payment_note}</strong>
                     </Col>
                   </Row>
                   <Item
@@ -213,7 +236,6 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
                                       replaceFormatString(a)
                                     }
                                     min={0}
-                                    default={0}
                                     placeholder="Nhập số tiền cần thanh toán"
                                   />
                                 </Item>

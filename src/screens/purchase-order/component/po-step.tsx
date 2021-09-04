@@ -7,29 +7,38 @@ import { POUtils } from "utils/POUtils";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
 const statusToStep = {
-  [POStatus.DRAFT]: -1,
-  [POStatus.ORDER]: 0,
+  [POStatus.DRAFT]: 0,
   [POStatus.FINALIZED]: 1,
-  [POStatus.PROCUREMENT_DRAFT]: 2,
-  [POStatus.PROCUREMENT_RECEIVED]: 3,
+  [POStatus.DRAFTPO]: 2,
+  [POStatus.STORED]: 3,
   [POStatus.COMPLETED]: 4,
   [POStatus.FINISHED]: 5,
+  [POStatus.CANCELLED]: 6,
 };
+
+// DRAFT("draft", "Nháp"), //Đặt hàng
+//   FINALIZED("finalized", "Đã xác nhận"), //Xác nhận
+//   DRAFTPO("draftpo", "Phiếu nháp"), //Phiếu nháp
+//   STORED("stored", "Đã nhập kho"),  //Nhập kho
+//   COMPLETED("completed", "Đã hoàn thành"), //Hoàn thành
+//   FINISHED("finished", "Đã kết thúc"), //Kết thúc
+//   CANCELLED("cancelled", "Đã hủy"); //Hủy
 export interface POStepProps {
-  poData?: PurchaseOrder;
+  poData: PurchaseOrder;
 }
 
 const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   const { poData } = props;
-  const { order_date, procurements, activated_date, completed_date } =
-    poData || {};
-  const combineStatus = useMemo(() => {
-    if (poData) return POUtils.combinePOStatus(poData);
-    return POStatus.DRAFT;
-  }, [poData]);
-
+  const {
+    order_date,
+    procurements,
+    activated_date,
+    completed_date,
+    cancelled_date,
+    status: poStatus,
+  } = poData;
   const getDescription = (step: number) => {
-    let currentStep = statusToStep[combineStatus];
+    let currentStep = statusToStep[poStatus];
     switch (step) {
       case 0:
         if (currentStep >= 0 && order_date !== null)
@@ -51,8 +60,16 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
         if (currentStep >= 3 && date) return ConvertUtcToLocalDate(date);
         return null;
       case 4:
-        if (currentStep >= 4 && activated_date)
-          return ConvertUtcToLocalDate(completed_date);
+        if (currentStep >= 4) {
+          if (
+            currentStep === statusToStep[POStatus.CANCELLED] &&
+            cancelled_date
+          ) {
+            return ConvertUtcToLocalDate(cancelled_date);
+          } else if (completed_date) {
+            return ConvertUtcToLocalDate(completed_date);
+          }
+        }
         return null;
     }
   };
@@ -65,14 +82,20 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
         </div>
       )}
       size="small"
-      current={statusToStep[combineStatus]}
+      current={statusToStep[poStatus]}
     >
       <Steps.Step title="Đặt hàng" description={getDescription(0)} />
       <Steps.Step title="Xác nhận" description={getDescription(1)} />
       <Steps.Step title="Phiếu nháp" description={getDescription(2)} />
       <Steps.Step title="Nhập kho" description={getDescription(3)} />
       <Steps.Step
-        title={statusToStep[combineStatus] === 5 ? "Kết thúc" : "Hoàn thành"}
+        title={
+          statusToStep[poStatus] === 4
+            ? "Hoàn thành"
+            : statusToStep[poStatus] === 5
+            ? "Kết thúc"
+            : "Hủy"
+        }
         description={getDescription(4)}
       />
     </Steps>

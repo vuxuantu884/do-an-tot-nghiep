@@ -1,7 +1,7 @@
 import { call, put, takeLatest } from "@redux-saga/core/effects";
-import { YodyAction } from "base/BaseAction";
-import BaseResponse from "base/BaseResponse";
-import { HttpStatus } from "config/HttpStatus";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { SETTING_TYPES } from "domain/types/settings.type";
@@ -17,11 +17,11 @@ import {
 import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listAllOrderSourceSaga(action: YodyAction) {
-  const { params, handleData } = action.payload;
+  const { queryParams, handleData } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<OrderSourceResponseModel>> =
-      yield call(getSourcesWithParamsService, params);
+      yield call(getSourcesWithParamsService, queryParams);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:

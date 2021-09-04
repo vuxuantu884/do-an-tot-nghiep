@@ -1,7 +1,9 @@
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
-import { ApiConfig } from "config/ApiConfig";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
+import { ApiConfig } from "config/api.config";
 import { BaseQuery } from "model/base/base.query";
+import { OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
   OrderRequest,
   ShippingGHTKRequest,
@@ -11,6 +13,10 @@ import {
   UpdateLineFulFillment,
   UpdatePaymentRequest,
 } from "model/request/order.request";
+import {
+  ActionLogDetailResponse,
+  OrderActionLogResponse,
+} from "model/response/order/action-log.response";
 import {
   OrderSourceCompanyModel,
   OrderSourceModel,
@@ -28,6 +34,20 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import { generateQuery } from "utils/AppUtils";
+
+export const getListOrderApi = (
+  query: OrderSearchQuery
+): Promise<BaseResponse<OrderModel>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders?${queryString}`);
+};
+
+export const getShipmentApi = (
+  query: ShipmentSearchQuery
+): Promise<BaseResponse<ShipmentModel>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/shipments?${queryString}`);
+};
 
 export const getSources = (): Promise<BaseResponse<SourceResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/sources/listing`);
@@ -138,14 +158,18 @@ export const deleteOrderSourceService = (
 export const getTrackingLogFulFillment = (
   fulfillment_code: string
 ): Promise<BaseResponse<Array<TrackingLogFulfillmentResponse>>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/shipping/tracking-log?fulfillment_code=${fulfillment_code}`);
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/shipping/tracking-log?fulfillment_code=${fulfillment_code}`
+  );
 };
 
 // tracking_log: Lấy ra tracking_log_error của fulfillment
 export const getTrackingLogFulFillmentError = (
   fulfillment_code: string
 ): Promise<BaseResponse<Array<ErrorLogResponse>>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/shipping/error-log?fulfillment_code=${fulfillment_code}`);
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/shipping/error-log?fulfillment_code=${fulfillment_code}`
+  );
 };
 
 /**
@@ -158,8 +182,22 @@ export const getOrderSubStatusService = (
 };
 
 export const setSubStatusService = (
-  order_id : number,
+  order_id: number,
   statusId: number
 ): Promise<BaseResponse<SourceResponse>> => {
-  return BaseAxios.put(`${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusId}`);
+  return BaseAxios.put(
+    `${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusId}`
+  );
+};
+
+export const getOrderActionLogsService = (
+  id: number
+): Promise<BaseResponse<OrderActionLogResponse[]>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/${id}/log`);
+};
+
+export const getActionLogDetailService = (
+  id: number
+): Promise<BaseResponse<ActionLogDetailResponse>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/log/${id}`);
 };

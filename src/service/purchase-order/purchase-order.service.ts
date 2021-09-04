@@ -1,8 +1,11 @@
 import { PurchaseOrderQuery } from "./../../model/purchase-order/purchase-order.model";
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
-import { ApiConfig } from "config/ApiConfig";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
+import { ApiConfig } from "config/api.config";
+import {
+  PurchaseOrder,
+  PurchaseOrderPrint,
+} from "model/purchase-order/purchase-order.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { generateQuery } from "utils/AppUtils";
 
@@ -43,6 +46,14 @@ export const returnPurchaseOrder = (
   return BaseAxios.post(
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}/return`,
     data
+  );
+};
+
+export const getPrintContent = (
+  id: number
+): Promise<Array<PurchaseOrderPrint>> => {
+  return BaseAxios.get(
+    `${ApiConfig.PURCHASE_ORDER}/orders/print_forms?ids=${id}`
   );
 };
 

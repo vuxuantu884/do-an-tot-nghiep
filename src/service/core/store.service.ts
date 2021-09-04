@@ -1,7 +1,7 @@
 import { StoreResponse } from "model/core/store.model";
-import BaseResponse from "base/BaseResponse";
-import BaseAxios from "base/BaseAxios";
-import { ApiConfig } from "config/ApiConfig";
+import BaseResponse from "base/base.response";
+import BaseAxios from "base/base.axios";
+import { ApiConfig } from "config/api.config";
 
 const getListStore = (): Promise<BaseResponse<Array<StoreResponse>>> => {
   let link = `${ApiConfig.CORE}/stores?simple=true&status=active`;

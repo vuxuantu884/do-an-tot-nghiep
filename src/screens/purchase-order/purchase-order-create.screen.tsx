@@ -1,7 +1,7 @@
 import { Button, Row, Col, Form, Input } from "antd";
 import POSupplierForm from "./component/po-supplier.form";
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import POProductForm from "./component/po-product.form";
 import POInventoryForm from "./component/po-inventory.form";
 import POInfoForm from "./component/po-info.form";
@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { AppConfig } from "config/AppConfig";
+import { AppConfig } from "config/app.config";
 import { useHistory } from "react-router-dom";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -30,7 +30,7 @@ import {
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import POStep from "./component/po-step";
+// import POStep from "./component/po-step";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { ConvertDateToUtc } from "utils/DateUtils";

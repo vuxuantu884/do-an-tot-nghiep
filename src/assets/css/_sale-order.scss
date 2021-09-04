@@ -1704,3 +1704,16 @@
     }
   }
 }
+
+.custom-shadow-td {
+  box-shadow: 3px 0px 6px #F5F5F5;
+}
+
+.order-list .ant-table.ant-table-middle .ant-table-tbody > tr > td{
+  border-right: 1px solid #E5E5E5;
+  padding: 10px 10px;
+}
+
+.p-b-3{
+  padding-bottom: 3px;
+}

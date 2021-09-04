@@ -38,13 +38,13 @@
   content: "\e903";
 }
 .icon-report:before {
-  content: "\e905";
+  content: url("../../icon/menu-report-chart.svg");;
 }
 .icon-inventory:before {
   content: "\e906";
 }
 .icon-order:before {
-  content: "\e907";
+  content: url("../../icon/menu-order-paper.svg");;
 }
 .icon-product:before {
   content: url("../../icon/menu-clother.svg");
@@ -54,4 +54,7 @@
 }
 .icon-setting:before {
   content: "\e90b";
+}
+.icon-transport:before {
+  content: url("../../icon/menu-transport.svg");
 }

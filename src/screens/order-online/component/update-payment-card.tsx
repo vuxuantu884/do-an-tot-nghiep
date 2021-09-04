@@ -6,7 +6,7 @@ import { BugOutlined } from "@ant-design/icons";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
-import Caculate from "assets/icon/caculate.svg";
+import Calculate from "assets/icon/caculate.svg";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
 // @ts-ignore
@@ -271,7 +271,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   </Space>
                 </Radio.Group>
                 {props.paymentMethod === PaymentMethodOption.COD &&
-                  props.shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+                  props.shipmentMethod ===
+                    ShipmentMethodOption.SELF_DELIVER && (
                     <div className="order-cod-payment-footer">
                       <span>
                         Vui lòng chọn hình thức{" "}
@@ -282,7 +283,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   )}
                 {props.paymentMethod === PaymentMethodOption.COD &&
                   props.shipmentMethod ===
-                    ShipmentMethodOption.DELIVERLATER && (
+                    ShipmentMethodOption.DELIVER_LATER && (
                     <div className="order-cod-payment-footer">
                       <span>
                         Vui lòng chọn hình thức{" "}
@@ -292,7 +293,8 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                     </div>
                   )}
                 {props.paymentMethod === PaymentMethodOption.COD &&
-                  props.shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+                  props.shipmentMethod ===
+                    ShipmentMethodOption.PICK_AT_STORE && (
                     <div
                       className="order-cod-payment-footer"
                       style={{ height: 83 }}
@@ -300,7 +302,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                       <div>
                         <div>
                           <div>
-                            <img src={Caculate} alt=""></img>
+                            <img src={Calculate} alt=""></img>
                           </div>
                         </div>
                       </div>
@@ -570,9 +572,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                         fontSize: "20px",
                       }}
                     >
-                      <span
-                        style={{ color: false ? "blue" : "red" }}
-                      >
+                      <span style={{ color: false ? "blue" : "red" }}>
                         {formatCurrency(Math.abs(moneyReturn))}
                       </span>
                     </Col>
@@ -671,7 +671,7 @@ const UpdatePaymentCard: React.FC<PaymentCardUpdateProps> = (
                   <div>
                     <div>
                       <div>
-                        <img src={Caculate}></img>
+                        <img src={Calculate}></img>
                       </div>
                     </div>
                   </div>

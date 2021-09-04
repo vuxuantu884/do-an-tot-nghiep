@@ -5,13 +5,13 @@ import {
 } from "model/response/order-processing-status.response";
 
 export const actionFetchListOrderProcessingStatus = (
-  params = {},
+  queryParams = {},
   handleData: (data: OrderProcessingStatusResponseModel) => void
 ) => {
   return {
     type: SETTING_TYPES.orderProcessingStatus.listData,
     payload: {
-      params,
+      queryParams,
       handleData,
     },
   };

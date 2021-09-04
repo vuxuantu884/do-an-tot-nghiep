@@ -18,7 +18,7 @@ const CustomeInputTags: React.FC<CustomInputTagsProps> = (
   };
   const handleKeyDown = (e: any) => {
     let _tags = [...tags];
-    if (e.which === 13 && inputValue !== "" || (e.which === 188 && inputValue !== "")) {
+    if ((e.which === 13 && inputValue !== "") || (e.which === 188 && inputValue !== "")) {
       _tags.push(inputValue);
       setInputValue("");
     }
@@ -50,7 +50,7 @@ const CustomeInputTags: React.FC<CustomInputTagsProps> = (
       {tags.map((tag, index) => (
         <div key={index}>
           <span>{tag}</span>
-          <img onClick={() => handleDelete(index)} src={xCloseBtn}></img>
+          <img alt="" onClick={() => handleDelete(index)} src={xCloseBtn}></img>
         </div>
       ))}
 

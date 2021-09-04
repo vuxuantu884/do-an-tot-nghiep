@@ -1,5 +1,5 @@
 import { CustomerSearchQuery } from 'model/query/customer.query';
-import BaseAction from 'base/BaseAction';
+import BaseAction from 'base/base.action';
 import { CustomerType } from 'domain/types/customer.type';
 import { CustomerResponse } from 'model/response/customer/customer.response';
 import {
@@ -10,6 +10,10 @@ import {
 
 export const CustomerSearch = (query: CustomerSearchQuery, setData: (data: Array<CustomerResponse>) => void) => {
     return BaseAction(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE, { query, setData });
+}
+
+export const CustomerSearchByPhone = (query: CustomerSearchQuery, setData: (data: CustomerResponse) => void) => {
+  return BaseAction(CustomerType.CUSTOMER_SEARCH_BY_PHONE, { query, setData });
 }
 
 export const CustomerList = (query: CustomerSearchQuery, setData: (data: any) => void) => {
@@ -103,8 +107,16 @@ export const CreateShippingAddress = (customerId:number, address: any, setResult
     return BaseAction(CustomerType.CREATE_SHIPPING_ADDR, { customerId, address, setResult });
 }
 
+export const CreateNote = (customerId:number, note: any, setResult: (data: any) => void) => {
+  return BaseAction(CustomerType.CREATE_NOTE, { customerId, note, setResult });
+}
+
 export const UpdateShippingAddress = (id: number,customerId:number, address: any, setResult: (data: any) => void) => {
     return BaseAction(CustomerType.UPDATE_SHIPPING_ADDR, { id, customerId, address, setResult });
+}
+
+export const UpdateNote = (id: number,customerId:number, note: any, setResult: (data: any) => void) => {
+  return BaseAction(CustomerType.UPDATE_NOTE, { id, customerId, note, setResult });
 }
 
 export const CreateBillingAddress = (customerId:number, address: any, setResult: (data: any) => void) => {
@@ -133,5 +145,9 @@ export const DeleteShippingAddress = (id: number,customerId:number, setResult: (
 
 export const DeleteBillingAddress = (id: number,customerId:number, setResult: (data: any) => void) => {
     return BaseAction(CustomerType.DELETE_BILLING_ADDR, { id, customerId, setResult });
+}
+
+export const DeleteNote = (id: number,customerId:number, setResult: (data: any) => void) => {
+  return BaseAction(CustomerType.DELETE_NOTE, { id, customerId, setResult });
 }
 

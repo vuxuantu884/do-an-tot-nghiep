@@ -5,7 +5,6 @@ import {
   AutoComplete,
   Button,
   Form,
-  Tooltip,
   Input,
   Select,
 } from "antd";
@@ -14,32 +13,27 @@ import CustomFilter from "component/table/custom.filter";
 import BaseFilter from "../../component/filter/base.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { SearchOutlined } from "@ant-design/icons";
-import { StarOutlined } from "@ant-design/icons";
 
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
-import React from "react";
-import Popup from "./popup";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import CustomerAdd from "./create.customer";
+import CustomerAdd from "./customer.create";
 import ButtonCreate from "component/header/ButtonCreate";
-import arrowDownloadRight from "../../assets/icon/arrow-download-right.svg";
-import arrowDownloadDown from "../../assets/icon/arrow-download-down.svg";
-import { FilterOutlined } from "@ant-design/icons";
+import settingGearIcon from "../../assets/icon/setting-gear-icon.svg";
 import { RefSelectProps } from "antd/lib/select";
 
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import { useDispatch } from "react-redux";
 import { CustomerList } from "domain/actions/customer/customer.action";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import FormItem from "antd/lib/form/FormItem";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
   AccountResponse,
@@ -52,27 +46,21 @@ import {
   CustomerLevels,
   CustomerTypes,
 } from "domain/actions/customer/customer.action";
-import { CustomerResponse } from "model/response/customer/customer.response";
 
 const { Option } = Select;
 
-interface SearchResult {
-  items: Array<any>;
-  metadata?: any;
-}
-
 const Customer = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  // const history = useHistory();
 
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
   const LIST_GENDER = bootstrapReducer.data?.gender;
-  const params: CustomerSearchQuery = {
+  const params: CustomerSearchQuery = useMemo(() => ({
     request: "",
     page: 1,
-    limit: 10,
+    limit: 30,
     gender: null,
     from_birthday: null,
     to_birthday: null,
@@ -83,10 +71,10 @@ const Customer = () => {
     customer_group_id: null,
     customer_level_id: null,
     responsible_staff_code: null,
-  };
+  }), []);
   const [query, setQuery] = React.useState<CustomerSearchQuery>({
     page: 1,
-    limit: 10,
+    limit: 30,
     request: null,
     gender: null,
     from_birthday: null,
@@ -99,175 +87,178 @@ const Customer = () => {
     customer_level_id: null,
     responsible_staff_code: "",
   });
-  const [popup, setPopup] = React.useState({
-    visible: false,
-    x: 0,
-    y: 0,
-  });
+
   const [visible, setVisible] = React.useState<boolean>(false);
   const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
-  const [selected, setSelected] = React.useState<Array<CustomerResponse>>([]);
 
+  const genreEnum: any = {
+    male: "Nam",
+    female: "Nữ",
+    other: "Khác"
+  }
   const [columns, setColumn] = React.useState<
     Array<ICustomTableColumType<any>>
   >([
-    {
-      title: "STT",
-      key: "index",
-      render: (value: any, item: any, index: number) => <div>{index + 1}</div>,
-      align: "center",
-      visible: true,
-      width: "3%",
-    },
+    // {
+    //   title: "STT",
+    //   key: "index",
+    //   render: (value: any, item: any, index: number) => <div>{index + 1}</div>,
+    //   align: "center",
+    //   visible: true,
+    //   width: "3%",
+    // },
     {
       title: "Mã khách hàng",
       dataIndex: "code",
-      align: "center",
+      // align: "center",
       visible: true,
+      fixed: "left",
       render: (value: string, i: any) => (
         <Link to={`/customers/${i.id}`}>{value}</Link>
       ),
-      // width: "10%",
+      width: 150,
     },
     {
       title: "Tên khách hàng",
       dataIndex: "full_name",
-      align: "left",
+      // align: "left",
       visible: true,
-      width: "10%",
+      width: 150,
+      render: (value: string, i: any) => (
+        <span className="customer-name-textoverflow">{i.full_name}</span>
+      )
     },
     {
-      title: "Số điện thoại",
+      title: "SĐT",
       dataIndex: "phone",
-      align: "center",
+      // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Giới tính",
       dataIndex: "gender",
-      align: "center",
+      // align: "center",
       render: (value: any, item: any) => (
-        <div>{LIST_GENDER?.filter((g) => g.value == value)[0].name}</div>
+        <div>{genreEnum[value]}</div>
       ),
       visible: true,
-      width: "5%",
+      width: 100
     },
     {
       title: "Nhóm khách hàng",
       dataIndex: "customer_group",
-      align: "center",
+      // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
     {
-      title: "Thư điện tử",
+      title: "Email",
       dataIndex: "email",
-      align: "center",
+      // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
 
     {
       title: "Loại khách hàng",
       dataIndex: "customer_type",
-      align: "center",
+      // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Nhân viên phụ trách",
       dataIndex: "responsible_staff",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
     {
-      title: "Hạng thẻ hiện tại",
+      title: "Hạng thẻ",
       dataIndex: "customer_level",
-      align: "center",
+      // align: "center",
       visible: true,
-      // width: "15%",
+      width: 150,
     },
 
-    {
-      title: "Người tạo",
-      dataIndex: "created_by",
-      align: "center",
-      visible: true,
-      // width: "15%",
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "created_date",
-      align: "center",
-      visible: true,
-      // width: "15%",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-    },
+    // {
+    //   title: "Người tạo",
+    //   dataIndex: "created_by",
+    //   // align: "center",
+    //   visible: false,
+    //   // width: "15%",
+    // },
+    // {
+    //   title: "Ngày tạo",
+    //   dataIndex: "created_date",
+    //   // align: "center",
+    //   visible: false,
+    //   // width: "15%",
+    //   render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+    // },
     {
       title: "Ngày sinh",
       dataIndex: "birthday",
-      align: "center",
+      // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
       title: "Ngày cưới",
       dataIndex: "wedding_date",
-      align: "center",
+      // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
     },
     {
       title: "website/facebook",
       dataIndex: "website",
-      align: "center",
+      // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Ngày kích hoạt thẻ",
       dataIndex: "",
-      align: "center",
+      // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Ngày hết hạn thẻ",
       dataIndex: "",
-      align: "center",
+      // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Cửa hàng kích hoạt",
       dataIndex: "",
-      align: "center",
+      // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Mã số thẻ",
       dataIndex: "",
-      align: "center",
+      // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Đơn vị",
       dataIndex: "company",
-      align: "center",
+      // align: "center",
       visible: false,
-      // width: "15%",
+      width: 150,
     },
     {
       title: "Điểm hiện tại",
-      align: "center",
+      width: 100,
       dataIndex: "",
       visible: false,
-      // width: "15%",
     },
   ]);
 
@@ -281,7 +272,6 @@ const Customer = () => {
   });
   console.log(data);
   const [tableLoading, setTableLoading] = React.useState<boolean>(true);
-  const [options, setOptions] = React.useState<SearchResult>({ items: [] });
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -309,14 +299,12 @@ const Customer = () => {
     dispatch(CustomerList(query, setResult));
   }, [dispatch, query, setResult]);
 
-  const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
-
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
         return;
       }
-      setAccounts(data.items);
+      setResultSearch(data);
     },
     []
   );
@@ -364,16 +352,14 @@ const Customer = () => {
     setVisibleFilter(false);
   }, []);
 
-  let value = formAdvance.getFieldValue("filter");
-
   const onSearch = (value: CustomerSearchQuery) => {
     const querySearch: CustomerSearchQuery = value;
     dispatch(CustomerList(querySearch, setData));
   };
 
-  const initQueryAccount: AccountSearchQuery = {
+  const initQueryAccount: AccountSearchQuery = useMemo(() => ({
     info: "",
-  };
+  }), [])
 
   // const AccountRenderSearchResult = (item: AccountResponse) => {
   //   return (
@@ -404,7 +390,7 @@ const Customer = () => {
         });
       });
     return options;
-  }, [dispatch, resultSearch]);
+  }, [resultSearch]);
 
   const AccountChangeSearch = React.useCallback(
     (value) => {
@@ -436,26 +422,15 @@ const Customer = () => {
         }
       }
     },
-    [autoCompleteRef, dispatch, resultSearch]
+    [autoCompleteRef, resultSearch]
   );
 
   const onFinish = (value: CustomerSearchQuery) => {
-    value.responsible_staff_code = value.responsible_staff_code
-      ? value.responsible_staff_code.split(" - ")[0]
-      : null;
+    value.responsible_staff_code = value.responsible_staff_code? value.responsible_staff_code.split(" - ")[0]: null;
     onSearch(value);
   };
 
-  const onSelect = (value: any, option: any) => {
-    history.push(`/customers/${option.key}`);
-  };
 
-  const onSelectTable = React.useCallback(
-    (selectedRow: Array<CustomerResponse>) => {
-      setSelected(selectedRow);
-    },
-    []
-  );
 
   const actions: Array<MenuAction> = [
     {
@@ -467,7 +442,6 @@ const Customer = () => {
       name: "Xuất file",
     },
   ];
-
   return (
     <ContentContainer
       title="Quản lý khách hàng"
@@ -478,7 +452,7 @@ const Customer = () => {
         },
         {
           name: "Khách hàng",
-          path: `/customer`,
+          path: `/customers`,
         },
       ]}
       extra={
@@ -507,6 +481,18 @@ const Customer = () => {
               <Form.Item>
                 <Button onClick={openFilter}>Thêm bộ lọc</Button>
               </Form.Item>
+              <Form.Item>
+                <Button
+                  onClick={() => setShowSettingColumn(true)}
+                  icon={
+                    <img
+                      style={{ marginBottom: 3 }}
+                      src={settingGearIcon}
+                      alt=""
+                    ></img>
+                  }
+                ></Button>
+              </Form.Item>
             </Form>
           </CustomFilter>
 
@@ -514,10 +500,8 @@ const Customer = () => {
           <CustomTable
             isRowSelection
             isLoading={tableLoading}
-            onSelectedChange={onSelectTable}
-            showColumnSetting={true}
-            scroll={{ x: 3000 }}
-            sticky={{offsetScroll: 5}}
+            scroll={{ x: 2500 }}
+            sticky={{ offsetScroll: 5 }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,
@@ -526,12 +510,10 @@ const Customer = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            onShowColumnSetting={() => setShowSettingColumn(true)}
-            dataSource={data.items}
+            dataSource={data.items.sort((a: any,b: any) => b.id - a.id)}
             columns={columnFinal}
             rowKey={(item: any) => item.id}
           />
-          <Popup {...popup} />
         </div>
       </Card>
 
@@ -610,14 +592,14 @@ const Customer = () => {
                 >
                   {groups.map((group) => (
                     <Option key={group.id} value={group.id}>
-                      {group.name + ` - ${group.code}`}
+                      {group.name}
                     </Option>
                   ))}
                 </Select>
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={50}>
+          <Row gutter={24}>
             <Col span={12}>
               <Form.Item name="from_birthday" label="Ngày sinh từ">
                 <CustomDatepicker placeholder="Ngày sinh từ" />
@@ -629,7 +611,7 @@ const Customer = () => {
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={50}>
+          <Row gutter={24}>
             <Col span={12}>
               <Form.Item name="from_wedding_date" label="Ngày cưới từ">
                 <CustomDatepicker placeholder="Ngày cưới từ" />

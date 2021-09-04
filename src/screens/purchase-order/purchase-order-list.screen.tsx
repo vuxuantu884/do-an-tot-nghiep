@@ -10,13 +10,12 @@ import CustomTable, {
 } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import UrlConfig from "config/UrlConfig";
-import { AppConfig } from "config/AppConfig";
+import UrlConfig from "config/url.config";
+import { AppConfig } from "config/app.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PoSearchAction, PODeleteAction } from "domain/actions/po/po.action";
-import { ExportResponse } from "model/other/File/export-model";
 import { exportFile, getFile } from "service/other/export.service";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -107,7 +106,7 @@ const PurchaseOrderListScreen: React.FC = () => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          if (response.data.status === "FINISH") {
+          if (response.data && response.data.status === "FINISH") {
             let fileCode = response.data.code,
               newListExportFile = listExportFile.filter((item) => {
                 return item !== fileCode;
@@ -181,12 +180,14 @@ const PurchaseOrderListScreen: React.FC = () => {
         let processIcon = null;
         switch (value) {
           case ProcumentStatus.NOT_RECEIVED:
+          case null:
             processIcon = "icon-blank";
             break;
           case ProcumentStatus.PARTIAL_RECEIVED:
             processIcon = "icon-partial";
             break;
           case ProcumentStatus.RECEIVED:
+          case ProcumentStatus.FINISHED:
             processIcon = "icon-full";
             break;
         }
@@ -208,12 +209,14 @@ const PurchaseOrderListScreen: React.FC = () => {
         let processIcon = null;
         switch (value) {
           case PoPaymentStatus.UNPAID:
+          case null:
             processIcon = "icon-blank";
             break;
           case PoPaymentStatus.PARTIAL_PAID:
             processIcon = "icon-partial";
             break;
           case PoPaymentStatus.PAID:
+          case PoPaymentStatus.FINISHED:
             processIcon = "icon-full";
             break;
         }
@@ -500,7 +503,7 @@ const PurchaseOrderListScreen: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 3630 }}
+            scroll={{ x: 3630, y: "50vh" }}
             pagination={{
               pageSize: data.metadata.limit,
               total: data.metadata.total,

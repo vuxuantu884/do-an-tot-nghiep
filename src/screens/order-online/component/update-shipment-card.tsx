@@ -41,6 +41,7 @@ import {
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
+import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   ShippingGHTKRequest,
@@ -67,7 +68,7 @@ import {
   formatCurrency,
   getAmountPayment,
   getServiceName,
-  getShipingAddresDefault,
+  getShippingAddressDefault,
   InfoServiceDeliveryDetail,
   replaceFormatString,
   SumWeightResponse,
@@ -85,8 +86,8 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFullfilmentModal from "../modal/cancel-fullfilment.modal";
 import GetGoodsBack from "../modal/get-goods-back.modal";
 import SaveAndConfirmOrder from "../modal/save-confirm.modal";
-import FulfillmentStatusTag from "./FulfillmentStatusTag";
-import PrintShippingLabel from "./PrintShippingLabel";
+import FulfillmentStatusTag from "./order-detail/FulfillmentStatusTag";
+import PrintShippingLabel from "./order-detail/PrintShippingLabel";
 
 const { Panel } = Collapse;
 const { Link } = Typography;
@@ -108,6 +109,7 @@ type UpdateShipmentCardProps = {
   paymentType: number | null;
   customerDetail: CustomerResponse | null;
   OrderDetailAllFullfilment: OrderResponse | null;
+  orderSettings?: OrderSettingsModel;
 };
 
 const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
@@ -121,6 +123,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setVisibleShipping,
     setPaymentType,
     setShipmentMethod,
+    OrderDetail,
+    orderSettings,
   } = props;
 
   // node dom
@@ -151,6 +155,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [feeGhtk, setFeeGhtk] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
 
+  console.log("props", props);
   useEffect(() => {
     dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
@@ -181,18 +186,26 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setShipmentMethod(value);
     if (
       props.OrderDetail !== null &&
-      value === ShipmentMethodOption.SELFDELIVER &&
+      value === ShipmentMethodOption.SELF_DELIVER &&
       checkPaymentStatusToShow(props.OrderDetail) !== 1
     ) {
       props.setVisibleUpdatePayment(true);
       setPaymentType(PaymentMethodOption.COD);
     }
 
-    if (value === ShipmentMethodOption.DELIVERPARNER) {
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       getInfoDeliveryGHTK(TRANSPORTS.ROAD);
       getInfoDeliveryGHTK(TRANSPORTS.FLY);
       setPaymentType(PaymentMethodOption.COD);
       props.setVisibleUpdatePayment(true);
+    }
+    if (
+      value === ShipmentMethodOption.PICK_AT_STORE ||
+      value === ShipmentMethodOption.DELIVER_LATER
+    ) {
+      props.shippingFeeInformedCustomer(0);
+    } else {
+      props.shippingFeeInformedCustomer(shippingFeeInformedCustomer);
     }
   };
 
@@ -200,15 +213,16 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     setShippingFeeInformedCustomer(value);
     props.shippingFeeInformedCustomer(value);
   };
+
   const getInfoDeliveryGHTK = useCallback(
     (type: string) => {
       let request: ShippingGHTKRequest = {
         pick_address: props.storeDetail?.address,
         pick_province: props.storeDetail?.city_name,
         pick_district: props.storeDetail?.district_name,
-        province: getShipingAddresDefault(props.customerDetail)?.city,
-        district: getShipingAddresDefault(props.customerDetail)?.district,
-        address: getShipingAddresDefault(props.customerDetail)?.full_address,
+        province: getShippingAddressDefault(props.customerDetail)?.city,
+        district: getShippingAddressDefault(props.customerDetail)?.district,
+        address: getShippingAddressDefault(props.customerDetail)?.full_address,
         weight: props.OrderDetail && SumWeightResponse(props.OrderDetail.items),
         value: props.OrderDetail?.total,
         transport: "",
@@ -282,10 +296,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   }, [dispatch, props.OrderDetail]);
   //#endregion
   console.log(cancelReason);
+
   //#region Update Fulfillment Status
   let timeout = 500;
   const onUpdateSuccess = (value: OrderResponse) => {
-    console.log(value);
     showSuccess("Tạo đơn giao hàng thành công");
     setTimeout(() => {
       window.location.reload();
@@ -551,14 +565,14 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     value.requirements_name = requirementName;
     value.office_time = props.officeTime;
     if (props.OrderDetail?.fulfillments) {
-      if (shipmentMethod === ShipmentMethodOption.SELFDELIVER) {
+      if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
         value.delivery_service_provider_type = "Shipper";
       }
-      if (shipmentMethod === ShipmentMethodOption.PICKATSTORE) {
+      if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
         value.delivery_service_provider_type = "pick_at_store";
       }
 
-      if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER) {
+      if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER) {
         value.delivery_service_provider_id = hvc;
         value.delivery_service_provider_type = "external_service";
         value.sender_address_id = props.OrderDetail.store_id;
@@ -620,7 +634,10 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       order_id: FulFillmentRequest.order_id,
       fulfillment: FulFillmentRequest,
     };
-    if (shipmentMethod === ShipmentMethodOption.DELIVERPARNER && !serviceType) {
+    if (
+      shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
+      !serviceType
+    ) {
       showError("Vui lòng chọn đơn vị vận chuyển");
     } else {
       dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess));
@@ -985,7 +1002,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                               />
                             </div>
                             <FulfillmentStatusTag fulfillment={fulfillment} />
-                            <PrintShippingLabel />
+                            <PrintShippingLabel
+                              fulfillment={fulfillment}
+                              orderSettings={orderSettings}
+                              orderId={OrderDetail?.id}
+                            />
                           </div>
 
                           <div className="saleorder-header-content__date">
@@ -1511,6 +1532,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 type="primary"
                 style={{ marginLeft: "10px", padding: "0 25px" }}
                 className="create-button-custom ant-btn-outline fixed-button"
+                id="btn-go-to-pack"
                 onClick={onOkShippingConfirm}
               >
                 Nhặt hàng
@@ -1705,7 +1727,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 <div
                   className="saleorder_shipment_method_btn"
                   style={
-                    shipmentMethod === ShipmentMethodOption.DELIVERLATER
+                    shipmentMethod === ShipmentMethodOption.DELIVER_LATER
                       ? { border: "none" }
                       : { borderBottom: "1px solid #2A2A86" }
                   }
@@ -1725,7 +1747,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           <div
                             className={
                               shipmentMethod ===
-                              ShipmentMethodOption.DELIVERLATER
+                              ShipmentMethodOption.DELIVER_LATER
                                 ? "saleorder_shipment_button saleorder_shipment_button_border"
                                 : "saleorder_shipment_button_active"
                             }
@@ -1741,7 +1763,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 </div>
               </Row>
               {/*--- Chuyển hãng vận chuyển ----*/}
-              {shipmentMethod === ShipmentMethodOption.DELIVERPARNER && (
+              {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
                 <>
                   <Row gutter={24}>
                     <Col md={12}>
@@ -1750,7 +1772,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           format={(a: string) => formatCurrency(a)}
                           replace={(a: string) => replaceFormatString(a)}
                           placeholder="0"
-                          value={customerNeedToPayValue}
+                          // value={customerNeedToPayValue}
+                          value={
+                            customerNeedToPayValue -
+                            (OrderDetail?.total_paid
+                              ? OrderDetail?.total_paid
+                              : 0)
+                          }
                           onChange={(value: any) => setTakeMoneyHelper(value)}
                           style={{
                             textAlign: "right",
@@ -1974,7 +2002,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               )}
 
               {/* Tự vận chuyển */}
-              {shipmentMethod === ShipmentMethodOption.SELFDELIVER && (
+              {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
                 <div>
                   <Row gutter={24}>
                     <Col md={12}>
@@ -2098,7 +2126,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 </div>
               )}
               {/*--- Nhận tại cửa hàng ----*/}
-              {shipmentMethod === ShipmentMethodOption.PICKATSTORE && (
+              {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
                 <div className="receive-at-store">
                   <b>
                     <img

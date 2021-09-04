@@ -1,19 +1,22 @@
 export interface keywordsModel {
-  title: string;
-  key: string;
+  name: string;
   value: string;
+  preview_value?: string;
   isShow?: boolean;
+  key?: number | string;
 }
 
 export interface productKeywordsModel {
-  title: string;
-  key: string;
-  value: string[];
+  name: string;
+  value: string;
+  preview_value: string;
+  isShow?: boolean;
+  preview_value_format?: string[];
 }
 
 export interface listKeywordsModel {
   name: string;
-  list: keywordsModel[];
+  list?: keywordsModel[];
 }
 
 export interface EditorModel {
@@ -38,27 +41,12 @@ export interface PrintEditorModel {
 export interface PrintPreviewModel {
   htmlContent: string;
   listKeywords?: listKeywordsModel[];
-  listProductKeywords?: productKeywordsModel[];
+  listProductKeywords?: {
+    name: string;
+    list: productKeywordsModel[];
+  };
   previewHeaderHeight?: number;
   isShowEditor?: boolean;
+  isPrint?: boolean;
   onChangeShowEditor: (isShow: boolean) => void;
-}
-
-export type SinglePrinterContentModel = string;
-
-export interface FormValueModel {
-  tenMauIn: string;
-  chiNhanhApDung: string;
-  khoIn: string;
-  apDung: boolean;
-  formIn: SinglePrinterContentModel;
-}
-
-export interface FormPrinterModel {
-  id: string | number;
-  tenMauIn: string;
-  chiNhanhApDung: string;
-  khoIn: string;
-  apDung: boolean;
-  formIn?: SinglePrinterContentModel;
 }

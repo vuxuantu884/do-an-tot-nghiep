@@ -2,8 +2,8 @@ import styled from "styled-components";
 
 export const StyledComponent = styled.div`
   .sectionSelectShop {
-    display: flex;
     align-items: flex-end;
+    display: flex;
     margin-bottom: 15px;
     > div {
       &:not(:last-child) {
@@ -11,8 +11,8 @@ export const StyledComponent = styled.div`
       }
     }
     .ant-form-item {
-      width: 370px;
       margin-bottom: 0;
+      width: 370px;
     }
     button {
       &:not(:last-child) {
@@ -29,8 +29,8 @@ export const StyledComponent = styled.div`
       border-bottom: 1px solid #e5e5e5;
       border-radius: 3px 3px 0px 0px;
       font-size: 1em;
-      text-transform: uppercase;
       font-weight: 500;
+      text-transform: uppercase;
     }
     .search {
       margin-bottom: 35px;
@@ -40,11 +40,11 @@ export const StyledComponent = styled.div`
       overflow: auto;
     }
     .singleShop {
-      padding-right: 10px;
-      display: flex;
-      justify-content: space-between;
       align-items: center;
+      display: flex;
       font-weight: 500;
+      justify-content: space-between;
+      padding-right: 10px;
       &:not(:last-child) {
         margin-bottom: 10px;
       }

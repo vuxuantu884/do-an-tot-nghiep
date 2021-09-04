@@ -1,6 +1,6 @@
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
-import { ApiConfig } from "config/ApiConfig";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
+import { ApiConfig } from "config/api.config";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 
@@ -24,11 +24,20 @@ export const updatePurchaseProcumentService = (
     data
   );
 };
+export const deletePurchaseProcumentService = (
+  poId: number,
+  procumentId: number
+): Promise<BaseResponse<PurchaseOrder>> => {
+  return BaseAxios.delete(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/procurements/${procumentId}`
+  );
+};
 
 export const updateStatusPO = (
   poId: number,
-  status: string,
+  status: string
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.put(
-    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/receive-status/${status}`);
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/receive-status/${status}`
+  );
 };

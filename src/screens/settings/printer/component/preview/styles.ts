@@ -28,7 +28,7 @@ export const StyledComponent = styled.div`
       }
       .iconEdit {
         cursor: pointer;
-        margin-right: 30px;
+        margin-left: 30px;
       }
     }
     &__content {
@@ -37,7 +37,7 @@ export const StyledComponent = styled.div`
     }
   }
   .button {
-    &--print {
+    &__print {
       border-color: #2a2a86;
       color: #2a2a86;
       .icon {

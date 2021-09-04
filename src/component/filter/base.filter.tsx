@@ -4,6 +4,7 @@ import { Scrollbars } from "react-custom-scrollbars";
 type BaseFilterProps = {
   visible: boolean;
   width?: number;
+  className?: string;
   children: React.ReactNode;
   onCancel?: () => void;
   onFilter?: () => void;
@@ -11,7 +12,7 @@ type BaseFilterProps = {
 };
 
 const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
-  const { visible, width, children, onFilter, onClearFilter, onCancel } = props;
+  const { visible, width, className, children, onFilter, onClearFilter, onCancel } = props;
   return (
     <Drawer
       placement="right"
@@ -20,6 +21,7 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
       closable={false}
       onClose={onCancel}
       visible={visible}
+      className={className}
       footer={
         <Row gutter={10}>
           <Col md={24}>

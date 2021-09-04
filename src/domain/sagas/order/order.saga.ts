@@ -1,43 +1,87 @@
-import { unauthorizedAction } from "./../../actions/auth/auth.action";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { OrderModel } from "model/order/order.model";
+import { ShipmentModel } from "model/order/shipment.model";
 import {
-  getSources,
-  getOrderDetail,
-  updateFulFillmentStatus,
-  updateShipment,
-  updatePayment,
-  getDeliverieServices,
-  getInfoDeliveryGHTK,
-  getInfoDeliveryGHN,
-  getInfoDeliveryVTP,
-  getOrderSubStatusService,
-  getTrackingLogFulFillment,
-  setSubStatusService,
-  getTrackingLogFulFillmentError,
-} from "./../../../service/order/order.service";
-import { SourceResponse } from "./../../../model/response/order/source.response";
-import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
+  ActionLogDetailResponse,
+  OrderActionLogResponse,
+} from "model/response/order/action-log.response";
 import {
+  DeliveryServiceResponse,
+  ErrorLogResponse,
+  GHNFeeResponse,
+  OrderResponse,
+  OrderSubStatusResponse,
+  ShippingGHTKResponse,
+  TrackingLogFulfillmentResponse,
+  VTPFeeResponse,
+} from "model/response/order/order.response";
+import { call, put, takeLatest } from "redux-saga/effects";
+import { getAmountPayment } from "utils/AppUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { YodyAction } from "../../../base/base.action";
+import {
+  getActionLogDetailService,
   getPaymentMethod,
   orderPostApi,
 } from "../../../service/order/order.service";
 import { OrderType } from "../../types/order.type";
-import BaseResponse from "base/BaseResponse";
-import { put, call, takeLatest } from "redux-saga/effects";
-import { HttpStatus } from "config/HttpStatus";
-import { YodyAction } from "../../../base/BaseAction";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
+import { SourceResponse } from "./../../../model/response/order/source.response";
 import {
-  DeliveryServiceResponse,
-  ErrorLogResponse,
-  OrderResponse,
-  OrderSubStatusResponse,
-  ShippingGHTKResponse,
-  GHNFeeResponse,
-  VTPFeeResponse,
-  TrackingLogFulfillmentResponse,
-} from "model/response/order/order.response";
-import { getAmountPayment } from "utils/AppUtils";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
+  getDeliverieServices,
+  getInfoDeliveryGHN,
+  getInfoDeliveryGHTK,
+  getInfoDeliveryVTP,
+  getListOrderApi,
+  getOrderActionLogsService,
+  getOrderDetail,
+  getOrderSubStatusService,
+  getShipmentApi,
+  getSources,
+  getTrackingLogFulFillment,
+  getTrackingLogFulFillmentError,
+  setSubStatusService,
+  updateFulFillmentStatus,
+  updatePayment,
+  updateShipment,
+} from "./../../../service/order/order.service";
+import { unauthorizedAction } from "./../../actions/auth/auth.action";
+
+function* getListOrderSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<OrderModel>> = yield call(
+      getListOrderApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
+function* getShipmentsSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<ShipmentModel>> = yield call(
+      getShipmentApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
 
 function* orderCreateSaga(action: YodyAction) {
   const { request, setData } = action.payload;
@@ -55,7 +99,7 @@ function* orderCreateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -75,7 +119,7 @@ function* InfoGHTKSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -95,7 +139,7 @@ function* InfoGHNSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -115,7 +159,7 @@ function* InfoVTPSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -135,7 +179,7 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -156,7 +200,7 @@ function* updatePaymentSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -176,7 +220,7 @@ function* updateShipmentSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError(error);
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -238,7 +282,11 @@ function* getTRackingLogFulfillmentSaga(action: YodyAction) {
       yield call(getTrackingLogFulFillment, fulfillment_code);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data.sort((a,b)=>{ return  b.id - a.id}));
+        setData(
+          response.data.sort((a, b) => {
+            return b.id - a.id;
+          })
+        );
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -255,11 +303,17 @@ function* getTRackingLogFulfillmentSaga(action: YodyAction) {
 function* getTRackingLogErrorSaga(action: YodyAction) {
   const { fulfillment_code, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<ErrorLogResponse>> =
-      yield call(getTrackingLogFulFillmentError, fulfillment_code);
+    let response: BaseResponse<Array<ErrorLogResponse>> = yield call(
+      getTrackingLogFulFillmentError,
+      fulfillment_code
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setData(response.data.sort((a,b)=>{ return  b.id - a.id}));
+        setData(
+          response.data.sort((a, b) => {
+            return b.id - a.id;
+          })
+        );
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -283,9 +337,9 @@ function* ListDeliveryServicesSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         break;
     }
@@ -305,9 +359,9 @@ function* getListSubStatusSaga(action: YodyAction) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
         break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         break;
     }
@@ -319,15 +373,17 @@ function* setSubStatusSaga(action: YodyAction) {
   yield put(showLoading());
   try {
     let response: BaseResponse<Array<DeliveryServiceResponse>> = yield call(
-      setSubStatusService, order_id, statusId
+      setSubStatusService,
+      order_id,
+      statusId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         showSuccess("Cập nhật trạng thái thành công");
         break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
       default:
         break;
     }
@@ -338,7 +394,65 @@ function* setSubStatusSaga(action: YodyAction) {
   }
 }
 
+function* getOrderActionLogsSaga(action: YodyAction) {
+  const { id, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<OrderActionLogResponse[]> = yield call(
+      getOrderActionLogsService,
+      id
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* getActionLogDetailsSaga(action: YodyAction) {
+  const { id, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<ActionLogDetailResponse> = yield call(
+      getActionLogDetailService,
+      id
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
 function* OrderOnlineSaga() {
+  yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
+  yield takeLatest(OrderType.GET_SHIPMENTS_REQUEST, getShipmentsSaga);
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
@@ -361,11 +475,10 @@ function* OrderOnlineSaga() {
     OrderType.GET_TRACKING_LOG_FULFILLMENT,
     getTRackingLogFulfillmentSaga
   );
-  yield takeLatest(
-    OrderType.GET_TRACKING_LOG_ERROR,
-    getTRackingLogErrorSaga
-  );
+  yield takeLatest(OrderType.GET_TRACKING_LOG_ERROR, getTRackingLogErrorSaga);
   yield takeLatest(OrderType.SET_SUB_STATUS, setSubStatusSaga);
+  yield takeLatest(OrderType.GET_ORDER_ACTION_LOGS, getOrderActionLogsSaga);
+  yield takeLatest(OrderType.GET_ACTION_LOG_DETAILS, getActionLogDetailsSaga);
 }
 
 export default OrderOnlineSaga;

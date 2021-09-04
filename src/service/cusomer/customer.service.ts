@@ -1,10 +1,11 @@
+import { CustomerNote } from './../../model/request/customer.request';
 import { CustomerResponse } from 'model/response/customer/customer.response';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { generateQuery } from 'utils/AppUtils';
 import { CustomerSearchQuery } from 'model/query/customer.query';
-import BaseAxios from "base/BaseAxios";
-import BaseResponse from "base/BaseResponse";
-import { ApiConfig } from "config/ApiConfig";
+import BaseAxios from "base/base.axios";
+import BaseResponse from "base/base.response";
+import { ApiConfig } from "config/api.config";
 import { CustomerBillingAddress, CustomerContact, CustomerRequest, CustomerShippingAddress } from 'model/request/customer.request';
 
 export const getCustomers = (query : CustomerSearchQuery): Promise<BaseResponse<PageResponse<CustomerResponse>>> => {
@@ -39,9 +40,19 @@ export const createShippingAddress = (customerId: number, address: CustomerShipp
   return BaseAxios.post(url, address);
 };
 
+export const createNote = (customerId: number, note: CustomerNote): Promise<BaseResponse<any>> => {
+  let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/notes`;
+  return BaseAxios.post(url, note);
+};
+
 export const updateShippingAddress = (id: number, customerId: number, address: CustomerShippingAddress): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/shipping-address/${id}`;
   return BaseAxios.put(url, address);
+};
+
+export const updateNote = (id: number, customerId: number, note: CustomerNote): Promise<BaseResponse<any>> => {
+  let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/notes/${id}`;
+  return BaseAxios.put(url, note);
 };
 
 export const createBillingAddress = (customerId: number, address: CustomerBillingAddress): Promise<BaseResponse<any>> => {
@@ -81,6 +92,11 @@ export const deleteContact = (id: number, customerId: number): Promise<BaseRespo
 
 export const deleteShippingAddress = (id: number, customerId: number): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/shipping-address/${id}`;
+  return BaseAxios.delete(url);
+};
+
+export const deleteNote = (id: number, customerId: number): Promise<BaseResponse<any>> => {
+  let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/notes/${id}`;
   return BaseAxios.delete(url);
 };
 

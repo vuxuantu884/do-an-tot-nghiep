@@ -1,9 +1,9 @@
 import { PageResponse } from "model/base/base-metadata.response";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import BaseResponse from "base/BaseResponse";
-import { YodyAction } from "base/BaseAction";
+import BaseResponse from "base/base.response";
+import { YodyAction } from "base/base.action";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { HttpStatus } from "config/HttpStatus";
+import { HttpStatus } from "config/http-status.config";
 import {
   createBillingAddress,
   createContact,
@@ -21,6 +21,9 @@ import {
   updateContact,
   updateCustomer,
   updateShippingAddress,
+  createNote,
+  updateNote,
+  deleteNote
 } from "service/cusomer/customer.service";
 import { CustomerType } from "domain/types/customer.type";
 import { showError } from "utils/ToastUtils";
@@ -67,6 +70,32 @@ function* getCustomerList(action: YodyAction) {
         break;
       default:
         response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getCustomerByPhone(action: YodyAction) {
+  const { query, setData } = action.payload;
+  try {
+    const response: BaseResponse<CustomerResponse> = yield call(
+      getCustomers,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        console.log(response.data)
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setData(undefined)
+        response.errors.forEach((e) =>showError(e));
+        
         break;
     }
   } catch (error) {
@@ -294,6 +323,59 @@ function* UpdateShippingAddress(action: YodyAction) {
   }
 }
 
+function* UpdateNote(action: YodyAction) {
+  const { customerId, id, note, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      updateNote,
+      id,
+      customerId,
+      note
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* CreateNote(action: YodyAction) {
+  const { customerId, note, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      createNote,
+      customerId,
+      note
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 function* CreateShippingAddress(action: YodyAction) {
   const { customerId, address, setResult } = action.payload;
   try {
@@ -451,6 +533,32 @@ function* DeleteShippingAddress(action: YodyAction) {
   }
 }
 
+function* DeleteNote(action: YodyAction) {
+  const { customerId, id, setResult } = action.payload;
+  try {
+    const response: BaseResponse<any> = yield call(
+      deleteNote,
+      id,
+      customerId,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setResult(response.data || 'OK');
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        setResult(null)
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setResult(null)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export default function* customerSagas() {
   yield takeLatest(
     CustomerType.KEY_SEARCH_CUSTOMER_CHANGE,
@@ -460,6 +568,9 @@ export default function* customerSagas() {
     CustomerType.CUSTOMER_LIST,
     getCustomerList
   );
+
+  
+  yield takeLatest(CustomerType.CUSTOMER_SEARCH_BY_PHONE, getCustomerByPhone);
   yield takeLatest(CustomerType.CUSTOMER_DETAIL, CustomerDetail);
   yield takeLatest(CustomerType.CREATE_CUSTOMER, CreateCustomer);
   yield takeLatest(CustomerType.UPDATE_CUSTOMER, UpdateCustomer);
@@ -469,10 +580,13 @@ export default function* customerSagas() {
   yield takeLatest(CustomerType.CREATE_BILLING_ADDR, CreateBillingAddress);
   yield takeLatest(CustomerType.UPDATE_BILLING_ADDR, UpdateBillingAddress);
   yield takeLatest(CustomerType.CREATE_SHIPPING_ADDR, CreateShippingAddress);
+  yield takeLatest(CustomerType.CREATE_NOTE, CreateNote);
   yield takeLatest(CustomerType.UPDATE_SHIPPING_ADDR, UpdateShippingAddress);
+  yield takeLatest(CustomerType.UPDATE_NOTE, UpdateNote);
   yield takeLatest(CustomerType.CREATE_CONTACT, CreateContact);
   yield takeLatest(CustomerType.UPDATE_CONTACT, UpdateContact);
   yield takeLatest(CustomerType.DELETE_CONTACT, DeleteContact);
   yield takeLatest(CustomerType.DELETE_BILLING_ADDR, DeleteBillingAddress);
   yield takeLatest(CustomerType.DELETE_SHIPPING_ADDR, DeleteShippingAddress);
+  yield takeLatest(CustomerType.DELETE_NOTE, DeleteNote);
 }

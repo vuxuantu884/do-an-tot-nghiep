@@ -1,24 +1,6 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  .sectionFilter {
-    .ant-form-item {
-      width: 100%;
-    }
-    .ant-form-item-control-input {
-      width: 100%;
-    }
-    .ant-col {
-      align-items: flex-end;
-      display: flex;
-    }
-    label {
-      font-weight: 500;
-    }
-  }
-  .ant-form-item {
-    margin-bottom: 0;
-  }
   form {
     padding-bottom: 150px;
     position: relative;
@@ -37,6 +19,11 @@ export const StyledComponent = styled.div`
       &:not(:last-child) {
         margin-right: 10px;
       }
+    }
+  }
+  .isEditForm {
+    .cke_contents {
+      min-height: 500px !important;
     }
   }
 `;

@@ -1,5 +1,5 @@
 import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/UrlConfig";
+import UrlConfig from "config/url.config";
 import FormPrinter from "../component/FormPrinter";
 import { StyledComponent } from "./styles";
 

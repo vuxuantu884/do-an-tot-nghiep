@@ -1,9 +1,21 @@
 import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
 import { POType } from "domain/types/purchase-order.type";
-import BaseAction from "base/BaseAction";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import BaseAction from "base/base.action";
+import {
+  PurchaseOrder,
+  PurchaseOrderPrint,
+} from "model/purchase-order/purchase-order.model";
 import { PageResponse } from "model/base/base-metadata.response";
 
+export const POGetPrintContentAction = (
+  id: number,
+  updatePrintCallback: (result: Array<PurchaseOrderPrint>) => void
+) => {
+  return BaseAction(POType.GET_PRINT_CONTENT, {
+    id,
+    updatePrintCallback,
+  });
+};
 export const PoCreateAction = (
   request: PurchaseOrder | null,
   createCallback: (result: PurchaseOrder) => void

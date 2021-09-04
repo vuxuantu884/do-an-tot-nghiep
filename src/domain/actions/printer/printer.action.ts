@@ -1,17 +1,20 @@
+import BaseResponse from "base/base.response";
 import { PRINTER_TYPES } from "domain/types/printer.type";
 import {
-  PrinterModel,
+  BasePrinterModel,
   PrinterResponseModel,
+  PrinterVariableResponseModel,
+  PrintFormByOrderIdsResponseModel,
 } from "model/response/printer.response";
 
 export const actionFetchListPrinter = (
-  params = {},
+  queryParams = {},
   handleData: (data: PrinterResponseModel) => void
 ) => {
   return {
     type: PRINTER_TYPES.listPrinter,
     payload: {
-      params,
+      queryParams,
       handleData,
     },
   };
@@ -19,24 +22,54 @@ export const actionFetchListPrinter = (
 
 export const actionFetchPrinterDetail = (
   id: number,
-  query: {},
-  handleData: (data: PrinterModel) => void
+  queryParams: {},
+  handleData: (data: BasePrinterModel) => void
 ) => {
   return {
     type: PRINTER_TYPES.getPrinterDetail,
     payload: {
       id,
-      query,
+      queryParams,
       handleData,
     },
   };
 };
 
-export const actionCreatePrinter = (formValue: PrinterModel) => {
+export const actionCreatePrinter = (
+  formValue: BasePrinterModel,
+  handleData: () => void
+) => {
   return {
     type: PRINTER_TYPES.createPrinter,
     payload: {
       formValue,
+      handleData,
+    },
+  };
+};
+
+export const actionFetchListPrinterVariables = (
+  handleData: (data: PrinterVariableResponseModel) => void
+) => {
+  return {
+    type: PRINTER_TYPES.getListPrinterVariables,
+    payload: {
+      handleData,
+    },
+  };
+};
+
+export const actionFetchPrintFormByOrderIds = (
+  ids: number[],
+  type: string,
+  handleData: (data: BaseResponse<PrintFormByOrderIdsResponseModel>) => void
+) => {
+  return {
+    type: PRINTER_TYPES.getPrintFormByOrderIds,
+    payload: {
+      ids,
+      type,
+      handleData,
     },
   };
 };

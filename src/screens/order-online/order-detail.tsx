@@ -1,38 +1,30 @@
-//#region Import
-import {
-  Button,
-  Card,
-  Row,
-  Col,
-  Space,
-  Divider,
-  Tag,
-  Collapse,
-  Typography,
-} from "antd";
-import UpdatePaymentCard from "./component/update-payment-card";
-import {
-  useState,
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useEffect,
-} from "react";
-import { useDispatch } from "react-redux";
-import { OrderPaymentRequest } from "model/request/order.request";
-import { AccountResponse } from "model/account/account.model";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { OrderDetailAction } from "domain/actions/order/order.action";
-import { useParams } from "react-router-dom";
+import { Button, Card, Col, Collapse, Divider, Row, Space, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
+import SubStatusOrder from "component/main-sidebar/sub-status-order";
+import UrlConfig from "config/url.config";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { StoreDetailAction } from "domain/actions/core/store.action";
+import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { OrderDetailAction } from "domain/actions/order/order.action";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderSettingsModel } from "model/other/order/order-model";
+import { OrderPaymentRequest } from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { CustomerResponse } from "model/response/customer/customer.response";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
 import {
   checkPaymentAll,
   checkPaymentStatusToShow,
@@ -40,38 +32,43 @@ import {
   getAmountPayment,
   SumCOD,
 } from "utils/AppUtils";
-import historyAction from "assets/icon/action-history.svg";
-import { StoreDetailAction } from "domain/actions/core/store.action";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
-import UrlConfig from "config/UrlConfig";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import UpdateProductCard from "./component/update-product-card";
+import ActionHistory from "./component/order-detail/ActionHistory";
+import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import UpdateCustomerCard from "./component/update-customer-card";
-import SubStatusOrder from "component/main-sidebar/sub-status-order";
+import UpdatePaymentCard from "./component/update-payment-card";
+import UpdateProductCard from "./component/update-product-card";
 import UpdateShipmentCard from "./component/update-shipment-card";
 const { Panel } = Collapse;
-//#endregion
 
+type PropType = {
+  id?: string;
+  isCloneOrder?: boolean;
+};
 type OrderParam = {
   id: string;
 };
 
-const OrderDetail = () => {
-  const { id } = useParams<OrderParam>();
+const OrderDetail = (props: PropType) => {
+  const { isCloneOrder } = props;
+  let { id } = useParams<OrderParam>();
+  if (!id && props.id && isCloneOrder) {
+    id = props.id;
+  }
   let OrderId = parseInt(id);
   const isFirstLoad = useRef(true);
 
-  //#region state
   const dispatch = useDispatch();
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
-  // update payment
+
   const [paymentType, setPaymentType] = useState<number>(3);
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
-  // update shipment
+
   const [shipmentMethod, setShipmentMethod] = useState<number>(4);
   const [isVisibleShipping, setVisibleShipping] = useState(false);
-  // end
+
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
@@ -86,8 +83,7 @@ const OrderDetail = () => {
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
-  //#endregion
-  //#region Orther
+
   const onPaymentSelect = (paymentType: number) => {
     if (paymentType === 1) {
       setVisibleShipping(true);
@@ -99,15 +95,13 @@ const OrderDetail = () => {
     setPayments(value);
   };
   const changeShippingFeeInformedCustomer = (value: number | null) => {
-    if (value) {
+    if (value !== null) {
       setShippingFeeInformedCustomer(value);
     }
   };
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] =
     useState(false);
 
-  //#endregion
-  //#region Master
   const stepsStatus = () => {
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
@@ -153,12 +147,16 @@ const OrderDetail = () => {
     } else if (OrderDetail?.status === OrderStatus.FINISHED) {
       return FulFillmentStatus.SHIPPED;
     }
+    return "";
   };
 
-  // tag status
+  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
+    chonCuaHangTruocMoiChonSanPham: false,
+    cauHinhInNhieuLienHoaDon: 1,
+  });
+
   let stepsStatusValue = stepsStatus();
 
-  //#region Product
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -168,7 +166,6 @@ const OrderDetail = () => {
     },
     []
   );
-  //#endregion
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setLoadingData(false);
     if (!data) {
@@ -201,9 +198,6 @@ const OrderDetail = () => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
 
-  //#endregion
-
-  //#region Update Fulfillment Status
   useEffect(() => {
     if (OrderDetail != null) {
       dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomerDetail));
@@ -215,7 +209,13 @@ const OrderDetail = () => {
       dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
     }
   }, [dispatch, OrderDetail?.store_id]);
-  //#endregion
+
+  useEffect(() => {
+    setOrderSettings({
+      chonCuaHangTruocMoiChonSanPham: true,
+      cauHinhInNhieuLienHoaDon: 3,
+    });
+  }, []);
 
   // khách cần trả
   const customerNeedToPay: any = () => {
@@ -280,7 +280,7 @@ const OrderDetail = () => {
           name: "Đơn hàng",
         },
         {
-          name: "Đơn hàng " + id,
+          name: !isCloneOrder ? `Đơn hàng ${id}` : `Sao chép Đơn hàng ${id}`,
         },
       ]}
       extra={
@@ -323,6 +323,7 @@ const OrderDetail = () => {
               isVisibleShipping={isVisibleShipping}
               paymentType={paymentType}
               OrderDetailAllFullfilment={OrderDetailAllFullfilment}
+              orderSettings={orderSettings}
             />
 
             {/*--- end shipment ---*/}
@@ -429,7 +430,7 @@ const OrderDetail = () => {
                                             <span>{payment.reference}</span>
                                             {payment.payment_method_id ===
                                               5 && (
-                                              <span>
+                                              <span style={{ marginLeft: 10 }}>
                                                 {payment.amount / 1000} điểm
                                               </span>
                                             )}
@@ -581,12 +582,16 @@ const OrderDetail = () => {
                     (checkPaymentAll(OrderDetail) !== 1 &&
                       isShowPaymentPartialPayment === false &&
                       checkPaymentStatusToShow(OrderDetail) !== 1 && (
-                        <div className="padding-24 text-right">
+                        <div
+                          className="padding-24 text-right"
+                          style={{ paddingTop: 0 }}
+                        >
                           <Divider style={{ margin: "10px 0" }} />
                           <Button
                             type="primary"
                             className="ant-btn-outline fixed-button"
                             onClick={() => setShowPaymentPartialPayment(true)}
+                            style={{ marginTop: 10 }}
                           >
                             Thanh toán
                           </Button>
@@ -913,65 +918,16 @@ const OrderDetail = () => {
                 </Row>
               </div>
             </Card>
-            <Card className="margin-top-20">
-              <div
-                className=""
-                style={{
-                  padding: "13px 0 15px 22px",
-                  fontSize: "13px",
-                  height: 46,
-                }}
-              >
-                <Typography.Link style={{ display: "flex" }}>
-                  <img
-                    src={historyAction}
-                    style={{ width: 20, height: 20 }}
-                    alt=""
-                  ></img>
-                  <span
-                    className="text-focus"
-                    style={{
-                      marginLeft: 10,
-                      color: "#5D5D8A",
-                      lineHeight: "20px",
-                    }}
-                  >
-                    Lịch sử thao tác đơn hàng
-                  </span>
-                </Typography.Link>
-              </div>
-            </Card>
+            <ActionHistory orderId={id} />
           </Col>
         </Row>
-        <Row
-          gutter={24}
-          className="margin-top-10"
-          style={{
-            position: "fixed",
-            textAlign: "right",
-            width: "100%",
-            height: "55px",
-            bottom: "0%",
-            backgroundColor: "#FFFFFF",
-            marginLeft: "-30px",
-            display: `${isShowBillStep ? "" : "none"}`,
-          }}
-        >
-          <Col
-            md={10}
-            style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px" }}
-          >
-            <CreateBillStep status={stepsStatusValue} orderDetail={null} />
-          </Col>
-        </Row>
+        <OrderDetailBottomBar
+          isVisibleGroupButtons={false}
+          stepsStatusValue={stepsStatusValue}
+        />
       </div>
     </ContentContainer>
   );
 };
 
 export default OrderDetail;
-
-// -
-//                                   (OrderDetail?.fulfillments.length > 0 && OrderDetail?.fulfillments[0].shipment
-//                                     ? OrderDetail?.fulfillments[0].shipment?.cod
-//                                     : 0)
