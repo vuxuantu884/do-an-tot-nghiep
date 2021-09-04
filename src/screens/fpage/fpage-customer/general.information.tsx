@@ -18,12 +18,16 @@ const GeneralInformation = (props: any) => {
     phones,
     setPhones,
     getCustomerWhenPhoneChange,
+    customerId,
+    notes,
+    handleNote,
+    customerDetail,
   } = props;
   const [showDetail, setShowDetail] = React.useState<boolean>(true);
 
   const clickPhone = (p: any) => {
     form.setFieldsValue({ phone: p });
-    getCustomerWhenPhoneChange(p)
+    getCustomerWhenPhoneChange(p);
   };
   const deletePhone = (p: any, e: any) => {
     e.stopPropagation();
@@ -33,6 +37,17 @@ const GeneralInformation = (props: any) => {
     _phones.splice(index, 1);
     setPhones(_phones);
   };
+
+  const addNote = (e: any) => {
+    e.preventDefault();
+    handleNote.create(e.target.value);
+    form.setFieldsValue({ note: "" });
+  };
+
+  const deleteNote = (note: any, e: any) => {
+    handleNote.delete(note, customerId);
+  };
+
   return (
     <Row gutter={24}>
       <Col span={24}>
@@ -96,21 +111,22 @@ const GeneralInformation = (props: any) => {
                 }}
               >
                 <Col span={16}>
-                  {phones && phones.map((p: any, index: any) => (
-                    <Tag
-                      key={index}
-                      style={{ cursor: "pointer" }}
-                      onClick={() => clickPhone(p)}
-                    >
-                      {p}
-                      <img
-                        alt="delete"
-                        onClick={(e: any) => deletePhone(p, e)}
-                        style={{ width: 16, marginBottom: 2 }}
-                        src={XCloseBtn}
-                      ></img>
-                    </Tag>
-                  ))}
+                  {phones &&
+                    phones.map((p: any, index: any) => (
+                      <Tag
+                        key={index}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => clickPhone(p)}
+                      >
+                        {p}
+                        <img
+                          alt="delete"
+                          onClick={(e: any) => deletePhone(p, e)}
+                          style={{ width: 16, marginBottom: 2 }}
+                          src={XCloseBtn}
+                        ></img>
+                      </Tag>
+                    ))}
                 </Col>
               </Row>
             )}
@@ -337,13 +353,43 @@ const GeneralInformation = (props: any) => {
           </Row>
         </Card>
       </Col>
-      <Col span={24}>
+      <Col span={24}  hidden={!customerDetail}>
         <Card>
-          <Row gutter={12} style={{ padding: "16px" }}>
+          <Row
+            gutter={12}
+            style={{
+              padding: "16px",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
             <Col span={24}>
               <Form.Item label={<b>Ghi chú:</b>} name="note">
-                <Input.TextArea maxLength={500} placeholder="Nhập ghi chú" />
+                <Input.TextArea
+                  maxLength={500}
+                  placeholder="Viết ghi chú"
+                  onPressEnter={(e) => addNote(e)}
+                />
               </Form.Item>
+            </Col>
+            <Col style={{ width: "70%", paddingLeft: 0 }}>
+              {notes &&
+                notes.map((note: any) => (
+                  <div className="customer-note-item">
+                    <span key={note.id}>{note.content}</span>
+                    <img
+                      alt="delete"
+                      onClick={(e: any) => deleteNote(note, e)}
+                      style={{
+                        width: 20,
+                        float: "right",
+                        cursor: "pointer",
+                        marginLeft: 4,
+                      }}
+                      src={XCloseBtn}
+                    ></img>
+                  </div>
+                ))}
             </Col>
           </Row>
           <Row hidden gutter={12} style={{ padding: "16px" }}>

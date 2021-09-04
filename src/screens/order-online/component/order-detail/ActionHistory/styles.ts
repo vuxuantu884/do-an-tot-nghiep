@@ -19,6 +19,13 @@ export const StyledComponent = styled.div`
   .singleActionHistory {
     padding-bottom: 8px;
     padding-top: 10px;
+    &:hover {
+      cursor: pointer;
+      .singleActionHistory__mainStatus,
+      .singleActionHistory__title {
+        text-decoration: underline;
+      }
+    }
     &:first-child {
       padding-top: 0;
     }
@@ -36,9 +43,6 @@ export const StyledComponent = styled.div`
       color: #2a2a86;
       cursor: pointer;
       font-weight: 500;
-      &:hover {
-        text-decoration: underline;
-      }
     }
     &__subStatus {
       color: #737373;

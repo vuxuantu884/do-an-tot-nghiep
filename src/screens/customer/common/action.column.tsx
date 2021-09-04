@@ -27,7 +27,7 @@ const actionColumn = (handleEdit: any, handleDelete: any, customerDetailState: a
                 Chỉnh sửa
               </Button>
             </Menu.Item>
-            {customerDetailState !== 2 && (
+            {customerDetailState !== "contact" && (
               <Menu.Item key="2">
                 <Button
                   icon={

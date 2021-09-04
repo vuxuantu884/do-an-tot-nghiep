@@ -154,11 +154,11 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
 
   return (
     <Card
-      // title={
-      //   <div className="d-flex">
-      //     <span className="title-card">THANH TOÁN</span>
-      //   </div>
-      // }
+    // title={
+    //   <div className="d-flex">
+    //     <span className="title-card">THANH TOÁN</span>
+    //   </div>
+    // }
     >
       <div className="create-order-payment">
         <Form.Item
@@ -341,15 +341,18 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                   </Col>
                 </Row>
 
-                <Row
-                  gutter={24}
-                >
+                <Row gutter={24}>
                   {paymentData.map((method, index) => {
                     return (
                       <Row
                         gutter={20}
                         key={index}
-                        style={{width: "100%", display: "flex", justifyContent: "space-between", padding: "0 16px"}}
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          margin: "4px 0"
+                        }}
                       >
                         <Col span={7} style={{ padding: "8px 12px" }}>
                           {method.name}:
@@ -358,17 +361,16 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         {method.code === PaymentMethodCode.POINT ? (
                           <Col className="point-spending" span={8}>
                             <Form.Item
-                            label=""
+                              label=""
                               tooltip={{
-                                title:
-                                  "1 điểm = 1,000₫",
+                                title: "1 điểm = 1,000₫",
                                 icon: <InfoCircleOutlined />,
                               }}
                             >
                               <InputNumber
                                 value={method.point}
                                 style={{
-                                  borderRadius: 5,
+                                  borderRadius: 5, width: "100%"
                                 }}
                                 className="hide-number-handle"
                                 onFocus={(e) => e.target.select()}
@@ -405,11 +407,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         ) : null}
 
                         {method.code !== PaymentMethodCode.POINT ? (
-                          <Col
-                            lg={9}
-                            xxl={6}
-                            span={9}
-                          >
+                          <Col lg={9} xxl={6} span={9}>
                             <InputNumber
                               min={0}
                               max={calculateMax(props.amount, index)}

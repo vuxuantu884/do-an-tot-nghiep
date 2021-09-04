@@ -55,6 +55,7 @@ type CustomerCardProps = {
   InfoCustomerSet: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress) => void;
   BillingAddressChange: (items: BillingAddress) => void;
+  parentCustomerDetail: CustomerResponse | null;
 };
 
 //Add query for search Customer
@@ -77,6 +78,8 @@ const initQueryCustomer: CustomerSearchQuery = {
 const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
+  const { parentCustomerDetail } = props;
+  console.log("parentCustomerDetail", parentCustomerDetail);
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -85,6 +88,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
+  console.log("customer", customer);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
@@ -225,6 +229,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (parentCustomerDetail) {
+      setCustomer(parentCustomerDetail);
+      if (parentCustomerDetail.shipping_addresses) {
+        setShippingAddress(parentCustomerDetail.shipping_addresses[0]);
+      }
+    }
+  }, [parentCustomerDetail]);
 
   return (
     <Card
@@ -508,7 +521,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         className="change-shipping-address"
                       >
                         <Button type="link" className="btn-style">
-                          Thay đổi địa chỉ giao hàng
+                          Thay đổi địa chỉ giao hàng 2
                         </Button>
                       </Popover>
                     </Row>
@@ -650,7 +663,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           className="change-shipping-address"
                         >
                           <Button type="link" className="btn-style">
-                            Thay đổi địa chỉ giao hàng
+                            Thay đổi địa chỉ giao hàng 3
                           </Button>
                         </Popover>
                       </Row>

@@ -218,7 +218,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                   className="change-shipping-address"
                 >
                   <Button type="link" className="btn-style">
-                    Thay đổi địa chỉ giao hàng
+                    Thay đổi địa chỉ giao hàng 1
                   </Button>
                 </Popover>
               </Row>
@@ -240,10 +240,10 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                         marginRight: "10px",
                       }}
                     />
-                    Ghi chú của khách:
+                    Ghi chú của khách: 3
                   </label>
                 </div>
-                <div style={{ marginTop: "10px", wordWrap: "break-word"}}>
+                <div style={{ marginTop: "10px", wordWrap: "break-word" }}>
                   {props.OrderDetail?.customer_note !== ""
                     ? props.OrderDetail?.customer_note
                     : "Không có ghi chú"}

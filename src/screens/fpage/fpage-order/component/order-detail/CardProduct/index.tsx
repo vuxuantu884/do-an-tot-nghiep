@@ -52,7 +52,6 @@ import {
 import { RefSelectProps } from "antd/lib/select";
 import { AppConfig } from "config/app.config";
 import imgdefault from "assets/icon/img-default.svg";
-import emptyProduct from "assets/icon/empty_products.svg";
 import addIcon from "assets/img/plus_1.svg";
 import { Type } from "config/type.config";
 import {
@@ -798,12 +797,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   return (
     <Card
+      className="fpage-order-product"
       extra={
         <Space
           style={{
             display: "flex",
             justifyContent: "space-between",
-            marginBottom: 12,
           }}
         >
           <Checkbox onChange={() => setSplitLine(!splitLine)}>
@@ -993,25 +992,25 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           )
         }
       />
-      <div style={{ padding: "12px 24px" }}>
-        <Row className="sale-product-box-payment" gutter={24}>
-          <Col span={12}>
-            <Checkbox className="payment-row" style={{ fontWeight: 500 }}>
+      <Row style={{ padding: "12px 24px" }}>
+        <Col className="sale-product-box-payment" span={12}>
+          <Col span={24}>
+            <Checkbox>
               Bỏ chiết khấu tự động
             </Checkbox>
           </Col>
-          <Col span={12}>
-            <Checkbox className="payment-row" style={{ fontWeight: 500 }}>
+          <Col span={24}>
+            <Checkbox >
               Không tính thuế VAT
             </Checkbox>
           </Col>
-          <Col span={12}>
-            <Checkbox className="payment-row" style={{ fontWeight: 500 }}>
+          <Col span={24}>
+            <Checkbox >
               Bỏ tích điểm tự động
             </Checkbox>
           </Col>
-        </Row>
-        <Row>
+        </Col>
+        <Col span={12}>
           <Col xs={24} lg={10}>
             <Row
               className="payment-row"
@@ -1112,10 +1111,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                   : "-"}
               </div>
             </Row>
-            <Divider className="margin-top-5 margin-bottom-5" />
+            <Divider style={{margin: "10px 0"}} />
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Khách cần phải trả:</strong>
-              <strong className="text-success font-size-price">
+              <b style={{lineHeight: "29px"}} className="font-size-text">Khách cần phải trả:</b>
+              <b className="text-success font-size-price">
                 {changeMoney
                   ? formatCurrency(
                       changeMoney +
@@ -1124,11 +1123,11 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                           : 0)
                     )
                   : "-"}
-              </strong>
+              </b>
             </Row>
           </Col>
-        </Row>
-      </div>
+        </Col>
+      </Row>
 
       <PickDiscountModal
         amount={amount}

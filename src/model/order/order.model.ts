@@ -2,6 +2,7 @@ export interface OrderItemModel {
   variant_id: number;
   quantity: number;
   sku: string;
+  variant:string;
 }
 export interface OrderPaymentModel {
   id: number;
@@ -101,7 +102,7 @@ export interface OrderSearchQuery {
   price_min: number|undefined;
   price_max: number|undefined;
   payment_method_ids: [];
-  ship_by: string|null;
+  delivery_types: [];
   note: string|null;
   customer_note: string|null;
   tags: [];
