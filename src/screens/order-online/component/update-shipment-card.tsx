@@ -379,30 +379,37 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     switch (type) {
       case 1:
         value.status = FulFillmentStatus.PICKED;
+        value.action = FulFillmentStatus.PICKED;
         dispatch(UpdateFulFillmentStatusAction(value, onPickSuccess));
         break;
       case 2:
         value.status = FulFillmentStatus.PACKED;
+        value.action = FulFillmentStatus.PACKED;
         dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess));
         break;
       case 3:
         value.status = FulFillmentStatus.SHIPPING;
+        value.action = FulFillmentStatus.SHIPPING;
         dispatch(UpdateFulFillmentStatusAction(value, onShippingSuccess));
         break;
       case 4:
         value.status = FulFillmentStatus.SHIPPED;
+        value.action = FulFillmentStatus.SHIPPED;
         dispatch(UpdateFulFillmentStatusAction(value, onShipedSuccess));
         break;
       case 5:
         value.status = FulFillmentStatus.CANCELLED;
+        value.action = FulFillmentStatus.CANCELLED;
         dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
         break;
       case 6:
         value.status = FulFillmentStatus.RETURNING;
+        value.action = FulFillmentStatus.RETURNING;
         dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
         break;
       case 7:
         value.status = FulFillmentStatus.RETURNED;
+        value.action = FulFillmentStatus.RETURNED;
         dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
         break;
       default:
@@ -858,7 +865,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
         title={
           <Space>
             <div className="d-flex">
-              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
+              <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG 2</span>
             </div>
             {props.OrderDetail?.fulfillments &&
               props.OrderDetail?.fulfillments.length > 0 &&
@@ -1079,7 +1086,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         <Row gutter={24}>
                           <Col md={5}>
                             <Col span={24}>
-                              <p className="text-field">Đối tác giao hàng:</p>
+                              <p className="text-field">
+                                Đối tác giao hàng: 33
+                              </p>
                             </Col>
                             <Col span={24}>
                               <b>
@@ -1535,7 +1544,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                 id="btn-go-to-pack"
                 onClick={onOkShippingConfirm}
               >
-                Nhặt hàng
+                Nhặt hàng 23
               </Button>
             )}
 
@@ -2007,7 +2016,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   <Row gutter={24}>
                     <Col md={12}>
                       <Form.Item
-                        label="Đối tác giao hàng"
+                        label="Đối tác giao hàng 12"
                         name="shipper_code"
                         rules={[
                           {

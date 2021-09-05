@@ -89,14 +89,17 @@ export const getOrderDetail = (
 export const updateFulFillmentStatus = (
   request: UpdateFulFillmentStatusRequest
 ): Promise<BaseResponse<OrderResponse>> => {
-  let link = `${ApiConfig.ORDER}/orders/${request.order_id}/fulfillment/${request.fulfillment_id}/status/${request.status}/action/${request.action}`;
-  return BaseAxios.put(link);
+  let link = `${ApiConfig.ORDER}/orders/${request.order_id}/fulfillment/${request.fulfillment_id}/status/${request.status}`;
+  let params = {
+    action: request.action,
+  };
+  return BaseAxios.put(link, params);
 };
 
 export const updateShipment = (
   request: UpdateLineFulFillment
 ): Promise<BaseResponse<OrderResponse>> => {
-  let link = `${ApiConfig.ORDER}/orders/${request.order_id}/shipment/action/${request.action}`;
+  let link = `${ApiConfig.ORDER}/orders/${request.order_id}/shipment`;
   return BaseAxios.put(link, request);
 };
 

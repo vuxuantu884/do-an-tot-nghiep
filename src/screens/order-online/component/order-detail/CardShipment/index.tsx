@@ -96,6 +96,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     payments,
     onPayments,
   } = props;
+  console.log("props", props);
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
@@ -392,7 +393,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         className="margin-top-20"
         title={
           <div className="d-flex">
-            <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
+            <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG 1</span>
           </div>
         }
       >
@@ -488,7 +489,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             />
           )}
 
-          {shipmentMethodState === ShipmentMethodOption.SELF_DELIVER && (
+          {shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
             <ShipmentMethodSelfDelivery
               amount={amount}
               discountValue={discountValue}
