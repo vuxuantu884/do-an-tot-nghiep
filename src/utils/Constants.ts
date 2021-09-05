@@ -1,4 +1,5 @@
 export const VietNamId = 233;
+
 export const PaymentMethodCode = {
   CASH: "cash",
   CARD: "card",
@@ -60,6 +61,12 @@ export const ShipmentMethodOption = {
   SELF_DELIVER: 2,
   PICK_AT_STORE: 3,
   DELIVER_LATER: 4,
+};
+
+export const ShipmentMethod = {
+  PICK_AT_STORE: "pick_at_store",
+  EXTERNAL_SERVICE: "external_service",
+  SHIPPER: "Shipper",
 };
 
 export const TRANSPORTS = {
