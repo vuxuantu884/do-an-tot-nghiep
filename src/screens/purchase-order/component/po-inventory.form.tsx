@@ -145,7 +145,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         );
       }
     },
-    [dispatch, idNumber, onDeleteProcumentCallback]
+    [dispatch, idNumber, onDeleteProcumentCallback, poData]
   );
   const onConfirmProcumentCallback = useCallback(
     (value: PurchaseProcument | null) => {

@@ -49,6 +49,7 @@ type PaymentCardProps = {
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   const { paymentMethod } = props;
+  console.log("propsPaymentCard", props);
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
@@ -153,6 +154,13 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
 
+  useEffect(() => {
+    if (paymentMethod === 2) {
+      handlePickPaymentMethod(PaymentMethodCode.CASH);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paymentMethod]);
+
   return (
     <Card
       className="margin-top-20"
@@ -175,7 +183,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
             <Space size={20}>
               <Radio value={PaymentMethodOption.COD}>COD</Radio>
               <Radio value={PaymentMethodOption.PREPAYMENT}>
-                Thanh toán trước
+                Thanh toán trước 3
               </Radio>
               <Radio value={PaymentMethodOption.POSTPAYMENT}>
                 Chưa xác định
@@ -238,7 +246,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       padding: "6px",
                     }}
                   >
-                    Lựa chọn 1 hoặc nhiều phương thức thanh toán
+                    Lựa chọn 1 hoặc nhiều phương thức thanh toán 3
                   </span>
                 }
                 key="1"
@@ -478,33 +486,6 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         </Row>
                       );
                     })}
-
-                    {/* <Row
-                      gutter={20}
-                      className="row-price total-customer-pay"
-                      style={{ height: 38, margin: "10px 0" }}
-                    >
-                      <Col
-                        lg={14}
-                        xxl={9}
-                        className="row-large-title"
-                        style={{ padding: "8px 0" }}
-                      >
-                        <b>Tổng số tiền khách trả:</b>
-                      </Col>
-                      <Col
-                        className="lbl-money"
-                        lg={9}
-                        xxl={6}
-                        style={{
-                          textAlign: "right",
-                          fontWeight: 500,
-                          fontSize: "20px",
-                        }}
-                      >
-                        <span>{formatCurrency(totalAmountPaid)}</span>
-                      </Col>
-                    </Row> */}
                     <Row
                       gutter={20}
                       className="row-price"

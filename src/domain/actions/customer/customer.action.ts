@@ -1,4 +1,4 @@
-import { CustomerSearchQuery } from 'model/query/customer.query';
+import { CustomerSearchQuery, FpageCustomerSearchQuery } from 'model/query/customer.query';
 import BaseAction from 'base/base.action';
 import { CustomerType } from 'domain/types/customer.type';
 import { CustomerResponse } from 'model/response/customer/customer.response';
@@ -12,7 +12,7 @@ export const CustomerSearch = (query: CustomerSearchQuery, setData: (data: Array
     return BaseAction(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE, { query, setData });
 }
 
-export const CustomerSearchByPhone = (query: CustomerSearchQuery, setData: (data: CustomerResponse) => void) => {
+export const CustomerSearchByPhone = (query: FpageCustomerSearchQuery, setData: (data: CustomerResponse) => void) => {
   return BaseAction(CustomerType.CUSTOMER_SEARCH_BY_PHONE, { query, setData });
 }
 
