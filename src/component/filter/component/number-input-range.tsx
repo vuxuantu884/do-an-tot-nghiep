@@ -59,7 +59,6 @@ const NumberInputRange: React.FC<NumberInputRangeProps> = (
     },
     [props, value]
   );
-  console.log(value);
   return (
     <div className="range">
       <div className={classNames("number-r", (focus1 || focus2) && "focus")}>

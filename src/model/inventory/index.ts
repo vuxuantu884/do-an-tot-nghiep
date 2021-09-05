@@ -29,7 +29,7 @@ export interface InventoryResponse extends BaseObject {
 
 export interface InventoryQuery extends BaseQuery {
   condition?: string,
-  store_id?: number,
+  store_id?: number|Array<number>,
   is_remain?: boolean,
   from_created_date?: string,
   to_created_date?: string,
@@ -62,3 +62,47 @@ export interface InventoryQuery extends BaseQuery {
   from_retail_price?: number,
   to_retail_price?: number
 } 
+
+export interface AllInventoryResponse {
+  id: number,
+  sku: string,
+  product_id: number,
+  barcode: string,
+  name: string,
+  retail_price: string,
+  import_price: string,
+  total_on_hand: string,
+  inventories: Array<InventoryResponse>,
+}
+
+export interface HistoryInventoryResponse extends BaseObject{
+  name: string;
+  sku: string;
+  company_id: number;
+  store_id: number;
+  store: string,
+  variant_id: number;
+  product_id: number;
+  available_adj: number;
+  in_coming_adj: number | null;
+  on_way_adj: number | null;
+  event: string;
+  parent_document_id: number;
+  document_id: number;
+  document_type: string;
+  transaction_date: string;
+  account_id: number;
+  import_price: number;
+  retail_price: number;
+  total: number;
+  total_discount: number;
+}
+
+export interface HistoryInventoryQuery extends BaseQuery {
+  condition?: string,
+  store_id?: number|Array<number>,
+  from_created_date?: string,
+  to_created_date?: string,
+  from_transaction_date?: string,
+  to_transaction_date?: string,
+}

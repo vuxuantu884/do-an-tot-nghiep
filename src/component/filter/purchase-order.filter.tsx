@@ -12,7 +12,7 @@ import CustomSelect from "component/custom/select.custom";
 import { AccountResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { POStatus, ProcumentStatus, PoPaymentStatus } from "utils/Constants";
-import { DATE_FORMAT, getDateFromNow } from "utils/DateUtils";
+import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
 import { FilterOutlined } from "@ant-design/icons";
 import HashTag from "component/custom/hashtag";
 import CustomSelectOne from "./component/select-one.custom";
@@ -103,66 +103,6 @@ const FilterHeader = ({ title }: FilterHeaderProps) => {
   return <span>{title?.toUpperCase()}</span>;
 };
 
-const checkFixedDate = (from: any, to: any) => {
-  let fixedDate = null;
-  let formatedFrom = moment(from).format(DATE_FORMAT.DDMMYYY);
-  let formatedTo = moment(to).format(DATE_FORMAT.DDMMYYY);
-  type CheckDateType = {
-    distance: number;
-    unit: "day" | "week" | "month";
-    display: any;
-  };
-
-  let checkDates: Array<CheckDateType> = [
-    {
-      distance: 0,
-      unit: "day",
-      display: "Hôm nay",
-    },
-    {
-      distance: 1,
-      unit: "day",
-      display: "Hôm qua",
-    },
-    {
-      distance: 0,
-      unit: "week",
-      display: "Tuần này",
-    },
-    {
-      distance: 1,
-      unit: "week",
-      display: "Tuần trước",
-    },
-    {
-      distance: 0,
-      unit: "month",
-      display: "Tháng này",
-    },
-    {
-      distance: 1,
-      unit: "month",
-      display: "Tháng trước",
-    },
-  ];
-  for (let i = 0; i < checkDates.length; i++) {
-    const checkDate = checkDates[i],
-      { distance, unit, display } = checkDate;
-    let searchUnit: any = unit;
-    if (searchUnit === "week") searchUnit = "isoWeek";
-
-    let dateFrom = getDateFromNow(distance, unit),
-      dateTo = getDateFromNow(distance, unit);
-    if (
-      from === dateFrom.startOf(searchUnit).utc().format() &&
-      to === dateTo.endOf(searchUnit).utc().format()
-    ) {
-      if (unit === "day") fixedDate = `${display} (${formatedFrom})`;
-      else fixedDate = `${display} (${formatedFrom} - ${formatedTo})`;
-      return fixedDate;
-    }
-  }
-};
 const FilterList = ({ filters, resetField }: any) => {
   let filtersKeys = Object.keys(filters);
   let renderTxt = null;
