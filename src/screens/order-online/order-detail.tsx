@@ -367,7 +367,7 @@ const OrderDetail = (props: PropType) => {
                     <Row>
                       <Col span={12}>
                         <span className="text-field margin-right-40">
-                          Đã thanh toán:
+                          1Đã thanh toán:
                         </span>
                         <b>
                           {(OrderDetail?.fulfillments &&

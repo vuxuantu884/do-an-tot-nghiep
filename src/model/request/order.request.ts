@@ -80,6 +80,7 @@ export interface UpdateFulFillmentRequest {
 export interface UpdateLineFulFillment {
   order_id: number | null;
   fulfillment: UpdateFulFillmentRequest;
+  action?: string | null;
 }
 
 export interface BillingAddress {
@@ -270,6 +271,7 @@ export interface UpdateFulFillmentStatusRequest {
   fulfillment_id: number | null;
   status: string | null;
   cancel_reason?: string | null;
+  action?: string | null;
 }
 
 export interface ShippingGHTKRequest {
