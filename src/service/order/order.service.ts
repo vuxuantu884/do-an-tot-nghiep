@@ -100,6 +100,7 @@ export const updateShipment = (
   request: UpdateLineFulFillment
 ): Promise<BaseResponse<OrderResponse>> => {
   let link = `${ApiConfig.ORDER}/orders/${request.order_id}/shipment`;
+  console.log("request", request);
   return BaseAxios.put(link, request);
 };
 
