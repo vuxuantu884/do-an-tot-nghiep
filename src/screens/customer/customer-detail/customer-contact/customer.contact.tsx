@@ -32,7 +32,6 @@ function CustomerContactInfo(props: any) {
   const { customer, customerDetailState, setModalAction, modalAction } = props;
   const dispatch = useDispatch();
   const history = useHistory();
-
   const [isShowModalContacts, setIsShowModalContacts] = React.useState(false);
   const [isVisibleContactModal, setIsVisibleContactModal] =
     React.useState<boolean>(false);
@@ -138,7 +137,6 @@ function CustomerContactInfo(props: any) {
         );
     },
     edit: (formValue: CustomerContact) => {
-      console.log(formValue);
       if (modalSingleContact) {
         if (customer)
           dispatch(
@@ -246,7 +244,6 @@ function CustomerContactInfo(props: any) {
           onRow={(record: CustomerContact) => {
             return {
               onClick: (event) => {
-                console.log(record);
                 setModalSingleContact(record);
                 setModalAction("edit");
               }, // click row

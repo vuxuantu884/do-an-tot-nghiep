@@ -238,7 +238,6 @@ const CustomerAdd = (props: any) => {
   React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
-  console.log(customerDetail);
   React.useEffect(() => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
@@ -252,7 +251,7 @@ const CustomerAdd = (props: any) => {
       const field = {
         full_name: customerDetail.full_name,
         birthday: customerDetail.birthday
-          ? moment(customerDetail.birthday, "YYYY-MM-DD")
+          ? moment(customerDetail.birthday)
           : "",
         phone: customerDetail.phone,
         email: customerDetail.email,
@@ -334,7 +333,6 @@ const CustomerAdd = (props: any) => {
     );
   };
   const handleSubmitUpdate = (values: any) => {
-    console.log("Success:", values);
     const processValue = {
       ...values,
       birthday: values.birthday

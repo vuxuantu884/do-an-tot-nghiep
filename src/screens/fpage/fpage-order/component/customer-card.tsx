@@ -148,7 +148,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //Search and render customer by name, phone, code
   const CustomerChangeSearch = useCallback(
     (value) => {
-      console.log("value", value);
       setKeySearchCustomer(value);
       initQueryCustomer.request = value;
       dispatch(CustomerSearch(initQueryCustomer, setResultSearch));

@@ -52,7 +52,6 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     []
   );
   const changePaymentMethod = (value: number) => {
-    console.log("change");
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
       handlePickPaymentMethod(PaymentMethodCode.CASH);
