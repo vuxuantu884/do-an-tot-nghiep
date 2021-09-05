@@ -107,7 +107,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         );
       }
     },
-    [dispatch, loadingApproval, props.poId, updateCallback]
+    [dispatch, loadingApproval, poData, props.poId, updateCallback]
   );
   const ShowPaymentModal = useCallback(() => {
     setPaymentItem(undefined);

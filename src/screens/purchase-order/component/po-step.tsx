@@ -1,9 +1,7 @@
 import { CheckOutlined } from "@ant-design/icons";
 import { Steps } from "antd";
-import { useMemo } from "react";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { POStatus } from "utils/Constants";
-import { POUtils } from "utils/POUtils";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
 const statusToStep = {

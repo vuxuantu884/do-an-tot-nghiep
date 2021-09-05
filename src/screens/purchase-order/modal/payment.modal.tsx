@@ -91,7 +91,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
         dispatch(PoPaymentCreateAction(poId, values, createCallback));
       }
     },
-    [createCallback, dispatch, formPayment, poId, updateCallback]
+    [createCallback, dispatch, formPayment, poData, poId, updateCallback]
   );
 
   const onChangePaymentMethod = (e: any) => {

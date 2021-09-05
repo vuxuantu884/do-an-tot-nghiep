@@ -142,6 +142,16 @@ export const getListOrderAction = (
   });
 };
 
+export const getListOrderActionFpage = (
+  query: any,
+  setData: (data: PageResponse<OrderModel>|false) => void
+) => {
+  return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
+    query,
+    setData,
+  });
+};
+
 export const getShipmentsAction = (
   query: ShipmentSearchQuery,
   setData: (data: PageResponse<ShipmentModel> | false) => void

@@ -11,9 +11,9 @@ import {
 } from "antd";
 import { RegUtil } from "utils/RegUtils";
 import CustomInput from "./customInput";
+import "moment/locale/vi"
 
 const { Option } = Select;
-
 const GeneralInformation = (props: any) => {
   const {
     form,
@@ -26,7 +26,9 @@ const GeneralInformation = (props: any) => {
     isEdit,
     AccountChangeSearch,
   } = props;
-
+const handleDateChange = (e: any) =>{
+  console.log(e)
+}
   return (
     <Row gutter={24}>
       <Col span={18}>
@@ -132,6 +134,7 @@ const GeneralInformation = (props: any) => {
                   style={{ width: "100%" }}
                   placeholder="Chọn ngày sinh"
                   format={"DD/MM/YYYY"}
+                
                 />
               </Form.Item>
             </Col>
@@ -155,11 +158,13 @@ const GeneralInformation = (props: any) => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="wedding_date" label={<b>Ngày cưới:</b>}>
+                  <Form.Item  name="wedding_date" label={<b>Ngày cưới:</b>}>
                     <DatePicker
                       style={{ width: "100%" }}
                       placeholder="Chọn ngày cưới"
                       format={"DD/MM/YYYY"}
+                      
+                      onChange={handleDateChange}
                     />
                   </Form.Item>
                 </Col>

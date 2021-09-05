@@ -295,7 +295,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     }
   }, [dispatch, props.OrderDetail]);
   //#endregion
-  console.log(cancelReason);
 
   //#region Update Fulfillment Status
   let timeout = 500;

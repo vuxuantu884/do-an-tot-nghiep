@@ -33,6 +33,7 @@ import {
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import arrowLeft from "../../assets/icon/arrow-left.svg";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
@@ -119,14 +120,15 @@ const CustomerUpdate = (props: any) => {
   }, [dispatch, params]);
 
   React.useEffect(() => {
-    if (customer) {
+    if (customer) { 
       customerForm.setFieldsValue({
         ...customer,
+        country_id: countryId,
         birthday: customer.birthday
-          ? moment(customer.birthday, "YYYY-MM-DD")
+          ? moment(customer.birthday)
           : null,
         wedding_date: customer.wedding_date
-          ? moment(customer.wedding_date, "YYYY-MM-DD")
+          ? moment(customer.wedding_date)
           : null,
       });
       setStatus(customer.status);
