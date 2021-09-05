@@ -718,6 +718,7 @@ export default function Order() {
                 }
               }
               setItems(responseItems);
+              setOrderAmount(response.total);
               setInitialForm({
                 ...initialForm,
                 customer_note: response.customer_note,
