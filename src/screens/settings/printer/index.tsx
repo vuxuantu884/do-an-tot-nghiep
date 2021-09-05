@@ -6,6 +6,7 @@ import CustomTable, {
 } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { actionFetchListPrinter } from "domain/actions/printer/printer.action";
+import purify from "dompurify";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BasePrinterModel,
@@ -317,7 +318,8 @@ const SettingPrinter: React.FC = () => {
           <div className="printContent" ref={printElementRef}>
             <div
               dangerouslySetInnerHTML={{
-                __html: FAKE_PRINT_CONTENT,
+                // __html: FAKE_PRINT_CONTENT,
+                __html: purify.sanitize(FAKE_PRINT_CONTENT),
               }}
             ></div>
           </div>
