@@ -1,5 +1,6 @@
 import { Button } from "antd";
 import { actionFetchPrintFormByOrderIds } from "domain/actions/printer/printer.action";
+import purify from "dompurify";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { FulFillmentResponse } from "model/response/order/order.response";
 import React, { useEffect, useRef, useState } from "react";
@@ -145,7 +146,8 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
             <div className="printContent333" ref={printElementRef}>
               <div
                 dangerouslySetInnerHTML={{
-                  __html: renderHtml(printerContentHtml()),
+                  // __html: renderHtml(printerContentHtml()),
+                  __html: purify.sanitize(renderHtml(printerContentHtml())),
                 }}
               ></div>
             </div>

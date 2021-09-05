@@ -65,6 +65,21 @@ function ActionHistory(props: PropType) {
     return result;
   };
 
+  const renderSingleSubStatus = (
+    status_before?: string,
+    status_after?: string
+  ) => {
+    let result = "";
+    if (status_before && status_after) {
+      result = `${status_before} -> ${status_after}`;
+    } else if (!status_before) {
+      result = `${status_after}`;
+    } else if (!status_after) {
+      result = `${status_before}`;
+    }
+    return result;
+  };
+
   useEffect(() => {
     if (orderId) {
       dispatch(
@@ -119,11 +134,12 @@ function ActionHistory(props: PropType) {
                             )}
                           </h4>
                         )}
-                        {singleActionHistory?.status && (
-                          <div className="singleActionHistory__subStatus">
-                            {singleActionHistory?.status}
-                          </div>
-                        )}
+                        <div className="singleActionHistory__subStatus">
+                          {renderSingleSubStatus(
+                            singleActionHistory?.status_before,
+                            singleActionHistory?.status_after
+                          )}
+                        </div>
                       </div>
                     </Col>
                   </Row>
