@@ -68,7 +68,8 @@ export default function FpageOrders(props: any) {
     setIsCustomerReload,
     setCustomerPhone,
     setOrderHistory,
-    getCustomerByPhone
+    getCustomerByPhone,
+    
   } = props;
   //#region State
   const dispatch = useDispatch();
@@ -570,6 +571,7 @@ export default function FpageOrders(props: any) {
                 getCustomerByPhone={getCustomerByPhone}
                 setModalAction={setModalAction}
                 modalAction={modalAction}
+                setIsCustomerReload={setIsCustomerReload}
               />
               {/*--- product ---*/}
               <CardProduct

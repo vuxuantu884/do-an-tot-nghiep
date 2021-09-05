@@ -1,7 +1,7 @@
 import { Row, Col, Card, Collapse, Tag } from "antd";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
-import moment from "moment";
+import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 
 const { Panel } = Collapse;
 
@@ -11,12 +11,14 @@ const genreEnum: any = {
   other: "Khác",
 };
 function CustomerInfo(props: any) {
-  const { customer } = props;
+  const { customer, groups, types } = props;
   const params = useParams() as any;
   const [customerDetail, setCustomerDetail] = React.useState([]) as any;
   const [customerDetailCollapse, setCustomerDetailCollapse] = React.useState(
     []
   ) as any;
+
+  console.log(types,groups)
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -42,21 +44,21 @@ function CustomerInfo(props: any) {
         },
         {
           name: "Loại khách hàng",
-          value: customer.customer_type,
+          value: types.find((type: any) => customer.customer_type_id === type.id)?.name,
           position: "right",
           key: "13",
         },
         {
           name: "Ngày sinh",
           value: customer.birthday
-            ? moment(customer.birthday).format("DD/MM/YYYY")
+            ? ConvertUtcToLocalDate(customer.birthday, DATE_FORMAT.DDMMYYY)
             : null,
           position: "left",
           key: "14",
         },
         {
           name: "Nhóm khách hàng",
-          value: customer.customer_group,
+          value: groups.find((group: any) => customer.customer_group_id === group.id)?.name,
           position: "right",
           key: "15",
         },
@@ -64,6 +66,7 @@ function CustomerInfo(props: any) {
     }
     setCustomerDetail(details);
   }, [customer, setCustomerDetail]);
+  console.log(customer)
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -99,7 +102,7 @@ function CustomerInfo(props: any) {
         {
           name: "Ngày cưới",
           value: customer.wedding_date
-            ? moment(customer.wedding_date).format("DD/MM/YYYY")
+            ? ConvertUtcToLocalDate(customer.wedding_date, DATE_FORMAT.DDMMYYY)
             : null,
           position: "left",
           key: "4",

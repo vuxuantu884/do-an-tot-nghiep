@@ -35,7 +35,6 @@ import {
 import arrowLeft from "../../assets/icon/arrow-left.svg";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
-
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
@@ -122,14 +121,14 @@ const CustomerUpdate = (props: any) => {
 
   React.useEffect(() => {
     if (customer) { 
-      
       customerForm.setFieldsValue({
         ...customer,
+        country_id: countryId,
         birthday: customer.birthday
-          ? ConvertUtcToLocalDate(customer.birthday)
+          ? moment(customer.birthday)
           : null,
         wedding_date: customer.wedding_date
-          ? ConvertUtcToLocalDate(customer.wedding_date)
+          ? moment(customer.wedding_date)
           : null,
       });
       setStatus(customer.status);
