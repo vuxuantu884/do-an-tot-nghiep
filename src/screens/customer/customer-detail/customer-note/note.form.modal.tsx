@@ -2,7 +2,6 @@ import { Col, Form, Row} from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
 import React from "react";
 import * as CONSTANTS from "utils/Constants";
-// import { useDispatch } from "react-redux";
 import CustomInput from "screens/customer/common/customInput";
 
 type FormValueType = {
@@ -12,7 +11,6 @@ type FormValueType = {
 const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
   props: CustomModalFormModel
 ) => {
-  // const dispatch = useDispatch();
   const { modalAction, formItem, form, visible } = props;
 
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;

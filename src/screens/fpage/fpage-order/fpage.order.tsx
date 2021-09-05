@@ -20,6 +20,7 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { modalActionType } from "model/modal/modal.model";
 import {
   BillingAddress,
   FulFillmentRequest,
@@ -64,6 +65,11 @@ export default function FpageOrders(props: any) {
     setCustomerDetail,
     setIsButtonSelected,
     setIsClearOrderField,
+    setIsCustomerReload,
+    setCustomerPhone,
+    setOrderHistory,
+    getCustomerByPhone,
+    
   } = props;
   //#region State
   const dispatch = useDispatch();
@@ -89,6 +95,7 @@ export default function FpageOrders(props: any) {
   const [shippingFeeCustomerHVC, setShippingFeeCustomerHVC] = useState<
     number | null
   >(null);
+  const [modalAction, setModalAction] =  React.useState<modalActionType>("create");
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTag] = useState<string>("");
@@ -106,7 +113,7 @@ export default function FpageOrders(props: any) {
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
   });
-  const [isDisableSubmitBtn,setIsDisableSubmitBtn] = useState<boolean>(false);
+  const [isDisableSubmitBtn, setIsDisableSubmitBtn] = useState<boolean>(false);
   // const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   //#endregion
   //#rgion Customer
@@ -362,17 +369,22 @@ export default function FpageOrders(props: any) {
 
   const createOrderCallback = useCallback(
     (value: OrderResponse) => {
-      setIsDisableSubmitBtn(true)
+      setIsDisableSubmitBtn(true);
       if (value.fulfillments && value.fulfillments.length > 0) {
         showSuccess("Đơn được lưu và duyệt thành công");
-        setIsButtonSelected(false);
-        setIsClearOrderField(true)
+        setIsButtonSelected(1);
+        setIsClearOrderField(false);
+        setIsCustomerReload(true);
       } else {
         showSuccess("Đơn được lưu nháp thành công");
         // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
       }
     },
-    [setIsButtonSelected, setIsClearOrderField]
+    [
+      setIsButtonSelected,
+      setIsClearOrderField,
+      setIsCustomerReload,
+    ]
   );
 
   //show modal save and confirm order ?
@@ -441,7 +453,7 @@ export default function FpageOrders(props: any) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
-            setIsDisableSubmitBtn(true)
+            setIsDisableSubmitBtn(true);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
@@ -451,7 +463,7 @@ export default function FpageOrders(props: any) {
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
-            setIsDisableSubmitBtn(true)
+            setIsDisableSubmitBtn(true);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         }
@@ -554,6 +566,12 @@ export default function FpageOrders(props: any) {
                 BillingAddressChange={onChangeBillingAddress}
                 setCustomerDetail={setCustomerDetail}
                 setIsButtonSelected={setIsButtonSelected}
+                setCustomerPhone={setCustomerPhone}
+                setOrderHistory={setOrderHistory}
+                getCustomerByPhone={getCustomerByPhone}
+                setModalAction={setModalAction}
+                modalAction={modalAction}
+                setIsCustomerReload={setIsCustomerReload}
               />
               {/*--- product ---*/}
               <CardProduct
@@ -766,7 +784,7 @@ export default function FpageOrders(props: any) {
                     "formRef.current.value",
                     formRef?.current?.getFieldsValue()
                   );
-                  
+
                   formRef.current?.submit();
                 }}
               >

@@ -14,3 +14,8 @@ export interface CustomerSearchQuery extends BaseQuery {
   customer_level_id: number | null;
   responsible_staff_code: string | null;
 }
+
+export interface FpageCustomerSearchQuery extends BaseQuery {
+  request: "",
+  phone: string | null
+}

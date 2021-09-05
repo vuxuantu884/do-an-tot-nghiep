@@ -17,7 +17,6 @@ import { SearchOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import React, { useMemo } from "react";
-import Popup from "./popup";
 import { useSelector } from "react-redux";
 import CustomerAdd from "./create.customer";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -534,7 +533,6 @@ const Customer = () => {
             columns={columnFinal}
             rowKey={(item: any) => item.id}
           />
-          <Popup {...popup} />
         </div>
       </Card>
 
