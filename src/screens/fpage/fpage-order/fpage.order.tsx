@@ -372,7 +372,7 @@ export default function FpageOrders(props: any) {
         // history.replace(`${UrlConfig.FPAGE_ORDER}/create`);
       }
     },
-    [setCustomerDetail, setIsButtonSelected]
+    [setIsButtonSelected, setIsClearOrderField]
   );
 
   //show modal save and confirm order ?

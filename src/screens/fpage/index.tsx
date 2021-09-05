@@ -51,7 +51,7 @@ function FpageCRM() {
 
 
   React.useEffect(() => {
-    if(customerDetail && customerDetail.id != null && customerDetail.id != undefined){
+    if(customerDetail && customerDetail.id != null && customerDetail.id !== undefined){
     let queryObject:OrderSearchQuery = {
       page: 1,
       limit: 10,
@@ -120,7 +120,7 @@ function FpageCRM() {
       }
     }
     setCustomerPhoneList(list);
-  }, [setCustomerPhoneList]);
+  }, [phoneQuery, setCustomerPhoneList]);
 
   const getCustomerWhenPhoneChange = React.useCallback(
     (phoneNumber: any) => {

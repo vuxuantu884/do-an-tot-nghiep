@@ -8,7 +8,7 @@ import editIcon from "assets/icon/edit.svg";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Link, Redirect, useParams, useRouteMatch, useHistory } from "react-router-dom";
+import { Link, useParams, useRouteMatch, useHistory } from "react-router-dom";
 import moment from "moment";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -56,7 +56,7 @@ const CustomerDetailIndex = () => {
       setCustomerDetailState(list[0]);
     }
     history.replace(`${url}?tab=history`)
-  }, [setCustomerDetailState]);
+  }, [history, setCustomerDetailState, tabQuery, url]);
 
   // yes
 

@@ -26,7 +26,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-  OrderLineItemResponse,
+  // OrderLineItemResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
@@ -507,12 +507,12 @@ export default function Order() {
     setItems(cardItems);
   };
 
-  const renderCloneOrder = () => {
-    if (!cloneIdParam) {
-      return;
-    }
-    return <OrderDetail isCloneOrder={isCloneOrder} id={cloneIdParam} />;
-  };
+  // const renderCloneOrder = () => {
+  //   if (!cloneIdParam) {
+  //     return;
+  //   }
+  //   return <OrderDetail isCloneOrder={isCloneOrder} id={cloneIdParam} />;
+  // };
 
   const renderOrder = () => {
     return (

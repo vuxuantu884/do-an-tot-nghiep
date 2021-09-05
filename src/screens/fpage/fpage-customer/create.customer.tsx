@@ -267,7 +267,7 @@ const CustomerAdd = (props: any) => {
         setIsButtonSelected(true);
       }
     },
-    [history, setCustomerDetail, setIsButtonSelected]
+    [setCustomerDetail, setIsButtonSelected]
   );
 
   const handleSubmit = (values: any) => {

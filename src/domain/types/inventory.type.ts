@@ -1,5 +1,7 @@
 const InventoryType = {
-  GET: "INVENTORY_GET_LIST"
+  GET: "INVENTORY_GET_LIST",
+  GET_DETAIL: "INVENTORY_GET_LIST_DETAIL",
+  GET_HISTORY: "INVENTORY_GET_LIST_HISTORY",
 }
 
 export {InventoryType};
