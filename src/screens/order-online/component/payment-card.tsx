@@ -41,6 +41,7 @@ const { Panel } = Collapse;
 
 type PaymentCardProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
+  payments: OrderPaymentRequest[];
   setPayments: (value: Array<OrderPaymentRequest>) => void;
   paymentMethod: number;
   amount: number;
@@ -48,12 +49,13 @@ type PaymentCardProps = {
 };
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
-  const { paymentMethod } = props;
+  const { paymentMethod, payments } = props;
   console.log("propsPaymentCard", props);
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
   const changePaymentMethod = (value: number) => {
+    console.log("value", value);
     console.log("change");
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
@@ -160,6 +162,12 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentMethod]);
+
+  useEffect(() => {
+    if (payments) {
+      setPaymentData(payments);
+    }
+  }, [payments]);
 
   return (
     <Card
@@ -278,6 +286,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       style={{ marginLeft: 0, marginRight: 0 }}
                     >
                       {ListPaymentMethods.map((method, index) => {
+                        console.log("ListPaymentMethods", ListPaymentMethods);
+                        console.log("paymentData", paymentData);
                         let icon = null;
                         switch (method.code) {
                           case PaymentMethodCode.CASH:

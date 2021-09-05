@@ -5,6 +5,7 @@ import { OrderActionLogResponse } from "model/response/order/action-log.response
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { OrderStatus } from "utils/Constants";
 import historyAction from "./images/action-history.svg";
 import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
@@ -15,7 +16,6 @@ type PropType = {
 
 function ActionHistory(props: PropType) {
   const { orderId } = props;
-  console.log("orderId", orderId);
   const [actionLog, setActionLog] = useState<OrderActionLogResponse[]>([]);
   const dispatch = useDispatch();
 
@@ -25,7 +25,13 @@ function ActionHistory(props: PropType) {
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
   );
-  const LIST_STATUS = bootstrapReducer.data?.order_main_status;
+
+  const LIST_FULFILLMENT_STATUS = bootstrapReducer.data?.fulfillment_status;
+  const extraStatus = {
+    name: "Đã xác nhận",
+    value: OrderStatus.FINALIZED,
+  };
+  let LIST_STATUS_EXTRA = LIST_FULFILLMENT_STATUS?.concat(extraStatus);
 
   const showModal = (actionId: number) => {
     setIsModalVisible(true);
@@ -50,7 +56,7 @@ function ActionHistory(props: PropType) {
       return;
     }
     let result = "";
-    const resultAction = LIST_STATUS?.find((singleStatus) => {
+    const resultAction = LIST_STATUS_EXTRA?.find((singleStatus) => {
       return singleStatus.value === action;
     });
     if (resultAction && resultAction.name) {
@@ -92,7 +98,7 @@ function ActionHistory(props: PropType) {
                       <div className="singleActionHistory__info">
                         {singleActionHistory?.store && (
                           <h4 className="singleActionHistory__title">
-                            {singleActionHistory?.store}
+                            {singleActionHistory?.updated_name}
                           </h4>
                         )}
                         {singleActionHistory?.updated_date && (

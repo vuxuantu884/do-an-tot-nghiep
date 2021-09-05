@@ -607,6 +607,7 @@ export default function Order() {
                   />
                   <PaymentCard
                     setSelectedPaymentMethod={changePaymentMethod}
+                    payments={payments}
                     setPayments={onPayments}
                     paymentMethod={paymentMethod}
                     shipmentMethod={shipmentMethod}
@@ -713,6 +714,7 @@ export default function Order() {
                 if (response.payments && response.payments?.length > 0) {
                   new_payments = response.payments;
                   setPaymentMethod(2);
+                  setPayments(new_payments);
                 }
               }
               setItems(responseItems);
