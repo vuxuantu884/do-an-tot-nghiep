@@ -28,7 +28,6 @@ import {
   CustomerTypes,
 } from "domain/actions/customer/customer.action";
 import { AccountResponse } from "model/account/account.model";
-import { AccountSearchAction } from "domain/actions/account/account.action";
 
 const CustomerDetailIndex = () => {
   const tabQuery = useQuery();
@@ -48,14 +47,14 @@ const CustomerDetailIndex = () => {
   // history
   const [groups, setGroups] = React.useState<Array<any>>([]);
   const [types, setTypes] = React.useState<Array<any>>([]);
-  const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
+  const [accounts] = React.useState<Array<AccountResponse>>([]);
 
   React.useEffect(() => {
     let queryObject: OrderSearchQuery = {
       page: 1,
       limit: 10,
-      sort_type: null,
-      sort_column: null,
+      sort_type: "desc",
+      sort_column: "id",
       code: null,
       store_ids: [],
       source_ids: [],
@@ -99,7 +98,6 @@ const CustomerDetailIndex = () => {
 
   const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
     if (data) {
-      console.log("orderx", data.items);
       setOrderHistory(data.items);
     }
   };
@@ -213,16 +211,16 @@ const CustomerDetailIndex = () => {
       queryString: "note",
     },
   ];
-  const setDataAccounts = React.useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      const _items = data.items.filter((item) => item.status === "active");
-      setAccounts(_items);
-    },
-    [setAccounts]
-  );
+  // const setDataAccounts = React.useCallback(
+  //   (data: PageResponse<AccountResponse> | false) => {
+  //     if (!data) {
+  //       return;
+  //     }
+  //     const _items = data.items.filter((item) => item.status === "active");
+  //     setAccounts(_items);
+  //   },
+  //   [setAccounts]
+  // );
 
   React.useEffect(() => {
     dispatch(CustomerGroups(setGroups));

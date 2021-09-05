@@ -10,7 +10,7 @@ import { CustomerSearchByPhone } from "domain/actions/customer/customer.action";
 import "./fpage.index.scss";
 import { getListOrderActionFpage } from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { OrderModel } from "model/order/order.model";
 
 const initQueryCustomer: FpageCustomerSearchQuery = {
   request: "",

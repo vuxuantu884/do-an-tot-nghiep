@@ -1,6 +1,7 @@
 import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { actionGetActionLogDetail } from "domain/actions/order/order.action";
+import purify from "dompurify";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { StyledComponent } from "./styles";
@@ -55,6 +56,17 @@ function ActionHistoryModal(props: PropType) {
       dataIndex: "current",
       key: "current",
       width: "50%",
+      render: (text: string) => {
+        let doc = new DOMParser().parseFromString(text, "text/html");
+        let htmlInner = doc.getElementsByTagName("body")[0].innerHTML;
+        return (
+          <div
+            dangerouslySetInnerHTML={{
+              __html: purify.sanitize(htmlInner),
+            }}
+          ></div>
+        );
+      },
     },
   ];
 
@@ -63,6 +75,7 @@ function ActionHistoryModal(props: PropType) {
 
   const handleCancel = () => {
     onCancel();
+    setIsShowLogDetail(false);
   };
 
   useEffect(() => {
@@ -70,6 +83,25 @@ function ActionHistoryModal(props: PropType) {
       dispatch(
         actionGetActionLogDetail(actionId, (response) => {
           console.log("response", response);
+          let resultCurrent = "";
+          if (response.current.data) {
+            let dataJson = JSON.parse(response.current.data);
+            console.log("dataJson", dataJson);
+            resultCurrent = ` Người tạo: ${dataJson.created_name}.<br/>
+                              Khách hàng: ${dataJson.customer}.<br/>
+                              Cửa hàng: ${dataJson.store}.<br/>
+                              Số điện thoại khách hàng: ${dataJson.store_phone_number}.<br/>
+                              Nguồn đơn hàng: ${dataJson.source}.<br/>
+            `;
+          }
+          setSingleLogDetail([
+            {
+              key: "1",
+              title: "detail",
+              before: response.before?.data || "",
+              current: resultCurrent || "",
+            },
+          ]);
           setSingleLogShorten([
             {
               key: "1",
@@ -88,14 +120,6 @@ function ActionHistoryModal(props: PropType) {
               title: "Message",
               before: response.before?.status || "",
               current: response.current?.status || "",
-            },
-          ]);
-          setSingleLogDetail([
-            {
-              key: "1",
-              title: "detail",
-              before: response.before?.data || "",
-              current: response.current?.data || "",
             },
           ]);
         })
