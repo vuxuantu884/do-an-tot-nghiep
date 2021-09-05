@@ -54,8 +54,8 @@ const CustomerDetailIndex = () => {
     let queryObject: OrderSearchQuery = {
       page: 1,
       limit: 10,
-      sort_type: null,
-      sort_column: null,
+      sort_type: "desc",
+      sort_column: "id",
       code: null,
       store_ids: [],
       source_ids: [],
@@ -99,7 +99,6 @@ const CustomerDetailIndex = () => {
 
   const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
     if (data) {
-      console.log("orderx", data.items);
       setOrderHistory(data.items);
     }
   };
