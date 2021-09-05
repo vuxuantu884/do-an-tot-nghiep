@@ -26,7 +26,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-  OrderLineItemResponse,
+  // OrderLineItemResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
@@ -55,7 +55,6 @@ import ShipmentCard from "./component/order-detail/CardShipment";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
 import PaymentCard from "./component/payment-card";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
-import OrderDetail from "./order-detail";
 
 let typeButton = "";
 
@@ -506,7 +505,6 @@ export default function Order() {
   const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
     setItems(cardItems);
   };
-
   const renderOrder = () => {
     return (
       <ContentContainer

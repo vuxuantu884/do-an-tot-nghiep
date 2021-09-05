@@ -1,15 +1,68 @@
 import {
     Row,
     Col,
+    Tag
   } from "antd";
   import CustomTable from "component/table/CustomTable";
   import { ICustomTableColumType } from "component/table/CustomTable";
   import { OrderModel } from "model/order/order.model";
   import moment from "moment";
+  import {
+    formatCurrency,
+  } from "utils/AppUtils";
 
 function CustomerHistoryInfo(props : any) {
   const { orderHistory } = props;
-
+  const status_order = [
+    {
+      name: "Nháp",
+      value: "draft",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Đóng gói",
+      value: "packed",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Xuất kho",
+      value: "shipping",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Đã xác nhận",
+      value: "finalized",
+      color: "#FCAF17",
+      background: "rgba(252, 175, 23, 0.1)",
+    },
+    {
+      name: "Hoàn thành",
+      value: "completed",
+      color: "#27AE60",
+      background: "rgba(39, 174, 96, 0.1)",
+    },
+    {
+      name: "Kết thúc",
+      value: "finished",
+      color: "#27AE60",
+      background: "rgba(39, 174, 96, 0.1)",
+    },
+    {
+      name: "Đã huỷ",
+      value: "cancelled",
+      color: "#ae2727",
+      background: "rgba(223, 162, 162, 0.1)",
+    },
+    {
+      name: "Đã hết hạn",
+      value: "expired",
+      color: "#ae2727",
+      background: "rgba(230, 171, 171, 0.1)",
+    },
+  ];
 
     const columnsHistory: Array<ICustomTableColumType<OrderModel>> = [
         {
@@ -25,19 +78,38 @@ function CustomerHistoryInfo(props : any) {
         {
           title: "Mã đơn hàng",
           dataIndex: "code",
+          render: (value, row, index) => {
+            let href = `https://dev.yody.io/unicorn/admin/orders/${row.id}`;            
+            return <a target="blank" href={href}>
+            {row.code}
+          </a>;
+          },
           visible: true,
-          // width: "20%",
+
         },
         {
           title: "Trạng thái",
-          dataIndex: "status",
           visible: true,
-          // width: "20%",
-          // render: (value, row, index) => {
-          //   return <div style={{ width: 200 }}>{row.name}</div>;
-          // },
+          dataIndex: "status",
+          render: (value: any, row: any, index: any) => {
+            const statusTag = status_order.find(
+              (status) => status.value === row.status
+            );
+            return (
+              <div>
+                <Tag
+                  className="fpage-recent-tag"
+                  style={{
+                    color: `${statusTag?.color}`,
+                    backgroundColor: `${statusTag?.background}`,
+                  }}
+                >
+                  {statusTag?.name}
+                </Tag>
+              </div>
+            );
+          }
         },
-    
         {
           title: "Sản phẩm",
           visible: true,
@@ -48,7 +120,10 @@ function CustomerHistoryInfo(props : any) {
     
         {
           title: "Giá trị",
-          dataIndex: "total_line_amount_after_line_discount",
+          render: (value, row, index) => {
+            return <div>{formatCurrency(row.total_line_amount_after_line_discount)}</div>;
+          },
+          
           visible: true,
           // width: "20%",
         },
