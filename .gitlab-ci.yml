@@ -63,7 +63,7 @@ deploy to dev:
     - feature/ci-cd
     - feature/move-cluster
   variables:
-    HOST: dev.yody.io
+    HOST: dev-new.yody.io
     NAMESPACE: dev
     ENVIRONMENT: dev
     SERVICE_NAME: yody-app-admin
