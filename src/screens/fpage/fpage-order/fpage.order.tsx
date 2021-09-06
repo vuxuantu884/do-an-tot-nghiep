@@ -473,7 +473,6 @@ export default function FpageOrders(props: any) {
   //#endregion
 
   const handleChangeProduct = (value: string) => {
-    console.log("valueParent", value);
   };
 
   const setDataAccounts = useCallback(
@@ -780,11 +779,6 @@ export default function FpageOrders(props: any) {
                 id="save-and-confirm"
                 onClick={() => {
                   typeButton = OrderStatus.FINALIZED;
-                  console.log(
-                    "formRef.current.value",
-                    formRef?.current?.getFieldsValue()
-                  );
-
                   formRef.current?.submit();
                 }}
               >

@@ -19,15 +19,12 @@ import CustomerShippingInfo from "./customer-billing/customer.billing";
 import CustomerNoteInfo from "./customer-note/customer.note";
 import CustomerHistoryInfo from "./customer.history";
 import { PageResponse } from "model/base/base-metadata.response";
-import { getListOrderAction } from "domain/actions/order/order.action";
-import { OrderModel, OrderSearchQuery } from "model/order/order.model";
+import { OrderModel } from "model/order/order.model";
 import { useQuery } from "utils/useQuery";
-import {
-  CustomerDetail,
-  CustomerGroups,
-  CustomerTypes,
-} from "domain/actions/customer/customer.action";
-import { AccountResponse } from "model/account/account.model";
+import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getListOrderActionFpage } from "domain/actions/order/order.action";
+import { formatCurrency } from "utils/AppUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
 const CustomerDetailIndex = () => {
   const tabQuery = useQuery();
@@ -37,7 +34,6 @@ const CustomerDetailIndex = () => {
   const [customerForm] = Form.useForm();
   const [customer, setCustomer] = React.useState<CustomerResponse>();
   const [customerPointInfo, setCustomerPoint] = React.useState([]) as any;
-  const [customerBuyDetail, setCustomerBuyDetail] = React.useState([]) as any;
   const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>();
   const [modalAction, setModalAction] =
     React.useState<modalActionType>("create");
@@ -45,63 +41,97 @@ const CustomerDetailIndex = () => {
     tabQuery.get("tab") || "history"
   );
   // history
-  const [groups, setGroups] = React.useState<Array<any>>([]);
-  const [types, setTypes] = React.useState<Array<any>>([]);
-  const [accounts] = React.useState<Array<AccountResponse>>([]);
+  const [querySearchOrder, setQuerySearchOrderFpage] = React.useState<any>({
+    limit: 10,
+    page: 1,
+    customer_ids: null,
+  });
+  const [customerBuyDetail, setCustomerBuyDetail] = React.useState<any>([
+    {
+      name: "Tổng chi tiêu",
+      value: null,
+    },
+
+    {
+      name: "Ngày đầu tiên mua hàng",
+      value: null,
+    },
+    {
+      name: "Tổng đơn hàng",
+      value: null,
+    },
+    {
+      name: "Ngày cuối cùng mua hàng",
+      value: null,
+    },
+  ]);
+
+  const onPageChange = React.useCallback(
+    (page, limit) => {
+      setQuerySearchOrderFpage({ ...querySearchOrder, page, limit });
+    },
+    [querySearchOrder, setQuerySearchOrderFpage]
+  );
+  const [metaData, setMetaData] = React.useState<any>({});
 
   React.useEffect(() => {
-    let queryObject: OrderSearchQuery = {
-      page: 1,
-      limit: 10,
-      sort_type: "desc",
-      sort_column: "id",
-      code: null,
-      store_ids: [],
-      source_ids: [],
-      customer_ids: [params.id],
-      issued_on_min: null,
-      issued_on_max: null,
-      issued_on_predefined: null,
-      finalized_on_min: null,
-      finalized_on_max: null,
-      finalized_on_predefined: null,
-      ship_on_min: null,
-      ship_on_max: null,
-      ship_on_predefined: null,
-      expected_receive_on_min: null,
-      expected_receive_on_max: null,
-      expected_receive_predefined: null,
-      completed_on_min: null,
-      completed_on_max: null,
-      completed_on_predefined: null,
-      cancelled_on_min: null,
-      cancelled_on_max: null,
-      cancelled_on_predefined: null,
-      order_status: [],
-      order_sub_status: [],
-      fulfillment_status: [],
-      payment_status: [],
-      return_status: [],
-      account: [],
-      assignee: [],
-      price_min: undefined,
-      price_max: undefined,
-      payment_method_ids: [],
-      delivery_types: [],
-      note: null,
-      customer_note: null,
-      tags: [],
-      reference_code: null,
-    };
-    dispatch(getListOrderAction(queryObject, setOrderHistoryItems));
-  }, [dispatch, params]);
+    if (params?.id) {
+      querySearchOrder.customer_ids = [params?.id];
+      dispatch(getListOrderActionFpage(querySearchOrder, setOrderHistoryItems));
+    }
+  }, [params, dispatch, querySearchOrder]);
 
   const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
     if (data) {
+      handlePaymentHistory(data);
       setOrderHistory(data.items);
+      setMetaData(data.metadata);
     }
   };
+  function handlePaymentHistory(data: any) {
+    let _details: any = [];
+    const _orderSorted = data.items.sort((a: any, b: any) => {
+      // return  new Date(a.created_date).getTime() - new Date(b.created_date).getTime()
+      return a.id - b.id;
+    });
+    const lastIndex = _orderSorted.length - 1;
+
+    const _successPayment = data.items
+      .filter((item: any) => item.payment_status === "paid")
+      .reduce(
+        (acc: any, item: any) =>
+          acc + item.total_line_amount_after_line_discount,
+        0
+      );
+    _details = [
+      {
+        name: "Tổng chi tiêu",
+        value: formatCurrency(_successPayment),
+      },
+
+      {
+        name: "Ngày đầu tiên mua hàng",
+        value: ConvertUtcToLocalDate(
+          _orderSorted[0].created_date,
+          DATE_FORMAT.DDMMYYY
+        ),
+      },
+      {
+        name: "Tổng đơn hàng",
+        value: data.metadata.total,
+      },
+      {
+        name: "Ngày cuối cùng mua hàng",
+        value: ConvertUtcToLocalDate(
+          _orderSorted[lastIndex].created_date,
+          DATE_FORMAT.DDMMYYY
+        ),
+      },
+    ];
+    setCustomerBuyDetail(_details);
+  }
   // end
+
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -132,30 +162,15 @@ const CustomerDetailIndex = () => {
     }
     setCustomerPoint(details);
   }, [customer, setCustomerPoint]);
+  // total payment
+  console.log(orderHistory);
+  // first time payment
 
-  React.useEffect(() => {
-    let details: any = [];
-    if (customer) {
-      details = [
-        { name: "Tổng chi tiêu", value: null },
+  // last time payment
 
-        {
-          name: "Ngày đầu tiên mua hàng",
-          value: null,
-        },
-        {
-          name: "Tổng đơn hàng",
-          value: null,
-        },
-        {
-          name: "Ngày cuối cùng mua hàng",
-          value: null,
-        },
-      ];
-    }
-    setCustomerBuyDetail(details);
-  }, [customer, setCustomerBuyDetail]);
+  // end
 
+  console.log(orderHistory);
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params, setCustomer]);
@@ -211,24 +226,10 @@ const CustomerDetailIndex = () => {
       queryString: "note",
     },
   ];
-  // const setDataAccounts = React.useCallback(
-  //   (data: PageResponse<AccountResponse> | false) => {
-  //     if (!data) {
-  //       return;
-  //     }
-  //     const _items = data.items.filter((item) => item.status === "active");
-  //     setAccounts(_items);
-  //   },
-  //   [setAccounts]
-  // );
 
-  React.useEffect(() => {
-    dispatch(CustomerGroups(setGroups));
-    dispatch(CustomerTypes(setTypes));
-  }, [dispatch,setGroups,setTypes ]);
   return (
     <ContentContainer
-      title={customer ? customer.full_name : ""}
+      title=""
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -241,18 +242,16 @@ const CustomerDetailIndex = () => {
         {
           name: "Chi tiết khách hàng",
         },
+        {
+          name: `${customer ? customer?.full_name : ""}`
+        }
       ]}
     >
-      <Row gutter={24}>
+      <Row gutter={24} className="customer-info-detail">
         <Col span={18}>
-          <CustomerInfo
-            customer={customer}
-            groups={groups}
-            types={types}
-            accounts={accounts}
-          />
+          <CustomerInfo customer={customer} />
           <Card
-            style={{ marginTop: 16 }}
+            style={{ marginTop: 20 }}
             title={
               <div className="d-flex">
                 <span className="title-card">THÔNG TIN MUA HÀNG</span>
@@ -268,7 +267,7 @@ const CustomerDetailIndex = () => {
                     span={12}
                     style={{
                       display: "flex",
-                      marginBottom: 20,
+                      marginBottom: 10,
                       color: "#222222",
                     }}
                   >
@@ -285,6 +284,8 @@ const CustomerDetailIndex = () => {
         </Col>
         <Col span={6}>
           <Card
+          className="customer-point-detail"
+           style={{height: "100%"}}
             title={
               <div className="d-flex">
                 <span className="title-card">THÔNG TIN TÍCH ĐIỂM</span>
@@ -299,7 +300,7 @@ const CustomerDetailIndex = () => {
                     span={24}
                     style={{
                       display: "flex",
-                      marginBottom: 20,
+                      marginBottom: 10,
                       color: "#222222",
                     }}
                   >
@@ -315,7 +316,7 @@ const CustomerDetailIndex = () => {
           </Card>
         </Col>
       </Row>
-      <Row style={{ marginTop: 16 }}>
+      <Row style={{ marginTop: 20 }}>
         <Col span={24}>
           <Card style={{ padding: "16px 24px" }}>
             <div className="saleorder_shipment_method_btn">
@@ -353,7 +354,11 @@ const CustomerDetailIndex = () => {
             </div>
 
             {customerDetailState === "history" && (
-              <CustomerHistoryInfo orderHistory={orderHistory} />
+              <CustomerHistoryInfo
+                orderHistory={orderHistory}
+                metaData={metaData}
+                onPageChange={onPageChange}
+              />
             )}
             {customerDetailState === "contact" && (
               <CustomerContactInfo
