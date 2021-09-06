@@ -7,7 +7,6 @@ import {
   Input,
   Row,
   Select,
-  Tooltip,
   Collapse,
   Tag,
   InputNumber,
@@ -20,7 +19,7 @@ import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
-import { StarOutlined, SettingOutlined, FilterOutlined } from "@ant-design/icons";
+import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
 import { OrderSearchQuery } from "model/order/order.model";

@@ -215,7 +215,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       textTransform: "uppercase",
                       fontWeight: 500,
                       color: "#222222",
-                      padding: "6px",
+                      padding: 6,
                     }}
                   >
                     Lựa chọn 1 hoặc nhiều phương thức thanh toán
@@ -227,7 +227,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 <Row gutter={24}>
                   <Col span={12} xxl={7} className="margin-top-bottom-10">
                     <div>
-                      <span style={{ paddingRight: "20px" }}>
+                      <span style={{ paddingRight: 20 }}>
                         Tiền khách phải trả:{" "}
                       </span>
                       <strong>{formatCurrency(props.amount)}</strong>
@@ -235,7 +235,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                   </Col>
                   <Col span={12} xxl={7} className="margin-top-bottom-10">
                     <div>
-                      <span style={{ paddingRight: "20px" }}>
+                      <span style={{ paddingRight: 20 }}>
                         Còn phải trả:{" "}
                       </span>
                       <strong>{formatCurrency(Math.abs(moneyReturn))}</strong>
@@ -440,7 +440,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                               textAlign: "right",
                             }}
                           >
-                            <span style={{ padding: "14px", lineHeight: 1 }}>
+                            <span style={{ padding: 14, lineHeight: 1 }}>
                               {formatCurrency(method.amount)}
                             </span>
                           </Col>
@@ -452,7 +452,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 <Row
                   gutter={24}
                   className="row-price"
-                  style={{ height: 38, margin: "10px 0 0 0" }}
+                  style={{ height: 38, marginLeft: 2 }}
                 >
                   <Col lg={14} xxl={9} style={{ padding: "8px 0" }} span={6}>
                     <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>

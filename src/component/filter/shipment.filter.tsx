@@ -7,10 +7,8 @@ import {
   Input,
   Row,
   Select,
-  Tooltip,
   Collapse,
   Tag,
-  InputNumber,
   Radio
 } from "antd";
 
@@ -20,7 +18,7 @@ import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
-import { StarOutlined, SettingOutlined, FilterOutlined } from "@ant-design/icons";
+import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
 import { ShipmentSearchQuery } from "model/order/shipment.model";
@@ -560,7 +558,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-  [deliveryService, initialValues, listSources, listStore]
+  [accounts, deliveryService, initialValues, listSources, listStore]
   );
 
   

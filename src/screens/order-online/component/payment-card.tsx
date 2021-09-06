@@ -18,7 +18,7 @@ import Cash from "component/icon/Cash";
 import YdCoin from "component/icon/YdCoin";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
-import Caculate from "assets/icon/caculate.svg";
+import Calculate from "assets/icon/caculate.svg";
 
 // @ts-ignore
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
@@ -41,6 +41,7 @@ const { Panel } = Collapse;
 
 type PaymentCardProps = {
   setSelectedPaymentMethod: (paymentType: number) => void;
+  payments: OrderPaymentRequest[];
   setPayments: (value: Array<OrderPaymentRequest>) => void;
   paymentMethod: number;
   amount: number;
@@ -48,11 +49,13 @@ type PaymentCardProps = {
 };
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
-  const { paymentMethod } = props;
+  const { paymentMethod, payments } = props;
+  console.log("propsPaymentCard", props);
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
   const changePaymentMethod = (value: number) => {
+    console.log("value", value);
     console.log("change");
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
@@ -153,6 +156,19 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
 
+  useEffect(() => {
+    if (paymentMethod === 2) {
+      handlePickPaymentMethod(PaymentMethodCode.CASH);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paymentMethod]);
+
+  useEffect(() => {
+    if (payments) {
+      setPaymentData(payments);
+    }
+  }, [payments]);
+
   return (
     <Card
       className="margin-top-20"
@@ -175,7 +191,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
             <Space size={20}>
               <Radio value={PaymentMethodOption.COD}>COD</Radio>
               <Radio value={PaymentMethodOption.PREPAYMENT}>
-                Thanh toán trước
+                Thanh toán trước 3
               </Radio>
               <Radio value={PaymentMethodOption.POSTPAYMENT}>
                 Chưa xác định
@@ -206,7 +222,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 <div>
                   <div>
                     <div>
-                      <img src={Caculate} alt=""></img>
+                      <img src={Calculate} alt=""></img>
                     </div>
                   </div>
                 </div>
@@ -238,7 +254,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       padding: "6px",
                     }}
                   >
-                    Lựa chọn 1 hoặc nhiều phương thức thanh toán
+                    Lựa chọn 1 hoặc nhiều phương thức thanh toán 3
                   </span>
                 }
                 key="1"
@@ -270,6 +286,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                       style={{ marginLeft: 0, marginRight: 0 }}
                     >
                       {ListPaymentMethods.map((method, index) => {
+                        console.log("method", method);
+                        console.log("paymentData", paymentData);
                         let icon = null;
                         switch (method.code) {
                           case PaymentMethodCode.CASH:
@@ -342,7 +360,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         className="row-large-title"
                         style={{ padding: "8px 0", marginLeft: 2 }}
                       >
-                        <b>Khách cần trả:</b>
+                        <b>Khách cần trả: 2</b>
                       </Col>
                       <Col
                         className="lbl-money"
@@ -478,33 +496,6 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         </Row>
                       );
                     })}
-
-                    {/* <Row
-                      gutter={20}
-                      className="row-price total-customer-pay"
-                      style={{ height: 38, margin: "10px 0" }}
-                    >
-                      <Col
-                        lg={14}
-                        xxl={9}
-                        className="row-large-title"
-                        style={{ padding: "8px 0" }}
-                      >
-                        <b>Tổng số tiền khách trả:</b>
-                      </Col>
-                      <Col
-                        className="lbl-money"
-                        lg={9}
-                        xxl={6}
-                        style={{
-                          textAlign: "right",
-                          fontWeight: 500,
-                          fontSize: "20px",
-                        }}
-                      >
-                        <span>{formatCurrency(totalAmountPaid)}</span>
-                      </Col>
-                    </Row> */}
                     <Row
                       gutter={20}
                       className="row-price"

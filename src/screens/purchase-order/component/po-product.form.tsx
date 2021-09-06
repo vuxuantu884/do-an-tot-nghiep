@@ -1136,10 +1136,10 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       width: 140,
                       dataIndex: "price",
                       render: (value, item, index) => {
-                        let type = "percent";
-                        if (item.discount_value !== null) {
-                          type = "money";
-                        }
+                        // let type = "percent";
+                        // if (item.discount_value !== null) {
+                        //   type = "money";
+                        // }
                         return (
                           <NumberInput
                             // style={{ width: "70%" }}

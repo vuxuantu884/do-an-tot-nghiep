@@ -57,7 +57,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
         ],
       });
     }
-  }, [showPayment]);
+  }, [formMain, showPayment, totalReturn, totalVat]);
 
   useEffect(() => {
     formMain.setFieldsValue({

@@ -1,8 +1,8 @@
 import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { actionGetActionLogDetail } from "domain/actions/order/order.action";
-import { ActionLogDetailResponse } from "model/response/order/action-log.response";
-import React, { useEffect, useState } from "react";
+import purify from "dompurify";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { StyledComponent } from "./styles";
 
@@ -12,33 +12,19 @@ type PropType = {
   onCancel: () => void;
 };
 
-function ActionHistoryModal(props: PropType) {
-  const [actionHistoryDetail, setActionHistoryDetail] =
-    useState<ActionLogDetailResponse>();
-  const dispatch = useDispatch();
-  const FAKE_LOG_SHORTEN = [
-    {
-      key: "1",
-      title: "Code",
-      before: null,
-      after: 200,
-    },
-    {
-      key: "2",
-      title: "Data",
-      before: "Mảng dữ liệu",
-      after: "	Mảng dữ liệu",
-    },
-    {
-      key: "3",
-      title: "Message",
-      before: null,
-      after:
-        "Do diễn biến phức tạp của dịch Covid-19, thời gian giao hàng có thể dài hơn dự kiến từ 1-5 ngày.",
-    },
-  ];
+type SingleLogType = {
+  key: string;
+  title: string;
+  before: any;
+  current: any;
+};
 
-  const FAKE_LOG_SHORTEN_COLUMN = [
+function ActionHistoryModal(props: PropType) {
+  const dispatch = useDispatch();
+  const [singleLogShorten, setSingleLogShorten] = useState<SingleLogType[]>([]);
+  const [singleLogDetail, setSingleLogDetail] = useState<SingleLogType[]>([]);
+
+  const ACTION_LOG_SHORTEN_COLUMN = [
     {
       title: "Nội dung thay đổi",
       dataIndex: "title",
@@ -53,53 +39,12 @@ function ActionHistoryModal(props: PropType) {
     },
     {
       title: "Sau",
-      dataIndex: "after",
-      key: "after",
+      dataIndex: "current",
+      key: "current",
     },
   ];
 
-  const FAKE_LOG_DETAIL = [
-    {
-      key: "1",
-      before: `
-      {
-        Array
-        (
-            [requestCarrier] => Array
-                (
-                    [to_name] => c La
-                    [to_phone] => 0915622182
-                    [to_address] => ĐÀO THỊ THÚY LA THON GỐM XÃ THỤY LÔI HUYỆN KIM BẢNG TỈNH HÀ NAM
-                    [to_ward_code] => 240316
-                    [to_district_id] => 1952
-                    [return_phone] => 02499966668
-                    [return_address] => 151 Nguyễn Du, Vị 
-        
-        }
-      `,
-      after: `
-      {
-        {
-        Array
-        (
-            [requestCarrier] => Array
-                (
-                    [to_name] => c La
-                    [to_phone] => 0915622182
-                    [to_address] => ĐÀO THỊ THÚY LA THON GỐM XÃ THỤY LÔI HUYỆN KIM BẢNG TỈNH HÀ NAM
-                    [to_ward_code] => 240316
-                    [to_district_id] => 1952
-                    [return_phone] => 02499966668
-                    [return_address] => 151 Nguyễn Du, Vị 
-        
-        }
-        
-        }
-      `,
-    },
-  ];
-
-  const FAKE_LOG_DETAIL_COLUMN = [
+  const ACTION_LOG_DETAIL_COLUMN = [
     {
       title: "Trước",
       dataIndex: "before",
@@ -108,9 +53,20 @@ function ActionHistoryModal(props: PropType) {
     },
     {
       title: "Sau",
-      dataIndex: "after",
-      key: "after",
+      dataIndex: "current",
+      key: "current",
       width: "50%",
+      render: (text: string) => {
+        let doc = new DOMParser().parseFromString(text, "text/html");
+        let htmlInner = doc.getElementsByTagName("body")[0].innerHTML;
+        return (
+          <div
+            dangerouslySetInnerHTML={{
+              __html: purify.sanitize(htmlInner),
+            }}
+          ></div>
+        );
+      },
     },
   ];
 
@@ -119,6 +75,7 @@ function ActionHistoryModal(props: PropType) {
 
   const handleCancel = () => {
     onCancel();
+    setIsShowLogDetail(false);
   };
 
   useEffect(() => {
@@ -126,7 +83,45 @@ function ActionHistoryModal(props: PropType) {
       dispatch(
         actionGetActionLogDetail(actionId, (response) => {
           console.log("response", response);
-          setActionHistoryDetail(response);
+          let resultCurrent = "";
+          if (response.current.data) {
+            let dataJson = JSON.parse(response.current.data);
+            console.log("dataJson", dataJson);
+            resultCurrent = ` Người tạo: ${dataJson.created_name}.<br/>
+                              Khách hàng: ${dataJson.customer}.<br/>
+                              Cửa hàng: ${dataJson.store}.<br/>
+                              Số điện thoại khách hàng: ${dataJson.store_phone_number}.<br/>
+                              Nguồn đơn hàng: ${dataJson.source}.<br/>
+            `;
+          }
+          setSingleLogDetail([
+            {
+              key: "1",
+              title: "detail",
+              before: response.before?.data || "",
+              current: resultCurrent || "",
+            },
+          ]);
+          setSingleLogShorten([
+            {
+              key: "1",
+              title: "Code",
+              before: response.before?.code || "",
+              current: response.current?.code || "",
+            },
+            {
+              key: "2",
+              title: "Data",
+              before: "Mảng dữ liệu",
+              current: "Mảng dữ liệu",
+            },
+            {
+              key: "3",
+              title: "Message",
+              before: response.before?.status || "",
+              current: response.current?.status || "",
+            },
+          ]);
         })
       );
     }
@@ -154,14 +149,14 @@ function ActionHistoryModal(props: PropType) {
         </div>
         {isShowLogDetail ? (
           <Table
-            dataSource={FAKE_LOG_DETAIL}
-            columns={FAKE_LOG_DETAIL_COLUMN}
+            dataSource={singleLogDetail}
+            columns={ACTION_LOG_DETAIL_COLUMN}
             pagination={false}
           />
         ) : (
           <Table
-            dataSource={FAKE_LOG_SHORTEN}
-            columns={FAKE_LOG_SHORTEN_COLUMN}
+            dataSource={singleLogShorten}
+            columns={ACTION_LOG_SHORTEN_COLUMN}
             pagination={false}
           />
         )}

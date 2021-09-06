@@ -83,7 +83,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [isVisibleBilling, setVisibleBilling] = useState(true);
+  const [isVisibleBilling, setVisibleBilling] = useState(false);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
@@ -99,7 +99,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const ShowAddressModal = () => {
     setVisibleAddress(true);
   };
-
+  const ShowBillingAddress = (e: any) => {
+    setVisibleBilling(e.target.checked);
+  };
   const CancelConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
   }, []);
@@ -120,9 +122,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleCustomer(false);
   }, []);
 
-  const ShowBillingAddress = () => {
-    setVisibleBilling(!isVisibleBilling);
-  };
+  
   //#end region
 
   //#region Search and Render result
@@ -182,6 +182,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const CustomerDeleteInfo = () => {
     setCustomer(null);
     props.InfoCustomerSet(null);
+    setVisibleBilling(false);
   };
 
   //#end region
@@ -569,7 +570,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 </Row>
 
                 {customer.billing_addresses !== undefined && (
-                  <Row gutter={24} hidden={isVisibleBilling}>
+                  <Row gutter={24} hidden={!isVisibleBilling}>
                     <Col
                       xs={24}
                       lg={12}

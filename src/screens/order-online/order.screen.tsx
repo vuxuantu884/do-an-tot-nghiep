@@ -26,7 +26,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-  OrderLineItemResponse,
+  // OrderLineItemResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
@@ -42,6 +42,7 @@ import {
   MoneyPayThreePls,
   OrderStatus,
   PaymentMethodOption,
+  ShipmentMethod,
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
@@ -54,7 +55,6 @@ import ShipmentCard from "./component/order-detail/CardShipment";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
 import PaymentCard from "./component/payment-card";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
-import OrderDetail from "./order-detail";
 
 let typeButton = "";
 
@@ -198,7 +198,6 @@ export default function Order() {
   //   billing_address: billingAddress,
   // };
   const [isLoadForm, setIsLoadForm] = useState(false);
-  const [isLoadCard, setIsLoadCard] = useState(false);
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
     shipping_address: shippingAddress,
@@ -506,14 +505,6 @@ export default function Order() {
   const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
     setItems(cardItems);
   };
-
-  const renderCloneOrder = () => {
-    if (!cloneIdParam) {
-      return;
-    }
-    return <OrderDetail isCloneOrder={isCloneOrder} id={cloneIdParam} />;
-  };
-
   const renderOrder = () => {
     return (
       <ContentContainer
@@ -614,6 +605,7 @@ export default function Order() {
                   />
                   <PaymentCard
                     setSelectedPaymentMethod={changePaymentMethod}
+                    payments={payments}
                     setPayments={onPayments}
                     paymentMethod={paymentMethod}
                     shipmentMethod={shipmentMethod}
@@ -701,8 +693,30 @@ export default function Order() {
             }
             if (response) {
               let responseItems: any = [...response.items];
+              let newDatingShip = initialForm.dating_ship;
+              let newShipperCode = initialForm.shipper_code;
+              let new_shipping_fee_informed_to_customer =
+                initialForm.shipping_fee_informed_to_customer;
+              let new_payments = initialForm.payments;
+              if (response.fulfillments && response.fulfillments[0]) {
+                if (response?.fulfillments[0]?.shipment) {
+                  newDatingShip = moment(
+                    response.fulfillments[0]?.shipment?.expected_received_date
+                  );
+                  newShipperCode =
+                    response.fulfillments[0]?.shipment?.shipper_code;
+                  new_shipping_fee_informed_to_customer =
+                    response.fulfillments[0]?.shipment
+                      .shipping_fee_informed_to_customer;
+                }
+                if (response.payments && response.payments?.length > 0) {
+                  new_payments = response.payments;
+                  setPaymentMethod(2);
+                  setPayments(new_payments);
+                }
+              }
               setItems(responseItems);
-              setIsLoadCard(true);
+              setOrderAmount(response.total);
               setInitialForm({
                 ...initialForm,
                 customer_note: response.customer_note,
@@ -710,7 +724,32 @@ export default function Order() {
                 assignee_code: response.assignee_code,
                 store_id: response.store_id,
                 items: responseItems,
+                dating_ship: newDatingShip,
+                shipper_code: newShipperCode,
+                shipping_fee_informed_to_customer:
+                  new_shipping_fee_informed_to_customer,
+                payments: new_payments,
               });
+              let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
+              if (
+                response.fulfillments &&
+                response.fulfillments[0] &&
+                response?.fulfillments[0]?.shipment
+                  ?.delivery_service_provider_type
+              ) {
+                switch (
+                  response.fulfillments[0].shipment
+                    ?.delivery_service_provider_type
+                ) {
+                  case ShipmentMethod.SHIPPER:
+                    newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
+                    break;
+
+                  default:
+                    break;
+                }
+                setShipmentMethod(newShipmentMethod);
+              }
             }
             setIsLoadForm(true);
           })

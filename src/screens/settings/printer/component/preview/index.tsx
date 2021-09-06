@@ -1,10 +1,10 @@
 import { Button, Tooltip } from "antd";
+import purify from "dompurify";
 import {
   PrintPreviewModel,
   productKeywordsModel,
 } from "model/editor/editor.model";
-import React, { useRef, useState } from "react";
-import { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ReactToPrint from "react-to-print";
 import IconEdit from "./images/iconEdit.svg";
 import IconPrintHover from "./images/iconPrintHover.svg";
@@ -226,7 +226,8 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
         <div className="preview__content printContent" ref={printElementRef}>
           <div
             dangerouslySetInnerHTML={{
-              __html: renderHtml(htmlContent),
+              // __html: renderHtml(htmlContent),
+              __html: purify.sanitize(renderHtml(htmlContent)),
             }}
           ></div>
         </div>

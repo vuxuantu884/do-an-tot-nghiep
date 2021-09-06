@@ -5,10 +5,9 @@ import customerRecipt from "assets/icon/c-recipt.svg";
 import customerContact from "assets/icon/c-contact.svg";
 import customerBuyHistory from "assets/icon/c-bag.svg";
 import editIcon from "assets/icon/edit.svg";
-import { CustomerDetail } from "domain/actions/customer/customer.action";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Link, Redirect, useParams, useRouteMatch, useHistory } from "react-router-dom";
+import { Link, useParams, useRouteMatch } from "react-router-dom";
 import moment from "moment";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -22,10 +21,15 @@ import CustomerHistoryInfo from "./customer.history";
 import { PageResponse } from "model/base/base-metadata.response";
 import { getListOrderAction } from "domain/actions/order/order.action";
 import { OrderModel, OrderSearchQuery } from "model/order/order.model";
-import { useQuery, getQueryParams } from "utils/useQuery";
+import { useQuery } from "utils/useQuery";
+import {
+  CustomerDetail,
+  CustomerGroups,
+  CustomerTypes,
+} from "domain/actions/customer/customer.action";
+import { AccountResponse } from "model/account/account.model";
 
 const CustomerDetailIndex = () => {
-  const history = useHistory()
   const tabQuery = useQuery();
   const params = useParams() as any;
   const dispatch = useDispatch();
@@ -37,35 +41,20 @@ const CustomerDetailIndex = () => {
   const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>();
   const [modalAction, setModalAction] =
     React.useState<modalActionType>("create");
-  const [customerDetailState, setCustomerDetailState] =
-    React.useState<string>("history");
+  const [customerDetailState, setCustomerDetailState] = React.useState<string>(
+    tabQuery.get("tab") || "history"
+  );
   // history
-
-  React.useEffect(() => {
-    let list: any = [];
-    const tabObj: any = { ...getQueryParams(tabQuery) };
-    const _tabObj = Object.keys(tabObj);
-    const value = tabObj[_tabObj[0]];
-
-    if (value) {
-      if (!Array.isArray(value)) {
-        list.push(value);
-      } else {
-        list = [...value];
-      }
-      setCustomerDetailState(list[0]);
-    }
-    history.replace(`${url}?tab=history`)
-  }, [setCustomerDetailState]);
-
-  // yes
+  const [groups, setGroups] = React.useState<Array<any>>([]);
+  const [types, setTypes] = React.useState<Array<any>>([]);
+  const [accounts] = React.useState<Array<AccountResponse>>([]);
 
   React.useEffect(() => {
     let queryObject: OrderSearchQuery = {
       page: 1,
       limit: 10,
-      sort_type: null,
-      sort_column: null,
+      sort_type: "desc",
+      sort_column: "id",
       code: null,
       store_ids: [],
       source_ids: [],
@@ -109,7 +98,6 @@ const CustomerDetailIndex = () => {
 
   const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
     if (data) {
-      console.log("orderx", data.items);
       setOrderHistory(data.items);
     }
   };
@@ -170,7 +158,8 @@ const CustomerDetailIndex = () => {
 
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
-  }, [dispatch, params]);
+  }, [dispatch, params, setCustomer]);
+
   React.useEffect(() => {
     if (customer) {
       customerForm.setFieldsValue({
@@ -222,7 +211,21 @@ const CustomerDetailIndex = () => {
       queryString: "note",
     },
   ];
+  // const setDataAccounts = React.useCallback(
+  //   (data: PageResponse<AccountResponse> | false) => {
+  //     if (!data) {
+  //       return;
+  //     }
+  //     const _items = data.items.filter((item) => item.status === "active");
+  //     setAccounts(_items);
+  //   },
+  //   [setAccounts]
+  // );
 
+  React.useEffect(() => {
+    dispatch(CustomerGroups(setGroups));
+    dispatch(CustomerTypes(setTypes));
+  }, [dispatch,setGroups,setTypes ]);
   return (
     <ContentContainer
       title={customer ? customer.full_name : ""}
@@ -242,7 +245,12 @@ const CustomerDetailIndex = () => {
     >
       <Row gutter={24}>
         <Col span={18}>
-          <CustomerInfo customer={customer} />
+          <CustomerInfo
+            customer={customer}
+            groups={groups}
+            types={types}
+            accounts={accounts}
+          />
           <Card
             style={{ marginTop: 16 }}
             title={
