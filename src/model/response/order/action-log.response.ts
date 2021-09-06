@@ -2,7 +2,8 @@ import { BaseObject } from "model/base/base.response";
 
 export interface OrderActionLogResponse extends BaseObject {
   id: number;
-  status?: string;
+  status_before?: string;
+  status_after?: string;
   action?: string;
   store?: string;
   code: string;
@@ -17,6 +18,8 @@ export interface ActionLogDetailSingleType {
   id?: number;
   root_id?: number;
   status?: string;
+  device?: string;
+  ip_address?: string;
 }
 export interface ActionLogDetailResponse extends BaseObject {
   before: ActionLogDetailSingleType;

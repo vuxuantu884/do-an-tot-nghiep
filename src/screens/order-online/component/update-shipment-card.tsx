@@ -639,6 +639,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     let UpdateLineFulFillment: UpdateLineFulFillment = {
       order_id: FulFillmentRequest.order_id,
       fulfillment: FulFillmentRequest,
+      action: OrderStatus.FINALIZED,
     };
     if (
       shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
@@ -1991,7 +1992,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         }}
                         htmlType="submit"
                       >
-                        Tạo đơn giao hàng
+                        Tạo đơn giao hàng 1
                       </Button>
                       <Button
                         className="ant-btn-outline fixed-button cancle-button create-button-custom"
@@ -2119,7 +2120,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           style={{ float: "right" }}
                           htmlType="submit"
                         >
-                          Tạo đơn giao hàng
+                          Tạo đơn giao hàng 2
                         </Button>
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"
@@ -2180,7 +2181,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           style={{ float: "right" }}
                           htmlType="submit"
                         >
-                          Tạo đơn giao hàng
+                          Tạo đơn giao hàng 3
                         </Button>
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"
