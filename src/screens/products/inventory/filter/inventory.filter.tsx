@@ -87,6 +87,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
   const onBaseFinish = useCallback(
     (values: InventoryQuery) => {
       let data = formBaseFilter.getFieldsValue(true);
+      console.log('formBaseFilter', data);
       onFilter && onFilter(data);
     },
     [formBaseFilter, onFilter]
@@ -139,10 +140,10 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
     <div className="inventory-filter">
       <Form.Provider
         onFormFinish={(name, { values, forms }) => {
-          console.log(forms);
           let baseValues = formBaseFilter.getFieldsValue(true);
           let advanceValues = formAdvanceFilter?.getFieldsValue(true);
-          let data = { ...baseValues, ...advanceValues };
+          console.log(advanceValues);
+          let data = {  ...advanceValues, ...baseValues, };
           let created_date = data[InventoryQueryField.created_date],
             transaction_date = data[InventoryQueryField.transaction_date],
             total_stock = data[InventoryQueryField.total_stock],

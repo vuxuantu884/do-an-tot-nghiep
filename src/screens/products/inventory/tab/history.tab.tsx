@@ -64,7 +64,7 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       setPrams({ ...params });
       
       history.replace(
-        `${UrlConfig.INVENTORY}#2?${queryParam}`
+        `${UrlConfig.INVENTORY}#3?${queryParam}`
       );
     },
     [history, params]
