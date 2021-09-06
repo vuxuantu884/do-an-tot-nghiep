@@ -233,7 +233,10 @@ const POCreateScreen: React.FC = () => {
               status={formMain.getFieldValue(POField.status)}
               stores={listStore}
             />
-            <POPaymentConditionsForm listPayment={listPaymentConditions} />
+            <POPaymentConditionsForm
+              isEdit={false}
+              listPayment={listPaymentConditions} 
+            />
           </Col>
           {/* Right Side */}
           <Col md={6}>
