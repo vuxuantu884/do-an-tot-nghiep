@@ -18,6 +18,8 @@ export interface ActionLogDetailSingleType {
   id?: number;
   root_id?: number;
   status?: string;
+  device?: string;
+  ip_address?: string;
 }
 export interface ActionLogDetailResponse extends BaseObject {
   before: ActionLogDetailSingleType;
