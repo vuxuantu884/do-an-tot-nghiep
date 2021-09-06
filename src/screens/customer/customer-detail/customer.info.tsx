@@ -194,7 +194,7 @@ function CustomerInfo(props: any) {
                   span={24}
                   style={{
                     display: "flex",
-                    marginBottom: 20,
+                    marginBottom: 10,
                     color: "#222222",
                   }}
                 >
@@ -232,7 +232,7 @@ function CustomerInfo(props: any) {
                   span={24}
                   style={{
                     display: "flex",
-                    marginBottom: 20,
+                    marginBottom: 10,
                     color: "#222222",
                   }}
                 >
@@ -279,7 +279,7 @@ function CustomerInfo(props: any) {
                           span={24}
                           style={{
                             display: "flex",
-                            marginBottom: 20,
+                            marginBottom: 10,
                             color: "#222222",
                           }}
                         >
@@ -317,7 +317,7 @@ function CustomerInfo(props: any) {
                           span={24}
                           style={{
                             display: "flex",
-                            marginBottom: 20,
+                            marginBottom: 10,
                             color: "#222222",
                           }}
                         >

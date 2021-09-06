@@ -31,7 +31,7 @@ import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import { Link } from "react-router-dom";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -201,17 +201,21 @@ const Customer = () => {
       title: "Ngày sinh",
       dataIndex: "birthday",
       // align: "center",
-      visible: false,
+      visible: true,
       width: 150,
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (value: string) => (
+        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
     },
     {
       title: "Ngày cưới",
-      dataIndex: "wedding_date",
+      // dataIndex: "wedding_date",
       // align: "center",
-      visible: false,
+      visible: true,
       width: 150,
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (value: string) => (
+        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
     },
     {
       title: "website/facebook",
@@ -505,7 +509,7 @@ const Customer = () => {
           <CustomTable
             isRowSelection
             isLoading={tableLoading}
-            scroll={{ x: 2500 }}
+            scroll={{ x: 2000 }}
             sticky={{ offsetScroll: 5 }}
             pagination={{
               pageSize: data.metadata.limit,

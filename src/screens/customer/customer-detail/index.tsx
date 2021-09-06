@@ -229,7 +229,7 @@ const CustomerDetailIndex = () => {
 
   return (
     <ContentContainer
-      title={customer ? customer.full_name : ""}
+      title=""
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -242,13 +242,16 @@ const CustomerDetailIndex = () => {
         {
           name: "Chi tiết khách hàng",
         },
+        {
+          name: `${customer ? customer?.full_name : ""}`
+        }
       ]}
     >
-      <Row gutter={24}>
+      <Row gutter={24} className="customer-info-detail">
         <Col span={18}>
           <CustomerInfo customer={customer} />
           <Card
-            style={{ marginTop: 16 }}
+            style={{ marginTop: 20 }}
             title={
               <div className="d-flex">
                 <span className="title-card">THÔNG TIN MUA HÀNG</span>
@@ -264,7 +267,7 @@ const CustomerDetailIndex = () => {
                     span={12}
                     style={{
                       display: "flex",
-                      marginBottom: 20,
+                      marginBottom: 10,
                       color: "#222222",
                     }}
                   >
@@ -281,6 +284,8 @@ const CustomerDetailIndex = () => {
         </Col>
         <Col span={6}>
           <Card
+          className="customer-point-detail"
+           style={{height: "100%"}}
             title={
               <div className="d-flex">
                 <span className="title-card">THÔNG TIN TÍCH ĐIỂM</span>
@@ -295,7 +300,7 @@ const CustomerDetailIndex = () => {
                     span={24}
                     style={{
                       display: "flex",
-                      marginBottom: 20,
+                      marginBottom: 10,
                       color: "#222222",
                     }}
                   >
@@ -311,7 +316,7 @@ const CustomerDetailIndex = () => {
           </Card>
         </Col>
       </Row>
-      <Row style={{ marginTop: 16 }}>
+      <Row style={{ marginTop: 20 }}>
         <Col span={24}>
           <Card style={{ padding: "16px 24px" }}>
             <div className="saleorder_shipment_method_btn">

@@ -2,6 +2,7 @@ import { Row, Col, Tag, Table } from "antd";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { OrderModel } from "model/order/order.model";
 import moment from "moment";
+import { formatCurrency } from "./../../../utils/AppUtils";
 
 function CustomerHistoryInfo(props: any) {
   const { orderHistory, metaData, onPageChange } = props;
@@ -77,7 +78,6 @@ function CustomerHistoryInfo(props: any) {
       title: "Trạng thái",
       dataIndex: "status",
       visible: true,
-      align: "center",
       render: (value: any, row: any, index: any) => {
         const statusTag = status_order.find(
           (status) => status.value === row.status
@@ -89,7 +89,7 @@ function CustomerHistoryInfo(props: any) {
                 color: `${statusTag?.color}`,
                 backgroundColor: `${statusTag?.background}`,
                 width: 100,
-                borderRadius: 100,
+                borderRadius: 100, textAlign: "center"
               }}
             >
               {statusTag?.name}
@@ -103,7 +103,11 @@ function CustomerHistoryInfo(props: any) {
       title: "Sản phẩm",
       visible: true,
       render: (value, row, index) => {
-        return <div>{row.items.length}</div>;
+        return (
+          <div>
+            {row.items.length > 10 ? row.items.length : "0" + row.items.length}
+          </div>
+        );
       },
     },
 
@@ -111,7 +115,11 @@ function CustomerHistoryInfo(props: any) {
       title: "Giá trị",
       dataIndex: "total_line_amount_after_line_discount",
       visible: true,
-      // width: "20%",
+      render: (value, row, index) => {
+        return (
+          <div>{formatCurrency(row.total_line_amount_after_line_discount)}</div>
+        );
+      },
     },
     {
       title: "Cửa hàng",
@@ -138,7 +146,7 @@ function CustomerHistoryInfo(props: any) {
     columnsHistory.filter((item) => item.visible === true);
 
   return (
-    <Row style={{ marginTop: 16 }}>
+    <Row style={{ marginTop: 16 }} className="customer-history-table">
       <Col span={24}>
         <Table
           pagination={{
