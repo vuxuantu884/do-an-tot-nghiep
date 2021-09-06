@@ -99,10 +99,9 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
       )
     },
     {
-      align: 'right',
-      title: 'Tổng tồn',
-      visible: true,
-      dataIndex: 'total_stock'
+      title: 'Barcode',
+      visible: false,
+      dataIndex: 'barcode'
     },
     {
       align: 'right',
