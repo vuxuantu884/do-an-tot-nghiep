@@ -55,11 +55,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
               }}
             >
               {accounts.map((item, index) => (
-                <Select.Option
-                  style={{ width: "100%" }}
-                  key={index.toString()}
-                  value={item.code}
-                >
+                <Select.Option key={index.toString()} value={item.code}>
                   {`${item.full_name} - ${item.code}`}
                 </Select.Option>
               ))}
@@ -99,7 +95,7 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
         <div className="padding-24">
           <Form.Item
             name="note"
-            label="Ghi chú nội bộ"
+            label="Ghi chú nội bộ 3"
             tooltip={{
               title: "Thêm thông tin ghi chú chăm sóc khách hàng",
               icon: <InfoCircleOutlined />,

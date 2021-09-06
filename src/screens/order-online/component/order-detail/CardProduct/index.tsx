@@ -807,7 +807,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   };
 
   useEffect(() => {
-    if (items) {
+    if (items && items.length > 0) {
       console.log("items", items);
       setIsShowProductSearch(true);
     }
@@ -852,7 +852,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn cửa hàng",
+                  message: "Vui lòng chọn cửa hàng 3",
                 },
               ]}
             >

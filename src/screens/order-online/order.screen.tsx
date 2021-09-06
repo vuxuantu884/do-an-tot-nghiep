@@ -50,10 +50,10 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import CustomerCard from "./component/customer-card";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
+import CardPayment from "./component/order-detail/CardPayment";
 import CardProduct from "./component/order-detail/CardProduct";
 import ShipmentCard from "./component/order-detail/CardShipment";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
-import PaymentCard from "./component/payment-card";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 
 let typeButton = "";
@@ -603,7 +603,7 @@ export default function Order() {
                     payments={payments}
                     onPayments={onPayments}
                   />
-                  <PaymentCard
+                  <CardPayment
                     setSelectedPaymentMethod={changePaymentMethod}
                     payments={payments}
                     setPayments={onPayments}
@@ -693,6 +693,7 @@ export default function Order() {
             }
             if (response) {
               let responseItems: any = [...response.items];
+              let newItems: OrderLineItemRequest[] = [];
               let newDatingShip = initialForm.dating_ship;
               let newShipperCode = initialForm.shipper_code;
               let new_shipping_fee_informed_to_customer =
@@ -729,6 +730,10 @@ export default function Order() {
                 shipping_fee_informed_to_customer:
                   new_shipping_fee_informed_to_customer,
                 payments: new_payments,
+                reference_code: response.reference_code,
+                url: response.url,
+                note: response.note,
+                tags: response.tags,
               });
               let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
               if (
