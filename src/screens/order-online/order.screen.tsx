@@ -48,8 +48,8 @@ import {
 } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
-import CustomerCard from "./component/customer-card";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
+import CardCustomer from "./component/order-detail/CardCustomer";
 import CardPayment from "./component/order-detail/CardPayment";
 import CardProduct from "./component/order-detail/CardProduct";
 import ShipmentCard from "./component/order-detail/CardShipment";
@@ -559,7 +559,7 @@ export default function Order() {
               </Form.Item>
               <Row gutter={20} style={{ marginBottom: "70px" }}>
                 <Col md={18}>
-                  <CustomerCard
+                  <CardCustomer
                     InfoCustomerSet={onChangeInfoCustomer}
                     ShippingAddressChange={onChangeShippingAddress}
                     BillingAddressChange={onChangeBillingAddress}
