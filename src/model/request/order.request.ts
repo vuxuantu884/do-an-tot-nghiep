@@ -236,7 +236,7 @@ export interface OrderLineItemRequest {
   weight_unit: string;
   warranty: string;
   tax_rate: number;
-  tax_include: boolean;
+  tax_include: boolean | null;
   composite: boolean;
   product: string;
   is_composite: boolean;

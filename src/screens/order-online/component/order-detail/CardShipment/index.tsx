@@ -393,7 +393,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
         className="margin-top-20"
         title={
           <div className="d-flex">
-            <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG 1</span>
+            <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
           </div>
         }
       >

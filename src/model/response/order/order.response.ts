@@ -80,7 +80,7 @@ export interface OrderLineItemResponse {
   weight_unit: string;
   warranty: string;
   tax_rate: number;
-  tax_include: boolean;
+  tax_include: boolean | null;
   line_amount_after_line_discount: number;
   discount_items: Array<OrderItemDiscountResponse>;
   discount_rate: number;

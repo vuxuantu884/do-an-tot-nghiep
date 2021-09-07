@@ -191,12 +191,6 @@ export default function Order() {
     billing_address: null,
     payments: [],
   };
-
-  // let initialForm: OrderRequest = {
-  //   ...initialRequest,
-  //   shipping_address: shippingAddress,
-  //   billing_address: billingAddress,
-  // };
   const [isLoadForm, setIsLoadForm] = useState(false);
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
@@ -451,7 +445,7 @@ export default function Order() {
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount =
       total_line_amount_after_line_discount;
-    if (values.customer_id === undefined || values.customer_id === null) {
+    if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
       element?.focus();
@@ -693,7 +687,6 @@ export default function Order() {
             }
             if (response) {
               let responseItems: any = [...response.items];
-              let newItems: OrderLineItemRequest[] = [];
               let newDatingShip = initialForm.dating_ship;
               let newShipperCode = initialForm.shipper_code;
               let new_shipping_fee_informed_to_customer =

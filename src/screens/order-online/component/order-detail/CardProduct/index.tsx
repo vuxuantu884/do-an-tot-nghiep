@@ -613,7 +613,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       discount_value: 0,
       line_amount_after_line_discount: price,
       product: variant.product.name,
-      tax_include: true,
+      // tax_include: true,
+      tax_include: null,
       tax_rate: taxRate,
       show_note: false,
       gifts: [],
@@ -1161,7 +1162,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Khách cần phải trả 1:</strong>
+              <strong className="font-size-text">Khách cần phải trả:</strong>
               <strong className="text-success font-size-price">
                 {changeMoney
                   ? formatCurrency(

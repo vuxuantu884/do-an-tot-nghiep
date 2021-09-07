@@ -218,7 +218,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                   className="change-shipping-address"
                 >
                   <Button type="link" className="btn-style">
-                    Thay đổi địa chỉ giao hàng 1
+                    Thay đổi địa chỉ giao hàng
                   </Button>
                 </Popover>
               </Row>
