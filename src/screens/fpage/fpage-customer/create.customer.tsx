@@ -76,7 +76,7 @@ const CustomerAdd = (props: any) => {
   const [status, setStatus] = React.useState<string>("active");
   const notes = customerDetail && customerDetail.notes;
   const customerId = customerDetail && customerDetail.id;
-
+  
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {

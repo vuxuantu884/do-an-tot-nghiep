@@ -46,19 +46,22 @@ import {
   CustomerResponse,
   ShippingAddress,
   shippingAddress,
-  billingAddress
+  billingAddress,
 } from "model/response/customer/customer.response";
 import {
   CustomerSearch,
   CreateShippingAddress,
   UpdateShippingAddress,
   CreateBillingAddress,
-  UpdateBillingAddress
+  UpdateBillingAddress,
 } from "domain/actions/customer/customer.action";
 import { RegUtil } from "utils/RegUtils";
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
-import { CustomerShippingAddress, CustomerBillingAddress } from "model/request/customer.request";
+import {
+  CustomerShippingAddress,
+  CustomerBillingAddress,
+} from "model/request/customer.request";
 //#end region
 
 type CustomerCardProps = {
@@ -110,9 +113,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
-  const [isVisibleShippingAddressPopover, setVisibleShippingAddressPopover] = useState(false);
+  const [isVisibleShippingAddressPopover, setVisibleShippingAddressPopover] =
+    useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(false);
-  const [isVisibleBillingAddressPopover, setVisibleBillingAddressPopover] = useState(false);
+  const [isVisibleBillingAddressPopover, setVisibleBillingAddressPopover] =
+    useState(false);
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [isShowModalShipping, setIsShowModalShipping] = React.useState(false);
   const [isShowModalBilling, setIsShowModalBilling] = React.useState(false);
@@ -126,7 +131,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
     useState<ShippingAddress | null>(null);
-  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
+  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(
+    null
+  );
   const autoCompleteRef = createRef<RefSelectProps>();
   //#region Modal
 
@@ -168,9 +175,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       props.InfoCustomerSet(customerDetail);
       //set Shipping Address
       if (customerDetail.shipping_addresses) {
+        const lastIndex = customerDetail.shipping_addresses.length -1;
+        setShippingAddress(customerDetail.shipping_addresses[lastIndex]);
         customerDetail.shipping_addresses.forEach((item, index2) => {
           if (item.default === true) {
-            setShippingAddress(item);
             props.ShippingAddressChange(item);
           }
         });
@@ -178,9 +186,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
       //set Billing Address
       if (customerDetail.billing_addresses) {
+        const lastIndex = customerDetail.billing_addresses.length - 1;
+        setBillingAddress(customerDetail.billing_addresses[lastIndex]);
         customerDetail.billing_addresses.forEach((item, index2) => {
           if (item.default === true) {
-            setBillingAddress(item);
+            
             props.BillingAddressChange(item);
           }
         });
@@ -429,7 +439,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             )
           );
       }
-    }
+    },
   };
 
   const handleBillingAddressDefault = (value: any, item: any) => {
@@ -688,13 +698,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       Địa chỉ giao hàng:
                     </div>
                     <Row className="customer-row-info">
+                      <span className="font-weight-500 pd-right">Họ tên:</span>
                       <span>{shippingAddress?.name}</span>
                     </Row>
                     <Row className="customer-row-info">
+                      <span className="font-weight-500 pd-right">Số ĐT:</span>
                       <span>{shippingAddress?.phone}</span>
                     </Row>
                     <Row className="customer-row-info">
-                      <span>{shippingAddress?.full_address}</span>
+                      <span className="font-weight-500 pd-right">Địa chỉ:</span>
+                      <span className="break-word">{shippingAddress?.full_address}</span>
                     </Row>
                     <Row>
                       <Popover
@@ -725,11 +738,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         content={
                           <div className="change-shipping-address-content">
                             {customer.shipping_addresses.map((item, index) => (
+                              <>
                               <div
                                 className="shipping-address-row"
                                 key={item.id}
                               >
-                                <div className="shipping-address-name">
+                                <div className="shipping-address-name word-underline">
                                   Địa chỉ {index + 1}{" "}
                                   <Button
                                     type="text"
@@ -743,19 +757,26 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                                   <Checkbox
                                     style={{ marginLeft: "auto" }}
                                     checked={item.default}
-                                    onClick={(value) => handleShippingAddressDefault(value, item)}
+                                    onClick={(value) =>
+                                      handleShippingAddressDefault(value, item)
+                                    }
                                   />
                                 </div>
                                 <div className="shipping-customer-name">
+                                <span className="font-weight-500 pd-right">Họ tên:</span>
                                   {item.name}
                                 </div>
                                 <div className="shipping-customer-mobile">
+                                <span className="font-weight-500 pd-right">Số ĐT:</span>
                                   {item.phone}
                                 </div>
-                                <div className="shipping-customer-address">
+                                <div className="shipping-customer-address break-word">
+                                <span className="font-weight-500 pd-right">Địa chỉ:</span>
                                   {item.full_address}
                                 </div>
                               </div>
+                              <Divider />
+                              </>
                             ))}
                           </div>
                         }
@@ -837,12 +858,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         Địa chỉ nhận hóa đơn:
                       </div>
                       <Row className="customer-row-info">
+                      <span className="font-weight-500 pd-right">Họ tên:</span>
                         <span>{billingAddress?.name}</span>
                       </Row>
                       <Row className="customer-row-info">
+                      <span className="font-weight-500 pd-right">Số ĐT:</span>
                         <span>{billingAddress?.phone}</span>
                       </Row>
                       <Row className="customer-row-info">
+                      <span className="font-weight-500 pd-right break-word">Địa chỉ:</span>
                         <span>{billingAddress?.full_address}</span>
                       </Row>
                       <Row>
@@ -873,41 +897,47 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           }
                           content={
                             <div className="change-shipping-address-content">
-                              {customer.billing_addresses.map(
-                                (item, index) => (
-                                  <div
-                                    className="shipping-address-row"
-                                    key={item.id}
-                                  >
-                                    <div className="shipping-address-name">
-                                      Địa chỉ {index + 1}{" "}
-                                      <Button
-                                        type="text"
-                                        onClick={() => {
-                                          editBillingAddress(item);
-                                        }}
-                                        className="p-0"
-                                      >
-                                        <img src={editBlueIcon} alt="" />
-                                      </Button>
-                                      <Checkbox
-                                        style={{ marginLeft: "auto" }}
-                                        checked={item.default}
-                                        onClick={(value) => handleBillingAddressDefault(value, item)}
-                                      />
-                                    </div>
-                                    <div className="shipping-customer-name">
-                                      {item.name}
-                                    </div>
-                                    <div className="shipping-customer-mobile">
-                                      {item.phone}
-                                    </div>
-                                    <div className="shipping-customer-address">
-                                      {item.full_address}
-                                    </div>
+                              {customer.billing_addresses.map((item, index) => (
+                                <>
+                                <div
+                                  className="shipping-address-row"
+                                  key={item.id}
+                                >
+                                  <div className="shipping-address-name word-underline">
+                                    Địa chỉ {index + 1}{" "}
+                                    <Button
+                                      type="text"
+                                      onClick={() => {
+                                        editBillingAddress(item);
+                                      }}
+                                      className="p-0"
+                                    >
+                                      <img src={editBlueIcon} alt="" />
+                                    </Button>
+                                    <Checkbox
+                                      style={{ marginLeft: "auto" }}
+                                      checked={item.default}
+                                      onClick={(value) =>
+                                        handleBillingAddressDefault(value, item)
+                                      }
+                                    />
                                   </div>
-                                )
-                              )}
+                                  <div className="shipping-customer-name">
+                                  <span className="font-weight-500 pd-right">Họ tên:</span>
+                                    {item.name}
+                                  </div>
+                                  <div className="shipping-customer-mobile">
+                                  <span className="font-weight-500 pd-right">Số ĐT:</span>
+                                    {item.phone}
+                                  </div>
+                                  <div className="shipping-customer-address">
+                                  <span className="font-weight-500 pd-right break-word">Địa chỉ:</span>
+                                    {item.full_address}
+                                  </div>
+                                </div>
+                                <Divider />
+                                </>
+                              ))}
                             </div>
                           }
                           trigger="click"
@@ -915,7 +945,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           visible={isVisibleBillingAddressPopover}
                           onVisibleChange={handleBillingAddressVisible}
                         >
-                          <Button type="link" style={{ padding: 0 }} onClick={openBillingAddressPopover}>
+                          <Button
+                            type="link"
+                            style={{ padding: 0 }}
+                            onClick={openBillingAddressPopover}
+                          >
                             Thay đổi địa chỉ nhận hóa đơn
                           </Button>
                         </Popover>

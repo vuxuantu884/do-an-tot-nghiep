@@ -73,25 +73,26 @@ const CustomerDetailIndex = () => {
     [querySearchOrder, setQuerySearchOrderFpage]
   );
   const [metaData, setMetaData] = React.useState<any>({});
-
+  const setOrderHistoryItems = React.useCallback(
+    (data: PageResponse<OrderModel> | false) => {
+      if (data) {
+        handlePaymentHistory(data);
+        setOrderHistory(data.items);
+        setMetaData(data.metadata);
+      }
+    },
+    []
+  );
   React.useEffect(() => {
     if (params?.id) {
       querySearchOrder.customer_ids = [params?.id];
       dispatch(getListOrderActionFpage(querySearchOrder, setOrderHistoryItems));
     }
-  }, [params, dispatch, querySearchOrder]);
+  }, [params, dispatch, querySearchOrder, setOrderHistoryItems]);
 
-  const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
-    if (data) {
-      handlePaymentHistory(data);
-      setOrderHistory(data.items);
-      setMetaData(data.metadata);
-    }
-  };
   function handlePaymentHistory(data: any) {
     let _details: any = [];
     const _orderSorted = data.items.sort((a: any, b: any) => {
-      // return  new Date(a.created_date).getTime() - new Date(b.created_date).getTime()
       return a.id - b.id;
     });
     const lastIndex = _orderSorted.length - 1;
@@ -229,7 +230,7 @@ const CustomerDetailIndex = () => {
 
   return (
     <ContentContainer
-      title=""
+      title="Thông tin chi tiết"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -243,8 +244,8 @@ const CustomerDetailIndex = () => {
           name: "Chi tiết khách hàng",
         },
         {
-          name: `${customer ? customer?.full_name : ""}`
-        }
+          name: `${customer ? customer?.full_name : ""}`,
+        },
       ]}
     >
       <Row gutter={24} className="customer-info-detail">
@@ -284,8 +285,8 @@ const CustomerDetailIndex = () => {
         </Col>
         <Col span={6}>
           <Card
-          className="customer-point-detail"
-           style={{height: "100%"}}
+            className="customer-point-detail"
+            style={{ height: "100%" }}
             title={
               <div className="d-flex">
                 <span className="title-card">THÔNG TIN TÍCH ĐIỂM</span>
