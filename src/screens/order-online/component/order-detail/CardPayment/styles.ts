@@ -31,4 +31,14 @@ export const StyledComponent = styled.div`
   .selectPaymentMethod {
     margin: 18px 0;
   }
+  .point-spending {
+    .ant-input-number {
+      margin-left: 10px;
+      border-radius: 5px;
+      width: 110px;
+    }
+  }
+  .row-price {
+    margin-bottom: 20px;
+  }
 `;

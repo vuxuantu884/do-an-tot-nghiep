@@ -250,7 +250,7 @@ const CardPayment: React.FC<CardPaymentProps> = (props: CardPaymentProps) => {
                 </Row>
               </Col>
               {method.code !== PaymentMethodCode.POINT ? (
-                <Col className="lbl-money" lg={9} xxl={6}>
+                <Col className="lbl-money" lg={9} xxl={3}>
                   <InputNumber
                     size="middle"
                     min={0}
@@ -265,7 +265,7 @@ const CardPayment: React.FC<CardPaymentProps> = (props: CardPaymentProps) => {
                   />
                 </Col>
               ) : (
-                <Col className="lbl-money" lg={9} xxl={6}>
+                <Col className="lbl-money" lg={9} xxl={3}>
                   <span>{formatCurrency(method.amount)}</span>
                 </Col>
               )}
@@ -354,10 +354,7 @@ const CardPayment: React.FC<CardPaymentProps> = (props: CardPaymentProps) => {
               )}
           </Form.Item>
 
-          <Row
-            gutter={24}
-            hidden={paymentMethod !== PaymentMethodOption.PREPAYMENT}
-          >
+          <div hidden={paymentMethod !== PaymentMethodOption.PREPAYMENT}>
             <div>
               <Collapse
                 className="orders-timeline"
@@ -371,7 +368,7 @@ const CardPayment: React.FC<CardPaymentProps> = (props: CardPaymentProps) => {
                   showArrow={false}
                 >
                   <Row gutter={24}>
-                    <Col lg={10} xxl={7} className="margin-top-bottom-10">
+                    <Col lg={10} xxl={9} className="margin-top-bottom-10">
                       <div>
                         <span>Tiền khách phải trả: </span>
                         <strong>{formatCurrency(amount)}</strong>
@@ -393,7 +390,7 @@ const CardPayment: React.FC<CardPaymentProps> = (props: CardPaymentProps) => {
                         <Col lg={14} xxl={9} className="row-large-title">
                           <b>Khách cần trả: 2</b>
                         </Col>
-                        <Col className="lbl-money" lg={9} xxl={6}>
+                        <Col className="lbl-money" lg={9} xxl={3}>
                           <span className="t-result-blue">
                             {formatCurrency(amount)}
                           </span>
@@ -404,7 +401,7 @@ const CardPayment: React.FC<CardPaymentProps> = (props: CardPaymentProps) => {
                         <Col lg={14} xxl={9}>
                           <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                         </Col>
-                        <Col className="lbl-money" lg={9} xxl={6}>
+                        <Col className="lbl-money" lg={9} xxl={3}>
                           <span style={{ color: false ? "blue" : "red" }}>
                             {formatCurrency(Math.abs(moneyReturn))}
                           </span>
@@ -415,7 +412,7 @@ const CardPayment: React.FC<CardPaymentProps> = (props: CardPaymentProps) => {
                 </Panel>
               </Collapse>
             </div>
-          </Row>
+          </div>
         </div>
       </Card>
     </StyledComponent>
