@@ -33,8 +33,8 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
   const onCheckedChange = useCallback(
     (index, e) => {
       if (index < 0 || index > columns.length - 1) return; // Ignores if outside designated area
-      const items = [...JSON.parse(JSON.stringify(columns))];
-      items[index].visible = e.target.checked;
+      const items = [...columns];
+      items[index] = {...items[index], visible: e.target.checked}
       setColumn(items);
     },
     [columns]
@@ -48,7 +48,10 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
       closable={false}
       visible={visible}
       onOk={() => onOk(columns)}
-      onCancel={onCancel}
+      onCancel={() => {
+        setColumn(data);
+        onCancel && onCancel();
+      }}
       okText="Lưu"
       cancelText="Huỷ"
     >
