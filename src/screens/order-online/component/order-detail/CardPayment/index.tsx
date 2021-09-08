@@ -46,11 +46,13 @@ type PaymentCardProps = {
   paymentMethod: number;
   amount: number;
   shipmentMethod: number;
+  isCloneOrder: boolean;
 };
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
-  const { paymentMethod, payments } = props;
+  const { paymentMethod, payments, isCloneOrder } = props;
   console.log("propsPaymentCard", props);
+  console.log("payments", payments);
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
@@ -82,7 +84,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
     paymentData[index].amount = point * PointConfig.VALUE;
     paymentData[index].paid_amount = point * PointConfig.VALUE;
     setPaymentData([...paymentData]);
-    props.setPayments([...paymentData]);
+    // props.setPayments([...paymentData]);
   };
 
   const totalAmountPaid = useMemo(() => {
@@ -157,17 +159,38 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (paymentMethod === 2) {
+    if (isCloneOrder && paymentMethod === 2) {
       handlePickPaymentMethod(PaymentMethodCode.CASH);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentMethod]);
 
   useEffect(() => {
-    if (payments) {
-      setPaymentData(payments);
+    if (isCloneOrder && payments && payments.length > 0) {
+      const paymentsFormatted: OrderPaymentRequest[] = payments.map(
+        (single) => {
+          return {
+            amount: single.amount,
+            code: single.payment_method.toLowerCase(),
+            customer_id: single.customer_id,
+            name: single.payment_method,
+            note: single.note,
+            paid_amount: single.paid_amount,
+            payment_method: single.payment_method,
+            payment_method_id: single.payment_method_id,
+            reference: single.reference,
+            return_amount: single.return_amount,
+            source: single.source,
+            status: single.status,
+            type: single.type,
+          };
+        }
+      );
+      console.log("payments", payments);
+      console.log("paymentsFormatted", paymentsFormatted);
+      setPaymentData(paymentsFormatted);
     }
-  }, [payments]);
+  }, [isCloneOrder, payments]);
 
   return (
     <Card
@@ -260,7 +283,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                 key="1"
                 showArrow={false}
               >
-                <div style={{ width: "900px", maxWidth: "100%" }}>
+                <div style={{ width: "1200px", maxWidth: "100%" }}>
                   <Row gutter={24}>
                     <Col lg={10} xxl={7} className="margin-top-bottom-10">
                       <div>
@@ -337,7 +360,10 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                 style={{ display: "flex", padding: 10 }}
                                 type={
                                   paymentData.some(
-                                    (p) => p.code === method.code
+                                    (p) =>
+                                      p.code === method.code ||
+                                      p.payment_method.toLowerCase() ===
+                                        method.code.toLowerCase()
                                   )
                                     ? "primary"
                                     : "default"
@@ -369,7 +395,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                           className="row-large-title"
                           style={{ padding: "8px 0", marginLeft: 2 }}
                         >
-                          <b>Khách cần trả:</b>
+                          <b>Khách cần trả 1:</b>
                         </Col>
                         <Col
                           className="lbl-money"
@@ -387,6 +413,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         </Col>
                       </Row>
                       {paymentData.map((method, index) => {
+                        console.log("paymentData", paymentData);
+                        console.log("method", method);
                         return (
                           <Row
                             gutter={20}
@@ -397,7 +425,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                             <Col lg={14} xxl={9} style={{ padding: "0" }}>
                               <Row align="middle">
                                 <b style={{ padding: "8px 0" }}>
-                                  {method.name}:
+                                  {method.name}: 33333
                                 </b>
                                 {method.code === PaymentMethodCode.POINT ? (
                                   <Col className="point-spending">
@@ -411,7 +439,12 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                                       (1 điểm = 1,000₫)
                                     </span>
                                     <InputNumber
-                                      value={method.point}
+                                      value={
+                                        // method.point
+                                        isCloneOrder
+                                          ? method.amount / 1000
+                                          : method.point
+                                      }
                                       style={{
                                         width: 110,
                                         marginLeft: 12,

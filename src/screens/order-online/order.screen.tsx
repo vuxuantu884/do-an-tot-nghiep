@@ -26,6 +26,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  FulFillmentResponse,
   // OrderLineItemResponse,
   OrderResponse,
   StoreCustomResponse,
@@ -52,7 +53,7 @@ import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 import CardPayment from "./component/order-detail/CardPayment";
 import CardProduct from "./component/order-detail/CardProduct";
-import ShipmentCard from "./component/order-detail/CardShipment";
+import CardShipment from "./component/order-detail/CardShipment";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 
@@ -87,6 +88,10 @@ export default function Order() {
   >(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
+  console.log("payments", payments);
+  const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>(
+    []
+  );
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
@@ -573,7 +578,7 @@ export default function Order() {
                     items={items}
                     handleCardItems={handleCardItems}
                   />
-                  <ShipmentCard
+                  <CardShipment
                     setShipmentMethodProps={onShipmentSelect}
                     shipmentMethod={shipmentMethod}
                     storeDetail={storeDetail}
@@ -596,6 +601,8 @@ export default function Order() {
                     setFeeGhtk={setFeeGhtk}
                     payments={payments}
                     onPayments={onPayments}
+                    fulfillments={fulfillments}
+                    isCloneOrder={isCloneOrder}
                   />
                   <CardPayment
                     setSelectedPaymentMethod={changePaymentMethod}
@@ -608,6 +615,7 @@ export default function Order() {
                       (shippingFeeCustomer ? shippingFeeCustomer : 0) -
                       discountValue
                     }
+                    isCloneOrder={isCloneOrder}
                   />
                 </Col>
                 <Col md={6}>
@@ -742,11 +750,17 @@ export default function Order() {
                   case ShipmentMethod.SHIPPER:
                     newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
                     break;
-
+                  case ShipmentMethod.EXTERNAL_SERVICE:
+                    newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
+                    break;
                   default:
                     break;
                 }
                 setShipmentMethod(newShipmentMethod);
+                setFulfillments(response.fulfillments);
+                if (response.store_id) {
+                  setStoreId(response.store_id);
+                }
               }
             }
             setIsLoadForm(true);

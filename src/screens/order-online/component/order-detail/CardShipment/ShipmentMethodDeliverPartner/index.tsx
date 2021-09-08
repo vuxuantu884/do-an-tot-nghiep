@@ -3,6 +3,7 @@ import NumberInput from "component/custom/number-input.custom";
 import { OrderPaymentRequest } from "model/request/order.request";
 import {
   DeliveryServiceResponse,
+  FulFillmentResponse,
   GHNFeeResponse,
   OrderResponse,
   ShippingGHTKResponse,
@@ -24,6 +25,7 @@ type PropType = {
   infoGHN: GHNFeeResponse | null;
   infoVTP: VTPFeeResponse[];
   changeServiceType: (id: number, code: string, item: any, fee: number) => void;
+  fulfillments: FulFillmentResponse[];
 };
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
@@ -38,7 +40,10 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     infoGHN,
     infoVTP,
     changeServiceType,
+    fulfillments,
   } = props;
+
+  console.log("propsShipmentmethod", props);
 
   const totalAmountPaid = () => {
     let total = 0;
@@ -128,6 +133,11 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       name="tt"
                                       className="radio-delivery"
                                       value="standard"
+                                      checked={
+                                        fulfillments[0]?.shipment
+                                          ?.shipping_fee_paid_to_three_pls ===
+                                        infoGHTK[0]?.fee
+                                      }
                                       onChange={(e) =>
                                         changeServiceType(
                                           single.id,
@@ -149,6 +159,11 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       name="tt"
                                       className="radio-delivery"
                                       value="express"
+                                      checked={
+                                        fulfillments[0]?.shipment
+                                          ?.shipping_fee_paid_to_three_pls ===
+                                        infoGHTK[1]?.fee
+                                      }
                                       onChange={(e) =>
                                         changeServiceType(
                                           single.id,
@@ -172,11 +187,18 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                     name="tt"
                                     className="radio-delivery"
                                     value={`${single.code}_standard`}
+                                    checked={
+                                      // tai sao lai la 20k
+                                      fulfillments[0]?.shipment
+                                        ?.shipping_fee_paid_to_three_pls ===
+                                      20000
+                                    }
                                     onChange={(e) =>
                                       changeServiceType(
                                         single.id,
                                         single.code,
                                         "standard",
+                                        // tai sao lai la 20k
                                         20000
                                       )
                                     }
@@ -193,13 +215,19 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       name="tt"
                                       className="radio-delivery"
                                       value="standard"
+                                      checked={
+                                        fulfillments[0]?.shipment
+                                          ?.shipping_fee_paid_to_three_pls ===
+                                        infoGHTK[1]?.fee
+                                      }
                                       onChange={(e) =>
                                         changeServiceType(
                                           single.id,
                                           single.code,
                                           "standard",
                                           infoGHTK.length > 1
-                                            ? infoGHTK[0].fee
+                                            ? // tai sao la ghtk ma ko phai vtp
+                                              infoGHTK[0].fee
                                             : 0
                                         )
                                       }
@@ -213,6 +241,11 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       name="tt"
                                       className="radio-delivery"
                                       value="express"
+                                      checked={
+                                        fulfillments[0]?.shipment
+                                          ?.shipping_fee_paid_to_three_pls ===
+                                        infoGHTK[1]?.fee
+                                      }
                                       onChange={(e) =>
                                         changeServiceType(
                                           single.id,
@@ -233,6 +266,11 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       name="tt"
                                       className="radio-delivery"
                                       value="express"
+                                      checked={
+                                        fulfillments[0]?.shipment
+                                          ?.shipping_fee_paid_to_three_pls ===
+                                        infoGHTK[1]?.fee
+                                      }
                                       onChange={(e) =>
                                         changeServiceType(
                                           single.id,
@@ -256,6 +294,11 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                     name="tt"
                                     className="radio-delivery"
                                     value={`${single.code}_standard`}
+                                    checked={
+                                      fulfillments[0]?.shipment
+                                        ?.shipping_fee_paid_to_three_pls ===
+                                      20000
+                                    }
                                     onChange={(e) =>
                                       changeServiceType(
                                         single.id,

@@ -32,6 +32,7 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
+  FulFillmentResponse,
   GHNFeeResponse,
   OrderResponse,
   ShippingGHTKResponse,
@@ -39,7 +40,12 @@ import {
   VTPFeeResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { useCallback, useLayoutEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getShippingAddressDefault, SumWeight } from "utils/AppUtils";
 import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
@@ -48,7 +54,7 @@ import ShipmentMethodReceiveAtHome from "./ShipmentMethodReceiveAtHome";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
 import { StyledComponent } from "./styles";
 
-type ShipmentCardProps = {
+type CardShipmentProps = {
   shipmentMethod: number;
   setShipmentMethodProps: (value: number) => void;
   setShippingFeeInformedCustomer: (value: number | null) => void;
@@ -70,10 +76,12 @@ type ShipmentCardProps = {
   OrderDetail?: OrderResponse | null;
   payments?: OrderPaymentRequest[];
   onPayments: (value: Array<OrderPaymentRequest>) => void;
+  fulfillments: FulFillmentResponse[];
+  isCloneOrder: boolean;
 };
 
-const ShipmentCard: React.FC<ShipmentCardProps> = (
-  props: ShipmentCardProps
+const CardShipment: React.FC<CardShipmentProps> = (
+  props: CardShipmentProps
 ) => {
   const {
     OrderDetail,
@@ -95,6 +103,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     shipmentMethod,
     payments,
     onPayments,
+    fulfillments,
+    isCloneOrder,
   } = props;
   console.log("props", props);
   const dispatch = useDispatch();
@@ -104,9 +114,8 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   const [infoVTP, setInfoVTP] = useState<Array<VTPFeeResponse>>([]);
   const [deliveryServices, setDeliveryServices] =
     useState<Array<DeliveryServiceResponse> | null>(null);
-  const [shipmentMethodState, setShipmentMethod] = useState<number>(4);
   const ShipMethodOnChange = (value: number) => {
-    setShipmentMethod(value);
+    setShipmentMethodProps(value);
     setPaymentMethod(value);
     setShipmentMethodProps(value);
     if (paymentMethod !== PaymentMethodOption.PREPAYMENT) {
@@ -159,7 +168,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
       value: amount,
       transport: "",
     };
-
+    console.log("request", request);
     if (
       request.pick_address &&
       request.pick_district &&
@@ -354,6 +363,21 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
     },
   ];
 
+  useEffect(() => {
+    console.log("storeDetail", storeDetail);
+    if (isCloneOrder) {
+      getInfoDeliveryGHTK();
+      getInfoDeliveryGHN();
+      getInfoDeliveryVTP();
+    }
+  }, [
+    getInfoDeliveryGHN,
+    getInfoDeliveryGHTK,
+    getInfoDeliveryVTP,
+    isCloneOrder,
+    storeDetail,
+  ]);
+
   const renderShipmentTabHeader = () => {
     return (
       <React.Fragment>
@@ -473,7 +497,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
             </div>
           </Row>
           {/*--- Chuyển hãng vận chuyển ----*/}
-          {shipmentMethodState === ShipmentMethodOption.DELIVER_PARTNER && (
+          {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
             <ShipmentMethodDeliverPartner
               amount={amount}
               changeServiceType={changeServiceType}
@@ -486,6 +510,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
               shippingFeeCustomer={shippingFeeCustomer}
               OrderDetail={OrderDetail}
               payments={payments}
+              fulfillments={fulfillments}
             />
           )}
 
@@ -501,7 +526,7 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
           )}
 
           {/*--- Nhận tại cửa hàng ----*/}
-          {shipmentMethodState === ShipmentMethodOption.PICK_AT_STORE && (
+          {shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
             <ShipmentMethodReceiveAtHome storeDetail={storeDetail} />
           )}
         </div>
@@ -510,4 +535,4 @@ const ShipmentCard: React.FC<ShipmentCardProps> = (
   );
 };
 
-export default ShipmentCard;
+export default CardShipment;
