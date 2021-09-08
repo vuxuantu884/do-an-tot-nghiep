@@ -1120,6 +1120,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
                     <Item name="delivery_types">
                       <Select
+                        mode="multiple"
                         optionFilterProp="children" showSearch
                         notFoundContent="Không tìm thấy kết quả" mode="multiple"
                         placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}

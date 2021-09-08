@@ -1021,6 +1021,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
                     <Item name="ship_by">
                       <Select
+                        mode="multiple"
                         optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
                         placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
                         getPopupContainer={trigger => trigger.parentNode}
