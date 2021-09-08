@@ -45,10 +45,20 @@ import {
   CustomerResponse,
   ShippingAddress,
 } from "model/response/customer/customer.response";
-import { CustomerSearch } from "domain/actions/customer/customer.action";
+import {
+  CustomerGroups,
+  CustomerSearch,
+} from "domain/actions/customer/customer.action";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { CustomerSearchQuery } from "model/query/customer.query";
+import { WardResponse } from "model/content/ward.model";
+import {
+  DistrictGetByCountryAction,
+  WardGetByDistrictAction,
+} from "domain/actions/content/content.action";
+import { modalActionType } from "model/modal/modal.model";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 //#end region
 
 type CustomerCardProps = {
@@ -88,6 +98,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
+
+  const [countryId] = React.useState<number>(233);
+  const [areas, setAreas] = React.useState<Array<any>>([]);
+  const [districtId, setDistrictId] = React.useState<any>(null);
+  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
+  const [groups, setGroups] = React.useState<Array<any>>([]);
+
+  const [modalAction, setModalAction] = useState<modalActionType>("create");
+
   console.log("customer", customer);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
@@ -110,19 +129,19 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleAddress(false);
   }, []);
 
-  const ShowCustomerModal = () => {
+  const OkConfirmCustomerCreate = () => {
+    setModalAction("create");
+    setCustomer(null);
     setVisibleCustomer(true);
   };
-
+  const OkConfirmCustomerEdit = () => {
+    setModalAction("edit");
+    setVisibleCustomer(true);
+  };
   const CancelConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
 
-  const OkConfirmCustomer = useCallback(() => {
-    setVisibleCustomer(false);
-  }, []);
-
-  
   //#end region
 
   //#region Search and Render result
@@ -131,7 +150,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     (value) => {
       console.log("value", value);
       setKeySearchCustomer(value);
-      initQueryCustomer.request = value;
+      initQueryCustomer.request = value.trim();
       dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
     },
     [dispatch, initQueryCustomer]
@@ -218,6 +237,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         }
         autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
+        setDistrictId(resultSearch[index].district_id);
       }
     },
     [autoCompleteRef, dispatch, resultSearch, customer]
@@ -239,6 +259,33 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       }
     }
   }, [parentCustomerDetail]);
+
+  useEffect(() => {
+    dispatch(DistrictGetByCountryAction(countryId, setAreas));
+  }, [dispatch, countryId]);
+
+  useEffect(() => {
+    if (districtId) {
+      dispatch(WardGetByDistrictAction(districtId, setWards));
+      console.log(districtId);
+    }
+  }, [dispatch, districtId]);
+
+  useEffect(() => {
+    dispatch(CustomerGroups(setGroups));
+  }, [dispatch]);
+
+  const handleChangeArea = (districtId: string) => {
+    if (districtId) {
+      setDistrictId(districtId);
+    }
+  };
+
+  const handleChangeCustomer = (customers: any) => {
+    if (customers) {
+      setCustomer(customers);
+    }
+  };
 
   return (
     <Card
@@ -318,26 +365,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               onSearch={CustomerChangeSearch}
               options={CustomerConvertResultSearch}
               dropdownRender={(menu) => (
-                <div>
-                  <div
-                    className="row-search w-100"
-                    style={{ minHeight: "42px", lineHeight: "50px" }}
+                <div className="dropdown-custom">
+                  <Button
+                    icon={<AiOutlinePlusCircle size={24} />}
+                    className="dropdown-custom-add-new"
+                    type="link"
+                    onClick={() => OkConfirmCustomerCreate()}
                   >
-                    <div className="rs-left w-100">
-                      <div style={{ float: "left", marginLeft: "20px" }}>
-                        <img src={addIcon} alt="" />
-                      </div>
-                      <div className="rs-info w-100">
-                        <span
-                          className="text"
-                          style={{ marginLeft: "23px", lineHeight: "18px" }}
-                        >
-                          Thêm mới khách hàng
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <Divider style={{ margin: "4px 0" }} />
+                    Thêm mới khách hàng
+                  </Button>
                   {menu}
                 </div>
               )}
@@ -360,7 +396,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             >
               <Space>
                 <Avatar size={32}>A</Avatar>
-                <Link to="#" className="primary" style={{ fontSize: "16px" }}>
+                <Link
+                  to="#"
+                  className="primary"
+                  style={{ fontSize: "16px" }}
+                  onClick={OkConfirmCustomerEdit}
+                >
                   {customer.full_name}
                 </Link>{" "}
                 <CloseOutlined
@@ -413,7 +454,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 <Button
                   type="text"
                   className="p-0 ant-btn-custom"
-                  onClick={ShowCustomerModal}
+                  onClick={OkConfirmCustomerEdit}
                 >
                   <img
                     src={editBlueIcon}
@@ -709,9 +750,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         onOk={OkConfirmAddress}
       />
       <EditCustomerModal
+        areas={areas}
+        wards={wards}
+        groups={groups}
+        formItem={customer}
+        modalAction={modalAction}
         visible={isVisibleCustomer}
+        districtId={districtId}
+        handleChangeArea={handleChangeArea}
+        handleChangeCustomer={handleChangeCustomer}
         onCancel={CancelConfirmCustomer}
-        onOk={OkConfirmCustomer}
       />
     </Card>
   );
