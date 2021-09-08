@@ -9,7 +9,7 @@ import {
   ShippingGHTKResponse,
   VTPFeeResponse,
 } from "model/response/order/order.response";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -26,6 +26,7 @@ type PropType = {
   infoVTP: VTPFeeResponse[];
   changeServiceType: (id: number, code: string, item: any, fee: number) => void;
   fulfillments: FulFillmentResponse[];
+  isCloneOrder?: boolean;
 };
 function ShipmentMethodDeliverPartner(props: PropType) {
   const {
@@ -41,9 +42,12 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     infoVTP,
     changeServiceType,
     fulfillments,
+    isCloneOrder,
   } = props;
 
   console.log("propsShipmentmethod", props);
+
+  const [selectedShipmentMethod, setSelectedShipmentMethod] = useState("");
 
   const totalAmountPaid = () => {
     let total = 0;
@@ -52,6 +56,28 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     }
     return total;
   };
+
+  useEffect(() => {
+    if (isCloneOrder) {
+      console.log(
+        "fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls",
+        fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls
+      );
+      console.log("infoGHTK[0]?.fee", infoGHTK[0]?.fee);
+      switch (fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls) {
+        case infoGHTK[0]?.fee:
+          console.log("333333333333333333333333333333333");
+          setSelectedShipmentMethod("standard");
+          break;
+        case infoGHTK[1]?.fee:
+          setSelectedShipmentMethod("express");
+          break;
+        default:
+          break;
+      }
+    }
+  }, [fulfillments, infoGHTK, isCloneOrder]);
+
   return (
     <StyledComponent>
       <div className="shipmentMethod__deliverPartner">
@@ -134,11 +160,15 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       className="radio-delivery"
                                       value="standard"
                                       checked={
-                                        fulfillments[0]?.shipment
-                                          ?.shipping_fee_paid_to_three_pls ===
-                                        infoGHTK[0]?.fee
+                                        selectedShipmentMethod === "standard"
                                       }
-                                      onChange={(e) =>
+                                      // checked={
+                                      //   fulfillments[0]?.shipment
+                                      //     ?.shipping_fee_paid_to_three_pls ===
+                                      //   infoGHTK[0]?.fee
+                                      // }
+                                      onChange={(e) => {
+                                        setSelectedShipmentMethod("standard");
                                         changeServiceType(
                                           single.id,
                                           single.code,
@@ -146,8 +176,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                           infoGHTK.length > 1
                                             ? infoGHTK[0].fee
                                             : 0
-                                        )
-                                      }
+                                        );
+                                      }}
                                     />
                                     <span className="checkmark"></span>
                                     Đường bộ
@@ -159,12 +189,16 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       name="tt"
                                       className="radio-delivery"
                                       value="express"
+                                      // checked={
+                                      //   fulfillments[0]?.shipment
+                                      //     ?.shipping_fee_paid_to_three_pls ===
+                                      //   infoGHTK[1]?.fee
+                                      // }
                                       checked={
-                                        fulfillments[0]?.shipment
-                                          ?.shipping_fee_paid_to_three_pls ===
-                                        infoGHTK[1]?.fee
+                                        selectedShipmentMethod === "express"
                                       }
-                                      onChange={(e) =>
+                                      onChange={(e) => {
+                                        setSelectedShipmentMethod("express");
                                         changeServiceType(
                                           single.id,
                                           single.code,
@@ -172,8 +206,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                           infoGHTK.length > 1
                                             ? infoGHTK[1].fee
                                             : 0
-                                        )
-                                      }
+                                        );
+                                      }}
                                     />
                                     <span className="checkmark"></span>
                                     Đường bay
@@ -187,21 +221,28 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                     name="tt"
                                     className="radio-delivery"
                                     value={`${single.code}_standard`}
+                                    // checked={
+                                    //   // tai sao lai la 20k
+                                    //   fulfillments[0]?.shipment
+                                    //     ?.shipping_fee_paid_to_three_pls ===
+                                    //   20000
+                                    // }
                                     checked={
-                                      // tai sao lai la 20k
-                                      fulfillments[0]?.shipment
-                                        ?.shipping_fee_paid_to_three_pls ===
-                                      20000
+                                      selectedShipmentMethod ===
+                                      `${single.code}_standard`
                                     }
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                      setSelectedShipmentMethod(
+                                        `${single.code}_standard`
+                                      );
                                       changeServiceType(
                                         single.id,
                                         single.code,
                                         "standard",
                                         // tai sao lai la 20k
                                         20000
-                                      )
-                                    }
+                                      );
+                                    }}
                                   />
                                   <span className="checkmark"></span>
                                   Chuyển phát nhanh PDE
@@ -214,23 +255,31 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       type="radio"
                                       name="tt"
                                       className="radio-delivery"
-                                      value="standard"
+                                      value="vtp_standard"
+                                      // checked={
+                                      //   fulfillments[0]?.shipment
+                                      //     ?.shipping_fee_paid_to_three_pls ===
+                                      //   infoGHTK[1]?.fee
+                                      // }
                                       checked={
-                                        fulfillments[0]?.shipment
-                                          ?.shipping_fee_paid_to_three_pls ===
-                                        infoGHTK[1]?.fee
+                                        selectedShipmentMethod ===
+                                        "vtp_standard"
                                       }
-                                      onChange={(e) =>
+                                      onChange={(e) => {
+                                        setSelectedShipmentMethod(
+                                          "vtp_standard"
+                                        );
                                         changeServiceType(
                                           single.id,
                                           single.code,
-                                          "standard",
+                                          // "standard",
+                                          "vtp_standard",
                                           infoGHTK.length > 1
                                             ? // tai sao la ghtk ma ko phai vtp
                                               infoGHTK[0].fee
                                             : 0
-                                        )
-                                      }
+                                        );
+                                      }}
                                     />
                                     <span className="checkmark"></span>2 giờ
                                   </label>
@@ -240,22 +289,27 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       type="radio"
                                       name="tt"
                                       className="radio-delivery"
-                                      value="express"
-                                      checked={
-                                        fulfillments[0]?.shipment
-                                          ?.shipping_fee_paid_to_three_pls ===
-                                        infoGHTK[1]?.fee
-                                      }
-                                      onChange={(e) =>
+                                      // value="express"
+                                      value="vtp_express"
+                                      // checked={
+                                      //   fulfillments[0]?.shipment
+                                      //     ?.shipping_fee_paid_to_three_pls ===
+                                      //   infoGHTK[1]?.fee
+                                      // }
+                                      onChange={(e) => {
+                                        setSelectedShipmentMethod(
+                                          "vtp_standard"
+                                        );
                                         changeServiceType(
                                           single.id,
                                           single.code,
-                                          "express",
+                                          // "express",
+                                          "vtp_express",
                                           infoGHTK.length > 1
                                             ? infoGHTK[1].fee
                                             : 0
-                                        )
-                                      }
+                                        );
+                                      }}
                                     />
                                     <span className="checkmark"></span>6 giờ
                                   </label>
@@ -266,12 +320,15 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       name="tt"
                                       className="radio-delivery"
                                       value="express"
-                                      checked={
-                                        fulfillments[0]?.shipment
-                                          ?.shipping_fee_paid_to_three_pls ===
-                                        infoGHTK[1]?.fee
-                                      }
-                                      onChange={(e) =>
+                                      // checked={
+                                      //   fulfillments[0]?.shipment
+                                      //     ?.shipping_fee_paid_to_three_pls ===
+                                      //   infoGHTK[1]?.fee
+                                      // }
+                                      onChange={(e) => {
+                                        setSelectedShipmentMethod(
+                                          "vtp_standard"
+                                        );
                                         changeServiceType(
                                           single.id,
                                           single.code,
@@ -279,8 +336,8 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                           infoGHTK.length > 1
                                             ? infoGHTK[1].fee
                                             : 0
-                                        )
-                                      }
+                                        );
+                                      }}
                                     />
                                     <span className="checkmark"></span>
                                     12 giờ
@@ -294,19 +351,22 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                     name="tt"
                                     className="radio-delivery"
                                     value={`${single.code}_standard`}
-                                    checked={
-                                      fulfillments[0]?.shipment
-                                        ?.shipping_fee_paid_to_three_pls ===
-                                      20000
-                                    }
-                                    onChange={(e) =>
+                                    // checked={
+                                    //   fulfillments[0]?.shipment
+                                    //     ?.shipping_fee_paid_to_three_pls ===
+                                    //   20000
+                                    // }
+                                    onChange={(e) => {
+                                      setSelectedShipmentMethod(
+                                        `${single.code}_standard`
+                                      );
                                       changeServiceType(
                                         single.id,
                                         single.code,
                                         "standard",
                                         20000
-                                      )
-                                    }
+                                      );
+                                    }}
                                   />
                                   <span className="checkmark"></span>
                                   Chuyển phát nhanh PDE

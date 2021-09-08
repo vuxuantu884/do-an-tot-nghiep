@@ -511,6 +511,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
               OrderDetail={OrderDetail}
               payments={payments}
               fulfillments={fulfillments}
+              isCloneOrder={isCloneOrder}
             />
           )}
 
