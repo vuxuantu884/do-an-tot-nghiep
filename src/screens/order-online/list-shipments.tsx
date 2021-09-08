@@ -34,6 +34,8 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { OrderProcessingStatusModel, OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
+import { searchVariantsOrderRequestAction, searchVariantsRequestAction } from "domain/actions/product/products.action";
+import { VariantResponse } from "model/product/product.model";
 
 const actions: Array<MenuAction> = [
   {
@@ -84,10 +86,6 @@ const initQuery: ShipmentSearchQuery = {
   cancel_reason: [],
 };
 
-const initAccountQuery: AccountSearchQuery = {
-  department_ids: [4],
-};
-
 const ListOrderScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
@@ -111,6 +109,7 @@ const ListOrderScreen: React.FC = () => {
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
+  
   const [data, setData] = useState<PageResponse<ShipmentModel>>({
     metadata: {
       limit: 30,
@@ -442,14 +441,14 @@ const ListOrderScreen: React.FC = () => {
   
   return (
     <ContentContainer
-      title="Quản lý đơn hàng"
+      title="Danh sách đơn giao hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
          path: UrlConfig.HOME,
         },
         {
-          name: "Danh sách đơn hàng",
+          name: "Danh sách đơn giao hàng",
         },
       ]}
       extra={

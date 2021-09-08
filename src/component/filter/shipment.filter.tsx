@@ -25,6 +25,8 @@ import { ShipmentSearchQuery } from "model/order/shipment.model";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
+import DebounceSelect from "./component/debounce-select";
+import { searchVariantsApi } from "service/product/product.service";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
@@ -42,6 +44,36 @@ type OrderFilterProps = {
 
 const { Item } = Form;
 const { Option } = Select;
+
+async function searchVariants(input: any) {
+  try {
+    const result = await searchVariantsApi({info: input})
+    console.log('result', result.data.items);
+    return result.data.items.map(item => {
+      return {
+        label: item.name,
+        value: item.id
+      }
+    })
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function getVariant(input: any) {
+  try {
+    const result = await searchVariantsApi({info: input})
+    console.log('result', result.data.items);
+    return result.data.items.map(item => {
+      return {
+        label: item.name,
+        value: item.id
+      }
+    })
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 const OrderFilter: React.FC<OrderFilterProps> = (
   props: OrderFilterProps
@@ -561,8 +593,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   [accounts, deliveryService, initialValues, listSources, listStore]
   );
 
-  
-
   useLayoutEffect(() => {
     if (visible) {
       formRef.current?.resetFields();
@@ -587,7 +617,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Item name="search_term" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
-                placeholder="Tìm kiếm theo mã đơn giao, mã đơn hàng, sđt người nhận"
+                placeholder="Tìm kiếm theo mã đơn giao, mã đơn hàng, tên người nhận, sđt người nhận"
                 onBlur={(e) => {
                   formSearchRef?.current?.setFieldsValue({
                     search_term: e.target.value.trim()
@@ -643,6 +673,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                           width: '100%'
                         }}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {listStore?.map((item) => (
                           <CustomSelect.Option key={item.id} value={item.id.toString()}>
@@ -668,6 +699,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         placeholder="Nguồn đơn hàng"
                         notFoundContent="Không tìm thấy kết quả"
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {listSources.map((item, index) => (
                           <CustomSelect.Option
@@ -825,7 +857,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.delivery_service_provider_ids.length ? ["1"]: []}>
                   <Panel header="ĐỐI TÁC GIAO HÀNG" key="1" className="header-filter">
                     <Item name="delivery_service_provider_ids">
-                    <Select mode="multiple" showSearch placeholder="Chọn đối tác giao hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
+                    <Select
+                      mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
+                      notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                      getPopupContainer={trigger => trigger.parentNode}
+                    >
                       {deliveryService?.map((item) => (
                         <Option key={item.id} value={item.id}>
                           {item.name}
@@ -843,7 +879,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.print_status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI IN" key="1" className="header-filter">
                     <Item name="print_status">
-                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái in" notFoundContent="Không tìm thấy kết quả" optionFilterProp="children" style={{width: '100%'}}>
+                      <Select
+                        mode="multiple" showSearch placeholder="Chọn trạng thái in"
+                        notFoundContent="Không tìm thấy kết quả"
+                        optionFilterProp="children" style={{width: '100%'}}
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
                           
                       </Select>
                     </Item>
@@ -856,7 +897,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1" className="header-filter">
                     <Item name="assignees">
-                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" notFoundContent="Không tìm thấy kết quả" optionFilterProp="children" style={{width: '100%'}}>
+                      <Select
+                        mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
+                        notFoundContent="Không tìm thấy kết quả"
+                        optionFilterProp="children" style={{width: '100%'}}
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
                         {accounts.map((item, index) => (
                           <Option
                             style={{ width: "100%" }}
@@ -888,17 +934,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.variant_ids.length ? ["1"]: []}>
                   <Panel header="SẢN PHẦM" key="1" className="header-filter">
                     <Item name="variant_ids">
-                    <Select mode="multiple" optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả" placeholder="Chọn sản phẩm" style={{width: '100%'}}>
-                      {/* {paymentType.map((item, index) => (
-                        <Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.value.toString()}
-                        >
-                          {item.name}
-                        </Option>
-                      ))} */}
-                    </Select>
+                      <DebounceSelect
+                        mode="multiple"
+                        placeholder="Select users"
+                        fetchOptions={searchVariants}
+                        style={{
+                          width: '100%',
+                        }}
+                      />
                     </Item>
                   </Panel>
                 </Collapse>
@@ -909,9 +952,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.status ? ["1"]: []}>
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
                     <Item name="ship_by">
-                      <Select optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả" placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
-                        <Option value="">Hình thức vận chuyển</Option>
-                        
+                      <Select
+                        optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
+                        placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
                       </Select>
                     </Item>
                   </Panel>
