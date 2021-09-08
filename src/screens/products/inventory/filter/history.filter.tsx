@@ -129,6 +129,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
             form={formBaseFilter}
             name={`baseHistory`}
             layout="inline"
+            
           >
             <Item
               name={HistoryInventoryQueryField.condition}
@@ -140,7 +141,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                 placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
               />
             </Item>
-            <Item name={HistoryInventoryQueryField.store_id} className="store">
+            <Item name={HistoryInventoryQueryField.store_ids} className="store">
               <CustomSelect
                 showSearch
                 optionFilterProp="children"
@@ -151,6 +152,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                 style={{
                   width: "100%",
                 }}
+                mode="multiple"
                 notFoundContent="Không tìm thấy kết quả"
                 maxTagCount="responsive"
               >
