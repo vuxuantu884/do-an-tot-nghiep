@@ -45,7 +45,7 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     isCloneOrder,
   } = props;
 
-  console.log("propsShipmentmethod", props);
+  // console.log("propsShipmentmethod", props);
 
   const [selectedShipmentMethod, setSelectedShipmentMethod] = useState("");
 
@@ -59,11 +59,11 @@ function ShipmentMethodDeliverPartner(props: PropType) {
 
   useEffect(() => {
     if (isCloneOrder) {
-      console.log(
-        "fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls",
-        fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls
-      );
-      console.log("infoGHTK[0]?.fee", infoGHTK[0]?.fee);
+      // console.log(
+      //   "fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls",
+      //   fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls
+      // );
+      // console.log("infoGHTK[0]?.fee", infoGHTK[0]?.fee);
       switch (fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls) {
         case infoGHTK[0]?.fee:
           console.log("333333333333333333333333333333333");

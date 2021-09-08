@@ -88,6 +88,7 @@ type CardProductProps = {
   onChangeProduct: (value: string) => void;
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (items: Array<OrderLineItemRequest>) => void;
+  isCloneOrder?: boolean;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -96,7 +97,8 @@ const initQueryVariant: VariantSearchQuery = {
 };
 
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
-  const { orderSettings, formRef, items, handleCardItems } = props;
+  const { orderSettings, formRef, items, handleCardItems, isCloneOrder } =
+    props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
@@ -178,6 +180,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const showAddGiftModal = useCallback(
     (index: number) => {
       if (items) {
+        console.log("items", items);
         setIndexItem(index);
         setItemGift([...items[index].gifts]);
         setVisibleGift(true);

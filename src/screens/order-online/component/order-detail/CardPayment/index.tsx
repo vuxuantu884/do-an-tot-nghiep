@@ -310,8 +310,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         style={{ marginLeft: 0, marginRight: 0 }}
                       >
                         {ListPaymentMethods.map((method, index) => {
-                          console.log("method", method);
-                          console.log("paymentData", paymentData);
+                          // console.log("method", method);
+                          // console.log("paymentData", paymentData);
                           let icon = null;
                           switch (method.code) {
                             case PaymentMethodCode.CASH:
@@ -413,8 +413,8 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         </Col>
                       </Row>
                       {paymentData.map((method, index) => {
-                        console.log("paymentData", paymentData);
-                        console.log("method", method);
+                        // console.log("paymentData", paymentData);
+                        // console.log("method", method);
                         return (
                           <Row
                             gutter={20}

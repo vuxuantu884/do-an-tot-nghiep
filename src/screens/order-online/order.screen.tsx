@@ -2,6 +2,7 @@ import { Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
+import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
@@ -88,7 +89,7 @@ export default function Order() {
   >(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  console.log("payments", payments);
+  // console.log("payments", payments);
   const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>(
     []
   );
@@ -577,6 +578,7 @@ export default function Order() {
                     }
                     items={items}
                     handleCardItems={handleCardItems}
+                    isCloneOrder={isCloneOrder}
                   />
                   <CardShipment
                     setShipmentMethodProps={onShipmentSelect}
@@ -694,7 +696,49 @@ export default function Order() {
               );
             }
             if (response) {
-              let responseItems: any = [...response.items];
+              // let responseItems: OrderLineItemRequest[] = [...response.items];
+              let giftResponse = response.items.filter((item) => {
+                return item.type === Type.GIFT;
+              });
+              let responseItems: OrderLineItemRequest[] = response.items
+                .filter((item) => {
+                  return item.type !== Type.GIFT;
+                })
+                .map((item) => {
+                  return {
+                    id: item.id,
+                    sku: item.sku,
+                    variant_id: item.variant_id,
+                    variant: item.variant,
+                    show_note: item.show_note,
+                    variant_barcode: item.variant_barcode,
+                    product_id: item.product_id,
+                    product_type: item.product_type,
+                    quantity: item.quantity,
+                    price: item.price,
+                    amount: item.amount,
+                    note: item.note,
+                    type: item.type,
+                    variant_image: item.variant_image,
+                    unit: item.unit,
+                    weight: item.weight,
+                    weight_unit: item.weight_unit,
+                    warranty: item.warranty,
+                    tax_rate: item.tax_rate,
+                    tax_include: item.tax_include,
+                    composite: false,
+                    product: item.product,
+                    is_composite: false,
+                    line_amount_after_line_discount:
+                      item.line_amount_after_line_discount,
+                    discount_items: item.discount_items,
+                    discount_rate: item.discount_rate,
+                    discount_value: item.discount_value,
+                    discount_amount: item.discount_amount,
+                    position: item.position,
+                    gifts: giftResponse,
+                  };
+                });
               let newDatingShip = initialForm.dating_ship;
               let newShipperCode = initialForm.shipper_code;
               let new_shipping_fee_informed_to_customer =
@@ -717,6 +761,7 @@ export default function Order() {
                   setPayments(new_payments);
                 }
               }
+              console.log("responseItems", responseItems);
               setItems(responseItems);
               setOrderAmount(response.total);
               setInitialForm({

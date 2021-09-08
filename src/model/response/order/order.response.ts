@@ -137,11 +137,19 @@ export interface OrderDiscountResponse {
   source: string | null;
 }
 
+// export interface OrderItemDiscountResponse {
+//   rate: number | null;
+//   value: number;
+//   amount: number | null;
+//   promotion_id?: number | null;
+//   reason: string | null;
+// }
+
 export interface OrderItemDiscountResponse {
-  rate: number | null;
+  rate: number;
   value: number;
-  amount: number | null;
-  promotion_id?: number | null;
+  amount: number;
+  promotion_id?: number;
   reason: string | null;
 }
 
