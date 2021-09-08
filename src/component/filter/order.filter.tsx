@@ -1122,7 +1122,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Select
                         mode="multiple"
                         optionFilterProp="children" showSearch
-                        notFoundContent="Không tìm thấy kết quả" mode="multiple"
+                        notFoundContent="Không tìm thấy kết quả"
                         placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
                         getPopupContainer={trigger => trigger.parentNode}
                       >
