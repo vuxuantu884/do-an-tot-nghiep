@@ -181,7 +181,7 @@ function CustomerInfo(props: any) {
           )}
         </div>
       }
-      extra={[<Link to={`/customers/edit/${params.id}`}>Cập nhật</Link>]}
+      extra={[<Link to={`/customers/${params.id}/edit`}>Cập nhật</Link>]}
     >
       <Row gutter={30} style={{ paddingTop: 16 }}>
         <Col span={12}>
