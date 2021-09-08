@@ -1,12 +1,14 @@
-import { Card, Tabs } from "antd";
+import { Button, Card, Row, Space, Tabs } from "antd";
 import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import TabProduct from "./tab/tab-product";
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import TabHistoryPrice from "./tab/tab-history-price";
 import TabHistoryInfo from "./tab/tab-history-info";
+import importIcon from "assets/icon/import.svg";
+import exportIcon from "assets/icon/export.svg";
 const { TabPane } = Tabs;
 
 const ListProductScreen: React.FC = () => {
@@ -40,7 +42,35 @@ const ListProductScreen: React.FC = () => {
           name: "Sản phẩm",
         },
       ]}
-      extra={<ButtonCreate path={`${UrlConfig.PRODUCT}/create`} />}
+      extra={
+        <Row>
+          <Space>
+            <Link to={`${UrlConfig.PRODUCT}/import`}>
+              <Button
+                type="default"
+                className="light"
+                size="large"
+                icon={
+                  <img src={importIcon} style={{ marginRight: 8 }} alt="" />
+                }
+              >
+                Nhập file
+              </Button>
+            </Link>
+            <Button
+              type="default"
+              className="light"
+              size="large"
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              // onClick={onExport}
+              onClick={() => {}}
+            >
+              Xuất file
+            </Button>
+            <ButtonCreate path={`${UrlConfig.PRODUCT}/create`} />
+          </Space>
+        </Row>
+      }
     >
       <Card>
         <Tabs

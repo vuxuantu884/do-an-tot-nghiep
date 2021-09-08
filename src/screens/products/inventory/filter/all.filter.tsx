@@ -20,8 +20,6 @@ import moment from "moment";
 import { checkFixedDate, DATE_FORMAT } from "utils/DateUtils";
 
 export interface InventoryFilterProps {
-  id: string;
-  isMulti: boolean;
   params: InventoryQuery;
   listStore: Array<StoreResponse>;
   actions: Array<MenuAction>;
@@ -52,7 +50,7 @@ function tagRender(props: any) {
   );
 }
 
-const InventoryFilter: React.FC<InventoryFilterProps> = (
+const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   props: InventoryFilterProps
 ) => {
   const {
@@ -62,9 +60,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
     onMenuClick,
     // onClearFilter,
     onFilter,
-    isMulti,
     openColumn,
-    id,
   } = props;
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
@@ -246,7 +242,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
             onFinish={onBaseFinish}
             initialValues={advanceFilters}
             form={formBaseFilter}
-            name={`baseInventory_${id}`}
+            name={'baseInventory'}
             layout="inline"
           >
             <Item name={InventoryQueryField.condition} className="search">
@@ -262,7 +258,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
                 optionFilterProp="children"
                 showArrow
                 placeholder="Chọn cửa hàng"
-                mode={isMulti ? "multiple" : undefined}
+                mode="multiple"
                 allowClear
                 tagRender={tagRender}
                 style={{
@@ -302,7 +298,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
           width={500}
         >
           <Form
-            name={`avdInventory_${id}`}
+            name={`avdInventory`}
             onFinish={onAdvanceFinish}
             initialValues={{}}
             form={formAdvanceFilter}
@@ -437,4 +433,4 @@ const FilterList = ({ filters, resetField }: any) => {
   );
 };
 
-export default InventoryFilter;
+export default AllInventoryFilter;

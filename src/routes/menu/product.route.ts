@@ -60,6 +60,9 @@ const VariantUpdateScreen = React.lazy(
 const ProductUpdateScreen = React.lazy(
   () => import("screens/products/product/product-update.screen")
 );
+const ProductImportScreen = React.lazy(
+  () => import("screens/products/product/product-import.screen")
+);
 
 //PO
 const PurchaseOrderListScreen = React.lazy(
@@ -102,6 +105,7 @@ const product: Array<RouteMenu> = [
         header: null,
         subMenu: [],
       },
+      
       {
         path: `${UrlConfig.PRODUCT}/variants/:id`,
         exact: true,
@@ -109,6 +113,17 @@ const product: Array<RouteMenu> = [
         icon: "icon-dot",
         component: VariantUpdateScreen,
         key: "submenu212",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.PRODUCT}/import`,
+        exact: true,
+        title: "Nhập file",
+        icon: "icon-dot",
+        component: ProductImportScreen,
+        key: "submenu214",
         isShow: true,
         header: null,
         subMenu: [],
@@ -125,6 +140,7 @@ const product: Array<RouteMenu> = [
         subMenu: [],
         pathIgnore: ["create"],
       },
+      
     ],
   },
   {
