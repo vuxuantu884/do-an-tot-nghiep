@@ -137,7 +137,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
         onFormFinish={(name, { values, forms }) => {
           let baseValues = formBaseFilter.getFieldsValue(true);
           let advanceValues = formAdvanceFilter?.getFieldsValue(true);
-          let data = {...baseValues,...advanceValues, store_id: baseValues.store_id, condition: baseValues.condition };
+          let data = {...baseValues,...advanceValues, store_ids: baseValues.store_ids, condition: baseValues.condition };
           let created_date = data[InventoryQueryField.created_date],
             transaction_date = data[InventoryQueryField.transaction_date],
             total_stock = data[InventoryQueryField.total_stock],
