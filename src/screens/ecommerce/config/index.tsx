@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import SyncEcommerce from "./tab/sync-ecommerce";
 import SettingConfig from "./tab/setting-config";
+import ButtonCreate from "component/header/ButtonCreate";
 
 const { TabPane } = Tabs;
 
@@ -44,6 +45,9 @@ const EcommerceConfig: React.FC = () => {
           name: "Cấu hình",
         },
       ]}
+      extra={
+        <>{activeTab === "1" && <ButtonCreate path={`/customers/create`} />}</>
+      }
     >
       <Card>
         <Tabs
@@ -56,7 +60,7 @@ const EcommerceConfig: React.FC = () => {
             <SyncEcommerce />
           </TabPane>
           <TabPane tab="Cài đặt cấu hình" key="2">
-           <SettingConfig />
+            <SettingConfig />
           </TabPane>
         </Tabs>
       </Card>

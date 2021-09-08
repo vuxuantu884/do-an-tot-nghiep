@@ -65,7 +65,7 @@ const GeneralInformation = (props: any) => {
             <Col span={24}>
               <CustomInput
                 name="full_name"
-                label="Họ tên khách hàng:"
+                label={<b>Họ tên khách hàng:</b>}
                 form={form}
                 message="Vui lòng nhập họ tên khách hàng"
                 placeholder="Nhập họ và tên khách hàng"
@@ -281,7 +281,7 @@ const GeneralInformation = (props: any) => {
                   </Form.Item> */}
                   <CustomInput
                     name="full_address"
-                    label="Địa chỉ chi tiết:"
+                    label={<b>Địa chỉ chi tiết:</b>}
                     form={form}
                     message="Vui lòng nhập địa chỉ"
                     placeholder="Nhập địa chỉ chi tiết"
