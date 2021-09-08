@@ -132,10 +132,19 @@
     }
   }
 }
-
+.break-word{
+  word-break: break-all;
+  word-wrap: break-word;
+}
+.pd-right{
+  padding-right: 4px;
+}
+.word-underline{
+  text-decoration: underline;
+}
 .change-shipping-address-title {
   button {
-    color: #42a0ff;
+    color: #2a2a86;
   }
 }
 

@@ -1,13 +1,15 @@
-import { Form, Row, Col, Card, Space } from "antd";
+import { Form, Row, Col, Card, Tabs } from "antd";
+import {
+  HistoryOutlined,
+  ContactsOutlined,
+  CarOutlined,
+  ProfileOutlined,
+  FileTextOutlined,
+} from "@ant-design/icons";
 import { modalActionType } from "model/modal/modal.model";
-import customerShipping from "assets/icon/c-shipping.svg";
-import customerRecipt from "assets/icon/c-recipt.svg";
-import customerContact from "assets/icon/c-contact.svg";
-import customerBuyHistory from "assets/icon/c-bag.svg";
-import editIcon from "assets/icon/edit.svg";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Link, useParams, useRouteMatch } from "react-router-dom";
+import { Link, useParams, useRouteMatch, useHistory } from "react-router-dom";
 import moment from "moment";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -26,26 +28,47 @@ import { getListOrderActionFpage } from "domain/actions/order/order.action";
 import { formatCurrency } from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
+const { TabPane } = Tabs;
+
 const CustomerDetailIndex = () => {
-  const tabQuery = useQuery();
+  const [activeTab, setActiveTab] = React.useState<string>("history");
   const params = useParams() as any;
   const dispatch = useDispatch();
-  let { url } = useRouteMatch();
+  const history = useHistory();
   const [customerForm] = Form.useForm();
   const [customer, setCustomer] = React.useState<CustomerResponse>();
   const [customerPointInfo, setCustomerPoint] = React.useState([]) as any;
   const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>();
   const [modalAction, setModalAction] =
     React.useState<modalActionType>("create");
-  const [customerDetailState, setCustomerDetailState] = React.useState<string>(
-    tabQuery.get("tab") || "history"
-  );
-  // history
   const [querySearchOrder, setQuerySearchOrderFpage] = React.useState<any>({
     limit: 10,
     page: 1,
     customer_ids: null,
   });
+
+  React.useEffect(() => {
+    if (history.location.hash) {
+      switch (history.location.hash) {
+        case "#history":
+          setActiveTab("history");
+          break;
+        case "#contacts":
+          setActiveTab("contacts");
+          break;
+        case "#billing":
+          setActiveTab("billing");
+          break;
+        case "#shipping":
+          setActiveTab("shipping");
+          break;
+        case "#notes":
+          setActiveTab("notes");
+          break;
+      }
+    }
+  }, [history.location.hash]);
+
   const [customerBuyDetail, setCustomerBuyDetail] = React.useState<any>([
     {
       name: "Tổng chi tiêu",
@@ -73,25 +96,26 @@ const CustomerDetailIndex = () => {
     [querySearchOrder, setQuerySearchOrderFpage]
   );
   const [metaData, setMetaData] = React.useState<any>({});
-
+  const setOrderHistoryItems = React.useCallback(
+    (data: PageResponse<OrderModel> | false) => {
+      if (data) {
+        handlePaymentHistory(data);
+        setOrderHistory(data.items);
+        setMetaData(data.metadata);
+      }
+    },
+    []
+  );
   React.useEffect(() => {
     if (params?.id) {
       querySearchOrder.customer_ids = [params?.id];
       dispatch(getListOrderActionFpage(querySearchOrder, setOrderHistoryItems));
     }
-  }, [params, dispatch, querySearchOrder]);
+  }, [params, dispatch, querySearchOrder, setOrderHistoryItems]);
 
-  const setOrderHistoryItems = (data: PageResponse<OrderModel> | false) => {
-    if (data) {
-      handlePaymentHistory(data);
-      setOrderHistory(data.items);
-      setMetaData(data.metadata);
-    }
-  };
   function handlePaymentHistory(data: any) {
     let _details: any = [];
     const _orderSorted = data.items.sort((a: any, b: any) => {
-      // return  new Date(a.created_date).getTime() - new Date(b.created_date).getTime()
       return a.id - b.id;
     });
     const lastIndex = _orderSorted.length - 1;
@@ -162,15 +186,6 @@ const CustomerDetailIndex = () => {
     }
     setCustomerPoint(details);
   }, [customer, setCustomerPoint]);
-  // total payment
-  console.log(orderHistory);
-  // first time payment
-
-  // last time payment
-
-  // end
-
-  console.log(orderHistory);
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params, setCustomer]);
@@ -187,49 +202,9 @@ const CustomerDetailIndex = () => {
     }
   }, [customer, customerForm]);
 
-  interface ShipmentButtonModel {
-    name: string | null;
-    value: number;
-    icon: any | undefined;
-    queryString: string;
-  }
-
-  const customerDetailButtons: Array<ShipmentButtonModel> = [
-    {
-      name: "Lịch sử mua hàng",
-      value: 1,
-      icon: customerBuyHistory,
-      queryString: "history",
-    },
-    {
-      name: "Thông tin liên hệ",
-      value: 2,
-      icon: customerContact,
-      queryString: "contact",
-    },
-    {
-      name: "Địa chỉ nhận hóa đơn",
-      value: 3,
-      icon: customerRecipt,
-      queryString: "billing",
-    },
-    {
-      name: "Địa chỉ giao hàng",
-      value: 4,
-      icon: customerShipping,
-      queryString: "shipping",
-    },
-    {
-      name: "Ghi chú",
-      value: 5,
-      icon: editIcon,
-      queryString: "note",
-    },
-  ];
-
   return (
     <ContentContainer
-      title=""
+      title="Thông tin chi tiết"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -243,8 +218,8 @@ const CustomerDetailIndex = () => {
           name: "Chi tiết khách hàng",
         },
         {
-          name: `${customer ? customer?.full_name : ""}`
-        }
+          name: `${customer ? customer?.full_name : ""}`,
+        },
       ]}
     >
       <Row gutter={24} className="customer-info-detail">
@@ -284,8 +259,8 @@ const CustomerDetailIndex = () => {
         </Col>
         <Col span={6}>
           <Card
-          className="customer-point-detail"
-           style={{height: "100%"}}
+            className="customer-point-detail"
+            style={{ height: "100%" }}
             title={
               <div className="d-flex">
                 <span className="title-card">THÔNG TIN TÍCH ĐIỂM</span>
@@ -316,83 +291,95 @@ const CustomerDetailIndex = () => {
           </Card>
         </Col>
       </Row>
-      <Row style={{ marginTop: 20 }}>
+      <Row className="customer-tabs-detail">
         <Col span={24}>
-          <Card style={{ padding: "16px 24px" }}>
-            <div className="saleorder_shipment_method_btn">
-              <Space size={10}>
-                {customerDetailButtons.map((button) => (
-                  <Link
-                    to={`${url}?tab=${button.queryString}`}
-                    key={button.value}
-                  >
-                    {customerDetailState !== button.queryString ? (
-                      <div
-                        className="saleorder_shipment_button"
-                        key={button.value}
-                        onClick={() =>
-                          setCustomerDetailState(button.queryString)
-                        }
-                        style={{ padding: "10px " }}
-                      >
-                        <img src={button.icon} alt="icon"></img>
-                        <span style={{ fontWeight: 500 }}>{button.name}</span>
-                      </div>
-                    ) : (
-                      <div
-                        className="saleorder_shipment_button_active"
-                        key={button.value}
-                        style={{ padding: "10px " }}
-                      >
-                        <img src={button.icon} alt="icon"></img>
-                        <span style={{ fontWeight: 500 }}>{button.name}</span>
-                      </div>
-                    )}
-                  </Link>
-                ))}
-              </Space>
-            </div>
-
-            {customerDetailState === "history" && (
-              <CustomerHistoryInfo
-                orderHistory={orderHistory}
-                metaData={metaData}
-                onPageChange={onPageChange}
-              />
-            )}
-            {customerDetailState === "contact" && (
-              <CustomerContactInfo
-                customer={customer}
-                customerDetailState={customerDetailState}
-                setModalAction={setModalAction}
-                modalAction={modalAction}
-              />
-            )}
-
-            {customerDetailState === "billing" && (
-              <CustomerShippingInfo
-                customer={customer}
-                customerDetailState={customerDetailState}
-                setModalAction={setModalAction}
-                modalAction={modalAction}
-              />
-            )}
-            {customerDetailState === "shipping" && (
-              <CustomerShippingAddressInfo
-                customer={customer}
-                customerDetailState={customerDetailState}
-                setModalAction={setModalAction}
-                modalAction={modalAction}
-              />
-            )}
-            {customerDetailState === "note" && (
-              <CustomerNoteInfo
-                customer={customer}
-                customerDetailState={customerDetailState}
-                setModalAction={setModalAction}
-                modalAction={modalAction}
-              />
-            )}
+          <Card>
+            <Tabs
+              activeKey={activeTab}
+              onChange={(active) =>
+                history.replace(`${history.location.pathname}#${active}`)
+              }
+            >
+              <TabPane
+                tab={
+                  <span>
+                    <HistoryOutlined />
+                    Lịch sử mua hàng
+                  </span>
+                }
+                key="history"
+              >
+                <CustomerHistoryInfo
+                  orderHistory={orderHistory}
+                  metaData={metaData}
+                  onPageChange={onPageChange}
+                />
+              </TabPane>
+              <TabPane
+                tab={
+                  <span>
+                    <ContactsOutlined />
+                    Thông tin liên hệ
+                  </span>
+                }
+                key="contacts"
+              >
+                <CustomerContactInfo
+                  customer={customer}
+                  customerDetailState={activeTab}
+                  setModalAction={setModalAction}
+                  modalAction={modalAction}
+                />
+              </TabPane>
+              <TabPane
+                tab={
+                  <span>
+                    <FileTextOutlined />
+                    Địa chỉ nhận hóa đơn
+                  </span>
+                }
+                key="billing"
+              >
+                <CustomerShippingInfo
+                  customer={customer}
+                  customerDetailState={activeTab}
+                  setModalAction={setModalAction}
+                  modalAction={modalAction}
+                />
+              </TabPane>
+              <TabPane
+                tab={
+                  <span>
+                    <CarOutlined />
+                    Địa chỉ giao hàng
+                  </span>
+                }
+                key="shipping"
+              >
+                <CustomerShippingAddressInfo
+                  customer={customer}
+                  customerDetailState={activeTab}
+                  setModalAction={setModalAction}
+                  modalAction={modalAction}
+                />
+              </TabPane>
+              <TabPane
+                tab={
+                  <span>
+                    <ProfileOutlined />
+                    Ghi chú
+                  </span>
+                }
+                key="notes"
+              >
+                <CustomerNoteInfo
+                  customer={customer}
+                  customerDetailState={activeTab}
+                  setModalAction={setModalAction}
+                  modalAction={modalAction}
+                />
+              </TabPane>
+            </Tabs>
           </Card>
         </Col>
       </Row>

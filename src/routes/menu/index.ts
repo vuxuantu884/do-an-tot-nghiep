@@ -6,14 +6,14 @@ import bill from './bill.route';
 import UrlConfig from 'config/url.config';
 import customers from "./customer.route"
 import shipments from "./shipment.route"
-
+import ecommerce from "./ecommerce.route"
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/products/product/product.search.screen"));
 const Inventory = React.lazy(() => import ("screens/inverory"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
-
+const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"))
 const menu: Array<RouteMenu> = [
   {
     path: UrlConfig.HOME,
@@ -83,7 +83,7 @@ const menu: Array<RouteMenu> = [
     subMenu: shipments,
   },
   {
-    path: "/customers",
+    path: UrlConfig.CUSTOMER,
     exact: true,
     title: "Khách hàng",
     icon: 'icon-customer',
@@ -94,7 +94,7 @@ const menu: Array<RouteMenu> = [
     subMenu: customers,
   },
   {
-    path: "/promotion",
+    path: UrlConfig.PROMOTION,
     exact: true,
     title: "Khuyến mại",
     icon: 'icon-promotion',
@@ -105,12 +105,23 @@ const menu: Array<RouteMenu> = [
     subMenu: [],
   },
   {
+    path: UrlConfig.ECOMMERCE,
+    exact: true,
+    title: "Sàn TMĐT",
+    icon: 'icon-promotion',
+    component: EcommerceConfig,
+    key: "8",
+    isShow: true,
+    header: null,
+    subMenu: ecommerce,
+  },
+  {
     path: "/report",
     exact: true,
     title: "Báo cáo",
     icon: 'icon-report',
     component: Inventory,
-    key: "8",
+    key: "9",
     isShow: true,
     header: null,
     subMenu: [],
@@ -121,7 +132,7 @@ const menu: Array<RouteMenu> = [
     title: "Cài đặt",
     icon: 'icon-setting',
     component: Inventory,
-    key: "9",
+    key: "10",
     isShow: true,
     header: null,
     subMenu: setting,
