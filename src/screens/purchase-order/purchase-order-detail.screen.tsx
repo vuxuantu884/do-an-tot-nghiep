@@ -453,7 +453,10 @@ const PODetailScreen: React.FC = () => {
                 loadDetail={loadDetail}
               />
             ) : (
-              <POPaymentConditionsForm listPayment={listPaymentConditions} />
+              <POPaymentConditionsForm
+                isEdit={true}
+                listPayment={listPaymentConditions}
+              />
             )}
             {poData &&
               ((poData.receipt_quantity && poData.receipt_quantity > 0) ||

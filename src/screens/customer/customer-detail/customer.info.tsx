@@ -11,14 +11,13 @@ const genreEnum: any = {
   other: "Khác",
 };
 function CustomerInfo(props: any) {
-  const { customer, groups, types } = props;
+  const { customer } = props;
   const params = useParams() as any;
   const [customerDetail, setCustomerDetail] = React.useState([]) as any;
   const [customerDetailCollapse, setCustomerDetailCollapse] = React.useState(
     []
   ) as any;
 
-  console.log(types,groups)
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -44,7 +43,7 @@ function CustomerInfo(props: any) {
         },
         {
           name: "Loại khách hàng",
-          value: types.find((type: any) => customer.customer_type_id === type.id)?.name,
+          value: customer.customer_type,
           position: "right",
           key: "13",
         },
@@ -58,7 +57,7 @@ function CustomerInfo(props: any) {
         },
         {
           name: "Nhóm khách hàng",
-          value: groups.find((group: any) => customer.customer_group_id === group.id)?.name,
+          value: customer.customer_group,
           position: "right",
           key: "15",
         },
@@ -66,7 +65,6 @@ function CustomerInfo(props: any) {
     }
     setCustomerDetail(details);
   }, [customer, setCustomerDetail]);
-  console.log(customer)
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -183,7 +181,7 @@ function CustomerInfo(props: any) {
           )}
         </div>
       }
-      extra={[<Link to={`/customers/edit/${params.id}`}>Cập nhật</Link>]}
+      extra={[<Link to={`/customers/${params.id}/edit`}>Cập nhật</Link>]}
     >
       <Row gutter={30} style={{ paddingTop: 16 }}>
         <Col span={12}>
@@ -192,11 +190,11 @@ function CustomerInfo(props: any) {
               .filter((detail: any) => detail.position === "left")
               .map((detail: any, index: number) => (
                 <Col
-                  key={detail.key}
+                  key={index}
                   span={24}
                   style={{
                     display: "flex",
-                    marginBottom: 20,
+                    marginBottom: 10,
                     color: "#222222",
                   }}
                 >
@@ -234,7 +232,7 @@ function CustomerInfo(props: any) {
                   span={24}
                   style={{
                     display: "flex",
-                    marginBottom: 20,
+                    marginBottom: 10,
                     color: "#222222",
                   }}
                 >
@@ -281,7 +279,7 @@ function CustomerInfo(props: any) {
                           span={24}
                           style={{
                             display: "flex",
-                            marginBottom: 20,
+                            marginBottom: 10,
                             color: "#222222",
                           }}
                         >
@@ -319,7 +317,7 @@ function CustomerInfo(props: any) {
                           span={24}
                           style={{
                             display: "flex",
-                            marginBottom: 20,
+                            marginBottom: 10,
                             color: "#222222",
                           }}
                         >

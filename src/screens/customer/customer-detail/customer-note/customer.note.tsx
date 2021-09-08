@@ -66,7 +66,6 @@ function CustomerNoteInfo(props: any) {
 
   const handleNoteForm = {
     create: (formValue: CustomerNote) => {
-      console.log(formValue);
       if (customer)
         dispatch(
           CreateNote(customer.id, formValue, (data: note) => {
@@ -163,7 +162,6 @@ function CustomerNoteInfo(props: any) {
           onRow={(record: CustomerNote) => {
             return {
               onClick: (event) => {
-                console.log(record);
                 setModalNote(record);
                 setModalAction("edit");
                 // setIsShowModalNote(true);

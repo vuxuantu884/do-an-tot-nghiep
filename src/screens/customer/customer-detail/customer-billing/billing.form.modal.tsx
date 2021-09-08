@@ -138,7 +138,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
             </Form.Item> */}
              <CustomInput
                 name="name"
-                label="Họ tên người nhận:"
+                label={<span className="fw-500">Họ tên người nhận:</span>}
                 form={form}
                 message="Vui lòng nhập họ tên người nhận"
                 placeholder="Nhập họ tên người nhận"
@@ -149,7 +149,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
               <Col span={12}>
                 <Form.Item
                   name="phone"
-                  label={<b>Số điện thoại:</b>}
+                  label={<span className="fw-500">Số điện thoại:</span>}
                   rules={[
                     {
                       required: true,
@@ -172,7 +172,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
               <Col span={12}>
                 <Form.Item
                   name="email"
-                  label={<b>Email:</b>}
+                  label={<span className="fw-500">Email:</span>}
                   rules={[
                     {
                       pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
@@ -191,7 +191,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
             <Row gutter={24}>
               <Col span={12}>
               <Form.Item
-                    label={<b>Mã số thuế:</b>}
+                    label={<span className="fw-500">Mã số thuế:</span>}
                     name="tax_code"
                     rules={[
                       {
@@ -205,7 +205,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
               </Col>
               <Col span={12}>
                 <Form.Item
-                  label={<b>Quốc gia:</b>}
+                  label={<span className="fw-500">Quốc gia:</span>}
                   name="country_id"
                   initialValue={233}
                   rules={[
@@ -235,7 +235,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
             <Row gutter={24}>
               <Col span={12}>
                 <Form.Item
-                  label={<b>Khu vực:</b>}
+                  label={<span className="fw-500">Khu vực:</span>}
                   name="district_id"
                   rules={[
                     {
@@ -260,7 +260,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label={<b>Thành phố:</b>} name="city_id" hidden>
+                <Form.Item label={<span className="fw-500">Thành phố:</span>} name="city_id" hidden>
                   <Input
                     placeholder="Nhập địa chỉ chi tiết"
                     style={{ width: "100%" }}
@@ -268,7 +268,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                   />
                 </Form.Item>
                 <Form.Item
-                  label={<b>Phường/xã:</b>}
+                  label={<span className="fw-500">Phường/xã:</span>}
                   name="ward_id"
                   rules={[
                     {
@@ -311,7 +311,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
             </Form.Item> */}
             <CustomInput
                 name="full_address"
-                label="Địa chỉ chi tiết:"
+                label={<span className="fw-500">Địa chỉ chi tiết:</span>}
                 form={form}
                 message="Vui lòng nhập địa chỉ chi tiết"
                 placeholder="Nhập địa chỉ chi tiết"

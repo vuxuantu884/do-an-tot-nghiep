@@ -33,7 +33,6 @@ import {
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import arrowLeft from "../../assets/icon/arrow-left.svg";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
@@ -93,7 +92,6 @@ const CustomerUpdate = (props: any) => {
       customerForm.setFieldsValue(value);
     }
   };
-  console.log(customer);
   React.useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
@@ -133,7 +131,7 @@ const CustomerUpdate = (props: any) => {
       });
       setStatus(customer.status);
     }
-  }, [customer, customerForm]);
+  }, [customer, customerForm, countryId]);
   // const reload = React.useCallback(() => {
   //   dispatch(CustomerDetail(params.id, setCustomer));
   // }, [dispatch, params.id]);
@@ -147,7 +145,6 @@ const CustomerUpdate = (props: any) => {
     [history]
   );
   const handleSubmit = (values: any) => {
-    console.log("Success:", values);
     values.full_name = values.full_name.trim();
     if (!values.full_name) return showError("Vui lòng nhập họ tên khách hàng");
     const processValue = {

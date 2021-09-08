@@ -276,7 +276,6 @@ const Customer = () => {
     },
     items: [],
   });
-  console.log(data);
   const [tableLoading, setTableLoading] = React.useState<boolean>(true);
 
   const onPageChange = React.useCallback(
@@ -414,14 +413,11 @@ const Customer = () => {
     (value, o) => {
       let index: number = -1;
       if (resultSearch) {
-        console.log(resultSearch);
         index = resultSearch.items.findIndex(
           (accountResponse: AccountResponse) =>
             accountResponse.id && accountResponse.id.toString() === value
         );
         if (index !== -1) {
-          console.log(index);
-
           setKeySearchAccount(
             resultSearch.items[index].code +
               "-" +

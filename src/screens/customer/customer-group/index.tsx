@@ -288,7 +288,6 @@ const SettingCustomerGroup: React.FC = () => {
      * when dispatch action, call function (handleData) to handle data
      */
     setTableLoading(true);
-    console.log(1);
     dispatch(
       actionFetchListCustomerGroup(
         params,

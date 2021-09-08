@@ -364,24 +364,33 @@ const GeneralInformation = (props: any) => {
                 />
               </Form.Item>
             </Col>
-            <Col style={{ width: "70%", paddingLeft: 0 }}>
-              {notes &&
-                notes.map((note: any) => (
-                  <div className="customer-note-item">
-                    <span key={note.id}>{note.content}</span>
-                    <img
-                      alt="delete"
-                      onClick={(e: any) => deleteNote(note, e)}
-                      style={{
-                        width: 20,
-                        float: "right",
-                        cursor: "pointer",
-                        marginLeft: 4,
-                      }}
-                      src={XCloseBtn}
-                    ></img>
-                  </div>
-                ))}
+            <Col
+              style={{
+                width: "70%",
+                paddingLeft: 0,
+                maxHeight: 150,
+                overflowY: "scroll",
+              }}
+            >
+              <div>
+                {notes &&
+                  notes.map((note: any) => (
+                    <div className="customer-note-item">
+                      <span key={note.id}>{note.content}</span>
+                      <img
+                        alt="delete"
+                        onClick={(e: any) => deleteNote(note, e)}
+                        style={{
+                          width: 20,
+                          float: "right",
+                          cursor: "pointer",
+                          marginLeft: 4,
+                        }}
+                        src={XCloseBtn}
+                      ></img>
+                    </div>
+                  ))}
+              </div>
             </Col>
           </Row>
           <Row hidden gutter={12} style={{ padding: "16px" }}>

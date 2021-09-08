@@ -76,8 +76,6 @@ function FpageCRM() {
     if (data) {
       setOrderHistory(data.items);
       setMetaData(data.metadata);
-      
-      console.log(data.items)
     }
   };
 

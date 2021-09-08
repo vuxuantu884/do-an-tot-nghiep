@@ -1,5 +1,10 @@
 .custom-table {
   margin-bottom: 0;
+  .ant-table-expanded-row {
+    & > .ant-table-cell {
+      background-color: #EFEFFC;
+    }
+  }
   .ant-pagination-item,
   .ant-pagination-total-text {
     margin-right: 3px;
