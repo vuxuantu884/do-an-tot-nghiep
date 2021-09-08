@@ -215,8 +215,11 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
     }
   }, [customerForm, visible, isCreateForm, formItem]);
 
-  //const handleSubmits = (values: any) => {};
-  console.log("test", initialFormValue);
+  const DefaultWard = () => {
+    let value = customerForm.getFieldsValue();
+    value.ward_id = null;
+    customerForm.setFieldsValue(value);
+  };
 
   return (
     <Modal
@@ -318,7 +321,10 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (
                 allowClear
                 placeholder="Chọn khu vực"
                 style={{ width: "100%" }}
-                onChange={handleChangeArea}
+                onChange={(value) => {
+                  handleChangeArea(value);
+                  DefaultWard();
+                }}
                 optionFilterProp="children"
               >
                 {areas.map((area: any) => (
