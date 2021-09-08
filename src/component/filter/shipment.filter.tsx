@@ -7,10 +7,8 @@ import {
   Input,
   Row,
   Select,
-  Tooltip,
   Collapse,
   Tag,
-  InputNumber,
   Radio
 } from "antd";
 
@@ -20,7 +18,7 @@ import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
-import { StarOutlined, SettingOutlined, FilterOutlined } from "@ant-design/icons";
+import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
 import { ShipmentSearchQuery } from "model/order/shipment.model";
@@ -204,6 +202,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     [onFilter, params]
   );
   
+  const [packedClick, setPackedClick] = useState('');
+  const [exportedClick, setExportedClick] = useState('');
+  const [shipClick, setShipClick] = useState('');
+  const [receivedClick, setReceivedClick] = useState('');
+  const [cancelledClick, setCancelledClick] = useState('');
 
   const clickOptionDate = useCallback(
     (type, value) => {
@@ -245,24 +248,59 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     
     switch(type) {
       case 'packed':
-        setPackedOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setPackedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        if (packedClick === value ) {
+          setPackedClick('')
+          setPackedOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setPackedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        } else {
+          setPackedClick(value)
+          setPackedOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setPackedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        }
         break
       case 'exported':
-        setExportedOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setExportedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        if (exportedClick === value ) {
+          setExportedClick('')
+          setExportedOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setExportedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        } else {
+          setExportedClick(value)
+          setExportedOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setExportedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        }
         break
       case 'ship':
-        setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setShipOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        if (shipClick === value ) {
+          setShipClick('')
+          setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setShipOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        } else {
+          setShipClick(value)
+          setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setShipOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        }
         break
       case 'received':
-        setReceivedOnMin(moment(minValue, 'DD-MM-YYYY'))
+        if (receivedClick === value ) {
+          setReceivedClick('')
+          setReceivedOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setReceivedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        } else {
+          setReceivedClick(value)
+          setReceivedOnMin(moment(minValue, 'DD-MM-YYYY'))
         setReceivedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        }
         break
       case 'cancelled':
-        setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        if (cancelledClick === value ) {
+          setCancelledClick('')
+          setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        } else {
+          setCancelledClick(value)
+          setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        }
         break
       default:
         break
@@ -520,7 +558,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-  [deliveryService, initialValues, listSources, listStore]
+  [accounts, deliveryService, initialValues, listSources, listStore]
   );
 
   
@@ -652,14 +690,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.packed_on_min && initialValues.packed_on_max ? ["1"]: []}>
                   <Panel header="NGÀY ĐÓNG GÓI" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('packed', 'yesterday')}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('packed', 'today')}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('packed', 'thisweek')}>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('packed', 'yesterday')} className={packedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('packed', 'today')} className={packedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('packed', 'thisweek')} className={packedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('packed', 'lastweek')}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('packed', 'thismonth')}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('packed', 'lastmonth')}>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('packed', 'lastweek')} className={packedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('packed', 'thismonth')} className={packedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('packed', 'lastmonth')} className={packedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                     <DatePicker.RangePicker
@@ -687,14 +725,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.exported_on_min && initialValues.exported_on_max ? ["1"]: []}>
                   <Panel header="NGÀY XUẤT KHO" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('exported', 'yesterday')}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('exported', 'today')}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('exported', 'thisweek')}>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('exported', 'yesterday')} className={exportedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('exported', 'today')} className={exportedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('exported', 'thisweek')} className={exportedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('exported', 'lastweek')}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('exported', 'thismonth')}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('exported', 'lastmonth')}>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('exported', 'lastweek')} className={exportedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('exported', 'thismonth')} className={exportedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('exported', 'lastmonth')} className={exportedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                     <DatePicker.RangePicker
@@ -712,14 +750,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.ship_on_min && initialValues.ship_on_min ? ["1"]: []}>
                   <Panel header="NGÀY GIAO HÀNG" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('ship', 'yesterday')}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'today')}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'thisweek')}>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'yesterday')} className={shipClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'today')} className={shipClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'thisweek')} className={shipClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('ship', 'lastweek')}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'thismonth')}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'lastmonth')}>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'lastweek')} className={shipClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'thismonth')} className={shipClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('ship', 'lastmonth')} className={shipClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                     <DatePicker.RangePicker
@@ -737,14 +775,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.received_on_min && initialValues.received_on_max ? ["1"]: []}>
                   <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('received', 'yesterday')}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('received', 'today')}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('received', 'thisweek')}>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('received', 'yesterday')} className={receivedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('received', 'today')} className={receivedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('received', 'thisweek')} className={receivedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('received', 'lastweek')}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('received', 'thismonth')}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('received', 'lastmonth')}>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('received', 'lastweek')} className={receivedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('received', 'thismonth')} className={receivedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('received', 'lastmonth')} className={receivedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                     <DatePicker.RangePicker
@@ -762,14 +800,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.cancelled_on_min && initialValues.cancelled_on_max ? ["1"]: []}>
                   <Panel header="NGÀY HUỶ ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('cancelled', 'yesterday')}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'today')}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'thisweek')}>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'yesterday')} className={cancelledClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'today')} className={cancelledClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'thisweek')} className={cancelledClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('cancelled', 'lastweek')}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'thismonth')}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'lastmonth')}>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'lastweek')} className={cancelledClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'thismonth')} className={cancelledClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'lastmonth')} className={cancelledClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                     <DatePicker.RangePicker

@@ -3,7 +3,7 @@ import CustomTable, {
 } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/url.config";
-import { inventoryGetListAction } from "domain/actions/inventory/inventory.action";
+import { inventoryGetDetailAction } from "domain/actions/inventory/inventory.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryQuery, InventoryResponse } from "model/inventory";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -60,6 +60,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
   );
   const onFilter = useCallback(
     (values) => {
+      console.log(values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
@@ -78,11 +79,9 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
     }
   }, [params, props]);
   useEffect(() => {
-    if (props.current === "2" && params.store_id) {
       setLoading(true);
-      dispatch(inventoryGetListAction(params, onResult));
-    }
-  }, [dispatch, onResult, params, props]);
+      dispatch(inventoryGetDetailAction(params, onResult));
+  }, [dispatch, onResult, params]);
   const [columns, setColumn] = useState<
     Array<ICustomTableColumType<InventoryResponse>>
   >([
@@ -105,6 +104,12 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
       visible: true,
       dataIndex: 'total_stock'
     },
+    {
+      title: 'Barcode',
+      visible: false,
+      dataIndex: 'barcode'
+    },
+    
     {
       align: 'right',
       title: 'Tồn trong kho',

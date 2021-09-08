@@ -1,4 +1,6 @@
 import {
+  ProductHistoryQuery,
+  ProductHistoryResponse,
   ProductRequest,
   VariantResponse,
   VariantSearchQuery,
@@ -67,5 +69,15 @@ export const variantUpdateAction = (
     id,
     request,
     onUpdateSuccess,
+  });
+};
+
+export const productGetHistoryAction = (
+  query: ProductHistoryQuery,
+  onResult: (result: PageResponse<ProductHistoryResponse>|false) => void
+) => {
+  return BaseAction(ProductType.GET_HISTORY, {
+    query,
+    onResult,
   });
 };

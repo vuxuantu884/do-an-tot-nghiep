@@ -43,8 +43,6 @@ const BasicInventoryFilter = {
 }
 
 const InventoryMappingField = {
-  [BasicInventoryFilter.condition]: 'Từ khóa',
-  [BasicInventoryFilter.store_id]: 'Cửa hàng',
   [AvdInventoryFilter.created_date]: 'Ngày khởi tạo',
   [AvdInventoryFilter.transaction_date]: 'Cập nhật cuối',
   [AvdInventoryFilter.total_stock]: 'Tổng tồn',
@@ -54,12 +52,31 @@ const InventoryMappingField = {
   [AvdInventoryFilter.on_hold]: 'Hàng tạm giữ',
   [AvdInventoryFilter.defect]: 'Hàng lỗi',
   [AvdInventoryFilter.incoming]: 'Chờ nhập',
-  [AvdInventoryFilter.transferring]: 'Hàng đang chuyển đi',
-  [AvdInventoryFilter.on_way]: 'Hàng đang giao ',
+  [AvdInventoryFilter.transferring]: 'Hàng đang chuyển đến',
+  [AvdInventoryFilter.on_way]: 'Hàng đang chuyển đi ',
   [AvdInventoryFilter.shipping]: 'Hàng đang giao',
   [AvdInventoryFilter.mac]: 'Giá vốn',
   [AvdInventoryFilter.import_price]: 'Giá nhập',
   [AvdInventoryFilter.retail_price]: 'Giá bán',
 }
 
-export {InventoryQueryField, InventoryMappingField, BasicInventoryFilter, AvdInventoryFilter};
+const HistoryInventoryQueryField = {
+  condition: 'condition',
+  store_id: 'store_id',
+  from_created_date: 'from_created_date',
+  to_created_date: 'to_created_date',
+  from_transaction_date: 'from_transaction_date',
+  to_transaction_date: 'to_transaction_date',
+}
+
+const AvdHistoryInventoryFilter = {
+  created_date: 'created_date',
+  transaction_date: 'transaction_date',
+}
+
+const HistoryInventoryMappingField = {
+  [AvdHistoryInventoryFilter.created_date]: 'Ngày khởi tạo',
+  [AvdHistoryInventoryFilter.transaction_date]: 'Cập nhật cuối',
+}
+
+export {InventoryQueryField, InventoryMappingField, BasicInventoryFilter, AvdInventoryFilter, HistoryInventoryQueryField, AvdHistoryInventoryFilter, HistoryInventoryMappingField};

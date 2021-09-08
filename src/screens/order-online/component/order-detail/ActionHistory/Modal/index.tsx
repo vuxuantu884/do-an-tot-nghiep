@@ -1,6 +1,7 @@
 import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { actionGetActionLogDetail } from "domain/actions/order/order.action";
+import purify from "dompurify";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { StyledComponent } from "./styles";
@@ -14,6 +15,7 @@ type PropType = {
 type SingleLogType = {
   key: string;
   title: string;
+  type?: string;
   before: any;
   current: any;
 };
@@ -22,6 +24,21 @@ function ActionHistoryModal(props: PropType) {
   const dispatch = useDispatch();
   const [singleLogShorten, setSingleLogShorten] = useState<SingleLogType[]>([]);
   const [singleLogDetail, setSingleLogDetail] = useState<SingleLogType[]>([]);
+
+  const renderRow = (value: string, row: any) => {
+    if (row.type === "html") {
+      let doc = new DOMParser().parseFromString(value, "text/html");
+      let htmlInner = doc.getElementsByTagName("body")[0].innerHTML;
+      return (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: purify.sanitize(htmlInner),
+          }}
+        ></div>
+      );
+    }
+    return value;
+  };
 
   const ACTION_LOG_SHORTEN_COLUMN = [
     {
@@ -35,11 +52,18 @@ function ActionHistoryModal(props: PropType) {
       dataIndex: "before",
       key: "before",
       width: "30%",
+      render: (value: string, row: any) => {
+        console.log("value", value);
+        return renderRow(value, row);
+      },
     },
     {
       title: "Sau",
       dataIndex: "current",
       key: "current",
+      render: (value: string, row: any) => {
+        return renderRow(value, row);
+      },
     },
   ];
 
@@ -55,6 +79,14 @@ function ActionHistoryModal(props: PropType) {
       dataIndex: "current",
       key: "current",
       width: "50%",
+      render: (text: string) => {
+        // let dataJson = JSON.parse(text);
+        // let abc = JSON.stringify(dataJson, undefined, 4);
+        // console.log("abc", abc);
+        // return abc;
+        // return <code>{text}</code>;
+        return text;
+      },
     },
   ];
 
@@ -63,39 +95,69 @@ function ActionHistoryModal(props: PropType) {
 
   const handleCancel = () => {
     onCancel();
+    setIsShowLogDetail(false);
   };
 
   useEffect(() => {
+    const convertActionLogDetailToText = (data?: string) => {
+      let result = "";
+      if (data) {
+        let dataJson = JSON.parse(data);
+        result = ` Người tạo: ${dataJson.created_name}.<br/>
+                          Khách hàng: ${dataJson.customer}.<br/>
+                          Cửa hàng: ${dataJson.store}.<br/>
+                          Số điện thoại khách hàng: ${dataJson.store_phone_number}.<br/>
+                          Nguồn đơn hàng: ${dataJson.source}.<br/>
+        `;
+      }
+      return result;
+    };
     if (actionId) {
       dispatch(
         actionGetActionLogDetail(actionId, (response) => {
           console.log("response", response);
-          setSingleLogShorten([
-            {
-              key: "1",
-              title: "Code",
-              before: response.before?.code || "",
-              current: response.current?.code || "",
-            },
-            {
-              key: "2",
-              title: "Data",
-              before: "Mảng dữ liệu",
-              current: "Mảng dữ liệu",
-            },
-            {
-              key: "3",
-              title: "Message",
-              before: response.before?.status || "",
-              current: response.current?.status || "",
-            },
-          ]);
+          let detailToTextBefore = convertActionLogDetailToText(
+            response.before?.data
+          );
+          let detailToTextCurrent = convertActionLogDetailToText(
+            response.current?.data
+          );
           setSingleLogDetail([
             {
               key: "1",
               title: "detail",
               before: response.before?.data || "",
               current: response.current?.data || "",
+            },
+          ]);
+          setSingleLogShorten([
+            {
+              key: "1",
+              type: "text",
+              title: "Code",
+              before: response.before?.code || "",
+              current: response.current?.code || "",
+            },
+            {
+              key: "2",
+              type: "html",
+              title: "Data",
+              before: detailToTextBefore,
+              current: detailToTextCurrent,
+            },
+            {
+              key: "3",
+              type: "text",
+              title: "IP",
+              before: response.before?.ip_address || "",
+              current: response.current?.ip_address || "",
+            },
+            {
+              key: "4",
+              type: "text",
+              title: "Thiết bị",
+              before: response.before?.device || "",
+              current: response.current?.device || "",
             },
           ]);
         })

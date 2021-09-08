@@ -4,10 +4,6 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { OrderModel } from "model/order/order.model";
 import { ShipmentModel } from "model/order/shipment.model";
 import {
-  ActionLogDetailResponse,
-  OrderActionLogResponse,
-} from "model/response/order/action-log.response";
-import {
   DeliveryServiceResponse,
   ErrorLogResponse,
   GHNFeeResponse,
@@ -22,7 +18,6 @@ import { getAmountPayment } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { YodyAction } from "../../../base/base.action";
 import {
-  getActionLogDetailService,
   getPaymentMethod,
   orderPostApi,
 } from "../../../service/order/order.service";
@@ -35,7 +30,6 @@ import {
   getInfoDeliveryGHTK,
   getInfoDeliveryVTP,
   getListOrderApi,
-  getOrderActionLogsService,
   getOrderDetail,
   getOrderSubStatusService,
   getShipmentApi,
@@ -394,63 +388,7 @@ function* setSubStatusSaga(action: YodyAction) {
   }
 }
 
-function* getOrderActionLogsSaga(action: YodyAction) {
-  const { id, handleData } = action.payload;
-  yield put(showLoading());
-  try {
-    let response: BaseResponse<OrderActionLogResponse[]> = yield call(
-      getOrderActionLogsService,
-      id
-    );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
-  } finally {
-    yield put(hideLoading());
-  }
-}
-
-function* getActionLogDetailsSaga(action: YodyAction) {
-  const { id, handleData } = action.payload;
-  yield put(showLoading());
-  try {
-    let response: BaseResponse<ActionLogDetailResponse> = yield call(
-      getActionLogDetailService,
-      id
-    );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
-  } finally {
-    yield put(hideLoading());
-  }
-}
-
-function* OrderOnlineSaga() {
+export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
   yield takeLatest(OrderType.GET_SHIPMENTS_REQUEST, getShipmentsSaga);
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
@@ -477,8 +415,4 @@ function* OrderOnlineSaga() {
   );
   yield takeLatest(OrderType.GET_TRACKING_LOG_ERROR, getTRackingLogErrorSaga);
   yield takeLatest(OrderType.SET_SUB_STATUS, setSubStatusSaga);
-  yield takeLatest(OrderType.GET_ORDER_ACTION_LOGS, getOrderActionLogsSaga);
-  yield takeLatest(OrderType.GET_ACTION_LOG_DETAILS, getActionLogDetailsSaga);
 }
-
-export default OrderOnlineSaga;
