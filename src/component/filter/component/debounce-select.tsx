@@ -15,14 +15,15 @@ interface Props extends SelectProps<any> {
   containerClassName?: string;
   suffix?: ReactNode;
   fetchOptions: any;
-  debounceTimeout? : number;
+  debounceTimeout?: number;
+  optionsVariant?: { label: string, value: string}[];
   // any props that come into the component
 }
-const DebounceSelect: FC<Props> =({ fetchOptions, debounceTimeout = 800, ...props }) => {
+const DebounceSelect: FC<Props> =({ fetchOptions, debounceTimeout = 800, optionsVariant, ...props }) => {
   console.log('props.value', props.value);
   
   const [fetching, setFetching] = React.useState(false);
-  const [options, setOptions] = React.useState([]);
+  const [options, setOptions] = React.useState(optionsVariant);
   const fetchRef = React.useRef(0);
   const debounceFetcher = React.useMemo(() => {
     const loadOptions = (value: any) => {

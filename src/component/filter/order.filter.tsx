@@ -76,14 +76,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   ], []);
   const fulfillmentStatus = useMemo(() => [
     {name: "Chưa giao", value: "unshipped"},
-    {name: "Đã lấy hàng", value: "picked"},
-    {name: "Giao một phần", value: "partial"},
-    {name: "Đã đóng gói", value: "packed"},
+    // {name: "Đã lấy hàng", value: "picked"},
+    // {name: "Giao một phần", value: "partial"},
+    // {name: "Đã đóng gói", value: "packed"},
     {name: "Đang giao", value: "shipping"},
     {name: "Đã giao", value: "shipped"},
-    {name: "Đã hủy", value: "cancelled"},
-    {name: "Đang trả lại", value: "returning"},
-    {name: "Đã trả lại", value: "returned"}
+    // {name: "Đã hủy", value: "cancelled"},
+    // {name: "Đang trả lại", value: "returning"},
+    // {name: "Đã trả lại", value: "returned"}
   ], []);
   const paymentStatus =  useMemo(() => [
     {name: "Chưa trả", value: "unpaid"},

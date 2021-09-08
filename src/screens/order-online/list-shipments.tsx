@@ -161,10 +161,17 @@ const ListOrderScreen: React.FC = () => {
       title: "Mã đơn giao",
       dataIndex: "order_id",
       render: (value: string, i: ShipmentModel) => (
-        <Link to={`#`}>{value}</Link>
+        <Link to={value}>{value}</Link>
       ),
       visible: true,
       fixed: 'left',
+      width:"120px",
+    },
+    {
+      title: "Mã vận đơn",
+      dataIndex: "code",
+      
+      visible: true,
       width:"120px",
     },
     {
@@ -326,6 +333,13 @@ const ListOrderScreen: React.FC = () => {
       title: "Ngày huỷ đơn",
       dataIndex: "cancel_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      key: "cancel_date",
+      visible: true,
+    },
+    {
+      title: "Lý do huỷ giao",
+      dataIndex: "shipment",
+      render: (shipment: any) => <div>{shipment.cancel_reason}</div>,
       key: "cancel_date",
       visible: true,
     },
