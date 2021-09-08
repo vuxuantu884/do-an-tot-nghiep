@@ -209,6 +209,12 @@ export class CustomerModel implements CustomerRequest {
   responsible_staff_code = null;
   responsible_staff = null;
   full_address = "";
+  district_id= null;
+  ward_id= null;
+  country_id= 233;
+  country="VIET NAM";
+  city_id= null;
+  city="";
   billing_addresses: Array<CustomerBillingAddress> = [];
   shipping_addresses: Array<CustomerShippingAddress> = [];
   contacts: Array<CustomerContact> = [];

@@ -92,7 +92,6 @@ const CustomerEdit = (props: any) => {
       customerForm.setFieldsValue(value);
     }
   };
-  console.log(customer);
   React.useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
@@ -145,7 +144,6 @@ const CustomerEdit = (props: any) => {
     [history]
   );
   const handleSubmit = (values: any) => {
-    console.log("Success:", values);
     values.full_name = values.full_name.trim();
     if (!values.full_name) return showError("Vui lòng nhập họ tên khách hàng");
     const processValue = {

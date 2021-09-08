@@ -4,6 +4,8 @@ import { ApiConfig } from "config/api.config";
 import { generateQuery } from "utils/AppUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
+  ProductHistoryQuery,
+  ProductHistoryResponse,
   ProductRequest,
   VariantResponse,
   VariantSearchQuery,
@@ -39,4 +41,10 @@ export const productUploadApi = (
 
 export const createProductApi = (request: ProductRequest) => {
   return BaseAxios.post(`${ApiConfig.PRODUCT}/products`, request);
+};
+
+
+export const productGetHistory = (query: ProductHistoryQuery): Promise<BaseResponse<PageResponse<ProductHistoryResponse>>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/products/history?${queryString}`);
 };

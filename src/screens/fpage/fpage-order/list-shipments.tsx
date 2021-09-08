@@ -412,33 +412,10 @@ const ListFulfillmentScreen: React.FC = () => {
     },
     [history, params]
   );
-  const onFilter = useCallback(
-    (values) => {
-      console.log("values", values);
-      let newPrams = {
-        ...params,
-        ...values,
-        page: 1,
-      };
-
-      setPrams(newPrams);
-      let queryParam = generateQuery({
-        ...newPrams,
-        issued: null,
-        ship: null,
-        completed: null,
-        cancelled: null,
-      });
-      console.log("filter start", `${UrlConfig.ORDER}/list?${queryParam}`);
-      history.push(`${UrlConfig.ORDER}/list?${queryParam}`);
-    },
-    [history, params]
-  );
-  const onMenuClick = useCallback((index: number) => {}, []);
+ 
 
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
-      console.log("result", result);
       setTableLoading(false);
       if (!!result) {
         setData(result);

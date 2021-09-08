@@ -11,7 +11,7 @@ import {
 } from "antd";
 import { RegUtil } from "utils/RegUtils";
 import CustomInput from "./customInput";
-import "moment/locale/vi"
+import "moment/locale/vi";
 
 const { Option } = Select;
 const GeneralInformation = (props: any) => {
@@ -26,9 +26,8 @@ const GeneralInformation = (props: any) => {
     isEdit,
     AccountChangeSearch,
   } = props;
-const handleDateChange = (e: any) =>{
-  console.log(e)
-}
+
+  const handleDateChange = (e: any) => {};
   return (
     <Row gutter={24}>
       <Col span={18}>
@@ -134,7 +133,6 @@ const handleDateChange = (e: any) =>{
                   style={{ width: "100%" }}
                   placeholder="Chọn ngày sinh"
                   format={"DD/MM/YYYY"}
-                
                 />
               </Form.Item>
             </Col>
@@ -158,12 +156,11 @@ const handleDateChange = (e: any) =>{
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item  name="wedding_date" label={<b>Ngày cưới:</b>}>
+                  <Form.Item name="wedding_date" label={<b>Ngày cưới:</b>}>
                     <DatePicker
                       style={{ width: "100%" }}
                       placeholder="Chọn ngày cưới"
                       format={"DD/MM/YYYY"}
-                      
                       onChange={handleDateChange}
                     />
                   </Form.Item>
@@ -283,14 +280,14 @@ const handleDateChange = (e: any) =>{
                     />
                   </Form.Item> */}
                   <CustomInput
-                name="full_address"
-                label="Địa chỉ chi tiết:"
-                form={form}
-                message="Vui lòng nhập địa chỉ"
-                placeholder="Nhập địa chỉ chi tiết"
-                maxLength={500}
-                isRequired={false}
-              />
+                    name="full_address"
+                    label="Địa chỉ chi tiết:"
+                    form={form}
+                    message="Vui lòng nhập địa chỉ"
+                    placeholder="Nhập địa chỉ chi tiết"
+                    maxLength={500}
+                    isRequired={false}
+                  />
                 </Col>
               </Row>
             </Col>

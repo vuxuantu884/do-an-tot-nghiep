@@ -302,3 +302,15 @@ export interface VariantUpdateView {
   product_id:number|null,
   supplier_id:number|null
 }
+
+export interface ProductHistoryResponse extends BaseObject {
+  rootId: number,
+  variantId: number|null,
+  data: string,
+  action: string,
+  deleted: boolean,
+}
+
+export interface ProductHistoryQuery extends BaseQuery {
+  condition?: string
+}

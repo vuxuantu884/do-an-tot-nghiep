@@ -88,6 +88,13 @@ function CustomerShippingAddressInfo(props: any) {
       dataIndex: "name",
       visible: true,
       width: "20%",
+      render: (value, row, index) => {
+        return (
+          <span style={{ wordWrap: "break-word", wordBreak: "break-all" }}>
+            {row.name}
+          </span>
+        );
+      },
     },
     {
       title: "Số điện thoại",
@@ -265,7 +272,6 @@ function CustomerShippingAddressInfo(props: any) {
           onRow={(record: CustomerShippingAddress) => {
             return {
               onClick: (event) => {
-                console.log(record);
                 setModalShippingAddress(record);
                 setModalAction("edit");
                 // setIsShowModalShipping(true);

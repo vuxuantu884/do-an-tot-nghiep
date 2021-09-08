@@ -139,10 +139,9 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
     <div className="inventory-filter">
       <Form.Provider
         onFormFinish={(name, { values, forms }) => {
-          console.log(forms);
           let baseValues = formBaseFilter.getFieldsValue(true);
           let advanceValues = formAdvanceFilter?.getFieldsValue(true);
-          let data = { ...baseValues, ...advanceValues };
+          let data = {...baseValues,...advanceValues, store_id: baseValues.store_id, condition: baseValues.condition };
           let created_date = data[InventoryQueryField.created_date],
             transaction_date = data[InventoryQueryField.transaction_date],
             total_stock = data[InventoryQueryField.total_stock],
@@ -413,7 +412,7 @@ const FilterList = ({ filters, resetField }: any) => {
             let [from2, to2] = value;
             let fromS2 = '';
             let toS2 = '';
-            if(from2 === undefined || from2 === null) {
+            if(from2 === undefined || from2 === null || from2 === '~') {
               fromS2 = '~'
             } else {
               fromS2 = from2;

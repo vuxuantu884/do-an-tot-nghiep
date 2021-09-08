@@ -1,6 +1,7 @@
 const InventoryQueryField = {
   condition: 'condition',
   store_id: 'store_id',
+  store_ids: 'store_ids',
   is_remain: 'is_remain',
   created_date: 'created_date',
   transaction_date: 'transaction_date',
@@ -52,8 +53,8 @@ const InventoryMappingField = {
   [AvdInventoryFilter.on_hold]: 'Hàng tạm giữ',
   [AvdInventoryFilter.defect]: 'Hàng lỗi',
   [AvdInventoryFilter.incoming]: 'Chờ nhập',
-  [AvdInventoryFilter.transferring]: 'Hàng đang chuyển đi',
-  [AvdInventoryFilter.on_way]: 'Hàng đang giao ',
+  [AvdInventoryFilter.transferring]: 'Hàng đang chuyển đến',
+  [AvdInventoryFilter.on_way]: 'Hàng đang chuyển đi ',
   [AvdInventoryFilter.shipping]: 'Hàng đang giao',
   [AvdInventoryFilter.mac]: 'Giá vốn',
   [AvdInventoryFilter.import_price]: 'Giá nhập',
@@ -62,7 +63,7 @@ const InventoryMappingField = {
 
 const HistoryInventoryQueryField = {
   condition: 'condition',
-  store_id: 'store_id',
+  store_ids: 'store_ids',
   from_created_date: 'from_created_date',
   to_created_date: 'to_created_date',
   from_transaction_date: 'from_transaction_date',

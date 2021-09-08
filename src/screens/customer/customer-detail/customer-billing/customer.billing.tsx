@@ -279,7 +279,6 @@ function CustomerShippingInfo(props: any) {
           onRow={(record: CustomerBillingAddress) => {
             return {
               onClick: (event) => {
-                console.log(record);
                 setModalBillingAddress(record);
                 setModalAction("edit");
                 // setIsShowModalBilling(true);
