@@ -36,6 +36,7 @@ const AllTab: React.FC<TabProps> = (props: TabProps) => {
     (result: PageResponse<AllInventoryResponse> | false) => {
       setLoading(false);
       if (result) {
+        console.log(result);
         setData(result);
       }
     },

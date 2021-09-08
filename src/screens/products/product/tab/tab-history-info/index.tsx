@@ -96,7 +96,7 @@ const TabHistoryInfo: React.FC = () => {
       dataIndex: "action",
       visible: true,
       align: "center",
-      render: (value) => (value === "Create" ? "Thêm mới" : "Cập nhật"),
+      render: (value) => (value === "Create" ? "Thêm mới" : "Sửa thông tin"),
     },
     {
       title: "Thời gian",
