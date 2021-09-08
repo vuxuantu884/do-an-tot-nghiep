@@ -252,7 +252,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
               />
             </Item>
-            <Item name={InventoryQueryField.store_id} className="store">
+            <Item name={InventoryQueryField.store_ids} className="store">
               <CustomSelect
                 showSearch
                 optionFilterProp="children"

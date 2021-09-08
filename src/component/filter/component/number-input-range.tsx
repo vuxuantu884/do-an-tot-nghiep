@@ -93,9 +93,9 @@ const NumberInputRange: React.FC<NumberInputRangeProps> = (
         />
         <div style={style} className={classNames("line-focus")} />
       </div>
-      {value[0] && value[1] && value[0] > value[1] && (
+      {value[0] !== undefined && value[1] !== undefined && value[0] > value[1] ? (
         <p>Số sau phải lớn hơn số trước</p>
-      )}
+      ) : null}
     </div>
   );
 };
