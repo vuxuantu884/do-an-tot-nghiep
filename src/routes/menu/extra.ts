@@ -16,7 +16,7 @@ const extra: Array<RouteMenu> = [
         subMenu: [],
     },
     {
-        path: "/customers/edit/:id",
+        path: "/customers/:id/edit",
         exact: true,
         title: "Sửa thông tin khách hàng",
         icon: 'icon-customer',
