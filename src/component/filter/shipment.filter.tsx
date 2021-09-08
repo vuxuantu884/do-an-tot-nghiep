@@ -89,6 +89,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
   const controlStatus = useMemo(() => [
     {name: "Chưa đối soát", value: "notControl"},
+    {name: "Đang đối soát", value: "controlling"},
     {name: "Đã đối sát", value: "hasControl"},
   ], []);
 
@@ -363,14 +364,28 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const [print, setPrint] = useState<any[]>(initialValues.print_status);
   const [control, setControl] = useState<any[]>(initialValues.reference_status);
   const changeStatusPrint = useCallback((status) => {
-    let newPrintStatus: any = []
+    let newPrintStatus = [...print]
     console.log('status', status);
     
-    if (status === 'true') {
-      newPrintStatus = [print.includes('true')? null : 'true', print.includes('false')? 'false' : null]
-    }
-    if (status === 'false') {
-      newPrintStatus = [print.includes('true')? 'true' : null, print.includes('false')? null : 'false']
+    switch (status) {
+      case 'true':
+        const index1 = newPrintStatus.indexOf('true');
+        if (index1 > -1) {
+          newPrintStatus.splice(index1, 1);
+        } else {
+          newPrintStatus.push('true')
+        }
+        break;
+      case 'false':
+        const index2 = newPrintStatus.indexOf('false');
+        if (index2 > -1) {
+          newPrintStatus.splice(index2, 1);
+        } else {
+          newPrintStatus.push('false')
+        }
+        break;
+      
+      default: break;  
     }
     console.log('newPrintStatus', newPrintStatus);
     
@@ -378,17 +393,34 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   }, [print]);
 
   const changeControl = useCallback((status) => {
-    let newControl: any = []
-    console.log('status', status);
-    
-    if (status === 'hasControl') {
-      newControl = [control.includes('hasControl')? null : 'hasControl', control.includes('notControl')? 'notControl' : null]
+    let newControl = [...control]
+    switch (status) {
+      case 'notControl':
+        const index1 = newControl.indexOf('notControl');
+        if (index1 > -1) {
+          newControl.splice(index1, 1);
+        } else {
+          newControl.push('notControl')
+        }
+        break;
+      case 'controlling':
+        const index2 = newControl.indexOf('controlling');
+        if (index2 > -1) {
+          newControl.splice(index2, 1);
+        }  else {
+          newControl.push('controlling')
+        }
+        break;
+      case 'hasControl':
+        const index = newControl.indexOf('hasControl');
+        if (index > -1) {
+          newControl.splice(index, 1);
+        } else {
+          newControl.push('hasControl')
+        }
+        break
+      default: break;  
     }
-    if (status === 'notControl') {
-      newControl = [control.includes('hasControl')? 'hasControl' : null, control.includes('notControl')? null : 'notControl']
-    }
-    console.log('newControl', newControl);
-    
     setControl(newControl)
   }, [control]);
 
@@ -396,8 +428,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     (values) => {
       const valuesForm = {
         ...values,
-        print_status: !print[0] && !print[1] ? [] : print,
-        reference_status: !control[0] && !control[1] ? [] : control,
+        print_status: print,
+        reference_status: control,
         packed_on_min: packedOnMin ? moment(packedOnMin, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
         packed_on_max: packedOnMax ? moment(packedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
         exported_on_min: exportedOnMin ? moment(exportedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
@@ -637,9 +669,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         setOptionsVariant(variants)
       })()
     }
-    setPrint(Array.isArray(params.status) ? params.status : [params.status])
+    setPrint(Array.isArray(params.print_status) ? params.print_status : [params.print_status])
     setControl(Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status])
-  }, [params.reference_status, params.status, params.variant_ids]);
+  }, [params.reference_status, params.print_status, params.variant_ids]);
 
   useLayoutEffect(() => {
     if (visible) {
@@ -794,12 +826,18 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.reference_status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI ĐỐI SOÁT" key="1" className="header-filter">
-                    <div className="button-option">
+                    <div className="date-option">
                       <Button
                         onClick={() => changeControl('hasControl')}
                         className={control.includes('hasControl') ? 'active' : 'deactive'}
                       >
                         Đã đối soát
+                      </Button>
+                      <Button
+                        onClick={() => changeControl('controlling')}
+                        className={control.includes('controlling') ? 'active' : 'deactive'}
+                      >
+                        Đang đối soát
                       </Button>
                       <Button
                         onClick={() => changeControl('notControl')}
