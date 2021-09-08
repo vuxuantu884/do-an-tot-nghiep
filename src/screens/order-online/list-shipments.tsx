@@ -34,8 +34,6 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import NumberFormat from "react-number-format";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { OrderProcessingStatusModel, OrderProcessingStatusResponseModel } from "model/response/order-processing-status.response";
-import { searchVariantsOrderRequestAction, searchVariantsRequestAction } from "domain/actions/product/products.action";
-import { VariantResponse } from "model/product/product.model";
 
 const actions: Array<MenuAction> = [
   {
@@ -159,9 +157,9 @@ const ListOrderScreen: React.FC = () => {
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<ShipmentModel>>>([
     {
       title: "Mã đơn giao",
-      dataIndex: "order_id",
+      dataIndex: "code",
       render: (value: string, i: ShipmentModel) => (
-        <Link to={value}>{value}</Link>
+        <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
       ),
       visible: true,
       fixed: 'left',
@@ -169,8 +167,7 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Mã vận đơn",
-      dataIndex: "code",
-      
+      dataIndex: "id",
       visible: true,
       width:"120px",
     },
@@ -310,8 +307,8 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Nhân viên tạo đơn giao",
-      dataIndex: "account",
-      key: "account",
+      dataIndex: "account_code",
+      key: "account_code",
       visible: true,
       align: "center",
     },
