@@ -1,6 +1,7 @@
 const InventoryQueryField = {
   condition: 'condition',
   store_id: 'store_id',
+  store_ids: 'store_ids',
   is_remain: 'is_remain',
   created_date: 'created_date',
   transaction_date: 'transaction_date',
@@ -62,7 +63,7 @@ const InventoryMappingField = {
 
 const HistoryInventoryQueryField = {
   condition: 'condition',
-  store_id: 'store_id',
+  store_ids: 'store_ids',
   from_created_date: 'from_created_date',
   to_created_date: 'to_created_date',
   from_transaction_date: 'from_transaction_date',

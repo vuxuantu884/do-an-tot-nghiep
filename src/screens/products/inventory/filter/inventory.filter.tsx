@@ -412,7 +412,7 @@ const FilterList = ({ filters, resetField }: any) => {
             let [from2, to2] = value;
             let fromS2 = '';
             let toS2 = '';
-            if(from2 === undefined || from2 === null) {
+            if(from2 === undefined || from2 === null || from2 === '~') {
               fromS2 = '~'
             } else {
               fromS2 = from2;

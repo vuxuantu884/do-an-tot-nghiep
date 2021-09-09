@@ -76,14 +76,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   ], []);
   const fulfillmentStatus = useMemo(() => [
     {name: "Chưa giao", value: "unshipped"},
-    {name: "Đã lấy hàng", value: "picked"},
-    {name: "Giao một phần", value: "partial"},
-    {name: "Đã đóng gói", value: "packed"},
+    // {name: "Đã lấy hàng", value: "picked"},
+    // {name: "Giao một phần", value: "partial"},
+    // {name: "Đã đóng gói", value: "packed"},
     {name: "Đang giao", value: "shipping"},
     {name: "Đã giao", value: "shipped"},
-    {name: "Đã hủy", value: "cancelled"},
-    {name: "Đang trả lại", value: "returning"},
-    {name: "Đã trả lại", value: "returned"}
+    // {name: "Đã hủy", value: "cancelled"},
+    // {name: "Đang trả lại", value: "returning"},
+    // {name: "Đã trả lại", value: "returned"}
   ], []);
   const paymentStatus =  useMemo(() => [
     {name: "Chưa trả", value: "unpaid"},
@@ -702,6 +702,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                           width: '100%'
                         }}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {listStore?.map((item) => (
                           <CustomSelect.Option key={item.id} value={item.id.toString()}>
@@ -727,6 +728,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         placeholder="Nguồn đơn hàng"
                         notFoundContent="Không tìm thấy kết quả"
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {listSources.map((item, index) => (
                           <CustomSelect.Option
@@ -855,6 +857,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       showSearch placeholder="Chọn trạng thái đơn hàng"
                       notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                       optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
                     >
                       {status?.map((item) => (
                         <Option key={item.value} value={item.value.toString()}>
@@ -880,6 +883,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       notFoundContent="Không tìm thấy kết quả"
                       style={{width: '100%'}}
                       optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
                     >
                       {subStatus?.map((item: any) => (
                         <Option key={item.id} value={item.id}>
@@ -902,6 +906,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         mode="multiple" showSearch placeholder="Chọn trạng thái giao hàng"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                           {fulfillmentStatus.map((item, index) => (
                             <Option
@@ -927,6 +932,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         showSearch placeholder="Chọn trạng thái thanh toán"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {paymentStatus.map((item, index) => (
                           <Option
@@ -952,6 +958,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         mode="multiple" showSearch placeholder="Chọn trạng thái trả hàng"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         <Option
                           style={{ width: "100%" }}
@@ -975,6 +982,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                           {accounts.map((item, index) => (
                             <Option
@@ -1000,6 +1008,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {accounts.map((item, index) => (
                           <Option
@@ -1063,6 +1072,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       mode="multiple" optionFilterProp="children" showSearch
                       notFoundContent="Không tìm thấy kết quả"
                       placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}
+                      getPopupContainer={trigger => trigger.parentNode}
                     >
                       {paymentType.map((item, index) => (
                         <Option
@@ -1110,9 +1120,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
                     <Item name="delivery_types">
                       <Select
+                        mode="multiple"
                         optionFilterProp="children" showSearch
-                        notFoundContent="Không tìm thấy kết quả" mode="multiple"
-                        placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
+                        notFoundContent="Không tìm thấy kết quả"
+                        placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
                         {/* <Option value="">Hình thức vận chuyển</Option> */}
                         {deliveryService?.map((item) => (
                           <Option key={item.id} value={item.id.toString()}>

@@ -151,3 +151,17 @@ export const DeleteNote = (id: number,customerId:number, setResult: (data: any) 
   return BaseAction(CustomerType.DELETE_NOTE, { id, customerId, setResult });
 }
 
+export const CustomerCreateAction = (
+  request: any,
+  setResult: (data: CustomerResponse) => void
+) => {
+  return BaseAction(CustomerType.CREATE_CUSTOMER, { request, setResult });
+};
+
+export const CustomerUpdateAction = (
+  id: number,
+  request: any,
+  setResult: (data: CustomerResponse) => void
+) => {
+  return BaseAction(CustomerType.UPDATE_CUSTOMER, { id, request, setResult });
+};

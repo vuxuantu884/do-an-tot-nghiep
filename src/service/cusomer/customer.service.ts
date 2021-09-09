@@ -75,14 +75,14 @@ export const updateContact = (id: number, customerId: number, contact: CustomerC
   return BaseAxios.put(url, contact);
 };
 
-export const createCustomer = (customer: CustomerRequest): Promise<BaseResponse<any>> => {
+export const createCustomer = (customer: any): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers`;
   return BaseAxios.post(url, customer);
 };
 
-export const updateCustomer = (id: number,customer: CustomerRequest): Promise<BaseResponse<any>> => {
+export const updateCustomer = (id: number,request: any): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${id}`;
-  return BaseAxios.put(url, customer);
+  return BaseAxios.put(url, request);
 };
 
 export const deleteContact = (id: number, customerId: number): Promise<BaseResponse<any>> => {

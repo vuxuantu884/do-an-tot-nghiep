@@ -669,7 +669,7 @@ const ListOrderScreen: React.FC = () => {
 
   return (
     <ContentContainer
-      title="Quản lý đơn hàng"
+      title="Danh sách đơn hàng"
       breadcrumb={[
         {
           name: "Tổng quan",

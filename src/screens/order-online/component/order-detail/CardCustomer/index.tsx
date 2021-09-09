@@ -9,34 +9,20 @@ import {
   Checkbox,
   Col,
   Divider,
-  Form,
+  Checkbox,
   Input,
   Popover,
   Row,
+  Col,
+  AutoComplete,
   Space,
   Tag,
   Typography,
+  Popover,
+  Form,
+  Tag,
+  Avatar,
 } from "antd";
-import { RefSelectProps } from "antd/lib/select";
-import imgDefault from "assets/icon/img-default.svg";
-import birthdayIcon from "assets/img/bithday.svg";
-import callIcon from "assets/img/call.svg";
-import editBlueIcon from "assets/img/edit_icon.svg";
-import noteCustomer from "assets/img/note-customer.svg";
-import addIcon from "assets/img/plus_1.svg";
-import pointIcon from "assets/img/point.svg";
-import addressIcon from "assets/img/user-pin.svg";
-import CustomSelect from "component/custom/select.custom";
-import { CustomerSearch } from "domain/actions/customer/customer.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { CustomerSearchQuery } from "model/query/customer.query";
-import {
-  BillingAddress,
-  CustomerResponse,
-  ShippingAddress,
-} from "model/response/customer/customer.response";
-import { SourceResponse } from "model/response/order/source.response";
-import moment from "moment";
 import React, {
   createRef,
   useCallback,
@@ -44,10 +30,42 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useDispatch } from "react-redux";
+import birthdayIcon from "assets/img/bithday.svg";
+import addIcon from "assets/img/plus_1.svg";
+import pointIcon from "assets/img/point.svg";
+import callIcon from "assets/img/call.svg";
+import imgDefault from "assets/icon/img-default.svg";
+import editBlueIcon from "assets/img/edit_icon.svg";
+import addressIcon from "assets/img/user-pin.svg";
+import noteCustomer from "assets/img/note-customer.svg";
+import { SearchOutlined } from "@ant-design/icons";
+import CustomSelect from "component/custom/select.custom";
 import { Link } from "react-router-dom";
-import AddAddressModal from "screens/order-online/modal/add-address.modal";
-import EditCustomerModal from "screens/order-online/modal/edit-customer.modal";
+import { useDispatch } from "react-redux";
+import AddAddressModal from "../modal/add-address.modal";
+import EditCustomerModal from "../modal/edit-customer.modal";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { RefSelectProps } from "antd/lib/select";
+import { CloseOutlined } from "@ant-design/icons";
+import {
+  BillingAddress,
+  CustomerResponse,
+  ShippingAddress,
+} from "model/response/customer/customer.response";
+import {
+  CustomerGroups,
+  CustomerSearch,
+} from "domain/actions/customer/customer.action";
+import moment from "moment";
+import { SourceResponse } from "model/response/order/source.response";
+import { CustomerSearchQuery } from "model/query/customer.query";
+import { WardResponse } from "model/content/ward.model";
+import {
+  DistrictGetByCountryAction,
+  WardGetByDistrictAction,
+} from "domain/actions/content/content.action";
+import { modalActionType } from "model/modal/modal.model";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 //#end region
 
 type CustomerCardProps = {
@@ -87,9 +105,18 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
-  const [customer, setCustomer] = useState<CustomerResponse | null>(
+ const [customer, setCustomer] = useState<CustomerResponse | null>(
     parentCustomerDetail
   );
+
+  const [countryId] = React.useState<number>(233);
+  const [areas, setAreas] = React.useState<Array<any>>([]);
+  const [districtId, setDistrictId] = React.useState<any>(null);
+  const [wards, setWards] = React.useState<Array<WardResponse>>([]);
+  const [groups, setGroups] = React.useState<Array<any>>([]);
+
+  const [modalAction, setModalAction] = useState<modalActionType>("create");
+
   console.log("customer", customer);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
@@ -116,10 +143,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleAddress(false);
   }, []);
 
-  const ShowCustomerModal = () => {
+  const OkConfirmCustomerCreate = () => {
+    setModalAction("create");
+    setCustomer(null);
     setVisibleCustomer(true);
   };
-
+  const OkConfirmCustomerEdit = () => {
+    setModalAction("edit");
+    setVisibleCustomer(true);
+  };
   const CancelConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
@@ -136,7 +168,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     (value) => {
       console.log("value", value);
       setKeySearchCustomer(value);
-      initQueryCustomer.request = value;
+      initQueryCustomer.request = value.trim();
       dispatch(CustomerSearch(initQueryCustomer, setResultSearch));
     },
     [dispatch, initQueryCustomer]
@@ -223,6 +255,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         }
         autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
+        setDistrictId(resultSearch[index].district_id);
       }
     },
     [autoCompleteRef, dispatch, resultSearch, customer]
@@ -235,6 +268,33 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(DistrictGetByCountryAction(countryId, setAreas));
+  }, [dispatch, countryId]);
+
+  useEffect(() => {
+    if (districtId) {
+      dispatch(WardGetByDistrictAction(districtId, setWards));
+      console.log(districtId);
+    }
+  }, [dispatch, districtId]);
+
+  useEffect(() => {
+    dispatch(CustomerGroups(setGroups));
+  }, [dispatch]);
+
+  const handleChangeArea = (districtId: string) => {
+    if (districtId) {
+      setDistrictId(districtId);
+    }
+  };
+
+  const handleChangeCustomer = (customers: any) => {
+    if (customers) {
+      setCustomer(customers);
+    }
+  };
 
   return (
     <Card
@@ -314,26 +374,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
               onSearch={CustomerChangeSearch}
               options={CustomerConvertResultSearch}
               dropdownRender={(menu) => (
-                <div>
-                  <div
-                    className="row-search w-100"
-                    style={{ minHeight: "42px", lineHeight: "50px" }}
+                <div className="dropdown-custom">
+                  <Button
+                    icon={<AiOutlinePlusCircle size={24} />}
+                    className="dropdown-custom-add-new"
+                    type="link"
+                    onClick={() => OkConfirmCustomerCreate()}
                   >
-                    <div className="rs-left w-100">
-                      <div style={{ float: "left", marginLeft: "20px" }}>
-                        <img src={addIcon} alt="" />
-                      </div>
-                      <div className="rs-info w-100">
-                        <span
-                          className="text"
-                          style={{ marginLeft: "23px", lineHeight: "18px" }}
-                        >
-                          Thêm mới khách hàng
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <Divider style={{ margin: "4px 0" }} />
+                    Thêm mới khách hàng
+                  </Button>
                   {menu}
                 </div>
               )}
@@ -356,7 +405,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             >
               <Space>
                 <Avatar size={32}>A</Avatar>
-                <Link to="#" className="primary" style={{ fontSize: "16px" }}>
+                <Link
+                  to="#"
+                  className="primary"
+                  style={{ fontSize: "16px" }}
+                  onClick={OkConfirmCustomerEdit}
+                >
                   {customer.full_name}
                 </Link>{" "}
                 <CloseOutlined
@@ -409,7 +463,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                 <Button
                   type="text"
                   className="p-0 ant-btn-custom"
-                  onClick={ShowCustomerModal}
+                  onClick={OkConfirmCustomerEdit}
                 >
                   <img
                     src={editBlueIcon}
@@ -705,9 +759,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         onOk={OkConfirmAddress}
       />
       <EditCustomerModal
+        areas={areas}
+        wards={wards}
+        groups={groups}
+        formItem={customer}
+        modalAction={modalAction}
         visible={isVisibleCustomer}
+        districtId={districtId}
+        handleChangeArea={handleChangeArea}
+        handleChangeCustomer={handleChangeCustomer}
         onCancel={CancelConfirmCustomer}
-        onOk={OkConfirmCustomer}
       />
     </Card>
   );
