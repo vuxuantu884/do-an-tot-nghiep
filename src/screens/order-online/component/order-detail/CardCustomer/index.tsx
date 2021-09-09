@@ -9,20 +9,42 @@ import {
   Checkbox,
   Col,
   Divider,
-  Checkbox,
+  Form,
   Input,
   Popover,
   Row,
-  Col,
-  AutoComplete,
   Space,
   Tag,
   Typography,
-  Popover,
-  Form,
-  Tag,
-  Avatar,
 } from "antd";
+import { RefSelectProps } from "antd/lib/select";
+import imgDefault from "assets/icon/img-default.svg";
+import birthdayIcon from "assets/img/bithday.svg";
+import callIcon from "assets/img/call.svg";
+import editBlueIcon from "assets/img/edit_icon.svg";
+import noteCustomer from "assets/img/note-customer.svg";
+import pointIcon from "assets/img/point.svg";
+import addressIcon from "assets/img/user-pin.svg";
+import CustomSelect from "component/custom/select.custom";
+import {
+  DistrictGetByCountryAction,
+  WardGetByDistrictAction,
+} from "domain/actions/content/content.action";
+import {
+  CustomerGroups,
+  CustomerSearch,
+} from "domain/actions/customer/customer.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { WardResponse } from "model/content/ward.model";
+import { modalActionType } from "model/modal/modal.model";
+import { CustomerSearchQuery } from "model/query/customer.query";
+import {
+  BillingAddress,
+  CustomerResponse,
+  ShippingAddress,
+} from "model/response/customer/customer.response";
+import { SourceResponse } from "model/response/order/source.response";
+import moment from "moment";
 import React, {
   createRef,
   useCallback,
@@ -30,42 +52,11 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import birthdayIcon from "assets/img/bithday.svg";
-import addIcon from "assets/img/plus_1.svg";
-import pointIcon from "assets/img/point.svg";
-import callIcon from "assets/img/call.svg";
-import imgDefault from "assets/icon/img-default.svg";
-import editBlueIcon from "assets/img/edit_icon.svg";
-import addressIcon from "assets/img/user-pin.svg";
-import noteCustomer from "assets/img/note-customer.svg";
-import { SearchOutlined } from "@ant-design/icons";
-import CustomSelect from "component/custom/select.custom";
-import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import AddAddressModal from "../modal/add-address.modal";
-import EditCustomerModal from "../modal/edit-customer.modal";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { RefSelectProps } from "antd/lib/select";
-import { CloseOutlined } from "@ant-design/icons";
-import {
-  BillingAddress,
-  CustomerResponse,
-  ShippingAddress,
-} from "model/response/customer/customer.response";
-import {
-  CustomerGroups,
-  CustomerSearch,
-} from "domain/actions/customer/customer.action";
-import moment from "moment";
-import { SourceResponse } from "model/response/order/source.response";
-import { CustomerSearchQuery } from "model/query/customer.query";
-import { WardResponse } from "model/content/ward.model";
-import {
-  DistrictGetByCountryAction,
-  WardGetByDistrictAction,
-} from "domain/actions/content/content.action";
-import { modalActionType } from "model/modal/modal.model";
 import { AiOutlinePlusCircle } from "react-icons/ai";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import AddAddressModal from "screens/order-online/modal/add-address.modal";
+import EditCustomerModal from "screens/order-online/modal/edit-customer.modal";
 //#end region
 
 type CustomerCardProps = {
@@ -105,7 +96,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
- const [customer, setCustomer] = useState<CustomerResponse | null>(
+  const [customer, setCustomer] = useState<CustomerResponse | null>(
     parentCustomerDetail
   );
 
