@@ -493,7 +493,7 @@ export const Products = {
       specifications: pr.specifications,
       product_type: pr.product_type ? pr.product_type : "",
       status: status,
-      tags: pr.tags.join(","),
+      tags: pr.tags,
       variants: variants,
       unit: pr.unit,
       supplier_id: pr.supplier_id,

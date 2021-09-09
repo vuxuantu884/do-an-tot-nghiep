@@ -91,7 +91,7 @@ const initialRequest: ProductRequestView = {
   length_unit: null,
   weight: null,
   weight_unit: null,
-  tags: [],
+  tags: "",
   unit: null,
   brand: null,
   content: null,

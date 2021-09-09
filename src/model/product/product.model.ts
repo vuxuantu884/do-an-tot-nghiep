@@ -243,7 +243,7 @@ export interface ProductRequestView {
   length_unit: string|null,
   weight: number|null,
   weight_unit: string|null,
-  tags: Array<string>,
+  tags: string,
   unit: string|null,
   brand: string|null,
   content: string|null,
