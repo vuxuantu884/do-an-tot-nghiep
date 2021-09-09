@@ -3,36 +3,39 @@ import xCloseBtn from "assets/icon/X_close.svg";
 
 type CustomInputTagsProps = {
   onChangeTag: (value: any) => void;
+  tags?: string;
+  isCloneOrder?: boolean;
 };
 
 const CustomeInputTags: React.FC<CustomInputTagsProps> = (
   props: CustomInputTagsProps
 ) => {
+  const { tags, isCloneOrder } = props;
   const [inputValue, setInputValue] = useState<string>("");
-  const [tags, setTags] = useState<string[]>([]);
   const [border, setBorder] = useState<boolean>(false);
-
+  let tagsArr = tags?.split(",");
   const handleChange = (e: any) => {
     if (e.target.value === ",") return;
     setInputValue(e.target.value);
   };
   const handleKeyDown = (e: any) => {
-    let _tags = [...tags];
-    if ((e.which === 13 && inputValue !== "") || (e.which === 188 && inputValue !== "")) {
+    let _tags = isCloneOrder && tagsArr ? [...tagsArr] : [];
+    if (
+      (e.which === 13 && inputValue !== "") ||
+      (e.which === 188 && inputValue !== "")
+    ) {
       _tags.push(inputValue);
       setInputValue("");
     }
     if (e.which === 8 && inputValue === "") {
       _tags.pop();
     }
-    setTags(_tags);
     props.onChangeTag(_tags);
   };
 
   const handleDelete = (index: number) => {
-    let _tags = [...tags];
+    let _tags = isCloneOrder && tagsArr ? [...tagsArr] : [];
     _tags.splice(index, 1);
-    setTags(_tags);
     props.onChangeTag(_tags);
   };
 
@@ -47,18 +50,23 @@ const CustomeInputTags: React.FC<CustomInputTagsProps> = (
           : { border: "1px solid #d9d9d9" }
       }
     >
-      {tags.map((tag, index) => (
-        <div key={index}>
-          <span>{tag}</span>
-          <img alt="" onClick={() => handleDelete(index)} src={xCloseBtn}></img>
-        </div>
-      ))}
+      {tagsArr &&
+        tagsArr.map((tag, index) => (
+          <div key={index}>
+            <span>{tag}</span>
+            <img
+              alt=""
+              onClick={() => handleDelete(index)}
+              src={xCloseBtn}
+            ></img>
+          </div>
+        ))}
 
       <input
         maxLength={250}
         value={inputValue}
         type="text"
-        placeholder={tags.length > 0 ? "" : "Thêm tags"}
+        placeholder={tagsArr && tagsArr.length > 0 ? "" : "Thêm tags"}
         onChange={(e) => handleChange(e)}
         onKeyDown={(e) => handleKeyDown(e)}
       ></input>

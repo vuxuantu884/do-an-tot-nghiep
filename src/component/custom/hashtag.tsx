@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
 import xCloseBtn from "assets/icon/X_close.svg";
 
-
 type HashTagProps = {
   value?: string;
   onChange?: (result: string) => void;
-  placeholder?: string,
+  placeholder?: string;
 };
 
 const HashTag: React.FC<HashTagProps> = (props: HashTagProps) => {
@@ -16,29 +15,32 @@ const HashTag: React.FC<HashTagProps> = (props: HashTagProps) => {
     if (e.target.value === ",") return;
     setInputValue(e.target.value);
   };
-  
+
   const listTag = useMemo(() => {
-    if(props.value) {
-      return props.value.split(',')
+    if (props.value) {
+      return props.value.split(",");
     }
-    return []
-  }, [props.value])
+    return [];
+  }, [props.value]);
   const handleKeyDown = (e: any) => {
     let _tags = [...listTag];
-    if ((e.which === 13 && inputValue !== "") || (e.which === 188 && inputValue !== "")) {
+    if (
+      (e.which === 13 && inputValue !== "") ||
+      (e.which === 188 && inputValue !== "")
+    ) {
       _tags.push(inputValue);
       setInputValue("");
     }
     if (e.which === 8 && inputValue === "") {
       _tags.pop();
     }
-    props.onChange && props.onChange(_tags.join(','));
+    props.onChange && props.onChange(_tags.join(","));
   };
 
   const handleDelete = (index: number) => {
     let _tags = [...listTag];
     _tags.splice(index, 1);
-    props.onChange && props.onChange(_tags.join(','));
+    props.onChange && props.onChange(_tags.join(","));
   };
   return (
     <div

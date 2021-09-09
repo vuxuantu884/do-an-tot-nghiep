@@ -80,7 +80,7 @@ export interface OrderLineItemResponse {
   weight_unit: string;
   warranty: string;
   tax_rate: number;
-  tax_include: boolean;
+  tax_include: boolean | null;
   line_amount_after_line_discount: number;
   discount_items: Array<OrderItemDiscountResponse>;
   discount_rate: number;
@@ -137,11 +137,19 @@ export interface OrderDiscountResponse {
   source: string | null;
 }
 
+// export interface OrderItemDiscountResponse {
+//   rate: number | null;
+//   value: number;
+//   amount: number | null;
+//   promotion_id?: number | null;
+//   reason: string | null;
+// }
+
 export interface OrderItemDiscountResponse {
-  rate: number | null;
+  rate: number;
   value: number;
-  amount: number | null;
-  promotion_id?: number | null;
+  amount: number;
+  promotion_id?: number;
   reason: string | null;
 }
 

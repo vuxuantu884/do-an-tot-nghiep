@@ -29,6 +29,7 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
+import { ChannelResponse } from "model/response/product/channel.response";
 import { generateQuery } from "utils/AppUtils";
 
 export const getListOrderApi = (
@@ -195,3 +196,7 @@ export const setSubStatusService = (
     `${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusId}`
   );
 };
+
+export const getChannelApi = (): Promise<BaseResponse<Array<ChannelResponse>>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/channels`)
+}
