@@ -49,15 +49,14 @@ function ActionHistoryModal(props: PropType) {
       title: "Nội dung thay đổi",
       dataIndex: "title",
       key: "title",
-      width: "30%",
+      width: "20%",
     },
     {
       title: "Trước",
       dataIndex: "before",
       key: "before",
-      width: "30%",
+      width: "40%",
       render: (value: string, row: any) => {
-        console.log("value", value);
         return renderRow(value, row);
       },
     },
@@ -65,6 +64,7 @@ function ActionHistoryModal(props: PropType) {
       title: "Sau",
       dataIndex: "current",
       key: "current",
+      width: "40%",
       render: (value: string, row: any) => {
         return renderRow(value, row);
       },
@@ -84,11 +84,6 @@ function ActionHistoryModal(props: PropType) {
       key: "current",
       width: "50%",
       render: (text: string) => {
-        // let dataJson = JSON.parse(text);
-        // let abc = JSON.stringify(dataJson, undefined, 4);
-        // console.log("abc", abc);
-        // return abc;
-        // return <code>{text}</code>;
         return text;
       },
     },
@@ -108,24 +103,20 @@ function ActionHistoryModal(props: PropType) {
       if (data) {
         let dataJson = JSON.parse(data);
         console.log("dataJson", dataJson);
-        result = ` -Nhân viên: ${dataJson.created_name}.<br/>
-        -Chức năng : ${dataJson.status_after}.<br/>
-        -Thao tác: 222.<br/>
-        -Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}.<br/>
-        -Nội dung chi tiết : <br/>
-        * Phiếu đóng gói: : <br/>
-        + Mã phiếu đóng gói: null <br/>
-          + Địa chỉ giao hàng: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
-          + Địa chỉ nhận hóa đơn: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
-          + Ngày đóng gói: null<br/>
-          +  Phương thức giao hàng: ${
-            dataJson.fulfillments[0].shipment.delivery_service_provider
-          } <br/>
-          + Trạng thái đóng gói: ${dataJson.fulfillments[0].status} <br/>
-          + Ghi chú: ${dataJson.note} <br/>
-        * Sản phẩm: <br/>
-        ${dataJson.items.map((singleItem: any, index: any) => {
-          return `
+        result = `
+        <span style="color:red">Thông tin đơn hàng: </span><br/> 
+        - Nhân viên: ${dataJson.created_name}<br/>
+        - Trạng thái : ${dataJson.status_after}<br/>
+        - Nguồn : ${dataJson.source}<br/>
+        - Cửa hàng : ${dataJson.store}<br/>
+        - Địa chỉ cửa hàng : ${dataJson.store_full_address}<br/>
+        - Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}<br/>
+        - Ghi chú: ${dataJson.note} <br/>
+        <br/>
+        <span style="color:red">Sản phẩm: </span><br/> 
+        ${dataJson.items
+          .map((singleItem: any, index: any) => {
+            return `
         - Sản phẩm ${index + 1}: ${singleItem.product} <br/>
           + Đơn giá: ${singleItem.price} <br/>
           + Số lượng: ${singleItem.quantity} <br/>
@@ -133,7 +124,29 @@ function ActionHistoryModal(props: PropType) {
           + Chiết khấu sản phẩm: ${singleItem.discount_value || 0} <br/>
           + Thành tiền: ${singleItem.amount} <br/>
           `;
-        })}
+          })
+          .join("<br/>")}
+        <br/>
+        <span style="color:red">Phiếu đóng gói: </span><br/> 
+        - Địa chỉ giao hàng: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
+        - Địa chỉ nhận hóa đơn: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
+        - Phương thức giao hàng: ${
+          dataJson.fulfillments[0].shipment.delivery_service_provider
+        } <br/>
+        - Trạng thái: ${dataJson.fulfillments[0].status} <br/>
+        <br/>
+        <span style="color:red">Thanh toán: </span><br/>  
+        ${
+          dataJson.payments.length <= 0
+            ? `-Chưa thanh toán`
+            : dataJson.payments
+                .map((singlePayment: any, index: number) => {
+                  return `
+                  - ${singlePayment.payment_method}: ${singlePayment.paid_amount}
+                `;
+                })
+                .join("<br/>")
+        }
         `;
       }
       return result;
@@ -141,7 +154,6 @@ function ActionHistoryModal(props: PropType) {
     if (actionId) {
       dispatch(
         actionGetActionLogDetail(actionId, (response) => {
-          console.log("response", response);
           let detailToTextBefore = convertActionLogDetailToText(
             response.before?.data
           );
@@ -197,7 +209,7 @@ function ActionHistoryModal(props: PropType) {
       visible={isModalVisible}
       footer={false}
       onCancel={handleCancel}
-      width="814px"
+      width="1200px"
     >
       <StyledComponent>
         <div className="sectionButton">
