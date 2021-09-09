@@ -24,6 +24,7 @@ import { materialSaga } from "./product/material.saga";
 import { productSaga } from "./product/product.saga";
 import { sizeSaga } from "./product/size.saga";
 import { settingOrderProcessingStatusSaga } from "./settings/order-processing-status.saga";
+import { settingOrdersSaga } from "./settings/order-settings.saga";
 import { settingOrderSourceSaga } from "./settings/order-source.saga";
 
 function* rootSaga() {
@@ -54,6 +55,7 @@ function* rootSaga() {
     customerGroupSaga(),
     OrderActionLogSaga(),
     inventorySaga(),
+    settingOrdersSaga(),
   ]);
 }
 

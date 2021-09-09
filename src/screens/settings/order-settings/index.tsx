@@ -3,6 +3,15 @@ import { Card, Switch } from "antd";
 import ContentContainer from "component/container/content.container";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
+import moment from "moment";
+import {
+  actionConfigureIsAllowToSellWhenNotAvailableStock,
+  actionGetIsAllowToSellWhenNotAvailableStock,
+  actionListConfigurationShippingServiceAndShippingFee,
+} from "domain/actions/settings/order-settings.action";
+import { ShippingServiceConfigResponseModel } from "model/response/settings/order-settings.response";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 // import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { StyledComponent } from "./styles";
@@ -10,29 +19,20 @@ import { StyledComponent } from "./styles";
 type PropType = {};
 
 function OrderSettings(props: PropType) {
-  const FAKE_LOGISTIC_SETTINGS = [
-    {
-      key: "1",
-      name: "Phí ship free đơn từ 499k, 20k đơn nhỏ hơn 499k 1",
-      style: "Kiểu 1",
-      date: "15:30 25/08/2021 - 12:00 31/21/2022 1",
-      isActive: true,
-    },
-    {
-      key: "2",
-      name: "Phí ship free đơn từ 499k, 20k đơn nhỏ hơn 499k 2",
-      style: "Kiểu 2",
-      date: "15:30 25/08/2021 - 12:00 31/21/2022 2",
-      isActive: false,
-    },
-    {
-      key: "3",
-      name: "Phí ship free đơn từ 499k, 20k đơn nhỏ hơn 499k 3",
-      style: "Kiểu 3",
-      date: "15:30 25/08/2021 - 12:00 31/21/2022 3",
-      isActive: true,
-    },
-  ];
+  const [
+    IsAllowToSellWhenNotAvailableStock,
+    setIsAllowToSellWhenNotAvailableStock,
+  ] = useState(false);
+
+  const [
+    isLoadedAllowToSellWhenNotAvailableStock,
+    setisLoadedAllowToSellWhenNotAvailableStock,
+  ] = useState(false);
+
+  const [ShippingServiceConfig, setShippingServiceConfig] = useState<
+    ShippingServiceConfigResponseModel[]
+  >([]);
+  const dispatch = useDispatch();
 
   const FAKE_LOGISTIC_SETTINGS_COLUMN = [
     {
@@ -43,8 +43,8 @@ function OrderSettings(props: PropType) {
     },
     {
       title: "Tiêu đề",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "program_name",
+      key: "program_name",
     },
     {
       title: "Kiểu",
@@ -55,12 +55,22 @@ function OrderSettings(props: PropType) {
       title: "Thời gian áp dụng",
       dataIndex: "date",
       key: "date",
+      render: (
+        value: any,
+        row: ShippingServiceConfigResponseModel,
+        index: number
+      ) => {
+        const start_date_text = moment(row.start_date).format(
+          "HH:mm DD/MM/YYYY"
+        );
+        const end_date_text = moment(row.end_date).format("HH:mm DD/MM/YYYY");
+        return <span>{`${start_date_text} - ${end_date_text}`}</span>;
+      },
     },
     {
       title: "Áp dụng",
-      dataIndex: "isActive",
-      key: "isActive",
-
+      dataIndex: "status",
+      key: "status",
       render: (value: any, row: any, index: number) => {
         return <CheckOutlined />;
       },
@@ -88,11 +98,34 @@ function OrderSettings(props: PropType) {
 
   const onChange = (checked: any) => {
     console.log("checked", checked);
+    dispatch(
+      actionConfigureIsAllowToSellWhenNotAvailableStock(checked, () => {})
+    );
   };
 
   const goToPageDetail = (id: string | number) => {
-    history.replace(`${UrlConfig.ORDER_SETTINGS}/${id}`);
+    history.push(`${UrlConfig.ORDER_SETTINGS}/${id}`);
   };
+
+  useEffect(() => {
+    dispatch(
+      actionGetIsAllowToSellWhenNotAvailableStock((response) => {
+        setIsAllowToSellWhenNotAvailableStock(response.sellable_inventory);
+        setisLoadedAllowToSellWhenNotAvailableStock(true);
+      })
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      actionListConfigurationShippingServiceAndShippingFee((response) => {
+        console.log("response", response);
+        setShippingServiceConfig(response);
+        // setIsAllowToSellWhenNotAvailableStock(response.sellable_inventory);
+        // setisLoadedAllowToSellWhenNotAvailableStock(true);
+      })
+    );
+  }, [dispatch]);
 
   return (
     <StyledComponent>
@@ -114,12 +147,14 @@ function OrderSettings(props: PropType) {
       >
         <Card title={null} className="sectionAllowInventory">
           Cho phép bán khi tồn kho
-          <Switch
-            defaultChecked
-            onChange={onChange}
-            className="ant-switch-primary"
-            style={{ marginLeft: 20 }}
-          />
+          {isLoadedAllowToSellWhenNotAvailableStock && (
+            <Switch
+              defaultChecked={IsAllowToSellWhenNotAvailableStock}
+              onChange={onChange}
+              className="ant-switch-primary"
+              style={{ marginLeft: 20 }}
+            />
+          )}
         </Card>
         <Card
           title="Cài đặt dịch vụ vận chuyển và phí ship báo khách"
@@ -130,13 +165,13 @@ function OrderSettings(props: PropType) {
             showColumnSetting={false}
             scroll={{ x: 1080 }}
             pagination={false}
-            dataSource={FAKE_LOGISTIC_SETTINGS}
+            dataSource={ShippingServiceConfig}
             columns={FAKE_LOGISTIC_SETTINGS_COLUMN}
-            rowKey={(item: any) => item.key}
-            onRow={(record: any) => {
+            rowKey={(item: ShippingServiceConfigResponseModel) => item.id}
+            onRow={(record: ShippingServiceConfigResponseModel) => {
               return {
                 onClick: (event) => {
-                  goToPageDetail(record.key);
+                  goToPageDetail(record.id);
                 }, // click row
               };
             }}
