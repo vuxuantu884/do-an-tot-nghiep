@@ -20,7 +20,7 @@ const initQueryCustomer: FpageCustomerSearchQuery = {
 };
 
 function FpageCRM() {
-  let phoneQuery = useQuery();
+  let queryString = useQuery();
   const dispatch = useDispatch();
   const [isButtonSelected, setIsButtonSelected] = React.useState<number>(1);
   const [customerDetail, setCustomerDetail] =
@@ -33,8 +33,9 @@ function FpageCRM() {
     Array<string>
   >([]);
   const [customerPhoneString] = React.useState<string | null>(
-    phoneQuery?.get("phone")
+    queryString?.get("phone")
   );
+  const [customerFbName] = React.useState<string | null>(queryString?.get("name"))
   const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>([]);
   const [querySearchOrderFpage, setQuerySearchOrderFpage] = React.useState<any>(
     {
@@ -153,6 +154,7 @@ function FpageCRM() {
             deletePhone={deletePhone}
             metaData={metaData}
             onPageChange={onPageChange}
+            customerFbName={customerFbName}
           />
         )}
       </div>

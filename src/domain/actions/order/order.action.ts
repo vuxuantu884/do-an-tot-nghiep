@@ -26,6 +26,7 @@ import {
   VTPFeeResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { ChannelResponse } from "model/response/product/channel.response";
 import { OrderType } from "../../types/order.type";
 
 export const orderCreateAction = (
@@ -187,3 +188,6 @@ export const actionGetActionLogDetail = (
     },
   };
 };
+export const getListChannelRequest = (setData: (data: Array<ChannelResponse>) => void) => {
+  return BaseAction(OrderType.GET_LIST_CHANNEL_REQUEST, {setData});
+}

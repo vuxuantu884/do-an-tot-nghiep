@@ -102,14 +102,15 @@ const HistoryTab: React.FC<TabProps> = (props: TabProps) => {
       align: 'right',
       title: 'SL thay đổi',
       visible: true,
-      dataIndex: 'committed'
+      dataIndex: 'on_hand_adj'
     },
    
     {
       align: 'right',
-      title: 'Giá bán',
+      title: 'Giá',
       visible: true,
-      dataIndex: 'import_price'
+      dataIndex: 'retail_price',
+      render: (value) => formatCurrency(value), 
     },
     {
       align: 'right',

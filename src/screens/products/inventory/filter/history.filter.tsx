@@ -121,7 +121,38 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
   return (
     <div className="inventory-filter">
-      <Form.Provider>
+      <Form.Provider
+        onFormFinish={(name, { values, forms }) => {
+          let baseValues = formBaseFilter.getFieldsValue(true);
+          let advanceValues = formAdvanceFilter?.getFieldsValue(true);
+          let data = {...baseValues,...advanceValues, store_ids: baseValues.store_ids, condition: baseValues.condition };
+          let created_date = data[AvdHistoryInventoryFilter.created_date],
+            transaction_date = data[AvdHistoryInventoryFilter.transaction_date];
+
+          const [from_created_date, to_created_date] = created_date
+              ? created_date
+              : [undefined, undefined],
+            [from_transaction_date, to_transaction_date] = transaction_date
+              ? transaction_date
+              : [undefined, undefined];
+          for (let key in data) {
+            if (data[key] instanceof Array) {
+              if (data[key].length === 0) data[key] = undefined;
+            }
+          }
+          data = {
+            ...data,
+            from_created_date,
+            to_created_date,
+            from_transaction_date,
+            to_transaction_date,
+          };
+          formBaseFilter.setFieldsValue({ ...data });
+          formAdvanceFilter?.setFieldsValue({
+            ...data,
+          });
+        }}
+      >
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form
             onFinish={onBaseFinish}
