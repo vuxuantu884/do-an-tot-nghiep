@@ -13,6 +13,7 @@ import customerSagas from "./customer/customer.saga";
 import { inventorySaga } from "./invetory/inventory.saga";
 import { OrderActionLogSaga } from "./order/action-log.saga";
 import { OrderOnlineSaga } from "./order/order.saga";
+import { loyaltySaga } from "./loyalty/loyalty.saga";
 import { paymentConditionsSaga } from "./po/payment-conditions.saga";
 import { poPaymentSaga } from "./po/po-payment.saga";
 import { poProcumentSaga } from "./po/po-procument.saga";
@@ -56,6 +57,7 @@ function* rootSaga() {
     OrderActionLogSaga(),
     inventorySaga(),
     settingOrdersSaga(),
+    loyaltySaga(),
   ]);
 }
 

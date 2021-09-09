@@ -1,0 +1,50 @@
+.create-customer-ranking {
+  color: #222222;
+  font-size: 14px;
+  line-height: 16px;
+
+  .general-info {
+    padding: 21px 24px 40px;
+
+    .row-label {
+      font-weight: 500;
+      margin-bottom: 9px;
+    }
+  }
+}
+
+.footer-controller {
+  .back {
+    display: flex;
+    align-items: center;
+    padding-left: 24px !important;
+
+    a {
+      color: #737373;
+    }
+
+    svg {
+      margin-right: 8px;
+    }
+  }
+
+  .action-group {
+    padding-right: 50px !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    .save-btn {
+      margin-left: 30px;
+    }
+
+    .cancel-btn {
+      background-color: white;
+
+      &:hover {
+        color: #222222;
+        background-color: white;
+      }
+    }
+  }
+}
