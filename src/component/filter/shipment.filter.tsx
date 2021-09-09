@@ -13,7 +13,7 @@ import {
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
@@ -25,6 +25,8 @@ import { ShipmentSearchQuery } from "model/order/shipment.model";
 import moment from "moment";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
+import DebounceSelect from "./component/debounce-select";
+import { searchVariantsApi, getVariantApi } from "service/product/product.service";
 
 const { Panel } = Collapse;
 type OrderFilterProps = {
@@ -42,6 +44,20 @@ type OrderFilterProps = {
 
 const { Item } = Form;
 const { Option } = Select;
+
+async function searchVariants(input: any) {
+  try {
+    const result = await searchVariantsApi({info: input})
+    return result.data.items.map(item => {
+      return {
+        label: item.name,
+        value: item.id.toString()
+      }
+    })
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 const OrderFilter: React.FC<OrderFilterProps> = (
   props: OrderFilterProps
@@ -70,13 +86,25 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   //   {name: "Đã huỷ", value: "cancelled"},
   //   {name: "Đã hết hạn", value: "expired"},
   // ], []);
+
+  const controlStatus = useMemo(() => [
+    {name: "Chưa đối soát", value: "notControl"},
+    {name: "Đang đối soát", value: "controlling"},
+    {name: "Đã đối sát", value: "hasControl"},
+  ], []);
+
+  const printStatus = useMemo(() => [
+    {name: "Chưa in", value: 'false'},
+    {name: "Đã in", value: 'true'},
+  ], []);
   
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
 
+  const [optionsVariant, setOptionsVariant] = useState<{ label: string, value: string}[]>([]);
+
   const onChangeOrderOptions = useCallback((e) => {
-    console.log('ok lets go', e.target.value);
-    onFilter && onFilter({...params, is_online: e.target.value});
+    onFilter && onFilter({...params, status: e.target.value});
   }, [onFilter, params]);
 
   const onFilterClick = useCallback(() => {
@@ -98,7 +126,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
   const onChangeRangeDate = useCallback(
     (dates, dateString, type) => {
-      console.log(dates, dateString, type)
       switch(type) {
         case 'packed':
           setPackedOnMin(dateString[0])
@@ -129,8 +156,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
-      console.log('key', tag.key)
-      console.log('params', params);
       switch(tag.key) {
         case 'store':
           onFilter && onFilter({...params, store_ids: []});
@@ -163,14 +188,19 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           setReceivedOnMax(null)
           onFilter && onFilter({...params, received_on_min: null, received_on_max: null});
           break;  
-        
         // trạng thái đơn 
         // trạng thái đối soát
-        
+        case 'reference_status':
+          onFilter && onFilter({...params, reference_status: []});
+          break;
+
         case 'delivery_service_provider_ids':
           onFilter && onFilter({...params, delivery_service_provider_ids: []});
           break;
         // trạng thái in
+        case 'print_status':
+          onFilter && onFilter({...params, print_status: []});
+          break;
         case 'address':
           onFilter && onFilter({...params, assignee: ""});
           break;
@@ -213,8 +243,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     let minValue = null;
     let maxValue = null;
 
-    console.log('value', value);
-    
     switch(value) {
       case 'today':
         minValue = moment().startOf('day').format('DD-MM-YYYY')
@@ -243,8 +271,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       default:
         break
     }
-    console.log('minValue', minValue);
-    console.log('maxValue', maxValue);
     
     switch(type) {
       case 'packed':
@@ -335,11 +361,75 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   const [cancelledOnMin, setCancelledOnMin] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
   const [cancelledOnMax, setCancelledOnMax] = useState(initialValues.cancelled_on_max? moment(initialValues.cancelled_on_max, "DD-MM-YYYY") : null);
   
+  const [print, setPrint] = useState<any[]>(initialValues.print_status);
+  const [control, setControl] = useState<any[]>(initialValues.reference_status);
+  const changeStatusPrint = useCallback((status) => {
+    let newPrintStatus = [...print]
+    console.log('status', status);
+    
+    switch (status) {
+      case 'true':
+        const index1 = newPrintStatus.indexOf('true');
+        if (index1 > -1) {
+          newPrintStatus.splice(index1, 1);
+        } else {
+          newPrintStatus.push('true')
+        }
+        break;
+      case 'false':
+        const index2 = newPrintStatus.indexOf('false');
+        if (index2 > -1) {
+          newPrintStatus.splice(index2, 1);
+        } else {
+          newPrintStatus.push('false')
+        }
+        break;
+      
+      default: break;  
+    }
+    console.log('newPrintStatus', newPrintStatus);
+    
+    setPrint(newPrintStatus)
+  }, [print]);
+
+  const changeControl = useCallback((status) => {
+    let newControl = [...control]
+    switch (status) {
+      case 'notControl':
+        const index1 = newControl.indexOf('notControl');
+        if (index1 > -1) {
+          newControl.splice(index1, 1);
+        } else {
+          newControl.push('notControl')
+        }
+        break;
+      case 'controlling':
+        const index2 = newControl.indexOf('controlling');
+        if (index2 > -1) {
+          newControl.splice(index2, 1);
+        }  else {
+          newControl.push('controlling')
+        }
+        break;
+      case 'hasControl':
+        const index = newControl.indexOf('hasControl');
+        if (index > -1) {
+          newControl.splice(index, 1);
+        } else {
+          newControl.push('hasControl')
+        }
+        break
+      default: break;  
+    }
+    setControl(newControl)
+  }, [control]);
+
   const onFinish = useCallback(
     (values) => {
-      console.log('values filter 2', values);
       const valuesForm = {
         ...values,
+        print_status: print,
+        reference_status: control,
         packed_on_min: packedOnMin ? moment(packedOnMin, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
         packed_on_max: packedOnMax ? moment(packedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
         exported_on_min: exportedOnMin ? moment(exportedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
@@ -353,11 +443,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       }
       onFilter && onFilter(valuesForm);
     },
-    [exportedOnMax, exportedOnMin, onFilter, packedOnMax, packedOnMin, receivedOnMax, receivedOnMin, shipOnMax, shipOnMin]
+    [print, control, packedOnMin, packedOnMax, exportedOnMin, exportedOnMax, shipOnMin, shipOnMax, receivedOnMin, receivedOnMax, onFilter]
   );
   let filters = useMemo(() => {
     let list = []
-    console.log('filters initialValues', initialValues);
     if (initialValues.store_ids.length) {
       let textStores = ""
       initialValues.store_ids.forEach(store_id => {
@@ -435,19 +524,19 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     //     value: textStatus
     //   })
     // }
-    // if (initialValues.status.length) {
-    //   let textStatus = ""
+    if (initialValues.reference_status.length) {
+      let textStatus = ""
       
-    //   initialValues.status.forEach(i => {
-    //     const findStatus = subStatus?.find(item => item.id.toString() === i)
-    //     textStatus = findStatus ? textStatus + findStatus.sub_status + ";" : textStatus
-    //   })
-    //   list.push({
-    //     key: 'status',
-    //     name: 'Trạng thái đối soát',
-    //     value: textStatus
-    //   })
-    // }
+      initialValues.reference_status.forEach(i => {
+        const findStatus = controlStatus?.find(item => item.value === i)
+        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+      })
+      list.push({
+        key: 'reference_status',
+        name: 'Trạng thái đối soát',
+        value: textStatus
+      })
+    }
     if (initialValues.delivery_service_provider_ids.length) {
       let textService = ""
       initialValues.delivery_service_provider_ids.forEach(i => {
@@ -461,18 +550,18 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    // if (initialValues.print_status.length) {
-    //   let textStatus = ""
-    //   initialValues.print_status.forEach(i => {
-    //     const findStatus = paymentStatus?.find(item => item.value === i)
-    //     textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
-    //   })
-    //   list.push({
-    //     key: 'print_status',
-    //     name: 'Trạng thái in',
-    //     value: textStatus
-    //   })
-    // }
+    if (initialValues.print_status.length) {
+      let textStatus = ""
+      initialValues.print_status.forEach(i => {
+        const findStatus = printStatus?.find(item => item.value === i)
+        textStatus = findStatus ? textStatus + findStatus.name + ";" : textStatus
+      })
+      list.push({
+        key: 'print_status',
+        name: 'Trạng thái in',
+        value: textStatus
+      })
+    }
     if (initialValues.assignees.length) {
       let textAccount = ""
       initialValues.assignees.forEach(i => {
@@ -496,12 +585,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     if (initialValues.variant_ids.length) {
       let textVariant = ""
-      // initialValues.variant_ids.forEach(i => {
-      //   const findVariant = Variants?.find(item => item.code === i)
-      //   textVariant = findVariant ? textVariant + findVariant.full_name + " - " + findVariant.code + ";" : textVariant
-      // })
+      
+      console.log('optionsVariant', optionsVariant)
+      optionsVariant.forEach(i => {
+        textVariant = textVariant + i.label + ";"
+      })
       list.push({
-        key: 'variant',
+        key: 'variant_ids',
         name: 'Sản phẩm',
         value: textVariant
       })
@@ -527,8 +617,6 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.note) {
-      console.log('initialValues.note', initialValues.note);
-      
       list.push({
         key: 'note',
         name: 'Ghi chú nội bộ',
@@ -558,10 +646,32 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-  [accounts, deliveryService, initialValues, listSources, listStore]
+  [accounts, deliveryService, initialValues, optionsVariant, listSources, listStore]
   );
 
-  
+  useEffect(() => {
+    if (params.variant_ids.length) {
+      (async () => {
+        let variants: any = [];
+        await Promise.all(
+          params.variant_ids.map(async (variant_id) => {
+            try {
+              const result = await getVariantApi(variant_id)
+
+              variants.push({
+                label: result.data.name,
+                value: result.data.id.toString()
+              })
+            } catch {}
+          })
+        );
+        console.log('variants', variants);
+        setOptionsVariant(variants)
+      })()
+    }
+    setPrint(Array.isArray(params.print_status) ? params.print_status : [params.print_status])
+    setControl(Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status])
+  }, [params.reference_status, params.print_status, params.variant_ids]);
 
   useLayoutEffect(() => {
     if (visible) {
@@ -573,12 +683,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     <div>
       <div className="order-options">
         <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="true">
-          <Radio.Button value="a">Tất cả đơn giao hàng</Radio.Button>
-          <Radio.Button value="b">Chờ lấy hàng</Radio.Button>
-          <Radio.Button value="c">Đang giao hàng</Radio.Button>
-          <Radio.Button value="d">Đã giao hàng</Radio.Button>
-          <Radio.Button value="e">Huỷ giao - Chờ nhận</Radio.Button>
-          <Radio.Button value="f">Huỷ giao - Đã nhận</Radio.Button>
+          <Radio.Button value="unshipped">Chờ lấy hàng</Radio.Button>
+          <Radio.Button value="picked">Đã lấy hàng</Radio.Button>
+          <Radio.Button value="shipping">Đang giao hàng</Radio.Button>
+          <Radio.Button value="shipped">Đã giao hàng</Radio.Button>
+          <Radio.Button value="returning">Huỷ giao - Chờ nhận</Radio.Button>
+          <Radio.Button value="returned">Huỷ giao - Đã nhận</Radio.Button>
         </Radio.Group>
       </div>
       <div className="order-filter">
@@ -587,7 +697,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Item name="search_term" className="input-search">
               <Input
                 prefix={<img src={search} alt="" />}
-                placeholder="Tìm kiếm theo mã đơn giao, mã đơn hàng, sđt người nhận"
+                placeholder="Tìm kiếm theo mã đơn giao, mã đơn hàng, tên người nhận, sđt người nhận"
                 onBlur={(e) => {
                   formSearchRef?.current?.setFieldsValue({
                     search_term: e.target.value.trim()
@@ -643,6 +753,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                           width: '100%'
                         }}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {listStore?.map((item) => (
                           <CustomSelect.Option key={item.id} value={item.id.toString()}>
@@ -668,6 +779,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         placeholder="Nguồn đơn hàng"
                         notFoundContent="Không tìm thấy kết quả"
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {listSources.map((item, index) => (
                           <CustomSelect.Option
@@ -712,9 +824,28 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={[]}>
+                <Collapse defaultActiveKey={initialValues.reference_status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI ĐỐI SOÁT" key="1" className="header-filter">
-                    
+                    <div className="date-option">
+                      <Button
+                        onClick={() => changeControl('hasControl')}
+                        className={control.includes('hasControl') ? 'active' : 'deactive'}
+                      >
+                        Đã đối soát
+                      </Button>
+                      <Button
+                        onClick={() => changeControl('controlling')}
+                        className={control.includes('controlling') ? 'active' : 'deactive'}
+                      >
+                        Đang đối soát
+                      </Button>
+                      <Button
+                        onClick={() => changeControl('notControl')}
+                        className={control.includes('notControl') ? 'active' : 'deactive'}
+                      >
+                        Chưa đối soát
+                      </Button>
+                    </div>
                   </Panel>
                 </Collapse>
               </Col>
@@ -825,7 +956,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.delivery_service_provider_ids.length ? ["1"]: []}>
                   <Panel header="ĐỐI TÁC GIAO HÀNG" key="1" className="header-filter">
                     <Item name="delivery_service_provider_ids">
-                    <Select mode="multiple" showSearch placeholder="Chọn đối tác giao hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}>
+                    <Select
+                      mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
+                      notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                      getPopupContainer={trigger => trigger.parentNode}
+                    >
                       {deliveryService?.map((item) => (
                         <Option key={item.id} value={item.id}>
                           {item.name}
@@ -842,11 +977,22 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.print_status.length ? ["1"]: []}>
                   <Panel header="TRẠNG THÁI IN" key="1" className="header-filter">
-                    <Item name="print_status">
-                      <Select mode="multiple" showSearch placeholder="Chọn trạng thái in" notFoundContent="Không tìm thấy kết quả" optionFilterProp="children" style={{width: '100%'}}>
-                          
-                      </Select>
-                    </Item>
+                    {/* <Item name="print_status"> */}
+                      <div className="button-option">
+                        <Button
+                          onClick={() => changeStatusPrint('true')}
+                          className={print.includes('true') ? 'active' : 'deactive'}
+                        >
+                          Đã in
+                        </Button>
+                        <Button
+                          onClick={() => changeStatusPrint('false')}
+                          className={print.includes('false') ? 'active' : 'deactive'}
+                        >
+                          Chưa in
+                        </Button>
+                      </div>
+                    {/* </Item> */}
                   </Panel>
                 </Collapse>
               </Col>
@@ -856,7 +1002,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1" className="header-filter">
                     <Item name="assignees">
-                      <Select mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn" notFoundContent="Không tìm thấy kết quả" optionFilterProp="children" style={{width: '100%'}}>
+                      <Select
+                        mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
+                        notFoundContent="Không tìm thấy kết quả"
+                        optionFilterProp="children" style={{width: '100%'}}
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
                         {accounts.map((item, index) => (
                           <Option
                             style={{ width: "100%" }}
@@ -888,17 +1039,15 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.variant_ids.length ? ["1"]: []}>
                   <Panel header="SẢN PHẦM" key="1" className="header-filter">
                     <Item name="variant_ids">
-                    <Select mode="multiple" optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả" placeholder="Chọn sản phẩm" style={{width: '100%'}}>
-                      {/* {paymentType.map((item, index) => (
-                        <Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.value.toString()}
-                        >
-                          {item.name}
-                        </Option>
-                      ))} */}
-                    </Select>
+                      <DebounceSelect
+                        mode="multiple"
+                        placeholder="Select users"
+                        fetchOptions={searchVariants}
+                        optionsVariant={optionsVariant}
+                        style={{
+                          width: '100%',
+                        }}
+                      />
                     </Item>
                   </Panel>
                 </Collapse>
@@ -909,9 +1058,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.status ? ["1"]: []}>
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
                     <Item name="ship_by">
-                      <Select optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả" placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
-                        <Option value="">Hình thức vận chuyển</Option>
-                        
+                      <Select
+                        mode="multiple"
+                        optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
+                        placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
                       </Select>
                     </Item>
                   </Panel>
