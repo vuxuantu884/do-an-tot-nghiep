@@ -1,36 +1,79 @@
 import { StyledConfig } from "./styles";
-import { Row, Col, Form, Input, Select } from "antd";
-import { SourceResponse } from "model/response/order/source.response";
-import React, { useState, useEffect, useMemo } from "react";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { useDispatch } from "react-redux";
+import { Row, Col, Form, Input, Select, Button, Tag } from "antd";
+import React, { useState } from "react";
 import CustomSelect from "component/custom/select.custom";
+import shopeeIcon from "assets/icon/shopee.svg";
+import arrowLeft from "assets/icon/arrow-left.svg";
+import { Link } from "react-router-dom";
+import { StoreResponse } from "model/core/store.model";
 
 const { Option } = Select;
-type SettingConfigProps = {};
+type SettingConfigProps = {
+  listStores: Array<StoreResponse>;
+};
 
 // interface EcommerceConfig {
 
 // }
 
-const SettingConfig: React.FC<SettingConfigProps> = (
-  props: SettingConfigProps
-) => {
-  const dispatch = useDispatch();
-  const [configForm] = Form.useForm()
-  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+const SettingConfig: React.FC<SettingConfigProps> = ({
+  listStores,
+}: SettingConfigProps) => {
+  function tagRender(props: any) {
+    const { label, closable, onClose } = props;
+    const onPreventMouseDown = (event: any) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    return (
+      <Tag
+        className="primary-bg"
+        onMouseDown={onPreventMouseDown}
+        closable={closable}
+        onClose={onClose}
+      >
+        {label}
+      </Tag>
+    );
+  }
 
-  useEffect(() => {
-    dispatch(getListSourceRequest(setListSource));
-  }, [dispatch]);
+  //mock
+  const [configForm] = Form.useForm();
+  const [listSources] = useState<Array<any>>([
+    {
+      id: "1",
+      shop_name: "Shop Hàng Đẹp",
+      ecommerce_img: shopeeIcon,
+      shop_id: "0696969",
+    },
+    {
+      id: "2",
+      shop_name: "Shop Hàng Mới",
+      ecommerce_img: shopeeIcon,
+      shop_id: "0696969",
+    },
+    {
+      id: "3",
+      shop_name: "Shop Gì Đó",
+      ecommerce_img: shopeeIcon,
+      shop_id: "0696969",
+    },
+  ]);
 
-  const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "pos");
-  }, [listSource]);
+  // useEffect(() => {
+  //   dispatch(getListSourceRequest(setListSource));
+  // }, [dispatch]);
+
+  // const listSources = useMemo(() => {
+  //   return listSource.filter((item) => item.code !== "pos");
+  // }, [listSource]);
+  const onFinish = (value: any) => {
+    console.log(value)
+  };
 
   return (
     <StyledConfig className="padding-20">
-      <Form form={configForm}>
+      <Form form={configForm} onFinish={onFinish}>
         <Row>
           <Col span={5}>
             <Form.Item
@@ -45,7 +88,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <CustomSelect
                 showArrow
                 showSearch
-                placeholder="Nguồn đơn hàng"
+                placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
                 filterOption={(input, option) => {
                   if (option) {
@@ -64,7 +107,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                     key={index.toString()}
                     value={item.id}
                   >
-                    {item.name}
+                    <img
+                      style={{ marginRight: 8, paddingBottom: 4 }}
+                      src={item.ecommerce_img}
+                      alt=""
+                    />{" "}
+                    {item.shop_name}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
@@ -106,7 +154,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             </Form.Item>
           </Col>
         </Row>
-      </Form>
+      
       <Row gutter={24}>
         <Col span={12}>
           <span className="description-name">Cấu hình đơn hàng</span>
@@ -164,17 +212,52 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               <Option value={"manual"}>Thủ công</Option>
             </Select>
           </Form.Item>
-          <Form.Item
-            label={<span>Kiểu đồng bộ tồn</span>}
-            name="remaining_sync_type"
-          >
-            <Select placeholder="Chọn kiểu đồng bộ tồn">
-              <Option value={"auto"}>Tự động</Option>
-              <Option value={"manual"}>Thủ công</Option>
-            </Select>
+          <Form.Item name="sync" className="store">
+            <CustomSelect
+              showSearch
+              optionFilterProp="children"
+              showArrow
+              placeholder="Chọn cửa hàng"
+              mode="multiple"
+              allowClear
+              tagRender={tagRender}
+              style={{
+                width: "100%",
+              }}
+              notFoundContent="Không tìm thấy kết quả"
+              maxTagCount="responsive"
+            >
+              {listStores?.map((item) => (
+                <CustomSelect.Option key={item.id} value={item.id}>
+                  {item.name}
+                </CustomSelect.Option>
+              ))}
+            </CustomSelect>
           </Form.Item>
         </Col>
       </Row>
+      <div className="customer-bottom-button">
+        <Link to="/customers">
+          <div style={{ cursor: "pointer" }}>
+            <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+            Quay lại danh sách khách hàng
+          </div>
+        </Link>
+        <div>
+          <Button
+            className="disconnect-btn"
+            // onClick={() => history.goBack()}
+            style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
+            type="ghost"
+          >
+            Ngắt kết nối
+          </Button>
+          <Button type="primary" htmlType="submit">
+            Lưu lại
+          </Button>
+        </div>
+      </div>
+      </Form>
     </StyledConfig>
   );
 };

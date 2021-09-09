@@ -11,6 +11,7 @@ export const StyledConfig = styled.div`
   .ant-form-item {
     display: flex;
     flex-direction: column;
+    margin: 0 0 14px;
   }
   label{
     
@@ -29,5 +30,11 @@ export const StyledConfig = styled.div`
     font-weight: 300;
     font-size: 13px;
     color: #666666;
+  }
+  .customer-bottom-button{
+    margin-left: -50px;
+    button:first-child{
+      color: red
+    }
   }
 `;

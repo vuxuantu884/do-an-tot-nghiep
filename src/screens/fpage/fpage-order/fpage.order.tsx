@@ -69,7 +69,7 @@ export default function FpageOrders(props: any) {
     setCustomerPhone,
     setOrderHistory,
     getCustomerByPhone,
-    
+
   } = props;
   //#region State
   const dispatch = useDispatch();

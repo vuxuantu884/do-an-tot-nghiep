@@ -7,20 +7,34 @@ import { useHistory } from "react-router-dom";
 import SyncEcommerce from "./tab/sync-ecommerce";
 import SettingConfig from "./tab/setting-config";
 import ButtonCreate from "component/header/ButtonCreate";
+import { StyledComponent } from "./styles";
+import { useDispatch } from "react-redux";
+import { getListStoresSimpleAction } from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
 
 const { TabPane } = Tabs;
 
 const EcommerceConfig: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>("1");
+  const dispatch = useDispatch();
+  const [activeTab, setActiveTab] = useState<string>("sync");
   const history = useHistory();
+  const [stores, setStores] = useState<Array<StoreResponse>>([]);
+
+  useEffect(() => {
+  
+    dispatch(getListStoresSimpleAction((stores) => {
+      setStores(stores);
+    }));
+}, [dispatch]);
+
   useEffect(() => {
     if (history.location.hash) {
       switch (history.location.hash) {
-        case "#1":
-          setActiveTab("1");
+        case "#sync":
+          setActiveTab("sync");
           break;
-        case "#2":
-          setActiveTab("2");
+        case "#setting":
+          setActiveTab("setting");
           break;
         case "#3":
           setActiveTab("3");
@@ -46,24 +60,29 @@ const EcommerceConfig: React.FC = () => {
         },
       ]}
       extra={
-        <>{activeTab === "1" && <ButtonCreate path={`/customers/create`} />}</>
+        <>
+          {activeTab === "sync" && <ButtonCreate path={`/customers/create`} />}
+        </>
       }
     >
-      <Card>
-        <Tabs
-          activeKey={activeTab}
-          onChange={(active) =>
-            history.replace(`${history.location.pathname}#${active}`)
-          }
-        >
-          <TabPane tab="Đồng bộ sàn" key="1">
-            <SyncEcommerce />
-          </TabPane>
-          <TabPane tab="Cài đặt cấu hình" key="2">
-            <SettingConfig />
-          </TabPane>
-        </Tabs>
-      </Card>
+      <StyledComponent>
+        <Card>
+          <Tabs
+            activeKey={activeTab}
+            onChange={(active) =>
+              history.replace(`${history.location.pathname}#${active}`)
+            }
+          >
+            <TabPane tab="Đồng bộ sàn" key="sync">
+              <SyncEcommerce />
+            </TabPane>
+            <TabPane tab="Cài đặt cấu hình" key="setting">
+              <SettingConfig listStores={stores}/>
+            </TabPane>
+          </Tabs>
+        </Card>
+        
+      </StyledComponent>
     </ContentContainer>
   );
 };

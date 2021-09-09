@@ -6,14 +6,19 @@ import { Checkbox } from "antd";
 import tikiIcon from "assets/icon/tiki.svg";
 import shopeeIcon from "assets/icon/shopee.svg";
 
-
 const SyncEcommerce: React.FC<any> = (props: any) => {
   const handleEdit = () => {};
   const handleDisconnect = () => {};
 
   const [columns] = useState<any>([
     { title: "STT", visible: true, dataIndex: "index" },
-    { title: "Sàn TMĐT", visible: true, dataIndex: "img" },
+    {
+      title: "Sàn TMĐT",
+      visible: true,
+      render: (l: any, v: any, i: any) => {
+        return <img src={v.img} alt=""></img>;
+      },
+    },
     { title: "Shop ID | Tên shop", visible: true, dataIndex: "shop_id" },
     { title: "Tên gian hàng", visible: true, dataIndex: "shop_name" },
     { title: "Cửa hàng", visible: true, dataIndex: "branch_name" },
@@ -26,7 +31,7 @@ const SyncEcommerce: React.FC<any> = (props: any) => {
 
   const [dataMock] = useState<any>([
     {
-      img: "Link Img",
+      img: shopeeIcon,
       shop_id: "YD6969",
       shop_name: "YODY OFFICIAL",
       branch_name: "The Sun",
@@ -36,23 +41,25 @@ const SyncEcommerce: React.FC<any> = (props: any) => {
       seller: "Lê Văn Duy",
     },
   ]);
+
   return (
     <div className="padding-20">
       <StyledHeader>
         <div>
           <Checkbox />
-          <img src={tikiIcon} alt="tiki" ></img>
+          <img src={tikiIcon} alt="tiki"></img>
           <span>Sàn Tiki</span>
         </div>
         <div>
           <Checkbox />
-          <img src={shopeeIcon} alt="shopee" ></img>
+          <img src={shopeeIcon} alt="shopee"></img>
           <span>Sàn Shopee</span>
         </div>
       </StyledHeader>
       <CustomTable
         columns={columns}
         dataSource={dataMock}
+        pagination={false}
         // pagination={{
         //   pageSize: data.metadata.limit,
         //   total: data.metadata.total,
