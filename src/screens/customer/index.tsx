@@ -357,6 +357,7 @@ const Customer = () => {
   }, []);
 
   const onSearch = (value: CustomerSearchQuery) => {
+    query.request = value && value.request;
     const querySearch: CustomerSearchQuery = value;
     dispatch(CustomerList(querySearch, setData));
   };

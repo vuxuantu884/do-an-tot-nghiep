@@ -2,6 +2,7 @@ import { Col, Form, FormInstance, Input, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
+import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
@@ -26,6 +27,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  FulFillmentResponse,
   // OrderLineItemResponse,
   OrderResponse,
   StoreCustomResponse,
@@ -48,12 +50,12 @@ import {
 } from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
-import CustomerCard from "./component/customer-card";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
+import CardCustomer from "./component/order-detail/CardCustomer";
+import CardPayment from "./component/order-detail/CardPayment";
 import CardProduct from "./component/order-detail/CardProduct";
-import ShipmentCard from "./component/order-detail/CardShipment";
+import CardShipment from "./component/order-detail/CardShipment";
 import OrderDetailSidebar from "./component/order-detail/Sidebar";
-import PaymentCard from "./component/payment-card";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
 
 let typeButton = "";
@@ -87,6 +89,10 @@ export default function Order() {
   >(null);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
+  // console.log("payments", payments);
+  const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>(
+    []
+  );
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
@@ -98,7 +104,7 @@ export default function Order() {
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
-
+console.log(storeDetail)
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
@@ -135,10 +141,10 @@ export default function Order() {
     discount_rate: number,
     discount_value: number
   ) => {
-    setItems(_items);
+    // setItems(_items);
     setDiscountRate(discount_rate);
     setDiscountValue(discount_value);
-    setOrderAmount(amount);
+    // setOrderAmount(amount);
   };
 
   const onStoreSelect = (storeId: number) => {
@@ -191,12 +197,6 @@ export default function Order() {
     billing_address: null,
     payments: [],
   };
-
-  // let initialForm: OrderRequest = {
-  //   ...initialRequest,
-  //   shipping_address: shippingAddress,
-  //   billing_address: billingAddress,
-  // };
   const [isLoadForm, setIsLoadForm] = useState(false);
   const [initialForm, setInitialForm] = useState<OrderRequest>({
     ...initialRequest,
@@ -451,7 +451,7 @@ export default function Order() {
     values.customer_id = customer?.id;
     values.total_line_amount_after_line_discount =
       total_line_amount_after_line_discount;
-    if (values.customer_id === undefined || values.customer_id === null) {
+    if (!values.customer_id) {
       showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
       const element: any = document.getElementById("search_customer");
       element?.focus();
@@ -559,7 +559,7 @@ export default function Order() {
               </Form.Item>
               <Row gutter={20} style={{ marginBottom: "70px" }}>
                 <Col md={18}>
-                  <CustomerCard
+                  <CardCustomer
                     InfoCustomerSet={onChangeInfoCustomer}
                     ShippingAddressChange={onChangeShippingAddress}
                     BillingAddressChange={onChangeBillingAddress}
@@ -578,8 +578,11 @@ export default function Order() {
                     }
                     items={items}
                     handleCardItems={handleCardItems}
+                    isCloneOrder={isCloneOrder}
+                    discountRateParent={discountRate}
+                    discountValueParent={discountValue}
                   />
-                  <ShipmentCard
+                  <CardShipment
                     setShipmentMethodProps={onShipmentSelect}
                     shipmentMethod={shipmentMethod}
                     storeDetail={storeDetail}
@@ -602,8 +605,10 @@ export default function Order() {
                     setFeeGhtk={setFeeGhtk}
                     payments={payments}
                     onPayments={onPayments}
+                    fulfillments={fulfillments}
+                    isCloneOrder={isCloneOrder}
                   />
-                  <PaymentCard
+                  <CardPayment
                     setSelectedPaymentMethod={changePaymentMethod}
                     payments={payments}
                     setPayments={onPayments}
@@ -614,11 +619,14 @@ export default function Order() {
                       (shippingFeeCustomer ? shippingFeeCustomer : 0) -
                       discountValue
                     }
+                    isCloneOrder={isCloneOrder}
                   />
                 </Col>
                 <Col md={6}>
                   <OrderDetailSidebar
                     accounts={accounts}
+                    tags={tags}
+                    isCloneOrder={isCloneOrder}
                     onChangeTag={onChangeTag}
                   />
                 </Col>
@@ -692,12 +700,53 @@ export default function Order() {
               );
             }
             if (response) {
-              let responseItems: any = [...response.items];
+              // let responseItems: OrderLineItemRequest[] = [...response.items];
+              let giftResponse = response.items.filter((item) => {
+                return item.type === Type.GIFT;
+              });
+              let responseItems: OrderLineItemRequest[] = response.items
+                .filter((item) => {
+                  return item.type !== Type.GIFT;
+                })
+                .map((item) => {
+                  return {
+                    id: item.id,
+                    sku: item.sku,
+                    variant_id: item.variant_id,
+                    variant: item.variant,
+                    show_note: item.show_note,
+                    variant_barcode: item.variant_barcode,
+                    product_id: item.product_id,
+                    product_type: item.product_type,
+                    quantity: item.quantity,
+                    price: item.price,
+                    amount: item.amount,
+                    note: item.note,
+                    type: item.type,
+                    variant_image: item.variant_image,
+                    unit: item.unit,
+                    weight: item.weight,
+                    weight_unit: item.weight_unit,
+                    warranty: item.warranty,
+                    tax_rate: item.tax_rate,
+                    tax_include: item.tax_include,
+                    composite: false,
+                    product: item.product,
+                    is_composite: false,
+                    line_amount_after_line_discount:
+                      item.line_amount_after_line_discount,
+                    discount_items: item.discount_items,
+                    discount_rate: item.discount_rate,
+                    discount_value: item.discount_value,
+                    discount_amount: item.discount_amount,
+                    position: item.position,
+                    gifts: giftResponse,
+                  };
+                });
               let newDatingShip = initialForm.dating_ship;
               let newShipperCode = initialForm.shipper_code;
-              let new_shipping_fee_informed_to_customer =
-                initialForm.shipping_fee_informed_to_customer;
               let new_payments = initialForm.payments;
+
               if (response.fulfillments && response.fulfillments[0]) {
                 if (response?.fulfillments[0]?.shipment) {
                   newDatingShip = moment(
@@ -705,9 +754,6 @@ export default function Order() {
                   );
                   newShipperCode =
                     response.fulfillments[0]?.shipment?.shipper_code;
-                  new_shipping_fee_informed_to_customer =
-                    response.fulfillments[0]?.shipment
-                      .shipping_fee_informed_to_customer;
                 }
                 if (response.payments && response.payments?.length > 0) {
                   new_payments = response.payments;
@@ -715,6 +761,7 @@ export default function Order() {
                   setPayments(new_payments);
                 }
               }
+              console.log("responseItems", responseItems);
               setItems(responseItems);
               setOrderAmount(response.total);
               setInitialForm({
@@ -727,8 +774,12 @@ export default function Order() {
                 dating_ship: newDatingShip,
                 shipper_code: newShipperCode,
                 shipping_fee_informed_to_customer:
-                  new_shipping_fee_informed_to_customer,
+                  response.shipping_fee_informed_to_customer,
                 payments: new_payments,
+                reference_code: response.reference_code,
+                url: response.url,
+                note: response.note,
+                tags: response.tags,
               });
               let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
               if (
@@ -744,11 +795,34 @@ export default function Order() {
                   case ShipmentMethod.SHIPPER:
                     newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
                     break;
-
+                  case ShipmentMethod.EXTERNAL_SERVICE:
+                    newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
+                    break;
                   default:
                     break;
                 }
                 setShipmentMethod(newShipmentMethod);
+                setFulfillments(response.fulfillments);
+                if (response.store_id) {
+                  setStoreId(response.store_id);
+                }
+                if (response.tags) {
+                  setTag(response.tags);
+                }
+                if (response?.discounts && response?.discounts[0]) {
+                  if (response.discounts[0].value) {
+                    setDiscountValue(response.discounts[0].value);
+                  }
+                  if (response.discounts[0].rate) {
+                    setDiscountRate(response.discounts[0].rate);
+                  }
+                }
+                if (
+                  response.fulfillments[0] &&
+                  response.fulfillments[0]?.shipment?.office_time
+                ) {
+                  setOfficeTime(true);
+                }
               }
             }
             setIsLoadForm(true);

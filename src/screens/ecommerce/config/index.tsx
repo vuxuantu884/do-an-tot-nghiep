@@ -1,22 +1,18 @@
-import React from 'react'
+import React from "react";
 import { Card, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { getListStoresSimpleAction } from "domain/actions/core/store.action";
-import { StoreResponse } from "model/core/store.model";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import SyncEcommerce from './tab/sync.ecommerce';
+import SyncEcommerce from "./tab/sync-ecommerce";
+import SettingConfig from "./tab/setting-config";
+import ButtonCreate from "component/header/ButtonCreate";
 
 const { TabPane } = Tabs;
 
 const EcommerceConfig: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("1");
-  const dispatch = useDispatch();
   const history = useHistory();
-  const [loading, setLoading] = useState<boolean>(true);
-  const [stores, setStores] = useState<Array<StoreResponse>>([]);
   useEffect(() => {
     if (history.location.hash) {
       switch (history.location.hash) {
@@ -32,21 +28,9 @@ const EcommerceConfig: React.FC = () => {
       }
     }
   }, [history.location.hash]);
-  useEffect(() => {
-  
-      dispatch(getListStoresSimpleAction((stores) => {
-        setLoading(false);
-        setStores(stores);
-      }));
-  }, [dispatch]);
 
-  //mock
-  
-  
-  
   return (
     <ContentContainer
-      isLoading={loading}
       title="SÀN THƯƠNG MẠI ĐIỆN TỬ"
       breadcrumb={[
         {
@@ -61,14 +45,22 @@ const EcommerceConfig: React.FC = () => {
           name: "Cấu hình",
         },
       ]}
+      extra={
+        <>{activeTab === "1" && <ButtonCreate path={`/customers/create`} />}</>
+      }
     >
       <Card>
-        <Tabs activeKey={activeTab} onChange={(active) => history.replace(`${history.location.pathname}#${active}`)}>
+        <Tabs
+          activeKey={activeTab}
+          onChange={(active) =>
+            history.replace(`${history.location.pathname}#${active}`)
+          }
+        >
           <TabPane tab="Đồng bộ sàn" key="1">
-          <SyncEcommerce />
+            <SyncEcommerce />
           </TabPane>
           <TabPane tab="Cài đặt cấu hình" key="2">
-            {/* <DetailTab  stores={stores} current={activeTab} /> */}
+            <SettingConfig />
           </TabPane>
         </Tabs>
       </Card>

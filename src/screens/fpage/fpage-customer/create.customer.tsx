@@ -60,7 +60,7 @@ const CustomerAdd = (props: any) => {
     customerPhone,
     deletePhone,
     metaData,
-    onPageChange,
+    onPageChange,customerFbName
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -264,7 +264,7 @@ const CustomerAdd = (props: any) => {
       customerForm.setFieldsValue(field);
     } else {
       const field = {
-        full_name: null,
+        full_name: customerFbName || null,
         birthday: "",
         email: null,
         gender: null,
