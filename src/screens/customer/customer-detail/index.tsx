@@ -1,4 +1,4 @@
-import { Form, Row, Col, Card, Tabs } from "antd";
+import { Row, Col, Card, Tabs } from "antd";
 import {
   HistoryOutlined,
   ContactsOutlined,
@@ -10,7 +10,6 @@ import { modalActionType } from "model/modal/modal.model";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { Link, useParams, useHistory } from "react-router-dom";
-import moment from "moment";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { CustomerResponse } from "model/response/customer/customer.response";
@@ -23,27 +22,35 @@ import CustomerHistoryInfo from "./customer.history";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
-import { getListOrderActionFpage } from "domain/actions/order/order.action";
-import { formatCurrency } from "utils/AppUtils";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { GetListOrderCustomerAction } from "domain/actions/order/order.action";
+// import { formatCurrency } from "utils/AppUtils";
+// import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
 const { TabPane } = Tabs;
 
 const CustomerDetailIndex = () => {
   const [activeTab, setActiveTab] = React.useState<string>("history");
-  const params = useParams() as any;
+  const params: any = useParams();
   const dispatch = useDispatch();
   const history = useHistory();
-  const [customerForm] = Form.useForm();
   const [customer, setCustomer] = React.useState<CustomerResponse>();
-  const [customerPointInfo, setCustomerPoint] = React.useState([]) as any;
-  const [orderHistory, setOrderHistory] = React.useState<Array<OrderModel>>();
+  const [customerPointInfo, setCustomerPoint] = React.useState<any>([]);
   const [modalAction, setModalAction] =
     React.useState<modalActionType>("create");
-  const [querySearchOrder, setQuerySearchOrderFpage] = React.useState<any>({
+
+  const [queryParams, setQueryParams] = React.useState<any>({
     limit: 10,
     page: 1,
-    customer_ids: null,
+    customer_id: null,
+  });
+
+  const [data, setData] = React.useState<PageResponse<OrderModel>>({
+    metadata: {
+      limit: 10,
+      page: 1,
+      total: 0,
+    },
+    items: [],
   });
 
   React.useEffect(() => {
@@ -68,7 +75,7 @@ const CustomerDetailIndex = () => {
     }
   }, [history.location.hash]);
 
-  const [customerBuyDetail, setCustomerBuyDetail] = React.useState<any>([
+  const [customerBuyDetail] = React.useState<any>([
     {
       name: "Tổng chi tiêu",
       value: null,
@@ -90,69 +97,26 @@ const CustomerDetailIndex = () => {
 
   const onPageChange = React.useCallback(
     (page, limit) => {
-      setQuerySearchOrderFpage({ ...querySearchOrder, page, limit });
+      setQueryParams({ ...queryParams, page, limit });
     },
-    [querySearchOrder, setQuerySearchOrderFpage]
-  );
-  const [metaData, setMetaData] = React.useState<any>({});
+    [queryParams, setQueryParams]
+  )
+
   const setOrderHistoryItems = React.useCallback(
     (data: PageResponse<OrderModel> | false) => {
       if (data) {
-        handlePaymentHistory(data);
-        setOrderHistory(data.items);
-        setMetaData(data.metadata);
+        setData(data);
       }
     },
     []
   );
   React.useEffect(() => {
     if (params?.id) {
-      querySearchOrder.customer_ids = [params?.id];
-      dispatch(getListOrderActionFpage(querySearchOrder, setOrderHistoryItems));
+      queryParams.customer_id = [params?.id];
+      dispatch(GetListOrderCustomerAction(queryParams, setOrderHistoryItems));
     }
-  }, [params, dispatch, querySearchOrder, setOrderHistoryItems]);
+  }, [params, dispatch, queryParams, setOrderHistoryItems]);
 
-  function handlePaymentHistory(data: any) {
-    let _details: any = [];
-    const _orderSorted = data.items.sort((a: any, b: any) => {
-      return a.id - b.id;
-    });
-    const lastIndex = _orderSorted.length - 1;
-
-    const _successPayment = data.items
-      .filter((item: any) => item.payment_status === "paid")
-      .reduce(
-        (acc: any, item: any) =>
-          acc + item.total_line_amount_after_line_discount,
-        0
-      );
-    _details = [
-      {
-        name: "Tổng chi tiêu",
-        value: formatCurrency(_successPayment),
-      },
-
-      {
-        name: "Ngày đầu tiên mua hàng",
-        value: ConvertUtcToLocalDate(
-          _orderSorted[0].created_date,
-          DATE_FORMAT.DDMMYYY
-        ),
-      },
-      {
-        name: "Tổng đơn hàng",
-        value: data.metadata.total,
-      },
-      {
-        name: "Ngày cuối cùng mua hàng",
-        value: ConvertUtcToLocalDate(
-          _orderSorted[lastIndex].created_date,
-          DATE_FORMAT.DDMMYYY
-        ),
-      },
-    ];
-    setCustomerBuyDetail(_details);
-  }
   // end
 
   React.useEffect(() => {
@@ -185,21 +149,10 @@ const CustomerDetailIndex = () => {
     }
     setCustomerPoint(details);
   }, [customer, setCustomerPoint]);
+
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params, setCustomer]);
-
-  React.useEffect(() => {
-    if (customer) {
-      customerForm.setFieldsValue({
-        ...customer,
-        birthday: moment(customer.birthday, "YYYY-MM-DD"),
-        wedding_date: customer.wedding_date
-          ? moment(customer.wedding_date, "YYYY-MM-DD")
-          : null,
-      });
-    }
-  }, [customer, customerForm]);
 
   return (
     <ContentContainer
@@ -231,7 +184,11 @@ const CustomerDetailIndex = () => {
                 <span className="title-card">THÔNG TIN MUA HÀNG</span>
               </div>
             }
-            extra={[<Link to={``}>Chi tiết</Link>]}
+            extra={[
+              <Link key="1" to={``}>
+                Chi tiết
+              </Link>,
+            ]}
           >
             <Row gutter={30} style={{ padding: "16px" }}>
               {customerBuyDetail &&
@@ -309,8 +266,7 @@ const CustomerDetailIndex = () => {
                 key="history"
               >
                 <CustomerHistoryInfo
-                  orderHistory={orderHistory}
-                  metaData={metaData}
+                  orderData={data}
                   onPageChange={onPageChange}
                 />
               </TabPane>

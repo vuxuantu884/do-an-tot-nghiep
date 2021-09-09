@@ -2,10 +2,10 @@ import { Row, Col, Tag, Table } from "antd";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { OrderModel } from "model/order/order.model";
 import moment from "moment";
-import { formatCurrency } from "./../../../utils/AppUtils";
+import { formatCurrency } from "utils/AppUtils";
 
 function CustomerHistoryInfo(props: any) {
-  const { orderHistory, metaData, onPageChange } = props;
+  const { orderData, onPageChange } = props;
 
   const status_order = [
     {
@@ -158,14 +158,14 @@ function CustomerHistoryInfo(props: any) {
       <Col span={24}>
         <Table
           pagination={{
-            pageSize: metaData?.limit,
-            total: metaData?.total,
-            current: metaData?.page,
+            pageSize: orderData?.metadata.limit,
+            total:orderData?.metadata.total,
+            current: orderData?.metadata.page,
             showSizeChanger: true,
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
-          dataSource={orderHistory?.reverse()}
+          dataSource={orderData?.items.reverse()}
           columns={columnFinalOrderHistory()}
           rowKey={(item: OrderModel) => item.id}
         />

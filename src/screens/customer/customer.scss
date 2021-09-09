@@ -123,6 +123,13 @@
     }
   }
   .ant-table-body {
+    .ant-table-measure-row{
+
+      td{
+        background-color: red;
+        padding-left: 0 !important;
+      }
+    }
     .customer-name-textoverflow {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -130,9 +137,16 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
     }
-    .ant-table-tbody > tr > td {
-      padding: 10px 15px !important;
-    }
+    .ant-table-tbody{
+      tr > td{
+        padding: 10px 15px !important;
+      }
+      tr:first-child{
+        td {
+          padding: 0 !important;
+        }
+      } 
+    } 
     &::-webkit-scrollbar {
       // width: 12px;
       height: 8px;
@@ -258,3 +272,4 @@
     cursor: pointer;
   }
 }
+

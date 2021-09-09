@@ -24,7 +24,7 @@ import {
   createNote,
   updateNote,
   deleteNote,
-} from "service/cusomer/customer.service";
+} from "service/customer/customer.service";
 import { CustomerType } from "domain/types/customer.type";
 import { showError } from "utils/ToastUtils";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";

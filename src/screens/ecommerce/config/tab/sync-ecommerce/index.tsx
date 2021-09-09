@@ -3,11 +3,11 @@ import { useState } from "react";
 import actionColumn from "../../actions/action.column";
 import { StyledHeader } from "./styles";
 import { Checkbox } from "antd";
-import tikiIcon from "assets/icon/tiki.svg";
-import shopeeIcon from "assets/icon/shopee.svg";
+import tikiIcon from "assets/icon/e-tiki.svg";
+import shopeeIcon from "assets/icon/e-shopee.svg";
 
 const SyncEcommerce: React.FC<any> = (props: any) => {
-  const handleEdit = () => {};
+  const handleUpdate = () => {};
   const handleDisconnect = () => {};
 
   const [columns] = useState<any>([
@@ -26,7 +26,7 @@ const SyncEcommerce: React.FC<any> = (props: any) => {
     { title: "Đồng bộ sản phẩm", visible: true, dataIndex: "product_sync" },
     { title: "Đồng bộ đơn hàng", visible: true, dataIndex: "orders_sync" },
     { title: "Nhân viên bán hàng", visible: true, dataIndex: "seller" },
-    actionColumn(handleEdit, handleDisconnect),
+    actionColumn(handleUpdate, handleDisconnect),
   ]);
 
   const [dataMock] = useState<any>([

@@ -37,4 +37,7 @@ export const StyledConfig = styled.div`
       color: red
     }
   }
+  .ant-form-item-label{
+    display: -webkit-inline-box;
+  }
 `;
