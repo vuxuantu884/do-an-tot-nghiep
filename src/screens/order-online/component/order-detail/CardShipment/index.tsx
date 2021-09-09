@@ -109,7 +109,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
   console.log("props", props);
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
-  const [isGetShipment3rd, setIsGetShipment3rd] = useState(false);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
   const [infoGHN, setInfoGHN] = useState<GHNFeeResponse | null>(null);
   const [infoVTP, setInfoVTP] = useState<Array<VTPFeeResponse>>([]);
@@ -371,12 +370,8 @@ const CardShipment: React.FC<CardShipmentProps> = (
       getInfoDeliveryGHN();
       getInfoDeliveryVTP();
     }
-  }, [
-    getInfoDeliveryGHN,
-    getInfoDeliveryGHTK,
-    getInfoDeliveryVTP,
-    isCloneOrder,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [OrderDetail, storeDetail, isCloneOrder]);
 
   const renderShipmentTabHeader = () => {
     return (
