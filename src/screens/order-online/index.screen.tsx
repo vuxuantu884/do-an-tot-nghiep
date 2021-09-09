@@ -448,7 +448,7 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "shipping_address",
       render: (shipping_address: any) =>
         shipping_address && (
-          <div className="name">{`${shipping_address.ward}, ${shipping_address.district}, ${shipping_address.city}`}</div>
+          <div className="name">{`${shipping_address.ward || ""}, ${shipping_address.district || ""}, ${shipping_address.city || ""}`}</div>
         ),
       key: "area",
       visible: true,

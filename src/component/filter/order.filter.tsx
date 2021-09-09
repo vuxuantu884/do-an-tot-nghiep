@@ -635,7 +635,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   return (
     <div>
       <div className="order-options">
-        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="true">
+        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="">
+          <Radio.Button value="">Tất cả đơn hàng</Radio.Button>
           <Radio.Button value="true">Đơn hàng online</Radio.Button>
           <Radio.Button value="false">Đơn hàng offline</Radio.Button>
         </Radio.Group>

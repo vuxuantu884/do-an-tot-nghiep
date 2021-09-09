@@ -167,7 +167,10 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Mã vận đơn",
-      dataIndex: "id",
+      dataIndex: "shipment",
+      render: (shipment: any) => (
+        shipment?.tracking_code
+      ),
       visible: true,
       width:"120px",
     },
