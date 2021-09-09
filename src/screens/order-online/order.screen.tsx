@@ -141,10 +141,10 @@ export default function Order() {
     discount_rate: number,
     discount_value: number
   ) => {
-    setItems(_items);
+    // setItems(_items);
     setDiscountRate(discount_rate);
     setDiscountValue(discount_value);
-    setOrderAmount(amount);
+    // setOrderAmount(amount);
   };
 
   const onStoreSelect = (storeId: number) => {
@@ -579,6 +579,8 @@ export default function Order() {
                     items={items}
                     handleCardItems={handleCardItems}
                     isCloneOrder={isCloneOrder}
+                    discountRateParent={discountRate}
+                    discountValueParent={discountValue}
                   />
                   <CardShipment
                     setShipmentMethodProps={onShipmentSelect}
@@ -623,6 +625,8 @@ export default function Order() {
                 <Col md={6}>
                   <OrderDetailSidebar
                     accounts={accounts}
+                    tags={tags}
+                    isCloneOrder={isCloneOrder}
                     onChangeTag={onChangeTag}
                   />
                 </Col>
@@ -741,9 +745,8 @@ export default function Order() {
                 });
               let newDatingShip = initialForm.dating_ship;
               let newShipperCode = initialForm.shipper_code;
-              let new_shipping_fee_informed_to_customer =
-                initialForm.shipping_fee_informed_to_customer;
               let new_payments = initialForm.payments;
+
               if (response.fulfillments && response.fulfillments[0]) {
                 if (response?.fulfillments[0]?.shipment) {
                   newDatingShip = moment(
@@ -751,9 +754,6 @@ export default function Order() {
                   );
                   newShipperCode =
                     response.fulfillments[0]?.shipment?.shipper_code;
-                  new_shipping_fee_informed_to_customer =
-                    response.fulfillments[0]?.shipment
-                      .shipping_fee_informed_to_customer;
                 }
                 if (response.payments && response.payments?.length > 0) {
                   new_payments = response.payments;
@@ -774,7 +774,7 @@ export default function Order() {
                 dating_ship: newDatingShip,
                 shipper_code: newShipperCode,
                 shipping_fee_informed_to_customer:
-                  new_shipping_fee_informed_to_customer,
+                  response.shipping_fee_informed_to_customer,
                 payments: new_payments,
                 reference_code: response.reference_code,
                 url: response.url,
@@ -805,6 +805,23 @@ export default function Order() {
                 setFulfillments(response.fulfillments);
                 if (response.store_id) {
                   setStoreId(response.store_id);
+                }
+                if (response.tags) {
+                  setTag(response.tags);
+                }
+                if (response?.discounts && response?.discounts[0]) {
+                  if (response.discounts[0].value) {
+                    setDiscountValue(response.discounts[0].value);
+                  }
+                  if (response.discounts[0].rate) {
+                    setDiscountRate(response.discounts[0].rate);
+                  }
+                }
+                if (
+                  response.fulfillments[0] &&
+                  response.fulfillments[0]?.shipment?.office_time
+                ) {
+                  setOfficeTime(true);
                 }
               }
             }

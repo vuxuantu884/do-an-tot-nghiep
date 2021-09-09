@@ -89,6 +89,8 @@ type CardProductProps = {
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (items: Array<OrderLineItemRequest>) => void;
   isCloneOrder?: boolean;
+  discountRateParent?: number;
+  discountValueParent?: number;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -97,8 +99,15 @@ const initQueryVariant: VariantSearchQuery = {
 };
 
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
-  const { orderSettings, formRef, items, handleCardItems, isCloneOrder } =
-    props;
+  const {
+    orderSettings,
+    formRef,
+    items,
+    handleCardItems,
+    isCloneOrder,
+    discountRateParent,
+    discountValueParent,
+  } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
@@ -120,8 +129,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   console.log("amount", amount);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
-  const [discountValue, setDiscountValue] = useState<number>(0);
-  const [discountRate, setDiscountRate] = useState<number>(0);
+  const [discountValue, setDiscountValue] = useState<number>(
+    discountValueParent || 0
+  );
+  const [discountRate, setDiscountRate] = useState<number>(
+    discountRateParent || 0
+  );
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
@@ -812,7 +825,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
 
   useEffect(() => {
     if (items && items.length > 0) {
-      console.log("items", items);
       setIsShowProductSearch(true);
     }
   }, []);
@@ -1086,7 +1098,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                       color: "#5D5D8A",
                     }}
                   >
-                    Chiết khấu 1:
+                    Chiết khấu:
                   </Typography.Link>
                 ) : (
                   <div>Chiết khấu</div>

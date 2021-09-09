@@ -79,6 +79,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 ) => {
   const { parentCustomerDetail } = props;
   console.log("parentCustomerDetail", parentCustomerDetail);
+
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -86,11 +87,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
-  const [customer, setCustomer] = useState<CustomerResponse | null>(null);
+  const [customer, setCustomer] = useState<CustomerResponse | null>(
+    parentCustomerDetail
+  );
   console.log("customer", customer);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
+    useState<ShippingAddress | null>(
+      parentCustomerDetail && parentCustomerDetail.shipping_addresses[0]
+        ? parentCustomerDetail.shipping_addresses[0]
+        : null
+    );
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -228,15 +235,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
-
-  useEffect(() => {
-    if (parentCustomerDetail) {
-      setCustomer(parentCustomerDetail);
-      if (parentCustomerDetail.shipping_addresses) {
-        setShippingAddress(parentCustomerDetail.shipping_addresses[0]);
-      }
-    }
-  }, [parentCustomerDetail]);
 
   return (
     <Card

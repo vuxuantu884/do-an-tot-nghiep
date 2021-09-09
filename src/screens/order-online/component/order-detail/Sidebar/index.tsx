@@ -8,10 +8,12 @@ import { StyledComponent } from "./styles";
 type PropType = {
   accounts: AccountResponse[];
   onChangeTag: (value: []) => void;
+  tags: string;
+  isCloneOrder?: boolean;
 };
 
 const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
-  const { accounts, onChangeTag } = props;
+  const { accounts, onChangeTag, tags, isCloneOrder } = props;
 
   return (
     <StyledComponent>
@@ -115,7 +117,11 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
             }}
             // name="tags"
           >
-            <CustomerInputTags onChangeTag={onChangeTag} />
+            <CustomerInputTags
+              onChangeTag={onChangeTag}
+              tags={tags}
+              isCloneOrder={isCloneOrder}
+            />
           </Form.Item>
         </div>
       </Card>

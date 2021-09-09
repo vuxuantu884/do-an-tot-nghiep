@@ -109,6 +109,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
   console.log("props", props);
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
+  const [isGetShipment3rd, setIsGetShipment3rd] = useState(false);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
   const [infoGHN, setInfoGHN] = useState<GHNFeeResponse | null>(null);
   const [infoVTP, setInfoVTP] = useState<Array<VTPFeeResponse>>([]);
@@ -364,7 +365,7 @@ const CardShipment: React.FC<CardShipmentProps> = (
   ];
 
   useEffect(() => {
-    console.log("storeDetail", storeDetail);
+    console.log("isCloneOrder", isCloneOrder);
     if (isCloneOrder) {
       getInfoDeliveryGHTK();
       getInfoDeliveryGHN();
@@ -375,7 +376,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
     getInfoDeliveryGHTK,
     getInfoDeliveryVTP,
     isCloneOrder,
-    storeDetail,
   ]);
 
   const renderShipmentTabHeader = () => {
