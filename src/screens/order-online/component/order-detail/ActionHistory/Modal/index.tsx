@@ -84,11 +84,6 @@ function ActionHistoryModal(props: PropType) {
       key: "current",
       width: "50%",
       render: (text: string) => {
-        // let dataJson = JSON.parse(text);
-        // let abc = JSON.stringify(dataJson, undefined, 4);
-        // console.log("abc", abc);
-        // return abc;
-        // return <code>{text}</code>;
         return text;
       },
     },
@@ -110,13 +105,13 @@ function ActionHistoryModal(props: PropType) {
         console.log("dataJson", dataJson);
         result = `
         <span style="color:red">Thông tin đơn hàng: </span><br/> 
-        -Nhân viên: ${dataJson.created_name}<br/>
-        -Trạng thái : ${dataJson.status_after}<br/>
-        -Nguồn : ${dataJson.source}<br/>
-        -Cửa hàng : ${dataJson.store}<br/>
-        -Địa chỉ cửa hàng : ${dataJson.store_full_address}<br/>
-        -Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}<br/>
-        -Ghi chú: ${dataJson.note} <br/>
+        - Nhân viên: ${dataJson.created_name}<br/>
+        - Trạng thái : ${dataJson.status_after}<br/>
+        - Nguồn : ${dataJson.source}<br/>
+        - Cửa hàng : ${dataJson.store}<br/>
+        - Địa chỉ cửa hàng : ${dataJson.store_full_address}<br/>
+        - Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}<br/>
+        - Ghi chú: ${dataJson.note} <br/>
         <br/>
         <span style="color:red">Sản phẩm: </span><br/> 
         ${dataJson.items
@@ -133,12 +128,12 @@ function ActionHistoryModal(props: PropType) {
           .join("<br/>")}
         <br/>
         <span style="color:red">Phiếu đóng gói: </span><br/> 
-        -Địa chỉ giao hàng: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
-        -Địa chỉ nhận hóa đơn: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
-        -Phương thức giao hàng: ${
+        - Địa chỉ giao hàng: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
+        - Địa chỉ nhận hóa đơn: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
+        - Phương thức giao hàng: ${
           dataJson.fulfillments[0].shipment.delivery_service_provider
         } <br/>
-        -Trạng thái: ${dataJson.fulfillments[0].status} <br/>
+        - Trạng thái: ${dataJson.fulfillments[0].status} <br/>
         <br/>
         <span style="color:red">Thanh toán: </span><br/>  
         ${
