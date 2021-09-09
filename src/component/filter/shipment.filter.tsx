@@ -1041,7 +1041,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     <Item name="variant_ids">
                       <DebounceSelect
                         mode="multiple"
-                        placeholder="Select users"
+                        placeholder="Tìm kiếm sản phẩm"
                         fetchOptions={searchVariants}
                         optionsVariant={optionsVariant}
                         style={{
