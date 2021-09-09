@@ -108,15 +108,11 @@ export default function FpageOrders(props: any) {
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
-
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
   });
   const [isDisableSubmitBtn, setIsDisableSubmitBtn] = useState<boolean>(false);
-  // const [isibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
-  //#endregion
-  //#rgion Customer
   const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
@@ -190,8 +186,8 @@ export default function FpageOrders(props: any) {
     note: "",
     tags: "",
     customer_note: "",
-    account_code: userReducer.account?.code,
-    assignee_code: null,
+    account_code: userReducer?.account?.code,
+    assignee_code: userReducer?.account?.code || null,
     customer_id: null,
     reference_code: "",
     url: "",

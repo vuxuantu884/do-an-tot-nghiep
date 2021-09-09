@@ -72,7 +72,14 @@ function CustomerHistoryInfo(props: any) {
       title: "Mã đơn hàng",
       dataIndex: "code",
       visible: true,
-      // width: "20%",
+      render: (value: any, row: any, index: any) => {
+        let href = `https://dev.yody.io/unicorn/admin/orders/${row.id}`;
+        return (
+          <a target="blank" href={href}>
+            {row.code}
+          </a>
+        );
+      },
     },
     {
       title: "Trạng thái",
@@ -89,7 +96,8 @@ function CustomerHistoryInfo(props: any) {
                 color: `${statusTag?.color}`,
                 backgroundColor: `${statusTag?.background}`,
                 width: 100,
-                borderRadius: 100, textAlign: "center"
+                borderRadius: 100,
+                textAlign: "center",
               }}
             >
               {statusTag?.name}
@@ -157,7 +165,7 @@ function CustomerHistoryInfo(props: any) {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
-          dataSource={orderHistory}
+          dataSource={orderHistory?.reverse()}
           columns={columnFinalOrderHistory()}
           rowKey={(item: OrderModel) => item.id}
         />
