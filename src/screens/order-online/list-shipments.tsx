@@ -84,10 +84,6 @@ const initQuery: ShipmentSearchQuery = {
   cancel_reason: [],
 };
 
-const initAccountQuery: AccountSearchQuery = {
-  department_ids: [4],
-};
-
 const ListOrderScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
@@ -111,6 +107,7 @@ const ListOrderScreen: React.FC = () => {
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
+  
   const [data, setData] = useState<PageResponse<ShipmentModel>>({
     metadata: {
       limit: 30,
@@ -160,12 +157,18 @@ const ListOrderScreen: React.FC = () => {
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<ShipmentModel>>>([
     {
       title: "Mã đơn giao",
-      dataIndex: "order_id",
+      dataIndex: "code",
       render: (value: string, i: ShipmentModel) => (
-        <Link to={`#`}>{value}</Link>
+        <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
       ),
       visible: true,
       fixed: 'left',
+      width:"120px",
+    },
+    {
+      title: "Mã vận đơn",
+      dataIndex: "id",
+      visible: true,
       width:"120px",
     },
     {
@@ -304,8 +307,8 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Nhân viên tạo đơn giao",
-      dataIndex: "account",
-      key: "account",
+      dataIndex: "account_code",
+      key: "account_code",
       visible: true,
       align: "center",
     },
@@ -327,6 +330,13 @@ const ListOrderScreen: React.FC = () => {
       title: "Ngày huỷ đơn",
       dataIndex: "cancel_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      key: "cancel_date",
+      visible: true,
+    },
+    {
+      title: "Lý do huỷ giao",
+      dataIndex: "shipment",
+      render: (shipment: any) => <div>{shipment.cancel_reason}</div>,
       key: "cancel_date",
       visible: true,
     },
@@ -442,14 +452,14 @@ const ListOrderScreen: React.FC = () => {
   
   return (
     <ContentContainer
-      title="Quản lý đơn hàng"
+      title="Danh sách đơn giao hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
          path: UrlConfig.HOME,
         },
         {
-          name: "Danh sách đơn hàng",
+          name: "Danh sách đơn giao hàng",
         },
       ]}
       extra={

@@ -9,6 +9,14 @@
           width: 30%;
         }
       }
+      .button-option {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        .ant-btn {
+          width: 48%;
+        }
+      }
     }
   }
 }
@@ -147,6 +155,11 @@
           }
         }
       }
+    }
+    .active {
+      color: #FFFFFF;
+      border-color: rgba(42, 42, 134, 0.1);
+      background-color: #2A2A86;
     }
     .deactive {
       color: #2a2a86;
