@@ -2,9 +2,10 @@ import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { actionGetActionLogDetail } from "domain/actions/order/order.action";
 import purify from "dompurify";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { StyledComponent } from "./styles";
+import moment from "moment";
 
 type PropType = {
   isModalVisible: boolean;
@@ -21,6 +22,8 @@ type SingleLogType = {
 };
 
 function ActionHistoryModal(props: PropType) {
+  const dateFormat = "HH:mm DD/MM/YYYY";
+
   const dispatch = useDispatch();
   const [singleLogShorten, setSingleLogShorten] = useState<SingleLogType[]>([]);
   const [singleLogDetail, setSingleLogDetail] = useState<SingleLogType[]>([]);
@@ -31,6 +34,7 @@ function ActionHistoryModal(props: PropType) {
       let htmlInner = doc.getElementsByTagName("body")[0].innerHTML;
       return (
         <div
+          className="orderDetails"
           dangerouslySetInnerHTML={{
             __html: purify.sanitize(htmlInner),
           }}
@@ -103,11 +107,33 @@ function ActionHistoryModal(props: PropType) {
       let result = "";
       if (data) {
         let dataJson = JSON.parse(data);
-        result = ` Người tạo: ${dataJson.created_name}.<br/>
-                          Khách hàng: ${dataJson.customer}.<br/>
-                          Cửa hàng: ${dataJson.store}.<br/>
-                          Số điện thoại khách hàng: ${dataJson.store_phone_number}.<br/>
-                          Nguồn đơn hàng: ${dataJson.source}.<br/>
+        console.log("dataJson", dataJson);
+        result = ` -Nhân viên: ${dataJson.created_name}.<br/>
+        -Chức năng : ${dataJson.status_after}.<br/>
+        -Thao tác: 222.<br/>
+        -Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}.<br/>
+        -Nội dung chi tiết : <br/>
+        * Phiếu đóng gói: : <br/>
+        + Mã phiếu đóng gói: null <br/>
+          + Địa chỉ giao hàng: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
+          + Địa chỉ nhận hóa đơn: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
+          + Ngày đóng gói: null<br/>
+          +  Phương thức giao hàng: ${
+            dataJson.fulfillments[0].shipment.delivery_service_provider
+          } <br/>
+          + Trạng thái đóng gói: ${dataJson.fulfillments[0].status} <br/>
+          + Ghi chú: ${dataJson.note} <br/>
+        * Sản phẩm: <br/>
+        ${dataJson.items.map((singleItem: any, index: any) => {
+          return `
+        - Sản phẩm ${index + 1}: ${singleItem.product} <br/>
+          + Đơn giá: ${singleItem.price} <br/>
+          + Số lượng: ${singleItem.quantity} <br/>
+          + Thuế : ${singleItem.tax_rate || 0} <br/>
+          + Chiết khấu sản phẩm: ${singleItem.discount_value || 0} <br/>
+          + Thành tiền: ${singleItem.amount} <br/>
+          `;
+        })}
         `;
       }
       return result;
