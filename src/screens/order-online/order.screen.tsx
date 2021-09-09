@@ -104,7 +104,7 @@ export default function Order() {
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
-
+console.log(storeDetail)
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,

@@ -9,7 +9,7 @@ import {
 import { modalActionType } from "model/modal/modal.model";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Link, useParams, useRouteMatch, useHistory } from "react-router-dom";
+import { Link, useParams, useHistory } from "react-router-dom";
 import moment from "moment";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -22,7 +22,6 @@ import CustomerNoteInfo from "./customer-note/customer.note";
 import CustomerHistoryInfo from "./customer.history";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
-import { useQuery } from "utils/useQuery";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { getListOrderActionFpage } from "domain/actions/order/order.action";
 import { formatCurrency } from "utils/AppUtils";
