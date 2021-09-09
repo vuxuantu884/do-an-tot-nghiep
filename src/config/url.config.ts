@@ -26,7 +26,8 @@ const UrlConfig = {
   FPAGE: `/fpage`,
   INVENTORY: "/inventory",
   ECOMMERCE: "/ecommerce",
-  PROMOTION: "/promotion"
+  PROMOTION: "/promotion",
+  LOYALTY: `/loyalty-programs`,
 };
 
 export default UrlConfig;

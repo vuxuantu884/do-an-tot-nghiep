@@ -1,0 +1,58 @@
+.loyalty-accumulation-detail {
+  color: #222222;
+
+  .ant-card-head {
+    padding-left: 31px;
+  }
+
+  .d-flex {
+    display: flex;
+    margin-bottom: 24px;
+
+    .title-card {
+      flex: 1;
+      align-self: center;
+    }
+  }
+
+  .program-info {
+    padding: 23px 25px 70px;
+    line-height: 16px;
+
+    .info-label {
+      color: #666666;
+      width: 155px;
+      min-width: 155px;
+      align-self: center;
+    }
+
+    .info-content {
+      font-weight: 500;
+      align-self: center;
+
+      ul {
+        padding-left: 20px;
+
+        li {
+          margin-bottom: 12px;
+        }
+      }
+    }
+
+    .info-status {
+      color: #27AE60;
+      font-weight: 500;
+    }
+
+    .priority {
+      background: #FF0000;
+      border-radius: 100px;
+      padding: 5px 11px 3.5px;
+      color: white;
+    }
+  }
+
+  .rules table {
+    width: 100%;
+  }
+}
