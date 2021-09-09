@@ -195,7 +195,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
               ? import_price
               : [undefined, undefined],
             [from_retail_price, to_retail_price] = retail_price
-              ? shipping
+              ? retail_price
               : [undefined, undefined];
           for (let key in data) {
             if (data[key] instanceof Array) {
@@ -335,6 +335,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (
                   case AvdInventoryFilter.mac:
                   case AvdInventoryFilter.retail_price:
                     component = <NumberInputRange placeholderFrom="Giá từ" />;
+                    break;
                 }
                 return (
                   <Collapse key={field}>

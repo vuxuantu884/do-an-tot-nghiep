@@ -10,7 +10,6 @@ import ecommerce from "./ecommerce.route"
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/products/product/product.search.screen"));
-const Inventory = React.lazy(() => import ("screens/inverory"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
 const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"))
@@ -43,7 +42,7 @@ const menu: Array<RouteMenu> = [
     exact: true,
     title: "Kho hàng",
     icon: 'icon-inventory',
-    component: Inventory,
+    component: null,
     key: "3",
     isShow: true,
     header: null,
@@ -54,7 +53,7 @@ const menu: Array<RouteMenu> = [
     exact: true,
     title: "Bán hàng",
     icon: 'icon-sale',
-    component: Inventory,
+    component: null,
     key: "4",
     isShow: false,
     header: null,
@@ -98,7 +97,7 @@ const menu: Array<RouteMenu> = [
     exact: true,
     title: "Khuyến mại",
     icon: 'icon-promotion',
-    component: Inventory,
+    component: null,
     key: "7",
     isShow: true,
     header: null,
@@ -120,7 +119,7 @@ const menu: Array<RouteMenu> = [
     exact: true,
     title: "Báo cáo",
     icon: 'icon-report',
-    component: Inventory,
+    component: null,
     key: "9",
     isShow: true,
     header: null,
@@ -131,7 +130,7 @@ const menu: Array<RouteMenu> = [
     exact: true,
     title: "Cài đặt",
     icon: 'icon-setting',
-    component: Inventory,
+    component: null,
     key: "10",
     isShow: true,
     header: null,
