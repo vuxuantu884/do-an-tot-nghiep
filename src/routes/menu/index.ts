@@ -7,12 +7,15 @@ import UrlConfig from 'config/url.config';
 import customers from "./customer.route"
 import shipments from "./shipment.route"
 import ecommerce from "./ecommerce.route"
+import promotion from './promotion.route';
+
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/products/product/product.search.screen"));
 const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
 const Customer = React.lazy(() => import ("screens/customer"));
 const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"))
+
 const menu: Array<RouteMenu> = [
   {
     path: UrlConfig.HOME,
@@ -101,7 +104,7 @@ const menu: Array<RouteMenu> = [
     key: "7",
     isShow: true,
     header: null,
-    subMenu: [],
+    subMenu: promotion,
   },
   {
     path: UrlConfig.ECOMMERCE,
