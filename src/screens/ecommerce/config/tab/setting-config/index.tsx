@@ -212,7 +212,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
               <Option value={"manual"}>Thủ công</Option>
             </Select>
           </Form.Item>
-          <Form.Item name="sync" className="store">
+          <Form.Item name="sync" className="store" label={<span>Kiểu đồng bộ tồn</span>}>
             <CustomSelect
               showSearch
               optionFilterProp="children"

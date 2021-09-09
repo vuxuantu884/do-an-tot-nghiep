@@ -21,12 +21,11 @@ const EcommerceConfig: React.FC = () => {
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
 
   useEffect(() => {
-  
     dispatch(getListStoresSimpleAction((stores) => {
       setStores(stores);
     }));
 }, [dispatch]);
-
+console.log(stores)
   useEffect(() => {
     if (history.location.hash) {
       switch (history.location.hash) {
