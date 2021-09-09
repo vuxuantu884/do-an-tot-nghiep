@@ -57,7 +57,6 @@ function ActionHistoryModal(props: PropType) {
       key: "before",
       width: "40%",
       render: (value: string, row: any) => {
-        console.log("value", value);
         return renderRow(value, row);
       },
     },
@@ -120,8 +119,9 @@ function ActionHistoryModal(props: PropType) {
         -Ghi chú: ${dataJson.note} <br/>
         <br/>
         <span style="color:red">Sản phẩm: </span><br/> 
-        ${dataJson.items.map((singleItem: any, index: any) => {
-          return `
+        ${dataJson.items
+          .map((singleItem: any, index: any) => {
+            return `
         - Sản phẩm ${index + 1}: ${singleItem.product} <br/>
           + Đơn giá: ${singleItem.price} <br/>
           + Số lượng: ${singleItem.quantity} <br/>
@@ -129,7 +129,8 @@ function ActionHistoryModal(props: PropType) {
           + Chiết khấu sản phẩm: ${singleItem.discount_value || 0} <br/>
           + Thành tiền: ${singleItem.amount} <br/>
           `;
-        })}
+          })
+          .join("<br/>")}
         <br/>
         <span style="color:red">Phiếu đóng gói: </span><br/> 
         -Địa chỉ giao hàng: ${`${dataJson.shipping_address.full_address}, ${dataJson.shipping_address.ward}, ${dataJson.shipping_address.district}, ${dataJson.shipping_address.city}`} <br/>
@@ -137,20 +138,20 @@ function ActionHistoryModal(props: PropType) {
         -Phương thức giao hàng: ${
           dataJson.fulfillments[0].shipment.delivery_service_provider
         } <br/>
-        -Trạng thái đóng gói: ${dataJson.fulfillments[0].status} <br/>
+        -Trạng thái: ${dataJson.fulfillments[0].status} <br/>
         <br/>
         <span style="color:red">Thanh toán: </span><br/>  
-        ${dataJson.payments.length <= 0 ? `-Chưa thanh toán` : ""}
         ${
-          dataJson.payments.length > 0
-            ? dataJson.payments.map((singlePayment: any, index: any) => {
-                return `
-          -${singlePayment.payment_method}: ${singlePayment.paid_amount} <br/>
-          `;
-              })
-            : ""
+          dataJson.payments.length <= 0
+            ? `-Chưa thanh toán`
+            : dataJson.payments
+                .map((singlePayment: any, index: number) => {
+                  return `
+                  - ${singlePayment.payment_method}: ${singlePayment.paid_amount}
+                `;
+                })
+                .join("<br/>")
         }
-        
         `;
       }
       return result;
@@ -158,7 +159,6 @@ function ActionHistoryModal(props: PropType) {
     if (actionId) {
       dispatch(
         actionGetActionLogDetail(actionId, (response) => {
-          console.log("response", response);
           let detailToTextBefore = convertActionLogDetailToText(
             response.before?.data
           );
