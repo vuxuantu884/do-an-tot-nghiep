@@ -59,6 +59,7 @@ async function searchVariants(input: any) {
   }
 }
 
+
 const OrderFilter: React.FC<OrderFilterProps> = (
   props: OrderFilterProps
 ) => {
@@ -86,6 +87,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   //   {name: "Đã huỷ", value: "cancelled"},
   //   {name: "Đã hết hạn", value: "expired"},
   // ], []);
+  const serviceType = useMemo(() => [
+    {
+      name: 'Tự vận chuyển',
+      value: 'shipper',
+    },
+    {
+      name: 'Nhận tại cửa hàng',
+      value: 'pick_at_store',
+    },
+    {
+      name: 'Hãng vận chuyển',
+      value: 'external_service',
+    },
+  ], []);
 
   const controlStatus = useMemo(() => [
     {name: "Chưa đối soát", value: "notControl"},
@@ -599,12 +614,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     if (initialValues.delivery_service_provider_types.length) {
       let textType = ""
-      // initialValues.variant_ids.forEach(i => {
-      //   const findVariant = Variants?.find(item => item.code === i)
-      //   textVariant = findVariant ? textVariant + findVariant.full_name + " - " + findVariant.code + ";" : textVariant
-      // })
+      initialValues.delivery_service_provider_types.forEach(i => {
+        const findVariant = serviceType?.find(item => item.value === i)
+        textType = findVariant ? textType + findVariant.name + ";" : textType
+      })
       list.push({
-        key: 'price',
+        key: 'delivery_service_provider_types',
         name: 'Hình thức vận chuyển',
         value: textType
       })
@@ -960,6 +975,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                     <Select
                       mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
                       notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                      optionFilterProp="children"
                       getPopupContainer={trigger => trigger.parentNode}
                     >
                       {deliveryService?.map((item) => (
@@ -1056,15 +1072,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.status ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.delivery_service_provider_types.length ? ["1"]: []}>
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
-                    <Item name="ship_by">
+                    <Item name="delivery_service_provider_types">
                       <Select
                         mode="multiple"
                         optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"
                         placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
                         getPopupContainer={trigger => trigger.parentNode}
                       >
+                        {serviceType?.map((item) => (
+                          <Option key={item.value} value={item.value}>
+                            {item.name}
+                          </Option>
+                        ))}
                       </Select>
                     </Item>
                   </Panel>
@@ -1073,7 +1094,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.cancel_reason ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.cancel_reason.length ? ["1"]: []}>
                   <Panel header="LÝ DO HUỶ GIAO" key="1" className="header-filter">
                     <Item name="cancel_reason">
                       <Input placeholder="Tìm kiếm theo lý do huỷ"/>

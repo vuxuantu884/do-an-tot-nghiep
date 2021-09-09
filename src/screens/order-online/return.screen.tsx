@@ -119,7 +119,7 @@ const initAccountQuery: AccountSearchQuery = {
   department_ids: [4],
 };
 
-const ListOrderScreen: React.FC = () => {
+const ReturnOrderScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
@@ -758,4 +758,4 @@ const ListOrderScreen: React.FC = () => {
   );
 };
 
-export default ListOrderScreen;
+export default ReturnOrderScreen;

@@ -11,10 +11,7 @@ import ShipmentFilter from "component/filter/shipment.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { Item, Shipment, ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
-import {
-  AccountResponse,
-  AccountSearchQuery,
-} from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
 import UrlConfig from "config/url.config";
@@ -22,9 +19,8 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 // import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { DeliveryServicesGetList, getShipmentsAction } from "domain/actions/order/order.action";
+import { getShipmentsAction } from "domain/actions/order/order.action";
 import './scss/index.screen.scss'
-import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -116,8 +112,7 @@ const ListOrderScreen: React.FC = () => {
     },
     items: [],
   });
-  const [deliveryServices, setDeliveryServices] =
-    useState<Array<DeliveryServiceResponse>>([]);
+  
   const status_order = [
     {name: "Nháp", value: "draft"},
     {name: "Đóng gói", value: "packed"},
@@ -394,8 +389,6 @@ const ListOrderScreen: React.FC = () => {
 
   const setSearchResult = useCallback(
     (result: PageResponse<ShipmentModel>|false) => {
-      // console.log('result', result)
-      // console.log('deliveryServices', deliveryServices)
       setTableLoading(false);
       if(!!result) {
         setData(result);
@@ -404,16 +397,6 @@ const ListOrderScreen: React.FC = () => {
     []
   );
   
-  // const onGetDeliverService = useCallback(
-  //   (id: number|null,) => {
-  //     console.log('onGetDeliverService', id,  deliveryServices)
-
-  //     const service = deliveryServices?.find(service => service.id === id)
-  //     return service?.logo
-  //   },
-  //   [deliveryServices]
-  // );
-
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
   
   const setDataAccounts = useCallback(
@@ -428,10 +411,6 @@ const ListOrderScreen: React.FC = () => {
   
   useEffect(() => {
     if (isFirstLoad.current) {
-      dispatch(DeliveryServicesGetList(setDeliveryServices));
-      // (async () => {
-      //   await dispatch(DeliveryServicesGetList(setDeliveryServices));
-      // })()
       setTableLoading(true);
     }
     isFirstLoad.current = false;
