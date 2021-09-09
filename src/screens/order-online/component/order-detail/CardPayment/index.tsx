@@ -51,14 +51,10 @@ type PaymentCardProps = {
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   const { paymentMethod, payments, isCloneOrder } = props;
-  console.log("propsPaymentCard", props);
-  console.log("payments", payments);
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
   const changePaymentMethod = (value: number) => {
-    console.log("value", value);
-    console.log("change");
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
       handlePickPaymentMethod(PaymentMethodCode.CASH);
@@ -395,7 +391,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                           className="row-large-title"
                           style={{ padding: "8px 0", marginLeft: 2 }}
                         >
-                          <b>Khách cần trả 1:</b>
+                          <b>Khách cần trả:</b>
                         </Col>
                         <Col
                           className="lbl-money"
@@ -425,7 +421,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                             <Col lg={14} xxl={9} style={{ padding: "0" }}>
                               <Row align="middle">
                                 <b style={{ padding: "8px 0" }}>
-                                  {method.name}: 33333
+                                  {method.name}:
                                 </b>
                                 {method.code === PaymentMethodCode.POINT ? (
                                   <Col className="point-spending">
