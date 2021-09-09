@@ -19,6 +19,8 @@ import { StyledComponent } from "./styles";
 type PropType = {};
 
 function OrderSettings(props: PropType) {
+  const dateFormat = "HH:mm DD/MM/YYYY";
+
   const [
     IsAllowToSellWhenNotAvailableStock,
     setIsAllowToSellWhenNotAvailableStock,
@@ -60,10 +62,8 @@ function OrderSettings(props: PropType) {
         row: ShippingServiceConfigResponseModel,
         index: number
       ) => {
-        const start_date_text = moment(row.start_date).format(
-          "HH:mm DD/MM/YYYY"
-        );
-        const end_date_text = moment(row.end_date).format("HH:mm DD/MM/YYYY");
+        const start_date_text = moment(row.start_date).format(dateFormat);
+        const end_date_text = moment(row.end_date).format(dateFormat);
         return <span>{`${start_date_text} - ${end_date_text}`}</span>;
       },
     },
