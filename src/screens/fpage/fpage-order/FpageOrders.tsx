@@ -15,7 +15,7 @@ import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
-import { orderCreateAction } from "domain/actions/order/order.action";
+import { orderFpageCreateAction } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
@@ -450,7 +450,7 @@ export default function FpageOrders(props: any) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
             setIsDisableSubmitBtn(true);
-            dispatch(orderCreateAction(values, createOrderCallback));
+            dispatch(orderFpageCreateAction(values, createOrderCallback, setIsDisableSubmitBtn));
           }
         } else {
           if (
@@ -460,7 +460,7 @@ export default function FpageOrders(props: any) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
             setIsDisableSubmitBtn(true);
-            dispatch(orderCreateAction(values, createOrderCallback));
+            dispatch(orderFpageCreateAction(values, createOrderCallback, setIsDisableSubmitBtn));
           }
         }
       }
