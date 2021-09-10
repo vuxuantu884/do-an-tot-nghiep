@@ -130,7 +130,8 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
             rules={[]}
           >
             <Input
-              placeholder="Nhập chức vụ/ phòng ban"
+              maxLength={255}
+              placeholder="Nhập chức vụ/phòng ban"
               style={{ width: "100%" }}
             />
           </Form.Item>
