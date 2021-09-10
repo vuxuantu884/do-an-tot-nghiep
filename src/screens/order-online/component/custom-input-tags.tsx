@@ -50,7 +50,9 @@ const CustomeInputTags: React.FC<CustomInputTagsProps> = (
           : { border: "1px solid #d9d9d9" }
       }
     >
-      {tagsArr &&
+      {tags &&
+        tagsArr &&
+        tagsArr?.length > 0 &&
         tagsArr.map((tag, index) => (
           <div key={index}>
             <span>{tag}</span>
