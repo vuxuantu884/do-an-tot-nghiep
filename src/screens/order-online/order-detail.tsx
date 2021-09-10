@@ -81,6 +81,7 @@ const OrderDetail = (props: PropType) => {
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
     useState<number>(0);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
 
@@ -182,6 +183,10 @@ const OrderDetail = (props: PropType) => {
       setOrderDetailAllFullfilment(data);
     }
   }, []);
+
+  const handleChangeSubStatus = () => {
+    setCountChangeSubStatus(countChangeSubStatus+1)
+  };
 
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -852,9 +857,11 @@ const OrderDetail = (props: PropType) => {
               </div>
             </Card>
             <SubStatusOrder
+              subStatusId={OrderDetail?.sub_status_id}
               status={OrderDetail?.status}
               orderId={OrderId}
               fulfillments={OrderDetail?.fulfillments}
+              handleChangeSubStatus={handleChangeSubStatus}
             />
             <Card
               className="margin-top-20"
@@ -915,7 +922,7 @@ const OrderDetail = (props: PropType) => {
                 </Row>
               </div>
             </Card>
-            <ActionHistory orderId={id} />
+            <ActionHistory orderId={id} countChangeSubStatus={countChangeSubStatus} />
           </Col>
         </Row>
         <OrderDetailBottomBar

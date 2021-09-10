@@ -169,8 +169,11 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   };
   const onChangePrice = (value: number | null, index: number) => {
     let _items = [...items];
+    let discount_items = _items[index].discount_items && _items[index].discount_items[0];
     if (value !== null) {
       _items[index].price = value;
+      discount_items.amount = (value * discount_items.rate) / 100;
+      discount_items.value = (value * discount_items.rate) / 100;
     }
     setItems(_items);
     total();

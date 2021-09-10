@@ -38,16 +38,16 @@
   content: "\e903";
 }
 .icon-report:before {
-  content: url("../../icon/menu-report-chart.svg");;
+  content: url("assets/icon/menu-report-chart.svg");;
 }
 .icon-inventory:before {
   content: "\e906";
 }
 .icon-order:before {
-  content: url("../../icon/menu-order-paper.svg");;
+  content: url("assets/icon/menu-order-paper.svg");;
 }
 .icon-product:before {
-  content: url("../../icon/menu-clother.svg");
+  content: url("assets/icon/menu-clother.svg");
 }
 .icon-promotion:before {
   content: "\e90a";
@@ -56,5 +56,8 @@
   content: "\e90b";
 }
 .icon-transport:before {
-  content: url("../../icon/menu-transport.svg");
+  content: url("assets/icon/menu-transport.svg");
+}
+.icon-ecommerce:before {
+  content: url("assets/icon/menu-ecommerce.svg");
 }

@@ -13,7 +13,7 @@ import {
   deleteCustomerGroupService,
   editCustomerGroupService,
   getCustomerGroupService,
-} from "service/cusomer/customer-group.service";
+} from "service/customer/customer-group.service";
 import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listDataCustomerGroupSaga(action: YodyAction) {

@@ -361,7 +361,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
         </div>
       </div>
 
-      <AddAddressModal
+      {/* <AddAddressModal
         visible={isVisibleAddress}
         onCancel={CancleConfirmAddress}
         onOk={OkConfirmAddress}
@@ -370,7 +370,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
         visible={isVisibleCustomer}
         onCancel={CancleConfirmCustomer}
         onOk={OkConfirmCustomer}
-      />
+      /> */}
     </Card>
   );
 };

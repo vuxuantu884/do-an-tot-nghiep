@@ -136,10 +136,12 @@ export interface VariantSearchQuery extends BaseQuery {
 }
 
 export interface VariantPriceRequest {
-  price: number,
+  import_price: number|null,
+  retail_price: number|null,
+  wholesale_price: number|null,
+  cost_price: number|null,
   currency_code: string,
-  price_type: string,
-  tax_percent: number,
+  tax_percent: number|null,
 }
 
 export interface VariantRequest {
@@ -224,11 +226,12 @@ export interface VariantRequestView {
 }
 
 export interface VariantPriceViewRequest {
-  retail_price: string,
-  import_price: string,
-  whole_sale_price: string,
+  retail_price: number|"",
+  import_price: number|"",
+  wholesale_price: number|"",
+  cost_price: number|"",
   currency: string,
-  tax_percent: string,
+  tax_percent: number|"",
 }
 export interface ProductRequestView {
   product_type?: string|null,
@@ -243,7 +246,7 @@ export interface ProductRequestView {
   length_unit: string|null,
   weight: number|null,
   weight_unit: string|null,
-  tags: Array<string>,
+  tags: string,
   unit: string|null,
   brand: string|null,
   content: string|null,

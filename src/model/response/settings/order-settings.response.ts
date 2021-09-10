@@ -12,3 +12,28 @@ export interface ShippingServiceConfigResponseModel {
   end_date: string;
   status: string;
 }
+export interface ShippingServiceConfigDetailResponseModel {
+  id: number;
+  program_name: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+  shipping_fee_configs: [
+    {
+      id: number;
+      from_price: number;
+      to_price: number;
+      city_name: string;
+      transport_fee: number;
+    }
+  ];
+  external_service_transport_types: [
+    {
+      id: number;
+      external_service_id: number;
+      external_service_code: string;
+      name: string;
+      status: string;
+    }
+  ];
+}
