@@ -127,22 +127,27 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       console.log(dates, dateString, type)
       switch(type) {
         case 'issued':
+          setIssuedClick('')
           setIssuedOnMin(dateString[0])
           setIssuedOnMax(dateString[1])
           break;
-        case 'ship':
-          setShipOnMin(dateString[0])
-          setShipOnMax(dateString[1])
+        case 'finalized':
+          setFinalizedClick('')
+          setFinalizedOnMin(dateString[0])
+          setFinalizedOnMax(dateString[1])
           break;
         case 'completed':
+          setCompletedClick('')
           setCompletedOnMin(dateString[0])
           setCompletedOnMax(dateString[1])
           break;
         case 'cancelled':
+          setCancelledClick('')
           setCancelledOnMin(dateString[0])
           setCancelledOnMax(dateString[1])
           break;
         case 'expected':
+          setExpectedClick('')
           setExpectedReceiveOnMin(dateString[0])
           setExpectedReceiveOnMax(dateString[1])
           break;   
@@ -169,10 +174,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           setIssuedOnMax(null)
           onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
           break;
-        case 'ship':
-          setShipOnMin(null)
-          setShipOnMax(null)
-          onFilter && onFilter({...params, ship_on_min: null, ship_on_max: null});
+        case 'finalized':
+          setFinalizedOnMin(null)
+          setFinalizedOnMax(null)
+          onFilter && onFilter({...params, finalized_on_min: null, finalized_on_max: null});
           break;
         case 'completed':
           setCompletedOnMin(null)
@@ -239,7 +244,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     [onFilter, params]
   );
   const [issuedClick, setIssuedClick] = useState('');
-  const [shipClick, setShipClick] = useState('');
+  const [finalizedClick, setFinalizedClick] = useState('');
   const [completedClick, setCompletedClick] = useState('');
   const [cancelledClick, setCancelledClick] = useState('');
   const [expectedClick, setExpectedClick] = useState('');
@@ -295,16 +300,16 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           setIssuedOnMax(moment(maxValue, 'DD-MM-YYYY'))
         }
         break
-      case 'ship':
+      case 'finalized':
         
-        if (shipClick === value ) {
-          setShipClick('')
-          setShipOnMin(null)
-          setShipOnMax(null)
+        if (finalizedClick === value ) {
+          setFinalizedClick('')
+          setFinalizedOnMin(null)
+          setFinalizedOnMax(null)
         } else {
-          setShipClick(value)
-          setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setShipOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          setFinalizedClick(value)
+          setFinalizedOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setFinalizedOnMax(moment(maxValue, 'DD-MM-YYYY'))
         }
         break
       case 'completed':
@@ -346,7 +351,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       default:
         break
     }
-  }, [cancelledClick, completedClick, expectedClick, issuedClick, shipClick]);
+  }, [cancelledClick, completedClick, expectedClick, issuedClick, finalizedClick]);
 
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "pos");
@@ -370,8 +375,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   }}, [params])
   const [issuedOnMin, setIssuedOnMin] = useState(initialValues.issued_on_min? moment(initialValues.issued_on_min, "DD-MM-YYYY") : null);
   const [issuedOnMax, setIssuedOnMax] = useState(initialValues.issued_on_max? moment(initialValues.issued_on_max, "DD-MM-YYYY") : null);
-  const [shipOnMin, setShipOnMin] = useState(initialValues.ship_on_min? moment(initialValues.ship_on_min, "DD-MM-YYYY") : null);
-  const [shipOnMax, setShipOnMax] = useState(initialValues.ship_on_max? moment(initialValues.ship_on_max, "DD-MM-YYYY") : null);
+  const [finalizedOnMin, setFinalizedOnMin] = useState(initialValues.finalized_on_min? moment(initialValues.finalized_on_min, "DD-MM-YYYY") : null);
+  const [finalizedOnMax, setFinalizedOnMax] = useState(initialValues.finalized_on_max? moment(initialValues.finalized_on_max, "DD-MM-YYYY") : null);
   const [completedOnMin, setCompletedOnMin] = useState(initialValues.completed_on_min? moment(initialValues.completed_on_min, "DD-MM-YYYY") : null);
   const [completedOnMax, setCompletedOnMax] = useState(initialValues.completed_on_max? moment(initialValues.completed_on_max, "DD-MM-YYYY") : null);
   const [cancelledOnMin, setCancelledOnMin] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
@@ -392,8 +397,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         ...values,
         issued_on_min: issuedOnMin ? moment(issuedOnMin, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
         issued_on_max: issuedOnMax ? moment(issuedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        ship_on_min: shipOnMin ? moment(shipOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        ship_on_max: shipOnMax ? moment(shipOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        finalized_on_min: finalizedOnMin ? moment(finalizedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        finalized_on_max: finalizedOnMax ? moment(finalizedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
         completed_on_min: completedOnMin ? moment(completedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
         completed_on_max: completedOnMax ? moment(completedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
         cancelled_on_min: cancelledOnMin ? moment(cancelledOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
@@ -403,7 +408,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       }
       onFilter && onFilter(valuesForm);
     },
-    [cancelledOnMax, cancelledOnMin, completedOnMax, completedOnMin, expectedReceiveOnMax, expectedReceiveOnMin, issuedOnMax, issuedOnMin, onFilter, shipOnMax, shipOnMin]
+    [cancelledOnMax, cancelledOnMin, completedOnMax, completedOnMin, expectedReceiveOnMax, expectedReceiveOnMin, issuedOnMax, issuedOnMin, onFilter, finalizedOnMax, finalizedOnMin]
   );
   let filters = useMemo(() => {
     let list = []
@@ -440,12 +445,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textOrderCreateDate
       })
     }
-    if (initialValues.ship_on_min || initialValues.ship_on_max) {
-      let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
+    if (initialValues.finalized_on_min || initialValues.finalized_on_max) {
+      let textOrderFinalizedDate = (initialValues.finalized_on_min ? initialValues.finalized_on_min : '??') + " ~ " + (initialValues.finalized_on_max ? initialValues.finalized_on_max : '??')
       list.push({
-        key: 'ship',
+        key: 'finalized',
         name: 'Ngày duyệt đơn',
-        value: textOrderShipDate
+        value: textOrderFinalizedDate
       })
     }
     if (initialValues.completed_on_min || initialValues.completed_on_max) {
@@ -780,24 +785,24 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.ship_on_min && initialValues.ship_on_max ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.finalized_on_min && initialValues.finalized_on_max ? ["1"]: []}>
                   <Panel header="NGÀY DUYỆT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('ship', 'yesterday')} className={shipClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'today')} className={shipClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'thisweek')} className={shipClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'yesterday')} className={finalizedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'today')} className={finalizedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'thisweek')} className={finalizedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('ship', 'lastweek')} className={shipClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'thismonth')} className={shipClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'lastmonth')} className={shipClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'lastweek')} className={finalizedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'thismonth')} className={finalizedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'lastmonth')} className={finalizedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      value={[shipOnMin? moment(shipOnMin, "DD-MM-YYYY") : null, shipOnMax? moment(shipOnMax, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'ship')}
+                      value={[finalizedOnMin? moment(finalizedOnMin, "DD-MM-YYYY") : null, finalizedOnMax? moment(finalizedOnMax, "DD-MM-YYYY") : null]}
+                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'finalized')}
                     />
                   </Panel>
                 </Collapse>

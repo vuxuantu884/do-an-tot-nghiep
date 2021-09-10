@@ -175,7 +175,7 @@ const ListOrderScreen: React.FC = () => {
       render: (shipping_address: any) => (
         shipping_address && (
         <div className="customer">
-          <div className="name p-b-3">{shipping_address.name}</div>
+          <div className="name p-b-3" style={{ color: "#2A2A86" }}>{shipping_address.name}</div>
           <div className="p-b-3">{shipping_address.phone}</div>
           <div className="p-b-3">{shipping_address.full_address}</div>
         </div>

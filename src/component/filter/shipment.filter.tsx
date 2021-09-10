@@ -143,22 +143,27 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     (dates, dateString, type) => {
       switch(type) {
         case 'packed':
+          setPackedClick('')
           setPackedOnMin(dateString[0])
           setPackedOnMax(dateString[1])
           break;
         case 'ship':
+          setShipClick('')
           setShipOnMin(dateString[0])
           setShipOnMax(dateString[1])
           break;
         case 'exported':
+          setExportedClick('')
           setExportedOnMin(dateString[0])
           setExportedOnMax(dateString[1])
           break;
         case 'cancelled':
+          setCancelledClick('')
           setCancelledOnMin(dateString[0])
           setCancelledOnMax(dateString[1])
           break;
         case 'received':
+          setReceivedClick('')
           setReceivedOnMin(dateString[0])
           setReceivedOnMax(dateString[1])
           break;   
@@ -257,7 +262,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     (type, value) => {
     let minValue = null;
     let maxValue = null;
-
+    console.log('value', value);
+    
     switch(value) {
       case 'today':
         minValue = moment().startOf('day').format('DD-MM-YYYY')
@@ -291,8 +297,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       case 'packed':
         if (packedClick === value ) {
           setPackedClick('')
-          setPackedOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setPackedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          setPackedOnMin(null)
+          setPackedOnMax(null)
         } else {
           setPackedClick(value)
           setPackedOnMin(moment(minValue, 'DD-MM-YYYY'))
@@ -302,8 +308,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       case 'exported':
         if (exportedClick === value ) {
           setExportedClick('')
-          setExportedOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setExportedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          setExportedOnMin(null)
+          setExportedOnMax(null)
         } else {
           setExportedClick(value)
           setExportedOnMin(moment(minValue, 'DD-MM-YYYY'))
@@ -313,8 +319,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       case 'ship':
         if (shipClick === value ) {
           setShipClick('')
-          setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setShipOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          setShipOnMin(null)
+          setShipOnMax(null)
         } else {
           setShipClick(value)
           setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
@@ -324,8 +330,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       case 'received':
         if (receivedClick === value ) {
           setReceivedClick('')
-          setReceivedOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setReceivedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          setReceivedOnMin(null)
+          setReceivedOnMax(null)
         } else {
           setReceivedClick(value)
           setReceivedOnMin(moment(minValue, 'DD-MM-YYYY'))
@@ -335,8 +341,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       case 'cancelled':
         if (cancelledClick === value ) {
           setCancelledClick('')
-          setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
-          setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
+          setCancelledOnMin(null)
+          setCancelledOnMax(null)
         } else {
           setCancelledClick(value)
           setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
@@ -346,7 +352,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       default:
         break
     }
-  }, []);
+  }, [cancelledClick, exportedClick, packedClick, receivedClick, shipClick]);
 
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "pos");
@@ -698,7 +704,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     <div>
       <div className="order-options">
         <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="">
-          <Radio.Button value="">Tất cả đơn hàng</Radio.Button>
+          <Radio.Button value="">Tất cả đơn giao hàng</Radio.Button>
           <Radio.Button value="unshipped">Chờ lấy hàng</Radio.Button>
           <Radio.Button value="picked">Đã lấy hàng</Radio.Button>
           <Radio.Button value="shipping">Đang giao hàng</Radio.Button>
