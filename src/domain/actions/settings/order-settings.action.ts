@@ -3,6 +3,7 @@ import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/
 import { OrderSourceResponseModel } from "model/response/order/order-source.response";
 import {
   IsAllowToSellWhenNotAvailableStockResponseModel,
+  ShippingServiceConfigDetailResponseModel,
   ShippingServiceConfigResponseModel,
 } from "model/response/settings/order-settings.response";
 
@@ -53,6 +54,20 @@ export const actionCreateConfigurationShippingServiceAndShippingFee = (
       .CREATE_CONFIGURATION_SHIPPING_SERVICE_AND_SHIPPING_FEE,
     payload: {
       params,
+      handleData,
+    },
+  };
+};
+
+export const actionGetConfigurationShippingServiceAndShippingFeeDetail = (
+  id: number,
+  handleData: (data: ShippingServiceConfigDetailResponseModel) => void
+) => {
+  return {
+    type: SETTING_TYPES.orderSettings
+      .GET_CONFIGURATION_SHIPPING_SERVICE_AND_SHIPPING_FEE_DETAIL,
+    payload: {
+      id,
       handleData,
     },
   };

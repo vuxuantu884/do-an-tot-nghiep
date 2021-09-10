@@ -6,6 +6,7 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { SETTING_TYPES } from "domain/types/settings.type";
 import {
   IsAllowToSellWhenNotAvailableStockResponseModel,
+  ShippingServiceConfigDetailResponseModel,
   ShippingServiceConfigResponseModel,
 } from "model/response/settings/order-settings.response";
 import { call, put, takeLatest } from "redux-saga/effects";
@@ -14,6 +15,7 @@ import {
   createListShippingServiceConfigService,
   getIsAllowToSellWhenNotAvailableStockService,
   getListShippingServiceConfigService,
+  getShippingServiceConfigDetailService,
 } from "service/order/order-settings.service";
 import { showError, showSuccess } from "utils/ToastUtils";
 
@@ -113,8 +115,35 @@ function* createConfigurationShippingServiceAndShippingFeeSaga(
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        handleData(response.data);
+        handleData();
         showSuccess("Tạo mới cài đặt thành công");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+function* getConfigurationShippingServiceAndShippingFeeDetailSaga(
+  action: YodyAction
+) {
+  const { id, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<ShippingServiceConfigDetailResponseModel> =
+      yield call(getShippingServiceConfigDetailService, id);
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -153,5 +182,11 @@ export function* settingOrdersSaga() {
     SETTING_TYPES.orderSettings
       .CREATE_CONFIGURATION_SHIPPING_SERVICE_AND_SHIPPING_FEE,
     createConfigurationShippingServiceAndShippingFeeSaga
+  );
+
+  yield takeLatest(
+    SETTING_TYPES.orderSettings
+      .GET_CONFIGURATION_SHIPPING_SERVICE_AND_SHIPPING_FEE_DETAIL,
+    getConfigurationShippingServiceAndShippingFeeDetailSaga
   );
 }

@@ -3,16 +3,15 @@ import { Card, Switch } from "antd";
 import ContentContainer from "component/container/content.container";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import moment from "moment";
 import {
   actionConfigureIsAllowToSellWhenNotAvailableStock,
   actionGetIsAllowToSellWhenNotAvailableStock,
   actionListConfigurationShippingServiceAndShippingFee,
 } from "domain/actions/settings/order-settings.action";
 import { ShippingServiceConfigResponseModel } from "model/response/settings/order-settings.response";
+import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-// import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { StyledComponent } from "./styles";
 
@@ -104,7 +103,9 @@ function OrderSettings(props: PropType) {
   };
 
   const goToPageDetail = (id: string | number) => {
-    history.push(`${UrlConfig.ORDER_SETTINGS}/${id}`);
+    history.push(
+      `${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${id}`
+    );
   };
 
   useEffect(() => {

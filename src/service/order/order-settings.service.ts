@@ -3,7 +3,10 @@ import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
 import { SourceResponse } from "model/response/order/source.response";
-import { ShippingServiceConfigResponseModel } from "model/response/settings/order-settings.response";
+import {
+  ShippingServiceConfigDetailResponseModel,
+  ShippingServiceConfigResponseModel,
+} from "model/response/settings/order-settings.response";
 
 /**
  * list Order Settings: Cho phép bán khi tồn kho <= 0
@@ -38,4 +41,10 @@ export const createListShippingServiceConfigService = (
   params: CreateShippingServiceConfigReQuestModel
 ): Promise<BaseResponse<ShippingServiceConfigResponseModel[]>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/shipping-service-config`, params);
+};
+
+export const getShippingServiceConfigDetailService = (
+  id: number
+): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/shipping-service-config/${id}`);
 };

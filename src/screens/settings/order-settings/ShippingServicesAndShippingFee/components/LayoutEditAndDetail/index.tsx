@@ -6,20 +6,26 @@ import { CityByCountryAction } from "domain/actions/content/content.action";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
 import { actionCreateConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import { ProvinceModel } from "model/content/district.model";
+import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { VietNamId } from "utils/Constants";
-import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
-import OrderSettingInformation from "./OrderSettingInformation";
-import OrderSettingValue from "./OrderSettingValue";
-import SelectThirdPartyLogistic from "./SelectThirdPartyLogistic";
+import { LAYOUT_CREATE_AND_DETAIL } from "utils/OrderSettings.constants";
+import OrderSettingInformation from "../OrderSettingInformation";
+import OrderSettingValue from "../OrderSettingValue";
+import SelectThirdPartyLogistic from "../SelectThirdPartyLogistic";
 import { StyledComponent } from "./styles";
 
-type PropType = {};
+type PropType = {
+  layoutType: string;
+  initialFormValue: CreateShippingServiceConfigReQuestModel;
+};
 
-function OrderSettings(props: PropType) {
+function LayoutEditAndDetail(props: PropType) {
+  const { layoutType, initialFormValue } = props;
+  console.log("initialFormValue", initialFormValue);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const history = useHistory();
@@ -29,21 +35,6 @@ function OrderSettings(props: PropType) {
   const [list3rdPartyLogistic, setList3rdPartyLogistic] = useState<
     DeliveryServiceResponse[]
   >([]);
-  const [initialFormValue, setInitialFormValue] = useState({
-    status: ORDER_SETTINGS_STATUS.inactive,
-    start_date: null,
-    end_date: null,
-    program_name: "",
-    shipping_fee_configs: [
-      {
-        from_price: "",
-        to_price: "",
-        city_name: "",
-        transport_fee: "",
-      },
-    ],
-    external_service_transport_type_ids: [],
-  });
 
   const handleSubmitForm = () => {
     form
@@ -66,7 +57,9 @@ function OrderSettings(props: PropType) {
         dispatch(
           actionCreateConfigurationShippingServiceAndShippingFee(
             formValueFormatted,
-            () => {}
+            () => {
+              history.push(UrlConfig.ORDER_SETTINGS);
+            }
           )
         );
       })
@@ -92,26 +85,10 @@ function OrderSettings(props: PropType) {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setList3rdPartyLogistic(response);
-        let listDeliveryService = [];
-        listDeliveryService = response.map((single) => {
-          return {
-            id: single.id,
-            code: single.code,
-            logo: single.logo,
-            name: single.name,
-            transport_types: single.transport_types,
-          };
-        });
-        console.log("listDeliveryService", listDeliveryService);
-        setInitialFormValue({
-          ...initialFormValue,
-          // external_service_transport_type_ids: listDeliveryService,
-        });
         form.resetFields();
         setIsLoadedData(true);
       })
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, form]);
 
   useEffect(() => {
@@ -121,6 +98,12 @@ function OrderSettings(props: PropType) {
       })
     );
   }, [dispatch]);
+
+  useEffect(() => {
+    if (isLoadedData) {
+      form.resetFields();
+    }
+  }, [isLoadedData, form, initialFormValue]);
 
   return (
     <StyledComponent>
@@ -146,7 +129,10 @@ function OrderSettings(props: PropType) {
       >
         {isLoadedData && (
           <Form form={form} layout="vertical" initialValues={initialFormValue}>
-            <OrderSettingInformation form={form} />
+            <OrderSettingInformation
+              form={form}
+              initialFormValue={initialFormValue}
+            />
             <OrderSettingValue listProvinces={listProvinces} />
             <SelectThirdPartyLogistic
               initialFormValue={initialFormValue}
@@ -176,7 +162,9 @@ function OrderSettings(props: PropType) {
                 handleSubmitForm();
               }}
             >
-              Lưu
+              {layoutType === LAYOUT_CREATE_AND_DETAIL.create
+                ? "Tạo mới"
+                : "Lưu"}
             </Button>
           </div>
         </div>
@@ -186,4 +174,4 @@ function OrderSettings(props: PropType) {
   );
 }
 
-export default OrderSettings;
+export default LayoutEditAndDetail;

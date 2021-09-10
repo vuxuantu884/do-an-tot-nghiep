@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 export const StyledComponent = styled.div`
   .ant-table-cell {
+    vertical-align: top;
     .ant-form-item {
       margin-bottom: 0;
     }

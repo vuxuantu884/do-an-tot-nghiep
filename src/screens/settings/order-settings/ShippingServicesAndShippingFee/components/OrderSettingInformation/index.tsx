@@ -8,6 +8,7 @@ import {
   Row,
   Switch,
 } from "antd";
+import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
 import moment from "moment";
 import { useState } from "react";
 import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
@@ -15,13 +16,16 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   form: FormInstance<any>;
+  initialFormValue: CreateShippingServiceConfigReQuestModel;
 };
 
 function OrderSettingInformation(props: PropType) {
   const datePickerPlaceholder = "dd/mm/yyyy hh:mm";
   const datePickerFormat = "DD-MM-YYYY HH:mm";
-  const { form } = props;
-  const [isActive, setIsActive] = useState(false);
+  const { form, initialFormValue } = props;
+  const [isActive, setIsActive] = useState(
+    initialFormValue.status === ORDER_SETTINGS_STATUS.active ? true : false
+  );
 
   const onChangeStatus = (checked: any) => {
     console.log("checked", checked);
@@ -59,8 +63,7 @@ function OrderSettingInformation(props: PropType) {
   };
 
   const handleSelectDate = (date: any, field: string) => {
-    let dateFormatted = date.utc().format();
-    console.log("dateFormatted", dateFormatted);
+    let dateFormatted = date.format();
     form.setFieldsValue({ [field]: dateFormatted });
   };
 
@@ -87,10 +90,17 @@ function OrderSettingInformation(props: PropType) {
             >
               <Input hidden />
             </Form.Item>
+            {/* <DatePicker showTime onChange={onChange} onOk={onOk} /> */}
             <DatePicker
               placeholder={datePickerPlaceholder}
               format={datePickerFormat}
-              showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
+              defaultValue={
+                initialFormValue.start_date
+                  ? moment(initialFormValue.start_date)
+                  : undefined
+              }
+              // locale={locale}
+              showTime={true}
               onChange={(date) => {
                 handleSelectDate(date, "start_date");
               }}
@@ -109,6 +119,11 @@ function OrderSettingInformation(props: PropType) {
             <DatePicker
               placeholder={datePickerPlaceholder}
               format={datePickerFormat}
+              defaultValue={
+                initialFormValue.end_date
+                  ? moment(initialFormValue.end_date)
+                  : undefined
+              }
               showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
               onChange={(date) => {
                 handleSelectDate(date, "end_date");

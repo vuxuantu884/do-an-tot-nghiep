@@ -1,17 +1,7 @@
 import { PlusOutlined } from "@ant-design/icons";
-import {
-  Card,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Select,
-  Table,
-} from "antd";
+import { Card, Form, InputNumber, Select, Table } from "antd";
 import Column from "antd/lib/table/Column";
 import { ProvinceModel } from "model/content/district.model";
-import moment from "moment";
-import React from "react";
 import { formatCurrency } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
@@ -21,17 +11,6 @@ type PropType = {
 
 function OrderSettingValue(props: PropType) {
   const { listProvinces } = props;
-
-  const renderDate = () => {
-    return (
-      <DatePicker
-        placeholder="dd/mm/yyyy  hh:mm"
-        format="YYYY-MM-DD HH:mm"
-        showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
-        style={{ width: "100%" }}
-      />
-    );
-  };
 
   const formatterCurrency = (value: number | undefined) => {
     let result = "";
@@ -66,7 +45,6 @@ function OrderSettingValue(props: PropType) {
                 name={[index, "from_price"]}
                 rules={[{ required: true, message: "Vui lòng nhập giá trị" }]}
               >
-                {/* {renderDate()} */}
                 <InputNumber formatter={formatterCurrency} />
               </Form.Item>
             );
@@ -81,7 +59,6 @@ function OrderSettingValue(props: PropType) {
                 name={[index, "to_price"]}
                 rules={[{ required: true, message: "Vui lòng nhập giá trị" }]}
               >
-                {/* {renderDate()} */}
                 <InputNumber formatter={formatterCurrency} />
               </Form.Item>
             );

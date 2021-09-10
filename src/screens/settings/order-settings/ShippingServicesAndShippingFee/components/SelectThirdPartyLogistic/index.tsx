@@ -1,11 +1,12 @@
 import { Card, Form, FormInstance, Input, Table } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import Column from "antd/lib/table/Column";
+import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  initialFormValue: any;
+  initialFormValue: CreateShippingServiceConfigReQuestModel;
   list3rdPartyLogistic: DeliveryServiceResponse[];
   form: FormInstance<any>;
 };
@@ -51,12 +52,8 @@ function SelectThirdPartyLogistic(props: PropType) {
             title={"Hãng vận chuyển"}
             render={(value, row: any, index) => {
               return (
-                <div className="image">
-                  <img
-                    src={value.logo}
-                    alt=""
-                    style={{ width: 136, marginRight: 15 }}
-                  />
+                <div className="logoHVC">
+                  <img src={value.logo} alt="" />
                 </div>
               );
             }}
@@ -66,7 +63,7 @@ function SelectThirdPartyLogistic(props: PropType) {
             className="columnService"
             render={(value, row: any, index) => {
               return (
-                <div>
+                <div className="listServices">
                   {row.transport_types.map((singleType: any, index: number) => {
                     return (
                       <Checkbox
@@ -74,7 +71,10 @@ function SelectThirdPartyLogistic(props: PropType) {
                           onChange(e, singleType.id);
                         }}
                         key={index}
-                        defaultChecked={false}
+                        // defaultChecked={false}
+                        defaultChecked={initialFormValue.external_service_transport_type_ids.includes(
+                          singleType.id
+                        )}
                       >
                         {singleType.name}
                       </Checkbox>
