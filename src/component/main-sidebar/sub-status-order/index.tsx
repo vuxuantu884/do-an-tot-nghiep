@@ -12,21 +12,27 @@ import { useDispatch } from "react-redux";
 import { OrderStatus } from "utils/Constants";
 
 type PropType = {
-  subStatus?: number | null;
+  subStatusId?: number | null;
   status?: string | null;
   orderId: number;
   fulfillments?: FulFillmentResponse[] | null;
+  handleChangeSubStatus: () => void;
 };
 
 function SubStatusOrder(props: PropType): React.ReactElement {
-  const { status, orderId, fulfillments, subStatus } = props;
+  const { status, orderId, fulfillments, subStatusId, handleChangeSubStatus } =
+    props;
   const dispatch = useDispatch();
   const [listOrderSubStatus, setListOrderSubStatus] = useState<
     OrderSubStatusResponse[]
   >([]);
+  const [valueSubStatusId, setValueSubStatusId] = useState<number | undefined>(
+    undefined
+  );
 
   const handleChange = (statusId: number) => {
-    dispatch(setSubStatusAction(orderId, statusId));
+    setValueSubStatusId(statusId);
+    dispatch(setSubStatusAction(orderId, statusId, handleChangeSubStatus));
   };
 
   useEffect(() => {
@@ -68,6 +74,13 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       );
     }
   }, [dispatch, fulfillments, status]);
+
+  useEffect(() => {
+    if (subStatusId) {
+      setValueSubStatusId(subStatusId);
+    }
+  }, [subStatusId]);
+
   return (
     <Card
       className="margin-top-20"
@@ -88,7 +101,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           }
           onChange={handleChange}
           notFoundContent="Không tìm thấy trạng thái phụ"
-          defaultValue={subStatus || undefined}
+          value={valueSubStatusId}
         >
           {listOrderSubStatus &&
             listOrderSubStatus.map((single) => {

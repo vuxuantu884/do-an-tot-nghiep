@@ -11,11 +11,12 @@ import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
 
 type PropType = {
+  countChangeSubStatus: number;
   orderId: string;
 };
 
 function ActionHistory(props: PropType) {
-  const { orderId } = props;
+  const { orderId, countChangeSubStatus } = props;
   const [actionLog, setActionLog] = useState<OrderActionLogResponse[]>([]);
   const dispatch = useDispatch();
 
@@ -91,7 +92,7 @@ function ActionHistory(props: PropType) {
         )
       );
     }
-  }, [dispatch, orderId]);
+  }, [dispatch, orderId, countChangeSubStatus]);
 
   return (
     <StyledComponent>
