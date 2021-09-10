@@ -128,7 +128,7 @@ label {
     text-align: center;
   }
   &-muted {
-    color: $text-muted
+    color: $text-muted;
   }
 }
 
@@ -482,4 +482,33 @@ label {
 
 .ant-form-item-explain.ant-form-item-explain-error {
   margin-top: 5px;
+}
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  margin-left: -30px;
+  height: 55px;
+  width: calc(100%);
+  box-shadow: 0px -1px 8px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  background-color: #fff;
+  z-index: 99;
+  padding: 0 280px 0 32px;
+  &.collapse {
+    margin-left:-25px;
+  }
+  &__left {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+  }
+  &__right {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+  }
 }
