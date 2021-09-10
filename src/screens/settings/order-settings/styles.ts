@@ -23,4 +23,7 @@ export const StyledComponent = styled.div`
   .ant-table-row {
     cursor: pointer;
   }
+  .columnActive {
+    text-align: center;
+  }
 `;

@@ -4,7 +4,10 @@ import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { CityByCountryAction } from "domain/actions/content/content.action";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
-import { actionCreateConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
+import {
+  actionCreateConfigurationShippingServiceAndShippingFee,
+  actionUpdateConfigurationShippingServiceAndShippingFee,
+} from "domain/actions/settings/order-settings.action";
 import { ProvinceModel } from "model/content/district.model";
 import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
@@ -21,11 +24,11 @@ import { StyledComponent } from "./styles";
 type PropType = {
   layoutType: string;
   initialFormValue: CreateShippingServiceConfigReQuestModel;
+  id?: number;
 };
 
 function LayoutEditAndDetail(props: PropType) {
-  const { layoutType, initialFormValue } = props;
-  console.log("initialFormValue", initialFormValue);
+  const { layoutType, initialFormValue, id } = props;
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const history = useHistory();
@@ -36,7 +39,7 @@ function LayoutEditAndDetail(props: PropType) {
     DeliveryServiceResponse[]
   >([]);
 
-  const handleSubmitForm = () => {
+  const handleSubmitForm = (action: string) => {
     form
       .validateFields()
       .then((formValue: any) => {
@@ -54,24 +57,37 @@ function LayoutEditAndDetail(props: PropType) {
             }
           ),
         };
-        dispatch(
-          actionCreateConfigurationShippingServiceAndShippingFee(
-            formValueFormatted,
-            () => {
-              history.push(UrlConfig.ORDER_SETTINGS);
-            }
-          )
-        );
+        if (action === LAYOUT_CREATE_AND_DETAIL.create) {
+          dispatch(
+            actionCreateConfigurationShippingServiceAndShippingFee(
+              formValueFormatted,
+              () => {
+                history.push(UrlConfig.ORDER_SETTINGS);
+              }
+            )
+          );
+        } else {
+          if (id) {
+            dispatch(
+              actionUpdateConfigurationShippingServiceAndShippingFee(
+                id,
+                formValueFormatted,
+                () => {
+                  history.push(UrlConfig.ORDER_SETTINGS);
+                }
+              )
+            );
+          }
+        }
       })
       .catch((error) => {
-        console.log("error", error);
-        // const element: any = document.getElementById(
-        //   error.errorFields[0].name.join("")
-        // );
-        // element?.focus();
-        // const offsetY =
-        //   element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-        // window.scrollTo({ top: offsetY, behavior: "smooth" });
+        const element: any = document.getElementById(
+          error.errorFields[0].name.join("")
+        );
+        element?.focus();
+        const offsetY =
+          element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+        window.scrollTo({ top: offsetY, behavior: "smooth" });
       });
   };
 
@@ -108,7 +124,12 @@ function LayoutEditAndDetail(props: PropType) {
   return (
     <StyledComponent>
       <ContentContainer
-        title="Thêm cài đặt dịch vụ vận chuyển & phí ship báo khách"
+        // title="Thêm cài đặt dịch vụ vận chuyển & phí ship báo khách"
+        title={
+          layoutType === LAYOUT_CREATE_AND_DETAIL.create
+            ? "Thêm cài đặt dịch vụ vận chuyển & phí ship báo khách"
+            : "Chi tiết cài đặt dịch vụ vận chuyển & phí ship báo khách"
+        }
         breadcrumb={[
           {
             name: "Tổng quan",
@@ -123,7 +144,10 @@ function LayoutEditAndDetail(props: PropType) {
             path: UrlConfig.ORDER_SETTINGS,
           },
           {
-            name: "Thêm cài đặt",
+            name:
+              layoutType === LAYOUT_CREATE_AND_DETAIL.create
+                ? "Thêm cài đặt"
+                : initialFormValue.program_name,
           },
         ]}
       >
@@ -159,16 +183,15 @@ function LayoutEditAndDetail(props: PropType) {
             <Button
               type="primary"
               onClick={() => {
-                handleSubmitForm();
+                handleSubmitForm(layoutType);
               }}
             >
               {layoutType === LAYOUT_CREATE_AND_DETAIL.create
                 ? "Tạo mới"
-                : "Lưu"}
+                : "Cập nhật"}
             </Button>
           </div>
         </div>
-        <Button onClick={() => handleSubmitForm()}>Lưu</Button>
       </ContentContainer>
     </StyledComponent>
   );

@@ -48,3 +48,21 @@ export const getShippingServiceConfigDetailService = (
 ): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/shipping-service-config/${id}`);
 };
+
+export const updateShippingServiceConfigService = (
+  id: number,
+  params: CreateShippingServiceConfigReQuestModel
+): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
+  return BaseAxios.put(
+    `${ApiConfig.ORDER}/shipping-service-config/${id}`,
+    params
+  );
+};
+
+export const deleteShippingServiceConfigService = (
+  id: number
+): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
+  return BaseAxios.delete(
+    `${ApiConfig.ORDER}/shipping-service-config/${id}/delete`
+  );
+};

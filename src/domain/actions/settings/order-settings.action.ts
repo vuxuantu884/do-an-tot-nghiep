@@ -72,3 +72,33 @@ export const actionGetConfigurationShippingServiceAndShippingFeeDetail = (
     },
   };
 };
+
+export const actionUpdateConfigurationShippingServiceAndShippingFee = (
+  id: number,
+  params: CreateShippingServiceConfigReQuestModel,
+  handleData: (data: ShippingServiceConfigResponseModel[]) => void
+) => {
+  return {
+    type: SETTING_TYPES.orderSettings
+      .UPDATE_CONFIGURATION_SHIPPING_SERVICE_AND_SHIPPING_FEE,
+    payload: {
+      id,
+      params,
+      handleData,
+    },
+  };
+};
+
+export const actionDeleteConfigurationShippingServiceAndShippingFee = (
+  id: number,
+  handleData: () => void
+) => {
+  return {
+    type: SETTING_TYPES.orderSettings
+      .DELETE_CONFIGURATION_SHIPPING_SERVICE_AND_SHIPPING_FEE,
+    payload: {
+      id,
+      handleData,
+    },
+  };
+};

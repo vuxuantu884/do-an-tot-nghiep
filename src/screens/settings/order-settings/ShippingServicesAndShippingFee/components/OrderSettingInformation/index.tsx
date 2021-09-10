@@ -26,9 +26,7 @@ function OrderSettingInformation(props: PropType) {
   const [isActive, setIsActive] = useState(
     initialFormValue.status === ORDER_SETTINGS_STATUS.active ? true : false
   );
-
   const onChangeStatus = (checked: any) => {
-    console.log("checked", checked);
     setIsActive(checked);
     if (checked) {
       form.setFieldsValue({ status: ORDER_SETTINGS_STATUS.active });
@@ -90,21 +88,21 @@ function OrderSettingInformation(props: PropType) {
             >
               <Input hidden />
             </Form.Item>
-            {/* <DatePicker showTime onChange={onChange} onOk={onOk} /> */}
-            <DatePicker
-              placeholder={datePickerPlaceholder}
-              format={datePickerFormat}
-              defaultValue={
-                initialFormValue.start_date
-                  ? moment(initialFormValue.start_date)
-                  : undefined
-              }
-              // locale={locale}
-              showTime={true}
-              onChange={(date) => {
-                handleSelectDate(date, "start_date");
-              }}
-            />
+            {initialFormValue && (
+              <DatePicker
+                placeholder={datePickerPlaceholder}
+                format={datePickerFormat}
+                defaultValue={
+                  initialFormValue.start_date
+                    ? moment(initialFormValue.start_date)
+                    : undefined
+                }
+                showTime={true}
+                onChange={(date) => {
+                  handleSelectDate(date, "start_date");
+                }}
+              />
+            )}
           </Col>
           <Col span={12}>
             <Form.Item

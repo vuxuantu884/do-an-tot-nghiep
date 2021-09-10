@@ -23,6 +23,7 @@ export const StyledComponent = styled.div`
     width: 500px;
     max-width: 100%;
     position: absolute;
-    bottom: 15px;
+    top: 30px;
+    height: 32px;
   }
 `;

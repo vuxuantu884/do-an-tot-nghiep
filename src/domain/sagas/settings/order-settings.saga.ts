@@ -13,9 +13,11 @@ import { call, put, takeLatest } from "redux-saga/effects";
 import {
   configureIsAllowToSellWhenNotAvailableStockService,
   createListShippingServiceConfigService,
+  deleteShippingServiceConfigService,
   getIsAllowToSellWhenNotAvailableStockService,
   getListShippingServiceConfigService,
   getShippingServiceConfigDetailService,
+  updateShippingServiceConfigService,
 } from "service/order/order-settings.service";
 import { showError, showSuccess } from "utils/ToastUtils";
 
@@ -132,6 +134,7 @@ function* createConfigurationShippingServiceAndShippingFeeSaga(
     yield put(hideLoading());
   }
 }
+
 function* getConfigurationShippingServiceAndShippingFeeDetailSaga(
   action: YodyAction
 ) {
@@ -144,6 +147,69 @@ function* getConfigurationShippingServiceAndShippingFeeDetailSaga(
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* updateConfigurationShippingServiceAndShippingFeeSaga(
+  action: YodyAction
+) {
+  const { id, params, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<any> = yield call(
+      updateShippingServiceConfigService,
+      id,
+      params
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData();
+        showSuccess("Cập nhật cài đặt thành công");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    console.log("error", error);
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* deleteConfigurationShippingServiceAndShippingFeeSaga(
+  action: YodyAction
+) {
+  const { id, handleData } = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<any> = yield call(
+      deleteShippingServiceConfigService,
+      id
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+        showSuccess("Xóa cài đặt thành công");
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -188,5 +254,17 @@ export function* settingOrdersSaga() {
     SETTING_TYPES.orderSettings
       .GET_CONFIGURATION_SHIPPING_SERVICE_AND_SHIPPING_FEE_DETAIL,
     getConfigurationShippingServiceAndShippingFeeDetailSaga
+  );
+
+  yield takeLatest(
+    SETTING_TYPES.orderSettings
+      .UPDATE_CONFIGURATION_SHIPPING_SERVICE_AND_SHIPPING_FEE,
+    updateConfigurationShippingServiceAndShippingFeeSaga
+  );
+
+  yield takeLatest(
+    SETTING_TYPES.orderSettings
+      .DELETE_CONFIGURATION_SHIPPING_SERVICE_AND_SHIPPING_FEE,
+    deleteConfigurationShippingServiceAndShippingFeeSaga
   );
 }

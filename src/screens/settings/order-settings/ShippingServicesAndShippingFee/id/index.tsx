@@ -14,7 +14,6 @@ type PropType = {};
 function OrderSettingsShippingServicesAndShippingFeeDetail(props: PropType) {
   const paramsId = useParams<{ id: string }>();
   const { id } = paramsId;
-  console.log("id", id);
   const dispatch = useDispatch();
   const [initialFormValue, setInitialFormValue] =
     useState<CreateShippingServiceConfigReQuestModel>({
@@ -38,7 +37,6 @@ function OrderSettingsShippingServicesAndShippingFeeDetail(props: PropType) {
       actionGetConfigurationShippingServiceAndShippingFeeDetail(
         +id,
         (response) => {
-          console.log("response", response);
           let valueConvertResponseToInitialFormValue = {
             status: response.status,
             start_date: response.start_date,
@@ -70,6 +68,7 @@ function OrderSettingsShippingServicesAndShippingFeeDetail(props: PropType) {
     <LayoutEditAndDetail
       layoutType={LAYOUT_CREATE_AND_DETAIL.detail}
       initialFormValue={initialFormValue}
+      id={+id}
     />
   );
 }

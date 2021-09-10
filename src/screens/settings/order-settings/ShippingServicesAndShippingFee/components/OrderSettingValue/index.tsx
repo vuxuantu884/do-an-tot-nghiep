@@ -37,8 +37,8 @@ function OrderSettingValue(props: PropType) {
         }}
       >
         <Column
-          dataIndex={"from_price"}
-          title={"Giá trị từ"}
+          dataIndex="from_price"
+          title="Giá trị từ"
           render={(value, row, index) => {
             return (
               <Form.Item
@@ -65,8 +65,8 @@ function OrderSettingValue(props: PropType) {
           }}
         />
         <Column
-          dataIndex={"city_name"}
-          title={"Tỉnh/Thành phố"}
+          dataIndex="city_name"
+          title="Tỉnh/Thành phố"
           width="30%"
           render={(value, row, index) => {
             return (
