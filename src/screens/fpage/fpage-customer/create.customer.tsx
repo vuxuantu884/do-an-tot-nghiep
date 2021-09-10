@@ -274,7 +274,7 @@ const CustomerAdd = (props: any) => {
       };
       customerForm.setFieldsValue(field);
     }
-  }, [customerDetail, customerForm]);
+  }, [customerDetail, customerForm,customerFbName]);
   const setResultUpdate = React.useCallback(
     (result) => {
       if (result) {

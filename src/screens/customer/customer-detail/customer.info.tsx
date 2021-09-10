@@ -148,7 +148,7 @@ function CustomerInfo(props: any) {
     <Card
       className="customer-information-card"
       title={
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div  style={{ display: "flex", alignItems: "center" }}>
           <span className="title-card">THÔNG TIN CÁ NHÂN</span>
           {customer && customer.status === "active" ? (
             <Tag
@@ -181,7 +181,7 @@ function CustomerInfo(props: any) {
           )}
         </div>
       }
-      extra={[<Link to={`/customers/${params.id}/edit`}>Cập nhật</Link>]}
+      extra={[<Link key={params.id} to={`/customers/${params.id}/edit`}>Cập nhật</Link>]}
     >
       <Row gutter={30} style={{ paddingTop: 16 }}>
         <Col span={12}>
@@ -266,7 +266,7 @@ function CustomerInfo(props: any) {
           <Collapse ghost>
             <Panel
               key="1"
-              header={[<span style={{ color: "#5656A1" }}>Xem thêm</span>]}
+              header={[<span key="1" style={{ color: "#5656A1" }}>Xem thêm</span>]}
             >
               <Row gutter={30}>
                 <Col span={12}>

@@ -216,8 +216,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'expected_receive_predefined':
           onFilter && onFilter({...params, expected_receive_predefined: ""});
           break;
-        case 'delivery_types':
-          onFilter && onFilter({...params, delivery_types: ""});
+        case 'delivery_provider_ids':
+          onFilter && onFilter({...params, delivery_provider_ids: []});
           break;
         case 'note':
           onFilter && onFilter({...params, note: ""});
@@ -363,6 +363,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
       payment_method_ids: Array.isArray(params.payment_method_ids) ? params.payment_method_ids : [params.payment_method_ids],
+      delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
       assignee: Array.isArray(params.assignee) ? params.assignee : [params.assignee],
       account: Array.isArray(params.account) ? params.account : [params.account],
@@ -570,12 +571,16 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.delivery_types.length) {
-      const findSerivice = deliveryService.find(item => item.id.toString() === initialValues.delivery_types)
+    if (initialValues.delivery_provider_ids.length) {
+      let textType = ""
+      initialValues.delivery_provider_ids.forEach(i => {
+        const findVariant = deliveryService?.find(item => item.id.toString() === i)
+        textType = findVariant ? textType + findVariant.name + ";" : textType
+      })
       list.push({
-        key: 'delivery_types',
+        key: 'delivery_provider_ids',
         name: 'Hình thức vận chuyển',
-        value: findSerivice?.name
+        value: textType
       })
     }
     if (initialValues.expected_receive_predefined) {
@@ -635,7 +640,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   return (
     <div>
       <div className="order-options">
-        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="true">
+        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="">
+          <Radio.Button value="">Tất cả đơn hàng</Radio.Button>
           <Radio.Button value="true">Đơn hàng online</Radio.Button>
           <Radio.Button value="false">Đơn hàng offline</Radio.Button>
         </Radio.Group>
@@ -1116,9 +1122,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.delivery_types ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
-                    <Item name="delivery_types">
+                    <Item name="delivery_provider_ids">
                       <Select
                         mode="multiple"
                         optionFilterProp="children" showSearch

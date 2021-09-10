@@ -39,6 +39,13 @@ export const getListOrderApi = (
   return BaseAxios.get(`${ApiConfig.ORDER}/orders?${queryString}`);
 };
 
+export const getListOrderCustomerApi = (
+  query: OrderSearchQuery
+): Promise<BaseResponse<OrderModel>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders?${queryString}`);
+};
+
 export const getShipmentApi = (
   query: ShipmentSearchQuery
 ): Promise<BaseResponse<ShipmentModel>> => {

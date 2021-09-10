@@ -166,6 +166,16 @@ export const getListOrderActionFpage = (
   });
 };
 
+export const GetListOrderCustomerAction = (
+  query: any,
+  setData: (data: PageResponse<OrderModel>|false) => void
+) => {
+  return BaseAction(OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST, {
+    query,
+    setData,
+  });
+};
+
 export const getShipmentsAction = (
   query: ShipmentSearchQuery,
   setData: (data: PageResponse<ShipmentModel> | false) => void
