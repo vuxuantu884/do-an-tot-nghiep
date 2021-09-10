@@ -9,8 +9,9 @@ import {
   actionUpdateConfigurationShippingServiceAndShippingFee,
 } from "domain/actions/settings/order-settings.action";
 import { ProvinceModel } from "model/content/district.model";
-import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
+import { CreateShippingServiceConfigReQuestFormModel } from "model/request/settings/order-settings.resquest";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
+import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
@@ -23,7 +24,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   layoutType: string;
-  initialFormValue: CreateShippingServiceConfigReQuestModel;
+  initialFormValue: CreateShippingServiceConfigReQuestFormModel;
   id?: number;
 };
 
@@ -46,6 +47,8 @@ function LayoutEditAndDetail(props: PropType) {
         const formValueFormatted = {
           ...formValue,
           // format necessary field
+          start_date: moment(formValue.start_date).utc().format(),
+          end_date: moment(formValue.end_date).utc().format(),
           shipping_fee_configs: formValue.shipping_fee_configs.map(
             (single: any) => {
               return {
