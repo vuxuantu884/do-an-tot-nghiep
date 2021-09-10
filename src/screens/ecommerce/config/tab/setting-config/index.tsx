@@ -6,9 +6,6 @@ import shopeeIcon from "assets/icon/e-shopee.svg";
 import shopeeSendo from "assets/icon/e-sendo.svg";
 import shopeeLazada from "assets/icon/e-lazada.svg";
 import shopeeTiki from "assets/icon/e-tiki.svg";
-
-import arrowLeft from "assets/icon/arrow-left.svg";
-import { Link } from "react-router-dom";
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
@@ -20,6 +17,7 @@ type SettingConfigProps = {
   accounts: Array<AccountResponse>;
   form: any;
   configList: Array<EcommerceResponse>;
+  configToView: EcommerceResponse | undefined;
   accountChangeSearch: (value: string) => void;
   handleCreateConfig: (value: EcommerceRequest) => void;
 };
@@ -30,6 +28,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
   accounts,
   form,
   handleCreateConfig,
+  configToView,
 }: SettingConfigProps) => {
   function tagRender(props: any) {
     const { label, closable, onClose } = props;
@@ -50,7 +49,14 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
   }
 
   //mock
-
+  React.useEffect(() => {
+    if(configToView){
+      form.setFieldsValue({
+        name: configToView.name,
+      })
+    }
+  },[configToView, form]);
+  console.log("object")
   const [listSources] = useState<Array<any>>([
     {
       id: "1",
@@ -78,14 +84,13 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
     },
   ]);
 
-
   return (
     <StyledConfig className="padding-20">
       <Form form={form} onFinish={(value) => handleCreateConfig(value)}>
         <Row>
           <Col span={5}>
             <Form.Item
-              name="source_id"
+              name="name"
               rules={[
                 {
                   required: true,
@@ -162,7 +167,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
           <Col span={12}>
             <Form.Item
               label={<span>Cửa hàng</span>}
-              name="shop"
+              name="store_id"
               rules={[
                 {
                   required: true,
@@ -210,7 +215,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
           <Col span={12}>
             <Form.Item
               label={<span>Kiểu đồng bộ đơn hàng</span>}
-              name="order_sync_type"
+              name="order_sync"
               rules={[
                 {
                   required: true,
@@ -236,7 +241,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
           <Col span={12}>
             <Form.Item
               label={<span>Kiểu đồng bộ sản phẩm</span>}
-              name="product_sync_type"
+              name="product_sync"
               rules={[
                 {
                   required: true,
@@ -262,7 +267,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
           <Col span={12}>
             <Form.Item
               label={<span>Kiểu đồng bộ tồn kho</span>}
-              name="inventory_sync_type"
+              name="inventory_sync"
               rules={[
                 {
                   required: true,
@@ -310,25 +315,17 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
           </Col>
         </Row>
         <div className="customer-bottom-button">
-          <Link to="/customers">
-            <div style={{ cursor: "pointer" }}>
-              <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-              Quay lại danh sách khách hàng
-            </div>
-          </Link>
-          <div>
-            <Button
-              className="disconnect-btn"
-              // onClick={() => history.goBack()}
-              style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
-              type="ghost"
-            >
-              Ngắt kết nối
-            </Button>
-            <Button type="primary" htmlType="submit">
-              Lưu lại
-            </Button>
-          </div>
+          <Button
+            className="disconnect-btn"
+            // onClick={() => history.goBack()}
+            style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
+            type="ghost"
+          >
+            Ngắt kết nối
+          </Button>
+          <Button type="primary" htmlType="submit">
+            Lưu lại
+          </Button>
         </div>
       </Form>
     </StyledConfig>
