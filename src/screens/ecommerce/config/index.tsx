@@ -134,7 +134,7 @@ const EcommerceConfig: React.FC = () => {
       ]}
       extra={
         <>
-          {activeTab === "sync" && <ButtonCreate path={`/customers/create`} />}
+          {activeTab === "sync" && <ButtonCreate path={`/customers/create`} child="Thêm kết nối mới"/>}
         </>
       }
     >

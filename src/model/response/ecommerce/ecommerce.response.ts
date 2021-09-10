@@ -15,7 +15,7 @@ export interface EcommerceResponse extends BaseObject {
   assign_account: String; // tên người phụ trách
   status: String; // trạng thái gian hàng
   inventory_sync: Boolean; // đồng bộ tồn
-  order_sync: boolean; // đồng bộ đơn hàng
+  order_sync: Boolean; // đồng bộ đơn hàng
   product_sync: String; // đồng bộ sản phẩm
   auth_time: String; // thời gian bắt đầu kết nối
   expire_time: String; // thời gian hết hạn

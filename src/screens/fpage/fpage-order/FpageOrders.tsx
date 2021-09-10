@@ -56,7 +56,6 @@ import CardProduct from "./component/order-detail/CardProduct";
 import ShipmentCard from "./component/order-detail/CardShipment";
 import PaymentCard from "./component/payment-card";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
-import "./fpage-order.scss";
 //#endregion
 
 var typeButton = "";
@@ -707,7 +706,7 @@ export default function FpageOrders(props: any) {
               <CreateBillStep status="draff" orderDetail={null} />
             </Col>
 
-            <Col className="order-button" md={7}>
+            <Col className="customer-bottom-button" span={24}>
               <Button className="order-button-width" onClick={() => window.location.reload()}>
                 Hủy
               </Button>

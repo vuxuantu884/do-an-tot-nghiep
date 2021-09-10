@@ -22,14 +22,18 @@ type SettingConfigProps = {
   handleCreateConfig: (value: EcommerceRequest) => void;
 };
 
-const SettingConfig: React.FC<SettingConfigProps> = ({
-  listStores,
-  accountChangeSearch,
-  accounts,
-  form,
-  handleCreateConfig,
-  configToView,
-}: SettingConfigProps) => {
+const SettingConfig: React.FC<SettingConfigProps> = (
+  props: SettingConfigProps
+) => {
+  const {
+    listStores,
+    accountChangeSearch,
+    accounts,
+    form,
+    handleCreateConfig,
+    configToView,
+  } = props;
+
   function tagRender(props: any) {
     const { label, closable, onClose } = props;
     const onPreventMouseDown = (event: any) => {
@@ -47,16 +51,29 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
       </Tag>
     );
   }
-
-  //mock
-  React.useEffect(() => {
-    if(configToView){
-      form.setFieldsValue({
-        name: configToView.name,
+const handleStoreChange = (event: any) => {
+  let inventories  = []
+  for(let id of event){
+    const _store = listStores.find((store) => store.id === id)
+    if(_store){
+      inventories.push({
+        store: _store.name,
+        store_id: id
       })
     }
-  },[configToView, form]);
-  console.log("object")
+
+  }
+  console.log(inventories)
+}
+  //mock
+  React.useEffect(() => {
+    if (configToView) {
+      form.setFieldsValue({
+        name: configToView.name,
+      });
+    }
+  }, [configToView, form]);
+  console.log("object");
   const [listSources] = useState<Array<any>>([
     {
       id: "1",
@@ -77,7 +94,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
       shop_id: "0696969",
     },
     {
-      id: "3",
+      id: "4",
       shop_name: "Shop Gì Đó Ơi",
       ecommerce_img: shopeeSendo,
       shop_id: "0696969",
@@ -298,6 +315,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
                 placeholder="Chọn cửa hàng"
                 mode="multiple"
                 allowClear
+                onChange={handleStoreChange}
                 tagRender={tagRender}
                 style={{
                   width: "100%",
