@@ -9,4 +9,8 @@ export const StyledComponent = styled.div`
     word-break: break-word;
     vertical-align: top;
   }
+  .orderDetails {
+    max-height: 300px;
+    overflow: auto;
+  }
 `;

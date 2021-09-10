@@ -1,0 +1,130 @@
+.loyalty-accumulate-wrapper {
+  font-family: Roboto;
+  color: #222222;
+
+  .additional-option {
+    margin: 43px auto 31px 30px;
+    font-size: 14px;
+    line-height: 16px;
+
+    .ant-switch-checked {
+      background-color: #2a2a86;
+    }
+
+    .option {
+      display: flex;
+
+      .switcher {
+        margin-right: 13px;
+        align-self: center;
+      }
+
+      span {
+        margin-top: 8px;
+      }
+    }
+  }
+
+  .require-rules,
+  .date-rule {
+    margin: 0 0 0 30px;
+
+    .rule {
+      margin-bottom: 14px;
+
+      .dropdown-rule,
+      .datepicker,
+      .input-rule {
+        margin-top: 8px;
+        width: 100%;
+        max-width: 350px;
+        border-radius: 6px;
+        display: block;
+      }
+
+      label {
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 16px;
+      }
+    }
+  }
+
+  .date-rule {
+    margin-bottom: 43px;
+  }
+
+  .back {
+    display: flex;
+    align-items: center;
+    padding-left: 24px !important;
+
+    a {
+      color: #737373;
+    }
+
+    svg {
+      margin-right: 8px;
+    }
+  }
+
+  .action-group {
+    padding-right: 50px !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    .save-btn {
+      margin-left: 30px;
+    }
+
+    .cancel-btn {
+      background-color: white;
+
+      &:hover, &:focus {
+        color: #222222;
+        background-color: white;
+      }
+    }
+  }
+
+  .accumulate-point-rule {
+    padding: 0 30px;
+    .rule-dropdown {
+      width: 100%;
+
+      .ant-select-selection-placeholder {
+        flex: unset;
+      }
+    }
+
+    .remove-rule {
+      background-color: #f2f2f2;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      cursor: pointer;
+
+      img {
+        width: 20px;
+        height: 20px;
+        align-self: center;
+      }
+    }
+
+    .add-new-rule {
+      background-color: white;
+      margin: 20px 0 36px 0;
+      color: #2a2a86;
+      border-color: #2a2a86;
+
+      &:hover,
+      &:focus {
+        color: #ffffff;
+        background-color: #2a2a86;
+      }
+    }
+  }
+}

@@ -88,6 +88,9 @@ type CardProductProps = {
   onChangeProduct: (value: string) => void;
   items?: Array<OrderLineItemRequest>;
   handleCardItems: (items: Array<OrderLineItemRequest>) => void;
+  isCloneOrder?: boolean;
+  discountRateParent?: number;
+  discountValueParent?: number;
 };
 
 const initQueryVariant: VariantSearchQuery = {
@@ -96,7 +99,15 @@ const initQueryVariant: VariantSearchQuery = {
 };
 
 const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
-  const { orderSettings, formRef, items, handleCardItems } = props;
+  const {
+    orderSettings,
+    formRef,
+    items,
+    handleCardItems,
+    isCloneOrder,
+    discountRateParent,
+    discountValueParent,
+  } = props;
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
@@ -118,8 +129,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   console.log("amount", amount);
   const [isVisiblePickDiscount, setVisiblePickDiscount] = useState(false);
   const [discountType, setDiscountType] = useState<string>(MoneyType.MONEY);
-  const [discountValue, setDiscountValue] = useState<number>(0);
-  const [discountRate, setDiscountRate] = useState<number>(0);
+  const [discountValue, setDiscountValue] = useState<number>(
+    discountValueParent || 0
+  );
+  const [discountRate, setDiscountRate] = useState<number>(
+    discountRateParent || 0
+  );
   const [changeMoney, setChangeMoney] = useState<number>(0);
   const [coupon, setCoupon] = useState<string>("");
   const [isShowProductSearch, setIsShowProductSearch] = useState(false);
@@ -178,6 +193,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   const showAddGiftModal = useCallback(
     (index: number) => {
       if (items) {
+        console.log("items", items);
         setIndexItem(index);
         setItemGift([...items[index].gifts]);
         setVisibleGift(true);
@@ -613,7 +629,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
       discount_value: 0,
       line_amount_after_line_discount: price,
       product: variant.product.name,
-      tax_include: true,
+      // tax_include: true,
+      tax_include: null,
       tax_rate: taxRate,
       show_note: false,
       gifts: [],
@@ -807,8 +824,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
   };
 
   useEffect(() => {
-    if (items) {
-      console.log("items", items);
+    if (items && items.length > 0) {
       setIsShowProductSearch(true);
     }
   }, []);
@@ -852,7 +868,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn cửa hàng",
+                  message: "Vui lòng chọn cửa hàng 3",
                 },
               ]}
             >
@@ -1082,7 +1098,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                       color: "#5D5D8A",
                     }}
                   >
-                    Chiết khấu 1:
+                    Chiết khấu:
                   </Typography.Link>
                 ) : (
                   <div>Chiết khấu</div>
@@ -1161,7 +1177,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Khách cần phải trả 1:</strong>
+              <strong className="font-size-text">Khách cần phải trả:</strong>
               <strong className="text-success font-size-price">
                 {changeMoney
                   ? formatCurrency(

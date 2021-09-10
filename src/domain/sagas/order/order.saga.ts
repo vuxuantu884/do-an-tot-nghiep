@@ -18,6 +18,7 @@ import { getAmountPayment } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { YodyAction } from "../../../base/base.action";
 import {
+  getChannelApi,
   getPaymentMethod,
   orderPostApi,
 } from "../../../service/order/order.service";
@@ -43,6 +44,7 @@ import {
   getListOrderCustomerApi
 } from "./../../../service/order/order.service";
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
+import { ChannelResponse } from "model/response/product/channel.response";
 
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -406,6 +408,28 @@ function* setSubStatusSaga(action: YodyAction) {
   }
 }
 
+function* getAllChannelSaga(action: YodyAction) {
+  const { setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<ChannelResponse>> = yield call(
+      getChannelApi
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
   yield takeLatest(OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST, getListOrderCustomerSaga);
@@ -434,4 +458,5 @@ export function* OrderOnlineSaga() {
   );
   yield takeLatest(OrderType.GET_TRACKING_LOG_ERROR, getTRackingLogErrorSaga);
   yield takeLatest(OrderType.SET_SUB_STATUS, setSubStatusSaga);
+  yield takeLatest(OrderType.GET_LIST_CHANNEL_REQUEST, getAllChannelSaga);
 }

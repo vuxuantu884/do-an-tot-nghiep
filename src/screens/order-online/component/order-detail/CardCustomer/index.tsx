@@ -1,21 +1,50 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 //#region Import
+import { CloseOutlined, SearchOutlined } from "@ant-design/icons";
 import {
+  AutoComplete,
+  Avatar,
   Button,
   Card,
-  Divider,
   Checkbox,
-  Input,
-  Row,
   Col,
-  AutoComplete,
-  Space,
-  Typography,
-  Popover,
+  Divider,
   Form,
+  Input,
+  Popover,
+  Row,
+  Space,
   Tag,
-  Avatar,
+  Typography,
 } from "antd";
+import { RefSelectProps } from "antd/lib/select";
+import imgDefault from "assets/icon/img-default.svg";
+import birthdayIcon from "assets/img/bithday.svg";
+import callIcon from "assets/img/call.svg";
+import editBlueIcon from "assets/img/edit_icon.svg";
+import noteCustomer from "assets/img/note-customer.svg";
+import pointIcon from "assets/img/point.svg";
+import addressIcon from "assets/img/user-pin.svg";
+import CustomSelect from "component/custom/select.custom";
+import {
+  DistrictGetByCountryAction,
+  WardGetByDistrictAction,
+} from "domain/actions/content/content.action";
+import {
+  CustomerGroups,
+  CustomerSearch,
+} from "domain/actions/customer/customer.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
+import { WardResponse } from "model/content/ward.model";
+import { modalActionType } from "model/modal/modal.model";
+import { CustomerSearchQuery } from "model/query/customer.query";
+import {
+  BillingAddress,
+  CustomerResponse,
+  ShippingAddress,
+} from "model/response/customer/customer.response";
+import { SourceResponse } from "model/response/order/source.response";
+import moment from "moment";
 import React, {
   createRef,
   useCallback,
@@ -23,42 +52,11 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import birthdayIcon from "assets/img/bithday.svg";
-import addIcon from "assets/img/plus_1.svg";
-import pointIcon from "assets/img/point.svg";
-import callIcon from "assets/img/call.svg";
-import imgDefault from "assets/icon/img-default.svg";
-import editBlueIcon from "assets/img/edit_icon.svg";
-import addressIcon from "assets/img/user-pin.svg";
-import noteCustomer from "assets/img/note-customer.svg";
-import { SearchOutlined } from "@ant-design/icons";
-import CustomSelect from "component/custom/select.custom";
-import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import AddAddressModal from "../modal/add-address.modal";
-import EditCustomerModal from "../modal/edit-customer.modal";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { RefSelectProps } from "antd/lib/select";
-import { CloseOutlined } from "@ant-design/icons";
-import {
-  BillingAddress,
-  CustomerResponse,
-  ShippingAddress,
-} from "model/response/customer/customer.response";
-import {
-  CustomerGroups,
-  CustomerSearch,
-} from "domain/actions/customer/customer.action";
-import moment from "moment";
-import { SourceResponse } from "model/response/order/source.response";
-import { CustomerSearchQuery } from "model/query/customer.query";
-import { WardResponse } from "model/content/ward.model";
-import {
-  DistrictGetByCountryAction,
-  WardGetByDistrictAction,
-} from "domain/actions/content/content.action";
-import { modalActionType } from "model/modal/modal.model";
 import { AiOutlinePlusCircle } from "react-icons/ai";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import AddAddressModal from "screens/order-online/modal/add-address.modal";
+import EditCustomerModal from "screens/order-online/modal/edit-customer.modal";
 //#end region
 
 type CustomerCardProps = {
@@ -90,6 +88,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 ) => {
   const { parentCustomerDetail } = props;
   console.log("parentCustomerDetail", parentCustomerDetail);
+
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -97,7 +96,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [resultSearch, setResultSearch] = useState<Array<CustomerResponse>>([]);
-  const [customer, setCustomer] = useState<CustomerResponse | null>(null);
+  const [customer, setCustomer] = useState<CustomerResponse | null>(
+    parentCustomerDetail
+  );
 
   const [countryId] = React.useState<number>(233);
   const [areas, setAreas] = React.useState<Array<any>>([]);
@@ -110,7 +111,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   console.log("customer", customer);
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
+    useState<ShippingAddress | null>(
+      parentCustomerDetail && parentCustomerDetail.shipping_addresses[0]
+        ? parentCustomerDetail.shipping_addresses[0]
+        : null
+    );
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -139,6 +144,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleCustomer(true);
   };
   const CancelConfirmCustomer = useCallback(() => {
+    setVisibleCustomer(false);
+  }, []);
+
+  const OkConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
 
@@ -250,15 +259,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   useEffect(() => {
     dispatch(getListSourceRequest(setListSource));
   }, [dispatch]);
-
-  useEffect(() => {
-    if (parentCustomerDetail) {
-      setCustomer(parentCustomerDetail);
-      if (parentCustomerDetail.shipping_addresses) {
-        setShippingAddress(parentCustomerDetail.shipping_addresses[0]);
-      }
-    }
-  }, [parentCustomerDetail]);
 
   useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
@@ -563,7 +563,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         className="change-shipping-address"
                       >
                         <Button type="link" className="btn-style">
-                          Thay đổi địa chỉ giao hàng 2
+                          Thay đổi địa chỉ giao hàng
                         </Button>
                       </Popover>
                     </Row>
@@ -705,7 +705,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           className="change-shipping-address"
                         >
                           <Button type="link" className="btn-style">
-                            Thay đổi địa chỉ giao hàng 3
+                            Thay đổi địa chỉ giao hàng
                           </Button>
                         </Popover>
                       </Row>
