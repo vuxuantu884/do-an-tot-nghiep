@@ -38,6 +38,7 @@ import { getListSourceRequest } from "domain/actions/product/source.action";
 import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
+import { CustomerShippingAddress } from "model/request/customer.request";
 import {
   BillingAddress,
   CustomerResponse,
@@ -57,6 +58,8 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import AddAddressModal from "screens/order-online/modal/add-address.modal";
 import EditCustomerModal from "screens/order-online/modal/edit-customer.modal";
+import { showSuccess } from "utils/ToastUtils";
+import CustomerShippingAddressOrder from "./customer-shipping";
 //#end region
 
 type CustomerCardProps = {
@@ -69,7 +72,7 @@ type CustomerCardProps = {
 //Add query for search Customer
 const initQueryCustomer: CustomerSearchQuery = {
   request: "",
-  limit: 10,
+  limit: 5,
   page: 1,
   gender: null,
   from_birthday: null,
@@ -116,6 +119,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         ? parentCustomerDetail.shipping_addresses[0]
         : null
     );
+
+  const [singleShippingAddress, setSingleShippingAddress] =
+    useState<CustomerShippingAddress | null>(null);
+
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -150,6 +157,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const OkConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
+
+  const ShowAddressModalEdit = () => {
+    setModalAction("edit");
+    setVisibleAddress(true);
+  };
+
+  const showAddressModalDelete = () => {
+    showSuccess("Delete");
+  };
 
   //#end region
 
@@ -527,37 +543,46 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           </Row>
                         }
                         content={
-                          <div className="change-shipping-address-content">
-                            {customer.shipping_addresses.map((item, index) => (
-                              <div
-                                className="shipping-address-row"
-                                key={item.id}
-                                // onClick={(e) =>
-                                //   SelectShippingAddress(item)
-                                // }
-                              >
-                                <div className="shipping-address-name">
-                                  Địa chỉ 1{" "}
-                                  <Button
-                                    type="text"
-                                    onClick={ShowAddressModal}
-                                    className="p-0"
-                                  >
-                                    <img src={editBlueIcon} alt="" />
-                                  </Button>
-                                </div>
-                                <div className="shipping-customer-name">
-                                  {item.name}
-                                </div>
-                                <div className="shipping-customer-mobile">
-                                  {item.phone}
-                                </div>
-                                <div className="shipping-customer-address">
-                                  {item.full_address}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                          // <div className="change-shipping-address-content">
+                          //   {customer.shipping_addresses.map((item, index) => (
+                          //     <div
+                          //       className="shipping-address-row"
+                          //       key={item.id}
+                          //       // onClick={(e) =>
+                          //       //   SelectShippingAddress(item)
+                          //       // }
+                          //     >
+                          //       <div className="shipping-address-name">
+                          //         Địa chỉ 1{" "}
+                          //         <Button
+                          //           type="text"
+                          //           onClick={ShowAddressModal}
+                          //           className="p-0"
+                          //         >
+                          //           <img src={editBlueIcon} alt="" />
+                          //         </Button>
+                          //       </div>
+                          //       <div className="shipping-customer-name">
+                          //         {item.name}
+                          //       </div>
+                          //       <div className="shipping-customer-mobile">
+                          //         {item.phone}
+                          //       </div>
+                          //       <div className="shipping-customer-address">
+                          //         {item.full_address}
+                          //       </div>
+                          //     </div>
+                          //   ))}
+                          // </div>
+                          <CustomerShippingAddressOrder
+                            customer={customer}
+                            handleChangeCustomer={handleChangeCustomer}
+                            handleShippingEdit={ShowAddressModalEdit}
+                            handleShippingDelete={showAddressModalDelete}
+                            handleSingleShippingAddress={
+                              setSingleShippingAddress
+                            }
+                          />
                         }
                         trigger="click"
                         className="change-shipping-address"
