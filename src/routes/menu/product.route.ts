@@ -8,7 +8,7 @@ const Category = React.lazy(
   () => import("screens/products/category/category-list.screen")
 );
 const ProductCreateScreen = React.lazy(
-  () => import("screens/products/product/product-create.screen")
+  () => import("screens/products/product/ProductCreateScreen")
 );
 const ColorListScreen = React.lazy(
   () => import("screens/products/color/color-list.screen")

@@ -19,4 +19,11 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .ant-picker {
+    width: 500px;
+    max-width: 100%;
+    position: absolute;
+    top: 30px;
+    height: 32px;
+  }
 `;

@@ -383,17 +383,20 @@ function* getListSubStatusSaga(action: YodyAction) {
 }
 
 function* setSubStatusSaga(action: YodyAction) {
-  let { order_id, statusId } = action.payload;
+  let { order_id, statusId, handleData } = action.payload;
+  const actionText = action.payload.action;
   yield put(showLoading());
   try {
     let response: BaseResponse<Array<DeliveryServiceResponse>> = yield call(
       setSubStatusService,
       order_id,
-      statusId
+      statusId,
+      actionText
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         showSuccess("Cập nhật trạng thái thành công");
+        handleData();
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
