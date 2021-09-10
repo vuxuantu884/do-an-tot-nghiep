@@ -1,4 +1,4 @@
-import { Row, Col,Checkbox } from "antd";
+import { Row, Col, Checkbox } from "antd";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { PlusOutlined } from "@ant-design/icons";
@@ -19,7 +19,7 @@ import { CustomerBillingAddress } from "model/request/customer.request";
 import FormCustomerBillingAddress from "screens/customer/customer-detail/customer-billing/billing.form.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import actionColumn from '../../common/action.column';
+import actionColumn from "../../common/action.column";
 
 function CustomerShippingInfo(props: any) {
   const { customer, customerDetailState, setModalAction, modalAction } = props;
@@ -36,7 +36,6 @@ function CustomerShippingInfo(props: any) {
   const [isVisibleBillingModal, setIsVisibleBillingModal] =
     React.useState<boolean>(false);
 
-  
   const handleBillingEdit = () => {
     setIsShowModalBilling(true);
   };
@@ -273,7 +272,7 @@ function CustomerShippingInfo(props: any) {
           //   // onShowSizeChange: onPageChange,
           // }}
           pagination={false}
-          dataSource={customer ? customer.billing_addresses : []}
+          dataSource={customer ? customer.billing_addresses.reverse() : []}
           columns={billingColumnFinal()}
           rowKey={(item: billingAddress) => item.id}
           onRow={(record: CustomerBillingAddress) => {

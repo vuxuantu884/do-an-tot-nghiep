@@ -41,9 +41,8 @@ const CustomerDetailIndex = () => {
   const [queryParams, setQueryParams] = React.useState<any>({
     limit: 10,
     page: 1,
-    customer_id: null,
+    customer_ids: null,
   });
-
   const [data, setData] = React.useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 10,
@@ -112,7 +111,7 @@ const CustomerDetailIndex = () => {
   );
   React.useEffect(() => {
     if (params?.id) {
-      queryParams.customer_id = [params?.id];
+      queryParams.customer_ids = [params?.id];
       dispatch(GetListOrderCustomerAction(queryParams, setOrderHistoryItems));
     }
   }, [params, dispatch, queryParams, setOrderHistoryItems]);
