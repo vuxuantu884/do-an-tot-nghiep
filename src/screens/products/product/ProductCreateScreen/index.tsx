@@ -15,12 +15,15 @@ import {
   Select,
   Space,
   Switch,
+  Table,
 } from "antd";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import ModalConfirm from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -29,6 +32,7 @@ import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { listColorAction } from "domain/actions/product/color.action";
 import { materialSearchAll } from "domain/actions/product/material.action";
+import { productCreateAction } from "domain/actions/product/products.action";
 import { sizeGetAll } from "domain/actions/product/size.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -37,18 +41,33 @@ import { SupplierResponse } from "model/core/supplier.model";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { ColorResponse } from "model/product/color.model";
 import { MaterialResponse } from "model/product/material.model";
-import { ProductRequestView } from "model/product/product.model";
+import {
+  ProductRequest,
+  ProductRequestView,
+  VariantImage,
+  VariantRequestView,
+  VariantResponse,
+} from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import {
   convertCategory,
   formatCurrency,
+  Products,
   replaceFormatString,
 } from "utils/AppUtils";
 import { RegUtil } from "utils/RegUtils";
+import { showSuccess } from "utils/ToastUtils";
+import ImageProduct from "../component/image-product.component";
 import { StyledComponent } from "./styles";
 
 const { Item, List } = Form;
@@ -82,8 +101,9 @@ const initialRequest: ProductRequestView = {
       retail_price: "",
       currency: AppConfig.currency,
       import_price: "",
-      whole_sale_price: "",
-      tax_percent: "0",
+      wholesale_price: "",
+      cost_price: "",
+      tax_percent: 0,
     },
   ],
   material_id: null,
@@ -115,9 +135,16 @@ const ProductCreateScreen: React.FC = () => {
   const weightUnitList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.weight_unit
   );
+  const productStatusList = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.product_status
+  );
   const initialForm: ProductRequestView = {
     ...initialRequest,
     goods: goods && goods.length > 0 ? goods[0].value : null,
+    weight_unit:
+    weightUnitList && weightUnitList.length > 0
+      ? weightUnitList[0].value
+      : null,
     unit:
       productUnitList && productUnitList.length > 0
         ? productUnitList[0].value
@@ -126,6 +153,7 @@ const ProductCreateScreen: React.FC = () => {
       lengthUnitList && lengthUnitList.length > 0
         ? lengthUnitList[0].value
         : null,
+    product_type: "normal",
   };
   //end init
 
@@ -150,6 +178,16 @@ const ProductCreateScreen: React.FC = () => {
   const [listSizeByCategory, setListSizeByCategory] = useState<
     Array<SizeResponse>
   >([]);
+  const [variants, setVariants] = useState<Array<VariantRequestView>>([]);
+  const [colorSelected, setColorSelected] = useState<Array<ColorResponse>>([]);
+  const [sizeSelected, setSizeSelected] = useState<Array<SizeResponse>>([]);
+  const [loadingSaveButton, setLoadingSaveButton] = useState(false);
+  const [isConfirmSave, setConfirmSave] = useState<boolean>(false);
+  const [titleConfirmSave, setTitleConfirmSave] = useState<string>("");
+  const [status, setStatus] = useState<string>(initialRequest.status);
+  const [productRequest, setProductRequest] = useState<ProductRequest | null>(
+    null
+  );
   //end category
   //end state
 
@@ -180,7 +218,7 @@ const ProductCreateScreen: React.FC = () => {
           code: listCategory[categoryIndex].code,
         });
       }
-      
+
       form.setFieldsValue({
         size: [],
       });
@@ -190,6 +228,152 @@ const ProductCreateScreen: React.FC = () => {
       setListSizeByCategory(listSizeFilter);
     },
     [form, listCategory, listSize]
+  );
+
+  const listVariantsFilter = useCallback(
+    (colors: Array<ColorResponse>, sizes: Array<SizeResponse>) => {
+      let name = form.getFieldValue("name");
+      let code = form.getFieldValue("code");
+      if (name && code) {
+        let newVariants: Array<VariantRequestView> = [];
+
+        if (colors.length > 0 && sizes.length > 0) {
+          colors.forEach((i1) => {
+            sizes.forEach((i2) => {
+              let sku = `${code}-${i1.code}-${i2.code}`;
+              newVariants.push({
+                name: `${name} - ${i1.name} - ${i2.code}`,
+                color_id: i1.id,
+                color: i1.name,
+                size_id: i2.id,
+                size: i2.code,
+                sku: sku,
+                variant_images: [],
+                quantity: 0,
+              });
+            });
+          });
+        } else if (colors.length === 0 && sizes.length > 0) {
+          sizes.forEach((i2) => {
+            newVariants.push({
+              name: `${name} - ${i2.code}`,
+              color_id: null,
+              color: null,
+              size_id: i2.id,
+              size: i2.code,
+              sku: `${code}-${i2.code}`,
+              variant_images: [],
+              quantity: 0,
+            });
+          });
+        } else if (colors.length >= 0 && sizes.length === 0) {
+          colors.forEach((i1) => {
+            newVariants.push({
+              name: `${name} - ${i1.name}`,
+              color_id: i1.id,
+              color: i1.name,
+              size_id: null,
+              size: null,
+              sku: `${code}-${i1.name}`,
+              variant_images: [],
+              quantity: 0,
+            });
+          });
+        }
+        if (newVariants.length === 0) {
+          newVariants.push({
+            name: name,
+            color_id: null,
+            color: null,
+            size_id: null,
+            size: null,
+            sku: code,
+            quantity: 0,
+            variant_images: [],
+          });
+        }
+        setVariants([...newVariants]);
+      }
+    },
+    [form]
+  );
+
+  const onNameChange = useCallback(
+    (event) => {
+      listVariantsFilter(colorSelected, sizeSelected);
+    },
+    [colorSelected, listVariantsFilter, sizeSelected]
+  );
+
+  const onSizeChange = useCallback(
+    (values: Array<number>) => {
+      let filter = listSize.filter((item) => values.includes(item.id));
+      setSizeSelected([...filter]);
+      listVariantsFilter(colorSelected, filter);
+    },
+    [colorSelected, listSize, listVariantsFilter]
+  );
+
+  const onColorChange = useCallback(
+    (values: Array<number>) => {
+      let filter = listColor.filter((item) => values.includes(item.id));
+      setColorSelected([...filter]);
+      listVariantsFilter(filter, sizeSelected);
+    },
+    [listColor, listVariantsFilter, sizeSelected]
+  );
+
+  const statusValue = useMemo(() => {
+    if (!productStatusList) {
+      return "";
+    }
+    let index = productStatusList?.findIndex((item) => item.value === status);
+    if (index !== -1) {
+      return productStatusList?.[index].name;
+    }
+    return "";
+  }, [productStatusList, status]);
+
+  const onFinish = useCallback(
+    (values: ProductRequestView) => {
+      console.log(values);
+      setLoadingSaveButton(true);
+
+      let request = Products.convertProductViewToRequest(
+        values,
+        variants,
+        status
+      );
+      let hasColor = request.variants.filter((val) => val.color_id != null);
+      let hasSize = request.variants.filter((val) => val.size_id != null);
+      let contentMes = "";
+      if (hasColor.length === 0 && hasSize.length === 0) {
+        contentMes = "màu, kích thước";
+      }
+      if (hasColor.length === 0 && hasSize.length !== 0) {
+        contentMes = "màu";
+      }
+      if (hasColor.length !== 0 && hasSize.length === 0) {
+        contentMes = "kích thước";
+      }
+      let titleConfirm = `Bạn chưa chọn ${contentMes}. Bạn có muốn tạo sản phẩm hay không?`;
+      setTitleConfirmSave(titleConfirm);
+      setConfirmSave(true);
+      setProductRequest(request);
+    },
+    [status, variants]
+  );
+
+  const createCallback = useCallback(
+    (result: VariantResponse) => {
+      if (result) {
+        showSuccess("Thêm mới dữ liệu thành công");
+        history.push(UrlConfig.PRODUCT);
+      } else {
+        setLoadingSaveButton(false);
+      }
+    },
+    [history]
   );
 
   useEffect(() => {
@@ -211,7 +395,15 @@ const ProductCreateScreen: React.FC = () => {
     return () => {};
   }, [dispatch, setDataAccounts, setDataCategory]);
   return (
-    <Form form={form} initialValues={initialForm} layout="vertical">
+    <Form
+      form={form}
+      onFinish={onFinish}
+      initialValues={initialForm}
+      layout="vertical"
+    >
+      <Item noStyle name="product_type" hidden>
+        <Input />
+      </Item>
       <StyledComponent>
         <ContentContainer
           title="Thêm mới sản phẩm"
@@ -236,7 +428,20 @@ const ProductCreateScreen: React.FC = () => {
                 title="Thông tin cơ bản"
                 extra={
                   <Space size={15}>
-                    <Switch className="ant-switch-success" defaultChecked />
+                    <Switch
+                      onChange={(checked) =>
+                        setStatus(checked ? "active" : "inactive")
+                      }
+                      className="ant-switch-success"
+                      defaultChecked
+                    />
+                    <label
+                      className={
+                        status === "active" ? "text-success" : "text-error"
+                      }
+                    >
+                      {statusValue}
+                    </label>
                   </Space>
                 }
               >
@@ -332,7 +537,7 @@ const ProductCreateScreen: React.FC = () => {
                         <Input
                           maxLength={7}
                           placeholder="Nhập mã sản phẩm"
-                          // onChange={onNameChange}
+                          onChange={onNameChange}
                         />
                       </Item>
                     </Col>
@@ -358,7 +563,7 @@ const ProductCreateScreen: React.FC = () => {
                         label="Tên sản phẩm"
                       >
                         <Input
-                          // onChange={onNameChange}
+                          onChange={onNameChange}
                           maxLength={120}
                           placeholder="Nhập tên sản phẩm"
                         />
@@ -405,10 +610,7 @@ const ProductCreateScreen: React.FC = () => {
                           placeholder="Chọn chất liệu"
                         >
                           {listMaterial?.map((item) => (
-                            <CustomSelect.Option
-                              key={item.id}
-                              value={item.name}
-                            >
+                            <CustomSelect.Option key={item.id} value={item.id}>
                               {item.name}
                             </CustomSelect.Option>
                           ))}
@@ -639,7 +841,7 @@ const ProductCreateScreen: React.FC = () => {
                         {fields.map(
                           ({ key, name, fieldKey, ...restField }, index) => (
                             <Row key={key} gutter={16}>
-                              <Col md={4}>
+                              <Col md={3}>
                                 <Item
                                   label="Giá bán"
                                   rules={[
@@ -670,7 +872,7 @@ const ProductCreateScreen: React.FC = () => {
                                   />
                                 </Item>
                               </Col>
-                              <Col md={4}>
+                              <Col md={3}>
                                 <Item
                                   name={[name, "whole_sale_price"]}
                                   fieldKey={[fieldKey, "whole_sale_price"]}
@@ -695,7 +897,7 @@ const ProductCreateScreen: React.FC = () => {
                                   />
                                 </Item>
                               </Col>
-                              <Col md={4}>
+                              <Col md={3}>
                                 <Item
                                   name={[name, "import_price"]}
                                   fieldKey={[fieldKey, "import_price"]}
@@ -719,7 +921,46 @@ const ProductCreateScreen: React.FC = () => {
                                   />
                                 </Item>
                               </Col>
-                              <Col md={4}>
+                              <Col md={3}>
+                                <Item
+                                  name={[name, "wholesale_price"]}
+                                  fieldKey={[fieldKey, "wholesale_price"]}
+                                  label="Giá vốn"
+                                  tooltip={{
+                                    title: () => (
+                                      <div>
+                                        <b>Giá vốn</b> là tổng của những loại
+                                        chi phí để đưa hàng có mặt tại kho.
+                                        Chúng bao gồm giá mua của nhà cung cấp,
+                                        thuế giá trị gia tăng, chi phí vận
+                                        chuyển, bảo hiểm,...
+                                      </div>
+                                    ),
+                                    icon: <InfoCircleOutlined />,
+                                  }}
+                                >
+                                  <NumberInput
+                                    format={(a: string) => formatCurrency(a)}
+                                    replace={(a: string) =>
+                                      replaceFormatString(a)
+                                    }
+                                    placeholder="VD: 100,000"
+                                  />
+                                </Item>
+                              </Col>
+                              <Col md={3}>
+                                <Item
+                                  label="Thuế"
+                                  name={[name, "tax_percent"]}
+                                  fieldKey={[fieldKey, "tax_percent"]}
+                                >
+                                  <NumberInput
+                                    placeholder="VD: 10"
+                                    suffix={<span>%</span>}
+                                  />
+                                </Item>
+                              </Col>
+                              <Col md={3}>
                                 <Item
                                   label="Đơn vị tiền tệ"
                                   tooltip={{
@@ -748,25 +989,9 @@ const ProductCreateScreen: React.FC = () => {
                                   </CustomSelect>
                                 </Item>
                               </Col>
-                              <Col md={4}>
-                                <Item
-                                  label="Thuế"
-                                  name={[name, "tax_percent"]}
-                                  fieldKey={[fieldKey, "tax_percent"]}
-                                  tooltip={{
-                                    title: "Tooltip",
-                                    icon: <InfoCircleOutlined />,
-                                  }}
-                                >
-                                  <NumberInput
-                                    placeholder="VD: 10"
-                                    suffix={<span>%</span>}
-                                  />
-                                </Item>
-                              </Col>
                               {fields.length > 1 && (
                                 <Col
-                                  md={4}
+                                  md={3}
                                   style={{
                                     display: "flex",
                                     alignItems: "center",
@@ -810,7 +1035,7 @@ const ProductCreateScreen: React.FC = () => {
                           optionFilterProp="children"
                           maxTagCount="responsive"
                           showArrow
-                          // onChange={onColorChange}
+                          onChange={onColorChange}
                           placeholder="Chọn màu sắc"
                           suffix={
                             <Button
@@ -830,7 +1055,7 @@ const ProductCreateScreen: React.FC = () => {
                     <Col span={24} md={12} sm={24}>
                       <Item name="size" label="Kích cỡ">
                         <CustomSelect
-                          // onChange={onSizeChange}  
+                          onChange={onSizeChange}
                           notFoundContent={"Không có dữ liệu"}
                           placeholder="Chọn kích cỡ"
                           maxTagCount="responsive"
@@ -856,10 +1081,85 @@ const ProductCreateScreen: React.FC = () => {
                       </Item>
                     </Col>
                   </Row>
+                  <Table
+                    locale={{
+                      emptyText: "Không cỏ sản phẩm",
+                    }}
+                    dataSource={variants}
+                    columns={[
+                      {
+                        title: "Ảnh",
+                        dataIndex: "variant_images",
+                        render: (
+                          images: Array<VariantImage>,
+                          item: VariantRequestView,
+                          index: number
+                        ) => {
+                          let image = Products.findAvatar(images);
+                          return (
+                            <ImageProduct
+                              path={image !== null ? image.url : null}
+                              onClick={() => {
+                                // onClickUpload(item, index);
+                              }}
+                            />
+                          );
+                        },
+                      },
+                      {
+                        title: "Mã chi tiết",
+                        key: "sku",
+                        dataIndex: "sku",
+                      },
+                      {
+                        title: "Tên sản phẩm",
+                        key: "name",
+                        dataIndex: "name",
+                      },
+                      {
+                        title: "Mã màu",
+                        key: "color",
+                        dataIndex: "color",
+                      },
+                      {
+                        title: "Kích cỡ",
+                        key: "size",
+                        dataIndex: "size",
+                      },
+                    ]}
+                    rowKey={(item) => item.sku}
+                    pagination={false}
+                  />
                 </div>
               </Card>
             </Col>
           </Row>
+          <BottomBarContainer
+            back="Quay lại sản phẩm"
+            rightComponent={
+              <Space>
+                <Button htmlType="reset">Hủy</Button>
+                <Button loading={loadingSaveButton} type="primary" htmlType="submit">
+                  Thêm sản phẩm
+                </Button>
+              </Space>
+            }
+          />
+          <ModalConfirm
+            onCancel={() => {
+              setConfirmSave(false);
+              setLoadingSaveButton(false);
+            }}
+            onOk={() => {
+              setConfirmSave(false);
+              dispatch(productCreateAction(productRequest, createCallback));
+              // dispatch(showLoading());
+              // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
+            }}
+            title={titleConfirmSave}
+            subTitle=""
+            visible={isConfirmSave}
+          />
         </ContentContainer>
       </StyledComponent>
     </Form>
