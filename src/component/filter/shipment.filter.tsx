@@ -176,7 +176,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           onFilter && onFilter({...params, store_ids: []});
           break;
         case 'source':
-          onFilter && onFilter({...params, sources: []});
+          onFilter && onFilter({...params, source_ids: []});
           break;
         case 'packed':
           setPackedOnMin(null)
@@ -209,24 +209,24 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           onFilter && onFilter({...params, reference_status: []});
           break;
 
-        case 'delivery_service_provider_ids':
-          onFilter && onFilter({...params, delivery_service_provider_ids: []});
+        case 'delivery_provider_ids':
+          onFilter && onFilter({...params, delivery_provider_ids: []});
           break;
         // trạng thái in
         case 'print_status':
           onFilter && onFilter({...params, print_status: []});
           break;
-        case 'address':
-          onFilter && onFilter({...params, assignee: ""});
+        case 'shipping_address':
+          onFilter && onFilter({...params, shipping_address: ""});
           break;
         case 'variant_ids':
           onFilter && onFilter({...params, variant_ids: []});
           break;
-        case 'delivery_service_provider_types':
-          onFilter && onFilter({...params, delivery_service_provider_types: []});
+        case 'delivery_types':
+          onFilter && onFilter({...params, delivery_types: []});
           break;
-        case 'assignees':
-          onFilter && onFilter({...params, assignees: []});
+        case 'account_codes':
+          onFilter && onFilter({...params, account_codes: []});
           break;
         case 'cancel_reason':
           onFilter && onFilter({...params, cancel_reason: ""});
@@ -355,14 +355,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     return {
       ...params,
       store_ids: Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids],
-      sources: Array.isArray(params.sources) ? params.sources : [params.sources],
+      source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
       status: Array.isArray(params.status) ? params.status : [params.status],
       reference_status: Array.isArray(params.reference_status) ? params.reference_status : [params.reference_status],
-      delivery_service_provider_ids: Array.isArray(params.delivery_service_provider_ids) ? params.delivery_service_provider_ids : [params.delivery_service_provider_ids],
-      delivery_service_provider_types: Array.isArray(params.delivery_service_provider_types) ? params.delivery_service_provider_types : [params.delivery_service_provider_types],
+      delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
+      delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
       print_status: Array.isArray(params.print_status) ? params.print_status : [params.print_status],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
-      assignees: Array.isArray(params.assignees) ? params.assignees : [params.assignees],
+      account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
   }}, [params])
   const [packedOnMin, setPackedOnMin] = useState(initialValues.packed_on_min? moment(initialValues.packed_on_min, "DD-MM-YYYY") : null);
@@ -474,9 +474,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStores
       })
     }
-    if (initialValues.sources.length) {
+    if (initialValues.source_ids.length) {
       let textSource = ""
-      initialValues.sources.forEach(source_id => {
+      initialValues.source_ids.forEach(source_id => {
         const source = listSources?.find(source => source.id.toString() === source_id)
         textSource = source ? textSource + source.name + ";" : textSource
       })
@@ -552,14 +552,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.delivery_service_provider_ids.length) {
+    if (initialValues.delivery_provider_ids.length) {
       let textService = ""
-      initialValues.delivery_service_provider_ids.forEach(i => {
+      initialValues.delivery_provider_ids.forEach(i => {
         const findService = deliveryService?.find(item => item.id === i)
         textService = findService ? textService + findService.name + ";" : textService
       })
       list.push({
-        key: 'delivery_service_provider_ids',
+        key: 'delivery_provider_ids',
         name: 'Đối tác giao hàng',
         value: textService
       })
@@ -577,14 +577,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.assignees.length) {
+    if (initialValues.account_codes.length) {
       let textAccount = ""
-      initialValues.assignees.forEach(i => {
+      initialValues.account_codes.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
       })
       list.push({
-        key: 'assignees',
+        key: 'account_codes',
         name: 'Nhân viên tạo đơn',
         value: textAccount
       })
@@ -592,7 +592,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     if (initialValues.shipping_address) {
       list.push({
-        key: 'address',
+        key: 'shipping_address',
         name: 'Địa chỉ',
         value: initialValues.shipping_address
       })
@@ -612,14 +612,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (initialValues.delivery_service_provider_types.length) {
+    if (initialValues.delivery_types.length) {
       let textType = ""
-      initialValues.delivery_service_provider_types.forEach(i => {
+      initialValues.delivery_types.forEach(i => {
         const findVariant = serviceType?.find(item => item.value === i)
         textType = findVariant ? textType + findVariant.name + ";" : textType
       })
       list.push({
-        key: 'delivery_service_provider_types',
+        key: 'delivery_types',
         name: 'Hình thức vận chuyển',
         value: textType
       })
@@ -786,7 +786,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
                   <Panel header="NGUỒN ĐƠN HÀNG" key="1" className="header-filter">
-                    <Item name="sources" style={{ margin: "10px 0px" }}>
+                    <Item name="source_ids" style={{ margin: "10px 0px" }}>
                       <CustomSelect
                         mode="multiple"
                         style={{ width: '100%'}}
@@ -969,9 +969,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.delivery_service_provider_ids.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
                   <Panel header="ĐỐI TÁC GIAO HÀNG" key="1" className="header-filter">
-                    <Item name="delivery_service_provider_ids">
+                    <Item name="delivery_provider_ids">
                     <Select
                       mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
                       notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
@@ -1016,9 +1016,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.status.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.account_codes.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1" className="header-filter">
-                    <Item name="assignees">
+                    <Item name="account_codes">
                       <Select
                         mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
                         notFoundContent="Không tìm thấy kết quả"
@@ -1072,9 +1072,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.delivery_service_provider_types.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.delivery_types.length ? ["1"]: []}>
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
-                    <Item name="delivery_service_provider_types">
+                    <Item name="delivery_types">
                       <Select
                         mode="multiple"
                         optionFilterProp="children" showSearch notFoundContent="Không tìm thấy kết quả"

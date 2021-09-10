@@ -7,6 +7,7 @@ const OrderDetail = React.lazy(
   () => import("screens/order-online/order-detail")
 );
 const Order = React.lazy(() => import("screens/order-online/order.screen"));
+const ReturnOrder = React.lazy(() => import("screens/order-online/return.screen"));
 const FpageCRM = React.lazy(() => import("screens/fpage"));
 
 const bill: Array<RouteMenu> = [
@@ -67,12 +68,23 @@ const bill: Array<RouteMenu> = [
     ],
   },
   {
+    path: `/order-return`,
+    exact: true,
+    title: "Danh sách trả hàng",
+    icon: "icon-dot",
+    component: ReturnOrder,
+    key: "submenu55",
+    isShow: true,
+    header: null,
+    subMenu: [],
+  },
+  {
     path: "/bill/return",
     exact: true,
     title: "Trả hàng",
     icon: "icon-dot",
     component: Order,
-    key: "submenu55",
+    key: "submenu56",
     isShow: true,
     header: null,
     subMenu: [],

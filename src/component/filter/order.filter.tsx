@@ -201,11 +201,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'payment_status':
           onFilter && onFilter({...params, payment_status: []});
           break;
-        case 'assignee':
-          onFilter && onFilter({...params, assignee: []});
+        case 'assignee_codes':
+          onFilter && onFilter({...params, assignee_codes: []});
           break;
-        case 'account':
-          onFilter && onFilter({...params, account: []});
+        case 'account_codes':
+          onFilter && onFilter({...params, account_codes: []});
           break;
         case 'price':
           onFilter && onFilter({...params, price_min: null, price_max: null});
@@ -365,8 +365,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       payment_method_ids: Array.isArray(params.payment_method_ids) ? params.payment_method_ids : [params.payment_method_ids],
       delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
-      assignee: Array.isArray(params.assignee) ? params.assignee : [params.assignee],
-      account: Array.isArray(params.account) ? params.account : [params.account],
+      assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
+      account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
   }}, [params])
   const [issuedOnMin, setIssuedOnMin] = useState(initialValues.issued_on_min? moment(initialValues.issued_on_min, "DD-MM-YYYY") : null);
   const [issuedOnMax, setIssuedOnMax] = useState(initialValues.issued_on_max? moment(initialValues.issued_on_max, "DD-MM-YYYY") : null);
@@ -524,27 +524,27 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (initialValues.assignee.length) {
+    if (initialValues.assignee_codes.length) {
       let textAccount = ""
-      initialValues.assignee.forEach(i => {
+      initialValues.assignee_codes.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
       })
       list.push({
-        key: 'assignee',
+        key: 'assignee_codes',
         name: 'Nhân viên bán hàng',
         value: textAccount
       })
     }
 
-    if (initialValues.account.length) {
+    if (initialValues.account_codes.length) {
       let textAccount = ""
-      initialValues.account.forEach(i => {
+      initialValues.account_codes.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
       })
       list.push({
-        key: 'account',
+        key: 'account_codes',
         name: 'Nhân viên tạo đơn',
         value: textAccount
       })
@@ -981,9 +981,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.assignee.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.assignee_codes.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN BÁN HÀNG" key="1" className="header-filter">
-                    <Item name="assignee">
+                    <Item name="assignee_codes">
                       <Select
                         mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
@@ -1007,9 +1007,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.account.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.account_codes.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1" className="header-filter">
-                    <Item name="account">
+                    <Item name="account_codes">
                       <Select
                         mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}

@@ -102,8 +102,8 @@ const initQuery: OrderSearchQuery = {
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
-  account: [],
-  assignee: [],
+  account_codes: [],
+  assignee_codes: [],
   price_min: undefined,
   price_max: undefined,
   payment_method_ids: [],
@@ -205,15 +205,21 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Khách hàng",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) =>
-        shipping_address && (
+      render: (record) =>
+        record.shipping_address ? (
           <div className="customer custom-td">
             <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              {shipping_address?.name}
+              {record.shipping_address.name}
             </div>
-            <div className="p-b-3">{shipping_address?.phone}</div>
-            <div className="p-b-3">{shipping_address?.full_address}</div>
+            <div className="p-b-3">{record.shipping_address.phone}</div>
+            <div className="p-b-3">{record.shipping_address.full_address}</div>
+          </div>
+        ) : (
+          <div className="customer custom-td">
+            <div className="name p-b-3" style={{ color: "#2A2A86" }}>
+              {record.customer}
+            </div>
+            <div className="p-b-3">{record.customer_phone_number}</div>
           </div>
         ),
       key: "customer",
@@ -440,7 +446,11 @@ const ListOrderScreen: React.FC = () => {
       title: "Tổng SL sản phẩm",
       dataIndex: "items",
       key: "item.quantity.total",
-      render: (items) => items.length,
+      render: (items) => {
+        console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
+        
+        return items.reduce((total: number, item: any) => total + item.quantity, 0)
+      },
       visible: true,
       align: "center",
     },
@@ -522,14 +532,14 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Nhân viên bán hàng",
-      dataIndex: "assignee",
+      render: (record) => <div>{`${record.assignee} - ${record.assignee_code}`}</div>,
       key: "assignee",
       visible: true,
       align: "center",
     },
     {
       title: "Nhân viên tạo đơn",
-      dataIndex: "account",
+      render: (record) => <div>{`${record.account} - ${record.account_code}`}</div>,
       key: "account",
       visible: true,
       align: "center",
