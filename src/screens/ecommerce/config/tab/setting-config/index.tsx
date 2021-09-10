@@ -1,36 +1,94 @@
 import { StyledConfig } from "./styles";
-import { Row, Col, Form, Input, Select } from "antd";
-import { SourceResponse } from "model/response/order/source.response";
-import React, { useState, useEffect, useMemo } from "react";
-import { getListSourceRequest } from "domain/actions/product/source.action";
-import { useDispatch } from "react-redux";
+import { Row, Col, Form, Input, Select, Button, Tag } from "antd";
+import React, { useState } from "react";
 import CustomSelect from "component/custom/select.custom";
+import shopeeIcon from "assets/icon/e-shopee.svg";
+import shopeeSendo from "assets/icon/e-sendo.svg";
+import shopeeLazada from "assets/icon/e-lazada.svg";
+import shopeeTiki from "assets/icon/e-tiki.svg";
+
+import arrowLeft from "assets/icon/arrow-left.svg";
+import { Link } from "react-router-dom";
+import { StoreResponse } from "model/core/store.model";
+import { AccountResponse } from "model/account/account.model";
 
 const { Option } = Select;
-type SettingConfigProps = {};
+type SettingConfigProps = {
+  listStores: Array<StoreResponse>;
+  accounts: Array<AccountResponse>;
+  accountChangeSearch: (value: string) => void;
+};
 
 // interface EcommerceConfig {
 
 // }
 
-const SettingConfig: React.FC<SettingConfigProps> = (
-  props: SettingConfigProps
-) => {
-  const dispatch = useDispatch();
-  const [configForm] = Form.useForm()
-  const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
+const SettingConfig: React.FC<SettingConfigProps> = ({
+  listStores,
+  accountChangeSearch,
+  accounts,
+}: SettingConfigProps) => {
+  function tagRender(props: any) {
+    const { label, closable, onClose } = props;
+    const onPreventMouseDown = (event: any) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    return (
+      <Tag
+        className="primary-bg"
+        onMouseDown={onPreventMouseDown}
+        closable={closable}
+        onClose={onClose}
+      >
+        {label}
+      </Tag>
+    );
+  }
 
-  useEffect(() => {
-    dispatch(getListSourceRequest(setListSource));
-  }, [dispatch]);
+  //mock
+  const [configForm] = Form.useForm();
+  const [listSources] = useState<Array<any>>([
+    {
+      id: "1",
+      shop_name: "Shop Hàng Đẹp",
+      ecommerce_img: shopeeIcon,
+      shop_id: "0696969",
+    },
+    {
+      id: "2",
+      shop_name: "Shop Hàng Mới",
+      ecommerce_img: shopeeLazada,
+      shop_id: "0696969",
+    },
+    {
+      id: "3",
+      shop_name: "Shop Gì Đó",
+      ecommerce_img: shopeeTiki,
+      shop_id: "0696969",
+    },
+    {
+      id: "3",
+      shop_name: "Shop Gì Đó Ơi",
+      ecommerce_img: shopeeSendo,
+      shop_id: "0696969",
+    },
+  ]);
 
-  const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "pos");
-  }, [listSource]);
+  // useEffect(() => {
+  //   dispatch(getListSourceRequest(setListSource));
+  // }, [dispatch]);
+
+  // const listSources = useMemo(() => {
+  //   return listSource.filter((item) => item.code !== "pos");
+  // }, [listSource]);
+  const onFinish = (value: any) => {
+    console.log(value);
+  };
 
   return (
     <StyledConfig className="padding-20">
-      <Form form={configForm}>
+      <Form form={configForm} onFinish={onFinish}>
         <Row>
           <Col span={5}>
             <Form.Item
@@ -38,14 +96,14 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn nguồn đơn hàng",
+                  message: "Vui lòng chọn cửa hàng",
                 },
               ]}
             >
               <CustomSelect
                 showArrow
                 showSearch
-                placeholder="Nguồn đơn hàng"
+                placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
                 filterOption={(input, option) => {
                   if (option) {
@@ -64,7 +122,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                     key={index.toString()}
                     value={item.id}
                   >
-                    {item.name}
+                    <img
+                      style={{ marginRight: 8, paddingBottom: 4 }}
+                      src={item.ecommerce_img}
+                      alt=""
+                    />{" "}
+                    {item.shop_name}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
@@ -80,7 +143,16 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             </span>
           </Col>
           <Col span={12}>
-            <Form.Item label={<span>Tên gian hàng</span>} name="shop_name">
+            <Form.Item
+              label={<span>Tên gian hàng</span>}
+              name="shop_name"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn gian hàng",
+                },
+              ]}
+            >
               <Input placeholder="Nhập tên gian hàng"></Input>
             </Form.Item>
           </Col>
@@ -95,86 +167,177 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             </span>
           </Col>
           <Col span={12}>
-            <Form.Item label={<span>Cửa hàng</span>} name="shop">
-              <Input placeholder="Nhập tên gian hàng"></Input>
+            <Form.Item
+              label={<span>Cửa hàng</span>}
+              name="shop"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn cửa hàng",
+                },
+              ]}
+            >
+              <Input placeholder="Nhập tên cửa hàng"></Input>
             </Form.Item>
             <Form.Item
               label={<span>Nhân viên bán hàng</span>}
-              name="shop_staff"
+              name="assign_account_code"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn nhân viên bán hàng",
+                },
+              ]}
             >
-              <Input placeholder="Nhập tên gian hàng"></Input>
+              <Select
+                showSearch
+                placeholder="Chọn nhân viên bán hàng"
+                allowClear
+                optionFilterProp="children"
+                onSearch={(value) => accountChangeSearch(value)}
+              >
+                {accounts &&
+                  accounts.map((c: any) => (
+                    <Option key={c.id} value={c.code}>
+                      {`${c.code} - ${c.full_name}`}
+                    </Option>
+                  ))}
+              </Select>
             </Form.Item>
           </Col>
         </Row>
+
+        <Row gutter={24}>
+          <Col span={12}>
+            <span className="description-name">Cấu hình đơn hàng</span>
+            <span className="description">
+              Chọn kiểu đồng bộ đơn hàng để cập nhật đơn tự động hay thủ công
+            </span>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label={<span>Kiểu đồng bộ đơn hàng</span>}
+              name="order_sync_type"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn kiểu đồng bộ đơn hàng",
+                },
+              ]}
+            >
+              <Select placeholder="Chọn kiểu đồng bộ đơn hàng">
+                <Option value={"auto"}>Tự động</Option>
+                <Option value={"manual"}>Thủ công</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col span={12}>
+            <span className="description-name">Cấu hình sản phẩm</span>
+            <span className="description">
+              Chọn kiểu động bộ sản phẩm khi đơn hàng mới có sản phẩm chưa có
+              trên admin
+            </span>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label={<span>Kiểu đồng bộ sản phẩm</span>}
+              name="product_sync_type"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn kiểu đồng bộ sản phẩm",
+                },
+              ]}
+            >
+              <Select placeholder="Chọn kiểu đồng bộ sản phẩm">
+                <Option value={"auto"}>Tự động</Option>
+                <Option value={"manual"}>Thủ công</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col span={12}>
+            <span className="description-name">Cấu hình tồn kho</span>
+            <span className="description">
+              Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt
+              các gian hàng với nhau
+            </span>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label={<span>Kiểu đồng bộ tồn kho</span>}
+              name="inventory_sync_type"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn kiểu đồng bộ tồn kho",
+                },
+              ]}
+            >
+              <Select placeholder="Chọn kiểu đồng bộ tồn kho">
+                <Option value={"auto"}>Tự động</Option>
+                <Option value={"manual"}>Thủ công</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item
+              name="inventories"
+              className="store"
+              label={<span>Kho đồng bộ tồn</span>}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn kho đồng bộ tồn",
+                },
+              ]}
+            >
+              <CustomSelect
+                showSearch
+                optionFilterProp="children"
+                showArrow
+                placeholder="Chọn cửa hàng"
+                mode="multiple"
+                allowClear
+                tagRender={tagRender}
+                style={{
+                  width: "100%",
+                }}
+                notFoundContent="Không tìm thấy kết quả"
+                maxTagCount="responsive"
+              >
+                {listStores?.map((item) => (
+                  <CustomSelect.Option key={item.id} value={item.id}>
+                    {item.name}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
+            </Form.Item>
+          </Col>
+        </Row>
+        <div className="customer-bottom-button">
+          <Link to="/customers">
+            <div style={{ cursor: "pointer" }}>
+              <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+              Quay lại danh sách khách hàng
+            </div>
+          </Link>
+          <div>
+            <Button
+              className="disconnect-btn"
+              // onClick={() => history.goBack()}
+              style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
+              type="ghost"
+            >
+              Ngắt kết nối
+            </Button>
+            <Button type="primary" htmlType="submit">
+              Lưu lại
+            </Button>
+          </div>
+        </div>
       </Form>
-      <Row gutter={24}>
-        <Col span={12}>
-          <span className="description-name">Cấu hình đơn hàng</span>
-          <span className="description">
-            Chọn kiểu đồng bộ đơn hàng để cập nhật đơn tự động hay thủ công
-          </span>
-        </Col>
-        <Col span={12}>
-          <Form.Item
-            label={<span>Kiểu đồng bộ đơn hàng</span>}
-            name="order_sync_type"
-          >
-            <Select placeholder="Chọn kiểu đồng bộ đơn hàng">
-              <Option value={"auto"}>Tự động</Option>
-              <Option value={"manual"}>Thủ công</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-      </Row>
-      <Row gutter={24}>
-        <Col span={12}>
-          <span className="description-name">Cấu hình sản phẩm</span>
-          <span className="description">
-            Chọn kiểu động bộ sản phẩm khi đơn hàng mới có sản phẩm chưa có trên
-            admin
-          </span>
-        </Col>
-        <Col span={12}>
-          <Form.Item
-            label={<span>Kiểu đồng bộ sản phẩm</span>}
-            name="product_sync_type"
-          >
-            <Select placeholder="Chọn kiểu đồng bộ sản phẩm">
-              <Option value={"auto"}>Tự động</Option>
-              <Option value={"manual"}>Thủ công</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-      </Row>
-      <Row gutter={24}>
-        <Col span={12}>
-          <span className="description-name">Cấu hình tồn kho</span>
-          <span className="description">
-            Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt các
-            gian hàng với nhau
-          </span>
-        </Col>
-        <Col span={12}>
-          <Form.Item
-            label={<span>Kiểu đồng bộ tồn kho</span>}
-            name="inventory_sync_type"
-          >
-            <Select placeholder="Chọn kiểu đồng bộ tồn kho">
-              <Option value={"auto"}>Tự động</Option>
-              <Option value={"manual"}>Thủ công</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label={<span>Kiểu đồng bộ tồn</span>}
-            name="remaining_sync_type"
-          >
-            <Select placeholder="Chọn kiểu đồng bộ tồn">
-              <Option value={"auto"}>Tự động</Option>
-              <Option value={"manual"}>Thủ công</Option>
-            </Select>
-          </Form.Item>
-        </Col>
-      </Row>
     </StyledConfig>
   );
 };

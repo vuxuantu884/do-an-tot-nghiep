@@ -16,6 +16,9 @@ export interface MaterialCreateRequest {
   component: string,
   description: string,
   name: string,
+  advantages: string,
+  defect: string,
+  preserve: string,
 }
 
 export interface MaterialUpdateRequest extends MaterialCreateRequest {
@@ -26,4 +29,7 @@ export interface MaterialResponse extends BaseObject {
   name: string,
   component: string,
   description: string,
+  advantages: string,
+  defect: string,
+  preserve: string,
 }

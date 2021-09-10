@@ -31,16 +31,20 @@ import {
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
 import {
+  CustomerDetail,
   CustomerGroups,
   CustomerSearch,
+  DeleteShippingAddress,
 } from "domain/actions/customer/customer.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
+import { CustomerShippingAddress } from "model/request/customer.request";
 import {
   BillingAddress,
   CustomerResponse,
+  shippingAddress,
   ShippingAddress,
 } from "model/response/customer/customer.response";
 import { SourceResponse } from "model/response/order/source.response";
@@ -57,6 +61,10 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import AddAddressModal from "screens/order-online/modal/add-address.modal";
 import EditCustomerModal from "screens/order-online/modal/edit-customer.modal";
+import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
+import { showError, showSuccess } from "utils/ToastUtils";
+import CustomerShippingAddressOrder from "./customer-shipping";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 //#end region
 
 type CustomerCardProps = {
@@ -69,7 +77,7 @@ type CustomerCardProps = {
 //Add query for search Customer
 const initQueryCustomer: CustomerSearchQuery = {
   request: "",
-  limit: 10,
+  limit: 5,
   page: 1,
   gender: null,
   from_birthday: null,
@@ -116,6 +124,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         ? parentCustomerDetail.shipping_addresses[0]
         : null
     );
+
+  const [singleShippingAddress, setSingleShippingAddress] =
+    useState<CustomerShippingAddress | null>(null);
+    
+  const [isVisibleShippingModal, setIsVisibleShippingModal] =
+    React.useState<boolean>(false);
+
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -150,6 +165,29 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const OkConfirmCustomer = useCallback(() => {
     setVisibleCustomer(false);
   }, []);
+
+  const ShowAddressModalAdd = () => {
+    setModalAction("create");
+    setVisibleAddress(true);
+  };
+
+  const ShowAddressModalEdit = () => {
+    setModalAction("edit");
+    setVisibleAddress(true);
+  };
+
+  const showAddressModalDelete = () => {
+    setIsVisibleShippingModal(true);
+  };
+
+  const onCancelShippingDelete = () => {
+    setIsVisibleShippingModal(false);
+  };
+
+  const onOkShippingDelete = () => {
+    handleShippingAddressDelete();
+    setIsVisibleShippingModal(false);
+  };
 
   //#end region
 
@@ -284,6 +322,29 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const handleChangeCustomer = (customers: any) => {
     if (customers) {
       setCustomer(customers);
+    }
+  };
+
+  const handleShippingAddressDelete = () => {
+    if (singleShippingAddress) {
+      if (customer)
+        dispatch(
+          DeleteShippingAddress(
+            singleShippingAddress.id,
+            customer.id,
+            (data: shippingAddress) => {
+              dispatch(CustomerDetail(
+                customer.id,
+                  (datas:CustomerResponse)=>{
+                      handleChangeCustomer(datas)
+                  }
+              ));
+              data
+                ? showSuccess("Xóa địa chỉ thành công")
+                : showError("Xóa địa chỉ thất bại");
+            }
+          )
+        );
     }
   };
 
@@ -505,6 +566,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     <Row>
                       <Popover
                         placement="bottomLeft"
+                        overlayStyle={{zIndex: 17}}
                         title={
                           <Row
                             justify="space-between"
@@ -518,46 +580,52 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             >
                               Thay đổi địa chỉ
                             </div>
-                            <Button
-                              type="link"
-                              // onClick={ShowAddressModal}
-                            >
+                            <Button type="link" onClick={ShowAddressModalAdd}>
                               Thêm địa chỉ mới
                             </Button>
                           </Row>
                         }
                         content={
-                          <div className="change-shipping-address-content">
-                            {customer.shipping_addresses.map((item, index) => (
-                              <div
-                                className="shipping-address-row"
-                                key={item.id}
-                                // onClick={(e) =>
-                                //   SelectShippingAddress(item)
-                                // }
-                              >
-                                <div className="shipping-address-name">
-                                  Địa chỉ 1{" "}
-                                  <Button
-                                    type="text"
-                                    onClick={ShowAddressModal}
-                                    className="p-0"
-                                  >
-                                    <img src={editBlueIcon} alt="" />
-                                  </Button>
-                                </div>
-                                <div className="shipping-customer-name">
-                                  {item.name}
-                                </div>
-                                <div className="shipping-customer-mobile">
-                                  {item.phone}
-                                </div>
-                                <div className="shipping-customer-address">
-                                  {item.full_address}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                          // <div className="change-shipping-address-content">
+                          //   {customer.shipping_addresses.map((item, index) => (
+                          //     <div
+                          //       className="shipping-address-row"
+                          //       key={item.id}
+                          //       // onClick={(e) =>
+                          //       //   SelectShippingAddress(item)
+                          //       // }
+                          //     >
+                          //       <div className="shipping-address-name">
+                          //         Địa chỉ 1{" "}
+                          //         <Button
+                          //           type="text"
+                          //           onClick={ShowAddressModal}
+                          //           className="p-0"
+                          //         >
+                          //           <img src={editBlueIcon} alt="" />
+                          //         </Button>
+                          //       </div>
+                          //       <div className="shipping-customer-name">
+                          //         {item.name}
+                          //       </div>
+                          //       <div className="shipping-customer-mobile">
+                          //         {item.phone}
+                          //       </div>
+                          //       <div className="shipping-customer-address">
+                          //         {item.full_address}
+                          //       </div>
+                          //     </div>
+                          //   ))}
+                          // </div>
+                          <CustomerShippingAddressOrder
+                            customer={customer}
+                            handleChangeCustomer={handleChangeCustomer}
+                            handleShippingEdit={ShowAddressModalEdit}
+                            handleShippingDelete={showAddressModalDelete}
+                            handleSingleShippingAddress={
+                              setSingleShippingAddress
+                            }
+                          />
                         }
                         trigger="click"
                         className="change-shipping-address"
@@ -645,6 +713,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       <Row>
                         <Popover
                           placement="bottomLeft"
+                          overlayStyle={{zIndex: 17}}
                           title={
                             <Row
                               justify="space-between"
@@ -658,48 +727,54 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                               >
                                 Thay đổi địa chỉ
                               </div>
-                              <Button
-                                type="link"
-                                // onClick={ShowAddressModal}
-                              >
+                              <Button type="link" onClick={ShowAddressModalAdd}>
                                 Thêm địa chỉ mới
                               </Button>
                             </Row>
                           }
                           content={
-                            <div className="change-shipping-address-content">
-                              {customer.shipping_addresses.map(
-                                (item, index) => (
-                                  <div
-                                    className="shipping-address-row"
-                                    key={item.id}
-                                    // onClick={(e) =>
-                                    //   SelectShippingAddress(item)
-                                    // }
-                                  >
-                                    <div className="shipping-address-name">
-                                      Địa chỉ 1{" "}
-                                      <Button
-                                        type="text"
-                                        onClick={ShowAddressModal}
-                                        className="p-0"
-                                      >
-                                        <img src={editBlueIcon} alt="" />
-                                      </Button>
-                                    </div>
-                                    <div className="shipping-customer-name">
-                                      {item.name}
-                                    </div>
-                                    <div className="shipping-customer-mobile">
-                                      {item.phone}
-                                    </div>
-                                    <div className="shipping-customer-address">
-                                      {item.full_address}
-                                    </div>
-                                  </div>
-                                )
-                              )}
-                            </div>
+                            // <div className="change-shipping-address-content">
+                            //   {customer.shipping_addresses.map(
+                            //     (item, index) => (
+                            //       <div
+                            //         className="shipping-address-row"
+                            //         key={item.id}
+                            //         // onClick={(e) =>
+                            //         //   SelectShippingAddress(item)
+                            //         // }
+                            //       >
+                            //         <div className="shipping-address-name">
+                            //           Địa chỉ 1{" "}
+                            //           <Button
+                            //             type="text"
+                            //             onClick={ShowAddressModal}
+                            //             className="p-0"
+                            //           >
+                            //             <img src={editBlueIcon} alt="" />
+                            //           </Button>
+                            //         </div>
+                            //         <div className="shipping-customer-name">
+                            //           {item.name}
+                            //         </div>
+                            //         <div className="shipping-customer-mobile">
+                            //           {item.phone}
+                            //         </div>
+                            //         <div className="shipping-customer-address">
+                            //           {item.full_address}
+                            //         </div>
+                            //       </div>
+                            //     )
+                            //   )}
+                            // </div>
+                            <CustomerShippingAddressOrder
+                              customer={customer}
+                              handleChangeCustomer={handleChangeCustomer}
+                              handleShippingEdit={ShowAddressModalEdit}
+                              handleShippingDelete={showAddressModalDelete}
+                              handleSingleShippingAddress={
+                                setSingleShippingAddress
+                              }
+                            />
                           }
                           trigger="click"
                           className="change-shipping-address"
@@ -745,7 +820,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       </div>
 
       <AddAddressModal
+        customer={customer}
+        handleChangeCustomer={handleChangeCustomer}
+        formItem={singleShippingAddress}
         visible={isVisibleAddress}
+        modalAction={modalAction}
         onCancel={CancelConfirmAddress}
         onOk={OkConfirmAddress}
       />
@@ -760,6 +839,16 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         handleChangeArea={handleChangeArea}
         handleChangeCustomer={handleChangeCustomer}
         onCancel={CancelConfirmCustomer}
+      />
+      <SaveAndConfirmOrder
+        onCancel={onCancelShippingDelete}
+        onOk={onOkShippingDelete}
+        visible={isVisibleShippingModal}
+        okText="Đồng ý"
+        cancelText="Hủy"
+        title=""
+        text="Bạn có chắc chắn xóa địa chỉ giao hàng này không?"
+        icon={DeleteIcon}
       />
     </Card>
   );

@@ -95,12 +95,12 @@ export const CustomerTypes = (setData: (data: any) => void) => {
     return BaseAction(CustomerType.CUSTOMER_TYPES, { setData });
 }
 
-export const CreateCustomer= (customer: any, setResult: (data: any) => void) => {
-    return BaseAction(CustomerType.CREATE_CUSTOMER, { customer, setResult });
+export const CreateCustomer= (request: any, setResult: (data: any) => void) => {
+    return BaseAction(CustomerType.CREATE_CUSTOMER, { request, setResult });
 }
 
-export const UpdateCustomer = (id: number, customer:any, setResult: (data: any) => void) => {
-    return BaseAction(CustomerType.UPDATE_CUSTOMER, { id, customer, setResult });
+export const UpdateCustomer = (id: number, request:any, setResult: (data: any) => void) => {
+    return BaseAction(CustomerType.UPDATE_CUSTOMER, { id, request, setResult });
 }
 
 export const CreateShippingAddress = (customerId:number, address: any, setResult: (data: any) => void) => {

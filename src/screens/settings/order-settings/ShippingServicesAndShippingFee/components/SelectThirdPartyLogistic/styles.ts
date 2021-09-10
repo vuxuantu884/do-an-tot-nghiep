@@ -21,4 +21,20 @@ export const StyledComponent = styled.div`
     display: inline-flex;
     height: 50px;
   }
+  .columnService {
+    .listServices {
+      display: flex;
+    }
+    label {
+      flex-grow: 1;
+      flex-basis: 0;
+    }
+  }
+  .logoHVC {
+    img {
+      margin-right: 15px;
+      width: 150px;
+      max-height: 50px;
+    }
+  }
 `;

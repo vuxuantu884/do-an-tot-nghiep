@@ -39,6 +39,13 @@ export const getListOrderApi = (
   return BaseAxios.get(`${ApiConfig.ORDER}/orders?${queryString}`);
 };
 
+export const getListOrderCustomerApi = (
+  query: OrderSearchQuery
+): Promise<BaseResponse<OrderModel>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders?${queryString}`);
+};
+
 export const getShipmentApi = (
   query: ShipmentSearchQuery
 ): Promise<BaseResponse<ShipmentModel>> => {
@@ -183,13 +190,20 @@ export const getOrderSubStatusService = (
 
 export const setSubStatusService = (
   order_id: number,
-  statusId: number
+  statusId: number,
+  action: string
 ): Promise<BaseResponse<SourceResponse>> => {
+  const params = {
+    action,
+  };
   return BaseAxios.put(
-    `${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusId}`
+    `${ApiConfig.ORDER}/orders/${order_id}/subStatus/${statusId}`,
+    params
   );
 };
 
-export const getChannelApi = (): Promise<BaseResponse<Array<ChannelResponse>>> => {
-  return BaseAxios.get(`${ApiConfig.ORDER}/channels`)
-}
+export const getChannelApi = (): Promise<
+  BaseResponse<Array<ChannelResponse>>
+> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/channels`);
+};

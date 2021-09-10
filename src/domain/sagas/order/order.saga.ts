@@ -41,6 +41,7 @@ import {
   updateFulFillmentStatus,
   updatePayment,
   updateShipment,
+  getListOrderCustomerApi
 } from "./../../../service/order/order.service";
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
 import { ChannelResponse } from "model/response/product/channel.response";
@@ -50,6 +51,23 @@ function* getListOrderSaga(action: YodyAction) {
   try {
     let response: BaseResponse<Array<OrderModel>> = yield call(
       getListOrderApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
+function* getListOrderCustomerSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<OrderModel>> = yield call(
+      getListOrderCustomerApi,
       query
     );
     switch (response.code) {
@@ -365,17 +383,20 @@ function* getListSubStatusSaga(action: YodyAction) {
 }
 
 function* setSubStatusSaga(action: YodyAction) {
-  let { order_id, statusId } = action.payload;
+  let { order_id, statusId, handleData } = action.payload;
+  const actionText = action.payload.action;
   yield put(showLoading());
   try {
     let response: BaseResponse<Array<DeliveryServiceResponse>> = yield call(
       setSubStatusService,
       order_id,
-      statusId
+      statusId,
+      actionText
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         showSuccess("Cập nhật trạng thái thành công");
+        handleData();
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -414,6 +435,7 @@ function* getAllChannelSaga(action: YodyAction) {
 
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
+  yield takeLatest(OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST, getListOrderCustomerSaga);
   yield takeLatest(OrderType.GET_SHIPMENTS_REQUEST, getShipmentsSaga);
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);

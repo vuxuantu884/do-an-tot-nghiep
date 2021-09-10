@@ -54,12 +54,7 @@ function CustomerContactInfo(props: any) {
         return <span>{index + 1}</span>;
       },
     },
-    {
-      title: "Chức vụ/phòng ban",
-      dataIndex: "title",
-      visible: true,
-      // width: "20%",
-    },
+    
     {
       title: "Tên người liên hệ",
       dataIndex: "",
@@ -80,6 +75,12 @@ function CustomerContactInfo(props: any) {
     {
       title: "Số điện thoại",
       dataIndex: "phone",
+      visible: true,
+      // width: "20%",
+    },
+    {
+      title: "Chức vụ/phòng ban",
+      dataIndex: "title",
       visible: true,
       // width: "20%",
     },
