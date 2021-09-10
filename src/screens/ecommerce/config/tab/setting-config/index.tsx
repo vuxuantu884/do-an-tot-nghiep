@@ -11,22 +11,25 @@ import arrowLeft from "assets/icon/arrow-left.svg";
 import { Link } from "react-router-dom";
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
+import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import { EcommerceRequest } from "model/request/ecommerce.request";
 
 const { Option } = Select;
 type SettingConfigProps = {
   listStores: Array<StoreResponse>;
   accounts: Array<AccountResponse>;
+  form: any;
+  configList: Array<EcommerceResponse>;
   accountChangeSearch: (value: string) => void;
+  handleCreateConfig: (value: EcommerceRequest) => void;
 };
-
-// interface EcommerceConfig {
-
-// }
 
 const SettingConfig: React.FC<SettingConfigProps> = ({
   listStores,
   accountChangeSearch,
   accounts,
+  form,
+  handleCreateConfig,
 }: SettingConfigProps) => {
   function tagRender(props: any) {
     const { label, closable, onClose } = props;
@@ -47,7 +50,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
   }
 
   //mock
-  const [configForm] = Form.useForm();
+
   const [listSources] = useState<Array<any>>([
     {
       id: "1",
@@ -75,20 +78,10 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
     },
   ]);
 
-  // useEffect(() => {
-  //   dispatch(getListSourceRequest(setListSource));
-  // }, [dispatch]);
-
-  // const listSources = useMemo(() => {
-  //   return listSource.filter((item) => item.code !== "pos");
-  // }, [listSource]);
-  const onFinish = (value: any) => {
-    console.log(value);
-  };
 
   return (
     <StyledConfig className="padding-20">
-      <Form form={configForm} onFinish={onFinish}>
+      <Form form={form} onFinish={(value) => handleCreateConfig(value)}>
         <Row>
           <Col span={5}>
             <Form.Item
