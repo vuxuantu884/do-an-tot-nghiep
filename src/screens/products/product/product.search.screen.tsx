@@ -32,7 +32,7 @@ const ListProductScreen: React.FC = () => {
   }, [history.location.hash]);
   return (
     <ContentContainer
-      title="Quản lý chất liệu"
+      title="Quản lý sản phẩm"
       breadcrumb={[
         {
           name: "Tổng quản",
