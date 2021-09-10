@@ -129,8 +129,19 @@ export const getListSubStatusAction = (
   return BaseAction(OrderType.GET_LIST_SUB_STATUS, { status, handleData });
 };
 
-export const setSubStatusAction = (order_id: number, statusId: number) => {
-  return BaseAction(OrderType.SET_SUB_STATUS, { order_id, statusId });
+export const setSubStatusAction = (
+  order_id: number,
+  statusId: number,
+  action: string = "Chuyển trạng thái phụ"
+) => {
+  return {
+    type: OrderType.SET_SUB_STATUS,
+    payload: {
+      order_id,
+      statusId,
+      action,
+    },
+  };
 };
 
 export const getListOrderAction = (
@@ -145,7 +156,7 @@ export const getListOrderAction = (
 
 export const getListOrderActionFpage = (
   query: any,
-  setData: (data: PageResponse<OrderModel>|false) => void
+  setData: (data: PageResponse<OrderModel> | false) => void
 ) => {
   return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
     query,
@@ -188,6 +199,8 @@ export const actionGetActionLogDetail = (
     },
   };
 };
-export const getListChannelRequest = (setData: (data: Array<ChannelResponse>) => void) => {
-  return BaseAction(OrderType.GET_LIST_CHANNEL_REQUEST, {setData});
-}
+export const getListChannelRequest = (
+  setData: (data: Array<ChannelResponse>) => void
+) => {
+  return BaseAction(OrderType.GET_LIST_CHANNEL_REQUEST, { setData });
+};

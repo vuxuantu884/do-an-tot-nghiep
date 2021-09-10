@@ -55,12 +55,12 @@ function ActionHistory(props: PropType) {
     if (!action) {
       return;
     }
-    let result = "";
+    let result = action;
     const resultAction = LIST_STATUS_EXTRA?.find((singleStatus) => {
       return singleStatus.value === action;
     });
     if (resultAction && resultAction.name) {
-      result = resultAction.name;
+      result = resultAction.name || action;
     }
     return result;
   };

@@ -12,13 +12,14 @@ import { useDispatch } from "react-redux";
 import { OrderStatus } from "utils/Constants";
 
 type PropType = {
+  subStatus?: number | null;
   status?: string | null;
   orderId: number;
   fulfillments?: FulFillmentResponse[] | null;
 };
 
 function SubStatusOrder(props: PropType): React.ReactElement {
-  const { status, orderId, fulfillments } = props;
+  const { status, orderId, fulfillments, subStatus } = props;
   const dispatch = useDispatch();
   const [listOrderSubStatus, setListOrderSubStatus] = useState<
     OrderSubStatusResponse[]
@@ -41,7 +42,11 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     };
     if (status) {
       let resultStatus = status;
-      if (status === OrderStatus.FINALIZED && fulfillments && fulfillments.length > 0) {
+      if (
+        status === OrderStatus.FINALIZED &&
+        fulfillments &&
+        fulfillments.length > 0
+      ) {
         switch (fulfillments[0].status) {
           case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
             resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
@@ -83,6 +88,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           }
           onChange={handleChange}
           notFoundContent="Không tìm thấy trạng thái phụ"
+          defaultValue={subStatus || undefined}
         >
           {listOrderSubStatus &&
             listOrderSubStatus.map((single) => {

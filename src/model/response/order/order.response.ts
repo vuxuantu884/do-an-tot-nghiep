@@ -57,6 +57,7 @@ export interface OrderResponse extends BaseObject {
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
   fulfillments: Array<FulFillmentResponse> | null | undefined;
+  sub_status?: number | null;
 }
 
 export interface OrderLineItemResponse {

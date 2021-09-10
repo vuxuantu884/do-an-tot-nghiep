@@ -852,6 +852,7 @@ const OrderDetail = (props: PropType) => {
               </div>
             </Card>
             <SubStatusOrder
+              subStatus={OrderDetail?.sub_status}
               status={OrderDetail?.status}
               orderId={OrderId}
               fulfillments={OrderDetail?.fulfillments}
