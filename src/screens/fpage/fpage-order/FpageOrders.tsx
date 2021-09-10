@@ -56,6 +56,7 @@ import CardProduct from "./component/order-detail/CardProduct";
 import ShipmentCard from "./component/order-detail/CardShipment";
 import PaymentCard from "./component/payment-card";
 import SaveAndConfirmOrder from "./modal/save-confirm.modal";
+import "./fpage-order.scss";
 //#endregion
 
 var typeButton = "";
@@ -519,7 +520,7 @@ export default function FpageOrders(props: any) {
         },
       ]}
     >
-      <div className="orders fpage-order-screen">
+      <div className="fpage-order">
         <Form
           layout="vertical"
           initialValues={initialForm}
@@ -529,28 +530,12 @@ export default function FpageOrders(props: any) {
               errorFields[0].name.join("")
             );
             element?.focus();
-            const y =
-              element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+            const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
             window.scrollTo({ top: y, behavior: "smooth" });
           }}
           onFinish={onFinishFpage}
         >
-          <Form.Item noStyle hidden name="action">
-            <Input></Input>
-          </Form.Item>
-          <Form.Item noStyle hidden name="currency">
-            <Input></Input>
-          </Form.Item>
-          <Form.Item noStyle hidden name="account_code">
-            <Input></Input>
-          </Form.Item>
-          <Form.Item noStyle hidden name="tax_treatment">
-            <Input></Input>
-          </Form.Item>
-          <Form.Item noStyle hidden name="tags">
-            <Input></Input>
-          </Form.Item>
-          <Row gutter={20} style={{ marginBottom: "70px" }}>
+          <Row gutter={20}>
             {/* Left Side */}
             <Col md={18}>
               {/*--- customer ---*/}
@@ -617,14 +602,8 @@ export default function FpageOrders(props: any) {
             </Col>
             {/* Right Side */}
             <Col span={24}>
-              <Card
-              // title={
-              //   <div className="d-flex">
-              //     <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
-              //   </div>
-              // }
-              >
-                <div style={{ padding: "12px 24px" }}>
+              <Card>
+                <div className="card-body">
                   <Form.Item
                     label="Nhân viên bán hàng"
                     name="assignee_code"
@@ -667,17 +646,18 @@ export default function FpageOrders(props: any) {
                       ))}
                     </Select>
                   </Form.Item>
+                  
                   <Form.Item
                     label="Tham chiếu"
                     name="reference_code"
                     tooltip={{
-                      title:
-                        "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",
-                      icon: <InfoCircleOutlined />,
+                      title: "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",
+                      icon: <InfoCircleOutlined />
                     }}
                   >
                     <Input placeholder="Điền tham chiếu" maxLength={255} />
                   </Form.Item>
+
                   <Form.Item
                     label="Đường dẫn"
                     name="url"
@@ -690,14 +670,9 @@ export default function FpageOrders(props: any) {
                   </Form.Item>
                 </div>
               </Card>
-              <Card
-              // title={
-              //   <div className="d-flex">
-              //     <span className="title-card">THÔNG TIN BỔ SUNG</span>
-              //   </div>
-              // }
-              >
-                <div style={{ padding: "12px 24px" }}>
+
+              <Card>
+                <div className="card-body">
                   <Form.Item
                     name="note"
                     label="Ghi chú nội bộ"
@@ -707,11 +682,12 @@ export default function FpageOrders(props: any) {
                     }}
                   >
                     <Input.TextArea
+                      className="note-input"
                       placeholder="Điền ghi chú"
                       maxLength={500}
-                      style={{ minHeight: "130px" }}
                     />
                   </Form.Item>
+
                   <Form.Item
                     label="Tag"
                     tooltip={{
@@ -726,52 +702,20 @@ export default function FpageOrders(props: any) {
               </Card>
             </Col>
           </Row>
-          <Row
-            gutter={24}
-            className="margin-top-10 "
-            style={{
-              position: "fixed",
-              justifyContent: "space-between",
-              textAlign: "right",
-              width: "100%",
-              height: "55px",
-              bottom: "-10px",
-              backgroundColor: "#FFFFFF",
-              zIndex: 99999,
-            }}
-          >
-            <Col
-              md={10}
-              style={{ marginLeft: "-20px", marginTop: "3px", padding: "3px" }}
-            >
+          <Row className="footer" gutter={24}>
+            <Col className="order-step" md={12}>
               <CreateBillStep status="draff" orderDetail={null} />
             </Col>
 
-            <Col
-              md={9}
-              style={{ marginTop: "8px" }}
-              className="customer-bottom-button"
-            >
-              <Button
-                style={{ padding: "0 25px", fontWeight: 400 }}
-                className="ant-btn-outline fixed-button cancle-button"
-                onClick={() => window.location.reload()}
-              >
-                Huỷ
+            <Col className="order-button" md={7}>
+              <Button className="order-button-width" onClick={() => window.location.reload()}>
+                Hủy
               </Button>
-              {/* <Button
-                style={{ padding: "0 25px", fontWeight: 400 }}
-                className="create-button-custom ant-btn-outline fixed-button"
-                type="primary"
-                onClick={showSaveAndConfirmModal}
-              >
-                Lưu nháp
-              </Button> */}
+              
               <Button
                 disabled={isDisableSubmitBtn}
-                style={{ padding: "0 25px", fontWeight: 400 }}
                 type="primary"
-                className="create-button-custom"
+                className="order-button-width"
                 id="save-and-confirm"
                 onClick={() => {
                   typeButton = OrderStatus.FINALIZED;
