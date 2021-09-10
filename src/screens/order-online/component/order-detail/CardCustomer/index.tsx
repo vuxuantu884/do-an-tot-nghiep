@@ -566,6 +566,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     <Row>
                       <Popover
                         placement="bottomLeft"
+                        overlayStyle={{zIndex: 17}}
                         title={
                           <Row
                             justify="space-between"
