@@ -1,5 +1,3 @@
-import { BaseObject } from "model/base/base.response";
-
 export interface CreateShippingServiceConfigReQuestModel {
   program_name: string;
   start_date: string;
@@ -12,4 +10,13 @@ export interface CreateShippingServiceConfigReQuestModel {
     transport_fee: number | undefined;
   }[];
   external_service_transport_type_ids: number[];
+}
+
+export interface CreateShippingServiceConfigReQuestFormModel
+  extends Omit<
+    CreateShippingServiceConfigReQuestModel,
+    "start_date" | "end_date"
+  > {
+  start_date: moment.Moment | null;
+  end_date: moment.Moment | null;
 }
