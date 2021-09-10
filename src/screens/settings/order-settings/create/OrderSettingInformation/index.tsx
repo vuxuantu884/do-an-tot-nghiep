@@ -1,22 +1,51 @@
-import { Card, Switch, Form, Input, DatePicker, Row, Col } from "antd";
+import {
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  FormInstance,
+  Input,
+  Row,
+  Switch,
+} from "antd";
 import moment from "moment";
 import { useState } from "react";
+import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
 import { StyledComponent } from "./styles";
 
-type PropType = {};
+type PropType = {
+  form: FormInstance<any>;
+};
 
 function OrderSettingInformation(props: PropType) {
+  const datePickerPlaceholder = "dd/mm/yyyy hh:mm";
+  const datePickerFormat = "DD-MM-YYYY HH:mm";
+  const { form } = props;
   const [isActive, setIsActive] = useState(false);
+
+  const onChangeStatus = (checked: any) => {
+    console.log("checked", checked);
+    setIsActive(checked);
+    if (checked) {
+      form.setFieldsValue({ status: ORDER_SETTINGS_STATUS.active });
+    } else {
+      form.setFieldsValue({ status: ORDER_SETTINGS_STATUS.inactive });
+    }
+  };
+
   const renderCardExtra = () => {
     return (
       <div>
         Trạng thái{" "}
         <Switch
           defaultChecked={isActive}
-          onChange={onChange}
+          onChange={onChangeStatus}
           className="ant-switch-primary"
           style={{ margin: "0 10px" }}
         />
+        <Form.Item name="status" hidden>
+          <Input />
+        </Form.Item>
         <div className="textExtra">
           <span className={`shortText ${isActive ? "active" : "inactive"}`}>
             Hoạt động
@@ -28,37 +57,18 @@ function OrderSettingInformation(props: PropType) {
       </div>
     );
   };
-  const onChange = (checked: any) => {
-    console.log("checked", checked);
-    setIsActive(checked);
+
+  const handleSelectDate = (date: any, field: string) => {
+    let dateFormatted = date.utc().format();
+    console.log("dateFormatted", dateFormatted);
+    form.setFieldsValue({ [field]: dateFormatted });
   };
-
-  function range(start: any, end: any) {
-    const result = [];
-    for (let i = start; i < end; i++) {
-      result.push(i);
-    }
-    return result;
-  }
-
-  function disabledDate(current: any) {
-    // Can not select days before today and today
-    return current && current < moment().endOf("day");
-  }
-
-  function disabledDateTime() {
-    return {
-      disabledHours: () => range(0, 24).splice(4, 20),
-      disabledMinutes: () => range(30, 60),
-      disabledSeconds: () => [55, 56],
-    };
-  }
 
   return (
     <StyledComponent>
       <Card title="Thông tin chương trình" extra={renderCardExtra()}>
         <Form.Item
-          name="name"
+          name="program_name"
           label="Tên chương trình:"
           rules={[
             { required: true, message: "Vui lòng nhập tên chương trình" },
@@ -68,26 +78,42 @@ function OrderSettingInformation(props: PropType) {
         </Form.Item>
         <Row gutter={30}>
           <Col span={12}>
-            <Form.Item name="from_date" label="Ngày bắt đầu:">
-              <DatePicker
-                placeholder="dd/mm/yyyy  hh:mm"
-                format="YYYY-MM-DD HH:mm"
-                disabledDate={disabledDate}
-                disabledTime={disabledDateTime}
-                showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
-              />
+            <Form.Item
+              name="start_date"
+              label="Ngày bắt đầu:"
+              rules={[
+                { required: true, message: "Vui lòng chọn ngày bắt đầu" },
+              ]}
+            >
+              <Input hidden />
             </Form.Item>
+            <DatePicker
+              placeholder={datePickerPlaceholder}
+              format={datePickerFormat}
+              showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
+              onChange={(date) => {
+                handleSelectDate(date, "start_date");
+              }}
+            />
           </Col>
           <Col span={12}>
-            <Form.Item name="to_date" label="Ngày kết thúc:">
-              <DatePicker
-                placeholder="dd/mm/yyyy  hh:mm"
-                format="YYYY-MM-DD HH:mm"
-                disabledDate={disabledDate}
-                disabledTime={disabledDateTime}
-                showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
-              />
+            <Form.Item
+              name="end_date"
+              label="Ngày kết thúc:"
+              rules={[
+                { required: true, message: "Vui lòng chọn ngày kết thúc" },
+              ]}
+            >
+              <Input hidden />
             </Form.Item>
+            <DatePicker
+              placeholder={datePickerPlaceholder}
+              format={datePickerFormat}
+              showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
+              onChange={(date) => {
+                handleSelectDate(date, "end_date");
+              }}
+            />
           </Col>
         </Row>
       </Card>

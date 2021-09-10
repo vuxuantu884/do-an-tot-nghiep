@@ -1,77 +1,51 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Card, DatePicker, Form, Input, Select, Table } from "antd";
+import {
+  Card,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Table,
+} from "antd";
 import Column from "antd/lib/table/Column";
+import { ProvinceModel } from "model/content/district.model";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { formatCurrency } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
-type PropType = {};
-type ListProvincesType = {
-  name: string;
-  code: string;
-}[];
+type PropType = {
+  listProvinces: ProvinceModel[];
+};
 
 function OrderSettingValue(props: PropType) {
-  const [listProvinces, setListProvinces] = useState<ListProvincesType>([]);
-
-  const range = (start: any, end: any) => {
-    const result = [];
-    for (let i = start; i < end; i++) {
-      result.push(i);
-    }
-    return result;
-  };
-
-  const disabledDate = (current: any) => {
-    // Can not select days before today and today
-    return current && current < moment().endOf("day");
-  };
-
-  const disabledDateTime = () => {
-    return {
-      disabledHours: () => range(0, 24).splice(4, 20),
-      disabledMinutes: () => range(30, 60),
-      disabledSeconds: () => [55, 56],
-    };
-  };
+  const { listProvinces } = props;
 
   const renderDate = () => {
     return (
       <DatePicker
         placeholder="dd/mm/yyyy  hh:mm"
         format="YYYY-MM-DD HH:mm"
-        disabledDate={disabledDate}
-        disabledTime={disabledDateTime}
         showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
         style={{ width: "100%" }}
       />
     );
   };
 
-  useEffect(() => {
-    const FAKE_LIST_PROVINCES = [
-      {
-        name: "Hà Nội",
-        code: "hn",
-      },
-      {
-        name: "TP HCM",
-        code: "tphcm",
-      },
-      {
-        name: "Hải Dương",
-        code: "hd",
-      },
-    ];
-    let response = FAKE_LIST_PROVINCES;
-    setListProvinces(response);
-  }, []);
+  const formatterCurrency = (value: number | undefined) => {
+    let result = "";
+    if (value) {
+      result = formatCurrency(value);
+    }
+    return result;
+  };
 
-  const EditableUsersTable = (props: any) => {
-    const { users, add } = props;
+  const OrderSettingTable = (props: any) => {
+    const { shipping_fee_configs, add } = props;
     return (
       <Table
-        dataSource={users}
+        dataSource={shipping_fee_configs}
         pagination={false}
         footer={() => {
           return (
@@ -84,34 +58,45 @@ function OrderSettingValue(props: PropType) {
         }}
       >
         <Column
-          dataIndex={"value_date_from"}
+          dataIndex={"from_price"}
           title={"Giá trị từ"}
           render={(value, row, index) => {
             return (
-              <Form.Item name={[index, "value_date_from"]}>
-                {renderDate()}
+              <Form.Item
+                name={[index, "from_price"]}
+                rules={[{ required: true, message: "Vui lòng nhập giá trị" }]}
+              >
+                {/* {renderDate()} */}
+                <InputNumber formatter={formatterCurrency} />
               </Form.Item>
             );
           }}
         />
         <Column
-          dataIndex={"value_date_to"}
+          dataIndex={"to_price"}
           title={"Giá trị đến"}
           render={(value, row, index) => {
             return (
-              <Form.Item name={[index, "value_date_to"]}>
-                {renderDate()}
+              <Form.Item
+                name={[index, "to_price"]}
+                rules={[{ required: true, message: "Vui lòng nhập giá trị" }]}
+              >
+                {/* {renderDate()} */}
+                <InputNumber formatter={formatterCurrency} />
               </Form.Item>
             );
           }}
         />
         <Column
-          dataIndex={"tinhTp"}
+          dataIndex={"city_name"}
           title={"Tỉnh/Thành phố"}
           width="30%"
           render={(value, row, index) => {
             return (
-              <Form.Item name={[index, "tinhTp"]}>
+              <Form.Item
+                name={[index, "city_name"]}
+                rules={[{ required: true, message: "Vui lòng chọn thành phố" }]}
+              >
                 <Select
                   showSearch
                   style={{ width: "100%" }}
@@ -127,7 +112,7 @@ function OrderSettingValue(props: PropType) {
                   {listProvinces &&
                     listProvinces.map((single) => {
                       return (
-                        <Select.Option value={single.code} key={single.code}>
+                        <Select.Option value={single.name} key={single.id}>
                           {single.name}
                         </Select.Option>
                       );
@@ -138,13 +123,18 @@ function OrderSettingValue(props: PropType) {
           }}
         />
         <Column
-          dataIndex={"fee"}
+          dataIndex={"transport_fee"}
           title={"Phí vận chuyển"}
           width="20%"
           render={(value, row, index) => {
             return (
-              <Form.Item name={[index, "fee"]}>
-                <Input />
+              <Form.Item
+                name={[index, "transport_fee"]}
+                rules={[
+                  { required: true, message: "Vui lòng nhập phí vận chuyển" },
+                ]}
+              >
+                <InputNumber formatter={formatterCurrency} />
               </Form.Item>
             );
           }}
@@ -157,18 +147,18 @@ function OrderSettingValue(props: PropType) {
     <StyledComponent>
       <Card title="Cài đặt theo giá trị đơn hàng">
         <div>
-          <Form.List name="users">
-            {(users, { add, remove }) => {
+          <Form.List name="shipping_fee_configs">
+            {(shipping_fee_configs, { add, remove }) => {
               return (
-                <EditableUsersTable users={users} add={add} remove={remove} />
+                <OrderSettingTable
+                  shipping_fee_configs={shipping_fee_configs}
+                  add={add}
+                  remove={remove}
+                />
               );
             }}
           </Form.List>
         </div>
-        {/* <Form.List name="value">
-          {(fields) => (
-          )}
-        </Form.List> */}
       </Card>
     </StyledComponent>
   );

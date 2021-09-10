@@ -1,4 +1,5 @@
 import { SETTING_TYPES } from "domain/types/settings.type";
+import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
 import { OrderSourceResponseModel } from "model/response/order/order-source.response";
 import {
   IsAllowToSellWhenNotAvailableStockResponseModel,
@@ -38,6 +39,20 @@ export const actionListConfigurationShippingServiceAndShippingFee = (
     type: SETTING_TYPES.orderSettings
       .LIST_CONFIGURATION_SHIPPING_SERVICE_AND_SHIPPING_FEE,
     payload: {
+      handleData,
+    },
+  };
+};
+
+export const actionCreateConfigurationShippingServiceAndShippingFee = (
+  params: CreateShippingServiceConfigReQuestModel,
+  handleData: (data: ShippingServiceConfigResponseModel[]) => void
+) => {
+  return {
+    type: SETTING_TYPES.orderSettings
+      .CREATE_CONFIGURATION_SHIPPING_SERVICE_AND_SHIPPING_FEE,
+    payload: {
+      params,
       handleData,
     },
   };

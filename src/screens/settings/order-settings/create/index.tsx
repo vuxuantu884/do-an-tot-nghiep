@@ -2,12 +2,16 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button, Form } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import { CityByCountryAction } from "domain/actions/content/content.action";
 import { DeliveryServicesGetList } from "domain/actions/order/order.action";
+import { actionCreateConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
+import { ProvinceModel } from "model/content/district.model";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
-import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
+import { VietNamId } from "utils/Constants";
+import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
 import OrderSettingInformation from "./OrderSettingInformation";
 import OrderSettingValue from "./OrderSettingValue";
 import SelectThirdPartyLogistic from "./SelectThirdPartyLogistic";
@@ -21,50 +25,60 @@ function OrderSettings(props: PropType) {
   const history = useHistory();
 
   const [isLoadedData, setIsLoadedData] = useState(false);
+  const [listProvinces, setListProvinces] = useState<ProvinceModel[]>([]);
+  const [list3rdPartyLogistic, setList3rdPartyLogistic] = useState<
+    DeliveryServiceResponse[]
+  >([]);
   const [initialFormValue, setInitialFormValue] = useState({
-    from_date: null,
-    to_date: null,
-    print_size: null,
-    store: null,
-    store_id: null,
-    template: null,
-    type: null,
-    users: [
+    status: ORDER_SETTINGS_STATUS.inactive,
+    start_date: null,
+    end_date: null,
+    program_name: "",
+    shipping_fee_configs: [
       {
-        value_date_from: moment("2015-01-01", "YYYY-MM-DD HH:mm"),
-        value_date_to: moment("2015-01-01", "YYYY-MM-DD HH:mm"),
-      },
-      {
-        value_date_from: moment("2017-01-01", "YYYY-MM-DD HH:mm"),
-        value_date_to: moment("2017-01-01", "YYYY-MM-DD HH:mm"),
+        from_price: "",
+        to_price: "",
+        city_name: "",
+        transport_fee: "",
       },
     ],
-    third_party_logistics: [
-      {
-        key: 0,
-        checked: false,
-        name: "",
-        logo: "",
-        fast_deliver: false,
-        slow_deliver: false,
-      },
-    ],
+    external_service_transport_type_ids: [],
   });
 
   const handleSubmitForm = () => {
     form
       .validateFields()
       .then((formValue: any) => {
-        console.log("formValue", formValue);
+        const formValueFormatted = {
+          ...formValue,
+          // format necessary field
+          shipping_fee_configs: formValue.shipping_fee_configs.map(
+            (single: any) => {
+              return {
+                from_price: single.from_price,
+                to_price: single.to_price,
+                city_name: single.city_name,
+                transport_fee: single.transport_fee,
+              };
+            }
+          ),
+        };
+        dispatch(
+          actionCreateConfigurationShippingServiceAndShippingFee(
+            formValueFormatted,
+            () => {}
+          )
+        );
       })
       .catch((error) => {
-        const element: any = document.getElementById(
-          error.errorFields[0].name.join("")
-        );
-        element?.focus();
-        const offsetY =
-          element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
-        window.scrollTo({ top: offsetY, behavior: "smooth" });
+        console.log("error", error);
+        // const element: any = document.getElementById(
+        //   error.errorFields[0].name.join("")
+        // );
+        // element?.focus();
+        // const offsetY =
+        //   element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+        // window.scrollTo({ top: offsetY, behavior: "smooth" });
       });
   };
 
@@ -77,21 +91,21 @@ function OrderSettings(props: PropType) {
     fetchBusinesses();
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setList3rdPartyLogistic(response);
         let listDeliveryService = [];
         listDeliveryService = response.map((single) => {
           return {
-            checked: false,
-            key: single.id,
-            name: single.name,
+            id: single.id,
+            code: single.code,
             logo: single.logo,
-            fast_deliver: false,
-            slow_deliver: false,
+            name: single.name,
+            transport_types: single.transport_types,
           };
         });
         console.log("listDeliveryService", listDeliveryService);
         setInitialFormValue({
           ...initialFormValue,
-          third_party_logistics: listDeliveryService,
+          // external_service_transport_type_ids: listDeliveryService,
         });
         form.resetFields();
         setIsLoadedData(true);
@@ -99,6 +113,14 @@ function OrderSettings(props: PropType) {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, form]);
+
+  useEffect(() => {
+    dispatch(
+      CityByCountryAction(VietNamId, (response) => {
+        setListProvinces(response);
+      })
+    );
+  }, [dispatch]);
 
   return (
     <StyledComponent>
@@ -124,9 +146,13 @@ function OrderSettings(props: PropType) {
       >
         {isLoadedData && (
           <Form form={form} layout="vertical" initialValues={initialFormValue}>
-            <OrderSettingInformation />
-            <OrderSettingValue />
-            <SelectThirdPartyLogistic initialFormValue={initialFormValue} />
+            <OrderSettingInformation form={form} />
+            <OrderSettingValue listProvinces={listProvinces} />
+            <SelectThirdPartyLogistic
+              initialFormValue={initialFormValue}
+              list3rdPartyLogistic={list3rdPartyLogistic}
+              form={form}
+            />
           </Form>
         )}
         <div className="groupButtons">

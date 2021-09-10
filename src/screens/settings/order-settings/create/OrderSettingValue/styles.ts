@@ -17,5 +17,10 @@ export const StyledComponent = styled.div`
   .buttonAdd {
     color: #2a2a86;
     margin-left: 15px;
+    display: inline-block;
+    cursor: pointer;
+  }
+  .ant-input-number {
+    width: 100%;
   }
 `;

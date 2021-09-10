@@ -239,8 +239,16 @@ export interface ShipmentResponse extends BaseObject {
 export interface DeliveryServiceResponse {
   id: number;
   code: string;
+  external_service_code: string;
   name: string;
   logo: string;
+  transport_types: {
+    id: number;
+    external_service_id: number;
+    external_service_code: string;
+    name: string;
+    status: string;
+  }[];
 }
 
 export interface ShippingGHTKResponse {
