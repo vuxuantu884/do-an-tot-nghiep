@@ -11,11 +11,12 @@ import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
 
 type PropType = {
+  countChangeSubStatus: number;
   orderId: string;
 };
 
 function ActionHistory(props: PropType) {
-  const { orderId } = props;
+  const { orderId, countChangeSubStatus } = props;
   const [actionLog, setActionLog] = useState<OrderActionLogResponse[]>([]);
   const dispatch = useDispatch();
 
@@ -55,12 +56,12 @@ function ActionHistory(props: PropType) {
     if (!action) {
       return;
     }
-    let result = "";
+    let result = action;
     const resultAction = LIST_STATUS_EXTRA?.find((singleStatus) => {
       return singleStatus.value === action;
     });
     if (resultAction && resultAction.name) {
-      result = resultAction.name;
+      result = resultAction.name || action;
     }
     return result;
   };
@@ -91,7 +92,7 @@ function ActionHistory(props: PropType) {
         )
       );
     }
-  }, [dispatch, orderId]);
+  }, [dispatch, orderId, countChangeSubStatus]);
 
   return (
     <StyledComponent>
