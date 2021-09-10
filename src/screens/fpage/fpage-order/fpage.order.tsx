@@ -662,7 +662,7 @@ export default function FpageOrders(props: any) {
                           key={index.toString()}
                           value={item.code}
                         >
-                          {`${item.full_name} - ${item.code}`}
+                          {`${item.code} - ${item.full_name}`}
                         </Select.Option>
                       ))}
                     </Select>
