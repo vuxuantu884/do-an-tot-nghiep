@@ -20,4 +20,10 @@ export const StyledComponent = styled.div`
       font-weight: 500;
     }
   }
+  .ant-table-row {
+    cursor: pointer;
+  }
+  .columnActive {
+    text-align: center;
+  }
 `;
