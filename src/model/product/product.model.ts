@@ -26,6 +26,7 @@ export interface VariantPricesResponse  {
   variant_id:number,
   currency_code:string,
   currency_symbol:string,
+  retail_price: number,
   tax_percent:number
 }
 
