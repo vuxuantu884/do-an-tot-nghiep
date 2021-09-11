@@ -8,7 +8,7 @@ import {
   Row,
   Switch,
 } from "antd";
-import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
+import { CreateShippingServiceConfigReQuestFormModel } from "model/request/settings/order-settings.resquest";
 import moment from "moment";
 import { useState } from "react";
 import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
@@ -16,7 +16,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   form: FormInstance<any>;
-  initialFormValue: CreateShippingServiceConfigReQuestModel;
+  initialFormValue: CreateShippingServiceConfigReQuestFormModel;
 };
 
 function OrderSettingInformation(props: PropType) {
@@ -60,11 +60,6 @@ function OrderSettingInformation(props: PropType) {
     );
   };
 
-  const handleSelectDate = (date: any, field: string) => {
-    let dateFormatted = date.format();
-    form.setFieldsValue({ [field]: dateFormatted });
-  };
-
   return (
     <StyledComponent>
       <Card title="Thông tin chương trình" extra={renderCardExtra()}>
@@ -86,23 +81,12 @@ function OrderSettingInformation(props: PropType) {
                 { required: true, message: "Vui lòng chọn ngày bắt đầu" },
               ]}
             >
-              <Input hidden />
-            </Form.Item>
-            {initialFormValue && (
               <DatePicker
                 placeholder={datePickerPlaceholder}
                 format={datePickerFormat}
-                defaultValue={
-                  initialFormValue.start_date
-                    ? moment(initialFormValue.start_date)
-                    : undefined
-                }
                 showTime={true}
-                onChange={(date) => {
-                  handleSelectDate(date, "start_date");
-                }}
               />
-            )}
+            </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
@@ -112,21 +96,12 @@ function OrderSettingInformation(props: PropType) {
                 { required: true, message: "Vui lòng chọn ngày kết thúc" },
               ]}
             >
-              <Input hidden />
+              <DatePicker
+                placeholder={datePickerPlaceholder}
+                format={datePickerFormat}
+                showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
+              />
             </Form.Item>
-            <DatePicker
-              placeholder={datePickerPlaceholder}
-              format={datePickerFormat}
-              defaultValue={
-                initialFormValue.end_date
-                  ? moment(initialFormValue.end_date)
-                  : undefined
-              }
-              showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
-              onChange={(date) => {
-                handleSelectDate(date, "end_date");
-              }}
-            />
           </Col>
         </Row>
       </Card>

@@ -17,9 +17,17 @@ export const StyledComponent = styled.div`
     &__title {
       font-size: 1em;
       font-weight: bold;
+      a {
+        color: #000000;
+      }
     }
     &__logo {
       margin-bottom: 15px;
+    }
+    &__connect {
+      img {
+        margin-right: 5px;
+      }
     }
   }
 `;
