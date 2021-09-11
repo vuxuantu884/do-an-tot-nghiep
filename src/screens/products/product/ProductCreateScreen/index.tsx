@@ -23,7 +23,7 @@ import CustomEditor from "component/custom/custom-editor";
 import HashTag from "component/custom/hashtag";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
-import ModalConfirm from "component/modal/ModalConfirm";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -42,7 +42,6 @@ import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { ColorResponse } from "model/product/color.model";
 import { MaterialResponse } from "model/product/material.model";
 import {
-  ProductRequest,
   ProductRequestView,
   VariantImage,
   VariantRequestView,
@@ -142,9 +141,9 @@ const ProductCreateScreen: React.FC = () => {
     ...initialRequest,
     goods: goods && goods.length > 0 ? goods[0].value : null,
     weight_unit:
-    weightUnitList && weightUnitList.length > 0
-      ? weightUnitList[0].value
-      : null,
+      weightUnitList && weightUnitList.length > 0
+        ? weightUnitList[0].value
+        : null,
     unit:
       productUnitList && productUnitList.length > 0
         ? productUnitList[0].value
@@ -182,12 +181,10 @@ const ProductCreateScreen: React.FC = () => {
   const [colorSelected, setColorSelected] = useState<Array<ColorResponse>>([]);
   const [sizeSelected, setSizeSelected] = useState<Array<SizeResponse>>([]);
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
-  const [isConfirmSave, setConfirmSave] = useState<boolean>(false);
-  const [titleConfirmSave, setTitleConfirmSave] = useState<string>("");
+  const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
+    visible: false,
+  });
   const [status, setStatus] = useState<string>(initialRequest.status);
-  const [productRequest, setProductRequest] = useState<ProductRequest | null>(
-    null
-  );
   //end category
   //end state
 
@@ -236,7 +233,6 @@ const ProductCreateScreen: React.FC = () => {
       let code = form.getFieldValue("code");
       if (name && code) {
         let newVariants: Array<VariantRequestView> = [];
-
         if (colors.length > 0 && sizes.length > 0) {
           colors.forEach((i1) => {
             sizes.forEach((i2) => {
@@ -316,6 +312,7 @@ const ProductCreateScreen: React.FC = () => {
 
   const onColorChange = useCallback(
     (values: Array<number>) => {
+      console.log(values);
       let filter = listColor.filter((item) => values.includes(item.id));
       setColorSelected([...filter]);
       listVariantsFilter(filter, sizeSelected);
@@ -334,47 +331,94 @@ const ProductCreateScreen: React.FC = () => {
     return "";
   }, [productStatusList, status]);
 
+  const createCallback = useCallback(
+    (result: VariantResponse) => {
+      setLoadingSaveButton(false);
+      if (result) {
+        showSuccess("Thêm mới dữ liệu thành công");
+        history.push(UrlConfig.PRODUCT);
+      }
+    },
+    [history]
+  );
+
   const onFinish = useCallback(
     (values: ProductRequestView) => {
-      console.log(values);
       setLoadingSaveButton(true);
-
       let request = Products.convertProductViewToRequest(
         values,
         variants,
         status
       );
-      let hasColor = request.variants.filter((val) => val.color_id != null);
-      let hasSize = request.variants.filter((val) => val.size_id != null);
-      let contentMes = "";
-      if (hasColor.length === 0 && hasSize.length === 0) {
-        contentMes = "màu, kích thước";
-      }
-      if (hasColor.length === 0 && hasSize.length !== 0) {
-        contentMes = "màu";
-      }
-      if (hasColor.length !== 0 && hasSize.length === 0) {
-        contentMes = "kích thước";
-      }
-      let titleConfirm = `Bạn chưa chọn ${contentMes}. Bạn có muốn tạo sản phẩm hay không?`;
-      setTitleConfirmSave(titleConfirm);
-      setConfirmSave(true);
-      setProductRequest(request);
+      dispatch(productCreateAction(request, createCallback));
     },
-    [status, variants]
+    [createCallback, dispatch, status, variants]
   );
 
-  const createCallback = useCallback(
-    (result: VariantResponse) => {
-      if (result) {
-        showSuccess("Thêm mới dữ liệu thành công");
-        history.push(UrlConfig.PRODUCT);
-      } else {
-        setLoadingSaveButton(false);
-      }
-    },
-    [history]
-  );
+  const onCancel = useCallback(() => {
+    setModalConfirm({
+      visible: false,
+    });
+  }, []);
+
+  const onClickAdd = useCallback(() => {
+    form.validateFields()
+      .then(() => {
+        if (sizeSelected.length > 0 && colorSelected.length > 0) {
+          form.submit();
+        } else {
+          let notSelected = "";
+          if (sizeSelected.length === 0 && colorSelected.length > 0) {
+            notSelected = "kích thước";
+          } else if (colorSelected.length === 0 && sizeSelected.length > 0) {
+            notSelected = "màu sắc";
+          } else {
+            notSelected = "kích thước và màu sắc";
+          }
+          let subTitle = `Bạn chưa chọn ${notSelected}. Bạn có muốn tạo sản phẩm?`;
+          setModalConfirm({
+            visible: true,
+            onCancel: onCancel,
+            onOk: () => {
+              setModalConfirm({ visible: false });
+              form.submit();
+            },
+            subTitle: subTitle,
+            title: "Thêm mới sản phẩm",
+          });
+        }
+      }).catch((error) => {
+        const element: any = document.getElementById(
+          error.errorFields[0].name.join("")
+        );
+        element?.focus();
+        const y =
+          element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      })
+    }, [colorSelected.length, form, onCancel, sizeSelected.length]);
+
+  const onClickReset = useCallback(() => {
+    setModalConfirm({
+      visible: true,
+      onCancel: onCancel,
+      onOk: () => {
+        form.resetFields();
+        setModalConfirm({ visible: false });
+        window.scrollTo(0, 0);
+        showSuccess("Đặt lại dữ liệu thành công");
+      },
+      title: "Bạn có muốn đặt lại thông tin đã nhập",
+      subTitle:
+        "Sau khi đặt lại trang sẽ được đặt về mặt định. Bạn có muốn đặt lại?",
+    });
+  }, [form, onCancel]);
+
+  const deleteVariant = useCallback((sku: string) => {
+    let index = variants.findIndex((item) => item.sku  === sku);
+    variants.splice(index , 1);
+    setVariants([...variants])
+  }, [variants]);
 
   useEffect(() => {
     if (!isLoadMaterData.current) {
@@ -428,20 +472,33 @@ const ProductCreateScreen: React.FC = () => {
                 title="Thông tin cơ bản"
                 extra={
                   <Space size={15}>
-                    <Switch
-                      onChange={(checked) =>
-                        setStatus(checked ? "active" : "inactive")
-                      }
-                      className="ant-switch-success"
-                      defaultChecked
-                    />
-                    <label
-                      className={
-                        status === "active" ? "text-success" : "text-error"
-                      }
-                    >
-                      {statusValue}
-                    </label>
+                    <div className="extra-cards status">
+                    <Item noStyle>
+                      <b>Trạng thái:</b>
+                      <Switch
+                        onChange={(checked) =>
+                          setStatus(checked ? "active" : "inactive")
+                        }
+                        className="ant-switch-success"
+                        defaultChecked
+                      />
+                      </Item>
+                      <label
+                        className={
+                          status === "active" ? "text-success" : "text-error"
+                        }
+                      >
+                        {statusValue}
+                      </label>
+                    </div>
+                    <div className="extra-cards">
+                      <b>Cho phép bán:</b>
+                      <Item valuePropName="checked" name="saleable" noStyle>
+                        <Switch
+                          className="ant-switch-success"
+                        />
+                      </Item>
+                    </div>
                   </Space>
                 }
               >
@@ -1126,6 +1183,19 @@ const ProductCreateScreen: React.FC = () => {
                         key: "size",
                         dataIndex: "size",
                       },
+                      {
+                        title: "Thao tác",
+                        key: "action",
+                        dataIndex: "sku",
+                        width: 100,
+                        render: (sku: string) => (
+                          <Button
+                            onClick={() => {deleteVariant(sku)}}
+                            type="link"
+                            icon={<DeleteOutlined />}
+                          />
+                        ),
+                      },
                     ]}
                     rowKey={(item) => item.sku}
                     pagination={false}
@@ -1138,28 +1208,18 @@ const ProductCreateScreen: React.FC = () => {
             back="Quay lại sản phẩm"
             rightComponent={
               <Space>
-                <Button htmlType="reset">Hủy</Button>
-                <Button loading={loadingSaveButton} type="primary" htmlType="submit">
+                <Button onClick={onClickReset}>Đặt lại</Button>
+                <Button
+                  onClick={onClickAdd}
+                  loading={loadingSaveButton}
+                  type="primary"
+                >
                   Thêm sản phẩm
                 </Button>
               </Space>
             }
           />
-          <ModalConfirm
-            onCancel={() => {
-              setConfirmSave(false);
-              setLoadingSaveButton(false);
-            }}
-            onOk={() => {
-              setConfirmSave(false);
-              dispatch(productCreateAction(productRequest, createCallback));
-              // dispatch(showLoading());
-              // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
-            }}
-            title={titleConfirmSave}
-            subTitle=""
-            visible={isConfirmSave}
-          />
+          <ModalConfirm {...modalConfirm} />
         </ContentContainer>
       </StyledComponent>
     </Form>

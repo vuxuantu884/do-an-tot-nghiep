@@ -57,8 +57,8 @@ const Product = React.lazy(
 const VariantUpdateScreen = React.lazy(
   () => import("screens/products/product/variant-update.screen")
 );
-const ProductUpdateScreen = React.lazy(
-  () => import("screens/products/product/product-update.screen")
+const ProductDetailScreen = React.lazy(
+  () => import("screens/products/product/ProductDetailScreen")
 );
 const ProductImportScreen = React.lazy(
   () => import("screens/products/product/product-import.screen")
@@ -133,7 +133,7 @@ const product: Array<RouteMenu> = [
         exact: true,
         title: "Sửa sản phẩm",
         icon: "icon-dot",
-        component: ProductUpdateScreen,
+        component: ProductDetailScreen,
         key: "submenu213",
         isShow: true,
         header: null,
