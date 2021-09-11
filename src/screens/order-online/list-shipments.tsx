@@ -346,14 +346,18 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Tỉnh thành",
-      dataIndex: "customer_note",
-      key: "customer_note",
+      dataIndex: "shipping_address",
+      render: (shipping_address: any) => (
+        shipping_address && (shipping_address.city)),
+      key: "city",
       visible: true,
     },
     {
       title: "Quận huyện",
-      dataIndex: "tags",
-      key: "tags",
+      dataIndex: "shipping_address",
+      render: (shipping_address: any) => (
+        shipping_address && (shipping_address.district)),
+      key: "district",
       visible: true,
     },
     {

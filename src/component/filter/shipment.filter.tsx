@@ -534,7 +534,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       let textExpectReceiveDate = (initialValues.received_on_min ? initialValues.received_on_min : '??') + " ~ " + (initialValues.received_on_max ? initialValues.received_on_max : '??')
       list.push({
         key: 'received',
-        name: 'Ngày nhận hàng',
+        name: 'Ngày hoàn tất đơn',
         value: textExpectReceiveDate
       })
     }
@@ -931,7 +931,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.received_on_min && initialValues.received_on_max ? ["1"]: []}>
-                  <Panel header="NGÀY NHẬN HÀNG" key="1" className="header-filter">
+                  <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
                       <Button onClick={() => clickOptionDate('received', 'yesterday')} className={receivedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
                       <Button onClick={() => clickOptionDate('received', 'today')} className={receivedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
