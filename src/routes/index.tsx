@@ -6,6 +6,7 @@ import { Route, Switch } from "react-router-dom";
 import Login from "screens/login";
 import menu from "./menu";
 import extra from "./menu/extra";
+import routesNotShowInMenu from "./list-routes-not-show-in-menu";
 
 const  NotFoundScreen = React.lazy(() => import ('screens/notfound.screen'));
 
@@ -18,6 +19,12 @@ const listMenu = () => {
 const listExtraMenu = () => {
   let list: Array<RouteMenu> = [];
   extra.forEach((item) => list = [...list, ...getAllRoute(item)]);
+  return list;
+}
+
+const listRoutesNotShowInMenu = () => {
+  let list: Array<RouteMenu> = [];
+  routesNotShowInMenu.forEach((item) => list = [...list, ...getAllRoute(item)]);
   return list;
 }
 
@@ -38,6 +45,11 @@ const getAllRoute = (route: RouteMenu) => {
 const MainRoute = () => {
   return (
     <Switch>
+      {
+        listRoutesNotShowInMenu().map((item: RouteMenu) => (
+          <AuthRoute key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
+        ))
+      }
       {
         listMenu().map((item: RouteMenu) => (
           <AuthRoute key={item.key} component={item.component} exact={item.exact} path={item.path} title={item.title} />
