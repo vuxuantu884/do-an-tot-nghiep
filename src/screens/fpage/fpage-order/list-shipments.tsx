@@ -55,7 +55,7 @@ const actions: Array<MenuAction> = [
   },
 ];
 
-const initQuery: OrderSearchQuery = {
+const initQuery: any = {
   page: 1,
   limit: 30,
   sort_type: null,

@@ -56,8 +56,8 @@ export interface ShipmentSearchQuery {
   search_term: string|null;
   status: [];
   stock_location_ids: [];
-  delivery_service_provider_ids: [];
-  delivery_service_provider_types: [];
+  delivery_provider_ids: [];
+  delivery_types: [];
   reference_status: [];
 
   packed_on_min: string|null;
@@ -77,8 +77,8 @@ export interface ShipmentSearchQuery {
   cancelled_on_predefined: string|null;
   print_status: string[];
   store_ids: [],
-  sources: [];
-  assignees: [];
+  source_ids: [];
+  account_codes: [];
   shipping_address: string|null;
   variant_ids: [];
   note: string|null;
