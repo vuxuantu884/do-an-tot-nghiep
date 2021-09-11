@@ -14,7 +14,7 @@ import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch, useSelector } from "react-redux";
-import ReturnFilter from "component/filter/return.filter";
+import ReturnFilter from "component/filter/return.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable, {
   ICustomTableColumType,
