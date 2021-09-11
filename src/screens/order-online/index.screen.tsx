@@ -450,10 +450,13 @@ const ListOrderScreen: React.FC = () => {
     {
       title: "Khu vực",
       dataIndex: "shipping_address",
-      render: (shipping_address: any) =>
-        shipping_address && (
-          <div className="name">{`${shipping_address.ward || ""}, ${shipping_address.district || ""}, ${shipping_address.city || ""}`}</div>
-        ),
+      render: (shipping_address: any) => {
+        const ward = shipping_address?.ward ? shipping_address.ward + "," : ""
+        const district = shipping_address?.district ? shipping_address.district + "," : ""
+        const city = shipping_address?.city ? shipping_address.city + "," : ""
+        return shipping_address && (
+          <div className="name">{`${ward} ${district} ${city}`}</div>
+        )},
       key: "area",
       visible: true,
       width: "300px",
@@ -539,9 +542,9 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Ngày hoàn tất đơn",
-      dataIndex: "finalized_on",
+      dataIndex: "completed_on",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "finalized_on",
+      key: "completed_on",
       visible: true,
     },
     {

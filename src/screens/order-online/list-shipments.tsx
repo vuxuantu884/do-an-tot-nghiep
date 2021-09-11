@@ -297,9 +297,9 @@ const ListOrderScreen: React.FC = () => {
     
     {
       title: "Ngày giao hàng",
-      dataIndex: "received_on",
+      dataIndex: "shipped_on",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "received_on",
+      key: "shipped_on",
       visible: true,
       align: "center",
     },

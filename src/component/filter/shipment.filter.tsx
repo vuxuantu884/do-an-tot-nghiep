@@ -459,12 +459,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         ship_on_max: shipOnMax ? moment(shipOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
         received_on_min: receivedOnMin ? moment(receivedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
         received_on_max: receivedOnMax ? moment(receivedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        expected_receive_on_min: receivedOnMin ? moment(receivedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        expected_receive_on_max: receivedOnMax ? moment(receivedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        cancelled_on_min: cancelledOnMin ? moment(cancelledOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        cancelled_on_max: cancelledOnMax ? moment(cancelledOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
       }
       onFilter && onFilter(valuesForm);
     },
-    [print, control, packedOnMin, packedOnMax, exportedOnMin, exportedOnMax, shipOnMin, shipOnMax, receivedOnMin, receivedOnMax, onFilter]
+    [print, control, packedOnMin, packedOnMax, exportedOnMin, exportedOnMax, shipOnMin, shipOnMax, receivedOnMin, receivedOnMax, cancelledOnMin, cancelledOnMax, onFilter]
   );
   let filters = useMemo(() => {
     let list = []
@@ -528,8 +528,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     if (initialValues.received_on_min || initialValues.received_on_max) {
       let textExpectReceiveDate = (initialValues.received_on_min ? initialValues.received_on_min : '??') + " ~ " + (initialValues.received_on_max ? initialValues.received_on_max : '??')
       list.push({
-        key: 'expected',
-        name: 'Ngày giao hàng',
+        key: 'received',
+        name: 'Ngày nhận hàng',
         value: textExpectReceiveDate
       })
     }
@@ -926,7 +926,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.received_on_min && initialValues.received_on_max ? ["1"]: []}>
-                  <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1" className="header-filter">
+                  <Panel header="NGÀY NHẬN HÀNG" key="1" className="header-filter">
                     <div className="date-option">
                       <Button onClick={() => clickOptionDate('received', 'yesterday')} className={receivedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
                       <Button onClick={() => clickOptionDate('received', 'today')} className={receivedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
