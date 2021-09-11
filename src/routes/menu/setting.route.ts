@@ -290,7 +290,7 @@ const setting: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/giao-hang-nhanh`,
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/ghn`,
         exact: true,
         title: "Giao hàng nhanh",
         icon: "icon-dot",
@@ -302,7 +302,7 @@ const setting: Array<RouteMenu> = [
         pathIgnore: ["create"],
       },
       {
-        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/viettel-post`,
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/vtp`,
         exact: true,
         title: "Viettel Post",
         icon: "icon-dot",
@@ -326,7 +326,7 @@ const setting: Array<RouteMenu> = [
         pathIgnore: ["create"],
       },
       {
-        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/giao-hang-tiet-kiem`,
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/ghtk`,
         exact: true,
         title: "Giao hàng tiết kiệm",
         icon: "icon-dot",

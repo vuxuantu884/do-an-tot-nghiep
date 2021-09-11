@@ -242,6 +242,13 @@ export interface DeliveryServiceResponse {
   external_service_code: string;
   name: string;
   logo: string;
+  config: {
+    id: number;
+    external_service_id: number;
+    external_service_code: string;
+    base_url: string;
+    status: string;
+  } | null;
   transport_types: {
     id: number;
     external_service_id: number;
