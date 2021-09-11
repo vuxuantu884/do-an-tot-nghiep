@@ -185,26 +185,31 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           onFilter && onFilter({...params, source_ids: []});
           break;
         case 'issued':
+          setIssuedClick('')
           setIssuedOnMin(null)
           setIssuedOnMax(null)
           onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
           break;
         case 'finalized':
+          setFinalizedClick('')
           setFinalizedOnMin(null)
           setFinalizedOnMax(null)
           onFilter && onFilter({...params, finalized_on_min: null, finalized_on_max: null});
           break;
         case 'completed':
+          setCompletedClick('')
           setCompletedOnMin(null)
           setCompletedOnMax(null)
           onFilter && onFilter({...params, completed_on_min: null, completed_on_max: null});
           break;
         case 'cancelled':
+          setCancelledClick('')
           setCancelledOnMin(null)
           setCancelledOnMax(null)
           onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
           break;
         case 'expected':
+          setExpectedClick('')
           setExpectedReceiveOnMin(null)
           setExpectedReceiveOnMax(null)
           onFilter && onFilter({...params, expected_receive_on_min: null, expected_receive_on_max: null});

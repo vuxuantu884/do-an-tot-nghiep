@@ -184,26 +184,31 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           onFilter && onFilter({...params, source_ids: []});
           break;
         case 'packed':
+          setPackedClick('')
           setPackedOnMin(null)
           setPackedOnMax(null)
           onFilter && onFilter({...params, packed_on_min: null, packed_on_max: null});
           break;
         case 'ship':
+          setShipClick('')
           setShipOnMin(null)
           setShipOnMax(null)
           onFilter && onFilter({...params, ship_on_min: null, ship_on_max: null});
           break;
         case 'exported':
+          setExportedClick('')
           setExportedOnMin(null)
           setExportedOnMax(null)
           onFilter && onFilter({...params, exported_on_min: null, exported_on_max: null});
           break;
         case 'cancelled':
+          setCancelledClick('')
           setCancelledOnMin(null)
           setCancelledOnMax(null)
           onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
           break;
         case 'received':
+          setReceivedClick('')
           setReceivedOnMin(null)
           setReceivedOnMax(null)
           onFilter && onFilter({...params, received_on_min: null, received_on_max: null});
