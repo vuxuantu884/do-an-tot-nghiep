@@ -153,7 +153,7 @@ const AddMaterial: React.FC = () => {
               <Col span={24} lg={16}>
                 <Form.Item rules={[
                     {max: 250, message: 'Ghi chú không quá 150 kí tự'}
-                  ]} name="description" label="Ghi chú">
+                  ]} name="description" label="Ghi chú:">
                   <Input.TextArea
                     autoSize={{ minRows: 3, maxRows: 5 }}
                     maxLength={250}

@@ -114,7 +114,7 @@ const UpdateMaterial: React.FC = () => {
                         message: 'Tên chất liệu không vượt quá 50 ký tự',
                       },
                     ]}
-                    label="Tên chất liệu"
+                    label="Tên chất liệu:"
                     name="name"
                   >
                     <Input maxLength={50} placeholder="Tên danh mục" />
@@ -127,7 +127,7 @@ const UpdateMaterial: React.FC = () => {
                       {max: 50},
                     ]}
                     name="component"
-                    label="Thành phần"
+                    label="Thành phần:"
                   >
                     <Input placeholder="Thành phần" />
                   </Form.Item>
@@ -145,7 +145,7 @@ const UpdateMaterial: React.FC = () => {
                     ]}
                     name="code"
                     labelAlign="right"
-                    label="Mã chất liệu"
+                    label="Mã chất liệu:"
                   >
                     <Input
                       placeholder="Mã chất liệu"
@@ -190,7 +190,7 @@ const UpdateMaterial: React.FC = () => {
               <Col span={24} lg={16}>
                 <Form.Item rules={[
                     {max: 250, message: 'Ghi chú không quá 150 kí tự'}
-                  ]} name="description" label="Ghi chú">
+                  ]} name="description" label="Ghi chú:">
                   <Input.TextArea
                     autoSize={{ minRows: 3, maxRows: 5 }}
                     maxLength={250} 
