@@ -152,9 +152,15 @@ const ListOrderScreen: React.FC = () => {
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<ShipmentModel>>>([
     {
       title: "Mã đơn giao",
-      dataIndex: "code",
-      render: (value: string, i: ShipmentModel) => (
-        <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
+      // dataIndex: "code",
+      // render: (value: string, i: ShipmentModel) => (
+      //   <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
+      // ),
+      render: (record: ShipmentModel) => (
+        <div>
+          <Link to={`${UrlConfig.ORDER}/${record.id}`}>{record.code}</Link>
+          <div>{record.shipped_on ? ConvertUtcToLocalDate(record.shipped_on) : ''}</div>
+        </div>
       ),
       visible: true,
       fixed: 'left',
