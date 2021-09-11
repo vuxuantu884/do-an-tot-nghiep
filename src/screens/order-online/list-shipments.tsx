@@ -50,8 +50,8 @@ const initQuery: ShipmentSearchQuery = {
   search_term: null,
   status: [],
   stock_location_ids: [],
-  delivery_service_provider_ids: [],
-  delivery_service_provider_types: [],
+  delivery_provider_ids: [],
+  delivery_types: [],
   reference_status: [],
   packed_on_min: null,
   packed_on_max: null,
@@ -70,8 +70,8 @@ const initQuery: ShipmentSearchQuery = {
   cancelled_on_predefined: null,
   print_status: [],
   store_ids: [],
-  sources: [],
-  assignees: [],
+  source_ids: [],
+  account_codes: [],
   shipping_address: null,
   variant_ids: [],
   note: null,
@@ -175,7 +175,7 @@ const ListOrderScreen: React.FC = () => {
       render: (shipping_address: any) => (
         shipping_address && (
         <div className="customer">
-          <div className="name p-b-3">{shipping_address.name}</div>
+          <div className="name p-b-3" style={{ color: "#2A2A86" }}>{shipping_address.name}</div>
           <div className="p-b-3">{shipping_address.phone}</div>
           <div className="p-b-3">{shipping_address.full_address}</div>
         </div>
@@ -297,9 +297,9 @@ const ListOrderScreen: React.FC = () => {
     
     {
       title: "Ngày giao hàng",
-      dataIndex: "received_on",
+      dataIndex: "shipped_on",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "received_on",
+      key: "shipped_on",
       visible: true,
       align: "center",
     },
@@ -346,14 +346,18 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Tỉnh thành",
-      dataIndex: "customer_note",
-      key: "customer_note",
+      dataIndex: "shipping_address",
+      render: (shipping_address: any) => (
+        shipping_address && (shipping_address.city)),
+      key: "city",
       visible: true,
     },
     {
       title: "Quận huyện",
-      dataIndex: "tags",
-      key: "tags",
+      dataIndex: "shipping_address",
+      render: (shipping_address: any) => (
+        shipping_address && (shipping_address.district)),
+      key: "district",
       visible: true,
     },
     {
