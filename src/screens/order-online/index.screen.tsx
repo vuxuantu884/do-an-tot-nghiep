@@ -5,7 +5,6 @@ import { PageResponse } from "model/base/base-metadata.response";
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -38,14 +37,10 @@ import ContentContainer from "component/container/content.container";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {
-  DeliveryServicesGetList,
   getListOrderAction,
 } from "domain/actions/order/order.action";
 import "./scss/index.screen.scss";
-import {
-  DeliveryServiceResponse,
-  OrderResponse,
-} from "model/response/order/order.response";
+
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -150,9 +145,7 @@ const ListOrderScreen: React.FC = () => {
     },
     items: [],
   });
-  const [deliveryServices, setDeliveryServices] = useState<
-    Array<DeliveryServiceResponse>
-  >([]);
+
   const status_order = [
     { name: "Nháp", value: "draft" },
     { name: "Đóng gói", value: "packed" },
@@ -616,25 +609,15 @@ const ListOrderScreen: React.FC = () => {
 
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
-      // console.log('result', result)
-      // console.log('deliveryServices', deliveryServices)
       setTableLoading(false);
-      if (!!result && !!deliveryServices) {
+      if (!!result) {
         setData(result);
       }
     },
-    [deliveryServices]
+    []
   );
 
-  // const onGetDeliverService = useCallback(
-  //   (id: number|null,) => {
-  //     console.log('onGetDeliverService', id,  deliveryServices)
-
-  //     const service = deliveryServices?.find(service => service.id === id)
-  //     return service?.logo
-  //   },
-  //   [deliveryServices]
-  // );
+  
 
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
@@ -653,10 +636,6 @@ const ListOrderScreen: React.FC = () => {
 
   useEffect(() => {
     if (isFirstLoad.current) {
-      dispatch(DeliveryServicesGetList(setDeliveryServices));
-      // (async () => {
-      //   await dispatch(DeliveryServicesGetList(setDeliveryServices));
-      // })()
       setTableLoading(true);
     }
     isFirstLoad.current = false;

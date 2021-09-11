@@ -98,6 +98,21 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "Tiêu điểm", value: 5},
     {name: "COD", value: 0},
   ], []);
+
+  const serviceType = useMemo(() => [
+    {
+      name: 'Tự vận chuyển',
+      value: 'shipper',
+    },
+    {
+      name: 'Nhận tại cửa hàng',
+      value: 'pick_at_store',
+    },
+    {
+      name: 'Hãng vận chuyển',
+      value: 'external_service',
+    },
+  ], []);
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
   const onChangeOrderOptions = useCallback((e) => {
@@ -221,6 +236,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'expected_receive_predefined':
           onFilter && onFilter({...params, expected_receive_predefined: ""});
           break;
+        case 'delivery_types':
+          onFilter && onFilter({...params, delivery_types: []});
+          break;  
         case 'delivery_provider_ids':
           onFilter && onFilter({...params, delivery_provider_ids: []});
           break;
@@ -576,15 +594,27 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
+    if (initialValues.delivery_types.length) {
+      let textType = ""
+      initialValues.delivery_types.forEach(i => {
+        const findType = serviceType?.find(item => item.value === i)
+        textType = findType ? textType + findType.name + ";" : textType
+      })
+      list.push({
+        key: 'delivery_types',
+        name: 'Hình thức vận chuyển',
+        value: textType
+      })
+    }
     if (initialValues.delivery_provider_ids.length) {
       let textType = ""
-      initialValues.delivery_provider_ids.forEach(i => {
-        const findVariant = deliveryService?.find(item => item.id.toString() === i)
-        textType = findVariant ? textType + findVariant.name + ";" : textType
+      initialValues.delivery_provider_ids.forEach((i: any) => {
+        const findType = deliveryService?.find(item => item.id.toString() === i.toString())
+        textType = findType ? textType + findType.name + ";" : textType
       })
       list.push({
         key: 'delivery_provider_ids',
-        name: 'Hình thức vận chuyển',
+        name: 'Đối tác giao hàng',
         value: textType
       })
     }
@@ -632,7 +662,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
     // console.log('filters list', list);
     return list
-  }, [accounts, deliveryService, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status, subStatus]);
+  }, [accounts, deliveryService, serviceType, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status, subStatus]);
 
   
 
@@ -1044,7 +1074,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Item name="price_min" style={{ width: '45%', textAlign: 'center' }}>
                         <InputNumber
                           className="price_min"
-                          placeholder="Minimum"
+                          placeholder="Từ"
                           min="0"
                           max="100000000"
                         />
@@ -1064,7 +1094,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Item name="price_max" style={{width: '45%',textAlign: 'center'}}>
                         <InputNumber
                           className="site-input-right price_max"
-                          placeholder="Maximum"
+                          placeholder="Đến"
                           min="0"
                           max="1000000000"
                         />
@@ -1127,9 +1157,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.delivery_types.length ? ["1"]: []}>
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
-                    <Item name="delivery_provider_ids">
+                    <Item name="delivery_types">
                       <Select
                         mode="multiple"
                         optionFilterProp="children" showSearch
@@ -1138,12 +1168,34 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         getPopupContainer={trigger => trigger.parentNode}
                       >
                         {/* <Option value="">Hình thức vận chuyển</Option> */}
-                        {deliveryService?.map((item) => (
-                          <Option key={item.id} value={item.id.toString()}>
+                        {serviceType?.map((item) => (
+                          <Option key={item.value} value={item.value}>
                             {item.name}
                           </Option>
                         ))}
                       </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
+                  <Panel header="ĐỐI TÁC GIAO HÀNG" key="1" className="header-filter">
+                    <Item name="delivery_provider_ids">
+                    <Select
+                      mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
+                      notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                      optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
+                    >
+                      {deliveryService?.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))}
+                    </Select>
                     </Item>
                   </Panel>
                 </Collapse>
