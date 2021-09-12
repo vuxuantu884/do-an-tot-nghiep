@@ -2,6 +2,7 @@ import {
   ProductHistoryQuery,
   ProductHistoryResponse,
   ProductRequest,
+  ProductResponse,
   VariantResponse,
   VariantSearchQuery,
   VariantUpdateRequest,
@@ -81,3 +82,7 @@ export const productGetHistoryAction = (
     onResult,
   });
 };
+
+export const productGetDetail = (id: number, onResult: (result: ProductResponse|false) => void) => {
+  return BaseAction(ProductType.PRODUCT_DETAIL, {id, onResult});
+}
