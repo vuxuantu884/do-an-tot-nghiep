@@ -51,14 +51,10 @@ type PaymentCardProps = {
 
 const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
   const { paymentMethod, payments, isCloneOrder } = props;
-  console.log("propsPaymentCard", props);
-  console.log("payments", payments);
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>(
     []
   );
   const changePaymentMethod = (value: number) => {
-    console.log("value", value);
-    console.log("change");
     props.setSelectedPaymentMethod(value);
     if (value === 2) {
       handlePickPaymentMethod(PaymentMethodCode.CASH);
@@ -260,7 +256,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
           gutter={24}
           hidden={props.paymentMethod !== PaymentMethodOption.PREPAYMENT}
         >
-          <div style={{ padding: "0 24px" }}>
+          <div style={{ padding: "0 24px", maxWidth: '100%' }}>
             <Collapse
               className="orders-timeline"
               defaultActiveKey={["1"]}
@@ -390,16 +386,16 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         style={{ height: 38, margin: "10px 0" }}
                       >
                         <Col
-                          lg={14}
+                          lg={15}
                           xxl={9}
                           className="row-large-title"
                           style={{ padding: "8px 0", marginLeft: 2 }}
                         >
-                          <b>Khách cần trả 1:</b>
+                          <b>Khách cần trả:</b>
                         </Col>
                         <Col
                           className="lbl-money"
-                          lg={9}
+                          lg={6}
                           xxl={6}
                           style={{
                             textAlign: "right",
@@ -422,10 +418,10 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                             key={index}
                             style={{ margin: "10px 0" }}
                           >
-                            <Col lg={14} xxl={9} style={{ padding: "0" }}>
+                            <Col lg={15} xxl={9} style={{ padding: "0" }}>
                               <Row align="middle">
                                 <b style={{ padding: "8px 0" }}>
-                                  {method.name}: 33333
+                                  {method.name}:
                                 </b>
                                 {method.code === PaymentMethodCode.POINT ? (
                                   <Col className="point-spending">
@@ -493,7 +489,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                             {method.code !== PaymentMethodCode.POINT ? (
                               <Col
                                 className="lbl-money"
-                                lg={9}
+                                lg={6}
                                 xxl={6}
                                 style={{ marginLeft: 10 }}
                               >
@@ -524,7 +520,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                             ) : (
                               <Col
                                 className="lbl-money"
-                                lg={9}
+                                lg={6}
                                 xxl={6}
                                 style={{
                                   padding: 8,
@@ -547,12 +543,12 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
                         className="row-price"
                         style={{ height: 38, margin: "10px 0 0 0" }}
                       >
-                        <Col lg={14} xxl={9} style={{ padding: "8px 0" }}>
+                        <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
                           <b>{true ? "Còn phải trả:" : "Tiền thừa:"}</b>
                         </Col>
                         <Col
                           className="lbl-money"
-                          lg={9}
+                          lg={6}
                           xxl={6}
                           style={{
                             textAlign: "right",

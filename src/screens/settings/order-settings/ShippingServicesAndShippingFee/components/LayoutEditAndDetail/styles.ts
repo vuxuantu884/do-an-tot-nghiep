@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
+  padding-bottom: 70px;
   .ant-card {
     margin-bottom: 20px;
     .ant-card-body {

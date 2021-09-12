@@ -104,7 +104,6 @@ export default function Order() {
   const userReducer = useSelector(
     (state: RootReducerType) => state.userReducer
   );
-console.log(storeDetail)
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
     cauHinhInNhieuLienHoaDon: 1,
@@ -141,10 +140,10 @@ console.log(storeDetail)
     discount_rate: number,
     discount_value: number
   ) => {
-    // setItems(_items);
+    setItems(_items);
     setDiscountRate(discount_rate);
     setDiscountValue(discount_value);
-    // setOrderAmount(amount);
+    setOrderAmount(amount);
   };
 
   const onStoreSelect = (storeId: number) => {

@@ -110,7 +110,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.ECOMMERCE,
     exact: true,
     title: "Sàn TMĐT",
-    icon: 'icon-promotion',
+    icon: 'icon-ecommerce',
     component: EcommerceConfig,
     key: "8",
     isShow: true,

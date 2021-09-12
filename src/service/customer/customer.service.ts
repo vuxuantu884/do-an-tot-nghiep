@@ -1,4 +1,4 @@
-import { CustomerNote } from './../../model/request/customer.request';
+import { CustomerNote } from '../../model/request/customer.request';
 import { CustomerResponse } from 'model/response/customer/customer.response';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { generateQuery } from 'utils/AppUtils';
@@ -75,12 +75,12 @@ export const updateContact = (id: number, customerId: number, contact: CustomerC
   return BaseAxios.put(url, contact);
 };
 
-export const createCustomer = (customer: any): Promise<BaseResponse<any>> => {
+export const createCustomer = (customer: CustomerRequest): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers`;
   return BaseAxios.post(url, customer);
 };
 
-export const updateCustomer = (id: number,request: any): Promise<BaseResponse<any>> => {
+export const updateCustomer = (id: number,request: CustomerRequest): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${id}`;
   return BaseAxios.put(url, request);
 };

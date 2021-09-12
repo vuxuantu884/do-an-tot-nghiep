@@ -1,19 +1,28 @@
-import { CheckOutlined, MoreOutlined, PlusOutlined } from "@ant-design/icons";
-import { Card, Switch } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Card, Dropdown, Menu, Switch } from "antd";
+import { ColumnType } from "antd/lib/table";
+import iconDelete from "assets/icon/deleteIcon.svg";
+import iconEdit from "assets/icon/edit.svg";
+import iconIsActive from "assets/icon/iconIsActive.svg";
+import threeDot from "assets/icon/three-dot.svg";
 import ContentContainer from "component/container/content.container";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import moment from "moment";
 import {
   actionConfigureIsAllowToSellWhenNotAvailableStock,
+  actionDeleteConfigurationShippingServiceAndShippingFee,
   actionGetIsAllowToSellWhenNotAvailableStock,
   actionListConfigurationShippingServiceAndShippingFee,
 } from "domain/actions/settings/order-settings.action";
-import { ShippingServiceConfigResponseModel } from "model/response/settings/order-settings.response";
+import {
+  ShippingServiceConfigDetailResponseModel,
+  ShippingServiceConfigResponseModel,
+} from "model/response/settings/order-settings.response";
+import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-// import { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
+import { ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
 import { StyledComponent } from "./styles";
 
 type PropType = {};
@@ -21,6 +30,7 @@ type PropType = {};
 function OrderSettings(props: PropType) {
   const dateFormat = "HH:mm DD/MM/YYYY";
 
+  const [isTableLoading, setIsTableLoading] = useState(true);
   const [
     IsAllowToSellWhenNotAvailableStock,
     setIsAllowToSellWhenNotAvailableStock,
@@ -36,7 +46,21 @@ function OrderSettings(props: PropType) {
   >([]);
   const dispatch = useDispatch();
 
-  const FAKE_LOGISTIC_SETTINGS_COLUMN = [
+  const handleDelete = (id: number) => {
+    dispatch(
+      actionDeleteConfigurationShippingServiceAndShippingFee(id, () => {
+        setIsTableLoading(true);
+        dispatch(
+          actionListConfigurationShippingServiceAndShippingFee((response) => {
+            setShippingServiceConfig(response);
+            setIsTableLoading(false);
+          })
+        );
+      })
+    );
+  };
+
+  const TABLE_COLUMN: ColumnType<any>[] = [
     {
       title: "STT",
       render: (value: any, row: any, index: number) => {
@@ -47,11 +71,6 @@ function OrderSettings(props: PropType) {
       title: "Tiêu đề",
       dataIndex: "program_name",
       key: "program_name",
-    },
-    {
-      title: "Kiểu",
-      dataIndex: "style",
-      key: "style",
     },
     {
       title: "Thời gian áp dụng",
@@ -71,19 +90,100 @@ function OrderSettings(props: PropType) {
       title: "Áp dụng",
       dataIndex: "status",
       key: "status",
-      render: (value: any, row: any, index: number) => {
-        return <CheckOutlined />;
+      className: "columnActive",
+      render: (
+        value: any,
+        row: ShippingServiceConfigDetailResponseModel,
+        index: number
+      ) => {
+        if (value === ORDER_SETTINGS_STATUS.active) {
+          return (
+            <div>
+              <img src={iconIsActive} alt="" />
+            </div>
+          );
+        }
       },
     },
     {
       title: "",
-      render: (value: any, row: any, index: number) => {
-        return <MoreOutlined />;
+      width: "48px",
+      render: (value: any, row: ShippingServiceConfigDetailResponseModel) => {
+        const menu = (
+          <Menu>
+            <Menu.Item key="1">
+              <Link
+                to={`${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${row.id}`}
+              >
+                <Button
+                  icon={
+                    <img alt="" style={{ marginRight: 12 }} src={iconEdit} />
+                  }
+                  type="text"
+                  className=""
+                  style={{
+                    paddingLeft: 24,
+                    background: "transparent",
+                    border: "none",
+                  }}
+                >
+                  Chỉnh sửa
+                </Button>
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="2">
+              <Button
+                icon={
+                  <img alt="" style={{ marginRight: 12 }} src={iconDelete} />
+                }
+                type="text"
+                className=""
+                style={{
+                  paddingLeft: 24,
+                  background: "transparent",
+                  border: "none",
+                  color: "red",
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(row.id);
+                }}
+              >
+                Xóa
+              </Button>
+            </Menu.Item>
+          </Menu>
+        );
+        return (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "0 4px",
+            }}
+          >
+            <div className="action-group">
+              <Dropdown
+                overlay={menu}
+                trigger={["click"]}
+                placement="bottomRight"
+              >
+                <Button
+                  type="text"
+                  icon={<img src={threeDot} alt=""></img>}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                ></Button>
+              </Dropdown>
+            </div>
+          </div>
+        );
       },
     },
   ];
 
-  // const [tableLoading, setTableLoading] = useState(false);
+  // const [isTableLoading, setTableLoading] = useState(false);
 
   const history = useHistory();
 
@@ -97,14 +197,15 @@ function OrderSettings(props: PropType) {
   };
 
   const onChange = (checked: any) => {
-    console.log("checked", checked);
     dispatch(
       actionConfigureIsAllowToSellWhenNotAvailableStock(checked, () => {})
     );
   };
 
   const goToPageDetail = (id: string | number) => {
-    history.push(`${UrlConfig.ORDER_SETTINGS}/${id}`);
+    history.push(
+      `${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${id}`
+    );
   };
 
   useEffect(() => {
@@ -119,10 +220,8 @@ function OrderSettings(props: PropType) {
   useEffect(() => {
     dispatch(
       actionListConfigurationShippingServiceAndShippingFee((response) => {
-        console.log("response", response);
         setShippingServiceConfig(response);
-        // setIsAllowToSellWhenNotAvailableStock(response.sellable_inventory);
-        // setisLoadedAllowToSellWhenNotAvailableStock(true);
+        setIsTableLoading(false);
       })
     );
   }, [dispatch]);
@@ -161,12 +260,12 @@ function OrderSettings(props: PropType) {
           extra={renderCardExtra()}
         >
           <CustomTable
-            // isLoading={tableLoading}
+            isLoading={isTableLoading}
             showColumnSetting={false}
             scroll={{ x: 1080 }}
             pagination={false}
             dataSource={ShippingServiceConfig}
-            columns={FAKE_LOGISTIC_SETTINGS_COLUMN}
+            columns={TABLE_COLUMN}
             rowKey={(item: ShippingServiceConfigResponseModel) => item.id}
             onRow={(record: ShippingServiceConfigResponseModel) => {
               return {

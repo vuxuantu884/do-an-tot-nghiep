@@ -5,7 +5,6 @@ import { PageResponse } from "model/base/base-metadata.response";
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -38,14 +37,10 @@ import ContentContainer from "component/container/content.container";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import {
-  DeliveryServicesGetList,
   getListOrderAction,
 } from "domain/actions/order/order.action";
 import "./scss/index.screen.scss";
-import {
-  DeliveryServiceResponse,
-  OrderResponse,
-} from "model/response/order/order.response";
+
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -102,12 +97,13 @@ const initQuery: OrderSearchQuery = {
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
-  account: [],
-  assignee: [],
+  account_codes: [],
+  assignee_codes: [],
   price_min: undefined,
   price_max: undefined,
   payment_method_ids: [],
   delivery_types: [],
+  delivery_provider_ids: [],
   note: null,
   customer_note: null,
   tags: [],
@@ -149,9 +145,7 @@ const ListOrderScreen: React.FC = () => {
     },
     items: [],
   });
-  const [deliveryServices, setDeliveryServices] = useState<
-    Array<DeliveryServiceResponse>
-  >([]);
+
   const status_order = [
     { name: "Nháp", value: "draft" },
     { name: "Đóng gói", value: "packed" },
@@ -204,15 +198,21 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Khách hàng",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) =>
-        shipping_address && (
+      render: (record) =>
+        record.shipping_address ? (
           <div className="customer custom-td">
             <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-              {shipping_address?.name}
+              {record.shipping_address.name}
             </div>
-            <div className="p-b-3">{shipping_address?.phone}</div>
-            <div className="p-b-3">{shipping_address?.full_address}</div>
+            <div className="p-b-3">{record.shipping_address.phone}</div>
+            <div className="p-b-3">{record.shipping_address.full_address}</div>
+          </div>
+        ) : (
+          <div className="customer custom-td">
+            <div className="name p-b-3" style={{ color: "#2A2A86" }}>
+              {record.customer}
+            </div>
+            <div className="p-b-3">{record.customer_phone_number}</div>
           </div>
         ),
       key: "customer",
@@ -439,17 +439,24 @@ const ListOrderScreen: React.FC = () => {
       title: "Tổng SL sản phẩm",
       dataIndex: "items",
       key: "item.quantity.total",
-      render: (items) => items.length,
+      render: (items) => {
+        console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
+        
+        return items.reduce((total: number, item: any) => total + item.quantity, 0)
+      },
       visible: true,
       align: "center",
     },
     {
       title: "Khu vực",
       dataIndex: "shipping_address",
-      render: (shipping_address: any) =>
-        shipping_address && (
-          <div className="name">{`${shipping_address.ward}, ${shipping_address.district}, ${shipping_address.city}`}</div>
-        ),
+      render: (shipping_address: any) => {
+        const ward = shipping_address?.ward ? shipping_address.ward + "," : ""
+        const district = shipping_address?.district ? shipping_address.district + "," : ""
+        const city = shipping_address?.city ? shipping_address.city + "," : ""
+        return shipping_address && (
+          <div className="name">{`${ward} ${district} ${city}`}</div>
+        )},
       key: "area",
       visible: true,
       width: "300px",
@@ -521,23 +528,23 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Nhân viên bán hàng",
-      dataIndex: "assignee",
+      render: (record) => <div>{`${record.assignee} - ${record.assignee_code}`}</div>,
       key: "assignee",
       visible: true,
       align: "center",
     },
     {
       title: "Nhân viên tạo đơn",
-      dataIndex: "account",
+      render: (record) => <div>{`${record.account} - ${record.account_code}`}</div>,
       key: "account",
       visible: true,
       align: "center",
     },
     {
       title: "Ngày hoàn tất đơn",
-      dataIndex: "finalized_on",
+      dataIndex: "completed_on",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "finalized_on",
+      key: "completed_on",
       visible: true,
     },
     {
@@ -605,25 +612,15 @@ const ListOrderScreen: React.FC = () => {
 
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
-      // console.log('result', result)
-      // console.log('deliveryServices', deliveryServices)
       setTableLoading(false);
-      if (!!result && !!deliveryServices) {
+      if (!!result) {
         setData(result);
       }
     },
-    [deliveryServices]
+    []
   );
 
-  // const onGetDeliverService = useCallback(
-  //   (id: number|null,) => {
-  //     console.log('onGetDeliverService', id,  deliveryServices)
-
-  //     const service = deliveryServices?.find(service => service.id === id)
-  //     return service?.logo
-  //   },
-  //   [deliveryServices]
-  // );
+  
 
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
@@ -642,10 +639,6 @@ const ListOrderScreen: React.FC = () => {
 
   useEffect(() => {
     if (isFirstLoad.current) {
-      dispatch(DeliveryServicesGetList(setDeliveryServices));
-      // (async () => {
-      //   await dispatch(DeliveryServicesGetList(setDeliveryServices));
-      // })()
       setTableLoading(true);
     }
     isFirstLoad.current = false;

@@ -57,6 +57,7 @@ export interface OrderResponse extends BaseObject {
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
   fulfillments: Array<FulFillmentResponse> | null | undefined;
+  sub_status_id?: number | null;
 }
 
 export interface OrderLineItemResponse {
@@ -238,8 +239,23 @@ export interface ShipmentResponse extends BaseObject {
 export interface DeliveryServiceResponse {
   id: number;
   code: string;
+  external_service_code: string;
   name: string;
   logo: string;
+  config: {
+    id: number;
+    external_service_id: number;
+    external_service_code: string;
+    base_url: string;
+    status: string;
+  } | null;
+  transport_types: {
+    id: number;
+    external_service_id: number;
+    external_service_code: string;
+    name: string;
+    status: string;
+  }[];
 }
 
 export interface ShippingGHTKResponse {

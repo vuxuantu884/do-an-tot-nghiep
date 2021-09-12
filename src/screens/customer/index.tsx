@@ -9,13 +9,13 @@ import {
   Select,
 } from "antd";
 import CustomFilter from "component/table/custom.filter";
-
+import "./customer.scss";
 import BaseFilter from "../../component/filter/base.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { SearchOutlined } from "@ant-design/icons";
 
 import ContentContainer from "component/container/content.container";
-import CustomDatepicker from "component/custom/date-picker.custom";
+import CustomDatePicker from "component/custom/date-picker.custom";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import CustomerAdd from "./customer.create";
@@ -612,24 +612,24 @@ const Customer = () => {
           <Row gutter={24}>
             <Col span={12}>
               <Form.Item name="from_birthday" label="Ngày sinh từ">
-                <CustomDatepicker placeholder="Ngày sinh từ" />
+                <CustomDatePicker placeholder="Ngày sinh từ" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item label="Đến" name="to_birthday">
-                <CustomDatepicker placeholder="Ngày sinh đến" />
+                <CustomDatePicker placeholder="Ngày sinh đến" />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col span={12}>
               <Form.Item name="from_wedding_date" label="Ngày cưới từ">
-                <CustomDatepicker placeholder="Ngày cưới từ" />
+                <CustomDatePicker placeholder="Ngày cưới từ" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item label="Đến" name="to_wedding_date">
-                <CustomDatepicker placeholder="Ngày cưới đến" />
+                <CustomDatePicker placeholder="Ngày cưới đến" />
               </Form.Item>
             </Col>
           </Row>
