@@ -15,6 +15,7 @@ const ecommerceUpdateApi = (
   id: number,
   EcommerceConfig: EcommerceRequest
 ): Promise<BaseResponse<EcommerceResponse>> => {
+  console.log(id)
   let link = `${ApiConfig.ECOMMERCE}/shops/${id}`;
   return BaseAxios.put(link, EcommerceConfig);
 };

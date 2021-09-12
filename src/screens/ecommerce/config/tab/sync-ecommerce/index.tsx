@@ -8,22 +8,35 @@ import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import sendoIcon from "assets/icon/e-sendo.svg";
 import { useHistory } from "react-router-dom";
-// import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+const iconMap: any = {
+  shopee: shopeeIcon,
+  lazada: lazadaIcon,
+  tiki: tikiIcon,
+  sendo: sendoIcon,
+};
+type SyncEcommerceProps = {
+  configData: any;
+  setConfigToView: (value: EcommerceResponse) => void;
+};
 
-const SyncEcommerce: React.FC<any> = (props: any) => {
-  const { dataMock, setConfigToView } = props;
+const SyncEcommerce: React.FC<SyncEcommerceProps> = (
+  props: SyncEcommerceProps
+) => {
+  const { configData, setConfigToView } = props;
   const history = useHistory();
   const [activatedBtn, setActivatedBtn] = React.useState({
-      title: "",
-      icon: "",
-      id: "",
-      isActive: "",
-      key: null,
-  })
+    title: "",
+    icon: "",
+    id: "all",
+    isActive: "",
+    key: 1,
+  });
   const handleUpdate = (item: any) => {
-    setConfigToView(item)
-    history.replace(`${history.location.pathname}#setting`)
-  }
+    setConfigToView(item);
+    history.replace(`${history.location.pathname}#setting`);
+  };
 
   const handleDisconnect = () => {};
 
@@ -31,15 +44,17 @@ const SyncEcommerce: React.FC<any> = (props: any) => {
     {
       title: "STT",
       visible: true,
+      align: "center",
       render: (l: any, v: any, i: any) => {
-        return <span>{i + 1}</span>
+        return <span>{i + 1}</span>;
       },
     },
     {
       title: "Sàn TMĐT",
       visible: true,
+      align: "center",
       render: (l: any, v: any, i: any) => {
-        return <img src={v.img} alt=""></img>;
+        return <img src={iconMap[v.ecommerce]} alt=""></img>;
       },
     },
     { title: "Shop ID | Tên shop", visible: true, dataIndex: "name" },
@@ -47,7 +62,13 @@ const SyncEcommerce: React.FC<any> = (props: any) => {
     // { title: "Cửa hàng", visible: true, dataIndex: "store_id" },
     { title: "Đồng bộ sản phẩm", visible: true, dataIndex: "product_sync" },
     { title: "Nhân viên bán hàng", visible: true, dataIndex: "assign_account" },
-    { title: "Ngày kết nối", visible: true, dataIndex: "auth_time" },
+    {
+      title: "Ngày kết nối",
+      visible: true,
+      render: (l: any, v: any, i: any) => {
+        return <span>{ConvertUtcToLocalDate(v.auth_time)}</span>;
+      },
+    },
     actionColumn(handleUpdate, handleDisconnect),
   ]);
 
@@ -89,9 +110,16 @@ const SyncEcommerce: React.FC<any> = (props: any) => {
     },
   ]);
 
+  const configDataFiltered = configData.filter((item: any) => {
+    if (activatedBtn.id === "all") {
+      return true;
+    } else {
+      return item.ecommerce === activatedBtn.id;
+    }
+  });
 
   const handleBtnClick = (button: any) => {
-    setActivatedBtn(button)
+    setActivatedBtn(button);
   };
   return (
     <div className="padding-20">
@@ -107,11 +135,10 @@ const SyncEcommerce: React.FC<any> = (props: any) => {
             {button.title}
           </Button>
         ))}
-
       </StyledHeader>
       <CustomTable
         columns={columns}
-        dataSource={dataMock}
+        dataSource={configDataFiltered}
         pagination={false}
         // pagination={{
         //   pageSize: data.metadata.limit,
@@ -121,7 +148,7 @@ const SyncEcommerce: React.FC<any> = (props: any) => {
         //   onChange: onPageChange,
         //   onShowSizeChange: onPageChange,
         // }}
-        rowKey={(data) => data.shop_id}
+        rowKey={(data) => data.id}
       />
     </div>
   );

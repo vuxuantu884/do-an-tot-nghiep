@@ -1,27 +1,39 @@
 import { StyledConfig } from "./styles";
 import { Row, Col, Form, Input, Select, Button, Tag } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomSelect from "component/custom/select.custom";
 import shopeeIcon from "assets/icon/e-shopee.svg";
-import shopeeSendo from "assets/icon/e-sendo.svg";
-import shopeeLazada from "assets/icon/e-lazada.svg";
-import shopeeTiki from "assets/icon/e-tiki.svg";
+import sendoIcon from "assets/icon/e-sendo.svg";
+import lazadaIcon from "assets/icon/e-lazada.svg";
+import tikiIcon from "assets/icon/e-tiki.svg";
+import disconnectIcon from "assets/icon/e-disconnect.svg";
+import saveIcon from "assets/icon/e-save-config.svg";
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import { EcommerceRequest } from "model/request/ecommerce.request";
+import {
+  EcommerceRequest,
+  EcommerceShopInventoryDto,
+} from "model/request/ecommerce.request";
+import { ecommerceConfigUpdateAction } from "domain/actions/ecommerce/ecommerce.actions";
+import { useDispatch } from "react-redux";
+
+const iconMap: any = {
+  shopee: shopeeIcon,
+  lazada: lazadaIcon,
+  tiki: tikiIcon,
+  sendo: sendoIcon,
+};
 
 const { Option } = Select;
 type SettingConfigProps = {
   listStores: Array<StoreResponse>;
   accounts: Array<AccountResponse>;
   form: any;
-  configList: Array<EcommerceResponse>;
+  configData: Array<EcommerceResponse>;
   configToView: EcommerceResponse | undefined;
   accountChangeSearch: (value: string) => void;
-  handleCreateConfig: (value: EcommerceRequest) => void;
 };
-
 const SettingConfig: React.FC<SettingConfigProps> = (
   props: SettingConfigProps
 ) => {
@@ -30,9 +42,34 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     accountChangeSearch,
     accounts,
     form,
-    handleCreateConfig,
     configToView,
+    configData,
   } = props;
+  const dispatch = useDispatch();
+  const [configDetail, setConfigDetail] = useState<
+    EcommerceResponse | undefined
+  >(configToView);
+  const [inventories, setInventories] = React.useState<
+    Array<EcommerceShopInventoryDto>
+  >([]);
+
+  useEffect(() => {
+    setConfigDetail(configToView);
+  }, [configToView, setConfigDetail]);
+
+  const handleUpdateConfig = React.useCallback(
+    (value: EcommerceRequest) => {
+      value.inventories = inventories;
+      if (configDetail) {
+        let request = { ...value };
+        const id = configDetail?.id;
+        dispatch(ecommerceConfigUpdateAction(id, request, setConfigDetail));
+      }
+    },
+    [dispatch, setConfigDetail, configDetail, inventories]
+  );
+
+  console.log(configDetail);
 
   function tagRender(props: any) {
     const { label, closable, onClose } = props;
@@ -51,63 +88,52 @@ const SettingConfig: React.FC<SettingConfigProps> = (
       </Tag>
     );
   }
-const handleStoreChange = (event: any) => {
-  let inventories  = []
-  for(let id of event){
-    const _store = listStores.find((store) => store.id === id)
-    if(_store){
-      inventories.push({
-        store: _store.name,
-        store_id: id
-      })
+  const handleStoreChange = (event: any) => {
+    let inventories = [];
+    for (let id of event) {
+      const _store = listStores.find((store) => store.id === id);
+      if (_store) {
+        inventories.push({
+          store: _store.name,
+          store_id: id,
+        });
+      }
     }
-
-  }
-  console.log(inventories)
-}
-  //mock
+    setInventories(inventories);
+  };
+  
   React.useEffect(() => {
-    if (configToView) {
+    if (configDetail) {
       form.setFieldsValue({
-        name: configToView.name,
+        id: configDetail.id,
+        name: configDetail.name,
+        store_id: configDetail.store_id,
+        assign_account_code: configDetail.assign_account_code,
+        order_sync: configDetail.order_sync,
+        product_sync: configDetail.product_sync,
+        inventory_sync: configDetail.inventory_sync,
+        store: configDetail.store,
+        // inventories: configDetail.inventories
       });
+    } else {
+      form.resetFields();
     }
-  }, [configToView, form]);
-  console.log("object");
-  const [listSources] = useState<Array<any>>([
-    {
-      id: "1",
-      shop_name: "Shop Hàng Đẹp",
-      ecommerce_img: shopeeIcon,
-      shop_id: "0696969",
+  }, [configDetail, form]);
+  const handleShopChange = React.useCallback(
+    (id: any) => {
+      let _configData = [...configData];
+      const data = _configData.find((item) => item.id === id);
+      setConfigDetail(data);
     },
-    {
-      id: "2",
-      shop_name: "Shop Hàng Mới",
-      ecommerce_img: shopeeLazada,
-      shop_id: "0696969",
-    },
-    {
-      id: "3",
-      shop_name: "Shop Gì Đó",
-      ecommerce_img: shopeeTiki,
-      shop_id: "0696969",
-    },
-    {
-      id: "4",
-      shop_name: "Shop Gì Đó Ơi",
-      ecommerce_img: shopeeSendo,
-      shop_id: "0696969",
-    },
-  ]);
-
+    [configData, setConfigDetail]
+  );
   return (
     <StyledConfig className="padding-20">
-      <Form form={form} onFinish={(value) => handleCreateConfig(value)}>
+      <Form form={form} onFinish={(value) => handleUpdateConfig(value)}>
         <Row>
-          <Col span={5}>
+          <Col span={8}>
             <Form.Item
-              name="name"
+              name="id"
               rules={[
                 {
                   required: true,
@@ -116,6 +142,7 @@ const handleStoreChange = (event: any) => {
               ]}
             >
               <CustomSelect
+                onChange={handleShopChange}
                 showArrow
                 showSearch
                 placeholder="Chọn cửa hàng"
@@ -123,7 +150,7 @@ const handleStoreChange = (event: any) => {
                 filterOption={(input, option) => {
                   if (option) {
                     return (
-                      option.children
+                      option.children[2]
                         .toLowerCase()
                         .indexOf(input.toLowerCase()) >= 0
                     );
@@ -131,18 +158,18 @@ const handleStoreChange = (event: any) => {
                   return false;
                 }}
               >
-                {listSources.map((item, index) => (
+                {configData.map((item: any, index) => (
                   <CustomSelect.Option
                     style={{ width: "100%" }}
-                    key={index.toString()}
+                    key={item.id}
                     value={item.id}
                   >
                     <img
                       style={{ marginRight: 8, paddingBottom: 4 }}
-                      src={item.ecommerce_img}
+                      src={iconMap[item.ecommerce]}
                       alt=""
-                    />{" "}
-                    {item.shop_name}
+                    />
+                    {item.name}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
@@ -160,7 +187,7 @@ const handleStoreChange = (event: any) => {
           <Col span={12}>
             <Form.Item
               label={<span>Tên gian hàng</span>}
-              name="shop_name"
+              name="name"
               rules={[
                 {
                   required: true,
@@ -168,7 +195,10 @@ const handleStoreChange = (event: any) => {
                 },
               ]}
             >
-              <Input placeholder="Nhập tên gian hàng"></Input>
+              <Input
+                placeholder="Nhập tên gian hàng"
+                disabled={configDetail ? false : true}
+              ></Input>
             </Form.Item>
           </Col>
         </Row>
@@ -184,7 +214,7 @@ const handleStoreChange = (event: any) => {
           <Col span={12}>
             <Form.Item
               label={<span>Cửa hàng</span>}
-              name="store_id"
+              name="store"
               rules={[
                 {
                   required: true,
@@ -192,7 +222,10 @@ const handleStoreChange = (event: any) => {
                 },
               ]}
             >
-              <Input placeholder="Nhập tên cửa hàng"></Input>
+              <Input
+                placeholder="Nhập tên cửa hàng"
+                disabled={configDetail ? false : true}
+              ></Input>
             </Form.Item>
             <Form.Item
               label={<span>Nhân viên bán hàng</span>}
@@ -205,6 +238,7 @@ const handleStoreChange = (event: any) => {
               ]}
             >
               <Select
+                disabled={configDetail ? false : true}
                 showSearch
                 placeholder="Chọn nhân viên bán hàng"
                 allowClear
@@ -221,7 +255,70 @@ const handleStoreChange = (event: any) => {
             </Form.Item>
           </Col>
         </Row>
-
+        <Row gutter={24}>
+          <Col span={12}>
+            <span className="description-name">Cấu hình tồn kho</span>
+            <span className="description">
+              Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt
+              các gian hàng với nhau
+            </span>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="inventories"
+              className="store"
+              label={<span>Kho đồng bộ tồn</span>}
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn kho đồng bộ tồn",
+                },
+              ]}
+            >
+              <CustomSelect
+                disabled={configDetail ? false : true}
+                showSearch
+                optionFilterProp="children"
+                showArrow
+                placeholder="Chọn cửa hàng"
+                mode="multiple"
+                allowClear
+                onChange={handleStoreChange}
+                tagRender={tagRender}
+                style={{
+                  width: "100%",
+                }}
+                notFoundContent="Không tìm thấy kết quả"
+                maxTagCount="responsive"
+                defaultValue={configDetail?.inventories?.map((item) => item.store_id)}
+              >
+                {listStores?.map((item) => (
+                  <CustomSelect.Option key={item.id} value={item.id}>
+                    {item.name}
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
+            </Form.Item>
+            <Form.Item
+              label={<span>Kiểu đồng bộ tồn kho</span>}
+              name="inventory_sync"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn kiểu đồng bộ tồn kho",
+                },
+              ]}
+            >
+              <Select
+                placeholder="Chọn kiểu đồng bộ tồn kho"
+                disabled={configDetail ? false : true}
+              >
+                <Option value={"auto"}>Tự động</Option>
+                <Option value={"manual"}>Thủ công</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
         <Row gutter={24}>
           <Col span={12}>
             <span className="description-name">Cấu hình đơn hàng</span>
@@ -240,24 +337,16 @@ const handleStoreChange = (event: any) => {
                 },
               ]}
             >
-              <Select placeholder="Chọn kiểu đồng bộ đơn hàng">
+              <Select
+                placeholder="Chọn kiểu đồng bộ đơn hàng"
+                disabled={configDetail ? false : true}
+              >
                 <Option value={"auto"}>Tự động</Option>
                 <Option value={"manual"}>Thủ công</Option>
               </Select>
             </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={12}>
-            <span className="description-name">Cấu hình sản phẩm</span>
-            <span className="description">
-              Chọn kiểu động bộ sản phẩm khi đơn hàng mới có sản phẩm chưa có
-              trên admin
-            </span>
-          </Col>
-          <Col span={12}>
             <Form.Item
-              label={<span>Kiểu đồng bộ sản phẩm</span>}
+              label={<span>Kiểu đồng bộ sản phẩm khi tải đơn về</span>}
               name="product_sync"
               rules={[
                 {
@@ -266,83 +355,32 @@ const handleStoreChange = (event: any) => {
                 },
               ]}
             >
-              <Select placeholder="Chọn kiểu đồng bộ sản phẩm">
-                <Option value={"auto"}>Tự động</Option>
-                <Option value={"manual"}>Thủ công</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={12}>
-            <span className="description-name">Cấu hình tồn kho</span>
-            <span className="description">
-              Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt
-              các gian hàng với nhau
-            </span>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label={<span>Kiểu đồng bộ tồn kho</span>}
-              name="inventory_sync"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn kiểu đồng bộ tồn kho",
-                },
-              ]}
-            >
-              <Select placeholder="Chọn kiểu đồng bộ tồn kho">
-                <Option value={"auto"}>Tự động</Option>
-                <Option value={"manual"}>Thủ công</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item
-              name="inventories"
-              className="store"
-              label={<span>Kho đồng bộ tồn</span>}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn kho đồng bộ tồn",
-                },
-              ]}
-            >
-              <CustomSelect
-                showSearch
-                optionFilterProp="children"
-                showArrow
-                placeholder="Chọn cửa hàng"
-                mode="multiple"
-                allowClear
-                onChange={handleStoreChange}
-                tagRender={tagRender}
-                style={{
-                  width: "100%",
-                }}
-                notFoundContent="Không tìm thấy kết quả"
-                maxTagCount="responsive"
+              <Select
+                placeholder="Chọn kiểu đồng bộ sản phẩm"
+                disabled={configDetail ? false : true}
               >
-                {listStores?.map((item) => (
-                  <CustomSelect.Option key={item.id} value={item.id}>
-                    {item.name}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
+                <Option value={"auto"}>Tự ghép nối</Option>
+                <Option value={"manual"}>Đợi ghép nối</Option>
+              </Select>
             </Form.Item>
           </Col>
         </Row>
+
         <div className="customer-bottom-button">
           <Button
             className="disconnect-btn"
-            // onClick={() => history.goBack()}
-            style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
+            icon={<img src={disconnectIcon} alt="" />}
+            style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
             type="ghost"
           >
             Ngắt kết nối
           </Button>
-          <Button type="primary" htmlType="submit">
-            Lưu lại
+          <Button
+            type="primary"
+            htmlType="submit"
+            icon={<img src={saveIcon} alt="" />}
+          >
+            Lưu cấu hình
           </Button>
         </div>
       </Form>

@@ -91,7 +91,7 @@ function* ecommerceUpdateSaga(action: YodyAction) {
   let { id, request, setData } = action.payload;
   try {
     const response: BaseResponse<PageResponse<HistoryInventoryResponse>> =
-      yield call(ecommerceUpdateApi, request, id);
+      yield call(ecommerceUpdateApi, id, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);

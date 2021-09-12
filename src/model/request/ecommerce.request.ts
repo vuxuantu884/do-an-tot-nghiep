@@ -6,11 +6,13 @@ interface BaseObject {
     request_id: string | null;
     operator_kc_id: string | null;
   }
-  
+  export interface EcommerceShopInventoryDto {
+    store: String; //
+    store_id: Number; 
+    }
   export interface EcommerceRequest extends BaseObject {
     name: String;
-    ecommerce: String;
-    stor_id: String;
+    store_id: String;
     store: number;
     assign_account_code: String;
     assign_account: String;
@@ -18,7 +20,5 @@ interface BaseObject {
     inventory_sync: boolean;
     order_sync: boolean;
     product_sync: String;
-    auth_time: number;
-    expire_time: number;
-    // inventories: Array<EcommerceShopInventoryDto>;
+    inventories: Array<EcommerceShopInventoryDto>;
   }

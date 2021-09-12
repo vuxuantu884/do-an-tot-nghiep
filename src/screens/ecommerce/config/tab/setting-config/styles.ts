@@ -40,4 +40,11 @@ export const StyledConfig = styled.div`
   .ant-form-item-label{
     display: -webkit-inline-box;
   }
+  button{
+    display: flex;
+    align-items: center;
+    img{
+      margin-right: 11px;
+    }
+  }
 `;

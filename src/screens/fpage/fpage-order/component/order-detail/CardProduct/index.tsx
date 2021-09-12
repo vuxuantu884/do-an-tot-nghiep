@@ -157,7 +157,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     _items[index].note = value;
     setItems(_items);
   };
-
+console.log(resultSearchVariant)
   const onChangeQuantity = (value: number | null, index: number) => {
     let _items = [...items];
 
