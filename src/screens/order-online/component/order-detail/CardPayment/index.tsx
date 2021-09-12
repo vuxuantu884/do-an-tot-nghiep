@@ -256,7 +256,7 @@ const PaymentCard: React.FC<PaymentCardProps> = (props: PaymentCardProps) => {
           gutter={24}
           hidden={props.paymentMethod !== PaymentMethodOption.PREPAYMENT}
         >
-          <div style={{ padding: "0 24px", maxWidth: '100%' }}>
+          <div style={{ padding: "0 24px", maxWidth: "100%" }}>
             <Collapse
               className="orders-timeline"
               defaultActiveKey={["1"]}

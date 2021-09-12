@@ -80,6 +80,8 @@ const ScreenReturnDetail = (props: PropType) => {
     useState<number>(0);
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
+  const [amountReturn, setAmountReturn] = useState<number>(100000);
+  const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
 
   const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
     chonCuaHangTruocMoiChonSanPham: false,
@@ -114,6 +116,10 @@ const ScreenReturnDetail = (props: PropType) => {
 
   const handleChangeSubStatus = () => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
+  };
+
+  const handlePayments = (value: Array<OrderPaymentRequest>) => {
+    setPayments(value);
   };
 
   useEffect(() => {
@@ -209,7 +215,12 @@ const ScreenReturnDetail = (props: PropType) => {
             {/*--- end customer ---*/}
             <CardReturnOrder />
             <CardReturnProducts listOrders={listOrders} />
-            <CardReturnMoney listPaymentMethods={listPaymentMethods} />
+            <CardReturnMoney
+              listPaymentMethods={listPaymentMethods}
+              amountReturn={amountReturn}
+              payments={payments}
+              handlePayments={handlePayments}
+            />
             <CardReturnReceiveProducts />
           </Col>
 
