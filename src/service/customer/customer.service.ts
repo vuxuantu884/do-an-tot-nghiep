@@ -1,4 +1,4 @@
-import { CustomerNote } from '../../model/request/customer.request';
+import { CustomerNote, CustomerRequest } from '../../model/request/customer.request';
 import { CustomerResponse } from 'model/response/customer/customer.response';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { generateQuery } from 'utils/AppUtils';

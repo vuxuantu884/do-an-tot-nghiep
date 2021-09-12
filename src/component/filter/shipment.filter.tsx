@@ -672,7 +672,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
     return list
   },
-  [accounts, deliveryService, initialValues, optionsVariant, listSources, listStore]
+  [initialValues.store_ids, initialValues.source_ids, initialValues.packed_on_min, initialValues.packed_on_max, initialValues.ship_on_min, initialValues.ship_on_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.reference_status, initialValues.delivery_provider_ids, initialValues.print_status, initialValues.account_codes, initialValues.shipping_address, initialValues.variant_ids.length, initialValues.delivery_types, initialValues.cancel_reason, initialValues.note, initialValues.customer_note, initialValues.tags, listStore, listSources, controlStatus, deliveryService, printStatus, accounts, optionsVariant, serviceType]
   );
 
   useEffect(() => {

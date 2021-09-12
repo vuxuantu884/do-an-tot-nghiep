@@ -159,9 +159,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleCustomer(false);
   }, []);
 
-  const OkConfirmCustomer = useCallback(() => {
-    setVisibleCustomer(false);
-  }, []);
+  // const OkConfirmCustomer = useCallback(() => {
+  //   setVisibleCustomer(false);
+  // }, []);
 
   const ShowAddressModalAdd = () => {
     setModalAction("create");

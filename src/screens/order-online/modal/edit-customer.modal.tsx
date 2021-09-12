@@ -23,9 +23,6 @@ import {
 } from "domain/actions/customer/customer.action";
 import * as CONSTANTS from "utils/Constants";
 import moment from "moment";
-import { Button } from "antd/lib/radio";
-import plusBlueIcon from "assets/img/plus-blue.svg";
-import arrowDownIcon from "assets/img/drow-down.svg";
 
 type EditCustomerModalProps = {
   areas: any;
