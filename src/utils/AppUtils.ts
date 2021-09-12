@@ -297,11 +297,8 @@ export const findPriceInVariant = (
 ): number => {
   let price: number = 0;
   variantPrices.forEach((v) => {
-    if (
-      v.currency_code === currency_code &&
-      v.price_type === AppConfig.price_type
-    ) {
-      price = v.price;
+    if (v.currency_code === currency_code) {
+      price = v.retail_price;
     }
   });
   return price;
@@ -313,10 +310,7 @@ export const findTaxInVariant = (
 ): number => {
   let tax: number | null = 0;
   variantPrices.forEach((v) => {
-    if (
-      v.currency_code === currency_code &&
-      v.price_type === AppConfig.price_type
-    ) {
+    if (v.currency_code === currency_code) {
       tax = v.tax_percent;
     }
   });
@@ -329,11 +323,8 @@ export const findPrice = (
 ): string => {
   let price: string = "0";
   variantPrices.forEach((v) => {
-    if (
-      v.currency_code === currency_code &&
-      v.price_type === AppConfig.price_type
-    ) {
-      price = v.price.toString();
+    if (v.currency_code === currency_code) {
+      price = v.retail_price.toString();
     }
   });
   return price.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
