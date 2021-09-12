@@ -427,6 +427,8 @@ export default function FpageOrders(props: any) {
           discountValue;
       }
     }
+    values.account_code = userReducer?.account?.code;
+    values.currency = "VNĐ"
     values.tags = tags;
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
