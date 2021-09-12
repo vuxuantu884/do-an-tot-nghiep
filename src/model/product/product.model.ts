@@ -55,6 +55,7 @@ export interface ProductResponse extends BaseObject {
   product_type:string,
   product_collections: Array<ProductCollectionsResponse>,
   specifications: string,
+  variants: Array<VariantResponse>
 }
 
 

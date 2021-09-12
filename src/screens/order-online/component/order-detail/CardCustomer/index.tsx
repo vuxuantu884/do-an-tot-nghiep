@@ -127,7 +127,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
 
   const [singleShippingAddress, setSingleShippingAddress] =
     useState<CustomerShippingAddress | null>(null);
-    
+
   const [isVisibleShippingModal, setIsVisibleShippingModal] =
     React.useState<boolean>(false);
 
@@ -135,9 +135,6 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const autoCompleteRef = createRef<RefSelectProps>();
 
   //#region Modal
-  const ShowAddressModal = () => {
-    setVisibleAddress(true);
-  };
   const ShowBillingAddress = (e: any) => {
     setVisibleBilling(e.target.checked);
   };
@@ -162,9 +159,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (
     setVisibleCustomer(false);
   }, []);
 
-  const OkConfirmCustomer = useCallback(() => {
-    setVisibleCustomer(false);
-  }, []);
+  // const OkConfirmCustomer = useCallback(() => {
+  //   setVisibleCustomer(false);
+  // }, []);
 
   const ShowAddressModalAdd = () => {
     setModalAction("create");
@@ -333,12 +330,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (
             singleShippingAddress.id,
             customer.id,
             (data: shippingAddress) => {
-              dispatch(CustomerDetail(
-                customer.id,
-                  (datas:CustomerResponse)=>{
-                      handleChangeCustomer(datas)
-                  }
-              ));
+              dispatch(
+                CustomerDetail(customer.id, (datas: CustomerResponse) => {
+                  handleChangeCustomer(datas);
+                })
+              );
               data
                 ? showSuccess("Xóa địa chỉ thành công")
                 : showError("Xóa địa chỉ thất bại");
@@ -566,12 +562,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     <Row>
                       <Popover
                         placement="bottomLeft"
-                        overlayStyle={{zIndex: 17}}
+                        overlayStyle={{ zIndex: 17 }}
                         title={
                           <Row
                             justify="space-between"
                             align="middle"
                             className="change-shipping-address-title"
+                            style={{width:"100%"}}
                           >
                             <div
                               style={{
@@ -625,6 +622,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                             handleSingleShippingAddress={
                               setSingleShippingAddress
                             }
+                            handleShippingAddress={setShippingAddress}
                           />
                         }
                         trigger="click"
@@ -713,12 +711,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                       <Row>
                         <Popover
                           placement="bottomLeft"
-                          overlayStyle={{zIndex: 17}}
+                          overlayStyle={{ zIndex: 17 }}
                           title={
                             <Row
                               justify="space-between"
                               align="middle"
                               className="change-shipping-address-title"
+                              style={{width:"100%"}}
                             >
                               <div
                                 style={{
@@ -774,6 +773,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                               handleSingleShippingAddress={
                                 setSingleShippingAddress
                               }
+                              handleShippingAddress={setShippingAddress}
                             />
                           }
                           trigger="click"

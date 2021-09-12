@@ -2,18 +2,17 @@ import { Row, Col, Checkbox } from "antd";
 import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
-import { CustomerResponse, shippingAddress } from "model/response/customer/customer.response";
+import {
+  CustomerResponse,
+  shippingAddress,
+} from "model/response/customer/customer.response";
 import actionColumn from "../../../common/action.column";
 import { CustomerShippingAddress } from "model/request/customer.request";
-import React, { useCallback } from "react";
+import React from "react";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
-import UrlConfig from "config/url.config";
 import {
   CustomerDetail,
-  // CreateShippingAddress,
-  // DeleteShippingAddress,
   UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
 
@@ -24,9 +23,9 @@ function CustomerShippingAddressOrder(props: any) {
     handleShippingEdit,
     handleShippingDelete,
     handleSingleShippingAddress,
+    handleShippingAddress,
   } = props;
   const dispatch = useDispatch();
-  const history = useHistory();
 
   const handleShippingDefault = (value: any, item: any) => {
     let _item = { ...item };
@@ -41,12 +40,12 @@ function CustomerShippingAddressOrder(props: any) {
           (data: shippingAddress) => {
             //history.replace(`${UrlConfig.ORDER}/create`);
             if (data) {
-              dispatch(CustomerDetail(
-                  customer.id,
-                    (datas:CustomerResponse)=>{
-                        handleChangeCustomer(datas)
-                    }
-                ));
+              dispatch(
+                CustomerDetail(customer.id, (datas: CustomerResponse) => {
+                  handleChangeCustomer(datas);
+                })
+              );
+              handleShippingAddress(data);
               showSuccess("Đặt mặc định thành công");
             } else {
               showError("Đặt mặc định thất bại");

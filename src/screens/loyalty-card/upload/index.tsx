@@ -1,4 +1,4 @@
-import { Button, Card, Col, Input, Row, Select, Form, FormInstance } from 'antd';
+import { Button, Card, Col, Input, Row,Form, FormInstance } from 'antd';
 import ContentContainer from 'component/container/content.container';
 import CustomSelect from 'component/custom/select.custom';
 import UrlConfig from 'config/url.config';
@@ -8,7 +8,7 @@ import uploadIcon from "assets/icon/upload.svg";
 import boldUploadIcon from "assets/icon/upload-2.svg";
 import paperClip from "assets/icon/paper-clip.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
-import { showError, showSuccess, showWarning } from 'utils/ToastUtils';
+import {  showSuccess, showWarning } from 'utils/ToastUtils';
 import { useDispatch } from 'react-redux';
 import { uploadFileCreateLoyaltyCard } from 'domain/actions/loyalty/release/loyalty-release.action';
 
@@ -42,7 +42,7 @@ const UploadLoyaltyCardRelease = () => {
       formRef.current?.resetFields()
       setFile(undefined)
     }
-  }, [])
+  }, [formRef])
 
   const onFinish = useCallback((values) => {
     if (!file || !values.name) {
@@ -52,7 +52,7 @@ const UploadLoyaltyCardRelease = () => {
     setLoading(true)
     dispatch(uploadFileCreateLoyaltyCard(file, values.name, callback))
   },
-    [file]
+    [callback, dispatch, file]
   );
 
   return (
@@ -146,9 +146,9 @@ const UploadLoyaltyCardRelease = () => {
                   {
                     file && (
                       <div className="file">
-                        <img className="file-icon" src={paperClip} />
+                        <img alt="" className="file-icon" src={paperClip} />
                         { file.name }
-                        <img className="delete-icon" src={deleteIcon} />
+                        <img alt="" className="delete-icon" src={deleteIcon} />
                       </div>
                     )
                   }
@@ -163,7 +163,7 @@ const UploadLoyaltyCardRelease = () => {
                   formRef.current?.submit();
                 }}
               >
-                <img src={boldUploadIcon} className="upload-icon" />
+                <img alt="" src={boldUploadIcon} className="upload-icon" />
                 <span>Import</span>
               </Button>
             </Row>

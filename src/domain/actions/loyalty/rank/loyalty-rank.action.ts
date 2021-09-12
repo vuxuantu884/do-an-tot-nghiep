@@ -1,7 +1,6 @@
 import BaseAction from 'base/base.action';
 import { LoyaltyRankType } from 'domain/types/loyalty.type';
 import { PageResponse } from 'model/base/base-metadata.response';
-import { BaseQuery } from 'model/base/base.query';
 import { LoyaltyRankSearchRequest } from 'model/request/loyalty/loyalty-rank-search.request';
 import { CreateLoyaltyRequest } from 'model/request/loyalty/ranking/create-loyalty.request';
 import { LoyaltyRankResponse } from 'model/response/loyalty/ranking/loyalty-rank.response';

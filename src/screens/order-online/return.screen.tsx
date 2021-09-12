@@ -14,7 +14,7 @@ import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { useDispatch, useSelector } from "react-redux";
-import OrderFilter from "component/filter/order.filter";
+import ReturnFilter from "component/filter/return.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable, {
   ICustomTableColumType,
@@ -102,8 +102,8 @@ const initQuery: OrderSearchQuery = {
   fulfillment_status: [],
   payment_status: [],
   return_status: [],
-  account: [],
-  assignee: [],
+  account_codes: [],
+  assignee_codes: [],
   price_min: undefined,
   price_max: undefined,
   payment_method_ids: [],
@@ -289,32 +289,7 @@ const ReturnOrderScreen: React.FC = () => {
       align: "right",
       width: "3.5%",
     },
-    {
-      title: "HTVC",
-      dataIndex: "fulfillments",
-      key: "shipment.type",
-      render: (fulfillments: Array<OrderFulfillmentsModel>) => {
-        const service_id =
-          fulfillments.length && fulfillments[0].shipment
-            ? fulfillments[0].shipment.delivery_service_provider_id
-            : null;
-        const service = delivery_service.find(
-          (service) => service.id === service_id
-        );
-        return (
-          service && (
-            <img
-              src={service.logo ? service.logo : ""}
-              alt=""
-              style={{ width: "100%", height: "30px" }}
-            />
-          )
-        );
-      },
-      visible: true,
-      width: "3.5%",
-      align:"center"
-    },
+    
     {
       title: "Trạng thái đơn",
       dataIndex: "status",
@@ -328,145 +303,7 @@ const ReturnOrderScreen: React.FC = () => {
       visible: true,
       align: "center",
     },
-    {
-      title: "Đóng gói",
-      dataIndex: "packed_status",
-      key: "packed_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
-        return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
-        );
-      },
-      visible: true,
-      align: "center",
-      width: 120,
-    },
-    {
-      title: "Xuất kho",
-      dataIndex: "received_status",
-      key: "received_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
-        return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
-        );
-      },
-      visible: true,
-      align: "center",
-      width: 120,
-    },
-    {
-      title: "Thanh toán",
-      dataIndex: "payment_status",
-      key: "payment_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
-        return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
-        );
-      },
-      visible: true,
-      align: "center",
-      width: 120,
-    },
-    {
-      title: "Trả hàng",
-      dataIndex: "return_status",
-      key: "return_status",
-      render: (value: string) => {
-        let processIcon = null;
-        switch (value) {
-          case "partial_paid":
-            processIcon = "icon-partial";
-            break;
-          case "paid":
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
-        return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
-        );
-      },
-      visible: true,
-      align: "center",
-      width: 120,
-    },
-    {
-      title: "Tổng SL sản phẩm",
-      dataIndex: "items",
-      key: "item.quantity.total",
-      render: (items) => items.length,
-      visible: true,
-      align: "center",
-    },
-    {
-      title: "Khu vực",
-      dataIndex: "shipping_address",
-      render: (shipping_address: any) =>
-        shipping_address && (
-          <div className="name">{`${shipping_address.ward || ""}, ${shipping_address.district || ""}, ${shipping_address.city || ""}`}</div>
-        ),
-      key: "area",
-      visible: true,
-      width: "300px",
-    },
-    {
-      title: "Kho cửa hàng",
-      dataIndex: "store",
-      key: "store",
-      visible: true,
-    },
-    {
-      title: "Nguồn đơn hàng",
-      dataIndex: "source",
-      key: "source",
-      visible: true,
-    },
+    
     {
       title: "Khách đã trả",
       dataIndex: "payments",
@@ -508,75 +345,6 @@ const ReturnOrderScreen: React.FC = () => {
           />
         );
       },
-      visible: true,
-    },
-    {
-      title: "Phương thức thanh toán",
-      dataIndex: "payments",
-      key: "payments.type",
-      render: (payments: Array<OrderPaymentModel>) =>
-        payments.map((payment) => {
-          return <Tag>{payment.payment_method}</Tag>;
-        }),
-      visible: true,
-    },
-    {
-      title: "Nhân viên bán hàng",
-      dataIndex: "assignee",
-      key: "assignee",
-      visible: true,
-      align: "center",
-    },
-    {
-      title: "Nhân viên tạo đơn",
-      dataIndex: "account",
-      key: "account",
-      visible: true,
-      align: "center",
-    },
-    {
-      title: "Ngày hoàn tất đơn",
-      dataIndex: "finalized_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "finalized_on",
-      visible: true,
-    },
-    {
-      title: "Ngày huỷ đơn",
-      dataIndex: "cancelled_on",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "cancelled_on",
-      visible: true,
-    },
-    {
-      title: "Ghi chú nội bộ",
-      dataIndex: "note",
-      key: "note",
-      visible: true,
-    },
-    {
-      title: "Ghi chú của khách",
-      dataIndex: "customer_note",
-      key: "customer_note",
-      visible: true,
-    },
-    {
-      title: "Tag",
-      dataIndex: "tags",
-      // render: (tags: Array<string>) => (
-      //   tags?.map(tag => {
-      //     return (
-      //       <Tag>{tag}</Tag>
-      //     )
-      //   })
-      // ),
-      key: "tags",
-      visible: true,
-    },
-    {
-      title: "Mã tham chiếu",
-      dataIndex: "reference_code",
-      key: "reference_code",
       visible: true,
     },
   ]);
@@ -670,14 +438,14 @@ const ReturnOrderScreen: React.FC = () => {
 
   return (
     <ContentContainer
-      title="Danh sách đơn hàng"
+      title="Danh sách đơn trả hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Danh sách đơn hàng",
+          name: "Danh sách đơn trả hàng",
         },
       ]}
       extra={
@@ -711,7 +479,7 @@ const ReturnOrderScreen: React.FC = () => {
     >
       <Card>
         <div className="padding-20">
-          <OrderFilter
+          <ReturnFilter
             onMenuClick={onMenuClick}
             actions={actions}
             onFilter={onFilter}

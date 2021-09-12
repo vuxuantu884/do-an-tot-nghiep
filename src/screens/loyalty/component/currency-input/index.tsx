@@ -1,7 +1,6 @@
-import { Input, Select } from 'antd'
+import {  Select } from 'antd'
 import NumberInput from 'component/custom/number-input.custom'
 import { formatCurrency, replaceFormatString } from 'utils/AppUtils'
-import { MoneyType } from 'utils/Constants'
 import './currency-input.scss'
 
 interface IProp {

@@ -10,46 +10,16 @@ import IconConnect from "./images/connect.svg";
 import IconEdit from "./images/edit.svg";
 import { StyledComponent } from "./styles";
 
-interface DeliveryServiceResponseFormatted extends DeliveryServiceResponse {
-  isConnect?: boolean;
-  slug?: string;
-}
-
 const ThirdPartyLogisticsIntegration: React.FC = () => {
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
-    DeliveryServiceResponseFormatted[]
+    DeliveryServiceResponse[]
   >([]);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        console.log("response", response);
-        let formattedData: DeliveryServiceResponseFormatted[] = [...response];
-        formattedData.forEach((single) => {
-          switch (single.code) {
-            case "ghtk":
-              single.isConnect = true;
-              single.slug = "giao-hang-tiet-kiem";
-              break;
-            case "ghn":
-              single.isConnect = true;
-              single.slug = "giao-hang-nhanh";
-              break;
-            case "vtp":
-              single.isConnect = false;
-              single.slug = "viettel-post";
-              break;
-            case "dhl":
-              single.isConnect = true;
-              single.slug = "dhl";
-              break;
-
-            default:
-              break;
-          }
-        });
-        setListThirdPartyLogistics(formattedData);
+        setListThirdPartyLogistics(response);
       })
     );
   }, [dispatch]);
@@ -82,18 +52,18 @@ const ThirdPartyLogisticsIntegration: React.FC = () => {
                       <div className="singleThirdParty__info">
                         <div className="singleThirdParty__logo">
                           <Link
-                            to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.slug}`}
+                            to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.code}`}
                           >
                             <img
                               src={single.logo}
                               alt=""
-                              style={{ width: 126 }}
+                              style={{ width: 145, maxHeight: 45 }}
                             />
                           </Link>
                         </div>
                         <h3 className="singleThirdParty__title">
                           <Link
-                            to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.slug}`}
+                            to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.code}`}
                           >
                             {single.name}
                           </Link>
@@ -103,27 +73,23 @@ const ThirdPartyLogisticsIntegration: React.FC = () => {
                         </div>
                       </div>
                       <div className="singleThirdParty__connect">
-                        {single.isConnect ? (
+                        {single.config?.status ? (
                           <Button>
                             <Link
-                              to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.slug}`}
+                              to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.code}`}
                             >
-                              <img
-                                src={IconEdit}
-                                alt=""
-                                style={{ marginRight: 5 }}
-                              />
+                              <img src={IconEdit} alt="" />
                               Sửa
                             </Link>
                           </Button>
                         ) : (
-                          <Button>
-                            <img
-                              src={IconConnect}
-                              alt=""
-                              style={{ marginRight: 5 }}
-                            />
-                            Kết nối
+                          <Button type="primary">
+                            <Link
+                              to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.code}`}
+                            >
+                              <img src={IconConnect} alt="" />
+                              Kết nối
+                            </Link>
                           </Button>
                         )}
                       </div>
