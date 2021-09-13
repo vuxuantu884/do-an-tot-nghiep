@@ -1,5 +1,6 @@
 import { actionGetConfigurationShippingServiceAndShippingFeeDetail } from "domain/actions/settings/order-settings.action";
-import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
+import { CreateShippingServiceConfigReQuestFormModel } from "model/request/settings/order-settings.resquest";
+import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
@@ -16,10 +17,10 @@ function OrderSettingsShippingServicesAndShippingFeeDetail(props: PropType) {
   const { id } = paramsId;
   const dispatch = useDispatch();
   const [initialFormValue, setInitialFormValue] =
-    useState<CreateShippingServiceConfigReQuestModel>({
+    useState<CreateShippingServiceConfigReQuestFormModel>({
       status: ORDER_SETTINGS_STATUS.inactive,
-      start_date: "",
-      end_date: "",
+      start_date: null,
+      end_date: null,
       program_name: "",
       shipping_fee_configs: [
         {
@@ -37,26 +38,27 @@ function OrderSettingsShippingServicesAndShippingFeeDetail(props: PropType) {
       actionGetConfigurationShippingServiceAndShippingFeeDetail(
         +id,
         (response) => {
-          let valueConvertResponseToInitialFormValue = {
-            status: response.status,
-            start_date: response.start_date,
-            end_date: response.end_date,
-            program_name: response.program_name,
-            shipping_fee_configs: response.shipping_fee_configs.map(
-              (single) => {
-                return {
-                  from_price: single.from_price,
-                  to_price: single.to_price,
-                  city_name: single.city_name,
-                  transport_fee: single.transport_fee,
-                };
-              }
-            ),
-            external_service_transport_type_ids:
-              response.external_service_transport_types.map((single) => {
-                return single.id;
-              }),
-          };
+          let valueConvertResponseToInitialFormValue: CreateShippingServiceConfigReQuestFormModel =
+            {
+              status: response.status,
+              start_date: moment(response.start_date),
+              end_date: moment(response.end_date),
+              program_name: response.program_name,
+              shipping_fee_configs: response.shipping_fee_configs.map(
+                (single) => {
+                  return {
+                    from_price: single.from_price,
+                    to_price: single.to_price,
+                    city_name: single.city_name,
+                    transport_fee: single.transport_fee,
+                  };
+                }
+              ),
+              external_service_transport_type_ids:
+                response.external_service_transport_types.map((single) => {
+                  return single.id;
+                }),
+            };
 
           setInitialFormValue(valueConvertResponseToInitialFormValue);
         }

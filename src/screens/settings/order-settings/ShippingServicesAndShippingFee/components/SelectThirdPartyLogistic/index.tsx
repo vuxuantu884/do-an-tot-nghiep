@@ -1,12 +1,12 @@
 import { Card, Form, FormInstance, Input, Table } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import Column from "antd/lib/table/Column";
-import { CreateShippingServiceConfigReQuestModel } from "model/request/settings/order-settings.resquest";
+import { CreateShippingServiceConfigReQuestFormModel } from "model/request/settings/order-settings.resquest";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  initialFormValue: CreateShippingServiceConfigReQuestModel;
+  initialFormValue: CreateShippingServiceConfigReQuestFormModel;
   list3rdPartyLogistic: DeliveryServiceResponse[];
   form: FormInstance<any>;
 };
