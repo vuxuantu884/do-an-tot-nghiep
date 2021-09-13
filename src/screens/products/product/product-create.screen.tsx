@@ -55,9 +55,9 @@ import CustomSelect from "component/custom/select.custom";
 import {
   ProductRequest,
   ProductRequestView,
+  ProductResponse,
   VariantImage,
   VariantRequestView,
-  VariantResponse,
 } from "model/product/product.model";
 import NumberInput from "component/custom/number-input.custom";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -224,7 +224,7 @@ const ProductCreateScreen: React.FC = () => {
     return listCategory.filter((item) => item.goods === selectedGood);
   }, [listCategory, selectedGood]);
   const createCallback = useCallback(
-    (result: VariantResponse) => {
+    (result: ProductResponse) => {
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
         history.push(UrlConfig.PRODUCT);

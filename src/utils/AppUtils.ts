@@ -431,7 +431,7 @@ export const Products = {
         weight: pr.weight,
         weight_unit: pr.weight_unit,
         variant_prices: variant_prices,
-        variant_images: [],
+        variant_images: item.variant_images,
         inventory: 0,
         supplier_id: pr.supplier_id,
       });
@@ -444,7 +444,6 @@ export const Products = {
       description: pr.description,
       designer_code: pr.designer_code,
       goods: pr.goods,
-
       made_in_id: pr.made_in_id,
       merchandiser_code: pr.merchandiser_code,
       name: pr.name,
@@ -463,9 +462,9 @@ export const Products = {
   },
   findAvatar: (images: Array<VariantImage>): VariantImage | null => {
     let image: VariantImage | null = null;
-    images.forEach((imagerRequest) => {
-      if (imagerRequest.variant_avatar) {
-        image = imagerRequest;
+    images.forEach((imageRequest) => {
+      if (imageRequest.variant_avatar) {
+        image = imageRequest;
       }
     });
     return image;
