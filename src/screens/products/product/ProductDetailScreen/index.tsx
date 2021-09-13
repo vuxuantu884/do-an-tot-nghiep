@@ -1,4 +1,14 @@
-import { Button, Card, Checkbox, Col, List, Row, Switch } from "antd";
+import {
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  List,
+  Row,
+  Switch,
+  Image,
+  Tabs,
+} from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -10,6 +20,9 @@ import { useHistory, useParams } from "react-router";
 import RowDetail from "../component/RowDetail";
 import classNames from "classnames";
 import { StyledComponent } from "./styles";
+import { Products } from "utils/AppUtils";
+import variantdefault from "assets/icon/variantdefault.jpg";
+import Slider from "react-slick";
 
 export interface ProductParams {
   id: string;
@@ -22,7 +35,8 @@ const ProductDetailScreen: React.FC = () => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState<number>(0);
-
+  const [nav1, setNav1] = useState<Slider | null>();
+  const [nav2, setNav2] = useState<Slider | null>();
   const [data, setData] = useState<ProductResponse | null>(null);
   const idNumber = parseInt(id);
   const onEdit = useCallback(() => {
@@ -36,17 +50,35 @@ const ProductDetailScreen: React.FC = () => {
       setData(result);
     }
   }, []);
-  const currentVaraint = useMemo(() => {
+  const currentVariant = useMemo(() => {
     if (data && data.variants.length > 0) {
       return data.variants[active];
     }
     return null;
   }, [active, data]);
+  const renderSize = useMemo(() => {
+    if (currentVariant) {
+      if (
+        currentVariant.length &&
+        currentVariant.width &&
+        currentVariant.height
+      ) {
+        return `${currentVariant.length} x ${currentVariant.width} x ${currentVariant.height} ${currentVariant.length_unit}`;
+      }
+    }
+    return "";
+  }, [currentVariant]);
+
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
     return () => {};
   }, [dispatch, idNumber, onResult]);
-  console.log(data);
+
+  useEffect(() => {
+    // dispatch(inventoryGetDetailAction({}, onResult));
+    
+  }, [])
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -101,7 +133,10 @@ const ProductDetailScreen: React.FC = () => {
                     </Row>
                     <Row gutter={50}>
                       <Col span={24} md={24}>
-                        <div className="data-content">{data.content}</div>
+                        <div
+                          dangerouslySetInnerHTML={{ __html: data.description }}
+                          className="data-content"
+                        />
                       </Col>
                     </Row>
                   </div>
@@ -135,51 +170,151 @@ const ProductDetailScreen: React.FC = () => {
                             <div className="header-tab-right"></div>
                           </div>
                         }
-                        renderItem={(item, index) => (
-                          <List.Item
-                            onClick={() => setActive(index)}
-                            className={classNames(index === active && "active")}
-                          >
-                            <div className="line-item">
-                              <Checkbox />
-                              <div className="line-item-container">
-                                <div></div>
-                                <div>
-                                  <div>{item.sku}</div>
-                                  <div>{item.name}</div>
+                        renderItem={(item, index) => {
+                          let avatar = Products.findAvatar(item.variant_images);
+                          return (
+                            <List.Item
+                              onClick={() => setActive(index)}
+                              className={classNames(
+                                index === active && "active"
+                              )}
+                            >
+                              <div className="line-item">
+                                <Checkbox />
+                                <div className="line-item-container">
+                                  <div className="avatar">
+                                    <img
+                                      alt=""
+                                      src={
+                                        avatar !== null
+                                          ? avatar.url
+                                          : variantdefault
+                                      }
+                                    />
+                                  </div>
+                                  <div>
+                                    <div>{item.sku}</div>
+                                    <div>{item.name}</div>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </List.Item>
-                        )}
+                            </List.Item>
+                          );
+                        }}
                       />
                     </Col>
                     <Col className="right" span={24} md={18}>
-                      {currentVaraint !== null && (
+                      {currentVariant !== null && (
                         <React.Fragment>
                           <div className="header-view">
                             <div className="header-view-left">
-                              <b>THÔNG TIN SẢN PHẨM</b>
+                              <b>THÔNG TIN PHIÊN BẢN</b>
                             </div>
                             <div className="header-view-right">
-                              <Switch checked={currentVaraint.saleable} />
-                              <label>{currentVaraint.saleable ? "Cho phép bán" : "Không cho phép bán"}</label>
+                              <Switch
+                                className="ant-switch-success"
+                                checked={currentVariant.saleable}
+                              />
+                              <label className="label-switch">
+                                {currentVariant.saleable
+                                  ? "Cho phép bán"
+                                  : "Không cho phép bán"}
+                              </label>
                             </div>
                           </div>
                           <div className="container-view">
                             <Row>
-                              <Col  span={24} md={14}>
-                                <RowDetail title="Mã vạch" value={currentVaraint.barcode} />
-                                <RowDetail title="Mã sản phẩm" value={currentVaraint.sku} />
-                                <RowDetail title="Tên sản phẩm" value={currentVaraint.name} />
-                                <RowDetail title="Màu sắc" value={currentVaraint.color} />
-                                <RowDetail title="Size" value={currentVaraint.size} />
-                                <RowDetail title="Kích thước  " value={currentVaraint.size} />
-                                <RowDetail title="Khối lượng" value={`${currentVaraint.weight} ${currentVaraint.weight_unit} `} />
-                                <RowDetail title="Nhà cung cấp" value={currentVaraint.supplier} />
+                              <Col span={24} md={14}>
+                                <RowDetail
+                                  title="Mã vạch"
+                                  value={currentVariant.barcode}
+                                />
+                                <RowDetail
+                                  title="Mã sản phẩm"
+                                  value={currentVariant.sku}
+                                />
+                                <RowDetail
+                                  title="Tên sản phẩm"
+                                  value={currentVariant.name}
+                                />
+                                <RowDetail
+                                  title="Màu sắc"
+                                  value={currentVariant.color}
+                                />
+                                <RowDetail
+                                  title="Size"
+                                  value={currentVariant.size}
+                                />
+                                <RowDetail
+                                  title="Kích thước (Dài, Rộng, Cao) "
+                                  value={renderSize}
+                                />
+                                <RowDetail
+                                  title="Khối lượng"
+                                  value={`${currentVariant.weight} ${currentVariant.weight_unit} `}
+                                />
+                                <RowDetail
+                                  title="Nhà cung cấp"
+                                  value={currentVariant.supplier}
+                                />
                               </Col>
-                              <Col span={24} md={10}>
-                                
+                              <Col className="view-right" span={24} md={10}>
+                                <div className="image-view">
+                                  {currentVariant.variant_images.length ===
+                                  0 ? (
+                                    <img
+                                      className="item-default"
+                                      src={variantdefault}
+                                      alt=""
+                                    />
+                                  ) : (
+                                    <React.Fragment>
+                                      {currentVariant.variant_images.length ===
+                                      1 ? (
+                                        <Image
+                                          src={
+                                            currentVariant.variant_images[0].url
+                                          }
+                                          alt=""
+                                        />
+                                      ) : (
+                                        <React.Fragment>
+                                          <Slider
+                                            asNavFor={nav2 ? nav2 : undefined}
+                                            ref={(slider1) => setNav1(slider1)}
+                                            infinite={true}
+                                            slidesToShow={1}
+                                            slidesToScroll={1}
+                                            arrows={false}
+                                            className="image-slider"
+                                          >
+                                            {currentVariant.variant_images.map(
+                                              (item) => (
+                                                <Image src={item.url} alt="" />
+                                              )
+                                            )}
+                                          </Slider>
+                                          <Slider
+                                            asNavFor={nav1 ? nav1 : undefined}
+                                            ref={(slider2) => setNav2(slider2)}
+                                            infinite={true}
+                                            slidesToShow={3}
+                                            slidesToScroll={1}
+                                            arrows={true}
+                                            focusOnSelect={true}
+                                            className="image-thumbnail"
+                                          >
+                                            {currentVariant.variant_images.map(
+                                              (item) => (
+                                                <img src={item.url} alt="" />
+                                              )
+                                            )}
+                                          </Slider>
+                                        </React.Fragment>
+                                      )}
+                                    </React.Fragment>
+                                  )}
+                                </div>
                               </Col>
                             </Row>
                           </div>
@@ -187,6 +322,20 @@ const ProductDetailScreen: React.FC = () => {
                       )}
                     </Col>
                   </Row>
+                </Card>
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col span={24}>
+                <Card className="card">
+                  <Tabs style={{ overflow: "initial" }}>
+                    <Tabs.TabPane tab="Danh sách tồn kho" key="1">
+                      {/* <TabProduct /> */}
+                    </Tabs.TabPane>
+                    <Tabs.TabPane tab="Lich sử tồn kho" key="2">
+                      {/* <TabProduct /> */}
+                    </Tabs.TabPane>
+                  </Tabs>
                 </Card>
               </Col>
             </Row>

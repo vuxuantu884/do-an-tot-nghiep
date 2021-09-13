@@ -230,7 +230,7 @@ export function* productSaga() {
     ProductType.SEARCH_PRODUCT_FOR_ORDER_REQUEST,
     searchVariantOrderSaga
   );
-  yield takeLatest(ProductType.CREATE_PRODUCT_REQEUST, createProductSaga);
+  yield takeLatest(ProductType.CREATE_PRODUCT_REQUEST, createProductSaga);
   yield takeLatest(ProductType.VARIANT_DETAIL_REQUEST, variantDetailSaga);
   yield takeLatest(ProductType.VARIANT_UPDATE_REQUEST, variantUpdateSaga);
   yield takeEvery(ProductType.UPLOAD_PRODUCT_REQUEST, uploadProductSaga);
