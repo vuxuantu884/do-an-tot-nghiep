@@ -1,5 +1,8 @@
 import { Button, Card, Checkbox, Col, Form, Input, Row, Select } from "antd";
-import React, { useState } from "react";
+import { StoreGetListAction } from "domain/actions/core/store.action";
+import { StoreResponse } from "model/core/store.model";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
 import IconGiaoHangNhanh from "./images/giaoHangNhanh.svg";
 import IconClose from "./images/iconClose.svg";
@@ -9,38 +12,10 @@ type PropType = {};
 
 function SingleThirdPartyLogistic(props: PropType) {
   const [form] = Form.useForm();
+  const dispatch = useDispatch();
 
-  const listShops = [
-    {
-      value: "Cửa hàng 1",
-      key: "1",
-    },
-    {
-      value: "Cửa hàng 2",
-      key: "2",
-    },
-    {
-      value: "Cửa hàng 3",
-      key: "3",
-    },
-  ];
-
-  const listServices = [
-    {
-      key: "1",
-      value: "Giao nhanh",
-    },
-    {
-      key: "2",
-      value: "Giao tiêu chuẩn",
-    },
-    {
-      key: "3",
-      value: "Giao chậm",
-    },
-  ];
-
-  const listShopIsSelected = [
+  const [listShops, setListShops] = useState<StoreResponse[]>([]);
+  const [listShopsSelected, setListShopsSelected] = useState([
     {
       name: "YODY Chí Linh 1",
       code: "16783488",
@@ -61,6 +36,21 @@ function SingleThirdPartyLogistic(props: PropType) {
       name: "YODY Chí Linh 5",
       code: "1678348892",
     },
+  ]);
+
+  const listServices = [
+    {
+      key: "1",
+      value: "Giao nhanh",
+    },
+    {
+      key: "2",
+      value: "Giao tiêu chuẩn",
+    },
+    {
+      key: "3",
+      value: "Giao chậm",
+    },
   ];
 
   const initialFormValue = {
@@ -71,12 +61,12 @@ function SingleThirdPartyLogistic(props: PropType) {
   };
 
   const [listShopIsSelectedShow, setListShopIsSelectedShow] =
-    useState(listShopIsSelected);
+    useState(listShopsSelected);
 
   const searchShopIsSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     console.log("value", e.target.value);
-    let cloneListShopIsSelected = [...listShopIsSelected];
+    let cloneListShopIsSelected = [...listShopsSelected];
     let result = cloneListShopIsSelected.filter((singleShop) => {
       return (
         singleShop.name.toLowerCase().includes(value.toLowerCase()) ||
@@ -94,6 +84,15 @@ function SingleThirdPartyLogistic(props: PropType) {
   const handleCancelConnect = () => {
     console.log("cancelConnect");
   };
+
+  useEffect(() => {
+    dispatch(
+      StoreGetListAction((response) => {
+        console.log("response", response);
+        setListShops(response);
+      })
+    );
+  }, [dispatch]);
 
   return (
     <StyledComponent>
@@ -131,22 +130,32 @@ function SingleThirdPartyLogistic(props: PropType) {
                     },
                   ]}
                 >
-                  <Select placeholder="Cửa hàng" allowClear>
+                  <Select
+                    placeholder="Chọn hoặc tìm kiếm cửa hàng"
+                    allowClear
+                    showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      option?.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    }
+                  >
                     {listShops &&
                       listShops.map((singleShop) => {
                         return (
                           <Select.Option
-                            value={singleShop.key}
-                            key={singleShop.key}
+                            value={singleShop.code}
+                            key={singleShop.code}
                           >
-                            {singleShop.value}
+                            {singleShop.name}
                           </Select.Option>
                         );
                       })}
                   </Select>
                 </Form.Item>
                 <div>
-                  <Button>Shop ID</Button>
+                  <Input width={170} placeholder="Nhập Shop ID" />
                   <Button>Thêm</Button>
                 </div>
               </div>

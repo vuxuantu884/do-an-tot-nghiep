@@ -239,6 +239,7 @@ export interface ShipmentResponse extends BaseObject {
 export interface DeliveryServiceResponse {
   id: number;
   code: string;
+  status: string;
   external_service_code: string;
   name: string;
   logo: string;
