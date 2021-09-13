@@ -2,6 +2,7 @@ import {
   ProductHistoryQuery,
   ProductHistoryResponse,
   ProductRequest,
+  ProductResponse,
   VariantResponse,
   VariantSearchQuery,
   VariantUpdateRequest,
@@ -45,9 +46,9 @@ export const productUploadAction = (
 
 export const productCreateAction = (
   request: ProductRequest|null,
-  createCallback: (result:VariantResponse) => void
+  createCallback: (result: ProductResponse) => void
 ) => {
-  return BaseAction(ProductType.CREATE_PRODUCT_REQEUST, {
+  return BaseAction(ProductType.CREATE_PRODUCT_REQUEST, {
     request,
     createCallback,
   });
@@ -81,3 +82,7 @@ export const productGetHistoryAction = (
     onResult,
   });
 };
+
+export const productGetDetail = (id: number, onResult: (result: ProductResponse|false) => void) => {
+  return BaseAction(ProductType.PRODUCT_DETAIL, {id, onResult});
+}

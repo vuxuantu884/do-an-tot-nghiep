@@ -1,7 +1,7 @@
 import { Modal } from "antd";
 import { TiWarningOutline } from "react-icons/ti";
 
-type ModalConfirmProps = {
+export interface ModalConfirmProps {
   visible?: boolean;
   onOk?: () => void;
   onCancel?: () => void;

@@ -289,7 +289,7 @@ const TabProduct: React.FC = () => {
         rowKey={(item: VariantResponse) => item.id}
       />
       <UploadImageModal
-        onCancle={() => setUploadVisible(false)} 
+        onCancel={() => setUploadVisible(false)} 
         variant={variant} 
         visible={uploadVisible} 
         onSave={onSave}

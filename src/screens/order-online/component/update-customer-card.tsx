@@ -13,8 +13,6 @@ import {
   Tag,
 } from "antd";
 import { OrderResponse } from "model/response/order/order.response";
-import AddAddressModal from "../modal/add-address.modal";
-import EditCustomerModal from "../modal/add-address.modal";
 import bithdayIcon from "assets/img/bithday.svg";
 import editBlueIcon from "assets/img/editBlue.svg";
 import pointIcon from "assets/img/point.svg";
@@ -24,7 +22,7 @@ import callIcon from "assets/img/call.svg";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 //#endregion
 
 type CustomerCardUpdateProps = {
@@ -37,26 +35,26 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
 ) => {
   const [visibleShippingAddress, setVisibleShippingAddress] = useState(false);
   const [visibleBillingAddress, setVisibleBillingAddress] = useState(false);
-  const [isVisibleCustomer, setVisibleCustomer] = useState(false);
-  const [isVisibleAddress, setVisibleAddress] = useState(false);
+  // const [isVisibleCustomer, setVisibleCustomer] = useState(false);
+  // const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isVisibleBilling, setVisibleBilling] = useState(true);
-  const CancleConfirmAddress = useCallback(() => {
-    setVisibleAddress(false);
-  }, []);
+  // const CancleConfirmAddress = useCallback(() => {
+  //   setVisibleAddress(false);
+  // }, []);
 
-  const OkConfirmAddress = useCallback(() => {
-    setVisibleAddress(false);
-  }, []);
+  // const OkConfirmAddress = useCallback(() => {
+  //   setVisibleAddress(false);
+  // }, []);
 
-  const CancleConfirmCustomer = useCallback(() => {
-    setVisibleCustomer(false);
-  }, []);
+  // const CancleConfirmCustomer = useCallback(() => {
+  //   setVisibleCustomer(false);
+  // }, []);
 
-  const OkConfirmCustomer = useCallback(() => {
-    setVisibleCustomer(false);
-  }, []);
+  // const OkConfirmCustomer = useCallback(() => {
+  //   setVisibleCustomer(false);
+  // }, []);
   const ShowAddressModal = () => {
-    setVisibleAddress(true);
+    // setVisibleAddress(true);
     setVisibleShippingAddress(false);
     setVisibleBillingAddress(false);
   };

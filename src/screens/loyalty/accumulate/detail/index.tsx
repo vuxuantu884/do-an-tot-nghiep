@@ -1,4 +1,4 @@
-import { Button, Card, Col, Row } from 'antd';
+import { Card, Col, Row } from 'antd';
 import ContentContainer from 'component/container/content.container'
 import UrlConfig from 'config/url.config'
 import React, { useEffect, useState } from 'react'
@@ -35,7 +35,7 @@ const LoyaltyAccumulateDetail = () => {
     dispatch(LoyaltyRankSearch({}, (data: PageResponse<LoyaltyRankResponse>) => {
       setRanks(data.items)
     }));
-  }, [])
+  }, [dispatch, id])
 
   const columns = [
     {

@@ -22,25 +22,20 @@ export interface VariantImageModel {
 
 type UploadImageModalProp = {
   visible: boolean;
-  onCancle?: () => void;
+  onCancel?: () => void;
   onSave?: (variant_images: Array<VariantImage>) => void;
   variant?: VariantImageModel | null;
 };
 
 const {Dragger} = Upload;
 
-interface AvatarFile {
-  id: string;
-  avatar: string;
-}
-
 const UploadImageModal: React.FC<UploadImageModalProp> = (
   props: UploadImageModalProp
 ) => {
   const dispatch = useDispatch();
-  const {visible, onCancle, onSave, variant} = props;
+  const {visible, onCancel, onSave, variant} = props;
   const [filedList, setFileList] = useState<Array<UploadFile>>([]);
-  const [avatar, setAvatar] = useState<AvatarFile | null>(null);
+  const [avatar, setAvatar] = useState<number>(-1);
   const beforeUpload = useCallback((file: RcFile) => {
     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
     if (!isJpgOrPng) {
@@ -50,22 +45,25 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
     if (!isLt2M) {
       showWarning('Cần chọn ảnh nhỏ hơn 5mb');
     }
-    return isJpgOrPng && isLt2M;
+    return isJpgOrPng && isLt2M ? true : Upload.LIST_IGNORE;
   }, []);
   const onClickSave = useCallback(() => {
     if (onSave) {
       let newVariantImage = variant ? [...variant.variant_images] : [];
+      console.log(variant?.variant_images);
       variant?.variant_images.forEach((item, indexItem) => {
         let index = filedList.findIndex(
-          (file) => file.uid === item.id?.toString()
+          (file) => file.uid === item.image_id?.toString()
         );
         if (index === -1) {
           newVariantImage.splice(indexItem, 1);
         }
       });
+      console.log('newVariantImage', newVariantImage)
+      console.log('filedList', filedList)
       filedList.forEach((file) => {
         let index = newVariantImage.findIndex(
-          (item) => file.uid === item.id?.toString()
+          (item) => file.uid === item.image_id?.toString()
         );
         if (index === -1) {
           newVariantImage.push({
@@ -74,10 +72,19 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
             image_id: parseInt(file.name),
             position: null,
             product_avatar: false,
-            variant_avatar: avatar === null ? false : avatar.id === file.uid,
+            variant_avatar: false,
           });
         }
       });
+      newVariantImage.map((item, index) => {
+        if(avatar === index) {
+          item.variant_avatar = true;
+        } else {
+          item.variant_avatar = false;
+        }
+        return item;
+      })
+      console.log('final', newVariantImage)
       onSave(newVariantImage);
     }
   }, [avatar, filedList, onSave, variant]);
@@ -85,18 +92,15 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
     if (visible && variant) {
       let arr: Array<UploadFile> = [];
       if (variant.variant_images.length === 0) {
-        setAvatar(null);
+        setAvatar(-1);
         setFileList([]);
       } else {
         variant.variant_images.forEach((item, index) => {
           if (item.variant_avatar) {
-            setAvatar({
-              id: index.toString(),
-              avatar: item.url,
-            });
+            setAvatar(index);
           }
           arr.push({
-            uid: index.toString(),
+            uid: item.image_id.toString(),
             name: item.image_id.toString(),
             url: item.url,
             status: 'done',
@@ -112,7 +116,7 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
       title="UPLOAD HÌNH ẢNH SẢN PHẨM"
       className="ant-modal-header-nostyle"
       width={950}
-      onCancel={onCancle}
+      onCancel={onCancel}
       footer={
         <div
           className="display-flex"
@@ -123,7 +127,7 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
             lượng không vượt quá 5MB.
           </i>
           <div>
-            <Button onClick={onCancle}>Huỷ</Button>
+            <Button onClick={onCancel}>Huỷ</Button>
             <Button onClick={onClickSave} type="primary">
               Lưu
             </Button>
@@ -135,8 +139,8 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
         <div className="upload-image">
           <div className="upload-image-left">
             <div className="upload-image-result">
-              {avatar !== null ? (
-                <Image src={avatar.avatar} preview={false} />
+              {avatar !== -1 ? (
+                <Image src={filedList[avatar].url} preview={false} />
               ) : (
                 <div className="upload-image-result-noimg">
                   <img src={noImage} alt="Empty" width={180} />
@@ -153,12 +157,14 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
               <p>{variant.sku}</p>
             </div>
             <Dragger
+              accept=".jpg,.jpeg,.png,.jfif"
               multiple
               maxCount={6}
               className="upload-image-zone"
               listType="picture-card"
               fileList={filedList}
               onChange={(info) => {
+                console.log('info', info)
                 setFileList(info.fileList);
               }}
               customRequest={(options) => {
@@ -198,8 +204,8 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
                 if (index !== -1) {
                   filedList.splice(index, 1);
                 }
-                if (avatar?.id === file.uid) {
-                  setAvatar(null);
+                if (avatar !== -1 && filedList[avatar].uid === file.uid) {
+                  setAvatar(-1);
                 }
                 setFileList([...filedList]);
               }}
@@ -207,7 +213,7 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
               itemRender={(
                 originNode: ReactElement,
                 file: UploadFile,
-                fileList: object[],
+                fileList: UploadFile[],
                 actions
               ) => (
                 <>
@@ -234,12 +240,14 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
                   </Tooltip>
                   <Tooltip overlay="Chọn làm ảnh đại diện" placement="top">
                     <Checkbox
-                      checked={file.uid === avatar?.id}
-                      onChange={() => {
-                        setAvatar({
-                          id: file.uid,
-                          avatar: file.url ? file.url : '',
-                        });
+                      checked={fileList.findIndex(item => item.uid === file.uid) === avatar}
+                      onChange={(e) => {
+                        let index = fileList.findIndex((item) => item.uid === file.uid);
+                        if(e.target.checked) {
+                          setAvatar(index);
+                        } else {
+                          setAvatar(-1);
+                        }
                       }}
                       className="upload-image-list-item-checkbox"
                     />

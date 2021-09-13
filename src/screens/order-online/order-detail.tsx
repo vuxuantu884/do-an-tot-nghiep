@@ -60,8 +60,8 @@ const OrderDetail = (props: PropType) => {
   const isFirstLoad = useRef(true);
 
   const dispatch = useDispatch();
-  const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  // const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
+  // const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
   const [paymentType, setPaymentType] = useState<number>(3);
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
@@ -80,7 +80,7 @@ const OrderDetail = (props: PropType) => {
   );
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
     useState<number>(0);
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  // const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
@@ -93,7 +93,7 @@ const OrderDetail = (props: PropType) => {
   };
 
   const onPayments = (value: Array<OrderPaymentRequest>) => {
-    setPayments(value);
+    // setPayments(value);
   };
   const changeShippingFeeInformedCustomer = (value: number | null) => {
     if (value !== null) {
@@ -163,7 +163,7 @@ const OrderDetail = (props: PropType) => {
       if (!data) {
         return;
       }
-      setAccounts(data.items);
+      // setAccounts(data.items);
     },
     []
   );
@@ -258,9 +258,9 @@ const OrderDetail = (props: PropType) => {
   // end
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
+      // setIsShowBillStep(true);
     } else {
-      setIsShowBillStep(false);
+      // setIsShowBillStep(false);
     }
   }, []);
 
