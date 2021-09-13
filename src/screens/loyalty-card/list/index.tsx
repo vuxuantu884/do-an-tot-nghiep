@@ -1,6 +1,5 @@
 import { Button, Dropdown, Menu } from 'antd';
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
-import { Link } from 'react-router-dom';
 import './loyalty-cards.scss';
 import editIcon from "assets/icon/edit.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
@@ -181,7 +180,7 @@ const LoyaltyCards = () => {
 
   useEffect(() => {
     dispatch(LoyaltyCardSearch(query, fetchData));
-  }, [query]);
+  }, [dispatch, fetchData, query]);
 
   return (
     <div className="loyalty-cards">

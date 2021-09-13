@@ -1,4 +1,4 @@
-import { call, put, takeEvery, takeLatest } from "@redux-saga/core/effects";
+import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
@@ -7,7 +7,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { LoyaltyRankType, LoyaltyCardReleaseType, LoyaltyCardType, LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType } from "domain/types/loyalty.type";
 import { loyaltyCardUploadApi, searchLoyaltyCardReleaseList } from "service/loyalty/release/loyalty-card-release.service";
-import { createLoyaltyRank, getLoyaltyRankDetail, getLoyaltyRankList, updateLoyaltyRank } from "service/loyalty/ranking/loyalty-ranking.service";
+import { getLoyaltyRankDetail, getLoyaltyRankList, updateLoyaltyRank } from "service/loyalty/ranking/loyalty-ranking.service";
 import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response";
 import { LoyaltyCardReleaseResponse } from "model/response/loyalty/release/loyalty-card-release.response";
 import { searchLoyaltyCardList } from "service/loyalty/card/loyalty-card.service";

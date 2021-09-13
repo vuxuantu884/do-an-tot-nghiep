@@ -74,7 +74,7 @@ const LoyaltyCardRelease = () => {
 
   useEffect(() => {
     dispatch(LoyaltyCardReleaseSearch(query, fetchData));
-  }, [query]);
+  }, [dispatch, fetchData, query]);
 
   return (
     <div className="loyalty-cards-release">

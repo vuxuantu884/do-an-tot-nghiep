@@ -104,7 +104,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     formRef,
     items,
     handleCardItems,
-    isCloneOrder,
+    // isCloneOrder,
     discountRateParent,
     discountValueParent,
   } = props;

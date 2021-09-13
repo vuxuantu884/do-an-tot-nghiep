@@ -54,7 +54,7 @@ class Rule {
   }
 }
 
-const { Item } = Form;
+
 const { Option } = Select;
 
 const initFormValues = {
@@ -405,7 +405,7 @@ const LoyaltyPointAccumulate = () => {
     if (data) {
       showSuccess(loyaltyProgram ? 'Cập nhật thành công chương trình tích điểm' : 'Tạo thành công chương trình tích điểm')
     }
-  }, [])
+  }, [loyaltyProgram])
 
   const onFinish = () => {
     if (!programName || !startDate || !endDate) {
@@ -454,9 +454,9 @@ const LoyaltyPointAccumulate = () => {
     []
   );
 
-  const onSearchProduct = useCallback(_.debounce((keyword: string) => {
+  const onSearchProduct = useCallback(() => _.debounce((keyword: string) => {
     dispatch(searchVariantsRequestAction({info: keyword}, onResultSuccess));
-  }, 300), [])
+  }, 300), [dispatch, onResultSuccess])
 
   const handleChangeProgramName = (event: React.FocusEvent<HTMLInputElement>) => {
     setProgramName(event.target.value)

@@ -1,8 +1,8 @@
-import { Card, Col, Input, Row, Form, FormInstance, Select, Button, InputNumber } from 'antd';
+import { Card, Col, Input, Row, Form, FormInstance, Select, Button } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/url.config';
-import React, { createRef, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { createRef, useCallback, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom';
 import './create-ranking.scss'
 import IconBack from "../../../settings/third-party-logistics-integration/component/BottomBar/images/iconBack.svg";
@@ -40,7 +40,7 @@ const CreateCustomerRanking = () => {
       method: data.method,
       accumulated_from: data.accumulated_from
     })
-  }, [])
+  }, [formRef])
 
   useEffect(() => {
     if (params.id) {
@@ -49,12 +49,12 @@ const CreateCustomerRanking = () => {
         status: 'INACTIVE'
       })
     }
-  }, [params])
+  }, [dispatch, formRef, params, updateForm])
 
   const onCreateCallback = useCallback((data: LoyaltyRankResponse) => {
     formRef.current?.resetFields();
     showSuccess('Thành công')
-  }, [])
+  }, [formRef])
 
   const onFinish = useCallback((values) => {
     if (!values.accumulated_from) {
@@ -67,7 +67,7 @@ const CreateCustomerRanking = () => {
       dispatch(CreateLoyaltyRank(values, onCreateCallback))
     }
   },
-    [dispatch]
+    [dispatch, onCreateCallback, params.id]
   );
   return (
     <ContentContainer
@@ -215,7 +215,7 @@ const CreateCustomerRanking = () => {
         >
           <Col span={6} className="back">
             <Link to={`${UrlConfig.CUSTOMER}/rankings`}>
-              <img src={IconBack} style={{ marginRight: 10 }} />
+              <img src={IconBack} alt="" style={{ marginRight: 10 }} />
               <span>Quay lại danh sách hạng thẻ</span>
             </Link>
           </Col>

@@ -1,5 +1,7 @@
+import { productDetailApi } from 'service/product/product.service';
 import {
   ProductHistoryResponse,
+  ProductResponse,
   VariantResponse,
 } from "model/product/product.model";
 import { call, put, takeEvery, takeLatest } from "@redux-saga/core/effects";
@@ -199,6 +201,29 @@ function* getHistorySaga(action: YodyAction) {
   }
 }
 
+function* getProductDetail(action: YodyAction){
+  const { id, onResult } = action.payload;
+  try {
+    let response: BaseResponse<ProductResponse> =yield call(productDetailApi, id);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
   yield takeLatest(
@@ -210,4 +235,5 @@ export function* productSaga() {
   yield takeLatest(ProductType.VARIANT_UPDATE_REQUEST, variantUpdateSaga);
   yield takeEvery(ProductType.UPLOAD_PRODUCT_REQUEST, uploadProductSaga);
   yield takeLatest(ProductType.GET_HISTORY, getHistorySaga);
+  yield takeLatest(ProductType.PRODUCT_DETAIL, getProductDetail);
 }

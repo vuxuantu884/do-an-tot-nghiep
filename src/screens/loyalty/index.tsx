@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Col, Dropdown, Menu, Row, Select, Switch } from 'antd'
+import { Button, Card, Checkbox, Col, Dropdown, Menu, Row, Switch } from 'antd'
 import ContentContainer from 'component/container/content.container'
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable'
 import UrlConfig from 'config/url.config'
@@ -10,8 +10,6 @@ import deleteIcon from "assets/icon/deleteIcon.svg";
 import CurrencyInput from './component/currency-input'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { LoyaltyRankSearch } from 'domain/actions/loyalty/rank/loyalty-rank.action'
-import { LoyaltyRankResponse } from 'model/response/loyalty/ranking/loyalty-rank.response'
 import { PageResponse } from 'model/base/base-metadata.response'
 import { createLoyaltyRate, createLoyaltyUsage, getListLoyaltyAccumulationProgram, getLoyaltyRate, getLoyaltyUsage } from 'domain/actions/loyalty/loyalty.action'
 import { LoyaltyRateResponse } from 'model/response/loyalty/loyalty-rate.response'
@@ -185,7 +183,7 @@ const LoyaltyPage = () => {
       setRules(_rules)
     }))
     dispatch(getListChannelRequest(setListChannel));
-  }, [])
+  }, [dispatch])
 
   const fetchData = useCallback((data: PageResponse<LoyaltyAccumulationProgramResponse>) => {
     setLoyaltyPrograms(data)
@@ -201,7 +199,7 @@ const LoyaltyPage = () => {
 
   useEffect(() => {
     dispatch(getListLoyaltyAccumulationProgram(query, fetchData));
-  }, [query]);
+  }, [dispatch, fetchData, query]);
 
   const handleChangeAccumulationRate = useCallback((value: number | null) => {
     setAccumulationRate(value || 0)
@@ -223,7 +221,7 @@ const LoyaltyPage = () => {
     dispatch(createLoyaltyRate(accumulationRate, redemptionRate, updateRateCallback))
     dispatch(createLoyaltyUsage(rules, updateUsageCallback))
   },
-    [accumulationRate, redemptionRate, rules]
+    [accumulationRate, dispatch, redemptionRate, rules, updateRateCallback, updateUsageCallback]
   );
 
   const handleChangePointUseType = (value: string, index: number) => {
