@@ -1,5 +1,5 @@
 import { StyledConfig } from "./styles";
-import { Row, Col, Form, Input, Select, Button, Tag } from "antd";
+import { Row, Col, Form, Input, Select, Button } from "antd";
 import React, { useEffect, useState } from "react";
 import CustomSelect from "component/custom/select.custom";
 import shopeeIcon from "assets/icon/e-shopee.svg";
@@ -17,6 +17,7 @@ import {
 } from "model/request/ecommerce.request";
 import { ecommerceConfigUpdateAction } from "domain/actions/ecommerce/ecommerce.actions";
 import { useDispatch } from "react-redux";
+import { showSuccess } from "utils/ToastUtils";
 
 const iconMap: any = {
   shopee: shopeeIcon,
@@ -58,20 +59,29 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     setConfigDetail(configToView);
   }, [configToView, setConfigDetail]);
 
+  const handleConfigCallback = React.useCallback((value: EcommerceResponse) => {
+    setConfigDetail(value);
+    showSuccess("Cập nhật cấu hình thành công");
+  }, []);
   const handleUpdateConfig = React.useCallback(
     (value: EcommerceRequest) => {
-      console.log(value)
-      value.inventories = inventories;
       if (configDetail) {
-        let request = { ...value };
+        let request = {
+          ...configDetail,
+          ...value,
+          inventories: inventories,
+          assign_account:
+            accounts?.find((item) => item.code === value.assign_account_code)
+              ?.full_name || "",
+        };
         const id = configDetail?.id;
-        dispatch(ecommerceConfigUpdateAction(id, request, setConfigDetail));
+        dispatch(
+          ecommerceConfigUpdateAction(id, request, handleConfigCallback)
+        );
       }
     },
-    [dispatch, setConfigDetail, configDetail, inventories]
+    [dispatch, handleConfigCallback, configDetail, inventories, accounts]
   );
-
-  console.log(configDetail);
 
   const handleStoreChange = (event: any) => {
     let inventories = [];
@@ -89,7 +99,9 @@ const SettingConfig: React.FC<SettingConfigProps> = (
 
   React.useEffect(() => {
     if (configDetail) {
-      const _inventories = configDetail.inventories.filter((item: any) => !item.deleted)
+      const _inventories = configDetail.inventories.filter(
+        (item: any) => !item.deleted
+      );
       setInventories(_inventories);
       form.setFieldsValue({
         id: configDetail.id,
@@ -106,6 +118,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
       setInventories([]);
     }
   }, [configDetail, form, setInventories]);
+  console.log(configDetail)
   const handleShopChange = React.useCallback(
     (id: any) => {
       let _configData = [...configData];
@@ -115,11 +128,14 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     [configData, setConfigDetail]
   );
   console.log(inventories);
-  const convertToCapitalizedString = () =>{
-    if(configDetail){
-     return configDetail.ecommerce.charAt(0).toUpperCase() + configDetail.ecommerce.slice(1);
+  const convertToCapitalizedString = () => {
+    if (configDetail) {
+      return (
+        configDetail.ecommerce?.charAt(0).toUpperCase() +
+        configDetail.ecommerce?.slice(1)
+      );
     }
-  }
+  };
   return (
     <StyledConfig className="padding-20">
       <Form form={form} onFinish={(value) => handleUpdateConfig(value)}>
@@ -157,11 +173,13 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                     key={item.id}
                     value={item.id}
                   >
-                    {<img
-                      style={{ marginRight: 8, paddingBottom: 4 }}
-                      src={iconMap[item.ecommerce]}
-                      alt=""
-                    />}
+                    {
+                      <img
+                        style={{ marginRight: 8, paddingBottom: 4 }}
+                        src={iconMap[item.ecommerce]}
+                        alt=""
+                      />
+                    }
                     {item.name}
                   </CustomSelect.Option>
                 ))}
@@ -296,6 +314,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               ]}
             >
               <CustomSelect
+                disabled={configDetail ? false : true}
                 mode="multiple"
                 className="dropdown-rule"
                 showArrow
