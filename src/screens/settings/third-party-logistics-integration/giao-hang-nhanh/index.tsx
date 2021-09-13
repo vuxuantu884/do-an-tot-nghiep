@@ -155,7 +155,7 @@ function SingleThirdPartyLogistic(props: PropType) {
                   </Select>
                 </Form.Item>
                 <div>
-                  <Input width={170} placeholder="Nhập Shop ID" />
+                  <Input style={{ width: 170 }} placeholder="Nhập Shop ID" />
                   <Button>Thêm</Button>
                 </div>
               </div>
