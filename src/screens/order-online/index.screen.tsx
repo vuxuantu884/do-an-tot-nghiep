@@ -63,6 +63,18 @@ const actions: Array<MenuAction> = [
     id: 2,
     name: "Export",
   },
+  {
+    id: 3,
+    name: "Clone đơn hàng",
+  },
+  {
+    id: 4,
+    name: "In phiếu giao hàng",
+  },
+  {
+    id: 5,
+    name: "In phiếu xuất kho",
+  },
 ];
 
 const initQuery: OrderSearchQuery = {
@@ -608,7 +620,23 @@ const ListOrderScreen: React.FC = () => {
     },
     [history, params]
   );
-  const onMenuClick = useCallback((index: number) => {}, []);
+  const onMenuClick = useCallback((index: number) => {
+    console.log('id', index);
+    
+    switch (index) {
+      case 1:
+        break
+      case 2:
+        break  
+      case 3:
+        break
+      case 4:
+        break
+      case 5:
+        break
+      default: break  
+    }
+  }, []);
 
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
