@@ -1250,7 +1250,7 @@ const ProductCreateScreen: React.FC = () => {
           />
           <ModalConfirm {...modalConfirm} />
           <UploadImageModal
-            onCancle={() => {
+            onCancel={() => {
               setVisibleUpload(false);
             }}
             visible={isVisibleUpload}

@@ -1262,7 +1262,7 @@ const ProductCreateScreen: React.FC = () => {
         </div>
       </Form>
       <UploadImageModal
-        onCancle={() => {
+        onCancel={() => {
           setVisibleUpload(false);
         }}
         visible={isVisibleUpload}

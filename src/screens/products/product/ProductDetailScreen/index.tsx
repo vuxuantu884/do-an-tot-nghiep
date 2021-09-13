@@ -40,8 +40,8 @@ const ProductDetailScreen: React.FC = () => {
   const [data, setData] = useState<ProductResponse | null>(null);
   const idNumber = parseInt(id);
   const onEdit = useCallback(() => {
-    history.push(`${UrlConfig.PRODUCT}/23/edit`);
-  }, [history]);
+    history.push(`${UrlConfig.PRODUCT}/${idNumber}/edit`);
+  }, [history, idNumber]);
   const onResult = useCallback((result: ProductResponse | false) => {
     setLoading(false);
     if (!result) {
@@ -76,7 +76,6 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     // dispatch(inventoryGetDetailAction({}, onResult));
-    
   }, [])
 
   return (
