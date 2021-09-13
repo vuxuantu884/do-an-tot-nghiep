@@ -19,12 +19,8 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import {
-  ecommerceConfigCreateAction,
   ecommerceConfigGetAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
-import { EcommerceRequest } from "model/request/ecommerce.request";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import shopeeIcon from "assets/icon/e-shopee.svg";
 
 const { TabPane } = Tabs;
 const initQueryAccount: AccountSearchQuery = {
@@ -55,7 +51,9 @@ const EcommerceConfig: React.FC = () => {
   React.useEffect(() => {
     dispatch(ecommerceConfigGetAction(setConfigData));
   }, [dispatch]);
-
+  const reloadConfigData = () => {
+    dispatch(ecommerceConfigGetAction(setConfigData));
+  }
   const accountChangeSearch = React.useCallback(
     (value) => {
       initQueryAccount.info = value;
@@ -117,9 +115,10 @@ const EcommerceConfig: React.FC = () => {
         <Card>
           <Tabs
             activeKey={activeTab}
-            onChange={(active) =>
-              history.replace(`${history.location.pathname}#${active}`)
-            }
+            onChange={(active) => {
+              history.replace(`${history.location.pathname}#${active}`);
+              reloadConfigData();
+            }}
           >
             <TabPane tab="Đồng bộ sàn" key="sync">
               <SyncEcommerce

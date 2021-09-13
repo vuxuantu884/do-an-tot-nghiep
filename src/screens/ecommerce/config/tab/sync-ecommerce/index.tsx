@@ -57,10 +57,37 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
         return <img src={iconMap[v.ecommerce]} alt=""></img>;
       },
     },
-    { title: "Shop ID | Tên shop", visible: true, dataIndex: "name" },
-    { title: "Tên gian hàng", visible: true, dataIndex: "name" },
+    // {
+    //   title: "Shop ID | Tên shop",
+    //   visible: true,
+    //   render: (l: any, v: any, i: any) => {
+    //     return <div>
+    //       <span>{v.ecommerce_id}</span>
+    //       <span>{v.ecommerce}</span>
+    //     </div>;
+    //   },
+    // },
+    {
+      title: "Tên gian hàng",
+      visible: true,
+      render: (l: any, v: any, i: any) => {
+        return (
+          <span
+            style={{ color: " #2a2a86", cursor: "pointer" }}
+            onClick={() => handleUpdate(v)}
+          >
+            {v.name}
+          </span>
+        );
+      },
+    },
     { title: "Cửa hàng", visible: true, dataIndex: "store" },
-    { title: "Đồng bộ sản phẩm", visible: true, dataIndex: "product_sync" },
+    {
+      title: "Đồng bộ sản phẩm",
+      visible: true,
+      align: "center",
+      dataIndex: "product_sync",
+    },
     { title: "Nhân viên bán hàng", visible: true, dataIndex: "assign_account" },
     {
       title: "Ngày kết nối",
@@ -123,35 +150,37 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
   };
   return (
     <StyledComponent>
-    <div className="padding-20">
-      <StyledHeader>
-        {buttons.map((button) => (
-          <Button
-            key={button.id}
-            className={button.key === activatedBtn?.key ? "active-button" : ""}
-            icon={button.icon && <img src={button.icon} alt={button.id} />}
-            type="ghost"
-            onClick={() => handleBtnClick(button)}
-          >
-            {button.title}
-          </Button>
-        ))}
-      </StyledHeader>
-      <CustomTable
-        columns={columns}
-        dataSource={configDataFiltered}
-        pagination={false}
-        // pagination={{
-        //   pageSize: data.metadata.limit,
-        //   total: data.metadata.total,
-        //   current: data.metadata.page,
-        //   showSizeChanger: true,
-        //   onChange: onPageChange,
-        //   onShowSizeChange: onPageChange,
-        // }}
-        rowKey={(data) => data.id}
-      />
-    </div>
+      <div className="padding-20">
+        <StyledHeader>
+          {buttons.map((button) => (
+            <Button
+              key={button.id}
+              className={
+                button.key === activatedBtn?.key ? "active-button" : ""
+              }
+              icon={button.icon && <img src={button.icon} alt={button.id} />}
+              type="ghost"
+              onClick={() => handleBtnClick(button)}
+            >
+              {button.title}
+            </Button>
+          ))}
+        </StyledHeader>
+        <CustomTable
+          columns={columns}
+          dataSource={configDataFiltered}
+          pagination={false}
+          // pagination={{
+          //   pageSize: data.metadata.limit,
+          //   total: data.metadata.total,
+          //   current: data.metadata.page,
+          //   showSizeChanger: true,
+          //   onChange: onPageChange,
+          //   onShowSizeChange: onPageChange,
+          // }}
+          rowKey={(data) => data.id}
+        />
+      </div>
     </StyledComponent>
   );
 };
