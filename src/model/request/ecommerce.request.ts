@@ -8,7 +8,8 @@ interface BaseObject {
   }
   export interface EcommerceShopInventoryDto {
     store: String; //
-    store_id: Number; 
+    store_id: Number;
+    deleted?: Boolean;
     }
   export interface EcommerceRequest extends BaseObject {
     name: String;

@@ -1,7 +1,7 @@
 import CustomTable from "component/table/CustomTable";
 import React, { useState } from "react";
 import actionColumn from "../../actions/action.column";
-import { StyledHeader } from "./styles";
+import { StyledHeader, StyledComponent } from "./styles";
 import { Button } from "antd";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
@@ -122,6 +122,7 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
     setActivatedBtn(button);
   };
   return (
+    <StyledComponent>
     <div className="padding-20">
       <StyledHeader>
         {buttons.map((button) => (
@@ -151,6 +152,7 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
         rowKey={(data) => data.id}
       />
     </div>
+    </StyledComponent>
   );
 };
 
