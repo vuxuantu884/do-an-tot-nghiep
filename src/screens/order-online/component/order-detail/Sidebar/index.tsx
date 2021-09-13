@@ -24,67 +24,63 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           </div>
         }
       >
-        <div className="padding-24">
-          <Form.Item
-            label="Nhân viên bán hàng"
-            name="assignee_code"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng chọn nhân viên bán hàng",
-              },
-            ]}
-          >
-            <Select
-              className="select-with-search"
-              notFoundContent="Không tìm thấy kết quả"
-              showSearch
-              placeholder={
-                <React.Fragment>
-                  <SearchOutlined />
-                  <span> Tìm, chọn nhân viên</span>
-                </React.Fragment>
+        <Form.Item
+          label="Nhân viên bán hàng"
+          name="assignee_code"
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng chọn nhân viên bán hàng",
+            },
+          ]}
+        >
+          <Select
+            className="select-with-search"
+            notFoundContent="Không tìm thấy kết quả"
+            showSearch
+            placeholder={
+              <React.Fragment>
+                <SearchOutlined />
+                <span> Tìm, chọn nhân viên</span>
+              </React.Fragment>
+            }
+            filterOption={(input, option) => {
+              if (option) {
+                return (
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
+                  0
+                );
               }
-              filterOption={(input, option) => {
-                if (option) {
-                  return (
-                    option.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
-                  );
-                }
-                return false;
-              }}
-            >
-              {accounts.map((item, index) => (
-                <Select.Option key={index.toString()} value={item.code}>
-                  {`${item.full_name} - ${item.code}`}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="Tham chiếu"
-            name="reference_code"
-            tooltip={{
-              title:
-                "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",
-              icon: <InfoCircleOutlined />,
+              return false;
             }}
           >
-            <Input placeholder="Điền tham chiếu" maxLength={255} />
-          </Form.Item>
-          <Form.Item
-            label="Đường dẫn"
-            name="url"
-            tooltip={{
-              title: "Thêm đường dẫn đơn hàng gốc trên kênh bán hàng",
-              icon: <InfoCircleOutlined />,
-            }}
-          >
-            <Input placeholder="Điền đường dẫn" maxLength={255} />
-          </Form.Item>
-        </div>
+            {accounts.map((item, index) => (
+              <Select.Option key={index.toString()} value={item.code}>
+                {`${item.full_name} - ${item.code}`}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          label="Tham chiếu"
+          name="reference_code"
+          tooltip={{
+            title: "Thêm số tham chiếu hoặc ID đơn hàng gốc trên kênh bán hàng",
+            icon: <InfoCircleOutlined />,
+          }}
+        >
+          <Input placeholder="Điền tham chiếu" maxLength={255} />
+        </Form.Item>
+        <Form.Item
+          label="Đường dẫn"
+          name="url"
+          tooltip={{
+            title: "Thêm đường dẫn đơn hàng gốc trên kênh bán hàng",
+            icon: <InfoCircleOutlined />,
+          }}
+        >
+          <Input placeholder="Điền đường dẫn" maxLength={255} />
+        </Form.Item>
       </Card>
       <Card
         className="margin-top-20"

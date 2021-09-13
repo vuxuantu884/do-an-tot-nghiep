@@ -66,7 +66,9 @@ const ScreenReturnDetail = (props: PropType) => {
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
-  const [listOrders, setListOrders] = useState<OrderLineItemResponse[]>([]);
+  const [listReturnProducts, setListReturnProducts] = useState<
+    OrderLineItemResponse[]
+  >([]);
   const [OrderDetailAllFullfilment, setOrderDetailAllFullfilment] =
     useState<OrderResponse | null>(null);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
@@ -214,7 +216,12 @@ const ScreenReturnDetail = (props: PropType) => {
             />
             {/*--- end customer ---*/}
             <CardReturnOrder />
-            <CardReturnProducts listOrders={listOrders} />
+            <CardReturnProducts
+              listReturnProducts={listReturnProducts}
+              handleReturnProducts={(
+                listReturnProducts: OrderLineItemResponse[]
+              ) => setListReturnProducts(listReturnProducts)}
+            />
             <CardReturnMoney
               listPaymentMethods={listPaymentMethods}
               amountReturn={amountReturn}
@@ -233,67 +240,65 @@ const ScreenReturnDetail = (props: PropType) => {
                 </div>
               }
             >
-              <div className="padding-24">
-                <Row className="" gutter={5}>
-                  <Col span={9}>Cửa hàng:</Col>
-                  <Col span={15}>
-                    <span
-                      style={{ fontWeight: 500, color: "#2A2A86" }}
-                      className="text-focus"
-                    >
-                      {OrderDetail?.store}
-                    </span>
-                  </Col>
-                </Row>
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Điện thoại:</Col>
-                  <Col span={15}>
-                    <span style={{ fontWeight: 500, color: "#222222" }}>
-                      {OrderDetail?.customer_phone_number}
-                    </span>
-                  </Col>
-                </Row>
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Địa chỉ:</Col>
-                  <Col span={15}>
-                    <span style={{ fontWeight: 500, color: "#222222" }}>
-                      {OrderDetail?.shipping_address?.full_address}
-                    </span>
-                  </Col>
-                </Row>
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>NVBH:</Col>
-                  <Col span={15}>
-                    <span
-                      style={{ fontWeight: 500, color: "#222222" }}
-                      className="text-focus"
-                    >
-                      {OrderDetail?.assignee}
-                    </span>
-                  </Col>
-                </Row>
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Người tạo:</Col>
-                  <Col span={15}>
-                    <span
-                      style={{ fontWeight: 500, color: "#222222" }}
-                      className="text-focus"
-                    >
-                      {OrderDetail?.account}
-                    </span>
-                  </Col>
-                </Row>
-                <Row className="margin-top-10" gutter={5}>
-                  <Col span={9}>Đường dẫn:</Col>
-                  <Col span={15} style={{ wordWrap: "break-word" }}>
-                    {OrderDetail?.url ? (
-                      <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
-                    ) : (
-                      <span className="text-focus">Không</span>
-                    )}
-                  </Col>
-                </Row>
-              </div>
+              <Row className="" gutter={5}>
+                <Col span={9}>Cửa hàng:</Col>
+                <Col span={15}>
+                  <span
+                    style={{ fontWeight: 500, color: "#2A2A86" }}
+                    className="text-focus"
+                  >
+                    {OrderDetail?.store}
+                  </span>
+                </Col>
+              </Row>
+              <Row className="margin-top-10" gutter={5}>
+                <Col span={9}>Điện thoại:</Col>
+                <Col span={15}>
+                  <span style={{ fontWeight: 500, color: "#222222" }}>
+                    {OrderDetail?.customer_phone_number}
+                  </span>
+                </Col>
+              </Row>
+              <Row className="margin-top-10" gutter={5}>
+                <Col span={9}>Địa chỉ:</Col>
+                <Col span={15}>
+                  <span style={{ fontWeight: 500, color: "#222222" }}>
+                    {OrderDetail?.shipping_address?.full_address}
+                  </span>
+                </Col>
+              </Row>
+              <Row className="margin-top-10" gutter={5}>
+                <Col span={9}>NVBH:</Col>
+                <Col span={15}>
+                  <span
+                    style={{ fontWeight: 500, color: "#222222" }}
+                    className="text-focus"
+                  >
+                    {OrderDetail?.assignee}
+                  </span>
+                </Col>
+              </Row>
+              <Row className="margin-top-10" gutter={5}>
+                <Col span={9}>Người tạo:</Col>
+                <Col span={15}>
+                  <span
+                    style={{ fontWeight: 500, color: "#222222" }}
+                    className="text-focus"
+                  >
+                    {OrderDetail?.account}
+                  </span>
+                </Col>
+              </Row>
+              <Row className="margin-top-10" gutter={5}>
+                <Col span={9}>Đường dẫn:</Col>
+                <Col span={15} style={{ wordWrap: "break-word" }}>
+                  {OrderDetail?.url ? (
+                    <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
+                  ) : (
+                    <span className="text-focus">Không</span>
+                  )}
+                </Col>
+              </Row>
             </Card>
             <SubStatusOrder
               subStatusId={OrderDetail?.sub_status_id}
@@ -310,56 +315,50 @@ const ScreenReturnDetail = (props: PropType) => {
                 </div>
               }
             >
-              <div className="padding-24">
-                <Row
-                  className=""
-                  gutter={5}
-                  style={{ flexDirection: "column" }}
-                >
-                  <Col span={24} style={{ marginBottom: 6 }}>
-                    <b>Ghi chú nội bộ:</b>
-                  </Col>
-                  <Col span={24}>
-                    <span
-                      className="text-focus"
-                      style={{ wordWrap: "break-word" }}
-                    >
-                      {OrderDetail?.note !== ""
-                        ? OrderDetail?.note
-                        : "Không có ghi chú"}
-                    </span>
-                  </Col>
-                </Row>
+              <Row className="" gutter={5} style={{ flexDirection: "column" }}>
+                <Col span={24} style={{ marginBottom: 6 }}>
+                  <b>Ghi chú nội bộ:</b>
+                </Col>
+                <Col span={24}>
+                  <span
+                    className="text-focus"
+                    style={{ wordWrap: "break-word" }}
+                  >
+                    {OrderDetail?.note !== ""
+                      ? OrderDetail?.note
+                      : "Không có ghi chú"}
+                  </span>
+                </Col>
+              </Row>
 
-                <Row
-                  className="margin-top-10"
-                  gutter={5}
-                  style={{ flexDirection: "column" }}
-                >
-                  <Col span={24} style={{ marginBottom: 6 }}>
-                    <b>Tags:</b>
-                  </Col>
-                  <Col span={24}>
-                    <span className="text-focus">
-                      {OrderDetail?.tags
-                        ? OrderDetail?.tags.split(",").map((item, index) => (
-                            <Tag
-                              key={index}
-                              className="orders-tag"
-                              style={{
-                                backgroundColor: "#F5F5F5",
-                                color: "#737373",
-                                padding: "5px 10px",
-                              }}
-                            >
-                              {item}
-                            </Tag>
-                          ))
-                        : "Không có tags"}
-                    </span>
-                  </Col>
-                </Row>
-              </div>
+              <Row
+                className="margin-top-10"
+                gutter={5}
+                style={{ flexDirection: "column" }}
+              >
+                <Col span={24} style={{ marginBottom: 6 }}>
+                  <b>Tags:</b>
+                </Col>
+                <Col span={24}>
+                  <span className="text-focus">
+                    {OrderDetail?.tags
+                      ? OrderDetail?.tags.split(",").map((item, index) => (
+                          <Tag
+                            key={index}
+                            className="orders-tag"
+                            style={{
+                              backgroundColor: "#F5F5F5",
+                              color: "#737373",
+                              padding: "5px 10px",
+                            }}
+                          >
+                            {item}
+                          </Tag>
+                        ))
+                      : "Không có tags"}
+                  </span>
+                </Col>
+              </Row>
             </Card>
             <ActionHistory
               orderId={id}

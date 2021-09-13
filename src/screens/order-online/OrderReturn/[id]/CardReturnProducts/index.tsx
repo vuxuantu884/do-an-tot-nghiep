@@ -1,51 +1,294 @@
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, Card, Checkbox, Input, Table } from "antd";
+import {
+  AutoComplete,
+  Button,
+  Card,
+  Checkbox,
+  Col,
+  Divider,
+  Input,
+  InputNumber,
+  Row,
+  Table,
+} from "antd";
 import { RefSelectProps } from "antd/lib/select";
+import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
+import imgDefault from "assets/icon/img-default.svg";
+import addIcon from "assets/img/plus_1.svg";
+import { AppConfig } from "config/app.config";
+import { Type } from "config/type.config";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import {
+  VariantResponse,
+  VariantSearchQuery,
+} from "model/product/product.model";
+import { OrderLineItemRequest } from "model/request/order.request";
 import { OrderLineItemResponse } from "model/response/order/order.response";
-import { createRef } from "react";
+import React, { createRef, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import {
+  findAvatar,
+  findPrice,
+  findPriceInVariant,
+  findTaxInVariant,
+  formatCurrency,
+  getTotalQuantity,
+} from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  listOrders: OrderLineItemResponse[];
+  listReturnProducts: OrderLineItemResponse[];
+  handleReturnProducts: (listReturnProducts: OrderLineItemResponse[]) => void;
 };
 function CardReturnProducts(props: PropType) {
-  const { listOrders } = props;
+  const { listReturnProducts, handleReturnProducts } = props;
+  const dispatch = useDispatch();
+  const [splitLine, setSplitLine] = useState<boolean>(false);
+  const initQueryVariant: VariantSearchQuery = {
+    limit: 10,
+    page: 1,
+  };
+  const [resultSearchVariant, setResultSearchVariant] = useState<
+    PageResponse<VariantResponse>
+  >({
+    metadata: {
+      limit: 0,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
+  const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const autoCompleteRef = createRef<RefSelectProps>();
-  const renderCardExtra = () => {
+
+  const onSelectSearchedVariant = (value: string) => {
+    const selectedVariant = resultSearchVariant.items.find((single) => {
+      return single.id === +value;
+    });
+    if (!selectedVariant) return;
+    console.log("selectedVariant", selectedVariant);
+    let indexSelectedVariant = listReturnProducts.findIndex((single) => {
+      return single.variant_id === selectedVariant.id;
+    });
+    console.log("listReturnProducts", listReturnProducts);
+    console.log("indexSelectedVariant", indexSelectedVariant);
+    let resultListReturnProducts = [...listReturnProducts];
+    if (splitLine || indexSelectedVariant === -1) {
+      let newReturnProduct: OrderLineItemRequest = {
+        id: new Date().getTime(),
+        sku: selectedVariant.sku,
+        variant_id: selectedVariant.id,
+        product_id: selectedVariant.product.id,
+        variant: selectedVariant.name,
+        variant_barcode: selectedVariant.barcode,
+        product_type: selectedVariant.product.product_type,
+        quantity: 1,
+        price: findPriceInVariant(
+          selectedVariant.variant_prices,
+          AppConfig.currency
+        ),
+        amount: findPriceInVariant(
+          selectedVariant.variant_prices,
+          AppConfig.currency
+        ),
+        note: "",
+        type: Type.NORMAL,
+        variant_image: findAvatar(selectedVariant.variant_images),
+        unit: selectedVariant.product.unit,
+        weight: selectedVariant.weight,
+        weight_unit: selectedVariant.weight_unit,
+        warranty: selectedVariant.product.preservation,
+        discount_items: [
+          {
+            amount: 0,
+            rate: 0,
+            reason: "",
+            value: 0,
+          },
+        ],
+        discount_amount: 0,
+        discount_rate: 0,
+        composite: selectedVariant.composite,
+        is_composite: selectedVariant.composite,
+        discount_value: 0,
+        line_amount_after_line_discount: findPriceInVariant(
+          selectedVariant.variant_prices,
+          AppConfig.currency
+        ),
+        product: selectedVariant.product.name,
+        tax_include: null,
+        tax_rate: findTaxInVariant(
+          selectedVariant.variant_prices,
+          AppConfig.currency
+        ),
+        show_note: false,
+        gifts: [],
+        position: listReturnProducts.length + 1,
+      };
+      resultListReturnProducts = [newReturnProduct, ...listReturnProducts];
+    } else {
+      // resultListReturnProducts[indexSelectedVariant].quantity += 1;
+      // resultListReturnProducts[
+      //   indexSelectedVariant
+      // ].line_amount_after_line_discount +=
+      //   resultListReturnProducts[indexSelectedVariant].price -
+      //   resultListReturnProducts[indexSelectedVariant].discount_items[0].amount;
+    }
+    console.log("resultListReturnProducts", resultListReturnProducts);
+    handleReturnProducts(resultListReturnProducts);
+  };
+
+  const renderSearchVariant = (item: VariantResponse) => {
+    let avatar = findAvatar(item.variant_images);
     return (
-      <>
-        <Checkbox style={{ marginLeft: 20 }} />
-        Trả toàn bộ sản phẩm
-      </>
+      <div
+        className="row-search w-100"
+        style={{ padding: 0, paddingRight: 20, paddingLeft: 20 }}
+      >
+        <div className="rs-left w-100" style={{ width: "100%" }}>
+          <div style={{ marginTop: 10 }}>
+            <img
+              src={avatar === "" ? imgDefault : avatar}
+              alt="anh"
+              placeholder={imgDefault}
+              style={{ width: "40px", height: "40px", borderRadius: 5 }}
+            />
+          </div>
+          <div className="rs-info w-100">
+            <span style={{ color: "#37394D" }} className="text">
+              {item.name}
+            </span>
+            <span style={{ color: "#95A1AC" }} className="text p-4">
+              {item.sku}
+            </span>
+          </div>
+        </div>
+        <div className="rs-right">
+          <span style={{ color: "#222222" }} className="text t-right">
+            {`${findPrice(item.variant_prices, AppConfig.currency)} `}
+            <span
+              style={{
+                color: "#737373",
+                textDecoration: "underline",
+                textDecorationColor: "#737373",
+              }}
+            >
+              đ
+            </span>
+          </span>
+          <span style={{ color: "#737373" }} className="text t-right p-4">
+            Có thể bán:
+            <span
+              style={{
+                color: item.inventory > 0 ? "#2A2A86" : "rgba(226, 67, 67, 1)",
+              }}
+            >
+              {` ${item.inventory}`}
+            </span>
+          </span>
+        </div>
+      </div>
     );
   };
 
-  const columns = [
+  const convertResultSearchVariant = useMemo(() => {
+    let options: any[] = [];
+    resultSearchVariant.items.forEach(
+      (item: VariantResponse, index: number) => {
+        options.push({
+          label: renderSearchVariant(item),
+          value: item.id ? item.id.toString() : "",
+        });
+      }
+    );
+    return options;
+  }, [resultSearchVariant]);
+
+  const renderCardExtra = () => {
+    return (
+      <React.Fragment>
+        <Checkbox style={{ marginLeft: 20 }} />
+        Trả toàn bộ sản phẩm
+      </React.Fragment>
+    );
+  };
+
+  const onChangeProductSearchValue = (value: string) => {
+    setSearchVariantInputValue(value);
+    initQueryVariant.info = value;
+    const queryVariant = {
+      ...initQueryVariant,
+      info: value,
+    };
+    dispatch(
+      searchVariantsOrderRequestAction(queryVariant, setResultSearchVariant)
+    );
+  };
+
+  const onChangeProductQuantity = (value: number, index: number) => {
+    let resultListReturnProducts = [...listReturnProducts];
+    resultListReturnProducts[index].quantity = Number(
+      value == null ? "0" : value.toString().replace(".", "")
+    );
+    handleReturnProducts(resultListReturnProducts);
+  };
+
+  const columns: ColumnType<any>[] = [
     {
       title: "Sản phẩm",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "variant",
+      key: "variant",
       width: "40%",
     },
     {
-      title: "Số lượng trả",
+      title: () => (
+        <div className="text-center">
+          <div style={{ textAlign: "center" }}>Số lượng trả</div>
+          {listReturnProducts && getTotalQuantity(listReturnProducts) > 0 && (
+            <span style={{ color: "#2A2A86" }}>
+              ({getTotalQuantity(listReturnProducts)})
+            </span>
+          )}
+        </div>
+      ),
       dataIndex: "value",
       key: "value",
       width: "40%",
-    },
-    {
-      title: "Giá hàng trả",
-      width: "20%",
-      render: (row: { key: string }) => {
-        return <Button>222</Button>;
+      render: (value, row, index: number) => {
+        return (
+          <div>
+            <InputNumber
+              min={1}
+              max={10}
+              defaultValue={1}
+              onChange={(value: number) =>
+                onChangeProductQuantity(value, index)
+              }
+            />
+            / 1
+          </div>
+        );
       },
     },
     {
+      title: "Giá hàng trả",
+      dataIndex: "price",
+      key: "price",
+      width: "20%",
+    },
+    {
       title: "Thành tiền",
-      dataIndex: "value",
-      key: "value",
+      key: "total",
       width: "40%",
+      render: (value: OrderLineItemRequest, item: any, index: number) => {
+        return (
+          <div className="yody-pos-varian-name">
+            {formatCurrency(Math.round(value.line_amount_after_line_discount))}
+          </div>
+        );
+      },
     },
   ];
 
@@ -56,13 +299,59 @@ function CardReturnProducts(props: PropType) {
         title="Sản phẩm"
         extra={renderCardExtra()}
       >
-        Sản phẩm:
-        <Input
-          size="middle"
-          className="yody-search"
-          placeholder="Tìm sản phẩm mã 7... (F3)"
-          prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-        />
+        <div className="label">Sản phẩm:</div>
+        <AutoComplete
+          notFoundContent={
+            searchVariantInputValue.length >= 3
+              ? "Không tìm thấy sản phẩm"
+              : undefined
+          }
+          id="search_product"
+          value={searchVariantInputValue}
+          ref={autoCompleteRef}
+          onSelect={onSelectSearchedVariant}
+          dropdownClassName="search-layout dropdown-search-header"
+          dropdownMatchSelectWidth={456}
+          className="productSearchInput"
+          onSearch={onChangeProductSearchValue}
+          options={convertResultSearchVariant}
+          maxLength={255}
+          dropdownRender={(menu) => (
+            <div>
+              <div
+                className="row-search w-100"
+                style={{
+                  minHeight: "42px",
+                  lineHeight: "50px",
+                  cursor: "pointer",
+                }}
+              >
+                <div className="rs-left w-100">
+                  <div style={{ float: "left", marginLeft: "20px" }}>
+                    <img src={addIcon} alt="" />
+                  </div>
+                  <div className="rs-info w-100">
+                    <span
+                      className="text"
+                      style={{ marginLeft: "23px", lineHeight: "18px" }}
+                    >
+                      Thêm mới sản phẩm
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <Divider style={{ margin: "4px 0" }} />
+              {menu}
+            </div>
+          )}
+        >
+          <Input
+            size="middle"
+            className="yody-search"
+            placeholder="Tìm sản phẩm mã 7... (F3)"
+            prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+          />
+        </AutoComplete>
         <Table
           locale={{
             emptyText: (
@@ -86,40 +375,41 @@ function CardReturnProducts(props: PropType) {
           }}
           rowKey={(record: any) => record.id}
           columns={columns}
-          dataSource={listOrders}
+          dataSource={listReturnProducts}
           className="w-100"
           tableLayout="fixed"
           pagination={false}
           scroll={{ y: 300 }}
           sticky
-          footer={() =>
-            listOrders &&
-            listOrders.length > 0 && (
-              <div className="row-footer-custom">
-                <div className="singleRow">
-                  <p>Số lượng:</p>
-                  <p>4:</p>
-                </div>
-                <div className="singleRow">
-                  <p>Tổng tiền:</p>
-                  <p>4:</p>
-                </div>
-                <div className="singleRow">
-                  <p>Số lượng:</p>
-                  <p>270.000</p>
-                </div>
-                <div className="singleRow">
-                  <p>Phí ship báo khách:</p>
-                  <p>20.000</p>
-                </div>
-                <div className="singleRow">
-                  <p>Khách cần phải trả:</p>
-                  <p>166.000</p>
-                </div>
-              </div>
-            )
-          }
         />
+        <Row className="sale-product-box-payment" gutter={24}>
+          <Col xs={24} lg={11}></Col>
+          <Col xs={24} lg={10}>
+            <Row style={{ justifyContent: "space-between" }}>
+              <div className="font-weight-500">Số lượng:</div>
+              <div className="font-weight-500" style={{ fontWeight: 500 }}>
+                4
+              </div>
+            </Row>
+            <Row style={{ justifyContent: "space-between" }}>
+              <div className="font-weight-500">Phí ship báo khách:</div>
+              <div className="font-weight-500" style={{ fontWeight: 500 }}>
+                20.000
+              </div>
+            </Row>
+            <Row style={{ justifyContent: "space-between" }}>
+              <div className="font-weight-500">Tổng tiền:</div>
+              <div className="font-weight-500" style={{ fontWeight: 500 }}>
+                270.000
+              </div>
+            </Row>
+            <Divider className="margin-top-5 margin-bottom-5" />
+            <Row className="payment-row" justify="space-between">
+              <strong className="font-size-text">Khách cần phải trả:</strong>
+              <strong className="text-success font-size-price">166.000</strong>
+            </Row>
+          </Col>
+        </Row>
       </Card>
     </StyledComponent>
   );
