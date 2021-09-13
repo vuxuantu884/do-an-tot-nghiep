@@ -14,9 +14,9 @@ export interface EcommerceResponse extends BaseObject {
   assign_account_code: String; // mã người phụ trách /vd: YD23123
   assign_account: String; // tên người phụ trách
   status: String; // trạng thái gian hàng
-  inventory_sync: Boolean; // đồng bộ tồn
-  order_sync: Boolean; // đồng bộ đơn hàng
-  product_sync: String; // đồng bộ sản phẩm
+  inventory_sync: String; // đồng bộ tồn // Bằng tay và tự động
+  order_sync: String; // đồng bộ đơn hàng // Bằng tay và tự động
+  product_sync: String; // đồng bộ sản phẩm // Bằng tay và tự động
   auth_time: String; // thời gian bắt đầu kết nối
   expire_time: String; // thời gian hết hạn
   inventories: Array<EcommerceShopInventoryDto>; // danh sách kho

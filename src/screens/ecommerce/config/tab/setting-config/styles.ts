@@ -1,6 +1,14 @@
 import styled from "styled-components";
 
 export const StyledConfig = styled.div`
+.ecommerce-user-detail{
+  border: 1px solid #e5e5e5;
+  padding: 7px 15px;
+  margin-bottom: 20px;
+  .ant-col{
+    margin: 5px 0;
+  }
+}
   .ant-row {
     width: 100%;
   }

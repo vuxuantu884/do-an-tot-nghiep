@@ -26,6 +26,7 @@ const iconMap: any = {
 };
 
 const { Option } = Select;
+
 type SettingConfigProps = {
   listStores: Array<StoreResponse>;
   accounts: Array<AccountResponse>;
@@ -71,23 +72,6 @@ const SettingConfig: React.FC<SettingConfigProps> = (
 
   console.log(configDetail);
 
-  function tagRender(props: any) {
-    const { label, closable, onClose } = props;
-    const onPreventMouseDown = (event: any) => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    return (
-      <Tag
-        className="primary-bg"
-        onMouseDown={onPreventMouseDown}
-        closable={closable}
-        onClose={onClose}
-      >
-        {label}
-      </Tag>
-    );
-  }
   const handleStoreChange = (event: any) => {
     let inventories = [];
     for (let id of event) {
@@ -101,9 +85,11 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     }
     setInventories(inventories);
   };
-  
+
   React.useEffect(() => {
     if (configDetail) {
+      setInventories([]);
+      setInventories(configDetail.inventories);
       form.setFieldsValue({
         id: configDetail.id,
         name: configDetail.name,
@@ -113,12 +99,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
         product_sync: configDetail.product_sync,
         inventory_sync: configDetail.inventory_sync,
         store: configDetail.store,
-        // inventories: configDetail.inventories
       });
     } else {
       form.resetFields();
+      setInventories([]);
     }
-  }, [configDetail, form]);
+  }, [configDetail, form, setInventories]);
   const handleShopChange = React.useCallback(
     (id: any) => {
       let _configData = [...configData];
@@ -127,6 +113,12 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     },
     [configData, setConfigDetail]
   );
+  console.log(inventories);
+  const convertToCapitalizedString = () =>{
+    if(configDetail){
+     return configDetail.ecommerce.charAt(0).toUpperCase() + configDetail.ecommerce.slice(1);
+    }
+  }
   return (
     <StyledConfig className="padding-20">
       <Form form={form} onFinish={(value) => handleUpdateConfig(value)}>
@@ -150,7 +142,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 filterOption={(input, option) => {
                   if (option) {
                     return (
-                      option.children[2]
+                      option.children[1]
                         .toLowerCase()
                         .indexOf(input.toLowerCase()) >= 0
                     );
@@ -164,16 +156,43 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                     key={item.id}
                     value={item.id}
                   >
-                    <img
+                    {<img
                       style={{ marginRight: 8, paddingBottom: 4 }}
                       src={iconMap[item.ecommerce]}
                       alt=""
-                    />
+                    />}
                     {item.name}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
             </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col span={12}>
+            <span className="description-name">{`Thông tin của shop trên ${
+              convertToCapitalizedString() || "sàn"
+            }`}</span>
+            {/* <span className="description">
+              Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt
+              các gian hàng với nhau
+            </span> */}
+          </Col>
+          <Col span={12}>
+            <div className="ecommerce-user-detail">
+              <Row>
+                <Col span={4}>Tên Shop</Col>
+                <Col span={12}>: ---</Col>
+              </Row>
+              <Row>
+                <Col span={4}>ID Shop</Col>
+                <Col span={12}>: ---</Col>
+              </Row>
+              <Row>
+                <Col span={4}>Username</Col>
+                <Col span={12}>: ---</Col>
+              </Row>
+            </div>
           </Col>
         </Row>
         <Row gutter={24}>
@@ -265,7 +284,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
           </Col>
           <Col span={12}>
             <Form.Item
-              name="inventories"
+              // name="inventories"
               className="store"
               label={<span>Kho đồng bộ tồn</span>}
               rules={[
@@ -276,24 +295,31 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               ]}
             >
               <CustomSelect
-                disabled={configDetail ? false : true}
-                showSearch
-                optionFilterProp="children"
-                showArrow
-                placeholder="Chọn cửa hàng"
                 mode="multiple"
-                allowClear
-                onChange={handleStoreChange}
-                tagRender={tagRender}
-                style={{
-                  width: "100%",
-                }}
+                className="dropdown-rule"
+                showArrow
+                showSearch
+                placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
-                maxTagCount="responsive"
-                defaultValue={configDetail?.inventories?.map((item) => item.store_id)}
+                filterOption={(input, option) => {
+                  if (option) {
+                    return (
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
+                value={inventories?.map((store) => store.store_id)}
+                onChange={handleStoreChange}
               >
-                {listStores?.map((item) => (
-                  <CustomSelect.Option key={item.id} value={item.id}>
+                {listStores.map((item, index) => (
+                  <CustomSelect.Option
+                    style={{ width: "100%" }}
+                    key={index.toString()}
+                    value={item.id}
+                  >
                     {item.name}
                   </CustomSelect.Option>
                 ))}
@@ -359,8 +385,10 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 placeholder="Chọn kiểu đồng bộ sản phẩm"
                 disabled={configDetail ? false : true}
               >
-                <Option value={"auto"}>Tự ghép nối</Option>
-                <Option value={"manual"}>Đợi ghép nối</Option>
+                <Option value={"auto"}>{`Luôn lấy sản phẩm từ ${
+                  convertToCapitalizedString() || "sàn"
+                } về`}</Option>
+                <Option value={"manual"}>Đợi ghép sản phẩm giữa 2 bên</Option>
               </Select>
             </Form.Item>
           </Col>

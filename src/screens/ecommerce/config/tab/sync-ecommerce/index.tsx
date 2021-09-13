@@ -59,7 +59,7 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
     },
     { title: "Shop ID | Tên shop", visible: true, dataIndex: "name" },
     { title: "Tên gian hàng", visible: true, dataIndex: "name" },
-    // { title: "Cửa hàng", visible: true, dataIndex: "store_id" },
+    { title: "Cửa hàng", visible: true, dataIndex: "store" },
     { title: "Đồng bộ sản phẩm", visible: true, dataIndex: "product_sync" },
     { title: "Nhân viên bán hàng", visible: true, dataIndex: "assign_account" },
     {
