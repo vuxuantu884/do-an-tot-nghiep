@@ -176,10 +176,10 @@ const ProductFilter: React.FC<ProductFilterProps> = (
             <Col span={24}>
               <Item
                 name="made_in"
-                label="Xuất sứ"
+                label="Xuất xứ"
               >
                 <Select optionFilterProp="children" showSearch>
-                  <Option value="">Xuất sứ</Option>
+                  <Option value="">Xuất xứ</Option>
                   {listCountries?.map((item) => (
                     <Option key={item.id} value={item.id}>
                       {item.name}

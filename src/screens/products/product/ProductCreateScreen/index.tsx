@@ -43,9 +43,9 @@ import { ColorResponse } from "model/product/color.model";
 import { MaterialResponse } from "model/product/material.model";
 import {
   ProductRequestView,
+  ProductResponse,
   VariantImage,
   VariantRequestView,
-  VariantResponse,
 } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -67,6 +67,7 @@ import {
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import ImageProduct from "../component/image-product.component";
+import UploadImageModal, { VariantImageModel } from "../component/upload-image.modal";
 import { StyledComponent } from "./styles";
 
 const { Item, List } = Form;
@@ -185,6 +186,8 @@ const ProductCreateScreen: React.FC = () => {
     visible: false,
   });
   const [status, setStatus] = useState<string>(initialRequest.status);
+  const [isVisibleUpload, setVisibleUpload] = useState<boolean>(false);
+  const [variant, setVariant] = useState<VariantImageModel | null>(null);
   //end category
   //end state
 
@@ -332,14 +335,26 @@ const ProductCreateScreen: React.FC = () => {
   }, [productStatusList, status]);
 
   const createCallback = useCallback(
-    (result: VariantResponse) => {
+    (result: ProductResponse) => {
       setLoadingSaveButton(false);
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
-        history.push(UrlConfig.PRODUCT);
+        history.push(`${UrlConfig.PRODUCT}/${result.id}`);
       }
     },
     [history]
+  );
+
+  const onClickUpload = useCallback(
+    (item: VariantRequestView, index: number) => {
+      setVariant({
+        name: item.name,
+        sku: item.sku,
+        variant_images: item.variant_images,
+      });
+      setVisibleUpload(true);
+    },
+    []
   );
 
   const onFinish = useCallback(
@@ -362,7 +377,8 @@ const ProductCreateScreen: React.FC = () => {
   }, []);
 
   const onClickAdd = useCallback(() => {
-    form.validateFields()
+    form
+      .validateFields()
       .then(() => {
         if (sizeSelected.length > 0 && colorSelected.length > 0) {
           form.submit();
@@ -387,7 +403,8 @@ const ProductCreateScreen: React.FC = () => {
             title: "Thêm mới sản phẩm",
           });
         }
-      }).catch((error) => {
+      })
+      .catch((error) => {
         const element: any = document.getElementById(
           error.errorFields[0].name.join("")
         );
@@ -395,8 +412,8 @@ const ProductCreateScreen: React.FC = () => {
         const y =
           element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
         window.scrollTo({ top: y, behavior: "smooth" });
-      })
-    }, [colorSelected.length, form, onCancel, sizeSelected.length]);
+      });
+  }, [colorSelected.length, form, onCancel, sizeSelected.length]);
 
   const onClickReset = useCallback(() => {
     setModalConfirm({
@@ -414,11 +431,14 @@ const ProductCreateScreen: React.FC = () => {
     });
   }, [form, onCancel]);
 
-  const deleteVariant = useCallback((sku: string) => {
-    let index = variants.findIndex((item) => item.sku  === sku);
-    variants.splice(index , 1);
-    setVariants([...variants])
-  }, [variants]);
+  const deleteVariant = useCallback(
+    (sku: string) => {
+      let index = variants.findIndex((item) => item.sku === sku);
+      variants.splice(index, 1);
+      setVariants([...variants]);
+    },
+    [variants]
+  );
 
   useEffect(() => {
     if (!isLoadMaterData.current) {
@@ -473,15 +493,15 @@ const ProductCreateScreen: React.FC = () => {
                 extra={
                   <Space size={15}>
                     <div className="extra-cards status">
-                    <Item noStyle>
-                      <b>Trạng thái:</b>
-                      <Switch
-                        onChange={(checked) =>
-                          setStatus(checked ? "active" : "inactive")
-                        }
-                        className="ant-switch-success"
-                        defaultChecked
-                      />
+                      <Item noStyle>
+                        <b>Trạng thái:</b>
+                        <Switch
+                          onChange={(checked) =>
+                            setStatus(checked ? "active" : "inactive")
+                          }
+                          className="ant-switch-success"
+                          defaultChecked
+                        />
                       </Item>
                       <label
                         className={
@@ -494,9 +514,7 @@ const ProductCreateScreen: React.FC = () => {
                     <div className="extra-cards">
                       <b>Cho phép bán:</b>
                       <Item valuePropName="checked" name="saleable" noStyle>
-                        <Switch
-                          className="ant-switch-success"
-                        />
+                        <Switch className="ant-switch-success" />
                       </Item>
                     </div>
                   </Space>
@@ -838,7 +856,16 @@ const ProductCreateScreen: React.FC = () => {
               </Card>
             </Col>
             <Col span={24} md={6}>
-              <Card className="card" title="Ảnh"></Card>
+              <Card className="card" title="Ảnh">
+                <div className="padding-20">
+                  <div className="a-container">
+                    <div className="bpa">
+                      <PlusOutlined />
+                      Chọn ảnh đại diện
+                    </div>
+                  </div>
+                </div>
+              </Card>
               <Card className="card" title="Phòng Win">
                 <div className="padding-20">
                   <Item
@@ -1157,7 +1184,7 @@ const ProductCreateScreen: React.FC = () => {
                             <ImageProduct
                               path={image !== null ? image.url : null}
                               onClick={() => {
-                                // onClickUpload(item, index);
+                                onClickUpload(item, index);
                               }}
                             />
                           );
@@ -1190,7 +1217,9 @@ const ProductCreateScreen: React.FC = () => {
                         width: 100,
                         render: (sku: string) => (
                           <Button
-                            onClick={() => {deleteVariant(sku)}}
+                            onClick={() => {
+                              deleteVariant(sku);
+                            }}
                             type="link"
                             icon={<DeleteOutlined />}
                           />
@@ -1220,6 +1249,23 @@ const ProductCreateScreen: React.FC = () => {
             }
           />
           <ModalConfirm {...modalConfirm} />
+          <UploadImageModal
+            onCancel={() => {
+              setVisibleUpload(false);
+            }}
+            visible={isVisibleUpload}
+            variant={variant}
+            onSave={(variant_images) => {
+              let index = variants.findIndex(
+                (item) => item.sku === variant?.sku
+              );
+              if (index !== -1) {
+                variants[index].variant_images = variant_images;
+              }
+              setVariants([...variants]);
+              setVisibleUpload(false);
+            }}
+          />
         </ContentContainer>
       </StyledComponent>
     </Form>

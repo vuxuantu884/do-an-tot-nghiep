@@ -55,7 +55,7 @@ function CustomerShippingAddressOrder(props: any) {
       );
   };
 
-  const [customerDetailState, setCustomerDetailState] = React.useState("");
+  const [customerDetailState] = React.useState("");
 
   const shippingColumnFinal = () =>
     shippingColumns.filter((item) => item.visible === true);

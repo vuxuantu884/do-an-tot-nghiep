@@ -46,9 +46,9 @@ export const productUploadAction = (
 
 export const productCreateAction = (
   request: ProductRequest|null,
-  createCallback: (result:VariantResponse) => void
+  createCallback: (result: ProductResponse) => void
 ) => {
-  return BaseAction(ProductType.CREATE_PRODUCT_REQEUST, {
+  return BaseAction(ProductType.CREATE_PRODUCT_REQUEST, {
     request,
     createCallback,
   });
