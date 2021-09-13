@@ -1,6 +1,5 @@
 import { Button, Card, Col, Input, Row,Form, FormInstance } from 'antd';
 import ContentContainer from 'component/container/content.container';
-import CustomSelect from 'component/custom/select.custom';
 import UrlConfig from 'config/url.config';
 import React, { createRef, useCallback, useMemo, useRef, useState } from 'react'
 import './upload-loyalty-cards.scss'
@@ -11,6 +10,8 @@ import deleteIcon from "assets/icon/deleteIcon.svg";
 import {  showSuccess, showWarning } from 'utils/ToastUtils';
 import { useDispatch } from 'react-redux';
 import { uploadFileCreateLoyaltyCard } from 'domain/actions/loyalty/release/loyalty-release.action';
+import ErrorLogs from '../component/error-logs/ErrorLogs';
+import { LoyaltyCardReleaseResponse } from 'model/response/loyalty/release/loyalty-card-release.response';
 
 const UploadLoyaltyCardRelease = () => {
   const [file, setFile] = useState<File>()
@@ -19,6 +20,7 @@ const UploadLoyaltyCardRelease = () => {
   const dispatch = useDispatch()
   const { Item } = Form;
   const formRef = createRef<FormInstance>();
+  const [response, setResponse] = useState<LoyaltyCardReleaseResponse>()
   const initFormValues = useMemo(() => {
     return {
       name: ''
@@ -41,8 +43,13 @@ const UploadLoyaltyCardRelease = () => {
       showSuccess('Tạo đợt phát hành thành công')
       formRef.current?.resetFields()
       setFile(undefined)
+      setResponse(data)
     }
   }, [formRef])
+
+  const onCloseErrorLogModal = useCallback(() => {
+    setResponse(undefined)
+  }, [])
 
   const onFinish = useCallback((values) => {
     if (!file || !values.name) {
@@ -57,22 +64,18 @@ const UploadLoyaltyCardRelease = () => {
 
   return (
     <ContentContainer
-      title="Thẻ khách hàng"
+      title="Thêm mới đợt phát hành"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khách hàng",
-          path: `${UrlConfig.CUSTOMER}`,
-        },
-        {
-          name: "Thẻ khách hàng",
+          name: "Phát hành thẻ",
           path: `${UrlConfig.CUSTOMER}/cards`,
         },
         {
-          name: "Tạo mới đợt phát hành",
+          name: "Thêm mới đợt phát hành"
         },
       ]}
     >
@@ -90,26 +93,6 @@ const UploadLoyaltyCardRelease = () => {
           <div className="upload-loyalty-cards">
             <Row style={{marginBottom: '20px'}}>
               <Col span={10}>
-                <div className="release-label">Doanh nghiệp</div>
-                <div className="release-content">
-                  <CustomSelect
-                    mode="multiple"
-                    showArrow
-                    showSearch
-                    placeholder="Doanh nghiệp"
-                    notFoundContent="Không tìm thấy kết quả"
-                    style={{
-                      width: '100%'
-                    }}
-                    optionFilterProp="children"
-                  >
-                    <CustomSelect.Option value="Yody">
-                      Yody
-                    </CustomSelect.Option>
-                  </CustomSelect>
-                </div>
-              </Col>
-              <Col span={14}>
                 <div className="release-label">Tên đợt phát hành <span className="text-error">*</span></div>
                 <div className="release-content">
                   <Item
@@ -124,6 +107,11 @@ const UploadLoyaltyCardRelease = () => {
                   >
                     <Input placeholder="Tên đợt phát hành" />
                   </Item>
+                </div>
+              </Col>
+              <Col span={14}>
+                <div className="sample-file">
+                  File mẫu tạo đợt phát hành: Click để tải <a href="https://files-xls.s3.ap-southeast-1.amazonaws.com/sample.xlsx" rel="noreferrer" target="_blank">“File excel mẫu”</a>
                 </div>
               </Col>
             </Row>
@@ -148,7 +136,7 @@ const UploadLoyaltyCardRelease = () => {
                       <div className="file">
                         <img alt="" className="file-icon" src={paperClip} />
                         { file.name }
-                        <img alt="" className="delete-icon" src={deleteIcon} />
+                        <img alt="" className="delete-icon" src={deleteIcon} onClick={() => setFile(undefined)} />
                       </div>
                     )
                   }
@@ -170,6 +158,13 @@ const UploadLoyaltyCardRelease = () => {
           </div>
         </Form>
       </Card>
+      <ErrorLogs
+        visible={response !== undefined}
+        onOk={onCloseErrorLogModal}
+        okText="Đóng"
+        errors={response?.errors}
+        onCancel={onCloseErrorLogModal}
+      />
     </ContentContainer>
   )
 }

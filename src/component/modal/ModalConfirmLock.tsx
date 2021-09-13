@@ -1,8 +1,8 @@
-import { DeleteOutlined } from "@ant-design/icons";
+import { LockOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
 import React from "react";
 
-type ModalDeleteConfirmProps = {
+type ModalConfirmLockProps = {
   visible?: boolean;
   onOk?: () => void;
   onCancel?: () => void;
@@ -12,8 +12,8 @@ type ModalDeleteConfirmProps = {
   cancelText?: string;
 };
 
-const ModalDeleteConfirm: React.FC<ModalDeleteConfirmProps> = (
-  props: ModalDeleteConfirmProps
+const ModalConfirmLock: React.FC<ModalConfirmLockProps> = (
+  props: ModalConfirmLockProps
 ) => {
   const { visible, onOk, onCancel, title, subTitle, okText, cancelText } =
     props;
@@ -21,8 +21,8 @@ const ModalDeleteConfirm: React.FC<ModalDeleteConfirmProps> = (
     <Modal
       width="35%"
       className="modal-confirm"
-      okText={okText ? okText : "Có"}
-      cancelText={cancelText ? cancelText : "Không"}
+      okText={okText ? okText : "Khóa"}
+      cancelText={cancelText ? cancelText : "Thoát"}
       visible={visible}
       onOk={onOk}
       onCancel={onCancel}
@@ -30,10 +30,10 @@ const ModalDeleteConfirm: React.FC<ModalDeleteConfirmProps> = (
       <div className="modal-confirm-container">
         <div>
           <div
-            style={{ color: "#FFFFFF", background: "#EB5757" }}
+            style={{ color: "#FFFFFF", background: "#71767B" }}
             className="modal-confirm-icon"
           >
-            <DeleteOutlined />
+            <LockOutlined />
           </div>
         </div>
         <div className="modal-confirm-right margin-left-20">
@@ -45,4 +45,4 @@ const ModalDeleteConfirm: React.FC<ModalDeleteConfirmProps> = (
   );
 };
 
-export default ModalDeleteConfirm;
+export default ModalConfirmLock;
