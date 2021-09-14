@@ -6,15 +6,15 @@ import {
   Divider,
   Input,
   InputNumber,
-  Row,
+  Row
 } from "antd";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import React, { useState } from "react";
+import React from "react";
 import {
   formatCurrency,
   formatSuffixPoint,
-  replaceFormat,
+  replaceFormat
 } from "utils/AppUtils";
 import { PaymentMethodCode, PointConfig } from "utils/Constants";
 
@@ -26,7 +26,13 @@ type PropType = {
 };
 function CardReturnMoney(props: PropType) {
   const { listPaymentMethods, amountReturn, payments, handlePayments } = props;
-
+  /**
+  * payment method bỏ tiêu điểm và qrpay
+  */
+ const exceptMethod = [PaymentMethodCode.QR_CODE, PaymentMethodCode.POINT];
+ const listPaymentMethodsFormatted = listPaymentMethods.filter((single) => {
+   return !exceptMethod.includes(single.code)
+ })
   const totalAmountReturn = () => {
     let total = 0;
     payments.forEach((p) => (total = total + p.amount));
@@ -38,7 +44,7 @@ function CardReturnMoney(props: PropType) {
   };
 
   const handlePickPaymentMethod = (code?: string) => {
-    let paymentMaster = listPaymentMethods.find((p) => code === p.code);
+    let paymentMaster = listPaymentMethodsFormatted.find((p) => code === p.code);
     if (!paymentMaster) return;
     let indexPayment = payments.findIndex((p) => p.code === code);
     if (indexPayment === -1) {
@@ -97,7 +103,7 @@ function CardReturnMoney(props: PropType) {
   const renderPaymentMethodsTitle = () => {
     return (
       <React.Fragment>
-        {listPaymentMethods.map((method, index) => {
+        {listPaymentMethodsFormatted.map((method, index) => {
           let icon = null;
           return (
             <Col key={method.code} className="btn-payment-method">

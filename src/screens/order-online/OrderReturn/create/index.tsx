@@ -1,11 +1,11 @@
-import { Card, Col, Collapse, Row, Tag } from "antd";
+import { Card, Col, Row, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
-import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { actionCreateOrderReturn } from "domain/actions/order/order-return.action";
 import {
   OrderDetailAction,
   PaymentMethodGetList,
@@ -13,11 +13,12 @@ import {
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
-import { OrderPaymentRequest } from "model/request/order.request";
+import { OrderPaymentRequest, OrderRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderLineItemResponse,
   OrderResponse,
+  ReturnProductModel,
   StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -29,15 +30,8 @@ import {
   useState,
 } from "react";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
-import {
-  FulFillmentStatus,
-  OrderStatus,
-  PaymentMethodCode,
-} from "utils/Constants";
+import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
 import { useQuery } from "utils/useQuery";
-import ActionHistory from "../../component/order-detail/ActionHistory";
-import OrderDetailBottomBar from "../../component/order-detail/BottomBar";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoney from "../components/CardReturnMoney";
 import CardReturnOrder from "../components/CardReturnOrder";
@@ -63,12 +57,12 @@ const ScreenReturnDetail = (props: PropType) => {
 
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [listReturnProducts, setListReturnProducts] = useState<
-    OrderLineItemResponse[]
+    ReturnProductModel[]
   >([]);
   const [listOrderProducts, setListOrderProducts] = useState<
     OrderLineItemResponse[]
   >([]);
-  const [OrderDetailAllFullfilment, setOrderDetailAllFullfilment] =
+  const [OrderDetailAllFulfillment, setOrderDetailAllFulfillment] =
     useState<OrderResponse | null>(null);
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
@@ -77,9 +71,6 @@ const ScreenReturnDetail = (props: PropType) => {
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
   >([]);
-  const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
-    useState<number>(0);
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [amountReturn, setAmountReturn] = useState<number>(100000);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
@@ -112,7 +103,7 @@ const ScreenReturnDetail = (props: PropType) => {
       );
       setOrderDetail(_data);
       setListOrderProducts(_data.items);
-      setOrderDetailAllFullfilment(data);
+      setOrderDetailAllFulfillment(data);
     }
   }, []);
 
@@ -124,9 +115,33 @@ const ScreenReturnDetail = (props: PropType) => {
     setPayments(value);
   };
 
-  const handleSubmit = () => {};
+  const handleSubmit = () => {
+    console.log("OrderDetail", OrderDetail);
+    if (OrderDetail && listReturnProducts) {
+      console.log("333");
+      let abc: OrderRequest = {
+        ...OrderDetail,
+        action: "",
+        delivery_service_provider_id: null,
+        delivery_fee: null,
+        shipper_code: "",
+        shipper_name: "",
+        shipping_fee_paid_to_three_pls: null,
+        requirements: null,
+        items: listReturnProducts,
+        fulfillments: [],
+      };
+      dispatch(
+        actionCreateOrderReturn(abc, (response) => {
+          console.log("response", response);
+        })
+      );
+    }
+  };
 
-  const handleCancel = () => {};
+  const handleCancel = () => {
+    console.log("333");
+  };
 
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -173,24 +188,7 @@ const ScreenReturnDetail = (props: PropType) => {
     });
   }, []);
 
-  // end
-  const scroll = useCallback(() => {
-    if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
-    } else {
-      setIsShowBillStep(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("scroll", scroll);
-    return () => {
-      window.removeEventListener("scroll", scroll);
-    };
-  }, [scroll]);
-
   if (!orderID) {
-    setLoadingData(false);
     setLoadingData(false);
     return null;
   }
@@ -374,7 +372,10 @@ const ScreenReturnDetail = (props: PropType) => {
           </Col>
         </Row>
       </div>
-      <ReturnBottomBar onSubmit={handleSubmit} onCancel={handleCancel} />
+      <ReturnBottomBar
+        onSubmit={() => handleSubmit()}
+        onCancel={() => handleCancel()}
+      />
     </ContentContainer>
   );
 };

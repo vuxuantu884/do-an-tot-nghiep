@@ -90,36 +90,34 @@ const OrderDetailSidebar: React.FC<PropType> = (props: PropType) => {
           </div>
         }
       >
-        <div className="padding-24">
-          <Form.Item
-            name="note"
-            label="Ghi chú nội bộ 3"
-            tooltip={{
-              title: "Thêm thông tin ghi chú chăm sóc khách hàng",
-              icon: <InfoCircleOutlined />,
-            }}
-          >
-            <Input.TextArea
-              placeholder="Điền ghi chú"
-              maxLength={500}
-              style={{ minHeight: "130px" }}
-            />
-          </Form.Item>
-          <Form.Item
-            label="Tag"
-            tooltip={{
-              title: "Thêm từ khóa để tiện lọc đơn hàng",
-              icon: <InfoCircleOutlined />,
-            }}
-            // name="tags"
-          >
-            <CustomerInputTags
-              onChangeTag={onChangeTag}
-              tags={tags}
-              isCloneOrder={isCloneOrder}
-            />
-          </Form.Item>
-        </div>
+        <Form.Item
+          name="note"
+          label="Ghi chú nội bộ 3"
+          tooltip={{
+            title: "Thêm thông tin ghi chú chăm sóc khách hàng",
+            icon: <InfoCircleOutlined />,
+          }}
+        >
+          <Input.TextArea
+            placeholder="Điền ghi chú"
+            maxLength={500}
+            style={{ minHeight: "130px" }}
+          />
+        </Form.Item>
+        <Form.Item
+          label="Tag"
+          tooltip={{
+            title: "Thêm từ khóa để tiện lọc đơn hàng",
+            icon: <InfoCircleOutlined />,
+          }}
+          // name="tags"
+        >
+          <CustomerInputTags
+            onChangeTag={onChangeTag}
+            tags={tags}
+            isCloneOrder={isCloneOrder}
+          />
+        </Form.Item>
       </Card>
     </StyledComponent>
   );

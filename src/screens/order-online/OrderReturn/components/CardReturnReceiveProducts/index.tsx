@@ -9,7 +9,7 @@ function CardReturnReceiveProducts(props: PropType) {
     return (
       <>
         <Checkbox />
-        Đơn hàng có đổi trả hàng
+        Đã nhận hàng trả lại
       </>
     );
   };

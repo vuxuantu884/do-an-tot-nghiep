@@ -91,6 +91,10 @@ export interface OrderLineItemResponse {
   gifts: Array<OrderLineItemResponse>;
 }
 
+export interface ReturnProductModel extends OrderLineItemResponse {
+  maxQuantity?: number;
+}
+
 export interface FulFillmentResponse {
   id: number | null;
   code: string | null;

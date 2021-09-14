@@ -11,31 +11,39 @@ import {
   Row,
   Table,
 } from "antd";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { RefSelectProps } from "antd/lib/select";
 import { ColumnType } from "antd/lib/table";
 import emptyProduct from "assets/icon/empty_products.svg";
 import imgDefault from "assets/icon/img-default.svg";
-import { VariantSearchQuery } from "model/product/product.model";
 import { OrderLineItemRequest } from "model/request/order.request";
-import { OrderLineItemResponse } from "model/response/order/order.response";
+import {
+  OrderLineItemResponse,
+  ReturnProductModel,
+} from "model/response/order/order.response";
 import React, { createRef, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
+import {
+  formatCurrency,
+  getTotalAmountAfferDiscount,
+  getTotalQuantity,
+} from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   listOrderProducts: OrderLineItemResponse[];
-  listReturnProducts: OrderLineItemResponse[];
+  listReturnProducts: ReturnProductModel[];
   handleReturnProducts: (listReturnProducts: OrderLineItemResponse[]) => void;
 };
+
 function CardReturnProducts(props: PropType) {
   const { listReturnProducts, handleReturnProducts, listOrderProducts } = props;
-  console.log("listOrderProducts", listOrderProducts);
+
+  console.log("props", props);
   const dispatch = useDispatch();
-  const initQueryVariant: VariantSearchQuery = {
-    limit: 10,
-    page: 1,
-  };
+  const [memoryListReturnProducts, setMemoryListReturnProducts] = useState<
+    OrderLineItemResponse[]
+  >([]);
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -45,20 +53,36 @@ function CardReturnProducts(props: PropType) {
       return single.id === +value;
     });
     if (!selectedVariant) return;
+    let selectedVariantWithMaxQuantity: ReturnProductModel = {
+      ...selectedVariant,
+      maxQuantity: selectedVariant.quantity,
+    };
     console.log("selectedVariant", selectedVariant);
     let indexSelectedVariant = listReturnProducts.findIndex((single) => {
-      return single.id === selectedVariant.id;
+      return single.id === selectedVariantWithMaxQuantity.id;
     });
     let resultListReturnProducts = [...listReturnProducts];
     console.log("indexSelectedVariant", indexSelectedVariant);
     if (indexSelectedVariant === -1) {
-      selectedVariant.quantity = 1;
-      resultListReturnProducts = [selectedVariant, ...listReturnProducts];
+      selectedVariantWithMaxQuantity.quantity = 1;
+      resultListReturnProducts = [
+        selectedVariantWithMaxQuantity,
+        ...listReturnProducts,
+      ];
     } else {
       resultListReturnProducts[indexSelectedVariant].quantity += 1;
     }
     console.log("resultListReturnProducts", resultListReturnProducts);
+    setMemoryListReturnProducts(resultListReturnProducts);
     handleReturnProducts(resultListReturnProducts);
+  };
+
+  const handleChangeReturnAll = (e: CheckboxChangeEvent) => {
+    if (e.target.checked) {
+      handleReturnProducts(listOrderProducts);
+    } else {
+      handleReturnProducts(memoryListReturnProducts);
+    }
   };
 
   const renderSearchVariant = (item: OrderLineItemResponse) => {
@@ -118,7 +142,7 @@ function CardReturnProducts(props: PropType) {
   const renderCardExtra = () => {
     return (
       <React.Fragment>
-        <Checkbox style={{ marginLeft: 20 }} />
+        <Checkbox style={{ marginLeft: 20 }} onChange={handleChangeReturnAll} />
         Trả toàn bộ sản phẩm
       </React.Fragment>
     );
@@ -126,7 +150,6 @@ function CardReturnProducts(props: PropType) {
 
   const onChangeProductSearchValue = (value: string) => {
     setSearchVariantInputValue(value);
-    initQueryVariant.info = value;
   };
 
   const onChangeProductQuantity = (value: number, index: number) => {
@@ -134,8 +157,16 @@ function CardReturnProducts(props: PropType) {
     resultListReturnProducts[index].quantity = Number(
       value == null ? "0" : value.toString().replace(".", "")
     );
+    console.log("resultListReturnProducts", resultListReturnProducts);
     handleReturnProducts(resultListReturnProducts);
-    return value;
+  };
+
+  const getTotalPrice = (listReturnProducts: ReturnProductModel[]) => {
+    let total = 0;
+    listReturnProducts.forEach((a) => {
+      total = total + a.quantity * a.price;
+    });
+    return total;
   };
 
   const columns: ColumnType<any>[] = [
@@ -159,20 +190,20 @@ function CardReturnProducts(props: PropType) {
       dataIndex: "value",
       key: "value",
       width: "40%",
-      render: (value, row: OrderLineItemRequest, index: number) => {
+      render: (value, row: ReturnProductModel, index: number) => {
         console.log("row", row);
         return (
           <div>
             <InputNumber
               min={1}
-              max={10}
+              max={row.maxQuantity}
               value={row.quantity}
               defaultValue={1}
               onChange={(value: number) =>
                 onChangeProductQuantity(value, index)
               }
             />
-            / 1
+            / {row.maxQuantity}
           </div>
         );
       },
@@ -182,6 +213,9 @@ function CardReturnProducts(props: PropType) {
       dataIndex: "price",
       key: "price",
       width: "20%",
+      render: (value: number, item: any, index: number) => {
+        return <div>{formatCurrency(value)}</div>;
+      },
     },
     {
       title: "Thành tiền",
@@ -190,7 +224,7 @@ function CardReturnProducts(props: PropType) {
       render: (value: OrderLineItemRequest, item: any, index: number) => {
         return (
           <div className="yody-pos-varian-name">
-            {formatCurrency(Math.round(value.line_amount_after_line_discount))}
+            {formatCurrency(Math.round(value.price) * value.quantity)}
           </div>
         );
       },
@@ -266,25 +300,15 @@ function CardReturnProducts(props: PropType) {
             <Row style={{ justifyContent: "space-between" }}>
               <div className="font-weight-500">Số lượng:</div>
               <div className="font-weight-500" style={{ fontWeight: 500 }}>
-                4
-              </div>
-            </Row>
-            <Row style={{ justifyContent: "space-between" }}>
-              <div className="font-weight-500">Phí ship báo khách:</div>
-              <div className="font-weight-500" style={{ fontWeight: 500 }}>
-                20.000
-              </div>
-            </Row>
-            <Row style={{ justifyContent: "space-between" }}>
-              <div className="font-weight-500">Tổng tiền:</div>
-              <div className="font-weight-500" style={{ fontWeight: 500 }}>
-                270.000
+                {getTotalQuantity(listReturnProducts)}
               </div>
             </Row>
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Khách cần phải trả:</strong>
-              <strong className="text-success font-size-price">166.000</strong>
+              <strong className="text-success font-size-price">
+                {getTotalPrice(listReturnProducts)}
+              </strong>
             </Row>
           </Col>
         </Row>

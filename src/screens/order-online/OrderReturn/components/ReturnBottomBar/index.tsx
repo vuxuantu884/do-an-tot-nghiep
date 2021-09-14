@@ -1,9 +1,5 @@
 import { Button } from "antd";
-import UrlConfig from "config/url.config";
 import React from "react";
-import { Link } from "react-router-dom";
-import IconBack from "./images/iconBack.svg";
-import IconCancelConnect from "./images/iconCancelConnect.svg";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -28,6 +24,7 @@ function ReturnBottomBar(props: PropType) {
           <Button
             type="primary"
             onClick={() => {
+              console.log("click");
               onSubmit();
             }}
           >
