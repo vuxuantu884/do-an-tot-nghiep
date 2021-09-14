@@ -118,7 +118,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
       setInventories([]);
     }
   }, [configDetail, form, setInventories]);
-  console.log(configDetail)
+  
   const handleShopChange = React.useCallback(
     (id: any) => {
       let _configData = [...configData];
@@ -127,7 +127,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     },
     [configData, setConfigDetail]
   );
-  console.log(inventories);
+  
   const convertToCapitalizedString = () => {
     if (configDetail) {
       return (
@@ -200,16 +200,16 @@ const SettingConfig: React.FC<SettingConfigProps> = (
           <Col span={12}>
             <div className="ecommerce-user-detail">
               <Row>
-                <Col span={4}>Tên Shop</Col>
-                <Col span={12}>: ---</Col>
+                <Col span={5}>Tên Shop</Col>
+                <Col span={19}><span className="fw-500">: {configDetail?.name || "---"}</span></Col>
               </Row>
               <Row>
-                <Col span={4}>ID Shop</Col>
-                <Col span={12}>: ---</Col>
+                <Col span={5}>ID Shop</Col>
+                <Col span={19}><span className="fw-500">: {configDetail?.id || "---"}</span></Col>
               </Row>
               <Row>
-                <Col span={4}>Username</Col>
-                <Col span={12}>: ---</Col>
+                <Col span={5}>Username</Col>
+                <Col span={19}><span className="fw-500">: ---</span></Col>
               </Row>
             </div>
           </Col>
@@ -234,6 +234,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               ]}
             >
               <Input
+                maxLength={255}
                 placeholder="Nhập tên gian hàng"
                 disabled={configDetail ? false : true}
               ></Input>
@@ -261,6 +262,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               ]}
             >
               <Input
+                maxLength={255}
                 placeholder="Nhập tên cửa hàng"
                 disabled={configDetail ? false : true}
               ></Input>
@@ -359,7 +361,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 placeholder="Chọn kiểu đồng bộ tồn kho"
                 disabled={configDetail ? false : true}
               >
-                <Option value={"auto"}>Tự động</Option>
+                <Option value={"auto"}><span style={{color: "#27AE60"}}>Tự động</span></Option>
                 <Option value={"manual"}>Thủ công</Option>
               </Select>
             </Form.Item>
@@ -387,7 +389,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 placeholder="Chọn kiểu đồng bộ đơn hàng"
                 disabled={configDetail ? false : true}
               >
-                <Option value={"auto"}>Tự động</Option>
+                <Option value={"auto"}><span style={{color: "#27AE60"}}>Tự động</span></Option>
                 <Option value={"manual"}>Thủ công</Option>
               </Select>
             </Form.Item>
@@ -408,7 +410,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 <Option value={"auto"}>{`Luôn lấy sản phẩm từ ${
                   convertToCapitalizedString() || "sàn"
                 } về`}</Option>
-                <Option value={"manual"}>Đợi ghép sản phẩm giữa 2 bên</Option>
+                <Option value={"manual"}><span style={{color: "#27AE60"}}>Đợi ghép sản phẩm giữa 2 bên</span></Option>
               </Select>
             </Form.Item>
           </Col>

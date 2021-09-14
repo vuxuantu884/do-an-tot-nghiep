@@ -708,7 +708,7 @@ export default function FpageOrders(props: any) {
               <CreateBillStep status="draff" orderDetail={null} />
             </Col>
 
-            <Col className="order-button" md={8}>
+            <Col className="customer-bottom-button" md={8}>
               <Button className="order-button-width" onClick={() => window.location.reload()}>
                 Hủy
               </Button>
