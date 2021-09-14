@@ -20,7 +20,9 @@ function OrderPrint(props: PropType) {
     (state: RootReducerType) => state.bootstrapReducer
   );
   const query = useQuery();
-  const queryIds = query.getAll("ids[]");
+  // const queryIds = query.getAll("ids[]");
+  const queryIds = query.get("ids")?.split(",") || null;
+
   const queryAction = query.get("action");
   const queryPrintDialog = query.get("print-dialog");
   const queryPrintType = query.get("print-type");
@@ -48,7 +50,7 @@ function OrderPrint(props: PropType) {
       queryAction === "print" &&
       queryPrintDialog === "true" &&
       isValidatePrintType();
-    if (isCanPrint && handlePrint && queryPrintType) {
+    if (queryIds && isCanPrint && handlePrint && queryPrintType) {
       const queryIdsFormatted = queryIds.map((single) => +single);
       dispatch(
         actionFetchPrintFormByOrderIds(
