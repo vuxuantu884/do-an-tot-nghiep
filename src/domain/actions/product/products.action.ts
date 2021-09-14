@@ -99,3 +99,7 @@ export const productGetHistoryAction = (
 export const productGetDetail = (id: number, onResult: (result: ProductResponse|false) => void) => {
   return BaseAction(ProductType.PRODUCT_DETAIL, {id, onResult});
 }
+
+export const productUpdateAction = (id: number, request: ProductRequest, onResult: (result: ProductResponse|false) => void) => {
+  return BaseAction(ProductType.PRODUCT_UPDATE, {id, request, onResult});
+}
