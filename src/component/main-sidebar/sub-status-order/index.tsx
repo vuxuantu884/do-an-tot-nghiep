@@ -14,7 +14,7 @@ import { OrderStatus } from "utils/Constants";
 type PropType = {
   subStatusId?: number | null;
   status?: string | null;
-  orderId: number;
+  orderId?: number;
   fulfillments?: FulFillmentResponse[] | null;
   handleChangeSubStatus: () => void;
 };
@@ -31,8 +31,10 @@ function SubStatusOrder(props: PropType): React.ReactElement {
   );
 
   const handleChange = (statusId: number) => {
-    setValueSubStatusId(statusId);
-    dispatch(setSubStatusAction(orderId, statusId, handleChangeSubStatus));
+    if (orderId) {
+      setValueSubStatusId(statusId);
+      dispatch(setSubStatusAction(orderId, statusId, handleChangeSubStatus));
+    }
   };
 
   useEffect(() => {

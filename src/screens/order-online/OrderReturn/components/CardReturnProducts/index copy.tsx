@@ -10,6 +10,7 @@ import {
   InputNumber,
   Row,
   Table,
+  Select,
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import { ColumnType } from "antd/lib/table";
@@ -39,11 +40,13 @@ import {
 import { StyledComponent } from "./styles";
 
 type PropType = {
+  listOrderProducts: OrderLineItemResponse[];
   listReturnProducts: OrderLineItemResponse[];
   handleReturnProducts: (listReturnProducts: OrderLineItemResponse[]) => void;
 };
 function CardReturnProducts(props: PropType) {
-  const { listReturnProducts, handleReturnProducts } = props;
+  const { listReturnProducts, handleReturnProducts, listOrderProducts } = props;
+  console.log("listOrderProducts", listOrderProducts);
   const dispatch = useDispatch();
   const [splitLine, setSplitLine] = useState<boolean>(false);
   const initQueryVariant: VariantSearchQuery = {
@@ -140,14 +143,22 @@ function CardReturnProducts(props: PropType) {
     handleReturnProducts(resultListReturnProducts);
   };
 
-  const renderSearchVariant = (item: VariantResponse) => {
-    let avatar = findAvatar(item.variant_images);
+  const renderSearchVariant = (item: OrderLineItemResponse) => {
+    let avatar = item.variant_image;
     return (
       <div
         className="row-search w-100"
-        style={{ padding: 0, paddingRight: 20, paddingLeft: 20 }}
+        style={{
+          padding: 0,
+          paddingRight: 20,
+          paddingLeft: 20,
+          display: "flex",
+        }}
       >
-        <div className="rs-left w-100" style={{ width: "100%" }}>
+        <div
+          className="rs-left w-100"
+          style={{ display: "flex", width: "100%" }}
+        >
           <div style={{ marginTop: 10 }}>
             <img
               src={avatar === "" ? imgDefault : avatar}
@@ -156,18 +167,21 @@ function CardReturnProducts(props: PropType) {
               style={{ width: "40px", height: "40px", borderRadius: 5 }}
             />
           </div>
-          <div className="rs-info w-100">
+          <div
+            className="rs-info w-100"
+            style={{ display: "flex", flexDirection: "column", marginLeft: 18 }}
+          >
             <span style={{ color: "#37394D" }} className="text">
-              {item.name}
+              {item.variant}
             </span>
             <span style={{ color: "#95A1AC" }} className="text p-4">
               {item.sku}
             </span>
           </div>
         </div>
-        <div className="rs-right">
+        <div className="rs-right" style={{ display: "flex" }}>
           <span style={{ color: "#222222" }} className="text t-right">
-            {`${findPrice(item.variant_prices, AppConfig.currency)} `}
+            {item.price}
             <span
               style={{
                 color: "#737373",
@@ -178,33 +192,10 @@ function CardReturnProducts(props: PropType) {
               đ
             </span>
           </span>
-          <span style={{ color: "#737373" }} className="text t-right p-4">
-            Có thể bán:
-            <span
-              style={{
-                color: item.inventory > 0 ? "#2A2A86" : "rgba(226, 67, 67, 1)",
-              }}
-            >
-              {` ${item.inventory}`}
-            </span>
-          </span>
         </div>
       </div>
     );
   };
-
-  const convertResultSearchVariant = useMemo(() => {
-    let options: any[] = [];
-    resultSearchVariant.items.forEach(
-      (item: VariantResponse, index: number) => {
-        options.push({
-          label: renderSearchVariant(item),
-          value: item.id ? item.id.toString() : "",
-        });
-      }
-    );
-    return options;
-  }, [resultSearchVariant]);
 
   const renderCardExtra = () => {
     return (
@@ -300,58 +291,26 @@ function CardReturnProducts(props: PropType) {
         extra={renderCardExtra()}
       >
         <div className="label">Sản phẩm:</div>
-        <AutoComplete
-          notFoundContent={
-            searchVariantInputValue.length >= 3
-              ? "Không tìm thấy sản phẩm"
-              : undefined
+        <Select
+          showSearch
+          style={{ width: "100%" }}
+          placeholder="Tìm sản phẩm mã 7... (F3)"
+          optionFilterProp="children"
+          filterOption={(input, option) =>
+            option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
           }
-          id="search_product"
-          value={searchVariantInputValue}
-          ref={autoCompleteRef}
-          onSelect={onSelectSearchedVariant}
-          dropdownClassName="search-layout dropdown-search-header"
-          dropdownMatchSelectWidth={456}
-          className="productSearchInput"
-          onSearch={onChangeProductSearchValue}
-          options={convertResultSearchVariant}
-          maxLength={255}
-          dropdownRender={(menu) => (
-            <div>
-              <div
-                className="row-search w-100"
-                style={{
-                  minHeight: "42px",
-                  lineHeight: "50px",
-                  cursor: "pointer",
-                }}
-              >
-                <div className="rs-left w-100">
-                  <div style={{ float: "left", marginLeft: "20px" }}>
-                    <img src={addIcon} alt="" />
-                  </div>
-                  <div className="rs-info w-100">
-                    <span
-                      className="text"
-                      style={{ marginLeft: "23px", lineHeight: "18px" }}
-                    >
-                      Thêm mới sản phẩm
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <Divider style={{ margin: "4px 0" }} />
-              {menu}
-            </div>
-          )}
+          onChange={onSelectSearchedVariant}
+          notFoundContent="Không tìm thấy trạng thái phụ"
         >
-          <Input
-            size="middle"
-            className="yody-search"
-            placeholder="Tìm sản phẩm mã 7... (F3)"
-            prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-          />
-        </AutoComplete>
+          {listOrderProducts &&
+            listOrderProducts.map((single) => {
+              return (
+                <Select.Option value={single.id} key={single.id}>
+                  {renderSearchVariant(single)}
+                </Select.Option>
+              );
+            })}
+        </Select>
         <Table
           locale={{
             emptyText: (

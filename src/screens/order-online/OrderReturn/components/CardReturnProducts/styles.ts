@@ -11,4 +11,7 @@ export const StyledComponent = styled.div`
     width: 100%;
     margin-bottom: 35px;
   }
+  .ant-select-item {
+    height: auto;
+  }
 `;

@@ -35,6 +35,7 @@ import {
   OrderStatus,
   PaymentMethodCode,
 } from "utils/Constants";
+import { useQuery } from "utils/useQuery";
 import ActionHistory from "../../component/order-detail/ActionHistory";
 import OrderDetailBottomBar from "../../component/order-detail/BottomBar";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -46,26 +47,20 @@ import ReturnBottomBar from "../components/ReturnBottomBar";
 
 type PropType = {
   id?: string;
-  isCloneOrder?: boolean;
-};
-type OrderParam = {
-  id: string;
 };
 
 const ScreenReturnDetail = (props: PropType) => {
-  const { isCloneOrder } = props;
-  let { id } = useParams<OrderParam>();
-  if (!id && props.id && isCloneOrder) {
-    id = props.id;
-  }
-  let OrderId = parseInt(id);
+  const [isError, setError] = useState<boolean>(false);
+  const [loadingData, setLoadingData] = useState<boolean>(true);
+  const query = useQuery();
+  let orderID = query.get("orderID");
+
+  let OrderId = orderID ? parseInt(orderID) : undefined;
   const isFirstLoad = useRef(true);
 
   const dispatch = useDispatch();
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
-  const [isError, setError] = useState<boolean>(false);
-  const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [listReturnProducts, setListReturnProducts] = useState<
     OrderLineItemResponse[]
@@ -135,7 +130,7 @@ const ScreenReturnDetail = (props: PropType) => {
 
   useEffect(() => {
     if (isFirstLoad.current) {
-      if (!Number.isNaN(OrderId)) {
+      if (OrderId) {
         dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
       } else {
         setError(true);
@@ -194,9 +189,15 @@ const ScreenReturnDetail = (props: PropType) => {
     };
   }, [scroll]);
 
+  if (!orderID) {
+    setLoadingData(false);
+    setLoadingData(false);
+    return null;
+  }
+
   return (
     <ContentContainer
-      isLoading={loadingData}
+      // isLoading={loadingData}
       isError={isError}
       title="Trả hàng cho đơn hàng"
       breadcrumb={[
@@ -211,7 +212,7 @@ const ScreenReturnDetail = (props: PropType) => {
           name: "Trả hàng",
         },
         {
-          name: !isCloneOrder ? `Đơn hàng ${id}` : `Sao chép Đơn hàng ${id}`,
+          name: `Tạo đơn trả hàng cho đơn hàng ${orderID}`,
         },
       ]}
     >
@@ -370,10 +371,6 @@ const ScreenReturnDetail = (props: PropType) => {
                 </Col>
               </Row>
             </Card>
-            <ActionHistory
-              orderId={id}
-              countChangeSubStatus={countChangeSubStatus}
-            />
           </Col>
         </Row>
       </div>
