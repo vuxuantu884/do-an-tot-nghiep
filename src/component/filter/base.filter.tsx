@@ -5,6 +5,8 @@ type BaseFilterProps = {
   visible: boolean;
   width?: number;
   className?: string;
+  confirmButtonTitle?: any;
+  deleteButtonTitle?: any;
   children: React.ReactNode;
   onCancel?: () => void;
   onFilter?: () => void;
@@ -12,7 +14,7 @@ type BaseFilterProps = {
 };
 
 const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
-  const { visible, width, className, children, onFilter, onClearFilter, onCancel } = props;
+  const { visible, width, className, children, onFilter, onClearFilter, onCancel, confirmButtonTitle, deleteButtonTitle } = props;
   return (
     <Drawer
       placement="right"
@@ -27,10 +29,10 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
           <Col md={24}>
             <Space direction="vertical" style={{ width: "100%" }}>
               <Button onClick={onFilter} type="primary" block>
-                Lọc
+                {confirmButtonTitle || "Lọc"}
               </Button>
               <Button onClick={onClearFilter} block>
-                Xoá bộ lọc
+                {deleteButtonTitle || "Xoá bộ lọc"}
               </Button>
             </Space>
           </Col>
