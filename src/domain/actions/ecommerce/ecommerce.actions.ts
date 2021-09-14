@@ -2,6 +2,9 @@ import { EcommerceRequest } from "model/request/ecommerce.request";
 import BaseAction from "base/base.action";
 import { EcommerceType } from "domain/types/ecommerce.type";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import { TotalItemsEcommerceQuery } from "model/query/ecommerce.query";
+import { ConnectedItemsQuery } from "model/query/ecommerce.query";
+import { NotConnectedItemsQuery} from "model/query/ecommerce.query";
 
 export const ecommerceConfigCreateAction = (
   request: EcommerceRequest,
@@ -50,3 +53,21 @@ export const ecommerceConfigDeleteAction = (
     deleteCallback,
   });
 };
+
+export const TotalItemsEcommerceList = (query: TotalItemsEcommerceQuery, setData: (data: any) => void) => {
+  //thai need todo
+  // return BaseAction(EcommerceType.GET_TOTAL_ITEMS_ECOMMERCE, { query, setData });
+  return {}
+}
+
+export const ConnectedItemsList = (query: ConnectedItemsQuery, setData: (data: any) => void) => {
+  //thai need todo
+  // return BaseAction(EcommerceType.GET_TOTAL_ITEMS_ECOMMERCE, { query, setData });
+  return {}
+}
+
+export const NotConnectedItemsList = (query: NotConnectedItemsQuery, setData: (data: any) => void) => {
+  //thai need todo
+  // return BaseAction(EcommerceType.GET_TOTAL_ITEMS_ECOMMERCE, { query, setData });
+  return {}
+}

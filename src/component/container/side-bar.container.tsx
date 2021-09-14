@@ -24,7 +24,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
     defaultOpenKeys = [...defaultOpenKeys, ...currentRoute.subMenu];
   }
   return (
-    <Sider collapsed={collapsed} collapsedWidth={60} width={240}>
+    <Sider collapsed={collapsed} collapsedWidth={60} width={240} style={{zIndex: 2}}>
       <Scrollbars autoHide>
         <Menu
           defaultOpenKeys={collapsed ? [] : defaultOpenKeys}
