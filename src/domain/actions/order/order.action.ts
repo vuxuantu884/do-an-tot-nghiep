@@ -36,6 +36,15 @@ export const orderCreateAction = (
   return BaseAction(OrderType.CREATE_ORDER_REQUEST, { request, setData });
 };
 
+export const orderFpageCreateAction = (
+  request: OrderRequest,
+  setData: (data: OrderResponse) => void,
+  setDisable: (data: any) => void
+
+) => {
+  return BaseAction(OrderType.CREATE_FPAGE_ORDER_REQUEST, { request, setData, setDisable });
+};
+
 export const InfoGHTKAction = (
   request: ShippingGHTKRequest,
   setData: (data: Array<ShippingGHTKResponse>) => void

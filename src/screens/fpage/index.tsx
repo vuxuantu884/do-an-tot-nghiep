@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import FpageOrders from "./fpage-order/fpage.order";
+import FpageOrders from "./fpage-order/FpageOrders";
 import FpageCustomer from "./fpage-customer/create.customer";
 import { Divider } from "antd";
 import { CustomerResponse } from "model/response/customer/customer.response";
