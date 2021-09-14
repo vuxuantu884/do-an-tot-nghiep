@@ -1,5 +1,5 @@
 import { BaseObject } from "model/base/base.response";
-import { LoyaltyProgramRuleItem } from "model/request/loyalty/create-loyalty-accumulation.request";
+import { LoyaltyProgramRuleItem, LoyaltyProgramRuleProductItem } from "model/request/loyalty/create-loyalty-accumulation.request";
 
 export interface LoyaltyAccumulationProgramResponse extends BaseObject {
   id: number;
@@ -13,7 +13,7 @@ export interface LoyaltyAccumulationProgramResponse extends BaseObject {
   stores: Array<LoyaltyProgramRuleItem>;
   channels: Array<LoyaltyProgramRuleItem>;
   sources: Array<LoyaltyProgramRuleItem>;
-  items: Array<LoyaltyProgramRuleItem>;
+  items: Array<LoyaltyProgramRuleProductItem>;
   status: string;
   rules: Array<LoyaltyProgramRuleResponse>;
 }

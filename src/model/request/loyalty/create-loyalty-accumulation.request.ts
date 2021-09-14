@@ -28,3 +28,9 @@ export interface LoyaltyProgramRuleItem {
   id: number
   name: string
 }
+
+export interface LoyaltyProgramRuleProductItem {
+  id: number
+  name: string
+  sku: string
+}

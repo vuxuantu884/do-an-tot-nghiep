@@ -1,12 +1,16 @@
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
+import { Button, Dropdown, Menu } from 'antd';
 import { LoyaltyCardReleaseSearch } from 'domain/actions/loyalty/release/loyalty-release.action';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { BaseQuery } from 'model/base/base.query';
 import { LoyaltyCardReleaseResponse } from 'model/response/loyalty/release/loyalty-card-release.response';
 import moment from 'moment';
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { DATE_FORMAT } from 'utils/DateUtils';
+import ErrorLogs from '../component/error-logs/ErrorLogs';
+import infoIcon from "assets/icon/info.svg";
+import threeDot from "assets/icon/three-dot.svg";
 import './loyalty-cards-release.scss';
 
 const LoyaltyCardRelease = () => {
@@ -40,15 +44,69 @@ const LoyaltyCardRelease = () => {
     },
     {
       title: "Người tạo",
-      dataIndex: "Trạng thái",
+      dataIndex: "created_name",
       visible: true,
       fixed: "left"
     },
     {
       title: "Số lượng thẻ",
-      dataIndex: "code",
+      dataIndex: "success",
       visible: true,
       fixed: "left"
+    },
+    {
+      title: "",
+      visible: true,
+      width: "72px",
+      render: (value: any, i: any) => {
+        const menu = (
+          <Menu>
+            <Menu.Item key="1">
+              <Button
+                icon={<img alt="" style={{ marginRight: 12 }} src={infoIcon} />}
+                type="text"
+                className=""
+                style={{
+                  paddingLeft: 24,
+                  background: "transparent",
+                  border: "none",
+                }}
+                onClick={() => {
+                  setOpenErrorLogModal(true)
+                  setSelectedLoyaltyRelease(value)
+                }}
+              >
+                Chi tiết
+              </Button>
+            </Menu.Item>
+          </Menu>
+        );
+        return (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "0 4px",
+            }}
+          >
+            <div
+              className="action-group"
+            >
+              <Dropdown
+                overlay={menu}
+                trigger={["click"]}
+                placement="bottomRight"
+              >
+                <Button
+                  type="text"
+                  className="p-0 ant-btn-custom"
+                  icon={<img src={threeDot} alt=""></img>}
+                ></Button>
+              </Dropdown>
+            </div>
+          </div>
+        )
+      }
     }
   ]
   const [query, setQuery] = useState<BaseQuery>({
@@ -59,6 +117,8 @@ const LoyaltyCardRelease = () => {
   });
 
   const dispatch = useDispatch()
+  const [openErrorLogModal, setOpenErrorLogModal] = useState<boolean>(false)
+  const [selectedLoyaltyRelease, setSelectedLoyaltyRelease] = useState<LoyaltyCardReleaseResponse>()
 
   const fetchData = useCallback((data: PageResponse<LoyaltyCardReleaseResponse>) => {
     setData(data)
@@ -71,6 +131,11 @@ const LoyaltyCardRelease = () => {
     },
     [query]
   );
+
+  const closeErrorLogModal = useCallback(() => {
+    setOpenErrorLogModal(false)
+    setSelectedLoyaltyRelease(undefined)
+  }, [])
 
   useEffect(() => {
     dispatch(LoyaltyCardReleaseSearch(query, fetchData));
@@ -92,6 +157,13 @@ const LoyaltyCardRelease = () => {
         dataSource={data.items}
         columns={pageColumns}
         rowKey={(item: any) => item.id}
+      />
+      <ErrorLogs
+        visible={openErrorLogModal}
+        onOk={closeErrorLogModal}
+        okText="Đóng"
+        errors={selectedLoyaltyRelease?.errors}
+        onCancel={closeErrorLogModal}
       />
     </div>
   )

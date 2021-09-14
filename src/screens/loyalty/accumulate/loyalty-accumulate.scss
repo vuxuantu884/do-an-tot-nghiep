@@ -2,8 +2,30 @@
   font-family: Roboto;
   color: #222222;
 
+  .d-flex {
+    display: flex;
+
+    .title-card {
+      flex: 1;
+      line-height: unset;
+    }
+
+    .program-status {
+      font-size: 14px;
+      line-height: 16px;
+      display: flex;
+      width: 240px;
+      justify-content: space-between;
+      align-items: center;
+
+      .ant-switch-checked {
+        background: #27AE60;
+      }
+    }
+  }
+
   .additional-option {
-    margin: 43px auto 31px 30px;
+    margin: 35px auto 31px 30px;
     font-size: 14px;
     line-height: 16px;
 
@@ -13,14 +35,11 @@
 
     .option {
       display: flex;
+      align-items: center;
 
       .switcher {
         margin-right: 13px;
         align-self: center;
-      }
-
-      span {
-        margin-top: 8px;
       }
     }
   }
@@ -61,6 +80,8 @@
 
     a {
       color: #737373;
+      display: flex;
+      align-items: center;
     }
 
     svg {
@@ -92,6 +113,7 @@
     padding: 0 30px;
     .rule-dropdown {
       width: 100%;
+      text-align: left;
 
       .ant-select-selection-placeholder {
         flex: unset;
@@ -119,11 +141,12 @@
       margin: 20px 0 36px 0;
       color: #2a2a86;
       border-color: #2a2a86;
+      cursor: pointer;
+      width: 120px;
+      justify-content: space-between;
 
-      &:hover,
-      &:focus {
-        color: #ffffff;
-        background-color: #2a2a86;
+      span {
+        margin-right: 8px;
       }
     }
   }

@@ -20,3 +20,7 @@ export const GetLoyaltyRankDetail = (id: number, callback: (data: LoyaltyRankRes
 export const UpdateLoyaltyRank = (id: number, body: CreateLoyaltyRequest, callback: (data: LoyaltyRankResponse) => void) => {
     return BaseAction(LoyaltyRankType.UPDATE_LOYALTY_RANK_REQUEST, { id, body, callback });
 }
+
+export const DeleteLoyaltyRank = (id: number, callback: () => void) => {
+    return BaseAction(LoyaltyRankType.DELELTE_LOYALTY_RANK_REQUEST, { id, callback });
+}
