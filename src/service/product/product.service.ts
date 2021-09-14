@@ -7,6 +7,8 @@ import {
   ProductHistoryQuery,
   ProductHistoryResponse,
   ProductRequest,
+  ProductWrapperResponse,
+  ProductWrapperSearchQuery,
   VariantResponse,
   VariantSearchQuery,
 } from "model/product/product.model";
@@ -23,6 +25,13 @@ export const getVariantApi = (
   id: string
 ): Promise<BaseResponse<VariantResponse>> => {
   return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/${id}`);
+};
+
+export const searchProductWrapperApi = (
+  query: ProductWrapperSearchQuery
+): Promise<BaseResponse<PageResponse<ProductWrapperResponse>>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/products?${queryString}`);
 };
 
 export const productUploadApi = (
