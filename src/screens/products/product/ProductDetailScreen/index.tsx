@@ -1,9 +1,7 @@
 import {
   Button,
   Card,
-  Checkbox,
   Col,
-  List,
   Row,
   Switch,
   Image,
@@ -18,11 +16,10 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import RowDetail from "../component/RowDetail";
-import classNames from "classnames";
 import { StyledComponent } from "./styles";
-import { Products } from "utils/AppUtils";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import Slider from "react-slick";
+import VariantList from "../component/VariantList";
 
 export interface ProductParams {
   id: string;
@@ -76,7 +73,7 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     // dispatch(inventoryGetDetailAction({}, onResult));
-  }, [])
+  }, []);
 
   return (
     <StyledComponent>
@@ -112,10 +109,10 @@ const ProductDetailScreen: React.FC = () => {
                         <RowDetail title="Chất liệu" value={data.material} />
                       </Col>
                       <Col span={24} md={12}>
-                        <RowDetail title="Ngành hàng" value={data.goods} />
+                        <RowDetail title="Ngành hàng" value={data.goods_name} />
                         <RowDetail title="Tên sản phẩm" value={data.name} />
                         <RowDetail title="Xuất xứ" value={data.made_in} />
-                        <RowDetail title="Đơn vị" value={data.unit} />
+                        <RowDetail title="Đơn vị" value={data.unit_name} />
                       </Col>
                     </Row>
                     <Row gutter={50}>
@@ -132,10 +129,16 @@ const ProductDetailScreen: React.FC = () => {
                     </Row>
                     <Row gutter={50}>
                       <Col span={24} md={24}>
-                        <div
-                          dangerouslySetInnerHTML={{ __html: data.description }}
-                          className="data-content"
-                        />
+                        {data.description ? (
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: data.description,
+                            }}
+                            className="data-content"
+                          />
+                        ) : (
+                          <div className="data-empty">Không có mô tả</div>
+                        )}
                       </Col>
                     </Row>
                   </div>
@@ -158,48 +161,10 @@ const ProductDetailScreen: React.FC = () => {
                 <Card className="card">
                   <Row className="card-container">
                     <Col className="left" span={24} md={6}>
-                      <List
-                        dataSource={data.variants}
-                        className="list__variants"
-                        header={
-                          <div className="header-tab">
-                            <div className="header-tab-left">
-                              <Checkbox>Chọn tất cả</Checkbox>
-                            </div>
-                            <div className="header-tab-right"></div>
-                          </div>
-                        }
-                        renderItem={(item, index) => {
-                          let avatar = Products.findAvatar(item.variant_images);
-                          return (
-                            <List.Item
-                              onClick={() => setActive(index)}
-                              className={classNames(
-                                index === active && "active"
-                              )}
-                            >
-                              <div className="line-item">
-                                <Checkbox />
-                                <div className="line-item-container">
-                                  <div className="avatar">
-                                    <img
-                                      alt=""
-                                      src={
-                                        avatar !== null
-                                          ? avatar.url
-                                          : variantdefault
-                                      }
-                                    />
-                                  </div>
-                                  <div>
-                                    <div>{item.sku}</div>
-                                    <div>{item.name}</div>
-                                  </div>
-                                </div>
-                              </div>
-                            </List.Item>
-                          );
-                        }}
+                      <VariantList
+                        value={data.variants}
+                        active={active}
+                        setActive={(active) => setActive(active)}
                       />
                     </Col>
                     <Col className="right" span={24} md={18}>

@@ -53,6 +53,7 @@ import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
+import { forEach } from "lodash";
 
 const actions: Array<MenuAction> = [
   {
@@ -62,6 +63,18 @@ const actions: Array<MenuAction> = [
   {
     id: 2,
     name: "Export",
+  },
+  // {
+  //   id: 3,
+  //   name: "Clone đơn hàng",
+  // },
+  {
+    id: 4,
+    name: "In phiếu giao hàng",
+  },
+  {
+    id: 5,
+    name: "In phiếu xuất kho",
   },
 ];
 
@@ -440,7 +453,7 @@ const ListOrderScreen: React.FC = () => {
       dataIndex: "items",
       key: "item.quantity.total",
       render: (items) => {
-        console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
+        // console.log(items.reduce((total: number, item: any) => total + item.quantity, 0));
         
         return items.reduce((total: number, item: any) => total + item.quantity, 0)
       },
@@ -586,6 +599,15 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
     },
   ]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
+  const onSelectedChange = useCallback(
+    (selectedRow) => {
+      const selectedRowKeys = selectedRow.map((row: any) => row.id)
+      setSelectedRowKeys(selectedRowKeys)
+    },
+    []
+  );
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -599,16 +621,40 @@ const ListOrderScreen: React.FC = () => {
   );
   const onFilter = useCallback(
     (values) => {
-      console.log("values filter 1", values);
+      // console.log("values filter 1", values);
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      console.log("filter start", `${UrlConfig.ORDER}/list?${queryParam}`);
+      // console.log("filter start", `${UrlConfig.ORDER}/list?${queryParam}`);
       history.push(`${UrlConfig.ORDER}/list?${queryParam}`);
     },
     [history, params]
   );
-  const onMenuClick = useCallback((index: number) => {}, []);
+  const onMenuClick = useCallback((index: number) => {
+    let params = {
+      action: 'print',
+      ids: selectedRowKeys,
+      'print-type': index === 4 ? 'shipment' : 'stock-export',
+      'print-dialog': true
+    }
+    const queryParam = generateQuery(params)
+    console.log(queryParam);
+    switch (index) {
+      case 1:
+        break
+      case 2:
+        break  
+      case 3:
+        break
+      case 4:
+        history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`)
+        break
+      case 5:
+        history.push(`${UrlConfig.ORDER}/print-preview?${queryParam}`)
+        break
+      default: break  
+    }
+  }, [history, selectedRowKeys]);
 
   const setSearchResult = useCallback(
     (result: PageResponse<OrderModel> | false) => {
@@ -728,6 +774,7 @@ const ListOrderScreen: React.FC = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
+            onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             dataSource={data.items}
             columns={columnFinal}

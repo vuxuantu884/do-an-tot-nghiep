@@ -34,7 +34,7 @@ export interface ShipmentModel {
   total_discount: string|null;
   total_quantity: number;
   items: Array<Item>;
-  
+  created_date: string|null;
   packed_on: string|null;
   shipped_on: string|null;
   export_on: string|null;

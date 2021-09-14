@@ -36,56 +36,8 @@ export const StyledComponent = styled.div`
     padding: 10px 5px;
     border: 1px solid #d9d9d9;
   }
-  .list__variants {
-    .ant-list-items {
-      height: 450px;
-      overflow: auto;
-      .ant-list-item {
-        height: 55px;
-        border: none;
-        padding-left: 10px;
-        padding-right: 10px;
-        &.active,
-        &:hover {
-          background: #f3f3ff;
-          cursor: pointer;
-        }
-        .line-item {
-          align-items: center;
-          display: flex;
-          flex-direction: row;
-          &-container {
-            margin-left: 10px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            .avatar {
-              width: 40px;
-              height: 45px;
-              display: flex;
-              margin-right: 10px;
-              border-radius: 3px;
-              img {
-                width: 100%;
-                height: auto;
-                object-fit: cover;
-                border-radius: 3px;
-              }
-            }
-          }
-        }
-      }
-    }
-    .ant-list-header {
-      border: none;
-      padding-top: 16px;
-      padding-bottom: 16px;
-    }
-
-    .header-tab {
-      padding-left: 10px;
-      padding-right: 10px;
-    }
+  .data-empty  {
+    color: red
   }
   .view-right {
     display: flex;
