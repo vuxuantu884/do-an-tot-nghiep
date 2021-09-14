@@ -16,6 +16,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 import { convertCategory, generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -106,7 +107,7 @@ const TabProductWrapper: React.FC = () => {
       render: (value: string, i: ProductWrapperResponse) => {
         return(
         <>
-          <div>{value}</div>
+          <div><Link to={`${UrlConfig.PRODUCT}/${i.id}`}>{value}</Link></div>
           <div> {i.name}</div>
         </>
       )},
