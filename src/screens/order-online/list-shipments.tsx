@@ -159,7 +159,7 @@ const ListOrderScreen: React.FC = () => {
       render: (record: ShipmentModel) => (
         <div>
           <Link to={`${UrlConfig.ORDER}/${record.id}`}>{record.code}</Link>
-          <div>{record.shipped_on ? ConvertUtcToLocalDate(record.shipped_on) : ''}</div>
+          <div>{record.created_date ? ConvertUtcToLocalDate(record.created_date) : ''}</div>
         </div>
       ),
       visible: true,
@@ -318,7 +318,7 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Ngày tạo đơn",
-      dataIndex: "shipped_on",
+      dataIndex: "created_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "shipped_on",
       visible: true,
