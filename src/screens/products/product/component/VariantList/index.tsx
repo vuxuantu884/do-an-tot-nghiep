@@ -3,7 +3,7 @@ import { VariantResponse } from "model/product/product.model";
 import { Products } from "utils/AppUtils";
 import classNames from "classnames/";
 import variantdefault from "assets/icon/variantdefault.jpg";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { StyledComponent } from "./style";
 import ActionButton from "component/table/ActionButton";
 
@@ -11,10 +11,21 @@ interface VariantListProps {
   value?: Array<VariantResponse>;
   active: number;
   setActive: (active: number) => void;
+  onStopSale: (data: Array<number>) => void;
+  onAllowSale: (data: Array<number>) => void;
 }
 
 const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
   const [listSelected, setListSelected] = useState<Array<number>>([]);
+  const onMenuClick = useCallback((action) => {
+    switch (action) {
+      case 1:
+        props.onStopSale(listSelected);
+        break;
+      case 2:
+        props.onAllowSale(listSelected);
+    }
+  }, [listSelected, props]);
   return (
     <StyledComponent>
       <List
@@ -46,20 +57,20 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
               </Checkbox>
             </div>
             <div className="header-tab-right">
-              <ActionButton menu={[
-                {
-                  id: 1,
-                  name: "Ngừng bán",
-                },
-                {
-                  id: 2,
-                  name: "Cho phép bán",
-                },
-                {
-                  id: 3,
-                  name: "Xóa phiên bản",
-                }
-              ]} />
+                <ActionButton
+                  disabled={listSelected.length === 0}
+                  onMenuClick={onMenuClick}
+                  menu={[
+                    {
+                      id: 1,
+                      name: "Ngừng bán",
+                    },
+                    {
+                      id: 2,
+                      name: "Cho phép bán",
+                    },
+                  ]}
+                />
             </div>
           </div>
         }
@@ -75,13 +86,15 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                     listSelected.findIndex((item1) => item1 === item.id) !== -1
                   }
                   onChange={(e) => {
-                    let index = listSelected.findIndex(item1 => item1 === item.id)
-                    if(e.target.checked) {
-                      if(index === -1) {
+                    let index = listSelected.findIndex(
+                      (item1) => item1 === item.id
+                    );
+                    if (e.target.checked) {
+                      if (index === -1) {
                         listSelected.push(item.id);
                       }
                     } else {
-                      if(index !== -1) {
+                      if (index !== -1) {
                         listSelected.splice(index, 1);
                       }
                     }
