@@ -52,7 +52,6 @@ const CustomerDetailIndex = () => {
     items: [],
   });
 
-  console.log(data)
   React.useEffect(() => {
     if (history.location.hash) {
       switch (history.location.hash) {

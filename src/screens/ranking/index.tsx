@@ -1,9 +1,8 @@
 import { Card, Menu, Button, Dropdown } from 'antd';
 import ContentContainer from 'component/container/content.container';
-import ButtonCreate from 'component/header/ButtonCreate';
 import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
 import UrlConfig from 'config/url.config';
-import { LoyaltyRankSearch } from 'domain/actions/loyalty/rank/loyalty-rank.action';
+import { DeleteLoyaltyRank, LoyaltyRankSearch } from 'domain/actions/loyalty/rank/loyalty-rank.action';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { BaseQuery } from 'model/base/base.query';
 import { LoyaltyRankResponse } from 'model/response/loyalty/ranking/loyalty-rank.response';
@@ -17,6 +16,8 @@ import editIcon from "assets/icon/edit.svg";
 import deleteIcon from "assets/icon/deleteIcon.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import { Link } from 'react-router-dom';
+import { PlusOutlined } from '@ant-design/icons';
+import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm';
 
 const CustomerRanking = () => {
   const [tableLoading, setTableLoading] = useState<boolean>(true);
@@ -35,35 +36,40 @@ const CustomerRanking = () => {
       visible: true,
       fixed: "left",
       render: (value: any, item: any, index: number) => <div>{(data.metadata.page - 1) * data.metadata.limit + index + 1}</div>,
-      width: '72px'
+      width: '150px'
     },
     {
-      title: "Tên hạng",
+      title: "Tên hạng thẻ",
       dataIndex: "name",
       visible: true,
       fixed: "left",
     },
     {
-      title: "Tích lũy từ",
+      title: "Giá trị nhỏ nhất",
       visible: true,
+      align: 'right',
       render: (value: any) => <div>{formatCurrency(value.accumulated_from)}</div>
     },
     {
       title: "Trạng thái",
       visible: true,
       fixed: "left",
-      render: (value: any) => <div>{value.status === 'ACTIVE' ? 'Đang hoạt động' : 'Ngừng hoạt động'}</div>
+      align: 'center',
+      render: (value: any) => <div className={`status status__${value.status}`}>{value.status === 'ACTIVE' ? 'Đang hoạt động' : 'Dừng hoạt động'}</div>
     },
     {
       title: "Ngày tạo",
       visible: true,
       fixed: "left",
+      align: 'center',
+      width: '120px',
       render: (value: any) => <div>{moment(value.created_date).format(DATE_FORMAT.DDMMYYY)}</div>
     },
     {
       title: "Người tạo",
-      dataIndex: "code",
+      dataIndex: "created_name",
       visible: true,
+      align: 'center',
       render: (value: any) => (
         <div>Admin</div>
       )
@@ -101,6 +107,10 @@ const CustomerRanking = () => {
                   background: "transparent",
                   border: "none",
                   color: "red",
+                }}
+                onClick={() => {
+                  setSelectedDeleteItem(value)
+                  setIsShowConfirmDelete(true)
                 }}
               >
                 Xóa
@@ -142,6 +152,8 @@ const CustomerRanking = () => {
     sort_column: 'accumulated_from',
     sort_type: 'DESC'
   });
+  const [isShowConfirmDelete, setIsShowConfirmDelete] = useState<boolean>(false)
+  const [selectedDeleteItem, setSelectedDeleteItem] = useState<LoyaltyRankResponse>()
 
   const dispatch = useDispatch()
 
@@ -157,35 +169,54 @@ const CustomerRanking = () => {
     [query]
   );
 
+  const afterDeleted = React.useCallback(() => {
+    dispatch(LoyaltyRankSearch({...query}, fetchData));
+    setIsShowConfirmDelete(false)
+  }, [dispatch, query, fetchData])
+
+  const onConfirmDelete = React.useCallback(() => {
+    if (selectedDeleteItem) {
+      dispatch(DeleteLoyaltyRank(selectedDeleteItem.id, afterDeleted))
+    }
+  }, [selectedDeleteItem, dispatch, afterDeleted])
+
+  const onCancel = React.useCallback(() => {
+    setIsShowConfirmDelete(false)
+    setSelectedDeleteItem(undefined)
+  }, [])
+
   React.useEffect(() => {
-    dispatch(LoyaltyRankSearch({...query, status: 'ACTIVE'}, fetchData));
+    dispatch(LoyaltyRankSearch({...query}, fetchData));
   }, [dispatch, fetchData, query]);
 
   return (
     <ContentContainer
-      title="Hạng thẻ"
+      title="Hạng khách hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khách hàng",
-          path: '/customers',
-        },
-        {
-          name: "Hạng thẻ",
-          path: `${UrlConfig.CUSTOMER}/rankings`,
+          name: "Hạng khách hàng"
         },
       ]}
       extra={
         <>
-          <ButtonCreate path={`${UrlConfig.CUSTOMER}/rankings/create`} />
+          <Link to={`${UrlConfig.CUSTOMER}/rankings/create`}>
+            <Button
+              className="ant-btn-outline ant-btn-primary"
+              size="large"
+              icon={<PlusOutlined />}
+            >
+              Thêm hạng khách hàng
+            </Button>
+          </Link>
         </>
       }
     >
       <Card>
-        <div className="customer-ranking padding-30">
+        <div className="customer-ranking">
           <CustomTable
             isLoading={tableLoading}
             sticky={{ offsetScroll: 5 }}
@@ -203,6 +234,15 @@ const CustomerRanking = () => {
           />
         </div>
       </Card>
+      <ModalDeleteConfirm
+        visible={isShowConfirmDelete}
+        onOk={onConfirmDelete}
+        onCancel={onCancel}
+        title="Bạn có chắc chắn xóa hạng thẻ này không?"
+        subTitle="Bạn sẽ không khôi phục lại hạng thẻ này nếu đã xóa."
+        okText="Xóa"
+        cancelText="Thoát"
+      />
     </ContentContainer>
   )
 }

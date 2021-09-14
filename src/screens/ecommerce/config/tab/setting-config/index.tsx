@@ -1,98 +1,148 @@
 import { StyledConfig } from "./styles";
-import { Row, Col, Form, Input, Select, Button, Tag } from "antd";
-import React, { useState } from "react";
+import { Row, Col, Form, Input, Select, Button } from "antd";
+import React, { useEffect, useState } from "react";
 import CustomSelect from "component/custom/select.custom";
 import shopeeIcon from "assets/icon/e-shopee.svg";
-import shopeeSendo from "assets/icon/e-sendo.svg";
-import shopeeLazada from "assets/icon/e-lazada.svg";
-import shopeeTiki from "assets/icon/e-tiki.svg";
-
-import arrowLeft from "assets/icon/arrow-left.svg";
-import { Link } from "react-router-dom";
+import sendoIcon from "assets/icon/e-sendo.svg";
+import lazadaIcon from "assets/icon/e-lazada.svg";
+import tikiIcon from "assets/icon/e-tiki.svg";
+import disconnectIcon from "assets/icon/e-disconnect.svg";
+import saveIcon from "assets/icon/e-save-config.svg";
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
+import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
+import {
+  EcommerceRequest,
+  EcommerceShopInventoryDto,
+} from "model/request/ecommerce.request";
+import { ecommerceConfigUpdateAction } from "domain/actions/ecommerce/ecommerce.actions";
+import { useDispatch } from "react-redux";
+import { showSuccess } from "utils/ToastUtils";
+
+const iconMap: any = {
+  shopee: shopeeIcon,
+  lazada: lazadaIcon,
+  tiki: tikiIcon,
+  sendo: sendoIcon,
+};
 
 const { Option } = Select;
+
 type SettingConfigProps = {
   listStores: Array<StoreResponse>;
   accounts: Array<AccountResponse>;
+  form: any;
+  configData: Array<EcommerceResponse>;
+  configToView: EcommerceResponse | undefined;
   accountChangeSearch: (value: string) => void;
 };
+const SettingConfig: React.FC<SettingConfigProps> = (
+  props: SettingConfigProps
+) => {
+  const {
+    listStores,
+    accountChangeSearch,
+    accounts,
+    form,
+    configToView,
+    configData,
+  } = props;
+  const dispatch = useDispatch();
+  const [configDetail, setConfigDetail] = useState<
+    EcommerceResponse | undefined
+  >(configToView);
+  const [inventories, setInventories] = React.useState<
+    Array<EcommerceShopInventoryDto>
+  >([]);
 
-// interface EcommerceConfig {
+  useEffect(() => {
+    setConfigDetail(configToView);
+  }, [configToView, setConfigDetail]);
 
-// }
-
-const SettingConfig: React.FC<SettingConfigProps> = ({
-  listStores,
-  accountChangeSearch,
-  accounts,
-}: SettingConfigProps) => {
-  function tagRender(props: any) {
-    const { label, closable, onClose } = props;
-    const onPreventMouseDown = (event: any) => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    return (
-      <Tag
-        className="primary-bg"
-        onMouseDown={onPreventMouseDown}
-        closable={closable}
-        onClose={onClose}
-      >
-        {label}
-      </Tag>
-    );
-  }
-
-  //mock
-  const [configForm] = Form.useForm();
-  const [listSources] = useState<Array<any>>([
-    {
-      id: "1",
-      shop_name: "Shop Hàng Đẹp",
-      ecommerce_img: shopeeIcon,
-      shop_id: "0696969",
+  const handleConfigCallback = React.useCallback((value: EcommerceResponse) => {
+    setConfigDetail(value);
+    showSuccess("Cập nhật cấu hình thành công");
+  }, []);
+  const handleUpdateConfig = React.useCallback(
+    (value: EcommerceRequest) => {
+      if (configDetail) {
+        let request = {
+          ...configDetail,
+          ...value,
+          inventories: inventories,
+          assign_account:
+            accounts?.find((item) => item.code === value.assign_account_code)
+              ?.full_name || "",
+        };
+        const id = configDetail?.id;
+        dispatch(
+          ecommerceConfigUpdateAction(id, request, handleConfigCallback)
+        );
+      }
     },
-    {
-      id: "2",
-      shop_name: "Shop Hàng Mới",
-      ecommerce_img: shopeeLazada,
-      shop_id: "0696969",
-    },
-    {
-      id: "3",
-      shop_name: "Shop Gì Đó",
-      ecommerce_img: shopeeTiki,
-      shop_id: "0696969",
-    },
-    {
-      id: "3",
-      shop_name: "Shop Gì Đó Ơi",
-      ecommerce_img: shopeeSendo,
-      shop_id: "0696969",
-    },
-  ]);
+    [dispatch, handleConfigCallback, configDetail, inventories, accounts]
+  );
 
-  // useEffect(() => {
-  //   dispatch(getListSourceRequest(setListSource));
-  // }, [dispatch]);
-
-  // const listSources = useMemo(() => {
-  //   return listSource.filter((item) => item.code !== "pos");
-  // }, [listSource]);
-  const onFinish = (value: any) => {
-    console.log(value);
+  const handleStoreChange = (event: any) => {
+    let inventories = [];
+    for (let id of event) {
+      const _store = listStores.find((store) => store.id === id);
+      if (_store) {
+        inventories.push({
+          store: _store.name,
+          store_id: id,
+        });
+      }
+    }
+    setInventories(inventories);
   };
 
+  React.useEffect(() => {
+    if (configDetail) {
+      const _inventories = configDetail.inventories.filter(
+        (item: any) => !item.deleted
+      );
+      setInventories(_inventories);
+      form.setFieldsValue({
+        id: configDetail.id,
+        name: configDetail.name,
+        store_id: configDetail.store_id,
+        assign_account_code: configDetail.assign_account_code,
+        order_sync: configDetail.order_sync,
+        product_sync: configDetail.product_sync,
+        inventory_sync: configDetail.inventory_sync,
+        store: configDetail.store,
+      });
+    } else {
+      form.resetFields();
+      setInventories([]);
+    }
+  }, [configDetail, form, setInventories]);
+  
+  const handleShopChange = React.useCallback(
+    (id: any) => {
+      let _configData = [...configData];
+      const data = _configData.find((item) => item.id === id);
+      setConfigDetail(data);
+    },
+    [configData, setConfigDetail]
+  );
+  
+  const convertToCapitalizedString = () => {
+    if (configDetail) {
+      return (
+        configDetail.ecommerce?.charAt(0).toUpperCase() +
+        configDetail.ecommerce?.slice(1)
+      );
+    }
+  };
   return (
     <StyledConfig className="padding-20">
-      <Form form={configForm} onFinish={onFinish}>
+      <Form form={form} onFinish={(value) => handleUpdateConfig(value)}>
         <Row>
-          <Col span={5}>
+          <Col span={8}>
             <Form.Item
-              name="source_id"
+              name="id"
               rules={[
                 {
                   required: true,
@@ -101,6 +151,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
               ]}
             >
               <CustomSelect
+                onChange={handleShopChange}
                 showArrow
                 showSearch
                 placeholder="Chọn cửa hàng"
@@ -108,7 +159,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
                 filterOption={(input, option) => {
                   if (option) {
                     return (
-                      option.children
+                      option.children[1]
                         .toLowerCase()
                         .indexOf(input.toLowerCase()) >= 0
                     );
@@ -116,22 +167,51 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
                   return false;
                 }}
               >
-                {listSources.map((item, index) => (
+                {configData.map((item: any, index) => (
                   <CustomSelect.Option
                     style={{ width: "100%" }}
-                    key={index.toString()}
+                    key={item.id}
                     value={item.id}
                   >
-                    <img
-                      style={{ marginRight: 8, paddingBottom: 4 }}
-                      src={item.ecommerce_img}
-                      alt=""
-                    />{" "}
-                    {item.shop_name}
+                    {
+                      <img
+                        style={{ marginRight: 8, paddingBottom: 4 }}
+                        src={iconMap[item.ecommerce]}
+                        alt=""
+                      />
+                    }
+                    {item.name}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
             </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col span={12}>
+            <span className="description-name">{`Thông tin của shop trên ${
+              convertToCapitalizedString() || "sàn"
+            }`}</span>
+            {/* <span className="description">
+              Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt
+              các gian hàng với nhau
+            </span> */}
+          </Col>
+          <Col span={12}>
+            <div className="ecommerce-user-detail">
+              <Row>
+                <Col span={5}>Tên Shop</Col>
+                <Col span={19}><span className="fw-500">: {configDetail?.name || "---"}</span></Col>
+              </Row>
+              <Row>
+                <Col span={5}>ID Shop</Col>
+                <Col span={19}><span className="fw-500">: {configDetail?.id || "---"}</span></Col>
+              </Row>
+              <Row>
+                <Col span={5}>Username</Col>
+                <Col span={19}><span className="fw-500">: ---</span></Col>
+              </Row>
+            </div>
           </Col>
         </Row>
         <Row gutter={24}>
@@ -145,7 +225,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
           <Col span={12}>
             <Form.Item
               label={<span>Tên gian hàng</span>}
-              name="shop_name"
+              name="name"
               rules={[
                 {
                   required: true,
@@ -153,7 +233,11 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
                 },
               ]}
             >
-              <Input placeholder="Nhập tên gian hàng"></Input>
+              <Input
+                maxLength={255}
+                placeholder="Nhập tên gian hàng"
+                disabled={configDetail ? false : true}
+              ></Input>
             </Form.Item>
           </Col>
         </Row>
@@ -169,7 +253,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
           <Col span={12}>
             <Form.Item
               label={<span>Cửa hàng</span>}
-              name="shop"
+              name="store"
               rules={[
                 {
                   required: true,
@@ -177,7 +261,11 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
                 },
               ]}
             >
-              <Input placeholder="Nhập tên cửa hàng"></Input>
+              <Input
+                maxLength={255}
+                placeholder="Nhập tên cửa hàng"
+                disabled={configDetail ? false : true}
+              ></Input>
             </Form.Item>
             <Form.Item
               label={<span>Nhân viên bán hàng</span>}
@@ -190,6 +278,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
               ]}
             >
               <Select
+                disabled={configDetail ? false : true}
                 showSearch
                 placeholder="Chọn nhân viên bán hàng"
                 allowClear
@@ -206,58 +295,6 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
             </Form.Item>
           </Col>
         </Row>
-
-        <Row gutter={24}>
-          <Col span={12}>
-            <span className="description-name">Cấu hình đơn hàng</span>
-            <span className="description">
-              Chọn kiểu đồng bộ đơn hàng để cập nhật đơn tự động hay thủ công
-            </span>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label={<span>Kiểu đồng bộ đơn hàng</span>}
-              name="order_sync_type"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn kiểu đồng bộ đơn hàng",
-                },
-              ]}
-            >
-              <Select placeholder="Chọn kiểu đồng bộ đơn hàng">
-                <Option value={"auto"}>Tự động</Option>
-                <Option value={"manual"}>Thủ công</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={12}>
-            <span className="description-name">Cấu hình sản phẩm</span>
-            <span className="description">
-              Chọn kiểu động bộ sản phẩm khi đơn hàng mới có sản phẩm chưa có
-              trên admin
-            </span>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label={<span>Kiểu đồng bộ sản phẩm</span>}
-              name="product_sync_type"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn kiểu đồng bộ sản phẩm",
-                },
-              ]}
-            >
-              <Select placeholder="Chọn kiểu đồng bộ sản phẩm">
-                <Option value={"auto"}>Tự động</Option>
-                <Option value={"manual"}>Thủ công</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
         <Row gutter={24}>
           <Col span={12}>
             <span className="description-name">Cấu hình tồn kho</span>
@@ -268,22 +305,7 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
           </Col>
           <Col span={12}>
             <Form.Item
-              label={<span>Kiểu đồng bộ tồn kho</span>}
-              name="inventory_sync_type"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn kiểu đồng bộ tồn kho",
-                },
-              ]}
-            >
-              <Select placeholder="Chọn kiểu đồng bộ tồn kho">
-                <Option value={"auto"}>Tự động</Option>
-                <Option value={"manual"}>Thủ công</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item
-              name="inventories"
+              // name="inventories"
               className="store"
               label={<span>Kho đồng bộ tồn</span>}
               rules={[
@@ -294,48 +316,122 @@ const SettingConfig: React.FC<SettingConfigProps> = ({
               ]}
             >
               <CustomSelect
-                showSearch
-                optionFilterProp="children"
-                showArrow
-                placeholder="Chọn cửa hàng"
+                disabled={configDetail ? false : true}
                 mode="multiple"
-                allowClear
-                tagRender={tagRender}
-                style={{
-                  width: "100%",
-                }}
+                className="dropdown-rule"
+                showArrow
+                showSearch
+                placeholder="Chọn cửa hàng"
                 notFoundContent="Không tìm thấy kết quả"
-                maxTagCount="responsive"
+                filterOption={(input, option) => {
+                  if (option) {
+                    return (
+                      option.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }
+                  return false;
+                }}
+                value={inventories?.map((store) => store.store_id)}
+                onChange={handleStoreChange}
               >
-                {listStores?.map((item) => (
-                  <CustomSelect.Option key={item.id} value={item.id}>
+                {listStores.map((item, index) => (
+                  <CustomSelect.Option
+                    style={{ width: "100%" }}
+                    key={index.toString()}
+                    value={item.id}
+                  >
                     {item.name}
                   </CustomSelect.Option>
                 ))}
               </CustomSelect>
             </Form.Item>
+            <Form.Item
+              label={<span>Kiểu đồng bộ tồn kho</span>}
+              name="inventory_sync"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn kiểu đồng bộ tồn kho",
+                },
+              ]}
+            >
+              <Select
+                placeholder="Chọn kiểu đồng bộ tồn kho"
+                disabled={configDetail ? false : true}
+              >
+                <Option value={"auto"}><span style={{color: "#27AE60"}}>Tự động</span></Option>
+                <Option value={"manual"}>Thủ công</Option>
+              </Select>
+            </Form.Item>
           </Col>
         </Row>
-        <div className="customer-bottom-button">
-          <Link to="/customers">
-            <div style={{ cursor: "pointer" }}>
-              <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-              Quay lại danh sách khách hàng
-            </div>
-          </Link>
-          <div>
-            <Button
-              className="disconnect-btn"
-              // onClick={() => history.goBack()}
-              style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
-              type="ghost"
+        <Row gutter={24}>
+          <Col span={12}>
+            <span className="description-name">Cấu hình đơn hàng</span>
+            <span className="description">
+              Chọn kiểu đồng bộ đơn hàng để cập nhật đơn tự động hay thủ công
+            </span>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label={<span>Kiểu đồng bộ đơn hàng</span>}
+              name="order_sync"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn kiểu đồng bộ đơn hàng",
+                },
+              ]}
             >
-              Ngắt kết nối
-            </Button>
-            <Button type="primary" htmlType="submit">
-              Lưu lại
-            </Button>
-          </div>
+              <Select
+                placeholder="Chọn kiểu đồng bộ đơn hàng"
+                disabled={configDetail ? false : true}
+              >
+                <Option value={"auto"}><span style={{color: "#27AE60"}}>Tự động</span></Option>
+                <Option value={"manual"}>Thủ công</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item
+              label={<span>Kiểu đồng bộ sản phẩm khi tải đơn về</span>}
+              name="product_sync"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng chọn kiểu đồng bộ sản phẩm",
+                },
+              ]}
+            >
+              <Select
+                placeholder="Chọn kiểu đồng bộ sản phẩm"
+                disabled={configDetail ? false : true}
+              >
+                <Option value={"auto"}>{`Luôn lấy sản phẩm từ ${
+                  convertToCapitalizedString() || "sàn"
+                } về`}</Option>
+                <Option value={"manual"}><span style={{color: "#27AE60"}}>Đợi ghép sản phẩm giữa 2 bên</span></Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <div className="customer-bottom-button">
+          <Button
+            className="disconnect-btn"
+            icon={<img src={disconnectIcon} alt="" />}
+            style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
+            type="ghost"
+          >
+            Ngắt kết nối
+          </Button>
+          <Button
+            type="primary"
+            htmlType="submit"
+            icon={<img src={saveIcon} alt="" />}
+          >
+            Lưu cấu hình
+          </Button>
         </div>
       </Form>
     </StyledConfig>

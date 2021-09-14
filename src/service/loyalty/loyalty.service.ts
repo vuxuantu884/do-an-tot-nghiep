@@ -33,8 +33,8 @@ export const getLoyaltyRate = (): Promise<BaseResponse<LoyaltyRateResponse>> => 
   return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-rates`);
 };
 
-export const createLoyaltyRate = (addingRate: number, usageRate: number): Promise<BaseResponse<LoyaltyRateResponse>> => {
-  return BaseAxios.post(`${ApiConfig.LOYALTY}/loyalty-rates`, {adding_rate: addingRate, usage_rate: usageRate});
+export const createLoyaltyRate = (addingRate: number, usageRate: number, enablePointUsage: boolean): Promise<BaseResponse<LoyaltyRateResponse>> => {
+  return BaseAxios.post(`${ApiConfig.LOYALTY}/loyalty-rates`, {adding_rate: addingRate, usage_rate: usageRate, enable_point_usage: enablePointUsage});
 };
 
 export const getLoyaltyUsage = (): Promise<BaseResponse<LoyaltyUsageResponse>> => {

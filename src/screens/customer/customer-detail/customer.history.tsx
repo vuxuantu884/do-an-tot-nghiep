@@ -165,7 +165,7 @@ function CustomerHistoryInfo(props: any) {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
-          dataSource={orderData?.items.reverse()}
+          dataSource={orderData?.items}
           columns={columnFinalOrderHistory()}
           rowKey={(item: OrderModel) => item.id}
         />

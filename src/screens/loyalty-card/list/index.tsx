@@ -11,7 +11,9 @@ import moment from 'moment';
 import { DATE_FORMAT } from 'utils/DateUtils';
 import { BaseQuery } from 'model/base/base.query';
 import { useDispatch } from 'react-redux';
-import { LoyaltyCardSearch } from 'domain/actions/loyalty/card/loyalty-card.action';
+import { LoyaltyCardLock, LoyaltyCardSearch } from 'domain/actions/loyalty/card/loyalty-card.action';
+import AssignCustomer from '../component/assign-customer/AssignCustomer';
+import ModalConfirmLock from 'component/modal/ModalConfirmLock';
 
 const CARD_STATUS = {
   ASSIGNED: {
@@ -23,12 +25,8 @@ const CARD_STATUS = {
     value: 'ACTIVE'
   },
   INACTIVE: {
-    title: 'Chưa kích hoạt',
+    title: 'Đã khóa',
     value: 'INACTIVE'
-  },
-  LOCKED: {
-    title: 'Đã bị khóa',
-    value: 'LOCKED'
   }
 }
 
@@ -46,7 +44,7 @@ const LoyaltyCards = () => {
     if (card.status === 'ACTIVE') {
       return card.customer_id ? CARD_STATUS.ASSIGNED : CARD_STATUS.ACTIVE
     } else {
-      return card.customer_id ? CARD_STATUS.LOCKED : CARD_STATUS.INACTIVE
+      return CARD_STATUS.INACTIVE
     }
   }
   const pageColumns: Array<ICustomTableColumType<any>> = [
@@ -65,12 +63,13 @@ const LoyaltyCards = () => {
     },
     {
       title: "Khách hàng",
+      dataIndex: "customer_name",
       visible: true,
       fixed: "left"
     },
     {
       title: "Đợt phát hành",
-      dataIndex: "card_release_id",
+      dataIndex: "release_name",
       visible: true,
       fixed: "left"
     },
@@ -94,38 +93,48 @@ const LoyaltyCards = () => {
       title: "",
       visible: true,
       width: "72px",
-      render: (value: string, i: any) => {
+      render: (value: any, i: any) => {
         const menu = (
           <Menu>
             <Menu.Item key="1">
               <Button
                 icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
                 type="text"
-                className=""
                 style={{
                   paddingLeft: 24,
                   background: "transparent",
                   border: "none",
+                }}
+                onClick={() => {
+                  setSelectedItem(value)
+                  setIsShowAssignCustomerModal(true)
                 }}
               >
                 Gán
               </Button>
             </Menu.Item>
-            <Menu.Item key="2">
-              <Button
-                icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                  color: "red",
-                }}
-              >
-                Khóa
-              </Button>
-            </Menu.Item>
+            {
+              value.status !== 'INACTIVE' && (
+                <Menu.Item key="2">
+                  <Button
+                    icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
+                    type="text"
+                    style={{
+                      paddingLeft: 24,
+                      background: "transparent",
+                      border: "none",
+                      color: "red",
+                    }}
+                    onClick={() => {
+                      setSelectedItem(value)
+                      setIsShowLockConfirmModal(true)
+                    }}
+                  >
+                    Khóa
+                  </Button>
+                </Menu.Item>
+              )
+            }
           </Menu>
         );
         return (
@@ -165,6 +174,9 @@ const LoyaltyCards = () => {
   });
 
   const dispatch = useDispatch()
+  const [isShowAssignCustomerModal, setIsShowAssignCustomerModal] = useState<boolean>(false)
+  const [selectedItem, setSelectedItem] = useState<LoyaltyCardResponse>()
+  const [isShowLockConfirmModal, setIsShowLockConfirmModal] = useState<boolean>(false)
 
   const fetchData = useCallback((data: PageResponse<LoyaltyCardResponse>) => {
     setData(data)
@@ -177,6 +189,10 @@ const LoyaltyCards = () => {
     },
     [query]
   );
+
+  const refreshData = useCallback(() => {
+    dispatch(LoyaltyCardSearch(query, fetchData));
+  }, [dispatch, fetchData, query])
 
   useEffect(() => {
     dispatch(LoyaltyCardSearch(query, fetchData));
@@ -198,6 +214,30 @@ const LoyaltyCards = () => {
         dataSource={data.items}
         columns={pageColumns}
         rowKey={(item: any) => item.id}
+      />
+      <AssignCustomer
+        visible={isShowAssignCustomerModal}
+        onClose={() => {
+          setIsShowAssignCustomerModal(false)
+          setSelectedItem(undefined)
+        }}
+        card={selectedItem}
+        onSaveSuccess={refreshData}
+      />
+      <ModalConfirmLock
+        onCancel={() => {
+          setIsShowLockConfirmModal(false)
+          setSelectedItem(undefined)
+        }}
+        onOk={() => {
+          setIsShowLockConfirmModal(false);
+          if (selectedItem) {
+            dispatch(LoyaltyCardLock(selectedItem.id, refreshData))
+          }
+        }}
+        title={"Bạn có chắc chắn muốn khóa thẻ khách hàng này không?"}
+        subTitle="Nếu khóa thì thẻ khách hàng này sẽ không còn hoạt động nữa."
+        visible={isShowLockConfirmModal}
       />
     </div>
   )
