@@ -117,6 +117,29 @@ function* orderCreateSaga(action: YodyAction) {
   }
 }
 
+function* orderFpageCreateSaga(action: YodyAction) {
+  const { request, setData, setDisable } = action.payload;
+  try {
+    let response: BaseResponse<OrderResponse> = yield call(
+      orderPostApi,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        setDisable(false)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+
+
 function* InfoGHTKSaga(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
@@ -438,6 +461,7 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST, getListOrderCustomerSaga);
   yield takeLatest(OrderType.GET_SHIPMENTS_REQUEST, getShipmentsSaga);
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
+  yield takeLatest(OrderType.CREATE_FPAGE_ORDER_REQUEST, orderFpageCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
   yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga);

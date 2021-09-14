@@ -14,6 +14,7 @@ import {
   getVariantApi,
   productGetHistory,
   productUploadApi,
+  searchProductWrapperApi,
   searchVariantsApi,
 } from "service/product/product.service";
 import { showError } from "utils/ToastUtils";
@@ -33,6 +34,30 @@ function* searchVariantSaga(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response);
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* searchProductWrapperSaga(action: YodyAction) {
+  const { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
+      searchProductWrapperApi,
+      query
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -249,6 +274,9 @@ function* putProductUpdate(action: YodyAction){
 
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
+  yield takeLatest(
+    ProductType.SEARCH_PRODUCT_WRAPPER_REQUEST,
+    searchProductWrapperSaga);
   yield takeLatest(
     ProductType.SEARCH_PRODUCT_FOR_ORDER_REQUEST,
     searchVariantOrderSaga

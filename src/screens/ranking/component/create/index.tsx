@@ -71,7 +71,7 @@ const CreateCustomerRanking = () => {
   );
   return (
     <ContentContainer
-      title={params.id ? "Cập nhật hạng thẻ khách hàng" : "Thêm hạng thẻ khách hàng"}
+      title={params.id ? "Cập nhật hạng khách hàng" : "Thêm hạng khách hàng"}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -83,7 +83,6 @@ const CreateCustomerRanking = () => {
         },
         {
           name: `${params.id ? "Cập nhật hạng thẻ" : "Thêm hạng thẻ"}`,
-          path: `${params.id ? `${UrlConfig.CUSTOMER}/rankings/${params.id}/update` : `${UrlConfig.CUSTOMER}/rankings/create`}`,
         },
       ]}
     >
@@ -130,7 +129,7 @@ const CreateCustomerRanking = () => {
                       name="type"
                     >
                       <Select>
-                        <Option value="CASH">Theo tiền lũy kế</Option>
+                        <Option value="CASH">Tiền tích lũy</Option>
                         {/* <Option disabled value="POINT">Theo số điểm</Option> */}
                       </Select>
                     </Item>
@@ -221,21 +220,13 @@ const CreateCustomerRanking = () => {
           </Col>
           <Col span={14} className="action-group">
             <Button
-              type="default"
-              className="cancel-btn"
-            >
-              <Link to={`${UrlConfig.CUSTOMER}/rankings`}>
-                Hủy
-              </Link>
-            </Button>
-            <Button
               type="primary"
               className="save-btn"
               onClick={() => {
                 formRef.current?.submit();
               }}
             >
-              Lưu hạng thẻ
+              {params.id ? 'Lưu' : 'Tạo'} hạng thẻ
             </Button>
           </Col>
         </Row>

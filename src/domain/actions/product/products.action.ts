@@ -3,6 +3,8 @@ import {
   ProductHistoryResponse,
   ProductRequest,
   ProductResponse,
+  ProductWrapperResponse,
+  ProductWrapperSearchQuery,
   VariantResponse,
   VariantSearchQuery,
   VariantUpdateRequest,
@@ -17,6 +19,17 @@ export const searchVariantsRequestAction = (
   setData: (data: PageResponse<VariantResponse>|false) => void
 ) => {
   return BaseAction(ProductType.SEARCH_PRODUCT_REQUEST, {
+    query,
+    setData,
+  });
+};
+
+
+export const searchProductWrapperRequestAction = (
+  query: ProductWrapperSearchQuery,
+  setData: (data: PageResponse<ProductWrapperResponse>|false) => void
+) => {
+  return BaseAction(ProductType.SEARCH_PRODUCT_WRAPPER_REQUEST, {
     query,
     setData,
   });

@@ -266,7 +266,7 @@ function CustomerShippingAddressInfo(props: any) {
           //   // onShowSizeChange: onPageChange,
           // }}
           pagination={false}
-          dataSource={customer ? customer.shipping_addresses : []}
+          dataSource={customer ? customer.shipping_addresses.reverse() : []}
           columns={shippingColumnFinal()}
           rowKey={(item: shippingAddress) => item.id}
           onRow={(record: CustomerShippingAddress) => {

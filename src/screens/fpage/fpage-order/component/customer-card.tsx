@@ -738,10 +738,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                         content={
                           <div className="change-shipping-address-content">
                             {customer.shipping_addresses.map((item, index) => (
-                              <>
+                              <div key={index} >
                               <div
                                 className="shipping-address-row"
-                                key={item.id}
+                                
                               >
                                 <div className="shipping-address-name word-underline">
                                   Địa chỉ {index + 1}{" "}
@@ -776,7 +776,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                                 </div>
                               </div>
                               <Divider />
-                              </>
+                              </div>
                             ))}
                           </div>
                         }
@@ -898,7 +898,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                           content={
                             <div className="change-shipping-address-content">
                               {customer.billing_addresses.map((item, index) => (
-                                <>
+                                <div key={index} >
                                 <div
                                   className="shipping-address-row"
                                   key={item.id}
@@ -936,7 +936,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                                   </div>
                                 </div>
                                 <Divider />
-                                </>
+                                </div>
                               ))}
                             </div>
                           }

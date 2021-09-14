@@ -156,7 +156,7 @@ function CustomerNoteInfo(props: any) {
         <CustomTable
           showColumnSetting={false}
           pagination={false}
-          dataSource={customer ? customer.notes : []}
+          dataSource={customer ? customer.notes.reverse() : []}
           columns={noteColumnFinal()}
           rowKey={(item: CustomerNote) => item.id}
           onRow={(record: CustomerNote) => {

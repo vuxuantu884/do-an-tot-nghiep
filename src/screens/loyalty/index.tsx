@@ -6,7 +6,6 @@ import './loyalty.scss'
 import threeDot from "assets/icon/three-dot.svg";
 import { Link } from 'react-router-dom'
 import editIcon from "assets/icon/edit.svg";
-import deleteIcon from "assets/icon/deleteIcon.svg";
 import CurrencyInput from './component/currency-input'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
@@ -19,14 +18,13 @@ import { LoyaltyAccumulationProgramResponse } from 'model/response/loyalty/loyal
 import { BaseQuery } from 'model/base/base.query'
 import moment from 'moment'
 import { DATE_FORMAT } from 'utils/DateUtils'
-import { getListChannelRequest } from 'domain/actions/order/order.action'
-import { ChannelResponse } from 'model/response/product/channel.response'
+import { PlusOutlined } from '@ant-design/icons'
 
 const LoyaltyPage = () => {
   const [accumulationRate, setAccumulationRate] = useState<number>(0)
   const [redemptionRate, setRedemptionRate] = useState<number>(0)
+  const [enablePointUsage, setEnablePointUsage] = useState<boolean>(false)
   const [rules, setRules] = useState<Array<any>>([])
-  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([])
   const [loyaltyPrograms, setLoyaltyPrograms] = useState<PageResponse<LoyaltyAccumulationProgramResponse>>({
     metadata: {
       limit: 30,
@@ -62,24 +60,23 @@ const LoyaltyPage = () => {
       title: "Ưu tiên",
       visible: true,
       fixed: "left",
-      width: '80px',
+      width: '120px',
       render: (value: any, item: any, index: number) => 
-        <div className={`priority priority__${value.priority === 1 ? 'VERY_HIGH' : value.prioriry === 2 ? 'HIGH' : value.priority === 3 ? 'MEDIUM' : 'LOW'}`}>
+        <div className={`priority priority__${value.priority === 1 ? 'VERY_HIGH' : 'LOW'}`}>
           Số {value.priority}
         </div>,
     },
     {
-      title: "Áp dụng",
+      title: "Từ ngày",
       visible: true,
       fixed: "left",
       render: (value: any, item: any, index: number) => 
-        <div>{listChannel.filter(channel => value.channels.includes(channel.id)).map(channel => channel.name).join(', ')}</div>,
+        <div>{value.start_time && moment(value.start_time).format(DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
-      title: "Thời hạn",
+      title: "Đến ngày",
       visible: true,
       fixed: "left",
-      width: '120px',
       render: (value: any, item: any, index: number) => 
         <div>{value.end_time && moment(value.end_time).format(DATE_FORMAT.DDMMYYY)}</div>,
     },
@@ -88,16 +85,13 @@ const LoyaltyPage = () => {
       visible: true,
       fixed: "left",
       align: 'center',
-      width: '100px',
       render: (value: any, item: any, index: number) => 
-        <Switch
-          checked={value.status === 'ACTIVE'}
-          style={{pointerEvents: 'none'}}
-        />,
+        <div className={`status-col__${value.status}`}>{value.status === 'INACTIVE' ? 'Đang chạy' : 'Tạm dừng'}</div>
     },
     {
       title: "Người tạo",
       visible: true,
+      dataIndex: "created_name",
       fixed: "left",
       width: '150px'
     },
@@ -123,21 +117,6 @@ const LoyaltyPage = () => {
                   Chỉnh sửa
                 </Button>
               </Link>
-            </Menu.Item>
-            <Menu.Item key="2">
-              <Button
-                icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
-                type="text"
-                className=""
-                style={{
-                  paddingLeft: 24,
-                  background: "transparent",
-                  border: "none",
-                  color: "red",
-                }}
-              >
-                Xóa
-              </Button>
             </Menu.Item>
           </Menu>
         );
@@ -174,6 +153,7 @@ const LoyaltyPage = () => {
     dispatch(getLoyaltyRate((rates: LoyaltyRateResponse) => {
       setAccumulationRate(rates.adding_rate)
       setRedemptionRate(rates.usage_rate)
+      setEnablePointUsage(rates.enable_using_point)
     }))
     dispatch(getLoyaltyUsage((data: Array<LoyaltyUsageResponse>) => {
       let _rules = [];
@@ -182,7 +162,6 @@ const LoyaltyPage = () => {
       }
       setRules(_rules)
     }))
-    dispatch(getListChannelRequest(setListChannel));
   }, [dispatch])
 
   const fetchData = useCallback((data: PageResponse<LoyaltyAccumulationProgramResponse>) => {
@@ -218,10 +197,10 @@ const LoyaltyPage = () => {
   }, [])
 
   const onFinish = useCallback(() => {
-    dispatch(createLoyaltyRate(accumulationRate, redemptionRate, updateRateCallback))
+    dispatch(createLoyaltyRate(accumulationRate, redemptionRate, enablePointUsage, updateRateCallback))
     dispatch(createLoyaltyUsage(rules, updateUsageCallback))
   },
-    [accumulationRate, dispatch, redemptionRate, rules, updateRateCallback, updateUsageCallback]
+    [accumulationRate, dispatch, redemptionRate, rules, updateRateCallback, updateUsageCallback, enablePointUsage]
   );
 
   const handleChangePointUseType = (value: string, index: number) => {
@@ -256,7 +235,7 @@ const LoyaltyPage = () => {
 
   return (
     <ContentContainer
-      title="Danh sách chương trình"
+      title="Thêm mới chương trình tích điểm"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -273,7 +252,7 @@ const LoyaltyPage = () => {
           className="global-config"
           title={
             <div className="d-flex">
-              <span>
+              <span className="config-title">
                 <i
                   className="icon-dot"
                   style={{
@@ -284,6 +263,16 @@ const LoyaltyPage = () => {
                 ></i>
                 Cài đặt chung
               </span>
+              <div className="status">
+                Trạng thái
+                <Switch
+                  checked={enablePointUsage}
+                  onChange={(checked: boolean) => setEnablePointUsage(checked)}
+                />
+                {
+                  enablePointUsage ? 'Đang hoạt động' : 'Dừng hoạt động'
+                }
+              </div>
             </div>
           }
         >
@@ -384,7 +373,9 @@ const LoyaltyPage = () => {
                 Danh sách chương trình
               </span>
               <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`}>
-                <Button type="primary" className="add-new-btn">Thêm mới</Button>
+                <div className="add-new-btn">
+                  <PlusOutlined /> Thêm mới
+                </div>
               </Link>
             </div>
           }

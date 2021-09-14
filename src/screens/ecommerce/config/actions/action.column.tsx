@@ -4,7 +4,7 @@ import editIcon from "assets/icon/edit.svg";
 import lockIcon from "assets/icon/lock.svg";
 import { StyledMenu, StyledDropDown } from "./styles";
 
-const actionColumn = (handleEdit: any, handleDelete: any) => {
+const actionColumn = (handleUpdate: any, handleDelete: any) => {
   const _actionColumn = {
     title: "",
     visible: true,
@@ -19,7 +19,7 @@ const actionColumn = (handleEdit: any, handleDelete: any) => {
               icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
               type="text"
               className=""
-              onClick={handleEdit}
+              onClick={() => handleUpdate(item)}
             >
               Chỉnh sửa
             </Button>

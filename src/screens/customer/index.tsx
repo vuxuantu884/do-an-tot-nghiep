@@ -437,11 +437,6 @@ const Customer = () => {
     onSearch(value);
   };
 
-  const handleSetColumn = () => {
-    let _columns = [...columns];
-    setColumn(_columns);
-  };
-
   const actions: Array<MenuAction> = [
     {
       id: 1,
@@ -680,7 +675,6 @@ const Customer = () => {
       <ModalSettingColumn
         visible={showSettingColumn}
         onCancel={() => {
-          handleSetColumn();
           setShowSettingColumn(false);
         }}
         onOk={(data) => {

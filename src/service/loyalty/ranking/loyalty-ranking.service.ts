@@ -22,3 +22,7 @@ export const createLoyaltyRank = (body: CreateLoyaltyRequest): Promise<BaseRespo
 export const updateLoyaltyRank = (id: number, body: CreateLoyaltyRequest): Promise<BaseResponse<LoyaltyRankResponse>> => {
   return BaseAxios.put(`${ApiConfig.LOYALTY}/loyalty-rankings/${id}`, body);
 };
+
+export const deleteLoyaltyRank = (id: number): Promise<BaseResponse<any>> => {
+  return BaseAxios.delete(`${ApiConfig.LOYALTY}/loyalty-rankings/${id}`);
+};
