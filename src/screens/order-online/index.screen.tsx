@@ -117,6 +117,7 @@ const initQuery: OrderSearchQuery = {
   payment_method_ids: [],
   delivery_types: [],
   delivery_provider_ids: [],
+  shipper_ids: [],
   note: null,
   customer_note: null,
   tags: [],

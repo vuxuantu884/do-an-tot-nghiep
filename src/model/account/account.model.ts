@@ -14,6 +14,7 @@ export interface AccountBaseModel {
   district_id?: number;
   address: string;
   status: string;
+  is_shipper?: boolean;
 }
 
 export interface AccountResponse extends AccountBaseModel, BaseObject {

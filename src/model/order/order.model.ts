@@ -104,6 +104,7 @@ export interface OrderSearchQuery {
   payment_method_ids: [];
   delivery_types: [];
   delivery_provider_ids: [];
+  shipper_ids: [];
   note: string|null;
   customer_note: string|null;
   tags: [];
