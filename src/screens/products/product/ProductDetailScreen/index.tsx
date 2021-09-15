@@ -1,16 +1,11 @@
-import {
-  Button,
-  Card,
-  Col,
-  Row,
-  Switch,
-  Image,
-  Tabs,
-} from "antd";
+import { Button, Card, Col, Row, Switch, Image, Tabs, Spin } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { productGetDetail, productUpdateAction } from "domain/actions/product/products.action";
+import {
+  productGetDetail,
+  productUpdateAction,
+} from "domain/actions/product/products.action";
 import { ProductResponse } from "model/product/product.model";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -22,6 +17,7 @@ import Slider from "react-slick";
 import VariantList from "../component/VariantList";
 import { showSuccess } from "utils/ToastUtils";
 import { Products } from "utils/AppUtils";
+import { Loading3QuartersOutlined } from "@ant-design/icons";
 
 export interface ProductParams {
   id: string;
@@ -33,6 +29,7 @@ const ProductDetailScreen: React.FC = () => {
   const { id } = useParams<ProductParams>();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingVariantUpdate, setLoadingVariantUpdate] = useState(false);
   const [loadingVariant, setLoadingVariant] = useState(false);
   const [active, setActive] = useState<number>(0);
   const [nav1, setNav1] = useState<Slider | null>();
@@ -56,6 +53,7 @@ const ProductDetailScreen: React.FC = () => {
     }
     return null;
   }, [active, data]);
+
   const renderSize = useMemo(() => {
     if (currentVariant) {
       if (
@@ -69,50 +67,78 @@ const ProductDetailScreen: React.FC = () => {
     return "";
   }, [currentVariant]);
 
-  const onResultUpdate = useCallback((data: ProductResponse|false) => {
+  const onResultUpdate = useCallback((data: ProductResponse | false) => {
     setLoadingVariant(false);
-    if(!data) {
-
+    if (!data) {
     } else {
       setData(data);
       showSuccess("Cập nhật thông tin thành công");
     }
   }, []);
 
-  const update = useCallback((product: ProductResponse) => {
-    setLoadingVariant(true)
-    dispatch(productUpdateAction(idNumber, product, onResultUpdate))
-  }, [dispatch, idNumber, onResultUpdate]);
+  const update = useCallback(
+    (product: ProductResponse) => {
+      setLoadingVariant(true);
+      dispatch(productUpdateAction(idNumber, product, onResultUpdate));
+    },
+    [dispatch, idNumber, onResultUpdate]
+  );
 
-  const productAvatar  = useMemo(() => {
+  const productAvatar = useMemo(() => {
     let avatar = Products.findAvatarProduct(data);
-    if(avatar == null) {
+    if (avatar == null) {
       return variantdefault;
     }
     return avatar;
   }, [data]);
 
-  const onAllowSale = useCallback((listSelected: Array<number>) => {
-    if(data !== null) {
-      data?.variants.forEach((item) => {
-        if(listSelected.includes(item.id)) {
-          item.saleable = true;
-        }
-      });
-      update(data);
-    }
-  }, [data, update])
+  const onAllowSale = useCallback(
+    (listSelected: Array<number>) => {
+      if (data !== null) {
+        data?.variants.forEach((item) => {
+          if (listSelected.includes(item.id)) {
+            item.saleable = true;
+          }
+        });
+        update(data);
+      }
+    },
+    [data, update]
+  );
 
-  const onStopSale = useCallback((listSelected: Array<number>) => {
-    if(data !== null) {
-      data?.variants.forEach((item) => {
-        if(listSelected.includes(item.id)) {
-          item.saleable = false;
-        }
-      });
-      update(data);
+  const onStopSale = useCallback(
+    (listSelected: Array<number>) => {
+      if (data !== null) {
+        data?.variants.forEach((item) => {
+          if (listSelected.includes(item.id)) {
+            item.saleable = false;
+          }
+        });
+        update(data);
+      }
+    },
+    [data, update]
+  );
+
+  const onUpdateSaleable = useCallback(() => {
+    setLoadingVariantUpdate(false);
+    if (!data) {
+    } else {
+      setData(data);
+      showSuccess("Cập nhật thông tin thành công");
     }
-  }, [data, update])
+  }, [data]);
+
+  const onChangeChecked = useCallback(
+    (e) => {
+      if (data !== null) {
+        setLoadingVariantUpdate(true);
+        data.variants[active].saleable = e;
+        dispatch(productUpdateAction(idNumber, data, onUpdateSaleable));
+      }
+    },
+    [active, data, dispatch, idNumber, onUpdateSaleable]
+  );
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
@@ -230,6 +256,7 @@ const ProductDetailScreen: React.FC = () => {
                             </div>
                             <div className="header-view-right">
                               <Switch
+                                onChange={onChangeChecked}
                                 className="ant-switch-success"
                                 checked={currentVariant.saleable}
                               />
@@ -307,8 +334,12 @@ const ProductDetailScreen: React.FC = () => {
                                             className="image-slider"
                                           >
                                             {currentVariant.variant_images.map(
-                                              (item) => (
-                                                <Image src={item.url} alt="" />
+                                              (item, index) => (
+                                                <Image
+                                                  key={index}
+                                                  src={item.url}
+                                                  alt=""
+                                                />
                                               )
                                             )}
                                           </Slider>
@@ -323,8 +354,12 @@ const ProductDetailScreen: React.FC = () => {
                                             className="image-thumbnail"
                                           >
                                             {currentVariant.variant_images.map(
-                                              (item) => (
-                                                <img src={item.url} alt="" />
+                                              (item, index) => (
+                                                <img
+                                                  key={index}
+                                                  src={item.url}
+                                                  alt=""
+                                                />
                                               )
                                             )}
                                           </Slider>
@@ -335,6 +370,18 @@ const ProductDetailScreen: React.FC = () => {
                                 </div>
                               </Col>
                             </Row>
+                            {loadingVariantUpdate && (
+                              <div className="loading-view">
+                                <Spin
+                                  indicator={
+                                    <Loading3QuartersOutlined
+                                      style={{ fontSize: 28 }}
+                                      spin
+                                    />
+                                  }
+                                />
+                              </div>
+                            )}
                           </div>
                         </React.Fragment>
                       )}
