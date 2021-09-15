@@ -67,7 +67,9 @@ import {
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import ImageProduct from "../component/image-product.component";
-import UploadImageModal, { VariantImageModel } from "../component/upload-image.modal";
+import UploadImageModal, {
+  VariantImageModel,
+} from "../component/upload-image.modal";
 import { StyledComponent } from "./styles";
 
 const { Item, List } = Form;
@@ -510,12 +512,6 @@ const ProductCreateScreen: React.FC = () => {
                       >
                         {statusValue}
                       </label>
-                    </div>
-                    <div className="extra-cards">
-                      <b>Cho phép bán:</b>
-                      <Item valuePropName="checked" name="saleable" noStyle>
-                        <Switch className="ant-switch-success" />
-                      </Item>
                     </div>
                   </Space>
                 }
@@ -1107,7 +1103,18 @@ const ProductCreateScreen: React.FC = () => {
           </Row>
           <Row gutter={24}>
             <Col span={24}>
-              <Card className="card" title="Tạo phiên bản sản phẩm">
+              <Card
+                className="card"
+                title="Tạo phiên bản sản phẩm"
+                extra={
+                  <div className="extra-cards">
+                    <b>Cho phép bán:</b>
+                    <Item valuePropName="checked" name="saleable" noStyle>
+                      <Switch className="ant-switch-success" />
+                    </Item>
+                  </div>
+                }
+              >
                 <div className="padding-20">
                   <Row gutter={50}>
                     <Col span={24} md={12} sm={24}>

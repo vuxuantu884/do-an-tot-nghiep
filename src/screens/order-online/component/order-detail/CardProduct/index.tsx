@@ -859,7 +859,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         </Space>
       }
     >
-      <div style={{ padding: "24px 24px 0 24px" }}>
+      <div style={{ padding: "24px 0 0 0" }}>
         <Row gutter={24}>
           <Col md={8}>
             <Form.Item
@@ -998,7 +998,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         rowKey={(record) => record.id}
         columns={columns}
         dataSource={items}
-        className="sale-product-box-table w-100"
+        className="sale-product-box-table2 w-100"
         tableLayout="fixed"
         pagination={false}
         scroll={{ y: 300 }}

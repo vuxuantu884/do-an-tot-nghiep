@@ -91,6 +91,10 @@ export interface OrderLineItemResponse {
   gifts: Array<OrderLineItemResponse>;
 }
 
+export interface ReturnProductModel extends OrderLineItemResponse {
+  maxQuantity?: number;
+}
+
 export interface FulFillmentResponse {
   id: number | null;
   code: string | null;
@@ -239,6 +243,7 @@ export interface ShipmentResponse extends BaseObject {
 export interface DeliveryServiceResponse {
   id: number;
   code: string;
+  status: string;
   external_service_code: string;
   name: string;
   logo: string;

@@ -53,7 +53,7 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
-  ErrorLogResponse,
+  // ErrorLogResponse,
   OrderResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
@@ -147,8 +147,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
-  const [errorLogFulfillment, setErrorLogFulfillment] =
-    useState<Array<ErrorLogResponse> | null>(null);
+  // const [errorLogFulfillment, setErrorLogFulfillment] =
+  //   useState<Array<ErrorLogResponse> | null>(null);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
   const [hvc, setHvc] = useState<number | null>(null);
   const [serviceType, setServiceType] = useState<string>();
@@ -289,7 +289,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       dispatch(
         getTrackingLogError(
           props.OrderDetail.fulfillments[0].code,
-          setErrorLogFulfillment
+          () => {
+
+          }
         )
       );
     }

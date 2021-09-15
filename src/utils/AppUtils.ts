@@ -2,7 +2,6 @@ import { ConvertDateToUtc } from "./DateUtils";
 import { AccountStoreResponse } from "model/account/account.model";
 import { DistrictResponse } from "model/content/district.model";
 import { CityView } from "model/content/district.model";
-import { AppConfig } from "config/app.config";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import moment from "moment";
