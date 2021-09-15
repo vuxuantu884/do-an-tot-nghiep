@@ -1,6 +1,6 @@
-import { Card, Col, Collapse, Row, Tag } from "antd";
+import { Card, Col, Row, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
-import CreateBillStep from "component/header/create-bill-step";
+// import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -12,13 +12,13 @@ import {
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderSettingsModel } from "model/other/order/order-model";
+// import { OrderSettingsModel } from "model/other/order/order-model";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderLineItemResponse,
   OrderResponse,
-  StoreCustomResponse,
+  // StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import {
@@ -32,11 +32,11 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
   FulFillmentStatus,
-  OrderStatus,
+  // OrderStatus,
   PaymentMethodCode,
 } from "utils/Constants";
 import ActionHistory from "../../component/order-detail/ActionHistory";
-import OrderDetailBottomBar from "../../component/order-detail/BottomBar";
+// import OrderDetailBottomBar from "../../component/order-detail/BottomBar";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoney from "../components/CardReturnMoney";
 import CardReturnOrder from "../components/CardReturnOrder";
@@ -62,7 +62,7 @@ const ScreenReturnDetail = (props: PropType) => {
   const isFirstLoad = useRef(true);
 
   const dispatch = useDispatch();
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  // const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
@@ -73,33 +73,33 @@ const ScreenReturnDetail = (props: PropType) => {
   const [listOrderProducts, setListOrderProducts] = useState<
     OrderLineItemResponse[]
   >([]);
-  const [OrderDetailAllFullfilment, setOrderDetailAllFullfilment] =
-    useState<OrderResponse | null>(null);
-  const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+  // const [OrderDetailAllFullfilment, setOrderDetailAllFullfilment] =
+  //   useState<OrderResponse | null>(null);
+  // const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
     null
   );
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
   >([]);
-  const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
-    useState<number>(0);
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  // const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
+  //   useState<number>(0);
+  // const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
-  const [amountReturn, setAmountReturn] = useState<number>(100000);
+  const [amountReturn] = useState<number>(100000);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
 
-  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
-    chonCuaHangTruocMoiChonSanPham: false,
-    cauHinhInNhieuLienHoaDon: 1,
-  });
+  // const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
+  //   chonCuaHangTruocMoiChonSanPham: false,
+  //   cauHinhInNhieuLienHoaDon: 1,
+  // });
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
         return;
       }
-      setAccounts(data.items);
+      // setAccounts(data.items);
     },
     []
   );
@@ -117,7 +117,7 @@ const ScreenReturnDetail = (props: PropType) => {
       );
       setOrderDetail(_data);
       setListOrderProducts(_data.items);
-      setOrderDetailAllFullfilment(data);
+      // setOrderDetailAllFullfilment(data);
     }
   }, []);
 
@@ -156,7 +156,7 @@ const ScreenReturnDetail = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail?.store_id != null) {
-      dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
+      dispatch(StoreDetailAction(OrderDetail?.store_id, () => {}));
     }
   }, [dispatch, OrderDetail?.store_id]);
 
@@ -172,18 +172,18 @@ const ScreenReturnDetail = (props: PropType) => {
   }, [dispatch]);
 
   useEffect(() => {
-    setOrderSettings({
-      chonCuaHangTruocMoiChonSanPham: true,
-      cauHinhInNhieuLienHoaDon: 3,
-    });
+    // setOrderSettings({
+    //   chonCuaHangTruocMoiChonSanPham: true,
+    //   cauHinhInNhieuLienHoaDon: 3,
+    // });
   }, []);
 
   // end
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
+      // setIsShowBillStep(true);
     } else {
-      setIsShowBillStep(false);
+      // setIsShowBillStep(false);
     }
   }, []);
 

@@ -15,35 +15,35 @@ function SingleThirdPartyLogistic(props: PropType) {
   const CODE = "ghtk";
   const [form] = Form.useForm();
 
-  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
-    DeliveryServiceResponse[]
-  >([]);
+  // const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
+  //   DeliveryServiceResponse[]
+  // >([]);
   const [currentThirdPartyLogistic, setCurrentThirdPartyLogistic] =
     useState<DeliveryServiceResponse | null>(null);
   const dispatch = useDispatch();
 
-  const listServices = [
-    {
-      key: "1",
-      value: "Đồng giá 20k",
-    },
-    {
-      key: "2",
-      value: "Đồng giá 24k",
-    },
-    {
-      key: "3",
-      value: "TMĐT phát hôm sau",
-    },
-    {
-      key: "4",
-      value: "TMĐT bộ",
-    },
-    {
-      key: "5",
-      value: "TMĐT bay",
-    },
-  ];
+  // const listServices = [
+  //   {
+  //     key: "1",
+  //     value: "Đồng giá 20k",
+  //   },
+  //   {
+  //     key: "2",
+  //     value: "Đồng giá 24k",
+  //   },
+  //   {
+  //     key: "3",
+  //     value: "TMĐT phát hôm sau",
+  //   },
+  //   {
+  //     key: "4",
+  //     value: "TMĐT bộ",
+  //   },
+  //   {
+  //     key: "5",
+  //     value: "TMĐT bay",
+  //   },
+  // ];
 
   const initialFormValue = {
     token_api: "",
@@ -94,7 +94,7 @@ function SingleThirdPartyLogistic(props: PropType) {
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        setListThirdPartyLogistics(response);
+        // setListThirdPartyLogistics(response);
         let current = response.find((single) => {
           return (single.code = CODE);
         });
