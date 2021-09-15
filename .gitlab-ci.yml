@@ -22,14 +22,10 @@ stages:
 
 verify code:
   stage: verify
-  image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
+  image: node
   only:
     refs:
       - develop
-  variables:
-    DOCKER_FILE: Dockerfile
-    SERVICE_NAME: yody-app-admin
-    DOCKER_IMAGE_NAME: yody-app-admin
   script:
     - |
       npm install eslint \
