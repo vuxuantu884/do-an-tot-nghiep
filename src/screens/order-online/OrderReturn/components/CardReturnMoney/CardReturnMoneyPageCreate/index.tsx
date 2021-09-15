@@ -275,120 +275,128 @@ function CardReturnMoneyPageCreate(props: PropType) {
       className="margin-top-20"
       title={<span className="title-card">Hoàn tiền</span>}
     >
-      <Row gutter={24}>
-        <div style={{ padding: "0 24px", maxWidth: "100%" }}>
-          <Collapse className="orders-timeline" defaultActiveKey={["1"]} ghost>
-            <Collapse.Panel
-              className="orders-timeline-custom orders-dot-status"
-              header={
-                <span
-                  style={{
-                    textTransform: "uppercase",
-                    fontWeight: 500,
-                    color: "#222222",
-                    padding: "6px",
-                  }}
-                >
-                  Lựa chọn 1 hoặc nhiều phương thức thanh toán
-                </span>
-              }
-              key="1"
-              showArrow={false}
+      <div className="padding-24">
+        <Row gutter={24}>
+          <div style={{ padding: "0 24px", maxWidth: "100%" }}>
+            <Collapse
+              className="orders-timeline"
+              defaultActiveKey={["1"]}
+              ghost
             >
-              <div style={{ width: "1200px", maxWidth: "100%" }}>
-                <Row gutter={24}>
-                  <Col lg={10} xxl={7} className="margin-top-bottom-10">
-                    <div>
-                      <span style={{ paddingRight: "20px" }}>
-                        Tiền trả khách:
-                      </span>
-                      <strong>{formatCurrency(amountReturn)}</strong>
-                    </div>
-                  </Col>
-                  <Col lg={10} xxl={7} className="margin-top-bottom-10">
-                    <div>
-                      <span style={{ paddingRight: "20px" }}>
-                        Còn phải trả:{" "}
-                      </span>
-                      <strong>
-                        {formatCurrency(Math.abs(calculateMoneyReturnLeft()))}
-                      </strong>
-                    </div>
-                  </Col>
-                  <Divider style={{ margin: "10px 0" }} />
-                  <Col xs={24} lg={24}>
-                    <div className="create-order-payment">
-                      <Row
-                        className="btn-list-method"
-                        gutter={5}
-                        align="middle"
-                        style={{ marginLeft: 0, marginRight: 0 }}
-                      >
-                        {renderPaymentMethodsTitle()}
-                      </Row>
-                    </div>
-                  </Col>
-
-                  <Col span={20} xs={20}>
-                    <Row
-                      gutter={24}
-                      className="row-price"
-                      style={{ height: 38, margin: "10px 0" }}
-                    >
-                      <Col
-                        lg={15}
-                        xxl={9}
-                        className="row-large-title"
-                        style={{ padding: "8px 0", marginLeft: 2 }}
-                      >
-                        <b>Tiền trả khách:</b>
-                      </Col>
-                      <Col
-                        className="lbl-money"
-                        lg={6}
-                        xxl={6}
-                        style={{
-                          textAlign: "right",
-                          fontWeight: 500,
-                          fontSize: "20px",
-                        }}
-                      >
-                        <span className="t-result-blue">
-                          {formatCurrency(amountReturn)}
+              <Collapse.Panel
+                className="orders-timeline-custom orders-dot-status"
+                header={
+                  <span
+                    style={{
+                      textTransform: "uppercase",
+                      fontWeight: 500,
+                      color: "#222222",
+                      padding: "6px",
+                    }}
+                  >
+                    Lựa chọn 1 hoặc nhiều phương thức thanh toán
+                  </span>
+                }
+                key="1"
+                showArrow={false}
+              >
+                <div style={{ width: "1200px", maxWidth: "100%" }}>
+                  <Row gutter={24}>
+                    <Col lg={10} xxl={7} className="margin-top-bottom-10">
+                      <div>
+                        <span style={{ paddingRight: "20px" }}>
+                          Tiền trả khách:
                         </span>
-                      </Col>
-                    </Row>
-                    {renderListPayments()}
-                    <Row
-                      gutter={20}
-                      className="row-price"
-                      style={{ height: 38, margin: "10px 0 0 0" }}
-                    >
-                      <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
-                        <b>Còn phải trả khách:</b>
-                      </Col>
-                      <Col
-                        className="lbl-money"
-                        lg={6}
-                        xxl={6}
-                        style={{
-                          textAlign: "right",
-                          fontWeight: 500,
-                          fontSize: "20px",
-                        }}
-                      >
-                        <span style={{ color: false ? "blue" : "red" }}>
+                        <strong>{formatCurrency(amountReturn)}</strong>
+                      </div>
+                    </Col>
+                    <Col lg={10} xxl={7} className="margin-top-bottom-10">
+                      <div>
+                        <span style={{ paddingRight: "20px" }}>
+                          Còn phải trả:{" "}
+                        </span>
+                        <strong>
                           {formatCurrency(Math.abs(calculateMoneyReturnLeft()))}
-                        </span>
-                      </Col>
-                    </Row>
-                  </Col>
-                </Row>
-              </div>
-            </Collapse.Panel>
-          </Collapse>
-        </div>
-      </Row>
+                        </strong>
+                      </div>
+                    </Col>
+                    <Divider style={{ margin: "10px 0" }} />
+                    <Col xs={24} lg={24}>
+                      <div className="create-order-payment">
+                        <Row
+                          className="btn-list-method"
+                          gutter={5}
+                          align="middle"
+                          style={{ marginLeft: 0, marginRight: 0 }}
+                        >
+                          {renderPaymentMethodsTitle()}
+                        </Row>
+                      </div>
+                    </Col>
+
+                    <Col span={20} xs={20}>
+                      <Row
+                        gutter={24}
+                        className="row-price"
+                        style={{ height: 38, margin: "10px 0" }}
+                      >
+                        <Col
+                          lg={15}
+                          xxl={9}
+                          className="row-large-title"
+                          style={{ padding: "8px 0", marginLeft: 2 }}
+                        >
+                          <b>Tiền trả khách:</b>
+                        </Col>
+                        <Col
+                          className="lbl-money"
+                          lg={6}
+                          xxl={6}
+                          style={{
+                            textAlign: "right",
+                            fontWeight: 500,
+                            fontSize: "20px",
+                          }}
+                        >
+                          <span className="t-result-blue">
+                            {formatCurrency(amountReturn)}
+                          </span>
+                        </Col>
+                      </Row>
+                      {renderListPayments()}
+                      <Row
+                        gutter={20}
+                        className="row-price"
+                        style={{ height: 38, margin: "10px 0 0 0" }}
+                      >
+                        <Col lg={15} xxl={9} style={{ padding: "8px 0" }}>
+                          <b>Còn phải trả khách:</b>
+                        </Col>
+                        <Col
+                          className="lbl-money"
+                          lg={6}
+                          xxl={6}
+                          style={{
+                            textAlign: "right",
+                            fontWeight: 500,
+                            fontSize: "20px",
+                          }}
+                        >
+                          <span style={{ color: false ? "blue" : "red" }}>
+                            {formatCurrency(
+                              Math.abs(calculateMoneyReturnLeft())
+                            )}
+                          </span>
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+                </div>
+              </Collapse.Panel>
+            </Collapse>
+          </div>
+        </Row>
+      </div>
     </Card>
   );
 }
