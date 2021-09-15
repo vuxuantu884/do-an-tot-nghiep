@@ -20,25 +20,6 @@ stages:
   - tag
   - notify
 
-verify code:
-  stage: verify
-  image: node
-  only:
-    refs:
-      - develop
-  script:
-    - |
-      npm install eslint \
-      eslint-config-airbnb \
-      eslint-config-prettier \
-      eslint-plugin-flowtype \
-      eslint-plugin-import \
-      eslint-plugin-jsx-a11y \
-      eslint-plugin-prettier \
-      eslint-plugin-react
-    - node_modules/eslint/bin/eslint.js .
-
-
 docker build:
   stage: docker_build
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
