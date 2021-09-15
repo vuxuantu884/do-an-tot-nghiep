@@ -656,7 +656,8 @@ const ProductDetailScreen: React.FC = () => {
                             add(
                               {
                                 variant_images: [],
-                                name: "",
+                                name: data.name,
+                                status: "active",
                                 barcode: "",
                                 color_id: null,
                                 composite: false,
@@ -725,6 +726,9 @@ const ProductDetailScreen: React.FC = () => {
                                   </div>
                                   <div className="container-view padding-20">
                                     <Item name={[name, "id"]} hidden noStyle>
+                                      <Input />
+                                    </Item>
+                                    <Item name={[name, "status"]} hidden noStyle>
                                       <Input />
                                     </Item>
                                     <Item name={[name, "code"]} hidden noStyle>
