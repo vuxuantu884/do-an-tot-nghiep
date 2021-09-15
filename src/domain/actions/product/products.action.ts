@@ -3,6 +3,8 @@ import {
   ProductHistoryResponse,
   ProductRequest,
   ProductResponse,
+  ProductWrapperResponse,
+  ProductWrapperSearchQuery,
   VariantResponse,
   VariantSearchQuery,
   VariantUpdateRequest,
@@ -17,6 +19,17 @@ export const searchVariantsRequestAction = (
   setData: (data: PageResponse<VariantResponse>|false) => void
 ) => {
   return BaseAction(ProductType.SEARCH_PRODUCT_REQUEST, {
+    query,
+    setData,
+  });
+};
+
+
+export const searchProductWrapperRequestAction = (
+  query: ProductWrapperSearchQuery,
+  setData: (data: PageResponse<ProductWrapperResponse>|false) => void
+) => {
+  return BaseAction(ProductType.SEARCH_PRODUCT_WRAPPER_REQUEST, {
     query,
     setData,
   });
@@ -85,4 +98,8 @@ export const productGetHistoryAction = (
 
 export const productGetDetail = (id: number, onResult: (result: ProductResponse|false) => void) => {
   return BaseAction(ProductType.PRODUCT_DETAIL, {id, onResult});
+}
+
+export const productUpdateAction = (id: number, request: ProductRequest|ProductResponse, onResult: (result: ProductResponse|false) => void) => {
+  return BaseAction(ProductType.PRODUCT_UPDATE, {id, request, onResult});
 }

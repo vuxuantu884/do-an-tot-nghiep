@@ -157,7 +157,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     _items[index].note = value;
     setItems(_items);
   };
-
+console.log(resultSearchVariant)
   const onChangeQuantity = (value: number | null, index: number) => {
     let _items = [...items];
 
@@ -487,12 +487,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 setDiscountLineItemIndex(index);
                 setDiscountLineItem(l);
               }}
-              className=""
-              style={{
-                paddingLeft: 24,
-                background: "transparent",
-                border: "none",
-              }}
             >
               Thêm chiết khấu
             </Button>
@@ -501,12 +495,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             <Button
               type="text"
               onClick={() => showAddGiftModal(index)}
-              className=""
-              style={{
-                paddingLeft: 24,
-                background: "transparent",
-                border: "none",
-              }}
             >
               Thêm quà tặng
             </Button>
@@ -519,12 +507,6 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 _items[index].show_note = true;
                 setItems(_items);
               }}
-              className=""
-              style={{
-                paddingLeft: 24,
-                background: "transparent",
-                border: "none",
-              }}
             >
               Thêm ghi chú
             </Button>
@@ -533,11 +515,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
             <Button
               type="text"
               onClick={() => onDeleteItem(index)}
-              className=""
               style={{
-                paddingLeft: 24,
-                background: "transparent",
-                border: "none",
                 color: "red",
               }}
             >
@@ -547,13 +525,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         </Menu>
       );
       return (
-        <div
-        // style={{
-        //   display: "flex",
-        //   justifyContent: "space-between",
-        //   padding: "0 4px",
-        // }}
-        >
+        <div>
           <div
             className="site-input-group-wrapper saleorder-input-group-wrapper"
             style={{
@@ -794,24 +766,18 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
     setIsInputSearchProductFocus(true);
   };
 
-  const onInputSearchProductBlur = () => {
-    setIsInputSearchProductFocus(false);
-  };
+  // const onInputSearchProductBlur = () => {
+  //   setIsInputSearchProductFocus(false);
+  // };
 
   return (
-    <Card
-      className="fpage-order-product"
+    <Card className="fpage-order product"
       extra={
-        <Space
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
+        <Space>
           <Checkbox onChange={() => setSplitLine(!splitLine)}>
             Tách dòng
           </Checkbox>
-          <Form.Item name="price_type" style={{ margin: "0px" }}>
+          <Form.Item name="price_type" className="select-price-type">
             <Select placeholder="Chính sách giá">
               <Select.Option value="retail_price" color="#222222">
                 Giá bán lẻ
@@ -821,15 +787,10 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
               </Select.Option>
             </Select>
           </Form.Item>
-          {/* <Link className="text-focus" to="#" style={{color: "#0080ff"}}>
-            <Space style={{height: "17"}}>
-              <ShopOutlined style={{color: "#0080ff"}}/> Xem tồn <ArrowRightOutlined style={{color: "#0080ff"}}/>
-            </Space>
-          </Link> */}
         </Space>
       }
     >
-      <div style={{ padding: "12px 24px 0 24px" }}>
+      <div className="product-content">
         <Row gutter={24}>
           <Col span={24}>
             <Form.Item
@@ -895,29 +856,15 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
                 maxLength={255}
                 open={isShowProductSearch && isInputSearchProductFocus}
                 onFocus={onInputSearchProductFocus}
-                onBlur={onInputSearchProductBlur}
+                // onBlur={onInputSearchProductBlur}
                 dropdownRender={(menu) => (
                   <div>
-                    <div
-                      className="row-search w-100"
-                      style={{
-                        minHeight: "42px",
-                        lineHeight: "50px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <div className="rs-left w-100">
-                        <div style={{ float: "left", marginLeft: "20px" }}>
-                          <img src={addIcon} alt="" />
-                        </div>
-                        <div className="rs-info w-100">
-                          <span
-                            className="text"
-                            style={{ marginLeft: "23px", lineHeight: "18px" }}
-                          >
-                            Thêm mới sản phẩm
-                          </span>
-                        </div>
+                    <div className="add-new-item-dropdown">
+                      <div className="search-icon">
+                        <img src={addIcon} alt="" />
+                      </div>
+                      <div className="text">
+                          Thêm mới sản phẩm
                       </div>
                     </div>
                     <Divider style={{ margin: "4px 0" }} />
@@ -954,39 +901,16 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         sticky
         footer={() =>
           items.length > 0 ? (
-            <div className="row-footer-custom">
-              <div
-                className="yody-foot-total-text"
-                style={{
-                  width: "40%",
-                  float: "left",
-                  fontWeight: 700,
-                }}
-              >
+            <div className="row-footer-custom product-table">
+              <div className="total-text">
                 TỔNG
               </div>
 
-              <div
-                style={{
-                  width: "40%",
-                  float: "left",
-                  textAlign: "center",
-                  fontWeight: 400,
-                }}
-              >
+              <div className="total-value-1">
                 {formatCurrency(getTotalAmount(items))}
               </div>
 
-              <div
-                style={{
-                  width: "20%",
-                  float: "left",
-                  textAlign: "center",
-
-                  color: "#000000",
-                  fontWeight: 700,
-                }}
-              >
+              <div className="total-value-2">
                 {formatCurrency(getTotalAmountAfferDiscount(items))}
               </div>
             </div>
@@ -995,8 +919,8 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
           )
         }
       />
-      <Row style={{ padding: "12px 24px" }}>
-        <Col className="sale-product-box-payment" span={12}>
+      <Row className="product-payment">
+        <Col span={12}>
           <Col span={24}>
             <Checkbox>
               Bỏ chiết khấu tự động
@@ -1015,17 +939,12 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         </Col>
         <Col span={12}>
           <Col xs={24} lg={10}>
-            <Row
-              className="payment-row"
-              style={{ justifyContent: "space-between" }}
-            >
+            <Row className="payment-style">
               <div className="font-weight-500">Tổng tiền:</div>
-              <div className="font-weight-500" style={{ fontWeight: 500 }}>
-                {formatCurrency(amount)}
-              </div>
+              <div className="font-weight-500">{formatCurrency(amount)}</div>
             </Row>
 
-            <Row className="payment-row" justify="space-between" align="middle">
+            <Row className="payment-style" align="middle">
               <Space align="center">
                 {items.length > 0 ? (
                   <Typography.Link

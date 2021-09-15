@@ -13,7 +13,8 @@ const ApiConfig = {
   PURCHASE_ORDER: `${v1}/${AppConfig.PURCHASE_ORDER_SERVICE}`,
   IMPORT_EXPORT: `${v1}/${AppConfig.IMPORT_EXPORT_SERVICE}`,
   INVENTORY: `${v1}/${AppConfig.INVENTORY_SERVICE}`,
-  LOYALTY: `${v1}/${AppConfig.LOYALTY_SERVICE}`
+  LOYALTY: `${v1}/${AppConfig.LOYALTY_SERVICE}`,
+  ECOMMERCE: `${v1}/${AppConfig.ECOMMERCE_SERVICE}`,
 };
 
 export { ApiConfig };

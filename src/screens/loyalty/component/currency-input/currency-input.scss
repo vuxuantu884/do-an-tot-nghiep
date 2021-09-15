@@ -2,8 +2,9 @@
   position: relative;
 
   .conversion-input {
-    width: 150px;
+    width: 100%;
     border-radius: 5px;
+    display: flex;
   }
 
   &__after {
@@ -22,15 +23,16 @@
     border-radius: 4px;
     margin-top: 5px;
     text-align: center;
+    margin-top: -32px;
     line-height: 25px;
   }
 
   .currency-after {
-    margin-left: -28px;
+    right: 5px;
   }
 
   .currency-before {
-   left: 4px;
+    left: 4px;
   }
 
   .dropdown-select {

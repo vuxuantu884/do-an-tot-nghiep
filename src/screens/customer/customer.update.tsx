@@ -113,6 +113,7 @@ const CustomerUpdate = (props: any) => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
+
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params]);
@@ -132,9 +133,11 @@ const CustomerUpdate = (props: any) => {
       setStatus(customer.status);
     }
   }, [customer, customerForm, countryId]);
-  // const reload = React.useCallback(() => {
-  //   dispatch(CustomerDetail(params.id, setCustomer));
-  // }, [dispatch, params.id]);
+
+  const reload = React.useCallback(() => {
+    dispatch(CustomerDetail(params.id, setCustomer));
+  }, [dispatch, params.id]);
+
   const setResult = React.useCallback(
     (result) => {
       if (result) {
@@ -230,7 +233,7 @@ const CustomerUpdate = (props: any) => {
           </Link>
           <div>
             <Button
-              onClick={() => history.goBack()}
+              onClick={() => reload()}
               style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
               type="ghost"
             >

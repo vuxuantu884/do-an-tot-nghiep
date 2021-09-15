@@ -54,7 +54,7 @@ function CustomerContactInfo(props: any) {
         return <span>{index + 1}</span>;
       },
     },
-    
+
     {
       title: "Tên người liên hệ",
       dataIndex: "",
@@ -215,7 +215,9 @@ function CustomerContactInfo(props: any) {
           //   // onShowSizeChange: onPageChange,
           // }}
           pagination={false}
-          dataSource={customerContactFiltered ? customerContactFiltered : []}
+          dataSource={
+            customerContactFiltered ? customerContactFiltered.reverse() : []
+          }
           columns={columnFinal()}
           rowKey={(item: contact) => item.id}
           onRow={(record: CustomerContact) => {

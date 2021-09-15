@@ -30,7 +30,9 @@ import { createLoyaltyAccumulationProgram, getLoyaltyAccumulationProgram, update
 import { LoyaltyAccumulationProgramResponse } from 'model/response/loyalty/loyalty-accumulation.response';
 import { useParams } from 'react-router';
 import BaseResponse from 'base/base.response';
-import { LoyaltyProgramRuleItem } from 'model/request/loyalty/create-loyalty-accumulation.request';
+import { LoyaltyProgramRuleItem, LoyaltyProgramRuleProductItem } from 'model/request/loyalty/create-loyalty-accumulation.request';
+import { PlusOutlined } from '@ant-design/icons';
+import CurrencyInput from '../component/currency-input';
 
 class Rule {
   id: number | null = null
@@ -65,7 +67,6 @@ const initFormValues = {
 }
 
 const LoyaltyPointAccumulate = () => {
-  const [isShowActionFooter, setIsShowActionFooter] = useState<boolean>(false);
   const [startDate, setStartDate] = useState<string>()
   const [endDate, setEndDate] = useState<string>()
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -82,12 +83,13 @@ const LoyaltyPointAccumulate = () => {
   const [loyaltyProgram, setLoyaltyProgram] = useState<LoyaltyAccumulationProgramResponse>()
   const [havingCardSwitch, setHavingCardSwitch] = useState<boolean>(false)
   const [notUsingPointSwitch, setNotUsingPointSwitch] = useState<boolean>(false)
+  const [statusSwitch, setStatusSwitch] = useState<boolean>(false)
   const [prioritySelect, setPrioritySelect] = useState<number>(1)
   const [programName, setProgramName] = useState<string>()
   const [stores, setStores] = useState<LoyaltyProgramRuleItem[]>([])
   const [sources, setSources] = useState<LoyaltyProgramRuleItem[]>([])
   const [channels, setChannels] = useState<LoyaltyProgramRuleItem[]>([])
-  const [products, setProducts] = useState<LoyaltyProgramRuleItem[]>([])
+  const [products, setProducts] = useState<LoyaltyProgramRuleProductItem[]>([])
 
   const rankFiltered = useMemo(() => {
     return listRanking.filter(rank => rank.status === 'ACTIVE')
@@ -193,7 +195,10 @@ const LoyaltyPointAccumulate = () => {
       className: "text-center",
       render: (rule: Rule, item: Rule, index: number) => {
         return (
-          <NumberInput
+          <CurrencyInput
+            position="after"
+            placeholder="Tỷ lệ tích điểm"
+            currency={['%']}
             value={rule.percent}
             onChange={(value) => onChangePercent(value, index)}
           />
@@ -205,14 +210,16 @@ const LoyaltyPointAccumulate = () => {
       width: "48px",
       render: (rule: Rule, item: Rule, index: number) => {
         return (
-          <Button
-              style={{ background: "transparent" }}
-              type="text"
-              className="p-0 ant-btn-custom"
-              onClick={() => removeRule(index)}
+          <div
+            onClick={() => removeRule(index)}
+            style={{cursor: 'pointer'}}
           >
-            <img src={Xclosebtn} alt="" style={{ width: 22 }} />
-          </Button>
+            <img
+              src={Xclosebtn}
+              alt="x-icon"
+              style={{ width: 20, height: 20, borderRadius: '50%', background: '#F2F2F2', padding: '2px' }}
+            />
+          </div>
         )
       },
     }
@@ -292,8 +299,13 @@ const LoyaltyPointAccumulate = () => {
   }
 
   const handleChangeProduct = (values: number[]) => {
-    const _products = listProduct.filter(product => values.includes(product.id))
-    setProducts(_products)
+    const removedProducts = products.filter(p => values.includes(p.id))
+    const removeProductIds = removedProducts.map(p => p.id)
+    const missingProductIds = values.filter(value => !removeProductIds.includes(value))
+    let missingProducts = listProduct.filter(p => missingProductIds.includes(p.id)).map(p => {
+      return {id: p.id, name: p.name, sku: p.sku}
+    })
+    setProducts([...removedProducts, ...missingProducts])
   }
 
   const isValidRules = () => {
@@ -303,12 +315,20 @@ const LoyaltyPointAccumulate = () => {
     }
     for (let i = 0; i < rules.length; i++) {
       const rule = rules[i]
-      // if (rule.order_amount_min > rule.order_amount_max) {
-      //   showError('Giá trị hóa đơn tối thiểu không được lớn hơn giá trị hóa đơn tối đa')
-      //   return false
-      // }
+      if (rule.order_amount_min > rule.order_amount_max) {
+        showError('Giá trị hóa đơn tối thiểu không được lớn hơn giá trị hóa đơn tối đa')
+        return false
+      }
+      if (!rule.order_amount_min) {
+        showError('Giá trị hóa đơn tối thiểu phải lớn hơn 0')
+        return false
+      }
+      if (!rule.order_amount_max) {
+        showError('Giá trị hóa đơn tối đa phải lớn hơn 0')
+        return false
+      }
       if (!rule.percent) {
-        showError('Giá trị tích điểm không được để trống')
+        showError('Giá trị tích điểm phải lớn hơn 0')
         return false
       }
     }
@@ -321,21 +341,6 @@ const LoyaltyPointAccumulate = () => {
     _rules.splice(index, 1);
     setRules(_rules);
   }
-
-  const scroll = useCallback(() => {
-    if (window.pageYOffset) {
-      setIsShowActionFooter(true);
-    } else {
-      setIsShowActionFooter(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("scroll", scroll);
-    return () => {
-      window.removeEventListener("scroll", scroll);
-    };
-  }, [scroll]);
 
   const handleChangeHavingCardSwitch = useCallback((checked: boolean) => {
     setHavingCardSwitch(checked)
@@ -397,8 +402,8 @@ const LoyaltyPointAccumulate = () => {
     setStores(loyaltyProgram.stores)
     setChannels(loyaltyProgram.channels)
     setProducts(loyaltyProgram.items)
-    setStartDate(loyaltyProgram.start_time)
-    setEndDate(loyaltyProgram.end_time)
+    setStartDate(moment(loyaltyProgram.start_time, DATE_FORMAT.DDMMYY_HHmm).toString())
+    setEndDate(moment(loyaltyProgram.end_time, DATE_FORMAT.DDMMYY_HHmm).toString())
   }
 
   const afterSubmit = useCallback((data: BaseResponse<LoyaltyAccumulationProgramResponse>) => {
@@ -418,21 +423,30 @@ const LoyaltyPointAccumulate = () => {
       showError('Tên chương trình không được để trống')
       return;
     }
+    const storeRequestParams = stores.map(store => {
+      return {id: store.id, name: store.name}
+    })
+    const channelRequestParams = channels.map(channel => {
+      return {id: channel.id, name: channel.name}
+    })
+    const sourceRequestParams = sources.map(source => {
+      return {id: source.id, name: source.name}
+    })
     const params = {
       id: loyaltyProgram ? loyaltyProgram.id : null,
-      start_time: startDate ? moment(startDate)?.format(DATE_FORMAT.DDMMYY_HHmm) : null,
+      start_time: startDate ? moment(startDate).format(DATE_FORMAT.DDMMYY_HHmm) : null,
       end_time: endDate ? moment(endDate).format(DATE_FORMAT.DDMMYY_HHmm) : null,
-      status: 'ACTIVE',
+      status: statusSwitch ? 'ACTIVE' : 'INACTIVE',
       rules: rules,
       name: trimmedProgramName,
       note: null,
       not_using_point: notUsingPointSwitch,
       having_card: havingCardSwitch,
       priority: prioritySelect,
-      stores: stores,
-      channels: channels,
+      stores: storeRequestParams,
+      channels: channelRequestParams,
       items: products,
-      sources: sources,
+      sources: sourceRequestParams
     }
     const isValid = isValidRules()
     if (!isValid) {
@@ -454,9 +468,19 @@ const LoyaltyPointAccumulate = () => {
     []
   );
 
-  const onSearchProduct = useCallback(() => _.debounce((keyword: string) => {
-    dispatch(searchVariantsRequestAction({info: keyword}, onResultSuccess));
-  }, 300), [dispatch, onResultSuccess])
+  const debouncedSearch = React.useMemo(() =>
+    _.debounce((keyword: string) => {
+      dispatch(searchVariantsRequestAction({ info: keyword }, onResultSuccess));
+    }, 300),
+    [dispatch, onResultSuccess]
+  )
+
+  const onSearchProduct = useCallback(
+    (keyword: string) => {
+      debouncedSearch(keyword)
+    },
+    [debouncedSearch]
+  )
 
   const handleChangeProgramName = (event: React.FocusEvent<HTMLInputElement>) => {
     setProgramName(event.target.value)
@@ -470,7 +494,7 @@ const LoyaltyPointAccumulate = () => {
 
   return (
     <ContentContainer
-      title={loyaltyProgram ? "Cập nhật chương trình tích điểm" : "Thêm mới chương trình tích điểm"}
+      title={loyaltyProgram ? "Sửa chương trình tích điểm" : "Thêm mới chương trình tích điểm"}
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -481,7 +505,7 @@ const LoyaltyPointAccumulate = () => {
           path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`,
         },
         {
-          name: "Thêm mới",
+          name: loyaltyProgram ? "Sửa chương trình" : "Thêm mới",
           path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation`,
         },
       ]}
@@ -500,6 +524,14 @@ const LoyaltyPointAccumulate = () => {
               ></i>
               Cài đặt Tích điểm
             </span>
+            <div className="program-status">
+              <b>Trạng thái</b>
+              <Switch
+                checked={statusSwitch}
+                onChange={(checked: boolean) => setStatusSwitch(checked)}
+              />
+              {statusSwitch ? 'Đang hoạt động' : 'Dừng hoạt động'}
+            </div>
           </div>
         }
         className="loyalty-accumulate-wrapper"
@@ -566,6 +598,7 @@ const LoyaltyPointAccumulate = () => {
                   <CustomSelect
                     className="dropdown-rule"
                     mode="multiple"
+                    maxTagCount="responsive"
                     showArrow
                     showSearch
                     placeholder="Chọn nguồn hàng"
@@ -603,6 +636,7 @@ const LoyaltyPointAccumulate = () => {
                   <CustomSelect
                     mode="multiple"
                     className="dropdown-rule"
+                    maxTagCount="responsive"
                     showArrow
                     showSearch
                     placeholder="Chọn cửa hàng"
@@ -642,6 +676,7 @@ const LoyaltyPointAccumulate = () => {
                   <CustomSelect
                     className="dropdown-rule"
                     mode="multiple"
+                    maxTagCount="responsive"
                     showArrow
                     showSearch
                     placeholder="Chọn kênh bán hàng"
@@ -679,6 +714,9 @@ const LoyaltyPointAccumulate = () => {
                   <Select
                     mode="multiple"
                     className="dropdown-rule"
+                    maxTagCount="responsive"
+                    allowClear
+                    placeholder="Tìm kiếm sản phẩm"
                     showArrow
                     tagRender={({ label, value, closable, onClose }) => (
                       <Tag
@@ -703,9 +741,9 @@ const LoyaltyPointAccumulate = () => {
             <Row>
               <Col span={10}>
                 <div className="rule">
-                  <label>Từ ngày: <span className="text-error">*</span></label>
+                  <label>Từ ngày: </label>
                   <CustomDatePicker
-                    value={startDate}
+                    value={startDate ? startDate : undefined}
                     className="datepicker"
                     disableDate={(date) => {
                       if (!endDate) {
@@ -723,9 +761,9 @@ const LoyaltyPointAccumulate = () => {
               </Col>
               <Col span={14}>
                 <div className="rule">
-                  <label>Đến ngày: <span className="text-error">*</span></label>
+                  <label>Đến ngày:</label>
                   <CustomDatePicker
-                    value={endDate}
+                    value={endDate ? endDate : undefined}
                     className="datepicker"
                     disableDate={(date) => {
                       if (!startDate) {
@@ -753,7 +791,10 @@ const LoyaltyPointAccumulate = () => {
               />
             </Row>
             <Row>
-              <Button type="default" className="add-new-rule" onClick={addRule}>Thêm dòng</Button>
+              <div className="add-new-rule" onClick={addRule}>
+                <PlusOutlined />
+                Thêm dòng
+              </div>
             </Row>
           </div>
           <Row
@@ -766,8 +807,7 @@ const LoyaltyPointAccumulate = () => {
               height: "55px",
               bottom: "0%",
               backgroundColor: "#FFFFFF",
-              marginLeft: "-30px",
-              display: `${isShowActionFooter ? "" : "none"}`,
+              marginLeft: "-30px"
             }}
           >
             <Col span={6} className="back">
@@ -779,12 +819,14 @@ const LoyaltyPointAccumulate = () => {
               </Link>
             </Col>
             <Col span={14} className="action-group">
-              <Button
-                type="default"
-                className="cancel-btn"
-              >
-                Hủy
-              </Button>
+              <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`}>
+                <Button
+                  type="default"
+                  className="cancel-btn"
+                >
+                  Hủy
+                </Button>
+              </Link>
               <Button
                 type="primary"
                 className="save-btn"

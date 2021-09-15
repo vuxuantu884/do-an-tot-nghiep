@@ -35,7 +35,7 @@ const customers: Array<RouteMenu> = [
   {
     path: `${UrlConfig.CUSTOMER}/cards`,
     exact: true,
-    title: "Thẻ khách hàng",
+    title: "Phát hành thẻ",
     icon: "icon-dot",
     component: loyaltyCard,
     key: "submenu121",
@@ -45,7 +45,7 @@ const customers: Array<RouteMenu> = [
       {
         path: `${UrlConfig.CUSTOMER}/cards/upload`,
         exact: true,
-        title: "Thẻ khách hàng",
+        title: "Phát hành thẻ",
         icon: "icon-dot",
         component: uploadLoyaltyCard,
         key: "submenu122",
@@ -58,7 +58,7 @@ const customers: Array<RouteMenu> = [
   {
     path: `${UrlConfig.CUSTOMER}/rankings`,
     exact: true,
-    title: "Danh sách hạng thẻ",
+    title: "Hạng khách hàng",
     icon: 'icon-dot',
     component: rank,
     key: "submenu101",
@@ -79,7 +79,7 @@ const customers: Array<RouteMenu> = [
       {
         path: `${UrlConfig.CUSTOMER}/rankings/:id/update`,
         exact: true,
-        title: "Tạo hạng thẻ",
+        title: "Sửa hạng thẻ",
         icon: 'icon-dot',
         component: createRank,
         key: "submenu103",

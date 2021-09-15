@@ -45,7 +45,7 @@ function OrderSettingValue(props: PropType) {
                 name={[index, "from_price"]}
                 rules={[{ required: true, message: "Vui lòng nhập giá trị" }]}
               >
-                <InputNumber formatter={formatterCurrency} />
+                <InputNumber formatter={formatterCurrency} min={0} />
               </Form.Item>
             );
           }}
@@ -59,7 +59,7 @@ function OrderSettingValue(props: PropType) {
                 name={[index, "to_price"]}
                 rules={[{ required: true, message: "Vui lòng nhập giá trị" }]}
               >
-                <InputNumber formatter={formatterCurrency} />
+                <InputNumber formatter={formatterCurrency} min={0} />
               </Form.Item>
             );
           }}
