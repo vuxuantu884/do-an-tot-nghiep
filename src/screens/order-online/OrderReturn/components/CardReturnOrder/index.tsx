@@ -1,13 +1,23 @@
 import { Card, Switch } from "antd";
+import React from "react";
 
-type PropType = {};
+type PropType = {
+  isDetailPage: boolean;
+};
 function CardReturnOrder(props: PropType) {
+  const { isDetailPage } = props;
+  let checkFromProps = true;
   const renderCardExtra = () => {
     return (
-      <>
-        <Switch className="ant-switch-primary" style={{ marginLeft: 20 }} />
+      <React.Fragment>
+        <Switch
+          className="ant-switch-primary"
+          style={{ marginRight: 20 }}
+          disabled={!isDetailPage}
+          defaultChecked={isDetailPage ? checkFromProps : false}
+        />
         Đơn hàng có đổi trả hàng
-      </>
+      </React.Fragment>
     );
   };
 

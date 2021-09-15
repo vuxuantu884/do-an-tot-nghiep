@@ -14,4 +14,15 @@ export const StyledComponent = styled.div`
   .ant-select-item {
     height: auto;
   }
+  .boxPayment {
+    padding-top: 20px;
+    .ant-row {
+      &:not(:last-child) {
+        margin-bottom: 10px;
+      }
+    }
+  }
+  .columnQuantity {
+    text-align: center;
+  }
 `;

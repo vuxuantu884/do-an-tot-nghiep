@@ -2,34 +2,28 @@ import { Card, Col, Row, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-// import { StoreDetailAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { actionCreateOrderReturn } from "domain/actions/order/order-return.action";
 import {
   OrderDetailAction,
   PaymentMethodGetList,
 } from "domain/actions/order/order.action";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-// import { OrderSettingsModel } from "model/other/order/order-model";
-import { OrderPaymentRequest, OrderRequest } from "model/request/order.request";
+import {
+  FulFillmentRequest,
+  OrderPaymentRequest,
+  OrderRequest,
+  ShipmentRequest,
+} from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderLineItemResponse,
   OrderResponse,
   ReturnProductModel,
-  // StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useHistory } from "react-router";
 import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -45,15 +39,15 @@ type PropType = {
 
 const ScreenReturnDetail = (props: PropType) => {
   const [isError, setError] = useState<boolean>(false);
-  // const [loadingData, setLoadingData] = useState<boolean>(true);
+  const [isCanReturn, setIsCanReturn] = useState<boolean>(false);
+  const [isCanSubmit, setIsCanSubmit] = useState<boolean>(false);
+  const history = useHistory();
   const query = useQuery();
-  let orderID = query.get("orderID");
+  let queryOrderID = query.get("orderID");
 
-  let OrderId = orderID ? parseInt(orderID) : undefined;
-  const isFirstLoad = useRef(true);
+  let orderId = queryOrderID ? parseInt(queryOrderID) : undefined;
 
   const dispatch = useDispatch();
-  // const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [listReturnProducts, setListReturnProducts] = useState<
@@ -62,9 +56,7 @@ const ScreenReturnDetail = (props: PropType) => {
   const [listOrderProducts, setListOrderProducts] = useState<
     OrderLineItemResponse[]
   >([]);
-  // const [OrderDetailAllFulfillment, setOrderDetailAllFulfillment] =
-  //   useState<OrderResponse | null>(null);
-  // const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
     null
   );
@@ -72,25 +64,10 @@ const ScreenReturnDetail = (props: PropType) => {
     Array<PaymentMethodResponse>
   >([]);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
-  const [amountReturn] = useState<number>(100000);
+  const [amountReturn, setAmountReturn] = useState<number>(100000);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
 
-  // const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
-  //   chonCuaHangTruocMoiChonSanPham: false,
-  //   cauHinhInNhieuLienHoaDon: 1,
-  // });
-
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      // setAccounts(data.items);
-    },
-    []
-  );
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
-    // setLoadingData(false);
     if (!data) {
       setError(true);
     } else {
@@ -102,8 +79,14 @@ const ScreenReturnDetail = (props: PropType) => {
           f.status !== FulFillmentStatus.RETURNING
       );
       setOrderDetail(_data);
+      let returnFulfillment = data.fulfillments?.find((singleFulfillment) => {
+        return singleFulfillment.status === FulFillmentStatus.SHIPPED;
+      });
+      if (returnFulfillment) {
+        setIsCanReturn(true);
+      }
       setListOrderProducts(_data.items);
-      // setOrderDetailAllFulfillment(data);
+      setAmountReturn(0);
     }
   }, []);
 
@@ -115,11 +98,70 @@ const ScreenReturnDetail = (props: PropType) => {
     setPayments(value);
   };
 
+  const handleIsCanSubmit = (status: boolean) => {
+    setIsCanSubmit(status);
+  };
+
   const handleSubmit = () => {
-    console.log("OrderDetail", OrderDetail);
+    let newFulfillment: FulFillmentRequest[] = [];
+    if (OrderDetail?.fulfillments) {
+      newFulfillment = OrderDetail.fulfillments.map((single) => {
+        let shipment = single.shipment;
+        let newShipment: ShipmentRequest = {
+          ...single.shipment,
+          delivery_service_provider_id:
+            shipment?.delivery_service_provider_id || null,
+          delivery_service_provider_type:
+            shipment?.delivery_service_provider_type || null,
+          shipper_code: shipment?.shipper_code || null,
+          shipper_name: shipment?.shipper_name || null,
+          handover_id: shipment?.handover_id || null,
+          service: shipment?.service || null,
+          fee_type: shipment?.fee_type || null,
+          fee_base_on: shipment?.fee_base_on || null,
+          delivery_fee: shipment?.delivery_fee || null,
+          shipping_fee_informed_to_customer:
+            shipment?.shipping_fee_informed_to_customer || null,
+          shipping_fee_paid_to_three_pls:
+            shipment?.shipping_fee_paid_to_three_pls || null,
+          reference_status: shipment?.reference_status || null,
+          reference_status_explanation:
+            shipment?.reference_status_explanation || null,
+          cod: shipment?.cod || null,
+          cancel_reason: shipment?.cancel_reason || null,
+          tracking_code: shipment?.tracking_code || null,
+          tracking_url: shipment?.tracking_url || null,
+          received_date: shipment?.received_date || null,
+          sender_address_id: shipment?.sender_address_id || null,
+          note_to_shipper: shipment?.note_to_shipper || null,
+          requirements: shipment?.requirements || null,
+          sender_address: null,
+          shipping_address: null,
+          office_time: null,
+        };
+        return {
+          store_id: single.store_id,
+          account_code: single.account_code,
+          assignee_code: single.assignee_code,
+          delivery_type: single.delivery_type,
+          stock_location_id: single.stock_location_id,
+          payment_status: single.payment_status,
+          total: single.total,
+          total_tax: single.total_tax,
+          total_discount: single.total_discount,
+          total_quantity: single.total_quantity,
+          discount_rate: single.discount_rate,
+          discount_value: single.discount_value,
+          discount_amount: single.discount_amount,
+          total_line_amount_after_line_discount:
+            single.total_line_amount_after_line_discount,
+          shipment: newShipment,
+          items: single.items,
+        };
+      });
+    }
     if (OrderDetail && listReturnProducts) {
-      console.log("333");
-      let abc: OrderRequest = {
+      let orderDetailFormatted: OrderRequest = {
         ...OrderDetail,
         action: "",
         delivery_service_provider_id: null,
@@ -129,10 +171,10 @@ const ScreenReturnDetail = (props: PropType) => {
         shipping_fee_paid_to_three_pls: null,
         requirements: null,
         items: listReturnProducts,
-        fulfillments: [],
+        fulfillments: newFulfillment,
       };
       dispatch(
-        actionCreateOrderReturn(abc, (response) => {
+        actionCreateOrderReturn(orderDetailFormatted, (response) => {
           console.log("response", response);
         })
       );
@@ -140,35 +182,207 @@ const ScreenReturnDetail = (props: PropType) => {
   };
 
   const handleCancel = () => {
-    console.log("333");
+    history.push("/");
+  };
+
+  const renderIfCannotReturn = () => {
+    return <div>Đơn hàng không thể đổi trả!</div>;
+  };
+
+  const renderIfCanReturn = () => {
+    return (
+      <React.Fragment>
+        <div className="orders">
+          <Row gutter={24} style={{ marginBottom: "70px" }}>
+            <Col md={18}>
+              {/*--- customer ---*/}
+              <UpdateCustomerCard
+                OrderDetail={OrderDetail}
+                customerDetail={customerDetail}
+              />
+              {/*--- end customer ---*/}
+              <CardReturnOrder isDetailPage={false} />
+              <CardReturnProducts
+                listReturnProducts={listReturnProducts}
+                handleReturnProducts={(
+                  listReturnProducts: OrderLineItemResponse[]
+                ) => setListReturnProducts(listReturnProducts)}
+                listOrderProducts={listOrderProducts}
+                handleIsCanSubmit={handleIsCanSubmit}
+                isDetailPage={false}
+              />
+              <CardReturnMoney
+                listPaymentMethods={listPaymentMethods}
+                amountReturn={amountReturn}
+                payments={payments}
+                handlePayments={handlePayments}
+                isDetailPage={false}
+              />
+              <CardReturnReceiveProducts isDetailPage={false} />
+            </Col>
+
+            <Col md={6}>
+              <Card
+                className="card-block card-block-normal"
+                title={
+                  <div className="d-flex">
+                    <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
+                  </div>
+                }
+              >
+                <div className="padding-24">
+                  <Row className="" gutter={5}>
+                    <Col span={9}>Cửa hàng:</Col>
+                    <Col span={15}>
+                      <span
+                        style={{ fontWeight: 500, color: "#2A2A86" }}
+                        className="text-focus"
+                      >
+                        {OrderDetail?.store}
+                      </span>
+                    </Col>
+                  </Row>
+                  <Row className="margin-top-10" gutter={5}>
+                    <Col span={9}>Điện thoại:</Col>
+                    <Col span={15}>
+                      <span style={{ fontWeight: 500, color: "#222222" }}>
+                        {OrderDetail?.customer_phone_number}
+                      </span>
+                    </Col>
+                  </Row>
+                  <Row className="margin-top-10" gutter={5}>
+                    <Col span={9}>Địa chỉ:</Col>
+                    <Col span={15}>
+                      <span style={{ fontWeight: 500, color: "#222222" }}>
+                        {OrderDetail?.shipping_address?.full_address}
+                      </span>
+                    </Col>
+                  </Row>
+                  <Row className="margin-top-10" gutter={5}>
+                    <Col span={9}>NVBH:</Col>
+                    <Col span={15}>
+                      <span
+                        style={{ fontWeight: 500, color: "#222222" }}
+                        className="text-focus"
+                      >
+                        {OrderDetail?.assignee}
+                      </span>
+                    </Col>
+                  </Row>
+                  <Row className="margin-top-10" gutter={5}>
+                    <Col span={9}>Người tạo:</Col>
+                    <Col span={15}>
+                      <span
+                        style={{ fontWeight: 500, color: "#222222" }}
+                        className="text-focus"
+                      >
+                        {OrderDetail?.account}
+                      </span>
+                    </Col>
+                  </Row>
+                  <Row className="margin-top-10" gutter={5}>
+                    <Col span={9}>Đường dẫn:</Col>
+                    <Col span={15} style={{ wordWrap: "break-word" }}>
+                      {OrderDetail?.url ? (
+                        <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
+                      ) : (
+                        <span className="text-focus">Không</span>
+                      )}
+                    </Col>
+                  </Row>
+                </div>
+              </Card>
+              <SubStatusOrder
+                subStatusId={OrderDetail?.sub_status_id}
+                status={OrderDetail?.status}
+                orderId={orderId}
+                fulfillments={OrderDetail?.fulfillments}
+                handleChangeSubStatus={handleChangeSubStatus}
+              />
+              <Card
+                className="margin-top-20"
+                title={
+                  <div className="d-flex">
+                    <span className="title-card">THÔNG TIN BỔ SUNG</span>
+                  </div>
+                }
+              >
+                <div className="padding-24">
+                  <Row
+                    className=""
+                    gutter={5}
+                    style={{ flexDirection: "column" }}
+                  >
+                    <Col span={24} style={{ marginBottom: 6 }}>
+                      <b>Ghi chú nội bộ:</b>
+                    </Col>
+                    <Col span={24}>
+                      <span
+                        className="text-focus"
+                        style={{ wordWrap: "break-word" }}
+                      >
+                        {OrderDetail?.note !== ""
+                          ? OrderDetail?.note
+                          : "Không có ghi chú"}
+                      </span>
+                    </Col>
+                  </Row>
+
+                  <Row
+                    className="margin-top-10"
+                    gutter={5}
+                    style={{ flexDirection: "column" }}
+                  >
+                    <Col span={24} style={{ marginBottom: 6 }}>
+                      <b>Tags:</b>
+                    </Col>
+                    <Col span={24}>
+                      <span className="text-focus">
+                        {OrderDetail?.tags
+                          ? OrderDetail?.tags.split(",").map((item, index) => (
+                              <Tag
+                                key={index}
+                                className="orders-tag"
+                                style={{
+                                  backgroundColor: "#F5F5F5",
+                                  color: "#737373",
+                                  padding: "5px 10px",
+                                }}
+                              >
+                                {item}
+                              </Tag>
+                            ))
+                          : "Không có tags"}
+                      </span>
+                    </Col>
+                  </Row>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+        </div>
+        <ReturnBottomBar
+          onSubmit={() => handleSubmit()}
+          onCancel={() => handleCancel()}
+          isCanSubmit={isCanSubmit}
+        />
+      </React.Fragment>
+    );
   };
 
   useEffect(() => {
-    if (isFirstLoad.current) {
-      if (OrderId) {
-        dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
-      } else {
-        setError(true);
-      }
+    if (orderId) {
+      dispatch(OrderDetailAction(orderId, onGetDetailSuccess));
+    } else {
+      setError(true);
     }
-    isFirstLoad.current = false;
-  }, [dispatch, OrderId, onGetDetailSuccess]);
-
-  useLayoutEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
+  }, [dispatch, orderId, onGetDetailSuccess]);
 
   useEffect(() => {
     if (OrderDetail != null) {
       dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomerDetail));
     }
   }, [dispatch, OrderDetail]);
-
-  useEffect(() => {
-    if (OrderDetail?.store_id != null) {
-      // dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
-    }
-  }, [dispatch, OrderDetail?.store_id]);
 
   useEffect(() => {
     dispatch(
@@ -181,21 +395,8 @@ const ScreenReturnDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
-  useEffect(() => {
-    // setOrderSettings({
-    //   chonCuaHangTruocMoiChonSanPham: true,
-    //   cauHinhInNhieuLienHoaDon: 3,
-    // });
-  }, []);
-
-  if (!orderID) {
-    // setLoadingData(false);
-    return null;
-  }
-
   return (
     <ContentContainer
-      // isLoading={loadingData}
       isError={isError}
       title="Trả hàng cho đơn hàng"
       breadcrumb={[
@@ -210,172 +411,11 @@ const ScreenReturnDetail = (props: PropType) => {
           name: "Trả hàng",
         },
         {
-          name: `Tạo đơn trả hàng cho đơn hàng ${orderID}`,
+          name: `Tạo đơn trả hàng cho đơn hàng ${orderId}`,
         },
       ]}
     >
-      <div className="orders">
-        <Row gutter={24} style={{ marginBottom: "70px" }}>
-          <Col md={18}>
-            {/*--- customer ---*/}
-            <UpdateCustomerCard
-              OrderDetail={OrderDetail}
-              customerDetail={customerDetail}
-            />
-            {/*--- end customer ---*/}
-            <CardReturnOrder />
-            <CardReturnProducts
-              listReturnProducts={listReturnProducts}
-              handleReturnProducts={(
-                listReturnProducts: OrderLineItemResponse[]
-              ) => setListReturnProducts(listReturnProducts)}
-              listOrderProducts={listOrderProducts}
-            />
-            <CardReturnMoney
-              listPaymentMethods={listPaymentMethods}
-              amountReturn={amountReturn}
-              payments={payments}
-              handlePayments={handlePayments}
-            />
-            <CardReturnReceiveProducts />
-          </Col>
-
-          <Col md={6}>
-            <Card
-              className="card-block card-block-normal"
-              title={
-                <div className="d-flex">
-                  <span className="title-card">THÔNG TIN ĐƠN HÀNG</span>
-                </div>
-              }
-            >
-              <Row className="" gutter={5}>
-                <Col span={9}>Cửa hàng:</Col>
-                <Col span={15}>
-                  <span
-                    style={{ fontWeight: 500, color: "#2A2A86" }}
-                    className="text-focus"
-                  >
-                    {OrderDetail?.store}
-                  </span>
-                </Col>
-              </Row>
-              <Row className="margin-top-10" gutter={5}>
-                <Col span={9}>Điện thoại:</Col>
-                <Col span={15}>
-                  <span style={{ fontWeight: 500, color: "#222222" }}>
-                    {OrderDetail?.customer_phone_number}
-                  </span>
-                </Col>
-              </Row>
-              <Row className="margin-top-10" gutter={5}>
-                <Col span={9}>Địa chỉ:</Col>
-                <Col span={15}>
-                  <span style={{ fontWeight: 500, color: "#222222" }}>
-                    {OrderDetail?.shipping_address?.full_address}
-                  </span>
-                </Col>
-              </Row>
-              <Row className="margin-top-10" gutter={5}>
-                <Col span={9}>NVBH:</Col>
-                <Col span={15}>
-                  <span
-                    style={{ fontWeight: 500, color: "#222222" }}
-                    className="text-focus"
-                  >
-                    {OrderDetail?.assignee}
-                  </span>
-                </Col>
-              </Row>
-              <Row className="margin-top-10" gutter={5}>
-                <Col span={9}>Người tạo:</Col>
-                <Col span={15}>
-                  <span
-                    style={{ fontWeight: 500, color: "#222222" }}
-                    className="text-focus"
-                  >
-                    {OrderDetail?.account}
-                  </span>
-                </Col>
-              </Row>
-              <Row className="margin-top-10" gutter={5}>
-                <Col span={9}>Đường dẫn:</Col>
-                <Col span={15} style={{ wordWrap: "break-word" }}>
-                  {OrderDetail?.url ? (
-                    <a href={OrderDetail?.url}>{OrderDetail?.url}</a>
-                  ) : (
-                    <span className="text-focus">Không</span>
-                  )}
-                </Col>
-              </Row>
-            </Card>
-            <SubStatusOrder
-              subStatusId={OrderDetail?.sub_status_id}
-              status={OrderDetail?.status}
-              orderId={OrderId}
-              fulfillments={OrderDetail?.fulfillments}
-              handleChangeSubStatus={handleChangeSubStatus}
-            />
-            <Card
-              className="margin-top-20"
-              title={
-                <div className="d-flex">
-                  <span className="title-card">THÔNG TIN BỔ SUNG</span>
-                </div>
-              }
-            >
-              <Row className="" gutter={5} style={{ flexDirection: "column" }}>
-                <Col span={24} style={{ marginBottom: 6 }}>
-                  <b>Ghi chú nội bộ:</b>
-                </Col>
-                <Col span={24}>
-                  <span
-                    className="text-focus"
-                    style={{ wordWrap: "break-word" }}
-                  >
-                    {OrderDetail?.note !== ""
-                      ? OrderDetail?.note
-                      : "Không có ghi chú"}
-                  </span>
-                </Col>
-              </Row>
-
-              <Row
-                className="margin-top-10"
-                gutter={5}
-                style={{ flexDirection: "column" }}
-              >
-                <Col span={24} style={{ marginBottom: 6 }}>
-                  <b>Tags:</b>
-                </Col>
-                <Col span={24}>
-                  <span className="text-focus">
-                    {OrderDetail?.tags
-                      ? OrderDetail?.tags.split(",").map((item, index) => (
-                          <Tag
-                            key={index}
-                            className="orders-tag"
-                            style={{
-                              backgroundColor: "#F5F5F5",
-                              color: "#737373",
-                              padding: "5px 10px",
-                            }}
-                          >
-                            {item}
-                          </Tag>
-                        ))
-                      : "Không có tags"}
-                  </span>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-        </Row>
-      </div>
-      <ReturnBottomBar
-        onSubmit={() => handleSubmit()}
-        onCancel={() => handleCancel()}
-      />
+      {isCanReturn ? renderIfCanReturn() : renderIfCannotReturn()}
     </ContentContainer>
   );
 };

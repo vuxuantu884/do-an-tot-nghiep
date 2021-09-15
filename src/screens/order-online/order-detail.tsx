@@ -628,7 +628,7 @@ const OrderDetail = (props: PropType) => {
                   title={
                     <Space>
                       <div className="d-flex">
-                        <span className="title-card">THANH TOÁN</span>
+                        <span className="title-card">THANH TOÁN 2</span>
                       </div>
                       {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (
                         <Tag className="orders-tag orders-tag-default">
