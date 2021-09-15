@@ -1,20 +1,41 @@
-import { Checkbox, List } from "antd";
+import { Checkbox, List, Spin } from "antd";
 import { VariantResponse } from "model/product/product.model";
 import { Products } from "utils/AppUtils";
 import classNames from "classnames/";
 import variantdefault from "assets/icon/variantdefault.jpg";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { StyledComponent } from "./style";
 import ActionButton from "component/table/ActionButton";
+import { Loading3QuartersOutlined } from "@ant-design/icons";
 
 interface VariantListProps {
   value?: Array<VariantResponse>;
   active: number;
   setActive: (active: number) => void;
+  onStopSale: (data: Array<number>) => void;
+  onAllowSale: (data: Array<number>) => void;
+  loading?: boolean;
 }
 
 const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
   const [listSelected, setListSelected] = useState<Array<number>>([]);
+  const [checkedAll, setCheckedAll] = useState<boolean>(false);
+  const onMenuClick = useCallback(
+    (action) => {
+      switch (action) {
+        case 1:
+          props.onStopSale(listSelected);
+          setListSelected([]);
+          setCheckedAll(false);
+          break;
+        case 2:
+          props.onAllowSale(listSelected);
+          setListSelected([]);
+          setCheckedAll(false);
+      }
+    },
+    [listSelected, props]
+  );
   return (
     <StyledComponent>
       <List
@@ -24,7 +45,9 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
           <div className="header-tab">
             <div className="header-tab-left">
               <Checkbox
+                checked={checkedAll}
                 onChange={(e) => {
+                  setCheckedAll(e.target.checked);
                   if (props.value) {
                     if (e.target.checked) {
                       props.value.forEach((item) => {
@@ -42,24 +65,24 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                   }
                 }}
               >
-                Chọn tất cả
+                ` Chọn tất cả
               </Checkbox>
             </div>
             <div className="header-tab-right">
-              <ActionButton menu={[
-                {
-                  id: 1,
-                  name: "Ngừng bán",
-                },
-                {
-                  id: 2,
-                  name: "Cho phép bán",
-                },
-                {
-                  id: 3,
-                  name: "Xóa phiên bản",
-                }
-              ]} />
+              <ActionButton
+                disabled={listSelected.length === 0}
+                onMenuClick={onMenuClick}
+                menu={[
+                  {
+                    id: 1,
+                    name: "Ngừng bán",
+                  },
+                  {
+                    id: 2,
+                    name: "Cho phép bán",
+                  },
+                ]}
+              />
             </div>
           </div>
         }
@@ -75,13 +98,15 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                     listSelected.findIndex((item1) => item1 === item.id) !== -1
                   }
                   onChange={(e) => {
-                    let index = listSelected.findIndex(item1 => item1 === item.id)
-                    if(e.target.checked) {
-                      if(index === -1) {
+                    let index = listSelected.findIndex(
+                      (item1) => item1 === item.id
+                    );
+                    if (e.target.checked) {
+                      if (index === -1) {
                         listSelected.push(item.id);
                       }
                     } else {
-                      if(index !== -1) {
+                      if (index !== -1) {
                         listSelected.splice(index, 1);
                       }
                     }
@@ -123,6 +148,15 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
           );
         }}
       />
+      {props.loading && (
+        <div className="loading-view">
+          <Spin
+            indicator={
+              <Loading3QuartersOutlined style={{ fontSize: 28 }} spin />
+            }
+          />
+        </div>
+      )}
     </StyledComponent>
   );
 };

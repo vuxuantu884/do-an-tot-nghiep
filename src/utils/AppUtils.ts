@@ -1,10 +1,15 @@
+import { ConvertDateToUtc } from "./DateUtils";
 import { AccountStoreResponse } from "model/account/account.model";
-import { CityView, DistrictResponse } from "model/content/district.model";
+import { DistrictResponse } from "model/content/district.model";
+import { CityView } from "model/content/district.model";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
+import moment from "moment";
+import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
   ProductRequest,
   ProductRequestView,
+  ProductResponse,
   VariantImage,
   VariantPriceRequest,
   VariantPricesResponse,
@@ -15,23 +20,20 @@ import {
   VariantUpdateRequest,
   VariantUpdateView,
 } from "model/product/product.model";
-import { SizeDetail, SizeResponse } from "model/product/size.model";
-import {
-  OrderLineItemRequest,
-  OrderPaymentRequest,
-} from "model/request/order.request";
-import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
 } from "model/response/order/order.response";
-import moment from "moment";
-import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
-import { ErrorGHTK } from "./Constants";
-import { ConvertDateToUtc } from "./DateUtils";
+import {
+  OrderLineItemRequest,
+  OrderPaymentRequest,
+} from "model/request/order.request";
 import { RegUtil } from "./RegUtils";
+import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { ErrorGHTK } from "./Constants";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -380,9 +382,8 @@ export const Products = {
         import_price: item.import_price === "" ? null : item.import_price,
         retail_price: item.retail_price === "" ? null : item.retail_price,
         tax_percent: item.tax_percent === "" ? null : item.tax_percent,
-        wholesale_price:
-          item.wholesale_price === "" ? null : item.wholesale_price,
-      });
+        wholesale_price: item.wholesale_price === "" ? null : item.wholesale_price
+      })
     });
     return variant_prices;
   },
@@ -400,9 +401,8 @@ export const Products = {
         import_price: item.import_price === "" ? null : item.import_price,
         retail_price: item.retail_price === "" ? null : item.retail_price,
         tax_percent: item.tax_percent === "" ? null : item.tax_percent,
-        wholesale_price:
-          item.wholesale_price === "" ? null : item.wholesale_price,
-      });
+        wholesale_price: item.wholesale_price === "" ? null : item.wholesale_price
+      })
     });
     arrVariants.forEach((item) => {
       variants.push({
@@ -522,7 +522,7 @@ export const Products = {
     };
     return variantUpdateView;
   },
-  converVariantResponseToRequest: (variant: VariantResponse) => {
+  convertVariantResponseToRequest: (variant: VariantResponse) => {
     let variantUpadteRequest: VariantUpdateRequest = {
       id: variant.id,
       composite: variant.composite,
@@ -548,6 +548,19 @@ export const Products = {
     };
     return variantUpadteRequest;
   },
+  findAvatarProduct: (product: ProductResponse|null) => {
+    let avatar = null;
+    if(product) {
+      product.variants.forEach((variant) => {
+        variant.variant_images.forEach((variantImage) => {
+          if(variantImage.product_avatar) {
+            avatar = variantImage.url;
+          }
+        })
+      }, [])
+    }
+    return avatar;
+  }
 };
 
 export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {

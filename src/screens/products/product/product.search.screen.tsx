@@ -28,6 +28,9 @@ const ListProductScreen: React.FC = () => {
         case "#3":
           setActiveTab("3");
           break;
+        case "#4":
+          setActiveTab("4");
+          break;
       }
     }
   }, [history.location.hash]);

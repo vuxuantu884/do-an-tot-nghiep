@@ -212,7 +212,6 @@ function CardReturnProducts(props: PropType) {
       className: "columnQuantity",
       width: "40%",
       render: (value, record: ReturnProductModel, index: number) => {
-        console.log("record", record);
         if (isDetailPage) {
           return record.quantity;
         }

@@ -15,7 +15,7 @@ function SingleThirdPartyLogistic(props: PropType) {
   const dispatch = useDispatch();
 
   const [listShops, setListShops] = useState<StoreResponse[]>([]);
-  const [listShopsSelected, setListShopsSelected] = useState([
+  const [listShopsSelected] = useState([
     {
       name: "YODY Chí Linh 1",
       code: "16783488",

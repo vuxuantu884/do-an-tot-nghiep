@@ -25,19 +25,28 @@ export const StyledComponent = styled.div`
         }
       }
     }
+    &-image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      img {
+        height: 200px;
+      }
+    }
   }
   .label-switch {
     margin-left: 10px;
   }
   .data-content {
     color: #222222;
-    height: 200px;
+    height: 185px;;
     overflow: auto;
     padding: 10px 5px;
     border: 1px solid #d9d9d9;
   }
   .data-empty  {
-    color: red
+    color: red;
+    height: 185px;
   }
   .view-right {
     display: flex;

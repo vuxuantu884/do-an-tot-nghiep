@@ -205,15 +205,25 @@ const ProductDetailScreen: React.FC = () => {
     setChange(true);
   }, []);
 
-  const onResultUpdate = useCallback((data) => {
-    setLoadingButton(false);
-    if(!data) {
-      
-    } else {
-      form.setFieldsValue(data);
-      showSuccess('Cập nhật thông tin sản phẩm thành công')
-    }
-  }, [form]);
+  const onResultUpdate = useCallback(
+    (data) => {
+      setLoadingButton(false);
+      if (!data) {
+      } else {
+        form.setFieldsValue(data);
+        setChange(false);
+        showSuccess("Cập nhật thông tin sản phẩm thành công");
+        if (tempActive !== active) {
+          setCurrentVariant(tempActive);
+        }
+      }
+    },
+    [active, form, setCurrentVariant]
+  );
+
+  const onAllowSale = useCallback((listSelected: Array<number>) => {}, []);
+
+  const onStopSale = useCallback((listSelected: Array<number>) => {}, []);
 
   const onFinish = useCallback(
     (values: ProductRequest) => {
@@ -628,7 +638,12 @@ const ProductDetailScreen: React.FC = () => {
                 <Row className="card-container">
                   <Col className="left" span={24} md={6}>
                     <Item name="variants" noStyle>
-                      <VariantList active={active} setActive={onActive} />
+                      <VariantList
+                        onAllowSale={onAllowSale}
+                        onStopSale={onStopSale}
+                        active={active}
+                        setActive={onActive}
+                      />
                     </Item>
                     <Divider />
                     <Form.List name="variants">
@@ -638,7 +653,8 @@ const ProductDetailScreen: React.FC = () => {
                             add(
                               {
                                 variant_images: [],
-                                name: "",
+                                name: data.name,
+                                status: "active",
                                 barcode: "",
                                 color_id: null,
                                 composite: false,
@@ -709,6 +725,13 @@ const ProductDetailScreen: React.FC = () => {
                                     <Item name={[name, "id"]} hidden noStyle>
                                       <Input />
                                     </Item>
+                                    <Item
+                                      name={[name, "status"]}
+                                      hidden
+                                      noStyle
+                                    >
+                                      <Input />
+                                    </Item>
                                     <Item name={[name, "code"]} hidden noStyle>
                                       <Input />
                                     </Item>
@@ -747,7 +770,6 @@ const ProductDetailScreen: React.FC = () => {
                                             <Col span={24} md={12}>
                                               <Item
                                                 name={[name, "barcode"]}
-                                                rules={[{ required: true }]}
                                                 label="Mã vạch"
                                               >
                                                 <Input
@@ -812,6 +834,13 @@ const ProductDetailScreen: React.FC = () => {
                                               index
                                             ) => (
                                               <Row gutter={24}>
+                                                <Item
+                                                  name={[name, "id"]}
+                                                  hidden
+                                                  noStyle
+                                                >
+                                                  <Input />
+                                                </Item>
                                                 <Col md={4}>
                                                   <Item
                                                     label="Giá bán"
@@ -1066,7 +1095,10 @@ const ProductDetailScreen: React.FC = () => {
                                             ))}
                                           </CustomSelect>
                                         </Item>
-                                        <Item name={[name, "size_id"]} label="Kích cỡ">
+                                        <Item
+                                          name={[name, "size_id"]}
+                                          label="Kích cỡ"
+                                        >
                                           <CustomSelect
                                             onChange={onChange}
                                             notFoundContent={"Không có dữ liệu"}
