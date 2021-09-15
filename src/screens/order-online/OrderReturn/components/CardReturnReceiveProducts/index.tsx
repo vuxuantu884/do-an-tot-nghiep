@@ -1,9 +1,9 @@
-import { Card, Checkbox, Switch } from "antd";
-import { useState } from "react";
+import { Card, Checkbox } from "antd";
+// import { useState } from "react";
 
 type PropType = {};
 function CardReturnReceiveProducts(props: PropType) {
-  const [isReturn, setisReturn] = useState(false);
+  // const [isReturn, setisReturn] = useState(false);
 
   const renderCardExtra = () => {
     return (

@@ -22,10 +22,9 @@ import {
   ReturnProductModel,
 } from "model/response/order/order.response";
 import React, { createRef, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+// import { useDispatch } from "react-redux";
 import {
   formatCurrency,
-  getTotalAmountAfferDiscount,
   getTotalQuantity,
 } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
@@ -40,7 +39,7 @@ function CardReturnProducts(props: PropType) {
   const { listReturnProducts, handleReturnProducts, listOrderProducts } = props;
 
   console.log("props", props);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [memoryListReturnProducts, setMemoryListReturnProducts] = useState<
     OrderLineItemResponse[]
   >([]);

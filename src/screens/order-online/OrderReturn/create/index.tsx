@@ -3,7 +3,7 @@ import ContentContainer from "component/container/content.container";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import { StoreDetailAction } from "domain/actions/core/store.action";
+// import { StoreDetailAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
 import { actionCreateOrderReturn } from "domain/actions/order/order-return.action";
 import {
@@ -12,14 +12,14 @@ import {
 } from "domain/actions/order/order.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { OrderSettingsModel } from "model/other/order/order-model";
+// import { OrderSettingsModel } from "model/other/order/order-model";
 import { OrderPaymentRequest, OrderRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderLineItemResponse,
   OrderResponse,
   ReturnProductModel,
-  StoreCustomResponse,
+  // StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import {
@@ -45,7 +45,7 @@ type PropType = {
 
 const ScreenReturnDetail = (props: PropType) => {
   const [isError, setError] = useState<boolean>(false);
-  const [loadingData, setLoadingData] = useState<boolean>(true);
+  // const [loadingData, setLoadingData] = useState<boolean>(true);
   const query = useQuery();
   let orderID = query.get("orderID");
 
@@ -53,7 +53,7 @@ const ScreenReturnDetail = (props: PropType) => {
   const isFirstLoad = useRef(true);
 
   const dispatch = useDispatch();
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  // const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [listReturnProducts, setListReturnProducts] = useState<
@@ -62,9 +62,9 @@ const ScreenReturnDetail = (props: PropType) => {
   const [listOrderProducts, setListOrderProducts] = useState<
     OrderLineItemResponse[]
   >([]);
-  const [OrderDetailAllFulfillment, setOrderDetailAllFulfillment] =
-    useState<OrderResponse | null>(null);
-  const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
+  // const [OrderDetailAllFulfillment, setOrderDetailAllFulfillment] =
+  //   useState<OrderResponse | null>(null);
+  // const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
     null
   );
@@ -72,25 +72,25 @@ const ScreenReturnDetail = (props: PropType) => {
     Array<PaymentMethodResponse>
   >([]);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
-  const [amountReturn, setAmountReturn] = useState<number>(100000);
+  const [amountReturn] = useState<number>(100000);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
 
-  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
-    chonCuaHangTruocMoiChonSanPham: false,
-    cauHinhInNhieuLienHoaDon: 1,
-  });
+  // const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
+  //   chonCuaHangTruocMoiChonSanPham: false,
+  //   cauHinhInNhieuLienHoaDon: 1,
+  // });
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
         return;
       }
-      setAccounts(data.items);
+      // setAccounts(data.items);
     },
     []
   );
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
-    setLoadingData(false);
+    // setLoadingData(false);
     if (!data) {
       setError(true);
     } else {
@@ -103,7 +103,7 @@ const ScreenReturnDetail = (props: PropType) => {
       );
       setOrderDetail(_data);
       setListOrderProducts(_data.items);
-      setOrderDetailAllFulfillment(data);
+      // setOrderDetailAllFulfillment(data);
     }
   }, []);
 
@@ -166,7 +166,7 @@ const ScreenReturnDetail = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail?.store_id != null) {
-      dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
+      // dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
     }
   }, [dispatch, OrderDetail?.store_id]);
 
@@ -182,14 +182,14 @@ const ScreenReturnDetail = (props: PropType) => {
   }, [dispatch]);
 
   useEffect(() => {
-    setOrderSettings({
-      chonCuaHangTruocMoiChonSanPham: true,
-      cauHinhInNhieuLienHoaDon: 3,
-    });
+    // setOrderSettings({
+    //   chonCuaHangTruocMoiChonSanPham: true,
+    //   cauHinhInNhieuLienHoaDon: 3,
+    // });
   }, []);
 
   if (!orderID) {
-    setLoadingData(false);
+    // setLoadingData(false);
     return null;
   }
 

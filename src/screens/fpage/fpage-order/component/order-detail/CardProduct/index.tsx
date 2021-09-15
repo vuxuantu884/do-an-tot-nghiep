@@ -766,9 +766,9 @@ console.log(resultSearchVariant)
     setIsInputSearchProductFocus(true);
   };
 
-  const onInputSearchProductBlur = () => {
-    setIsInputSearchProductFocus(false);
-  };
+  // const onInputSearchProductBlur = () => {
+  //   setIsInputSearchProductFocus(false);
+  // };
 
   return (
     <Card className="fpage-order product"
