@@ -33,18 +33,30 @@ export const StyledComponent = styled.div`
         height: 200px;
       }
     }
+    .loading-view {
+      position: absolute;
+      display: flex;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
   }
   .label-switch {
     margin-left: 10px;
   }
   .data-content {
     color: #222222;
-    height: 185px;;
+    height: 185px;
     overflow: auto;
     padding: 10px 5px;
     border: 1px solid #d9d9d9;
   }
-  .data-empty  {
+  .data-empty {
     color: red;
     height: 185px;
   }
@@ -67,7 +79,7 @@ export const StyledComponent = styled.div`
       img {
         width: 163px !important;
         height: 253.5;
-        align-items: center
+        align-items: center;
       }
     }
     .image-thumbnail {
