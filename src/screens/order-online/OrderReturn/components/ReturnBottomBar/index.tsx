@@ -5,10 +5,11 @@ import { StyledComponent } from "./styles";
 type PropType = {
   onSubmit: () => void;
   onCancel: () => void;
+  isCanSubmit: boolean;
 };
 
 function ReturnBottomBar(props: PropType) {
-  const { onSubmit, onCancel } = props;
+  const { onSubmit, onCancel, isCanSubmit } = props;
   return (
     <StyledComponent>
       <div className="bottomBar">
@@ -24,9 +25,9 @@ function ReturnBottomBar(props: PropType) {
           <Button
             type="primary"
             onClick={() => {
-              console.log("click");
               onSubmit();
             }}
+            disabled={!isCanSubmit}
           >
             Trả hàng
           </Button>

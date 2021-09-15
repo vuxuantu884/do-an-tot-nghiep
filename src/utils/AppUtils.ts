@@ -1,12 +1,7 @@
-import { ConvertDateToUtc } from "./DateUtils";
 import { AccountStoreResponse } from "model/account/account.model";
-import { DistrictResponse } from "model/content/district.model";
-import { CityView } from "model/content/district.model";
-import { AppConfig } from "config/app.config";
+import { CityView, DistrictResponse } from "model/content/district.model";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
-import moment from "moment";
-import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
   ProductRequest,
   ProductRequestView,
@@ -20,20 +15,23 @@ import {
   VariantUpdateRequest,
   VariantUpdateView,
 } from "model/product/product.model";
+import { SizeDetail, SizeResponse } from "model/product/size.model";
+import {
+  OrderLineItemRequest,
+  OrderPaymentRequest,
+} from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
 } from "model/response/order/order.response";
-import {
-  OrderLineItemRequest,
-  OrderPaymentRequest,
-} from "model/request/order.request";
-import { RegUtil } from "./RegUtils";
+import moment from "moment";
 import { SupplierDetail, SupplierResponse } from "../model/core/supplier.model";
-import { CustomerResponse } from "model/response/customer/customer.response";
 import { ErrorGHTK } from "./Constants";
+import { ConvertDateToUtc } from "./DateUtils";
+import { RegUtil } from "./RegUtils";
 
 export const isUndefinedOrNull = (variable: any) => {
   if (variable && variable !== null) {
@@ -382,8 +380,9 @@ export const Products = {
         import_price: item.import_price === "" ? null : item.import_price,
         retail_price: item.retail_price === "" ? null : item.retail_price,
         tax_percent: item.tax_percent === "" ? null : item.tax_percent,
-        wholesale_price: item.wholesale_price === "" ? null : item.wholesale_price
-      })
+        wholesale_price:
+          item.wholesale_price === "" ? null : item.wholesale_price,
+      });
     });
     return variant_prices;
   },
@@ -401,8 +400,9 @@ export const Products = {
         import_price: item.import_price === "" ? null : item.import_price,
         retail_price: item.retail_price === "" ? null : item.retail_price,
         tax_percent: item.tax_percent === "" ? null : item.tax_percent,
-        wholesale_price: item.wholesale_price === "" ? null : item.wholesale_price
-      })
+        wholesale_price:
+          item.wholesale_price === "" ? null : item.wholesale_price,
+      });
     });
     arrVariants.forEach((item) => {
       variants.push({

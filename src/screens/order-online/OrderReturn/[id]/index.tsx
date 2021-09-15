@@ -1,68 +1,38 @@
-import { Card, Col, Collapse, Row, Tag } from "antd";
+import { Card, Col, Row, Tag } from "antd";
 import ContentContainer from "component/container/content.container";
-import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { StoreDetailAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
-import {
-  OrderDetailAction,
-  PaymentMethodGetList,
-} from "domain/actions/order/order.action";
-import { AccountResponse } from "model/account/account.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { OrderSettingsModel } from "model/other/order/order-model";
+import { actionGetOrderReturn } from "domain/actions/order/order-return.action";
+import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderLineItemResponse,
   OrderResponse,
-  StoreCustomResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import {
-  FulFillmentStatus,
-  OrderStatus,
-  PaymentMethodCode,
-} from "utils/Constants";
+import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
 import ActionHistory from "../../component/order-detail/ActionHistory";
-import OrderDetailBottomBar from "../../component/order-detail/BottomBar";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoney from "../components/CardReturnMoney";
 import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnProducts from "../components/CardReturnProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
-import ReturnBottomBar from "../components/ReturnBottomBar";
 
-type PropType = {
-  id?: string;
-  isCloneOrder?: boolean;
-};
+type PropType = {};
 type OrderParam = {
   id: string;
 };
 
 const ScreenReturnDetail = (props: PropType) => {
-  const { isCloneOrder } = props;
   let { id } = useParams<OrderParam>();
-  if (!id && props.id && isCloneOrder) {
-    id = props.id;
-  }
-  let OrderId = parseInt(id);
-  const isFirstLoad = useRef(true);
-
+  let orderId = parseInt(id);
+  const isDetailPage = id ? true : false;
   const dispatch = useDispatch();
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
   const [isError, setError] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
@@ -70,56 +40,15 @@ const ScreenReturnDetail = (props: PropType) => {
   const [listReturnProducts, setListReturnProducts] = useState<
     OrderLineItemResponse[]
   >([]);
-  const [listOrderProducts, setListOrderProducts] = useState<
-    OrderLineItemResponse[]
-  >([]);
-  const [OrderDetailAllFullfilment, setOrderDetailAllFullfilment] =
-    useState<OrderResponse | null>(null);
-  const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
     null
   );
   const [listPaymentMethods, setListPaymentMethods] = useState<
     Array<PaymentMethodResponse>
   >([]);
-  const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
-    useState<number>(0);
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [amountReturn, setAmountReturn] = useState<number>(100000);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-
-  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
-    chonCuaHangTruocMoiChonSanPham: false,
-    cauHinhInNhieuLienHoaDon: 1,
-  });
-
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-    },
-    []
-  );
-  const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
-    setLoadingData(false);
-    if (!data) {
-      setError(true);
-    } else {
-      let _data = { ...data };
-      _data.fulfillments = _data.fulfillments?.filter(
-        (f) =>
-          f.status !== FulFillmentStatus.CANCELLED &&
-          f.status !== FulFillmentStatus.RETURNED &&
-          f.status !== FulFillmentStatus.RETURNING
-      );
-      setOrderDetail(_data);
-      setListOrderProducts(_data.items);
-      setOrderDetailAllFullfilment(data);
-    }
-  }, []);
 
   const handleChangeSubStatus = () => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
@@ -129,36 +58,37 @@ const ScreenReturnDetail = (props: PropType) => {
     setPayments(value);
   };
 
-  const handleSubmit = () => {};
-
-  const handleCancel = () => {};
-
   useEffect(() => {
-    if (isFirstLoad.current) {
-      if (!Number.isNaN(OrderId)) {
-        dispatch(OrderDetailAction(OrderId, onGetDetailSuccess));
-      } else {
-        setError(true);
-      }
+    if (!Number.isNaN(orderId)) {
+      dispatch(
+        actionGetOrderReturn(orderId, (data: OrderResponse) => {
+          setLoadingData(false);
+          if (!data) {
+            setError(true);
+          } else {
+            let _data = { ...data };
+            _data.fulfillments = _data.fulfillments?.filter(
+              (f) =>
+                f.status !== FulFillmentStatus.CANCELLED &&
+                f.status !== FulFillmentStatus.RETURNED &&
+                f.status !== FulFillmentStatus.RETURNING
+            );
+            setOrderDetail(_data);
+            setListReturnProducts(_data.items);
+            setAmountReturn(0);
+          }
+        })
+      );
+    } else {
+      setError(true);
     }
-    isFirstLoad.current = false;
-  }, [dispatch, OrderId, onGetDetailSuccess]);
-
-  useLayoutEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
-  }, [dispatch, setDataAccounts]);
+  }, [dispatch, orderId]);
 
   useEffect(() => {
     if (OrderDetail != null) {
       dispatch(CustomerDetail(OrderDetail?.customer_id, setCustomerDetail));
     }
   }, [dispatch, OrderDetail]);
-
-  useEffect(() => {
-    if (OrderDetail?.store_id != null) {
-      dispatch(StoreDetailAction(OrderDetail?.store_id, setStoreDetail));
-    }
-  }, [dispatch, OrderDetail?.store_id]);
 
   useEffect(() => {
     dispatch(
@@ -171,29 +101,6 @@ const ScreenReturnDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
-  useEffect(() => {
-    setOrderSettings({
-      chonCuaHangTruocMoiChonSanPham: true,
-      cauHinhInNhieuLienHoaDon: 3,
-    });
-  }, []);
-
-  // end
-  const scroll = useCallback(() => {
-    if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
-    } else {
-      setIsShowBillStep(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("scroll", scroll);
-    return () => {
-      window.removeEventListener("scroll", scroll);
-    };
-  }, [scroll]);
-
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -205,40 +112,37 @@ const ScreenReturnDetail = (props: PropType) => {
           path: `${UrlConfig.HOME}`,
         },
         {
-          name: "Đơn hàng",
-        },
-        {
           name: "Trả hàng",
+          path: `${UrlConfig.HOME}`,
         },
         {
-          name: !isCloneOrder ? `Đơn hàng ${id}` : `Sao chép Đơn hàng ${id}`,
+          name: `Chi tiết đơn trả hàng ${id}`,
         },
       ]}
     >
       <div className="orders">
         <Row gutter={24} style={{ marginBottom: "70px" }}>
           <Col md={18}>
-            {/*--- customer ---*/}
             <UpdateCustomerCard
               OrderDetail={OrderDetail}
               customerDetail={customerDetail}
             />
-            {/*--- end customer ---*/}
             <CardReturnOrder />
             <CardReturnProducts
               listReturnProducts={listReturnProducts}
               handleReturnProducts={(
                 listReturnProducts: OrderLineItemResponse[]
               ) => setListReturnProducts(listReturnProducts)}
-              listOrderProducts={listOrderProducts}
+              isDetailPage={isDetailPage}
             />
             <CardReturnMoney
               listPaymentMethods={listPaymentMethods}
               amountReturn={amountReturn}
               payments={payments}
               handlePayments={handlePayments}
+              isDetailPage={isDetailPage}
             />
-            <CardReturnReceiveProducts />
+            <CardReturnReceiveProducts isDetailPage={isDetailPage} />
           </Col>
 
           <Col md={6}>
@@ -313,7 +217,7 @@ const ScreenReturnDetail = (props: PropType) => {
             <SubStatusOrder
               subStatusId={OrderDetail?.sub_status_id}
               status={OrderDetail?.status}
-              orderId={OrderId}
+              orderId={orderId}
               fulfillments={OrderDetail?.fulfillments}
               handleChangeSubStatus={handleChangeSubStatus}
             />
@@ -377,7 +281,6 @@ const ScreenReturnDetail = (props: PropType) => {
           </Col>
         </Row>
       </div>
-      <ReturnBottomBar onSubmit={handleSubmit} onCancel={handleCancel} />
     </ContentContainer>
   );
 };

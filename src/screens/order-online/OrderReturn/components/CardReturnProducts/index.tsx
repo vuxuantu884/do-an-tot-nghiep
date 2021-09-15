@@ -5,7 +5,6 @@ import {
   Card,
   Checkbox,
   Col,
-  Divider,
   Input,
   InputNumber,
   Row,
@@ -22,25 +21,26 @@ import {
   ReturnProductModel,
 } from "model/response/order/order.response";
 import React, { createRef, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import {
-  formatCurrency,
-  getTotalAmountAfferDiscount,
-  getTotalQuantity,
-} from "utils/AppUtils";
+import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  listOrderProducts: OrderLineItemResponse[];
+  listOrderProducts?: OrderLineItemResponse[];
   listReturnProducts: ReturnProductModel[];
   handleReturnProducts: (listReturnProducts: OrderLineItemResponse[]) => void;
+  handleIsCanSubmit?: (value: boolean) => void;
+  isDetailPage?: boolean;
 };
 
 function CardReturnProducts(props: PropType) {
-  const { listReturnProducts, handleReturnProducts, listOrderProducts } = props;
+  const {
+    listReturnProducts,
+    handleReturnProducts,
+    listOrderProducts,
+    handleIsCanSubmit,
+    isDetailPage,
+  } = props;
 
-  console.log("props", props);
-  const dispatch = useDispatch();
   const [memoryListReturnProducts, setMemoryListReturnProducts] = useState<
     OrderLineItemResponse[]
   >([]);
@@ -48,7 +48,9 @@ function CardReturnProducts(props: PropType) {
   const autoCompleteRef = createRef<RefSelectProps>();
 
   const onSelectSearchedVariant = (value: string) => {
-    console.log("value", value);
+    if (!listOrderProducts) {
+      return;
+    }
     const selectedVariant = listOrderProducts.find((single) => {
       return single.id === +value;
     });
@@ -57,7 +59,6 @@ function CardReturnProducts(props: PropType) {
       ...selectedVariant,
       maxQuantity: selectedVariant.quantity,
     };
-    console.log("selectedVariant", selectedVariant);
     let indexSelectedVariant = listReturnProducts.findIndex((single) => {
       return single.id === selectedVariantWithMaxQuantity.id;
     });
@@ -75,9 +76,15 @@ function CardReturnProducts(props: PropType) {
     console.log("resultListReturnProducts", resultListReturnProducts);
     setMemoryListReturnProducts(resultListReturnProducts);
     handleReturnProducts(resultListReturnProducts);
+    if (handleIsCanSubmit) {
+      handleIsCanSubmit(true);
+    }
   };
 
   const handleChangeReturnAll = (e: CheckboxChangeEvent) => {
+    if (!listOrderProducts) {
+      return;
+    }
     if (e.target.checked) {
       handleReturnProducts(listOrderProducts);
     } else {
@@ -90,7 +97,7 @@ function CardReturnProducts(props: PropType) {
     return (
       <div
         className="row-search w-100"
-        style={{ padding: 0, paddingRight: 20, paddingLeft: 20 }}
+        style={{ padding: "3px 20px", alignItems: "center" }}
       >
         <div className="rs-left w-100" style={{ width: "100%" }}>
           <div style={{ marginTop: 10 }}>
@@ -129,6 +136,9 @@ function CardReturnProducts(props: PropType) {
   };
 
   const convertResultSearchVariant = useMemo(() => {
+    if (!listOrderProducts) {
+      return;
+    }
     let options: any[] = [];
     listOrderProducts.forEach((item: OrderLineItemResponse, index: number) => {
       options.push({
@@ -140,10 +150,22 @@ function CardReturnProducts(props: PropType) {
   }, [listOrderProducts]);
 
   const renderCardExtra = () => {
+    const checkIfReturnAll = () => {
+      if (!isDetailPage) {
+        return false;
+      }
+      let result = true;
+      return result;
+    };
     return (
       <React.Fragment>
-        <Checkbox style={{ marginLeft: 20 }} onChange={handleChangeReturnAll} />
-        Trả toàn bộ sản phẩm
+        <Checkbox
+          style={{ marginLeft: 20 }}
+          onChange={handleChangeReturnAll}
+          defaultChecked={checkIfReturnAll()}
+        >
+          Trả toàn bộ sản phẩm
+        </Checkbox>
       </React.Fragment>
     );
   };
@@ -157,14 +179,14 @@ function CardReturnProducts(props: PropType) {
     resultListReturnProducts[index].quantity = Number(
       value == null ? "0" : value.toString().replace(".", "")
     );
-    console.log("resultListReturnProducts", resultListReturnProducts);
     handleReturnProducts(resultListReturnProducts);
   };
 
   const getTotalPrice = (listReturnProducts: ReturnProductModel[]) => {
     let total = 0;
     listReturnProducts.forEach((a) => {
-      total = total + a.quantity * a.price;
+      let discountAmount = a.discount_items[0].value;
+      total = total + a.quantity * (a.price - discountAmount);
     });
     return total;
   };
@@ -187,23 +209,25 @@ function CardReturnProducts(props: PropType) {
           )}
         </div>
       ),
-      dataIndex: "value",
-      key: "value",
+      className: "columnQuantity",
       width: "40%",
-      render: (value, row: ReturnProductModel, index: number) => {
-        console.log("row", row);
+      render: (value, record: ReturnProductModel, index: number) => {
+        console.log("record", record);
+        if (isDetailPage) {
+          return record.quantity;
+        }
         return (
           <div>
             <InputNumber
               min={1}
-              max={row.maxQuantity}
-              value={row.quantity}
+              max={record.maxQuantity}
+              value={record.quantity}
               defaultValue={1}
               onChange={(value: number) =>
                 onChangeProductQuantity(value, index)
               }
             />
-            / {row.maxQuantity}
+            / {record.maxQuantity}
           </div>
         );
       },
@@ -213,18 +237,38 @@ function CardReturnProducts(props: PropType) {
       dataIndex: "price",
       key: "price",
       width: "20%",
-      render: (value: number, item: any, index: number) => {
+      render: (value: number, record: ReturnProductModel, index: number) => {
         return <div>{formatCurrency(value)}</div>;
+      },
+    },
+    {
+      title: "Chiết khấu",
+      width: "20%",
+      render: (value: number, record: ReturnProductModel, index: number) => {
+        return (
+          <div>
+            {record.discount_items[0].value !== null
+              ? formatCurrency(record.discount_items[0].value)
+              : 0}
+          </div>
+        );
       },
     },
     {
       title: "Thành tiền",
       key: "total",
       width: "40%",
-      render: (value: OrderLineItemRequest, item: any, index: number) => {
+      render: (
+        value: OrderLineItemRequest,
+        record: ReturnProductModel,
+        index: number
+      ) => {
+        let discountAmount = record.discount_items[0].value;
         return (
           <div className="yody-pos-varian-name">
-            {formatCurrency(Math.round(value.price) * value.quantity)}
+            {formatCurrency(
+              Math.round(value.price - discountAmount) * value.quantity
+            )}
           </div>
         );
       },
@@ -236,40 +280,44 @@ function CardReturnProducts(props: PropType) {
       <Card
         className="margin-top-20"
         title="Sản phẩm"
-        extra={renderCardExtra()}
+        extra={!isDetailPage ? renderCardExtra() : null}
       >
-        <div className="label">Sản phẩm:</div>
-        <AutoComplete
-          notFoundContent={
-            searchVariantInputValue.length >= 0
-              ? "Không tìm thấy sản phẩm"
-              : undefined
-          }
-          id="search_product"
-          value={searchVariantInputValue}
-          ref={autoCompleteRef}
-          onSelect={onSelectSearchedVariant}
-          dropdownClassName="search-layout dropdown-search-header"
-          dropdownMatchSelectWidth={456}
-          className="productSearchInput"
-          onSearch={onChangeProductSearchValue}
-          options={convertResultSearchVariant}
-          maxLength={255}
-          dropdownRender={(menu) => <div>{menu}</div>}
-        >
-          <Input
-            size="middle"
-            className="yody-search"
-            placeholder="Tìm sản phẩm mã 7... (F3)"
-            prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
-          />
-        </AutoComplete>
+        {!isDetailPage && (
+          <div>
+            <div className="label">Sản phẩm:</div>
+            <AutoComplete
+              notFoundContent={
+                searchVariantInputValue.length >= 0
+                  ? "Không tìm thấy sản phẩm"
+                  : undefined
+              }
+              id="search_product"
+              value={searchVariantInputValue}
+              ref={autoCompleteRef}
+              onSelect={onSelectSearchedVariant}
+              dropdownClassName="search-layout dropdown-search-header"
+              dropdownMatchSelectWidth={456}
+              className="productSearchInput"
+              onSearch={onChangeProductSearchValue}
+              options={convertResultSearchVariant}
+              maxLength={255}
+              dropdownRender={(menu) => <div>{menu}</div>}
+            >
+              <Input
+                size="middle"
+                className="yody-search"
+                placeholder="Chọn sản phẩm"
+                prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
+              />
+            </AutoComplete>
+          </div>
+        )}
         <Table
           locale={{
             emptyText: (
               <div className="sale_order_empty_product">
                 <img src={emptyProduct} alt="empty product"></img>
-                <p>Đơn hàng của bạn chưa có sản phẩm nào!</p>
+                <p>Chưa có sản phẩm đổi trả!</p>
                 <Button
                   type="text"
                   className="font-weight-500"
@@ -294,18 +342,11 @@ function CardReturnProducts(props: PropType) {
           scroll={{ y: 300 }}
           sticky
         />
-        <Row className="sale-product-box-payment" gutter={24}>
+        <Row className="boxPayment" gutter={24}>
           <Col xs={24} lg={11}></Col>
           <Col xs={24} lg={10}>
-            <Row style={{ justifyContent: "space-between" }}>
-              <div className="font-weight-500">Số lượng:</div>
-              <div className="font-weight-500" style={{ fontWeight: 500 }}>
-                {getTotalQuantity(listReturnProducts)}
-              </div>
-            </Row>
-            <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
-              <strong className="font-size-text">Khách cần phải trả:</strong>
+              <strong className="font-size-text">Cần trả khách:</strong>
               <strong className="text-success font-size-price">
                 {getTotalPrice(listReturnProducts)}
               </strong>

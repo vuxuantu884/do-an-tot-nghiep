@@ -33,7 +33,6 @@ import CustomSelect from "component/custom/select.custom";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   DeliveryServicesGetList,
-  getTrackingLogError,
   getTrackingLogFulfillmentAction,
   InfoGHTKAction,
   UpdateFulFillmentStatusAction,
@@ -53,7 +52,6 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
-  ErrorLogResponse,
   OrderResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
@@ -147,8 +145,8 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
-  const [errorLogFulfillment, setErrorLogFulfillment] =
-    useState<Array<ErrorLogResponse> | null>(null);
+  // const [errorLogFulfillment, setErrorLogFulfillment] =
+  //   useState<Array<ErrorLogResponse> | null>(null);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
   const [hvc, setHvc] = useState<number | null>(null);
   const [serviceType, setServiceType] = useState<string>();
@@ -286,12 +284,12 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail.fulfillments[0].shipment &&
       props.OrderDetail.fulfillments[0].shipment.pushing_status === "failed"
     ) {
-      dispatch(
-        getTrackingLogError(
-          props.OrderDetail.fulfillments[0].code,
-          setErrorLogFulfillment
-        )
-      );
+      // dispatch(
+      //   getTrackingLogError(
+      //     props.OrderDetail.fulfillments[0].code,
+      //     setErrorLogFulfillment
+      //   )
+      // );
     }
   }, [dispatch, props.OrderDetail]);
   //#endregion

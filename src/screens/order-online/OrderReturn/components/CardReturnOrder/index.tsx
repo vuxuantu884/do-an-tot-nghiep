@@ -1,13 +1,14 @@
 import { Card, Switch } from "antd";
+import React from "react";
 
 type PropType = {};
 function CardReturnOrder(props: PropType) {
   const renderCardExtra = () => {
     return (
-      <>
-        <Switch className="ant-switch-primary" style={{ marginLeft: 20 }} />
+      <React.Fragment>
+        <Switch className="ant-switch-primary" style={{ marginRight: 20 }} />
         Đơn hàng có đổi trả hàng
-      </>
+      </React.Fragment>
     );
   };
 

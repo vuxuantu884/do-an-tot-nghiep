@@ -859,7 +859,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         </Space>
       }
     >
-      <div style={{ padding: "24px 0 0 0" }}>
+      <div style={{ padding: "24px 24px 0 24px" }}>
         <Row gutter={24}>
           <Col md={8}>
             <Form.Item

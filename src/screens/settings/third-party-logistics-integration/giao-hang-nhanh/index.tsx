@@ -90,8 +90,10 @@ function SingleThirdPartyLogistic(props: PropType) {
       StoreGetListAction((response) => {
         console.log("response", response);
         setListShops(response);
+        setListShopsSelected(listShopsSelected);
       })
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   return (

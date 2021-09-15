@@ -1,26 +1,42 @@
-import { Card, Checkbox, Switch } from "antd";
-import { useState } from "react";
+import { Card, Checkbox, Tag } from "antd";
+import { StyledComponent } from "./styles";
 
-type PropType = {};
+type PropType = {
+  isDetailPage?: boolean;
+};
 function CardReturnReceiveProducts(props: PropType) {
-  const [isReturn, setisReturn] = useState(false);
+  const { isDetailPage } = props;
 
   const renderCardExtra = () => {
+    return <Checkbox>Đã nhận hàng trả lại</Checkbox>;
+  };
+
+  const mainRender = () => {
+    if (isDetailPage) {
+      return (
+        <Card
+          className="margin-top-20"
+          title={
+            <div className="title-card">
+              Nhận hàng
+              <Tag className="orders-tag" color="success">
+                Đã nhận hàng
+              </Tag>
+            </div>
+          }
+        />
+      );
+    }
     return (
-      <>
-        <Checkbox />
-        Đã nhận hàng trả lại
-      </>
+      <Card
+        className="margin-top-20"
+        title="Đã nhận hàng trả lại"
+        extra={renderCardExtra()}
+      />
     );
   };
 
-  return (
-    <Card
-      className="margin-top-20"
-      title="Đã nhận hàng trả lại"
-      extra={renderCardExtra()}
-    />
-  );
+  return <StyledComponent>{mainRender()}</StyledComponent>;
 }
 
 export default CardReturnReceiveProducts;
