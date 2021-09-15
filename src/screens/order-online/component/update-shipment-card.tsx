@@ -30,6 +30,7 @@ import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import UrlConfig from "config/url.config";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   DeliveryServicesGetList,
@@ -59,6 +60,7 @@ import {
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
 import { setTimeout } from "timers";
 import {
   checkPaymentStatusToShow,
@@ -125,6 +127,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     orderSettings,
   } = props;
 
+  const history = useHistory();
   // node dom
   const formRef = createRef<FormInstance>();
   // action
@@ -152,8 +155,6 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
   const [serviceType, setServiceType] = useState<string>();
   const [feeGhtk, setFeeGhtk] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
-
-  console.log("props", props);
   useEffect(() => {
     dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
@@ -1487,7 +1488,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               type="primary"
               style={{ marginLeft: "10px", padding: "0 25px" }}
               className="create-button-custom ant-btn-outline fixed-button"
-              // onClick={onOkShippingConfirm}
+              onClick={() => {
+                history.push(
+                  `${UrlConfig.ORDER}/order-return/create?orderID=${OrderDetail?.id}`
+                );
+              }}
             >
               Đổi trả hàng
             </Button>

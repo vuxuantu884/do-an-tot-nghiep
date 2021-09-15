@@ -127,7 +127,6 @@ function LayoutEditAndDetail(props: PropType) {
   return (
     <StyledComponent>
       <ContentContainer
-        // title="Thêm cài đặt dịch vụ vận chuyển & phí ship báo khách"
         title={
           layoutType === LAYOUT_CREATE_AND_DETAIL.create
             ? "Thêm cài đặt dịch vụ vận chuyển & phí ship báo khách"

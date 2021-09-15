@@ -35,6 +35,11 @@ function OrderSettingInformation(props: PropType) {
     }
   };
 
+  const disabledDate = (current: any) => {
+    // Can not select days before today and today
+    return current && current < moment().endOf("day");
+  };
+
   const renderCardExtra = () => {
     return (
       <div>
@@ -85,6 +90,7 @@ function OrderSettingInformation(props: PropType) {
                 placeholder={datePickerPlaceholder}
                 format={datePickerFormat}
                 showTime={true}
+                disabledDate={disabledDate}
               />
             </Form.Item>
           </Col>
@@ -99,7 +105,8 @@ function OrderSettingInformation(props: PropType) {
               <DatePicker
                 placeholder={datePickerPlaceholder}
                 format={datePickerFormat}
-                showTime={{ defaultValue: moment("00:00:00", "HH:mm") }}
+                showTime={true}
+                disabledDate={disabledDate}
               />
             </Form.Item>
           </Col>
