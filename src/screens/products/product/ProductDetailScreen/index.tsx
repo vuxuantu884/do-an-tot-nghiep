@@ -21,6 +21,7 @@ import variantdefault from "assets/icon/variantdefault.jpg";
 import Slider from "react-slick";
 import VariantList from "../component/VariantList";
 import { showSuccess } from "utils/ToastUtils";
+import { Products } from "utils/AppUtils";
 
 export interface ProductParams {
   id: string;
@@ -32,6 +33,7 @@ const ProductDetailScreen: React.FC = () => {
   const { id } = useParams<ProductParams>();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingVariant, setLoadingVariant] = useState(false);
   const [active, setActive] = useState<number>(0);
   const [nav1, setNav1] = useState<Slider | null>();
   const [nav2, setNav2] = useState<Slider | null>();
@@ -68,6 +70,7 @@ const ProductDetailScreen: React.FC = () => {
   }, [currentVariant]);
 
   const onResultUpdate = useCallback((data: ProductResponse|false) => {
+    setLoadingVariant(false);
     if(!data) {
 
     } else {
@@ -77,8 +80,17 @@ const ProductDetailScreen: React.FC = () => {
   }, []);
 
   const update = useCallback((product: ProductResponse) => {
+    setLoadingVariant(true)
     dispatch(productUpdateAction(idNumber, product, onResultUpdate))
   }, [dispatch, idNumber, onResultUpdate]);
+
+  const productAvatar  = useMemo(() => {
+    let avatar = Products.findAvatarProduct(data);
+    if(avatar == null) {
+      return variantdefault;
+    }
+    return avatar;
+  }, [data]);
 
   const onAllowSale = useCallback((listSelected: Array<number>) => {
     if(data !== null) {
@@ -182,7 +194,10 @@ const ProductDetailScreen: React.FC = () => {
               </Col>
               <Col span={24} md={6}>
                 <Card title="Ảnh" className="card">
-                  <div className="padding-20"></div>
+                  <div className="padding-20 card-image">
+                    {console.log(productAvatar)}
+                    <Image src={productAvatar} />
+                  </div>
                 </Card>
                 <Card title="Phòng win" className="card">
                   <div className="padding-20">
@@ -203,6 +218,7 @@ const ProductDetailScreen: React.FC = () => {
                         value={data.variants}
                         active={active}
                         setActive={(active) => setActive(active)}
+                        loading={loadingVariant}
                       />
                     </Col>
                     <Col className="right" span={24} md={18}>

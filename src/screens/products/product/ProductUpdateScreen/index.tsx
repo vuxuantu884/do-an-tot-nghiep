@@ -211,6 +211,7 @@ const ProductDetailScreen: React.FC = () => {
       if (!data) {
       } else {
         form.setFieldsValue(data);
+        setChange(false);
         showSuccess("Cập nhật thông tin sản phẩm thành công");
         if (tempActive !== active) {
           setCurrentVariant(tempActive);
@@ -220,13 +221,9 @@ const ProductDetailScreen: React.FC = () => {
     [active, form, setCurrentVariant]
   );
 
-  const onAllowSale = useCallback((listSelected: Array<number>) => {
-    
-  }, [])
+  const onAllowSale = useCallback((listSelected: Array<number>) => {}, []);
 
-  const onStopSale = useCallback((listSelected: Array<number>) => {
-    
-  }, [])
+  const onStopSale = useCallback((listSelected: Array<number>) => {}, []);
 
   const onFinish = useCallback(
     (values: ProductRequest) => {
@@ -728,7 +725,11 @@ const ProductDetailScreen: React.FC = () => {
                                     <Item name={[name, "id"]} hidden noStyle>
                                       <Input />
                                     </Item>
-                                    <Item name={[name, "status"]} hidden noStyle>
+                                    <Item
+                                      name={[name, "status"]}
+                                      hidden
+                                      noStyle
+                                    >
                                       <Input />
                                     </Item>
                                     <Item name={[name, "code"]} hidden noStyle>
@@ -833,6 +834,13 @@ const ProductDetailScreen: React.FC = () => {
                                               index
                                             ) => (
                                               <Row gutter={24}>
+                                                <Item
+                                                  name={[name, "id"]}
+                                                  hidden
+                                                  noStyle
+                                                >
+                                                  <Input />
+                                                </Item>
                                                 <Col md={4}>
                                                   <Item
                                                     label="Giá bán"
