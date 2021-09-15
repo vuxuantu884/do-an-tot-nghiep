@@ -6,11 +6,12 @@ import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
 import IconConnect from "./images/connect.svg";
 import IconEdit from "./images/edit.svg";
 import { StyledComponent } from "./styles";
 
-const ThirdPartyLogisticsIntegration: React.FC = () => {
+function ThirdPartyLogisticsIntegration() {
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
     DeliveryServiceResponse[]
   >([]);
@@ -73,7 +74,7 @@ const ThirdPartyLogisticsIntegration: React.FC = () => {
                         </div>
                       </div>
                       <div className="singleThirdParty__connect">
-                        {single.config?.status ? (
+                        {single.status === DELIVER_SERVICE_STATUS.active ? (
                           <Button>
                             <Link
                               to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.code}`}
@@ -102,6 +103,6 @@ const ThirdPartyLogisticsIntegration: React.FC = () => {
       </ContentContainer>
     </StyledComponent>
   );
-};
+}
 
 export default ThirdPartyLogisticsIntegration;
