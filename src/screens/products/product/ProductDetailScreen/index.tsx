@@ -10,7 +10,7 @@ import {
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { productGetDetail } from "domain/actions/product/products.action";
+import { productGetDetail, productUpdateAction } from "domain/actions/product/products.action";
 import { ProductResponse } from "model/product/product.model";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -20,6 +20,7 @@ import { StyledComponent } from "./styles";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import Slider from "react-slick";
 import VariantList from "../component/VariantList";
+import { showSuccess } from "utils/ToastUtils";
 
 export interface ProductParams {
   id: string;
@@ -65,6 +66,41 @@ const ProductDetailScreen: React.FC = () => {
     }
     return "";
   }, [currentVariant]);
+
+  const onResultUpdate = useCallback((data: ProductResponse|false) => {
+    if(!data) {
+
+    } else {
+      setData(data);
+      showSuccess("Cập nhật thông tin thành công");
+    }
+  }, []);
+
+  const update = useCallback((product: ProductResponse) => {
+    dispatch(productUpdateAction(idNumber, product, onResultUpdate))
+  }, [dispatch, idNumber, onResultUpdate]);
+
+  const onAllowSale = useCallback((listSelected: Array<number>) => {
+    if(data !== null) {
+      data?.variants.forEach((item) => {
+        if(listSelected.includes(item.id)) {
+          item.saleable = true;
+        }
+      });
+      update(data);
+    }
+  }, [data, update])
+
+  const onStopSale = useCallback((listSelected: Array<number>) => {
+    if(data !== null) {
+      data?.variants.forEach((item) => {
+        if(listSelected.includes(item.id)) {
+          item.saleable = false;
+        }
+      });
+      update(data);
+    }
+  }, [data, update])
 
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
@@ -162,6 +198,8 @@ const ProductDetailScreen: React.FC = () => {
                   <Row className="card-container">
                     <Col className="left" span={24} md={6}>
                       <VariantList
+                        onAllowSale={onAllowSale}
+                        onStopSale={onStopSale}
                         value={data.variants}
                         active={active}
                         setActive={(active) => setActive(active)}
