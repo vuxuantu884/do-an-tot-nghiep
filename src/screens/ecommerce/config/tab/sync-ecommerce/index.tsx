@@ -138,7 +138,7 @@ const SyncEcommerce: React.FC<SyncEcommerceProps> = (
   ]);
 
   const configDataFiltered = configData.filter((item: any) => {
-    if (activatedBtn.id === "all") {
+    if (activatedBtn?.id === "all") {
       return true;
     } else {
       return item.ecommerce === activatedBtn.id;
