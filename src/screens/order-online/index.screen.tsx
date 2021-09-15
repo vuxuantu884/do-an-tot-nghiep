@@ -635,7 +635,7 @@ const ListOrderScreen: React.FC = () => {
     let params = {
       action: 'print',
       ids: selectedRowKeys,
-      'print-type': index === 4 ? 'shipment' : 'stock-export',
+      'print-type': index === 4 ? 'shipment' : 'stock_export',
       'print-dialog': true
     }
     const queryParam = generateQuery(params)

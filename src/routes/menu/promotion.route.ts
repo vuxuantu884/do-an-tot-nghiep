@@ -10,7 +10,7 @@ const promotion: Array<RouteMenu> = [
   {
     path: `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`,
     exact: true,
-    title: "Danh sách chương trình",
+    title: "Tích điểm",
     icon: 'icon-dot',
     component: loyaltyPage,
     key: "submenu105",

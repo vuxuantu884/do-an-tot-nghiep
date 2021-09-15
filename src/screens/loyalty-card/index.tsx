@@ -1,8 +1,8 @@
-import { Card, Tabs } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { Card, Tabs, Button } from 'antd';
 import ContentContainer from 'component/container/content.container';
-import ButtonCreate from 'component/header/ButtonCreate';
 import UrlConfig from 'config/url.config';
-import React from 'react'
+import { Link } from 'react-router-dom';
 import LoyaltyCards from './list';
 import LoyaltyCardRelease from './release';
 const { TabPane } = Tabs;
@@ -10,23 +10,27 @@ const { TabPane } = Tabs;
 const LoyaltyCardPage = () => {
   return (
     <ContentContainer
-      title="Thẻ khách hàng"
+      title="Phát hành thẻ"
       breadcrumb={[
         {
           name: "Tổng quan",
           path: UrlConfig.HOME,
         },
         {
-          name: "Khách hàng",
-          path: `${UrlConfig.CUSTOMER}`,
-        },
-        {
-          name: "Thẻ khách hàng",
-        },
+          name: "Phát hành thẻ"
+        }
       ]}
       extra={
         <>
-          <ButtonCreate path={`${UrlConfig.CUSTOMER}/cards/upload`} child="Đợt phát hành" />
+          <Link to={`${UrlConfig.CUSTOMER}/cards/upload`}>
+            <Button
+              className="ant-btn-outline ant-btn-primary"
+              size="large"
+              icon={<PlusOutlined />}
+            >
+              Đợt phát hành
+            </Button>
+          </Link>
         </>
       }
     >

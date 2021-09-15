@@ -3,16 +3,26 @@ import styled from "styled-components";
 export const StyledHeader = styled.div`
   margin-bottom: 20px;
   display: flex;
-  div{
+
+  .ant-btn {
+    margin-right: 30px;
+    padding: 7px 10px;
     display: flex;
-    margin-right: 50px;
-    justify-content: space-between;
     align-items: center;
-    img{
-      margin: 0 8px;
-    }
-    span{
-      color: #2A2A86
+    background-color: #ffffff;
+    border: 1px solid #e5e5e5;
+    img {
+      margin-right: 10px;
     }
   }
+  .active-button {
+    background-color: #f3f3ff;
+    color: #222222;
+  }
+`;
+
+export const StyledComponent = styled.div`
+ .custom-table .ant-table.ant-table-middle .ant-table-tbody > tr > td {
+    padding: 8px 15px;
+}
 `;

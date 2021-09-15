@@ -11,6 +11,7 @@ import { supplierSagas } from "./core/supplier.saga";
 import { customerGroupSaga } from "./customer/customer-group.saga";
 import customerSagas from "./customer/customer.saga";
 import { inventorySaga } from "./invetory/inventory.saga";
+import { ecommerceSaga } from "./ecommerce/ecommerce.saga";
 import { OrderActionLogSaga } from "./order/action-log.saga";
 import { OrderOnlineSaga } from "./order/order.saga";
 import { loyaltySaga } from "./loyalty/loyalty.saga";
@@ -27,6 +28,7 @@ import { sizeSaga } from "./product/size.saga";
 import { settingOrderProcessingStatusSaga } from "./settings/order-processing-status.saga";
 import { settingOrdersSaga } from "./settings/order-settings.saga";
 import { settingOrderSourceSaga } from "./settings/order-source.saga";
+import { OrderReturnSaga } from "./order/order-return.saga";
 
 function* rootSaga() {
   yield all([
@@ -58,6 +60,8 @@ function* rootSaga() {
     inventorySaga(),
     settingOrdersSaga(),
     loyaltySaga(),
+    ecommerceSaga(),
+    OrderReturnSaga(),
   ]);
 }
 

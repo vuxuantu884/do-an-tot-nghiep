@@ -3,6 +3,7 @@ import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 import TabProduct from "./tab/tab-product";
+import TabProductWrapper from "./tab/tab-product-wrapper";
 import { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import TabHistoryPrice from "./tab/tab-history-price";
@@ -26,6 +27,9 @@ const ListProductScreen: React.FC = () => {
           break;
         case "#3":
           setActiveTab("3");
+          break;
+        case "#4":
+          setActiveTab("4");
           break;
       }
     }
@@ -83,10 +87,13 @@ const ListProductScreen: React.FC = () => {
           <TabPane tab="Danh sách sản phẩm" key="1">
             <TabProduct />
           </TabPane>
-          <TabPane tab="Lịch sử sản phẩm" key="2">
+          <TabPane tab="Danh sách cha" key="2">
+            <TabProductWrapper />
+          </TabPane>
+          <TabPane tab="Lịch sử sản phẩm" key="3">
             <TabHistoryInfo />
           </TabPane>
-          <TabPane tab="Lịch sử giá" key="3">
+          <TabPane tab="Lịch sử giá" key="4">
             <TabHistoryPrice />
           </TabPane>
         </Tabs>

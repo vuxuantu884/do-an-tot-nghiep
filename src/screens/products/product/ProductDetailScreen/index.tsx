@@ -1,28 +1,23 @@
-import {
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  List,
-  Row,
-  Switch,
-  Image,
-  Tabs,
-} from "antd";
+import { Button, Card, Col, Row, Switch, Image, Tabs, Spin } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { productGetDetail } from "domain/actions/product/products.action";
+import {
+  productGetDetail,
+  productUpdateAction,
+} from "domain/actions/product/products.action";
 import { ProductResponse } from "model/product/product.model";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import RowDetail from "../component/RowDetail";
-import classNames from "classnames";
 import { StyledComponent } from "./styles";
-import { Products } from "utils/AppUtils";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import Slider from "react-slick";
+import VariantList from "../component/VariantList";
+import { showSuccess } from "utils/ToastUtils";
+import { Products } from "utils/AppUtils";
+import { Loading3QuartersOutlined } from "@ant-design/icons";
 
 export interface ProductParams {
   id: string;
@@ -34,6 +29,8 @@ const ProductDetailScreen: React.FC = () => {
   const { id } = useParams<ProductParams>();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingVariantUpdate, setLoadingVariantUpdate] = useState(false);
+  const [loadingVariant, setLoadingVariant] = useState(false);
   const [active, setActive] = useState<number>(0);
   const [nav1, setNav1] = useState<Slider | null>();
   const [nav2, setNav2] = useState<Slider | null>();
@@ -56,6 +53,7 @@ const ProductDetailScreen: React.FC = () => {
     }
     return null;
   }, [active, data]);
+
   const renderSize = useMemo(() => {
     if (currentVariant) {
       if (
@@ -69,6 +67,79 @@ const ProductDetailScreen: React.FC = () => {
     return "";
   }, [currentVariant]);
 
+  const onResultUpdate = useCallback((data: ProductResponse | false) => {
+    setLoadingVariant(false);
+    if (!data) {
+    } else {
+      setData(data);
+      showSuccess("Cập nhật thông tin thành công");
+    }
+  }, []);
+
+  const update = useCallback(
+    (product: ProductResponse) => {
+      setLoadingVariant(true);
+      dispatch(productUpdateAction(idNumber, product, onResultUpdate));
+    },
+    [dispatch, idNumber, onResultUpdate]
+  );
+
+  const productAvatar = useMemo(() => {
+    let avatar = Products.findAvatarProduct(data);
+    if (avatar == null) {
+      return variantdefault;
+    }
+    return avatar;
+  }, [data]);
+
+  const onAllowSale = useCallback(
+    (listSelected: Array<number>) => {
+      if (data !== null) {
+        data?.variants.forEach((item) => {
+          if (listSelected.includes(item.id)) {
+            item.saleable = true;
+          }
+        });
+        update(data);
+      }
+    },
+    [data, update]
+  );
+
+  const onStopSale = useCallback(
+    (listSelected: Array<number>) => {
+      if (data !== null) {
+        data?.variants.forEach((item) => {
+          if (listSelected.includes(item.id)) {
+            item.saleable = false;
+          }
+        });
+        update(data);
+      }
+    },
+    [data, update]
+  );
+
+  const onUpdateSaleable = useCallback(() => {
+    setLoadingVariantUpdate(false);
+    if (!data) {
+    } else {
+      setData(data);
+      showSuccess("Cập nhật thông tin thành công");
+    }
+  }, [data]);
+
+  const onChangeChecked = useCallback(
+    (e) => {
+      if (data !== null) {
+        setLoadingVariantUpdate(true);
+        data.variants[active].saleable = e;
+        dispatch(productUpdateAction(idNumber, data, onUpdateSaleable));
+      }
+    },
+    [active, data, dispatch, idNumber, onUpdateSaleable]
+  );
+
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
     return () => {};
@@ -76,7 +147,7 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     // dispatch(inventoryGetDetailAction({}, onResult));
-  }, [])
+  }, []);
 
   return (
     <StyledComponent>
@@ -112,10 +183,10 @@ const ProductDetailScreen: React.FC = () => {
                         <RowDetail title="Chất liệu" value={data.material} />
                       </Col>
                       <Col span={24} md={12}>
-                        <RowDetail title="Ngành hàng" value={data.goods} />
+                        <RowDetail title="Ngành hàng" value={data.goods_name} />
                         <RowDetail title="Tên sản phẩm" value={data.name} />
                         <RowDetail title="Xuất xứ" value={data.made_in} />
-                        <RowDetail title="Đơn vị" value={data.unit} />
+                        <RowDetail title="Đơn vị" value={data.unit_name} />
                       </Col>
                     </Row>
                     <Row gutter={50}>
@@ -132,10 +203,16 @@ const ProductDetailScreen: React.FC = () => {
                     </Row>
                     <Row gutter={50}>
                       <Col span={24} md={24}>
-                        <div
-                          dangerouslySetInnerHTML={{ __html: data.description }}
-                          className="data-content"
-                        />
+                        {data.description ? (
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: data.description,
+                            }}
+                            className="data-content"
+                          />
+                        ) : (
+                          <div className="data-empty">Không có mô tả</div>
+                        )}
                       </Col>
                     </Row>
                   </div>
@@ -143,7 +220,10 @@ const ProductDetailScreen: React.FC = () => {
               </Col>
               <Col span={24} md={6}>
                 <Card title="Ảnh" className="card">
-                  <div className="padding-20"></div>
+                  <div className="padding-20 card-image">
+                    {console.log(productAvatar)}
+                    <Image src={productAvatar} />
+                  </div>
                 </Card>
                 <Card title="Phòng win" className="card">
                   <div className="padding-20">
@@ -158,48 +238,13 @@ const ProductDetailScreen: React.FC = () => {
                 <Card className="card">
                   <Row className="card-container">
                     <Col className="left" span={24} md={6}>
-                      <List
-                        dataSource={data.variants}
-                        className="list__variants"
-                        header={
-                          <div className="header-tab">
-                            <div className="header-tab-left">
-                              <Checkbox>Chọn tất cả</Checkbox>
-                            </div>
-                            <div className="header-tab-right"></div>
-                          </div>
-                        }
-                        renderItem={(item, index) => {
-                          let avatar = Products.findAvatar(item.variant_images);
-                          return (
-                            <List.Item
-                              onClick={() => setActive(index)}
-                              className={classNames(
-                                index === active && "active"
-                              )}
-                            >
-                              <div className="line-item">
-                                <Checkbox />
-                                <div className="line-item-container">
-                                  <div className="avatar">
-                                    <img
-                                      alt=""
-                                      src={
-                                        avatar !== null
-                                          ? avatar.url
-                                          : variantdefault
-                                      }
-                                    />
-                                  </div>
-                                  <div>
-                                    <div>{item.sku}</div>
-                                    <div>{item.name}</div>
-                                  </div>
-                                </div>
-                              </div>
-                            </List.Item>
-                          );
-                        }}
+                      <VariantList
+                        onAllowSale={onAllowSale}
+                        onStopSale={onStopSale}
+                        value={data.variants}
+                        active={active}
+                        setActive={(active) => setActive(active)}
+                        loading={loadingVariant}
                       />
                     </Col>
                     <Col className="right" span={24} md={18}>
@@ -211,6 +256,7 @@ const ProductDetailScreen: React.FC = () => {
                             </div>
                             <div className="header-view-right">
                               <Switch
+                                onChange={onChangeChecked}
                                 className="ant-switch-success"
                                 checked={currentVariant.saleable}
                               />
@@ -288,8 +334,12 @@ const ProductDetailScreen: React.FC = () => {
                                             className="image-slider"
                                           >
                                             {currentVariant.variant_images.map(
-                                              (item) => (
-                                                <Image src={item.url} alt="" />
+                                              (item, index) => (
+                                                <Image
+                                                  key={index}
+                                                  src={item.url}
+                                                  alt=""
+                                                />
                                               )
                                             )}
                                           </Slider>
@@ -304,8 +354,12 @@ const ProductDetailScreen: React.FC = () => {
                                             className="image-thumbnail"
                                           >
                                             {currentVariant.variant_images.map(
-                                              (item) => (
-                                                <img src={item.url} alt="" />
+                                              (item, index) => (
+                                                <img
+                                                  key={index}
+                                                  src={item.url}
+                                                  alt=""
+                                                />
                                               )
                                             )}
                                           </Slider>
@@ -316,6 +370,18 @@ const ProductDetailScreen: React.FC = () => {
                                 </div>
                               </Col>
                             </Row>
+                            {loadingVariantUpdate && (
+                              <div className="loading-view">
+                                <Spin
+                                  indicator={
+                                    <Loading3QuartersOutlined
+                                      style={{ fontSize: 28 }}
+                                      spin
+                                    />
+                                  }
+                                />
+                              </div>
+                            )}
                           </div>
                         </React.Fragment>
                       )}

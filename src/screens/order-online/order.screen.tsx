@@ -112,7 +112,7 @@ export default function Order() {
   const queryParams = useQuery();
   const actionParam = queryParams.get("action") || null;
   const cloneIdParam = queryParams.get("cloneId") || null;
-  const onChangeInfoCustomer = (_objCustomer: CustomerResponse | null) => {
+  const handleCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
   const onChangeShippingAddress = (
@@ -150,7 +150,7 @@ export default function Order() {
     setStoreId(storeId);
   };
 
-  const changePaymentMethod = (value: number) => {
+  const handlePaymentMethod = (value: number) => {
     setPaymentMethod(value);
   };
 
@@ -464,6 +464,7 @@ export default function Order() {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
+            console.log("values", values);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
@@ -473,6 +474,7 @@ export default function Order() {
           ) {
             showError("Vui lòng chọn đơn vị vận chuyển");
           } else {
+            console.log("values", values);
             dispatch(orderCreateAction(values, createOrderCallback));
           }
         }
@@ -504,7 +506,7 @@ export default function Order() {
   const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
     setItems(cardItems);
   };
-  const renderOrder = () => {
+  const mainRender = () => {
     return (
       <ContentContainer
         title="Tạo mới đơn hàng"
@@ -559,10 +561,10 @@ export default function Order() {
               <Row gutter={20} style={{ marginBottom: "70px" }}>
                 <Col md={18}>
                   <CardCustomer
-                    InfoCustomerSet={onChangeInfoCustomer}
+                    handleCustomer={handleCustomer}
                     ShippingAddressChange={onChangeShippingAddress}
                     BillingAddressChange={onChangeBillingAddress}
-                    parentCustomerDetail={customer}
+                    customer={customer}
                   />
                   <CardProduct
                     changeInfo={onChangeInfoProduct}
@@ -608,7 +610,7 @@ export default function Order() {
                     isCloneOrder={isCloneOrder}
                   />
                   <CardPayment
-                    setSelectedPaymentMethod={changePaymentMethod}
+                    setSelectedPaymentMethod={handlePaymentMethod}
                     payments={payments}
                     setPayments={onPayments}
                     paymentMethod={paymentMethod}
@@ -684,7 +686,7 @@ export default function Order() {
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = () => {
       if (isCloneOrder && cloneIdParam) {
         dispatch(
           OrderDetailAction(+cloneIdParam, (response) => {
@@ -699,7 +701,6 @@ export default function Order() {
               );
             }
             if (response) {
-              // let responseItems: OrderLineItemRequest[] = [...response.items];
               let giftResponse = response.items.filter((item) => {
                 return item.type === Type.GIFT;
               });
@@ -756,11 +757,19 @@ export default function Order() {
                 }
                 if (response.payments && response.payments?.length > 0) {
                   new_payments = response.payments;
-                  setPaymentMethod(2);
+
                   setPayments(new_payments);
+                  switch (response.payments) {
+                    // case PaymentMethodOption.POSTPAYMENT:
+                    //   setPaymentMethod(PaymentMethodOption.POSTPAYMENT);
+                    //   break;
+
+                    default:
+                      setPaymentMethod(2);
+                      break;
+                  }
                 }
               }
-              console.log("responseItems", responseItems);
               setItems(responseItems);
               setOrderAmount(response.total);
               setInitialForm({
@@ -835,5 +844,5 @@ export default function Order() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cloneIdParam, dispatch, isCloneOrder]);
 
-  return <React.Fragment>{renderOrder()}</React.Fragment>;
+  return <React.Fragment>{mainRender()}</React.Fragment>;
 }

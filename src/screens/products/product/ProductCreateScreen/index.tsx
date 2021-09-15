@@ -16,6 +16,7 @@ import {
   Space,
   Switch,
   Table,
+  Image 
 } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
@@ -67,7 +68,10 @@ import {
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import ImageProduct from "../component/image-product.component";
-import UploadImageModal, { VariantImageModel } from "../component/upload-image.modal";
+import ModalPickAvatar from "../component/ModalPickAvatar";
+import UploadImageModal, {
+  VariantImageModel,
+} from "../component/upload-image.modal";
 import { StyledComponent } from "./styles";
 
 const { Item, List } = Form;
@@ -175,9 +179,6 @@ const ProductCreateScreen: React.FC = () => {
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
   const [listSize, setListSize] = useState<Array<SizeResponse>>([]);
   const [listColor, setListColor] = useState<Array<ColorResponse>>([]);
-  const [listSizeByCategory, setListSizeByCategory] = useState<
-    Array<SizeResponse>
-  >([]);
   const [variants, setVariants] = useState<Array<VariantRequestView>>([]);
   const [colorSelected, setColorSelected] = useState<Array<ColorResponse>>([]);
   const [sizeSelected, setSizeSelected] = useState<Array<SizeResponse>>([]);
@@ -187,6 +188,7 @@ const ProductCreateScreen: React.FC = () => {
   });
   const [status, setStatus] = useState<string>(initialRequest.status);
   const [isVisibleUpload, setVisibleUpload] = useState<boolean>(false);
+  const [visiblePickAvatar, setVisiblePickAvatar] = useState<boolean>(false);
   const [variant, setVariant] = useState<VariantImageModel | null>(null);
   //end category
   //end state
@@ -218,16 +220,8 @@ const ProductCreateScreen: React.FC = () => {
           code: listCategory[categoryIndex].code,
         });
       }
-
-      form.setFieldsValue({
-        size: [],
-      });
-      let listSizeFilter = listSize.filter(
-        (item) => item.categories.findIndex((c) => c.category_id === value) > -1
-      );
-      setListSizeByCategory(listSizeFilter);
     },
-    [form, listCategory, listSize]
+    [form, listCategory]
   );
 
   const listVariantsFilter = useCallback(
@@ -273,7 +267,7 @@ const ProductCreateScreen: React.FC = () => {
               color: i1.name,
               size_id: null,
               size: null,
-              sku: `${code}-${i1.name}`,
+              sku: `${code}-${i1.code}`,
               variant_images: [],
               quantity: 0,
             });
@@ -333,6 +327,14 @@ const ProductCreateScreen: React.FC = () => {
     }
     return "";
   }, [productStatusList, status]);
+
+  const variantImages = useMemo(() => {
+    let arr: Array<VariantImage> = [];
+    variants.forEach((item) => {
+      arr = [...arr, ...item.variant_images];
+    });
+    return arr;
+  }, [variants]);
 
   const createCallback = useCallback(
     (result: ProductResponse) => {
@@ -440,6 +442,37 @@ const ProductCreateScreen: React.FC = () => {
     [variants]
   );
 
+  const onPickAvatar = useCallback(() => {
+    setVisiblePickAvatar(true);
+  }, []);
+
+  const productAvatar = useMemo(() => {
+    let avatar = null;
+    variants.forEach((variant) => {
+      variant.variant_images.forEach((variantImage) => {
+        if (variantImage.product_avatar) {
+          avatar = variantImage.url;
+        }
+      });
+    });
+    return avatar;
+  }, [variants]);
+
+  const onSaveImage = useCallback(
+    (imageId: number) => {
+      variants.forEach((item) => {
+        item.variant_images.forEach((item1) => {
+          if (item1.image_id === imageId) {
+            item1.product_avatar = true;
+          }
+        });
+      });
+      setVariants([...variants]);
+      setVisiblePickAvatar(false);
+    },
+    [variants]
+  );
+
   useEffect(() => {
     if (!isLoadMaterData.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
@@ -510,12 +543,6 @@ const ProductCreateScreen: React.FC = () => {
                       >
                         {statusValue}
                       </label>
-                    </div>
-                    <div className="extra-cards">
-                      <b>Cho phép bán:</b>
-                      <Item valuePropName="checked" name="saleable" noStyle>
-                        <Switch className="ant-switch-success" />
-                      </Item>
                     </div>
                   </Space>
                 }
@@ -859,10 +886,16 @@ const ProductCreateScreen: React.FC = () => {
               <Card className="card" title="Ảnh">
                 <div className="padding-20">
                   <div className="a-container">
-                    <div className="bpa">
-                      <PlusOutlined />
-                      Chọn ảnh đại diện
-                    </div>
+                    {productAvatar === null ? (
+                      <div className="bpa" onClick={onPickAvatar}>
+                        <PlusOutlined />
+                        Chọn ảnh đại diện
+                      </div>
+                    ) : (
+                      <div className="bpa" onClick={onPickAvatar}>
+                        <Image src={productAvatar} />
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -1107,7 +1140,18 @@ const ProductCreateScreen: React.FC = () => {
           </Row>
           <Row gutter={24}>
             <Col span={24}>
-              <Card className="card" title="Tạo phiên bản sản phẩm">
+              <Card
+                className="card"
+                title="Tạo phiên bản sản phẩm"
+                extra={
+                  <div className="extra-cards">
+                    <b>Cho phép bán:</b>
+                    <Item valuePropName="checked" name="saleable" noStyle>
+                      <Switch className="ant-switch-success" />
+                    </Item>
+                  </div>
+                }
+              >
                 <div className="padding-20">
                   <Row gutter={50}>
                     <Col span={24} md={12} sm={24}>
@@ -1153,7 +1197,7 @@ const ProductCreateScreen: React.FC = () => {
                             />
                           }
                         >
-                          {listSizeByCategory?.map((item) => (
+                          {listSize?.map((item) => (
                             <CustomSelect.Option
                               key={item.code}
                               value={item.id}
@@ -1249,6 +1293,12 @@ const ProductCreateScreen: React.FC = () => {
             }
           />
           <ModalConfirm {...modalConfirm} />
+          <ModalPickAvatar
+            onOk={onSaveImage}
+            onCancel={() => setVisiblePickAvatar(false)}
+            variantImages={variantImages}
+            visible={visiblePickAvatar}
+          />
           <UploadImageModal
             onCancel={() => {
               setVisibleUpload(false);

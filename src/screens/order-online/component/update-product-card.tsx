@@ -63,7 +63,9 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             </div>
           </div>
           {props.OrderDetail?.items
-            .filter((item) => item.position === l.position && item.type === Type.GIFT)
+            .filter(
+              (item) => item.position === l.position && item.type === Type.GIFT
+            )
             .map((gift) => (
               <div key={gift.sku} className="yody-pos-addition yody-pos-gift">
                 <i>
@@ -212,7 +214,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             dataSource={props.OrderDetail?.items.filter(
               (item) => item.type === Type.NORMAL
             )}
-            className="sale-product-box-table w-100"
+            className="sale-product-box-table2 w-100"
             tableLayout="fixed"
             pagination={false}
             footer={() =>

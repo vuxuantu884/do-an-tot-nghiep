@@ -25,67 +25,40 @@ export const StyledComponent = styled.div`
         }
       }
     }
+    &-image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      img {
+        height: 200px;
+      }
+    }
+    .loading-view {
+      position: absolute;
+      display: flex;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
   }
   .label-switch {
     margin-left: 10px;
   }
   .data-content {
     color: #222222;
-    height: 200px;
+    height: 185px;
     overflow: auto;
     padding: 10px 5px;
     border: 1px solid #d9d9d9;
   }
-  .list__variants {
-    .ant-list-items {
-      height: 450px;
-      overflow: auto;
-      .ant-list-item {
-        height: 55px;
-        border: none;
-        padding-left: 10px;
-        padding-right: 10px;
-        &.active,
-        &:hover {
-          background: #f3f3ff;
-          cursor: pointer;
-        }
-        .line-item {
-          align-items: center;
-          display: flex;
-          flex-direction: row;
-          &-container {
-            margin-left: 10px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            .avatar {
-              width: 40px;
-              height: 45px;
-              display: flex;
-              margin-right: 10px;
-              border-radius: 3px;
-              img {
-                width: 100%;
-                height: auto;
-                object-fit: cover;
-                border-radius: 3px;
-              }
-            }
-          }
-        }
-      }
-    }
-    .ant-list-header {
-      border: none;
-      padding-top: 16px;
-      padding-bottom: 16px;
-    }
-
-    .header-tab {
-      padding-left: 10px;
-      padding-right: 10px;
-    }
+  .data-empty {
+    color: red;
+    height: 185px;
   }
   .view-right {
     display: flex;
@@ -106,7 +79,7 @@ export const StyledComponent = styled.div`
       img {
         width: 163px !important;
         height: 253.5;
-        align-items: center
+        align-items: center;
       }
     }
     .image-thumbnail {

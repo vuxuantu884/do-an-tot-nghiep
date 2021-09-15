@@ -32,7 +32,7 @@ function OrderSettings(props: PropType) {
 
   const [isTableLoading, setIsTableLoading] = useState(true);
   const [
-    IsAllowToSellWhenNotAvailableStock,
+    isAllowToSellWhenNotAvailableStock,
     setIsAllowToSellWhenNotAvailableStock,
   ] = useState(false);
 
@@ -248,7 +248,7 @@ function OrderSettings(props: PropType) {
           Cho phép bán khi tồn kho
           {isLoadedAllowToSellWhenNotAvailableStock && (
             <Switch
-              defaultChecked={IsAllowToSellWhenNotAvailableStock}
+              defaultChecked={isAllowToSellWhenNotAvailableStock}
               onChange={onChange}
               className="ant-switch-primary"
               style={{ marginLeft: 20 }}

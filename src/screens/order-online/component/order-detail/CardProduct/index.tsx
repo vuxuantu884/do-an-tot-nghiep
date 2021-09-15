@@ -998,7 +998,7 @@ const CardProduct: React.FC<CardProductProps> = (props: CardProductProps) => {
         rowKey={(record) => record.id}
         columns={columns}
         dataSource={items}
-        className="sale-product-box-table w-100"
+        className="sale-product-box-table2 w-100"
         tableLayout="fixed"
         pagination={false}
         scroll={{ y: 300 }}

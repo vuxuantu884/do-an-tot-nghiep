@@ -488,6 +488,7 @@ const CustomerAdd = (props: any) => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
+            rowKey={(data) => data.id}
           />
         </Card>
         <div className="customer-bottom-button">

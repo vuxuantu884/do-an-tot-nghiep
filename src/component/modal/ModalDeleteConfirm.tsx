@@ -1,6 +1,6 @@
+import { DeleteOutlined } from "@ant-design/icons";
 import { Modal } from "antd";
 import React from "react";
-import { RiDeleteBin5Line } from "react-icons/ri";
 
 type ModalDeleteConfirmProps = {
   visible?: boolean;
@@ -33,12 +33,12 @@ const ModalDeleteConfirm: React.FC<ModalDeleteConfirmProps> = (
             style={{ color: "#FFFFFF", background: "#EB5757" }}
             className="modal-confirm-icon"
           >
-            <RiDeleteBin5Line />
+            <DeleteOutlined />
           </div>
         </div>
         <div className="modal-confirm-right margin-left-20">
           <div className="modal-confirm-title">{title}</div>
-          <i className="modal-confirm-sub-title">{subTitle}</i>
+          <div className="modal-confirm-sub-title">{subTitle}</div>
         </div>
       </div>
     </Modal>

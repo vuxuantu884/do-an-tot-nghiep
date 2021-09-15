@@ -106,7 +106,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
     fulfillments,
     isCloneOrder,
   } = props;
-  console.log("props", props);
   const dispatch = useDispatch();
   const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
@@ -291,7 +290,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
       coupon: null,
       cod: amount,
     };
-    console.log("customerInfo", customerInfo);
     console.log("request", request);
 
     if (
