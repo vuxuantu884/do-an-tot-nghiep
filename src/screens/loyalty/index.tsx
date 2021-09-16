@@ -223,7 +223,7 @@ const LoyaltyPage = () => {
 
   const handleChangePointUse = (v: number | null, index: number) => {
     let _rules = [...rules]
-    _rules[index].limit_order_percent = v === null ? 0 : Number(v)
+    _rules[index].limit_order_percent = v === null ? null : Number(v)
     setRules(_rules)
   }
 
