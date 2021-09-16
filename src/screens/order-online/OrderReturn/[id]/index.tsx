@@ -8,7 +8,6 @@ import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
-  OrderLineItemResponse,
   OrderResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";

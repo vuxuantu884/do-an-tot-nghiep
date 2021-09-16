@@ -20,7 +20,7 @@ import {
   OrderLineItemResponse,
   ReturnProductModel,
 } from "model/response/order/order.response";
-import React, { createRef, useEffect, useMemo, useState } from "react";
+import React, { createRef, useMemo, useState } from "react";
 import { formatCurrency, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
