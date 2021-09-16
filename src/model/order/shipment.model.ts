@@ -56,6 +56,7 @@ export interface ShipmentSearchQuery {
   search_term: string|null;
   status: [];
   stock_location_ids: [];
+  shipper_ids: [];
   delivery_provider_ids: [];
   delivery_types: [];
   reference_status: [];

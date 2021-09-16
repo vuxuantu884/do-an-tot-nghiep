@@ -52,6 +52,7 @@ const initQuery: ShipmentSearchQuery = {
   stock_location_ids: [],
   delivery_provider_ids: [],
   delivery_types: [],
+  shipper_ids: [],
   reference_status: [],
   packed_on_min: null,
   packed_on_max: null,
