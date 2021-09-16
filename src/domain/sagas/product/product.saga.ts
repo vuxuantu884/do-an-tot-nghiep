@@ -1,4 +1,4 @@
-import { productDetailApi, productUpdateApi } from 'service/product/product.service';
+import { productDetailApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi } from 'service/product/product.service';
 import {
   ProductHistoryResponse,
   ProductResponse,
@@ -68,6 +68,55 @@ function* searchProductWrapperSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* productWrapperDeleteSaga(action: YodyAction) {
+  const {id, onDeleteSuccess} = action.payload;
+  try {
+    let response: BaseResponse<string> = yield call(productWrapperDeleteApi, id);
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onDeleteSuccess();
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError('Có lỗi vui lòng thử lại sau');
+  }
+}
+
+function* productWrapperUpdateSaga(action: YodyAction) {
+  const { id, request, onUpdateSuccess } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
+      productWrapperPutApi,
+      id,
+      request
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onUpdateSuccess(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onUpdateSuccess(null);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onUpdateSuccess(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onUpdateSuccess(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -277,6 +326,12 @@ export function* productSaga() {
   yield takeLatest(
     ProductType.SEARCH_PRODUCT_WRAPPER_REQUEST,
     searchProductWrapperSaga);
+  yield takeLatest(
+    ProductType.DELETE_PRODUCT_WRAPPER_REQUEST,
+    productWrapperDeleteSaga);
+  yield takeLatest(
+    ProductType.UPDATE_PRODUCT_WRAPPER_REQUEST,
+    productWrapperUpdateSaga);
   yield takeLatest(
     ProductType.SEARCH_PRODUCT_FOR_ORDER_REQUEST,
     searchVariantOrderSaga

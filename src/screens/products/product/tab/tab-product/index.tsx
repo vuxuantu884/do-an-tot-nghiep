@@ -137,7 +137,7 @@ const TabProduct: React.FC = () => {
       title: "Mã sản phẩm",
       dataIndex: "sku",
       render: (value: string, i: VariantResponse) => (
-        <Link to={`${UrlConfig.VARIANTS}/${i.id}`}>{value}</Link>
+        <Link to={`${UrlConfig.PRODUCT}/${i.product_id}?variant_id=${i.id}`}>{value}</Link>
       ),
       visible: true,
     },

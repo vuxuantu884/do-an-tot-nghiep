@@ -12,7 +12,7 @@ import { LoyaltyRankResponse } from 'model/response/loyalty/ranking/loyalty-rank
 import { formatCurrency, replaceFormatString } from 'utils/AppUtils';
 import NumberInput from 'component/custom/number-input.custom';
 import { showError, showSuccess } from 'utils/ToastUtils';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 
 const { Item } = Form;
 const { Option } = Select;
@@ -21,6 +21,7 @@ const CreateCustomerRanking = () => {
   const formRef = createRef<FormInstance>();
   const dispatch = useDispatch()
   const params = useParams() as any;
+  const history = useHistory();
 
   const initFormValues = useMemo(() => {
     return {
@@ -54,7 +55,8 @@ const CreateCustomerRanking = () => {
   const onCreateCallback = useCallback((data: LoyaltyRankResponse) => {
     formRef.current?.resetFields();
     showSuccess('Thành công')
-  }, [formRef])
+    history.push(`${UrlConfig.CUSTOMER}/rankings`)
+  }, [formRef, history])
 
   const onFinish = useCallback((values) => {
     if (!values.accumulated_from) {

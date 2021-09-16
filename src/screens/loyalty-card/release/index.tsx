@@ -44,7 +44,7 @@ const LoyaltyCardRelease = () => {
     },
     {
       title: "Người tạo",
-      dataIndex: "created_name",
+      dataIndex: "created_by",
       visible: true,
       fixed: "left"
     },

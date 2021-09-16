@@ -12,7 +12,7 @@ import React, { useState, useCallback, useMemo, useEffect, createRef } from 'rea
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import './loyalty-accumulate.scss'
-import { DATE_FORMAT } from 'utils/DateUtils';
+import { ConvertDateToUtc, DATE_FORMAT } from 'utils/DateUtils';
 import { ChannelResponse } from 'model/response/product/channel.response';
 import { getListChannelRequest } from 'domain/actions/order/order.action';
 import { CustomerGroups, CustomerTypes } from 'domain/actions/customer/customer.action';
@@ -28,7 +28,7 @@ import { LoyaltyRankResponse } from 'model/response/loyalty/ranking/loyalty-rank
 import { LoyaltyRankSearch } from 'domain/actions/loyalty/rank/loyalty-rank.action';
 import { createLoyaltyAccumulationProgram, getLoyaltyAccumulationProgram, updateLoyaltyAccumulationProgram } from 'domain/actions/loyalty/loyalty.action';
 import { LoyaltyAccumulationProgramResponse } from 'model/response/loyalty/loyalty-accumulation.response';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import BaseResponse from 'base/base.response';
 import { LoyaltyProgramRuleItem, LoyaltyProgramRuleProductItem } from 'model/request/loyalty/create-loyalty-accumulation.request';
 import { PlusOutlined } from '@ant-design/icons';
@@ -37,7 +37,7 @@ import CurrencyInput from '../component/currency-input';
 class Rule {
   id: number | null = null
   order_amount_min: number = 0
-  order_amount_max: number = 0
+  order_amount_max: number | null = null
   customer_group_id: number | null = null
   customer_ranking_id: number | null = null
   customer_type_id: number | null = null
@@ -90,6 +90,8 @@ const LoyaltyPointAccumulate = () => {
   const [sources, setSources] = useState<LoyaltyProgramRuleItem[]>([])
   const [channels, setChannels] = useState<LoyaltyProgramRuleItem[]>([])
   const [products, setProducts] = useState<LoyaltyProgramRuleProductItem[]>([])
+  const [loadingProduct, setLoadingProduct] = useState<boolean>(false)
+  const history = useHistory();
 
   const rankFiltered = useMemo(() => {
     return listRanking.filter(rank => rank.status === 'ACTIVE')
@@ -120,7 +122,7 @@ const LoyaltyPointAccumulate = () => {
           <NumberInput
             format={(a: string) => formatCurrency(a)}
             replace={(a: string) => replaceFormatString(a)}
-            value={rule.order_amount_max}
+            value={rule.order_amount_max || undefined}
             onChange={(value) => onChangeOrderAmountMax(value, index)}
           />
         )
@@ -234,12 +236,10 @@ const LoyaltyPointAccumulate = () => {
     setRules(_rules);
   }
 
-  const onChangeOrderAmountMax = (value: number | null, index: number) => {
+  const onChangeOrderAmountMax = (value: any, index: number) => {
     let _rules = [...rules];
 
-    _rules[index].order_amount_max = Number(
-      value == null ? "0" : value.toString()
-    );
+    _rules[index].order_amount_max = value == null ? null : Number(value.toString());
     setRules(_rules);
   }
 
@@ -315,16 +315,13 @@ const LoyaltyPointAccumulate = () => {
     }
     for (let i = 0; i < rules.length; i++) {
       const rule = rules[i]
-      if (rule.order_amount_min > rule.order_amount_max) {
+      if (rule.order_amount_max !== null && rule.order_amount_min > rule.order_amount_max) {
+        console.log(rule.order_amount_max)
         showError('Giá trị hóa đơn tối thiểu không được lớn hơn giá trị hóa đơn tối đa')
         return false
       }
       if (!rule.order_amount_min) {
         showError('Giá trị hóa đơn tối thiểu phải lớn hơn 0')
-        return false
-      }
-      if (!rule.order_amount_max) {
-        showError('Giá trị hóa đơn tối đa phải lớn hơn 0')
         return false
       }
       if (!rule.percent) {
@@ -402,18 +399,21 @@ const LoyaltyPointAccumulate = () => {
     setStores(loyaltyProgram.stores)
     setChannels(loyaltyProgram.channels)
     setProducts(loyaltyProgram.items)
-    setStartDate(moment(loyaltyProgram.start_time, DATE_FORMAT.DDMMYY_HHmm).toString())
-    setEndDate(moment(loyaltyProgram.end_time, DATE_FORMAT.DDMMYY_HHmm).toString())
+    setStartDate(moment(loyaltyProgram.start_time).toString())
+    setEndDate(loyaltyProgram.end_time ? moment(loyaltyProgram.end_time).toString() : undefined)
+    setStatusSwitch(loyaltyProgram.status === 'ACTIVE')
   }
 
   const afterSubmit = useCallback((data: BaseResponse<LoyaltyAccumulationProgramResponse>) => {
     if (data) {
       showSuccess(loyaltyProgram ? 'Cập nhật thành công chương trình tích điểm' : 'Tạo thành công chương trình tích điểm')
+      const redirectUrl = loyaltyProgram ? `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}/accumulation/${loyaltyProgram.id}` : `${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`
+      history.push(redirectUrl)
     }
-  }, [loyaltyProgram])
+  }, [loyaltyProgram, history])
 
   const onFinish = () => {
-    if (!programName || !startDate || !endDate) {
+    if (!programName || !startDate) {
       showError('Vui lòng điền đủ thông tin')
       return;
     }
@@ -434,8 +434,8 @@ const LoyaltyPointAccumulate = () => {
     })
     const params = {
       id: loyaltyProgram ? loyaltyProgram.id : null,
-      start_time: startDate ? moment(startDate).format(DATE_FORMAT.DDMMYY_HHmm) : null,
-      end_time: endDate ? moment(endDate).format(DATE_FORMAT.DDMMYY_HHmm) : null,
+      start_time: startDate ? ConvertDateToUtc(startDate) : null,
+      end_time: endDate ? ConvertDateToUtc(endDate) : null,
       status: statusSwitch ? 'ACTIVE' : 'INACTIVE',
       rules: rules,
       name: trimmedProgramName,
@@ -464,6 +464,7 @@ const LoyaltyPointAccumulate = () => {
       if (result) {
         setListProduct(result.items);
       }
+      setLoadingProduct(false)
     },
     []
   );
@@ -571,7 +572,7 @@ const LoyaltyPointAccumulate = () => {
               <Col span={10}>
                 <div className="rule">
                   <label>Tên chương trình tích điểm <span className="text-error">*</span></label>
-                  <Input placeholder="Tên chương trình" className="input-rule" value={programName} onChange={handleChangeProgramName}/>
+                  <Input placeholder="Tên chương trình" className="input-rule" value={programName} onChange={handleChangeProgramName} maxLength={255}/>
                 </div>
               </Col>
               <Col span={14}>
@@ -601,6 +602,7 @@ const LoyaltyPointAccumulate = () => {
                     maxTagCount="responsive"
                     showArrow
                     showSearch
+                    allowClear
                     placeholder="Chọn nguồn hàng"
                     notFoundContent="Không tìm thấy kết quả"
                     filterOption={(input, option) => {
@@ -639,6 +641,7 @@ const LoyaltyPointAccumulate = () => {
                     maxTagCount="responsive"
                     showArrow
                     showSearch
+                    allowClear
                     placeholder="Chọn cửa hàng"
                     notFoundContent="Không tìm thấy kết quả"
                     filterOption={(input, option) => {
@@ -679,6 +682,7 @@ const LoyaltyPointAccumulate = () => {
                     maxTagCount="responsive"
                     showArrow
                     showSearch
+                    allowClear
                     placeholder="Chọn kênh bán hàng"
                     notFoundContent="Không tìm thấy kết quả"
                     filterOption={(input, option) => {
@@ -728,10 +732,14 @@ const LoyaltyPointAccumulate = () => {
                       </Tag>
                     )}
                     options={transformProduct}
-                    onSearch={onSearchProduct}
+                    onSearch={(value: string) => {
+                      onSearchProduct(value)
+                      setLoadingProduct(true)
+                    }}
                     filterOption={false}
                     value={products.map(product => product.id)}
                     onChange={handleChangeProduct}
+                    loading={loadingProduct}
                   />
                 </div>
               </Col>
@@ -741,7 +749,7 @@ const LoyaltyPointAccumulate = () => {
             <Row>
               <Col span={10}>
                 <div className="rule">
-                  <label>Từ ngày: </label>
+                  <label>Từ ngày:  <span className="text-error">*</span></label>
                   <CustomDatePicker
                     value={startDate ? startDate : undefined}
                     className="datepicker"
@@ -811,12 +819,12 @@ const LoyaltyPointAccumulate = () => {
             }}
           >
             <Col span={6} className="back">
-              <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`}>
+              <div onClick={() => history.goBack()}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M13.3281 6.33203H3.04317L9.19903 0.988281C9.29746 0.902148 9.2377 0.742188 9.10762 0.742188H7.55196C7.4834 0.742188 7.41836 0.766797 7.36739 0.810742L0.724614 6.57461C0.663774 6.62735 0.614981 6.69255 0.58154 6.76579C0.548099 6.83903 0.530792 6.91861 0.530792 6.99912C0.530792 7.07964 0.548099 7.15921 0.58154 7.23245C0.614981 7.3057 0.663774 7.37089 0.724614 7.42363L7.40606 13.2227C7.43243 13.2455 7.46407 13.2578 7.49746 13.2578H9.10586C9.23594 13.2578 9.29571 13.0961 9.19727 13.0117L3.04317 7.66797H13.3281C13.4055 7.66797 13.4688 7.60469 13.4688 7.52734V6.47266C13.4688 6.39531 13.4055 6.33203 13.3281 6.33203Z" fill="#666666"/>
                 </svg>
                 <span>Quay lại</span>
-              </Link>
+              </div>
             </Col>
             <Col span={14} className="action-group">
               <Link to={`${UrlConfig.PROMOTION}${UrlConfig.LOYALTY}`}>

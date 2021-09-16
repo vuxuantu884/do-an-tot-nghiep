@@ -7,6 +7,7 @@ import {
   ProductHistoryQuery,
   ProductHistoryResponse,
   ProductRequest,
+  ProductWrapperUpdateRequest,
   ProductWrapperResponse,
   ProductWrapperSearchQuery,
   VariantResponse,
@@ -32,6 +33,17 @@ export const searchProductWrapperApi = (
 ): Promise<BaseResponse<PageResponse<ProductWrapperResponse>>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PRODUCT}/products?${queryString}`);
+};
+
+export const productWrapperDeleteApi = (id: number): Promise<BaseResponse<string>> => {
+  return BaseAxios.delete(`${ApiConfig.PRODUCT}/products/${id}`);
+}
+
+export const productWrapperPutApi = (
+  id: number,
+  request: ProductWrapperUpdateRequest
+): Promise<BaseResponse<ProductWrapperResponse>> => {
+  return BaseAxios.put(`${ApiConfig.PRODUCT}/products/${id}`, request);
 };
 
 export const productUploadApi = (
