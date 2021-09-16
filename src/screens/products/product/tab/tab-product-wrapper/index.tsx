@@ -6,7 +6,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig from "config/url.config";
 import { AccountGetListAction } from "domain/actions/account/account.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { categoryDeleteAction, getCategoryRequestAction } from "domain/actions/product/category.action";
+import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { materialSearchAll } from "domain/actions/product/material.action";
 import { productWrapperDeleteAction, productWrapperUpdateAction, searchProductWrapperRequestAction } from "domain/actions/product/products.action";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
@@ -276,32 +276,34 @@ const TabProductWrapper: React.FC = () => {
     dispatch(searchProductWrapperRequestAction(params, setSearchResult));
   }, [dispatch, setSearchResult, params]);
 
-  const onActive = (selected: ProductWrapperResponse) => {
-    const request = {
-      ...selected,
-      status: 'active',
-    };
-    
-    dispatch(productWrapperUpdateAction(selected.id, request , onUpdateSuccess));
-  }
-
-  const onInactive = (selected: ProductWrapperResponse) => {
-    const request = {
-      ...selected,
-      status: 'inactive',
-    };
-    
-    dispatch(productWrapperUpdateAction(selected.id, request , onUpdateSuccess));
-  }
-
-  const onUpdateSuccess = (result: ProductWrapperUpdateRequest) => {
+  const onUpdateSuccess = useCallback((result: ProductWrapperUpdateRequest) => {
     if (result) {
       dispatch(searchProductWrapperRequestAction(params, setSearchResult));
       showSuccess("Cập nhật dữ liệu thành công");
     } else {
       showWarning("Cập nhật dữ liệu thất bại");
     }
-  }
+  }, [dispatch, params, setSearchResult]);
+
+  const onActive = useCallback((selected: ProductWrapperResponse) => {
+    const request = {
+      ...selected,
+      status: 'active',
+    };
+    
+    dispatch(productWrapperUpdateAction(selected.id, request , onUpdateSuccess));
+  }, [dispatch, onUpdateSuccess]);
+
+  const onInactive = useCallback((selected: ProductWrapperResponse) => {
+    const request = {
+      ...selected,
+      status: 'inactive',
+    };
+    
+    dispatch(productWrapperUpdateAction(selected.id, request , onUpdateSuccess));
+  }, [dispatch, onUpdateSuccess]);
+
+
 
   const onMenuClick = useCallback((index: number) => {
     
@@ -323,7 +325,7 @@ const TabProductWrapper: React.FC = () => {
           break;
       }
     }
-  }, [selected]);
+  }, [onActive, onInactive, selected]);
 
   const onSelect = useCallback((selectedRow: Array<ProductWrapperResponse>) => {
     setSelected(
