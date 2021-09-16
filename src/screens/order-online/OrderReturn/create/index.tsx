@@ -44,6 +44,7 @@ const ScreenReturnDetail = (props: PropType) => {
   const [isCanReturn, setIsCanReturn] = useState<boolean>(false);
   const [isCanSubmit, setIsCanSubmit] = useState<boolean>(false);
   const [isExchange, setIsExchange] = useState<boolean>(false);
+  const [isStepExchange, setIsStepExchange] = useState<boolean>(false);
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
@@ -95,7 +96,16 @@ const ScreenReturnDetail = (props: PropType) => {
       if (returnFulfillment) {
         setIsCanReturn(true);
       }
+      let returnProduct: ReturnProductModel[] = _data.items.map((single) => {
+        return {
+          ...single,
+          maxQuantity: single.quantity,
+          quantity: 0,
+        };
+      });
+      setListReturnProducts(returnProduct);
       setListOrderProducts(_data.items);
+
       setAmountReturn(0);
     }
   }, []);
@@ -114,6 +124,10 @@ const ScreenReturnDetail = (props: PropType) => {
 
   const handleIsExchange = (isExchange: boolean) => {
     setIsExchange(isExchange);
+  };
+
+  const handleIsStepExchange = (isExchange: boolean) => {
+    setIsStepExchange(isExchange);
   };
 
   const handleListExchangeProducts = (
@@ -229,13 +243,13 @@ const ScreenReturnDetail = (props: PropType) => {
               <CardReturnProducts
                 listReturnProducts={listReturnProducts}
                 handleReturnProducts={(
-                  listReturnProducts: OrderLineItemResponse[]
+                  listReturnProducts: ReturnProductModel[]
                 ) => setListReturnProducts(listReturnProducts)}
                 listOrderProducts={listOrderProducts}
                 handleIsCanSubmit={handleIsCanSubmit}
                 isDetailPage={false}
               />
-              {isExchange && (
+              {isExchange && isStepExchange && (
                 <CardExchangeProducts
                   items={listExchangeProducts}
                   handleCardItems={handleListExchangeProducts}
@@ -397,6 +411,8 @@ const ScreenReturnDetail = (props: PropType) => {
           onCancel={() => handleCancel()}
           isCanSubmit={isCanSubmit}
           isExchange={isExchange}
+          isStepExchange={isStepExchange}
+          handleIsStepExchange={handleIsStepExchange}
         />
       </React.Fragment>
     );

@@ -27,7 +27,7 @@ import { StyledComponent } from "./styles";
 type PropType = {
   listOrderProducts?: OrderLineItemResponse[];
   listReturnProducts: ReturnProductModel[];
-  handleReturnProducts: (listReturnProducts: OrderLineItemResponse[]) => void;
+  handleReturnProducts: (listReturnProducts: ReturnProductModel[]) => void;
   handleIsCanSubmit?: (value: boolean) => void;
   isDetailPage?: boolean;
 };
@@ -40,11 +40,9 @@ function CardReturnProducts(props: PropType) {
     handleIsCanSubmit,
     isDetailPage,
   } = props;
-
-  const [memoryListReturnProducts, setMemoryListReturnProducts] = useState<
-    OrderLineItemResponse[]
-  >([]);
+  console.log("listReturnProducts", listReturnProducts);
   const [searchVariantInputValue, setSearchVariantInputValue] = useState("");
+  const [isCheckReturnAll, setIsCheckReturnAll] = useState(false);
   const autoCompleteRef = createRef<RefSelectProps>();
 
   const onSelectSearchedVariant = (value: string) => {
@@ -62,20 +60,21 @@ function CardReturnProducts(props: PropType) {
     let indexSelectedVariant = listReturnProducts.findIndex((single) => {
       return single.id === selectedVariantWithMaxQuantity.id;
     });
-    let resultListReturnProducts = [...listReturnProducts];
-    console.log("indexSelectedVariant", indexSelectedVariant);
+    let result = [...listReturnProducts];
     if (indexSelectedVariant === -1) {
       selectedVariantWithMaxQuantity.quantity = 1;
-      resultListReturnProducts = [
-        selectedVariantWithMaxQuantity,
-        ...listReturnProducts,
-      ];
+      result = [selectedVariantWithMaxQuantity, ...listReturnProducts];
     } else {
-      resultListReturnProducts[indexSelectedVariant].quantity += 1;
+      let selectedVariant = result[indexSelectedVariant];
+      if (
+        selectedVariant.maxQuantity &&
+        selectedVariant.quantity < selectedVariant.maxQuantity
+      ) {
+        selectedVariant.quantity += 1;
+      }
     }
-    console.log("resultListReturnProducts", resultListReturnProducts);
-    setMemoryListReturnProducts(resultListReturnProducts);
-    handleReturnProducts(resultListReturnProducts);
+
+    handleReturnProducts(result);
     if (handleIsCanSubmit) {
       handleIsCanSubmit(true);
     }
@@ -86,10 +85,24 @@ function CardReturnProducts(props: PropType) {
       return;
     }
     if (e.target.checked) {
-      handleReturnProducts(listOrderProducts);
+      const result: ReturnProductModel[] = listOrderProducts.map((single) => {
+        return {
+          ...single,
+          maxQuantity: single.quantity,
+        };
+      });
+      handleReturnProducts(result);
     } else {
-      handleReturnProducts(memoryListReturnProducts);
+      const result: ReturnProductModel[] = listOrderProducts.map((single) => {
+        return {
+          ...single,
+          quantity: 0,
+          maxQuantity: single.quantity,
+        };
+      });
+      handleReturnProducts(result);
     }
+    setIsCheckReturnAll(e.target.checked);
   };
 
   const renderSearchVariant = (item: OrderLineItemResponse) => {
@@ -150,19 +163,12 @@ function CardReturnProducts(props: PropType) {
   }, [listOrderProducts]);
 
   const renderCardExtra = () => {
-    const checkIfReturnAll = () => {
-      if (!isDetailPage) {
-        return false;
-      }
-      let result = true;
-      return result;
-    };
     return (
       <React.Fragment>
         <Checkbox
           style={{ marginLeft: 20 }}
           onChange={handleChangeReturnAll}
-          defaultChecked={checkIfReturnAll()}
+          checked={isCheckReturnAll}
         >
           Trả toàn bộ sản phẩm
         </Checkbox>
@@ -180,6 +186,17 @@ function CardReturnProducts(props: PropType) {
       value == null ? "0" : value.toString().replace(".", "")
     );
     handleReturnProducts(resultListReturnProducts);
+    if (
+      resultListReturnProducts.some((single) => {
+        return single.maxQuantity && single.quantity < single.maxQuantity;
+      })
+    ) {
+      console.log("2");
+      setIsCheckReturnAll(false);
+    } else {
+      console.log("3");
+      setIsCheckReturnAll(true);
+    }
   };
 
   const getTotalPrice = (listReturnProducts: ReturnProductModel[]) => {
@@ -202,26 +219,22 @@ function CardReturnProducts(props: PropType) {
       title: () => (
         <div className="text-center">
           <div style={{ textAlign: "center" }}>Số lượng trả</div>
-          {listReturnProducts && getTotalQuantity(listReturnProducts) > 0 && (
-            <span style={{ color: "#2A2A86" }}>
-              ({getTotalQuantity(listReturnProducts)})
-            </span>
-          )}
         </div>
       ),
       className: "columnQuantity",
       width: "40%",
       render: (value, record: ReturnProductModel, index: number) => {
+        console.log("record", record);
         if (isDetailPage) {
           return record.quantity;
         }
         return (
           <div>
             <InputNumber
-              min={1}
+              min={0}
               max={record.maxQuantity}
               value={record.quantity}
-              defaultValue={1}
+              defaultValue={0}
               onChange={(value: number) =>
                 onChangeProductQuantity(value, index)
               }
@@ -344,6 +357,16 @@ function CardReturnProducts(props: PropType) {
         <Row className="boxPayment" gutter={24}>
           <Col xs={24} lg={11}></Col>
           <Col xs={24} lg={10}>
+            <Row className="payment-row" justify="space-between">
+              <strong className="font-size-text">Số lượng trả:</strong>
+              <strong className="text-success font-size-price">
+                {listReturnProducts && (
+                  <span style={{ color: "#2A2A86" }}>
+                    {getTotalQuantity(listReturnProducts)}
+                  </span>
+                )}
+              </strong>
+            </Row>
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text">Cần trả khách:</strong>
               <strong className="text-success font-size-price">
