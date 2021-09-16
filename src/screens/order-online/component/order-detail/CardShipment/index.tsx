@@ -362,7 +362,6 @@ const CardShipment: React.FC<CardShipmentProps> = (
   ];
 
   useEffect(() => {
-    console.log("isCloneOrder", isCloneOrder);
     if (isCloneOrder) {
       getInfoDeliveryGHTK();
       getInfoDeliveryGHN();
