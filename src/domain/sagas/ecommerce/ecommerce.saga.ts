@@ -18,6 +18,30 @@ import {
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 
+// connect to the eccommerce
+function* ecommerceConnectSaga(action: YodyAction) {
+  let { setData } = action.payload;
+  try {
+    const response: BaseResponse<PageResponse<HistoryInventoryResponse>> =
+      yield call(ecommerceGetApi);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    setData(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 function* ecommerceCreateSaga(action: YodyAction) {
   let { request, setData } = action.payload;
   try {
@@ -134,6 +158,10 @@ function* ecommerceDeleteSaga(action: YodyAction) {
 }
 
 export function* ecommerceSaga() {
+  yield takeLatest(
+    EcommerceType.CONNECT_ECOMMERCE_CONFIG_REQUEST,
+    ecommerceConnectSaga
+  );
   yield takeLatest(
     EcommerceType.CREATE_ECOMMERCE_CONFIG_REQUEST,
     ecommerceCreateSaga

@@ -4,6 +4,7 @@ import { EcommerceType } from "domain/types/ecommerce.type";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import { TotalItemsEcommerceQuery } from "model/query/ecommerce.query";
 
+// config
 export const ecommerceConfigCreateAction = (
   request: EcommerceRequest,
   setData: (data: Array<EcommerceResponse>) => void
@@ -51,6 +52,17 @@ export const ecommerceConfigDeleteAction = (
     deleteCallback,
   });
 };
+// ecommerce connect
+
+export const ecommerceConnectAction = (
+  setData: (data: EcommerceRequest) => void
+) => {
+  return BaseAction(EcommerceType.CONNECT_ECOMMERCE_CONFIG_REQUEST, {
+    setData,
+  });
+};
+
+
 
 export const TotalItemsEcommerceList = (query: TotalItemsEcommerceQuery, setData: (data: any) => void) => {
   //thai need todo

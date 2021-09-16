@@ -6,6 +6,11 @@ interface BaseObject {
     request_id: string | null;
     operator_kc_id: string | null;
   }
+
+  export interface EcommerceSearchQuery {
+    shopee_name: string | null;
+    code: string | null;
+  }
   export interface EcommerceShopInventoryDto {
     store: String; //
     store_id: Number;
@@ -22,4 +27,8 @@ interface BaseObject {
     order_sync: boolean;
     product_sync: String;
     inventories: Array<EcommerceShopInventoryDto>;
+  }
+
+  export interface EcommerceConnectRequest {
+
   }

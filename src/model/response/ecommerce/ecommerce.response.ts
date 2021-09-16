@@ -22,6 +22,9 @@ export interface EcommerceResponse extends BaseObject {
   inventories: Array<EcommerceShopInventoryDto>; // danh sách kho
 }
 
+export interface EcommerceConnectResponse {
+  
+}
 //thai need todo
 export interface TotalItemsEcommerceResponse extends BaseObject {
   name: String; // tên gian hàng
@@ -39,3 +42,4 @@ export interface TotalItemsEcommerceResponse extends BaseObject {
   expire_time: String; // thời gian hết hạn
   inventories: Array<EcommerceShopInventoryDto>; // danh sách kho
 }
+

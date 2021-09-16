@@ -4,6 +4,7 @@ import { ApiConfig } from "config/api.config";
 import { EcommerceRequest } from "model/request/ecommerce.request";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 
+// config sync and setting screen
 const ecommerceCreateApi = (
   EcommerceConfig: EcommerceRequest
 ): Promise<BaseResponse<EcommerceResponse>> => {
@@ -38,11 +39,17 @@ const ecommerceDeleteApi = (
   let link = `${ApiConfig.ECOMMERCE}/shops/${id}`;
   return BaseAxios.delete(link);
 };
-
+// end
+// config sync connect screen
+const ecommerceConnectSyncApi = (): Promise<BaseResponse<String>> => {
+  let link = `${ApiConfig.ECOMMERCE}/shops/connect`;
+  return BaseAxios.get(link);
+};
 export {
   ecommerceCreateApi,
   ecommerceGetApi,
   ecommerceGetByIdApi,
   ecommerceUpdateApi,
   ecommerceDeleteApi,
+  ecommerceConnectSyncApi
 };
