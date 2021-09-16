@@ -20,7 +20,7 @@ import CustomFilter from "component/table/custom.filter";
 import { SettingOutlined } from "@ant-design/icons";
 import BaseFilter from "../base.filter";
 import moment from "moment";
-import { PWFormFilter } from "./styled";
+import { ProductWrapperStyled, PWFormFilter } from "./styled";
 import { MaterialResponse } from "model/product/material.model";
 import { CategoryView } from "model/product/category.model";
 
@@ -36,6 +36,7 @@ type ProductFilterProps = {
   onMenuClick?: (index: number) => void;
   onFilter?: (values: ProductWrapperSearchQuery) => void;
   onClearFilter?: () => void;
+  initValue?: ProductWrapperSearchQuery;
 };
 
 const { Item } = Form;
@@ -51,8 +52,8 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
     listMaterial,
     listCategory,
     goods,
+    initValue,
     onMenuClick,
-    onClearFilter,
     onFilter,
   } = props;
   const [visible, setVisible] = useState(false);
@@ -147,8 +148,10 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
 
   let filters = useMemo(() => {
     let list = []
-    if (initialValues.from_create_date || initialValues.to_create_date) {
-      let textOrderCreateDate = (initialValues.from_create_date ? initialValues.from_create_date : '??') + " ~ " + (initialValues.to_create_date ? initialValues.to_create_date : '??')
+    if (initialValues.from_create_date || initialValues.to_create_date) {      
+      let textOrderCreateDate = (initialValues.from_create_date ? moment(initialValues.from_create_date).format('DD/MM/YYYY') : '??')
+      + " ~ " + (initialValues.to_create_date ? moment(initialValues.to_create_date).format('DD/MM/YYYY') : '??');
+
       list.push({
         key: 'create_time',
         name: 'Ngày khởi tạo',
@@ -184,6 +187,16 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
     [onFilter, params]
   );
   
+  const onResetFilter = useCallback(() => {
+    
+    formRef.current?.setFieldsValue(initValue);
+    setVisible(false);
+    setCreateTimeClick('')
+    setCreateTimeOnMin(null);
+    setCreateTimeOnMax(null);
+    formRef.current?.submit();
+  }, [formRef, initValue]);
+  
   const onFilterClick = useCallback(() => {
     setVisible(false);
     formRef.current?.submit();
@@ -211,7 +224,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
   }, [formRef, visible]);
 
   return (
-    <>
+    <ProductWrapperStyled>
       <div>
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form onFinish={onFinish} initialValues={params} layout="inline">
@@ -233,7 +246,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
         </CustomFilter>
 
         <BaseFilter
-          onClearFilter={onClearFilter}
+          onClearFilter={onResetFilter}
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
@@ -275,7 +288,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
             <Row gutter={12}>
               <Col span={24}>
                 <Item
-                  name="designer"
+                  name="designer_code"
                   label="NHÀ THIẾT KẾ"
                 >
                   <Select>
@@ -310,7 +323,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
               <Col span={24}>
                 <Item
                   name="status"
-                  label="Trạng thái"
+                  label="TRẠNG THÁI"
                 >
                   <Select>
                     <Option value="">TRẠNG THÁI</Option>
@@ -386,7 +399,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
           )
         })}
       </div>
-    </>
+    </ProductWrapperStyled>
   );
 };
 

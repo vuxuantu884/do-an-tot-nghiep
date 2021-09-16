@@ -61,6 +61,7 @@ export interface ProductResponse extends BaseObject {
 }
 
 export interface ProductWrapperResponse extends BaseObject {
+  id: number,
   name: string,
   category_id: number,
   category: string,
@@ -88,6 +89,34 @@ export interface ProductWrapperResponse extends BaseObject {
   variants: Array<VariantResponse>,
 }
 
+export interface ProductWrapperUpdateRequest{
+  id: number,
+  name: string,
+  category_id: number | null,
+  category: string | null,
+  material_id: number | null,
+  material:string | null,
+  goods:string | null,
+  brand:string | null,
+  brand_name:string | null,
+  made_in_id:number | null,
+  made_in:string | null,
+  description:string | null,
+  content:string | null,
+  merchandiser_code:string | null,
+  merchandiser:string | null,
+  designer_code:string | null,
+  designer:string | null,
+  tags:string|null,
+  status:string,
+  status_name:string | null,
+  preservation:string | null,
+  unit:string | null,
+  product_type:string | null,
+  product_collections: Array<ProductCollectionsResponse>,
+  specifications: string | null,
+  variants: Array<VariantResponse>,
+}
 export interface VariantResponse extends BaseObject {
   name: string,
   inventory: number,
@@ -167,13 +196,14 @@ export interface VariantSearchQuery extends BaseQuery {
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string,
-  category_id?: number|null,
+  category_id?: number|"",
   designer_code?: string,
-  material_id?: number|null,
+  material_id?: number|"",
   merchandiser_code?: string,
-  from_create_date?:Date,
-  to_create_date?:Date,
+  from_create_date?:string,
+  to_create_date?:string,
   status?: string,
+  goods?: string,
 }
 
 export interface VariantPriceRequest {
