@@ -1,58 +1,41 @@
 import styled from "styled-components";
 
-export const StyledConfig = styled.div`
-.ecommerce-user-detail{
-  border: 1px solid #e5e5e5;
-  padding: 7px 15px;
-  margin-bottom: 20px;
-  .ant-col{
-    margin: 5px 0;
-  }
-}
-  .ant-row {
-    width: 100%;
-  }
-  .ant-col {
-    display: flex;
-    flex-direction: column;
-  }
-  .ant-form-item {
-    display: flex;
-    flex-direction: column;
-    margin: 0 0 14px;
-  }
-  label{
+export const StyledComponent = styled.div`
+  .total-items-ecommerce {
+    padding: 20px;
     
-    font-weight: 500;
-  }
-  .description-name {
-    display: block;
-    line-height: 32px;
-    font-weight: 500;
-    font-size: 14px;
-    color: #222222;
-  }
-  .description {
-    display: block;
-    height: 38px;
-    font-weight: 300;
-    font-size: 13px;
-    color: #666666;
-  }
-  .customer-bottom-button{
-    margin-left: -50px;
-    button:first-child{
-      color: red
+    .filter {
+      .ant-form {
+        display: flex;
+      }
     }
-  }
-  .ant-form-item-label{
-    display: -webkit-inline-box;
-  }
-  button{
-    display: flex;
-    align-items: center;
-    img{
-      margin-right: 11px;
+
+    .filter-item {
+      margin-right: 15px;
+    }
+
+    .select-channel-dropdown {
+      margin-right: 15px;
+      width: 150px;
+    }
+
+    .select-store-dropdown {
+      margin-right: 15px;
+      width: 150px;
+    }
+    
+    .shoppe-search {
+      margin-right: 15px;
+      width: 230px;
+    }
+    
+    .yody-search {
+      margin-right: 15px;
+      width: 200px;
+    }
+
+    .save-pairing-button {
+      margin: 20px 0;
     }
   }
 `;

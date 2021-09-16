@@ -149,22 +149,14 @@ const Products: React.FC = () => {
               </TabPane>
               <TabPane tab="Sản phẩm đã ghép" key="connected-item">
                 <ConnectedItems
-                  listStores={stores}
-                  accounts={accounts}
-                  accountChangeSearch={accountChangeSearch}
-                  form={configForm}
                   configData={configData}
-                  configToView={configToView}
+                  setConfigToView={setConfigToView}
                 />
               </TabPane>
               <TabPane tab="Sản phẩm chưa ghép" key="not-connected-item">
                 <NotConnectedItems
-                  listStores={stores}
-                  accounts={accounts}
-                  accountChangeSearch={accountChangeSearch}
-                  form={configForm}
                   configData={configData}
-                  configToView={configToView}
+                  setConfigToView={setConfigToView}
                 />
               </TabPane>
             </Tabs>

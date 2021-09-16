@@ -8,5 +8,8 @@ export const StyledComponent = styled.div`
         background-color: #AFEEEE;
         border: 1px solid #2a2a86;
     }
-  }  
+  }
+  .ant-card {
+    width: 1400px;
+  }
 `;

@@ -1,440 +1,453 @@
-import { StyledConfig } from "./styles";
-import { Row, Col, Form, Input, Select, Button } from "antd";
-import React, { useEffect, useState } from "react";
-import CustomSelect from "component/custom/select.custom";
-import shopeeIcon from "assets/icon/e-shopee.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
-import lazadaIcon from "assets/icon/e-lazada.svg";
-import tikiIcon from "assets/icon/e-tiki.svg";
-import disconnectIcon from "assets/icon/e-disconnect.svg";
-import saveIcon from "assets/icon/e-save-config.svg";
-import { StoreResponse } from "model/core/store.model";
-import { AccountResponse } from "model/account/account.model";
-import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import {
-  EcommerceRequest,
-  EcommerceShopInventoryDto,
-} from "model/request/ecommerce.request";
-import { ecommerceConfigUpdateAction } from "domain/actions/ecommerce/ecommerce.actions";
+import React, { useState, useMemo } from "react";
 import { useDispatch } from "react-redux";
-import { showSuccess } from "utils/ToastUtils";
 
-const iconMap: any = {
-  shopee: shopeeIcon,
-  lazada: lazadaIcon,
-  tiki: tikiIcon,
-  sendo: sendoIcon,
-};
+import { StyledComponent } from "./styles";
+import { Button, Form, Row, Col, Select, Input, Modal, Tooltip } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import { useHistory } from "react-router-dom";
+import disconnectIcon from "assets/icon/disconnect.svg";
+import warningCircleIcon from "assets/icon/warning-circle.svg"
+import filterIcon from "assets/icon/filter.svg"
+import saveIcon from "assets/icon/save.svg"
+import closeIcon from "assets/icon/X_close.svg"
 
-const { Option } = Select;
+
+
+import CustomTable from "component/table/CustomTable";
+import actionColumn from "../../actions/action.column";
+import BaseFilter from "component/filter/base.filter"
+import { showSuccess, showError, showWarning } from "utils/ToastUtils";
+
+import { NotConnectedItemsQuery } from "model/query/ecommerce.query";
+import { NotConnectedItemsResponse } from "model/response/ecommerce/ecommerce.response";
+import { NotConnectedItemsList } from "domain/actions/ecommerce/ecommerce.actions";
+import { PageResponse } from "model/base/base-metadata.response";
+
+//thai fake data
+import vectorIcon from "assets/icon/vector.svg";
 
 type NotConnectedItemsProps = {
-  listStores: Array<StoreResponse>;
-  accounts: Array<AccountResponse>;
-  form: any;
-  configData: Array<EcommerceResponse>;
-  configToView: EcommerceResponse | undefined;
-  accountChangeSearch: (value: string) => void;
+  configData: any;
+  setConfigToView: (value: NotConnectedItemsResponse) => void;
 };
+
 const NotConnectedItems: React.FC<NotConnectedItemsProps> = (
   props: NotConnectedItemsProps
 ) => {
-  const {
-    listStores,
-    accountChangeSearch,
-    accounts,
-    form,
-    configToView,
-    configData,
-  } = props;
+  const { configData, setConfigToView } = props;
+  const history = useHistory();
+  const [activatedBtn, setActivatedBtn] = React.useState({
+    title: "",
+    icon: "",
+    id: "all",
+    isActive: "",
+    key: 1,
+  });
+
+  const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
-  const [configDetail, setConfigDetail] = useState<
-    EcommerceResponse | undefined
-  >(configToView);
-  const [inventories, setInventories] = React.useState<
-    Array<EcommerceShopInventoryDto>
-  >([]);
+  const { Option } = Select;
 
-  useEffect(() => {
-    setConfigDetail(configToView);
-  }, [configToView, setConfigDetail]);
+  const [visibleFilter, setVisibleFilter] = React.useState<boolean>(false);
+  const [isShowModalDisconnect, setIsShowModalDisconnect] = React.useState(false);
 
-  const handleConfigCallback = React.useCallback((value: EcommerceResponse) => {
-    setConfigDetail(value);
-    showSuccess("Cập nhật cấu hình thành công");
-  }, []);
-  const handleUpdateConfig = React.useCallback(
-    (value: EcommerceRequest) => {
-      if (configDetail) {
-        let request = {
-          ...configDetail,
-          ...value,
-          inventories: inventories,
-          assign_account:
-            accounts?.find((item) => item.code === value.assign_account_code)
-              ?.full_name || "",
-        };
-        const id = configDetail?.id;
-        dispatch(
-          ecommerceConfigUpdateAction(id, request, handleConfigCallback)
+  const handleEdit = (item: any) => {
+    showSuccess("Cập nhật sản phẩm thành công");
+  };
+
+  const handleDisconnect = () => {
+    setIsShowModalDisconnect(true);
+  };
+
+  const cancelDisconnectModal = () => {
+    setIsShowModalDisconnect(false);
+  };
+
+  const okDisconnectModal = () => {
+    setIsShowModalDisconnect(false);
+    showSuccess("Ngắt kết nối sản phẩm thành công");
+    //thai need todo: API
+  };
+  
+
+  
+
+  //thai need todo
+  const [columns] = useState<any>([
+    {
+      title: "Ảnh",
+      visible: true,
+      align: "center",
+      render: ( i: any) => {
+        return <img src={vectorIcon} alt=""></img>;
+      },
+    },
+    {
+      title: "Sku/ itemID (Shopee)",
+      visible: true,
+      align: "center",
+      render: (l: any, v: any, i: any) => {
+        return <span>Sku/ itemID (Shopee) nè</span>
+      },
+    },
+    {
+      title: "Sản phẩm (Shopee)",
+      visible: true,
+      render: (l: any, v: any, i: any) => {
+        return (
+          <span>sản phẩm shopee nè</span>
         );
-      }
+      },
     },
-    [dispatch, handleConfigCallback, configDetail, inventories, accounts]
-  );
-
-  const handleStoreChange = (event: any) => {
-    let inventories = [];
-    for (let id of event) {
-      const _store = listStores.find((store) => store.id === id);
-      if (_store) {
-        inventories.push({
-          store: _store.name,
-          store_id: id,
-        });
+    {
+      title: "Giá bán (Shopee)",
+      visible: true,
+      align: "center",
+      render: (l: any, v: any, i: any) => {
+        return (
+          <span>Giá bán (Shopee) nè</span>
+        );
+      },
+    },
+    {
+      title: "Sản phẩm (YODY)",
+      visible: true,
+      render: (l: any, v: any, i: any) => {
+        return (
+          <span>sản phẩm YODY nè</span>
+        );
+      },
+    },
+    {
+      title: "Ghép nối",
+      visible: true,
+      render: (l: any, v: any, i: any) => {
+        return (
+          <span>Ghép nối nè</span>
+        );
+      },
+    },
+    {
+      title: () => {
+        return (
+          <div>
+            <span>"Đồng bộ tồn"</span>
+            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" trigger="click">
+              <img src={warningCircleIcon} style={{ marginLeft: 5, cursor: "pointer" }} alt="" />
+            </Tooltip>
+          </div>
+        )
+      },
+      visible: true,
+      align: "center",
+      render: (l: any, v: any, i: any) => {
+        return (
+          <span>Đồng bộ tồn kho nè</span>
+        );
+      },
+    },
+    {
+      render: () => {
+        return (
+          <img src={closeIcon} style={{ marginLeft: 5, cursor: "pointer" }} alt="" />
+        )
       }
     }
-    setInventories(inventories);
-  };
+    
+  ]);
 
-  React.useEffect(() => {
-    if (configDetail) {
-      const _inventories = configDetail.inventories.filter(
-        (item: any) => !item.deleted
-      );
-      setInventories(_inventories);
-      form.setFieldsValue({
-        id: configDetail.id,
-        name: configDetail.name,
-        store_id: configDetail.store_id,
-        assign_account_code: configDetail.assign_account_code,
-        order_sync: configDetail.order_sync,
-        product_sync: configDetail.product_sync,
-        inventory_sync: configDetail.inventory_sync,
-        store: configDetail.store,
-      });
+  const configDataFiltered = configData.filter((item: any) => {
+    if (activatedBtn.id === "all") {
+      return true;
     } else {
-      form.resetFields();
-      setInventories([]);
+      return item.ecommerce === activatedBtn.id;
     }
-  }, [configDetail, form, setInventories]);
-  
-  const handleShopChange = React.useCallback(
-    (id: any) => {
-      let _configData = [...configData];
-      const data = _configData.find((item) => item.id === id);
-      setConfigDetail(data);
+  });
+
+  const [data, setData] = React.useState<PageResponse<any>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
     },
-    [configData, setConfigDetail]
+    items: [],
+  });
+
+  const params: NotConnectedItemsQuery = useMemo(
+    () => ({
+      page: 1,
+      limit: 30,
+      request: "",
+      gender: null,
+      from_birthday: null,
+      to_birthday: null,
+      company: null,
+      from_wedding_date: null,
+      to_wedding_date: null,
+      customer_type_id: null,
+      customer_group_id: null,
+      customer_level_id: null,
+      responsible_staff_code: null,
+    }),
+    []
   );
-  
-  const convertToCapitalizedString = () => {
-    if (configDetail) {
-      return (
-        configDetail.ecommerce?.charAt(0).toUpperCase() +
-        configDetail.ecommerce?.slice(1)
-      );
-    }
+
+  const [query, setQuery] = React.useState<NotConnectedItemsQuery>({
+    page: 1,
+    limit: 30,
+    request: null,
+    gender: null,
+    from_birthday: null,
+    to_birthday: null,
+    company: null,
+    from_wedding_date: null,
+    to_wedding_date: null,
+    customer_type_id: null,
+    customer_group_id: null,
+    customer_level_id: null,
+    responsible_staff_code: "",
+  });
+
+  const onSearch = (value: NotConnectedItemsQuery) => {
+    query.request = value && value.request;
+    const querySearch: NotConnectedItemsQuery = value;
+    dispatch(NotConnectedItemsList(querySearch, setData));
   };
+
+  const onFinish = (value: NotConnectedItemsQuery) => {
+    value.responsible_staff_code = value.responsible_staff_code
+      ? value.responsible_staff_code.split(" - ")[0]
+      : null;
+    onSearch(value);
+  };
+
+  //thai fake data 
+  const LIST_STORE = [
+    {
+      id: 1,
+      name: "store 1",
+      value: "store_1"
+    },
+    {
+      id: 2,
+      name: "store 2",
+      value: "store_2"
+    }
+  ]
+
+  const CATEGORY = [
+    {
+      id: 1,
+      name: "category 1",
+      value: "category_1"
+    },
+    {
+      id: 2,
+      name: "category 2",
+      value: "category_2"
+    }
+  ]
+
+
+  
+  ////////////////////
+
+  const onFilterClick = React.useCallback(() => {
+    setVisibleFilter(false);
+    formAdvance.submit();
+  }, [formAdvance]);
+
+  const onClearFilterAdvanceClick = React.useCallback(() => {
+    formAdvance.setFieldsValue(params);
+    setVisibleFilter(false);
+    formAdvance.submit();
+  }, [formAdvance, params]);
+
+  const openFilter = React.useCallback(() => {
+    setVisibleFilter(true);
+  }, []);
+
+  const onCancelFilter = React.useCallback(() => {
+    setVisibleFilter(false);
+  }, []);
+
+  const savePairing = () => {
+    showSuccess("Lưu các cặp đã ghép thành công");
+  }
+
   return (
-    <StyledConfig className="padding-20">
-      <Form form={form} onFinish={(value) => handleUpdateConfig(value)}>
-        <Row>
-          <Col span={8}>
-            <Form.Item
-              name="id"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn cửa hàng",
-                },
-              ]}
-            >
-              <CustomSelect
-                onChange={handleShopChange}
-                showArrow
-                showSearch
-                placeholder="Chọn cửa hàng"
-                notFoundContent="Không tìm thấy kết quả"
-                filterOption={(input, option) => {
-                  if (option) {
-                    return (
-                      option.children[1]
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    );
-                  }
-                  return false;
-                }}
-              >
-                {configData.map((item: any, index) => (
-                  <CustomSelect.Option
-                    style={{ width: "100%" }}
-                    key={item.id}
-                    value={item.id}
-                  >
-                    {
-                      <img
-                        style={{ marginRight: 8, paddingBottom: 4 }}
-                        src={iconMap[item.ecommerce]}
-                        alt=""
-                      />
-                    }
-                    {item.name}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={12}>
-            <span className="description-name">{`Thông tin của shop trên ${
-              convertToCapitalizedString() || "sàn"
-            }`}</span>
-            {/* <span className="description">
-              Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt
-              các gian hàng với nhau
-            </span> */}
-          </Col>
-          <Col span={12}>
-            <div className="ecommerce-user-detail">
-              <Row>
-                <Col span={5}>Tên Shop</Col>
-                <Col span={19}><span className="fw-500">: {configDetail?.name || "---"}</span></Col>
-              </Row>
-              <Row>
-                <Col span={5}>ID Shop</Col>
-                <Col span={19}><span className="fw-500">: {configDetail?.id || "---"}</span></Col>
-              </Row>
-              <Row>
-                <Col span={5}>Username</Col>
-                <Col span={19}><span className="fw-500">: ---</span></Col>
-              </Row>
-            </div>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={12}>
-            <span className="description-name">Đặt tên gian hàng</span>
-            <span className="description">
-              Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt
-              các gian hàng với nhau
-            </span>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label={<span>Tên gian hàng</span>}
-              name="name"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn gian hàng",
-                },
-              ]}
-            >
-              <Input
-                maxLength={255}
-                placeholder="Nhập tên gian hàng"
-                disabled={configDetail ? false : true}
-              ></Input>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={12}>
-            <span className="description-name">
-              Cấu hình nhân viên, cửa hàng
-            </span>
-            <span className="description">
-              Lựa chọn cửa hàng và nhân viên bán hàng để ghi nhận doanh số
-            </span>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label={<span>Cửa hàng</span>}
-              name="store"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn cửa hàng",
-                },
-              ]}
-            >
-              <Input
-                maxLength={255}
-                placeholder="Nhập tên cửa hàng"
-                disabled={configDetail ? false : true}
-              ></Input>
-            </Form.Item>
-            <Form.Item
-              label={<span>Nhân viên bán hàng</span>}
-              name="assign_account_code"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn nhân viên bán hàng",
-                },
-              ]}
-            >
+    <StyledComponent>
+      <div className="total-items-ecommerce">
+        <div className="filter">
+          <Form
+            form={formAdvance}
+            onFinish={onFinish}
+            initialValues={params}
+          >
+            <Form.Item name="channel" className="select-channel-dropdown">
               <Select
-                disabled={configDetail ? false : true}
                 showSearch
-                placeholder="Chọn nhân viên bán hàng"
+                placeholder="Chọn sàn"
                 allowClear
                 optionFilterProp="children"
-                onSearch={(value) => accountChangeSearch(value)}
               >
-                {accounts &&
-                  accounts.map((c: any) => (
-                    <Option key={c.id} value={c.code}>
-                      {`${c.code} - ${c.full_name}`}
+                {LIST_STORE &&
+                  LIST_STORE.map((c: any) => (
+                    <Option key={c.value} value={c.value}>
+                      {c.name}
                     </Option>
                   ))}
               </Select>
             </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={12}>
-            <span className="description-name">Cấu hình tồn kho</span>
-            <span className="description">
-              Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt
-              các gian hàng với nhau
-            </span>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              // name="inventories"
-              className="store"
-              label={<span>Kho đồng bộ tồn</span>}
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn kho đồng bộ tồn",
-                },
-              ]}
-            >
-              <CustomSelect
-                disabled={configDetail ? false : true}
-                mode="multiple"
-                className="dropdown-rule"
-                showArrow
-                showSearch
-                placeholder="Chọn cửa hàng"
-                notFoundContent="Không tìm thấy kết quả"
-                filterOption={(input, option) => {
-                  if (option) {
-                    return (
-                      option.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    );
-                  }
-                  return false;
-                }}
-                value={inventories?.map((store) => store.store_id)}
-                onChange={handleStoreChange}
-              >
-                {listStores.map((item, index) => (
-                  <CustomSelect.Option
-                    style={{ width: "100%" }}
-                    key={index.toString()}
-                    value={item.id}
-                  >
-                    {item.name}
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            </Form.Item>
-            <Form.Item
-              label={<span>Kiểu đồng bộ tồn kho</span>}
-              name="inventory_sync"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn kiểu đồng bộ tồn kho",
-                },
-              ]}
-            >
-              <Select
-                placeholder="Chọn kiểu đồng bộ tồn kho"
-                disabled={configDetail ? false : true}
-              >
-                <Option value={"auto"}><span style={{color: "#27AE60"}}>Tự động</span></Option>
-                <Option value={"manual"}>Thủ công</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col span={12}>
-            <span className="description-name">Cấu hình đơn hàng</span>
-            <span className="description">
-              Chọn kiểu đồng bộ đơn hàng để cập nhật đơn tự động hay thủ công
-            </span>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label={<span>Kiểu đồng bộ đơn hàng</span>}
-              name="order_sync"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn kiểu đồng bộ đơn hàng",
-                },
-              ]}
-            >
-              <Select
-                placeholder="Chọn kiểu đồng bộ đơn hàng"
-                disabled={configDetail ? false : true}
-              >
-                <Option value={"auto"}><span style={{color: "#27AE60"}}>Tự động</span></Option>
-                <Option value={"manual"}>Thủ công</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item
-              label={<span>Kiểu đồng bộ sản phẩm khi tải đơn về</span>}
-              name="product_sync"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn kiểu đồng bộ sản phẩm",
-                },
-              ]}
-            >
-              <Select
-                placeholder="Chọn kiểu đồng bộ sản phẩm"
-                disabled={configDetail ? false : true}
-              >
-                <Option value={"auto"}>{`Luôn lấy sản phẩm từ ${
-                  convertToCapitalizedString() || "sàn"
-                } về`}</Option>
-                <Option value={"manual"}><span style={{color: "#27AE60"}}>Đợi ghép sản phẩm giữa 2 bên</span></Option>
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
 
-        <div className="customer-bottom-button">
-          <Button
-            className="disconnect-btn"
-            icon={<img src={disconnectIcon} alt="" />}
-            style={{ border: "1px solid #E24343", background: "#FFFFFF" }}
-            type="ghost"
-          >
-            Ngắt kết nối
-          </Button>
-          <Button
-            type="primary"
-            htmlType="submit"
-            icon={<img src={saveIcon} alt="" />}
-          >
-            Lưu cấu hình
-          </Button>
+            <Form.Item name="store" className="select-store-dropdown">
+              <Select
+                showSearch
+                placeholder="Chọn gian hàng"
+                allowClear
+                optionFilterProp="children"
+              >
+                {LIST_STORE &&
+                  LIST_STORE.map((c: any) => (
+                    <Option key={c.value} value={c.value}>
+                      {c.name}
+                    </Option>
+                  ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item name="shopee-items" className="shoppe-search">
+              <Input
+                prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                placeholder="SKU, tên sản phẩm Shopee"
+              />
+            </Form.Item>
+
+            <Form.Item className="filter-item">
+              <Button type="primary" htmlType="submit">
+                Lọc
+              </Button>
+            </Form.Item>
+
+            <Form.Item className="filter-item">
+              <Button onClick={openFilter}>
+                <img src={filterIcon} style={{ marginRight: 10 }} alt="" />
+                <span>Thêm bộ lọc</span>
+              </Button>
+            </Form.Item>
+          </Form>
         </div>
-      </Form>
-    </StyledConfig>
+
+        <CustomTable
+          isRowSelection
+          columns={columns}
+          dataSource={configDataFiltered}
+          pagination={false}
+          // pagination={{
+          //   pageSize: data.metadata.limit,
+          //   total: data.metadata.total,
+          //   current: data.metadata.page,
+          //   showSizeChanger: true,
+          //   onChange: onPageChange,
+          //   onShowSizeChange: onPageChange,
+          // }}
+          rowKey={(data) => data.id}
+        />
+
+        <Button
+          className="save-pairing-button"
+          type="primary"
+          onClick={(e) => {savePairing()}}
+          size="large"
+          icon={<img src={saveIcon} style={{ marginRight: 10 }} alt="" />}
+        >
+          Lưu các cặp đã ghép
+        </Button>
+
+        <BaseFilter
+          onClearFilter={onClearFilterAdvanceClick}
+          onFilter={onFilterClick}
+          onCancel={onCancelFilter}
+          visible={visibleFilter}
+        >
+          <Form
+            form={formAdvance}
+            onFinish={onFinish}
+            //ref={formRef}
+            initialValues={params}
+            layout="vertical"
+          >
+            <Form.Item
+              name="category"
+              label={<b>DANH MỤC</b>}
+            >
+              <Select
+                showSearch
+                placeholder=""
+                allowClear
+              >
+                {CATEGORY.map((item) => (
+                  <Option key={item.id} value={item.value}>
+                    {item.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="pairing"
+              label={<b>GHÉP NỐI</b>}
+            >
+              <Select
+                showSearch
+                placeholder=""
+                allowClear
+              >
+                {CATEGORY.map((item) => (
+                  <Option key={item.id} value={item.value}>
+                    {item.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="inventoryStatus"
+              label={<b>TRẠNG THÁI TỒN KHO</b>}
+            >
+              <Select
+                showSearch
+                placeholder=""
+                allowClear
+              >
+                {CATEGORY.map((item) => (
+                  <Option key={item.id} value={item.value}>
+                    {item.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+          </Form>
+        </BaseFilter>
+
+        <Modal
+          width="600px"
+          className="modal-confirm-customer"
+          visible={isShowModalDisconnect}
+          okText="Đồng ý"
+          cancelText="Hủy"
+          onCancel={cancelDisconnectModal}
+          onOk={okDisconnectModal}
+        >
+          <div style={{margin: "20px 0"}}>
+            <img src={disconnectIcon} style={{ marginRight: 20 }} alt="" />
+            <span>Bạn có chắc chắn muốn hủy liên kết sản phẩm không?</span>
+          </div>
+        </Modal>
+
+      </div>
+    </StyledComponent>
   );
 };
 
