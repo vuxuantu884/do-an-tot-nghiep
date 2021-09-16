@@ -755,20 +755,15 @@ export default function Order() {
                   newShipperCode =
                     response.fulfillments[0]?.shipment?.shipper_code;
                 }
-                if (response.payments && response.payments?.length > 0) {
-                  new_payments = response.payments;
-
-                  setPayments(new_payments);
-                  switch (response.payments) {
-                    // case PaymentMethodOption.POSTPAYMENT:
-                    //   setPaymentMethod(PaymentMethodOption.POSTPAYMENT);
-                    //   break;
-
-                    default:
-                      setPaymentMethod(2);
-                      break;
-                  }
-                }
+              }
+              if (
+                response.fulfillments &&
+                response.fulfillments[0].shipment?.cod
+              ) {
+                setPaymentMethod(PaymentMethodOption.COD);
+              } else if (response.payments && response.payments?.length > 0) {
+                setPaymentMethod(PaymentMethodOption.PREPAYMENT);
+                setPayments(response.payments);
               }
               setItems(responseItems);
               setOrderAmount(response.total);
@@ -806,7 +801,11 @@ export default function Order() {
                   case ShipmentMethod.EXTERNAL_SERVICE:
                     newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
                     break;
+                  case ShipmentMethod.PICK_AT_STORE:
+                    newShipmentMethod = ShipmentMethodOption.PICK_AT_STORE;
+                    break;
                   default:
+                    newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
                     break;
                 }
                 setShipmentMethod(newShipmentMethod);

@@ -49,10 +49,11 @@ const ScreenReturnDetail = (props: PropType) => {
   let queryOrderID = query.get("orderID");
 
   let orderId = queryOrderID ? parseInt(queryOrderID) : undefined;
+  const [discountRate, setDiscountRate] = useState<number>(0);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
     null
   );
-  setShippingFeeCustomer(0);
+
   const dispatch = useDispatch();
 
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);

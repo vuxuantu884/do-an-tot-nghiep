@@ -97,55 +97,57 @@ function ActionHistory(props: PropType) {
   return (
     <StyledComponent>
       <Card className="margin-top-20" title={renderCardTitle()}>
-        {actionLog &&
-          actionLog.length > 0 &&
-          actionLog.map((singleActionHistory, index) => {
-            return (
-              <div
-                className="singleActionHistory"
-                key={index}
-                onClick={() => {
-                  showModal(singleActionHistory.id);
-                }}
-              >
-                <Row className="" gutter={15}>
-                  <Col span={12}>
-                    <div className="singleActionHistory__info">
-                      {singleActionHistory?.store && (
-                        <h4 className="singleActionHistory__title">
-                          {singleActionHistory?.updated_name}
-                        </h4>
-                      )}
-                      {singleActionHistory?.updated_date && (
-                        <div className="singleActionHistory__date">
-                          {moment(singleActionHistory?.updated_date).format(
-                            "HH:mm DD/MM/YYYY"
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </Col>
-                  <Col span={12}>
-                    <div className="singleActionHistory__status">
-                      {singleActionHistory?.action && (
-                        <h4 className="singleActionHistory__mainStatus">
-                          {renderSingleActionLogTitle(
-                            singleActionHistory?.action
-                          )}
-                        </h4>
-                      )}
-                      <div className="singleActionHistory__subStatus">
-                        {renderSingleSubStatus(
-                          singleActionHistory?.status_before,
-                          singleActionHistory?.status_after
+        <div className="padding-24">
+          {actionLog &&
+            actionLog.length > 0 &&
+            actionLog.map((singleActionHistory, index) => {
+              return (
+                <div
+                  className="singleActionHistory"
+                  key={index}
+                  onClick={() => {
+                    showModal(singleActionHistory.id);
+                  }}
+                >
+                  <Row className="" gutter={15}>
+                    <Col span={12}>
+                      <div className="singleActionHistory__info">
+                        {singleActionHistory?.store && (
+                          <h4 className="singleActionHistory__title">
+                            {singleActionHistory?.updated_name}
+                          </h4>
+                        )}
+                        {singleActionHistory?.updated_date && (
+                          <div className="singleActionHistory__date">
+                            {moment(singleActionHistory?.updated_date).format(
+                              "HH:mm DD/MM/YYYY"
+                            )}
+                          </div>
                         )}
                       </div>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-            );
-          })}
+                    </Col>
+                    <Col span={12}>
+                      <div className="singleActionHistory__status">
+                        {singleActionHistory?.action && (
+                          <h4 className="singleActionHistory__mainStatus">
+                            {renderSingleActionLogTitle(
+                              singleActionHistory?.action
+                            )}
+                          </h4>
+                        )}
+                        <div className="singleActionHistory__subStatus">
+                          {renderSingleSubStatus(
+                            singleActionHistory?.status_before,
+                            singleActionHistory?.status_after
+                          )}
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              );
+            })}
+        </div>
       </Card>
       <ActionHistoryModal
         isModalVisible={isModalVisible}
