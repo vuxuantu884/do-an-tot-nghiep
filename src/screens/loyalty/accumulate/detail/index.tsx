@@ -16,6 +16,7 @@ import { LoyaltyRankSearch } from 'domain/actions/loyalty/rank/loyalty-rank.acti
 import { PageResponse } from 'model/base/base-metadata.response';
 import { LoyaltyRankResponse } from 'model/response/loyalty/ranking/loyalty-rank.response';
 import LoyaltyProgramProducts from 'screens/loyalty/component/loyalty-program-products/LoyaltyProgramProducts';
+import { ConvertUtcToLocalDate, DATE_FORMAT } from 'utils/DateUtils';
 
 type PathParams = {
   id: string
@@ -179,29 +180,37 @@ const LoyaltyAccumulateDetail = () => {
             <Col span={12} className="row-item"></Col>
             <Col span={12} className="row-item">
               <div className="info-label">Thời hạn:</div>
-              <div className="info-content">{loyaltyProgram?.start_time} - {loyaltyProgram?.end_time}</div>
+              <div className="info-content">{ConvertUtcToLocalDate(loyaltyProgram?.start_time, DATE_FORMAT.DDMMYY_HHmm)} - {ConvertUtcToLocalDate(loyaltyProgram?.end_time, DATE_FORMAT.DDMMYY_HHmm)}</div>
             </Col>
           </Row>
           <Row>
             <Col span={12} className="row-item">
               <div className="info-label">Nguồn hàng:</div>
-              <div className="scroll-box">
-                {
-                  loyaltyProgram?.sources.map((source, idx) => (
-                    <div className="scroll-box__item" key={source.id}>{idx + 1}. {source.name}</div>
-                  ))
-                }
-              </div>
+              {
+                loyaltyProgram && loyaltyProgram.sources && loyaltyProgram.sources.length > 0 && (
+                  <div className="scroll-box">
+                    {
+                      loyaltyProgram?.sources.map((source, idx) => (
+                        <div className="scroll-box__item" key={source.id}>{idx + 1}. {source.name}</div>
+                      ))
+                    }
+                  </div>
+                )
+              }
             </Col>
             <Col span={12} className="row-item">
               <div className="info-label">Cửa hàng:</div>
-              <div className="scroll-box">
-                {
-                  loyaltyProgram?.stores.map((store, idx) => (
-                    <div className="scroll-box__item" key={store.id}>{idx + 1}. {store.name}</div>
-                  ))
-                }
-              </div>
+              {
+                loyaltyProgram && loyaltyProgram.stores && loyaltyProgram.stores.length > 0 && (
+                  <div className="scroll-box">
+                    {
+                      loyaltyProgram?.stores.map((store, idx) => (
+                        <div className="scroll-box__item" key={store.id}>{idx + 1}. {store.name}</div>
+                      ))
+                    }
+                  </div>
+                )
+              }
             </Col>
           </Row>
           <CustomTable

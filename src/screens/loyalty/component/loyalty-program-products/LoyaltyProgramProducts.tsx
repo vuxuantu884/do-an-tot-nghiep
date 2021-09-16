@@ -10,7 +10,7 @@ interface ModalProp {
 
 const LoyaltyProgramProducts = (props: ModalProp) => {
   const { visible, onCancel, items } = props
-  const [keyword, setKeyword] = useState<string>()
+  const [keyword, setKeyword] = useState<string>('')
 
   const handleChangeKeyword = useCallback((event: any) => {
     setKeyword(event.target.value)

@@ -23,7 +23,7 @@ import { PlusOutlined } from '@ant-design/icons'
 const LoyaltyPage = () => {
   const [accumulationRate, setAccumulationRate] = useState<number>(0)
   const [redemptionRate, setRedemptionRate] = useState<number>(0)
-  const [enablePointUsage, setEnablePointUsage] = useState<boolean>(false)
+  const [enableUsingPoint, setEnableUsingPoint] = useState<boolean>(false)
   const [rules, setRules] = useState<Array<any>>([])
   const [loyaltyPrograms, setLoyaltyPrograms] = useState<PageResponse<LoyaltyAccumulationProgramResponse>>({
     metadata: {
@@ -86,12 +86,12 @@ const LoyaltyPage = () => {
       fixed: "left",
       align: 'center',
       render: (value: any, item: any, index: number) => 
-        <div className={`status-col__${value.status}`}>{value.status === 'INACTIVE' ? 'Đang chạy' : 'Tạm dừng'}</div>
+        <div className={`status-col__${value.status}`}>{value.status === 'INACTIVE' ? 'Tạm dừng' : 'Đang chạy'}</div>
     },
     {
       title: "Người tạo",
       visible: true,
-      dataIndex: "created_name",
+      dataIndex: "created_by",
       fixed: "left",
       width: '150px'
     },
@@ -153,7 +153,7 @@ const LoyaltyPage = () => {
     dispatch(getLoyaltyRate((rates: LoyaltyRateResponse) => {
       setAccumulationRate(rates.adding_rate)
       setRedemptionRate(rates.usage_rate)
-      setEnablePointUsage(rates.enable_using_point)
+      setEnableUsingPoint(rates.enable_using_point)
     }))
     dispatch(getLoyaltyUsage((data: Array<LoyaltyUsageResponse>) => {
       let _rules = [];
@@ -180,12 +180,12 @@ const LoyaltyPage = () => {
     dispatch(getListLoyaltyAccumulationProgram(query, fetchData));
   }, [dispatch, fetchData, query]);
 
-  const handleChangeAccumulationRate = useCallback((value: number | null) => {
-    setAccumulationRate(value || 0)
+  const handleChangeAccumulationRate = useCallback((value: any) => {
+    setAccumulationRate(value)
   }, [])
 
-  const handleChangeRedemptionRate = useCallback((value: number | null) => {
-    setRedemptionRate(value || 0)
+  const handleChangeRedemptionRate = useCallback((value: any) => {
+    setRedemptionRate(value)
   }, [])
 
   const updateRateCallback = useCallback((data: LoyaltyRateResponse) => {
@@ -197,10 +197,10 @@ const LoyaltyPage = () => {
   }, [])
 
   const onFinish = useCallback(() => {
-    dispatch(createLoyaltyRate(accumulationRate, redemptionRate, enablePointUsage, updateRateCallback))
+    dispatch(createLoyaltyRate(accumulationRate, redemptionRate, enableUsingPoint, updateRateCallback))
     dispatch(createLoyaltyUsage(rules, updateUsageCallback))
   },
-    [accumulationRate, dispatch, redemptionRate, rules, updateRateCallback, updateUsageCallback, enablePointUsage]
+    [accumulationRate, dispatch, redemptionRate, rules, updateRateCallback, updateUsageCallback, enableUsingPoint]
   );
 
   const handleChangePointUseType = (value: string, index: number) => {
@@ -266,11 +266,11 @@ const LoyaltyPage = () => {
               <div className="status">
                 Trạng thái
                 <Switch
-                  checked={enablePointUsage}
-                  onChange={(checked: boolean) => setEnablePointUsage(checked)}
+                  checked={enableUsingPoint}
+                  onChange={(checked: boolean) => setEnableUsingPoint(checked)}
                 />
                 {
-                  enablePointUsage ? 'Đang hoạt động' : 'Dừng hoạt động'
+                  enableUsingPoint ? 'Đang hoạt động' : 'Dừng hoạt động'
                 }
               </div>
             </div>
@@ -322,7 +322,7 @@ const LoyaltyPage = () => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="condition">Số điểm có thể tiêu không quá giá trị đơn hàng</td>
+                        <td className="condition">Số điểm có thẻ tiêu không quá ... giá trị hóa đơn</td>
                         {
                           rules.map((rule, index) => (
                             <td className="condition" key={index}>
@@ -338,7 +338,7 @@ const LoyaltyPage = () => {
                         }
                       </tr>
                       <tr>
-                        <td className="condition">Không tiêu điểm đơn hàng có chiết khấu</td>
+                        <td className="condition">Không được tiêu điểm cho đơn hàng có chiết khấu </td>
                         {
                           rules.map((rule, index) => (
                             <td className="condition checkbox" key={index}>
