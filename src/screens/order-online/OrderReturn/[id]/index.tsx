@@ -127,7 +127,7 @@ const ScreenReturnDetail = (props: PropType) => {
               OrderDetail={OrderDetail}
               customerDetail={customerDetail}
             />
-            <CardReturnOrder isDetailPage={isDetailPage} />
+            <CardReturnOrder isDetailPage={isDetailPage} isExchange={false} />
             <CardReturnProducts
               listReturnProducts={listReturnProducts}
               handleReturnProducts={(
