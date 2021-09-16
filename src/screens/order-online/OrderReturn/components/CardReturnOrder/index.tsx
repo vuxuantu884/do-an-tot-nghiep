@@ -3,18 +3,24 @@ import React from "react";
 
 type PropType = {
   isDetailPage: boolean;
+  isExchange: boolean;
+  handleIsExchange?: (isExchange: boolean) => void;
 };
 function CardReturnOrder(props: PropType) {
-  const { isDetailPage } = props;
-  let checkFromProps = true;
+  const { isDetailPage, isExchange, handleIsExchange } = props;
   const renderCardExtra = () => {
     return (
       <React.Fragment>
         <Switch
           className="ant-switch-primary"
           style={{ marginRight: 20 }}
-          disabled={!isDetailPage}
-          defaultChecked={isDetailPage ? checkFromProps : false}
+          disabled={isDetailPage}
+          defaultChecked={isDetailPage ? isExchange : false}
+          onChange={(checked) => {
+            if (handleIsExchange) {
+              handleIsExchange(checked);
+            }
+          }}
         />
         Đơn hàng có đổi trả hàng
       </React.Fragment>

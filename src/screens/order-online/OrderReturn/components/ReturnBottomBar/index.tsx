@@ -6,10 +6,11 @@ type PropType = {
   onSubmit: () => void;
   onCancel: () => void;
   isCanSubmit: boolean;
+  isExchange: boolean;
 };
 
 function ReturnBottomBar(props: PropType) {
-  const { onSubmit, onCancel, isCanSubmit } = props;
+  const { onSubmit, onCancel, isCanSubmit, isExchange } = props;
   return (
     <StyledComponent>
       <div className="bottomBar">
@@ -27,9 +28,9 @@ function ReturnBottomBar(props: PropType) {
             onClick={() => {
               onSubmit();
             }}
-            disabled={!isCanSubmit}
+            disabled={!isExchange && !isCanSubmit}
           >
-            Trả hàng
+            {isExchange ? "Tiếp theo" : "Trả hàng"}
           </Button>
         </div>
       </div>

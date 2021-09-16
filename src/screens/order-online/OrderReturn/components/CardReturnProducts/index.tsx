@@ -278,7 +278,7 @@ function CardReturnProducts(props: PropType) {
     <StyledComponent>
       <Card
         className="margin-top-20"
-        title="Sản phẩm"
+        title="Thông tin sản phẩm trả"
         extra={!isDetailPage ? renderCardExtra() : null}
       >
         {!isDetailPage && (

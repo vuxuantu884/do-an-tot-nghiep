@@ -10,6 +10,7 @@ import {
 } from "domain/actions/order/order.action";
 import {
   FulFillmentRequest,
+  OrderLineItemRequest,
   OrderPaymentRequest,
   OrderRequest,
   ShipmentRequest,
@@ -30,6 +31,7 @@ import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoney from "../components/CardReturnMoney";
 import CardReturnOrder from "../components/CardReturnOrder";
 import CardReturnProducts from "../components/CardReturnProducts";
+import CardExchangeProducts from "../components/CardExchangeProducts";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import ReturnBottomBar from "../components/ReturnBottomBar";
 
@@ -41,11 +43,15 @@ const ScreenReturnDetail = (props: PropType) => {
   const [isError, setError] = useState<boolean>(false);
   const [isCanReturn, setIsCanReturn] = useState<boolean>(false);
   const [isCanSubmit, setIsCanSubmit] = useState<boolean>(false);
+  const [isExchange, setIsExchange] = useState<boolean>(false);
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
 
   let orderId = queryOrderID ? parseInt(queryOrderID) : undefined;
+  const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
+    null
+  );
 
   const dispatch = useDispatch();
 
@@ -66,6 +72,10 @@ const ScreenReturnDetail = (props: PropType) => {
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [amountReturn, setAmountReturn] = useState<number>(100000);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
+
+  const [listExchangeProducts, setListExchangeProducts] = useState<
+    OrderLineItemRequest[]
+  >([]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     if (!data) {
@@ -100,6 +110,16 @@ const ScreenReturnDetail = (props: PropType) => {
 
   const handleIsCanSubmit = (status: boolean) => {
     setIsCanSubmit(status);
+  };
+
+  const handleIsExchange = (isExchange: boolean) => {
+    setIsExchange(isExchange);
+  };
+
+  const handleListExchangeProducts = (
+    listExchangeProducts: OrderLineItemRequest[]
+  ) => {
+    setListExchangeProducts(listExchangeProducts);
   };
 
   const handleSubmit = () => {
@@ -201,7 +221,11 @@ const ScreenReturnDetail = (props: PropType) => {
                 customerDetail={customerDetail}
               />
               {/*--- end customer ---*/}
-              <CardReturnOrder isDetailPage={false} />
+              <CardReturnOrder
+                isDetailPage={false}
+                isExchange={isExchange}
+                handleIsExchange={handleIsExchange}
+              />
               <CardReturnProducts
                 listReturnProducts={listReturnProducts}
                 handleReturnProducts={(
@@ -211,6 +235,13 @@ const ScreenReturnDetail = (props: PropType) => {
                 handleIsCanSubmit={handleIsCanSubmit}
                 isDetailPage={false}
               />
+              {isExchange && (
+                <CardExchangeProducts
+                  items={listExchangeProducts}
+                  handleCardItems={handleListExchangeProducts}
+                  shippingFeeCustomer={shippingFeeCustomer}
+                />
+              )}
               <CardReturnMoney
                 listPaymentMethods={listPaymentMethods}
                 amountReturn={amountReturn}
@@ -365,12 +396,14 @@ const ScreenReturnDetail = (props: PropType) => {
           onSubmit={() => handleSubmit()}
           onCancel={() => handleCancel()}
           isCanSubmit={isCanSubmit}
+          isExchange={isExchange}
         />
       </React.Fragment>
     );
   };
 
   useEffect(() => {
+    setShippingFeeCustomer(10000);
     if (orderId) {
       dispatch(OrderDetailAction(orderId, onGetDetailSuccess));
     } else {
