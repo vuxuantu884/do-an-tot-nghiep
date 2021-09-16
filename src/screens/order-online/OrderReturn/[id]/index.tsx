@@ -10,6 +10,7 @@ import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   OrderLineItemResponse,
   OrderResponse,
+  ReturnProductModel,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useEffect, useState } from "react";
@@ -38,7 +39,7 @@ const ScreenReturnDetail = (props: PropType) => {
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [listReturnProducts, setListReturnProducts] = useState<
-    OrderLineItemResponse[]
+    ReturnProductModel[]
   >([]);
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
     null
@@ -74,7 +75,13 @@ const ScreenReturnDetail = (props: PropType) => {
                 f.status !== FulFillmentStatus.RETURNING
             );
             setOrderDetail(_data);
-            setListReturnProducts(_data.items);
+            let formatted: ReturnProductModel[] = _data.items.map((single) => {
+              return {
+                ...single,
+                maxQuantity: single.quantity,
+              };
+            });
+            setListReturnProducts(formatted);
             setAmountReturn(0);
           }
         })
@@ -131,7 +138,7 @@ const ScreenReturnDetail = (props: PropType) => {
             <CardReturnProducts
               listReturnProducts={listReturnProducts}
               handleReturnProducts={(
-                listReturnProducts: OrderLineItemResponse[]
+                listReturnProducts: ReturnProductModel[]
               ) => setListReturnProducts(listReturnProducts)}
               isDetailPage={isDetailPage}
             />
