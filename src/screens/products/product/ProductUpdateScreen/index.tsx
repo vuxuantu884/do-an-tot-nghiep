@@ -746,6 +746,7 @@ const ProductDetailScreen: React.FC = () => {
                               },
                               0
                             );
+                            setChange(true);
                             setActive(0);
                           }}
                           type="link"
