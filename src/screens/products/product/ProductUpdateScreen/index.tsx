@@ -952,11 +952,11 @@ const ProductDetailScreen: React.FC = () => {
                                                   <Item
                                                     name={[
                                                       name,
-                                                      "whole_sale_price",
+                                                      "wholesale_price",
                                                     ]}
                                                     fieldKey={[
                                                       fieldKey,
-                                                      "whole_sale_price",
+                                                      "wholesale_price",
                                                     ]}
                                                     label="Giá buôn"
                                                     tooltip={{

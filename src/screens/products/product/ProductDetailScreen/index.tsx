@@ -18,6 +18,7 @@ import VariantList from "../component/VariantList";
 import { showSuccess } from "utils/ToastUtils";
 import { Products } from "utils/AppUtils";
 import { Loading3QuartersOutlined } from "@ant-design/icons";
+import { useQuery } from "utils/useQuery";
 
 export interface ProductParams {
   id: string;
@@ -25,6 +26,8 @@ export interface ProductParams {
 
 const ProductDetailScreen: React.FC = () => {
   const history = useHistory();
+  const query = useQuery();
+  let variant_id = query.get('variant_id');
   const dispatch = useDispatch();
   const { id } = useParams<ProductParams>();
   const [error, setError] = useState(false);
@@ -146,9 +149,18 @@ const ProductDetailScreen: React.FC = () => {
   }, [dispatch, idNumber, onResult]);
 
   useEffect(() => {
-    // dispatch(inventoryGetDetailAction({}, onResult));
-  }, []);
-
+    if(data && data?.variants.length > 0) {
+      // dispatch(inventoryGetDetailAction({varr}, onResultHistory));
+    }
+  }, [data, dispatch, onResult]);
+  useEffect(() => {
+    if(variant_id && data) {
+      let index  = data.variants.findIndex((item) => item.id.toString() === variant_id);
+      if(index !== -1) {
+        setActive(index);
+      }
+    }
+  }, [data, variant_id])
   return (
     <StyledComponent>
       <ContentContainer
