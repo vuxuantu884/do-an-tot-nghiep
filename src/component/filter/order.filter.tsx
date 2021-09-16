@@ -247,6 +247,9 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'delivery_provider_ids':
           onFilter && onFilter({...params, delivery_provider_ids: []});
           break;
+        case 'shipper_ids':
+          onFilter && onFilter({...params, shipper_ids: []});
+          break;
         case 'note':
           onFilter && onFilter({...params, note: ""});
           break;
@@ -392,6 +395,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
       payment_method_ids: Array.isArray(params.payment_method_ids) ? params.payment_method_ids : [params.payment_method_ids],
       delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
+      shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
       assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
@@ -619,8 +623,20 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
       list.push({
         key: 'delivery_provider_ids',
-        name: 'Đối tác giao hàng',
+        name: 'Đơn vị vận chuyển',
         value: textType
+      })
+    }
+    if (initialValues.shipper_ids.length) {
+      let textAccount = ""
+      initialValues.shipper_ids.forEach(i => {
+        const findAccount = accounts.filter(item => item.is_shipper === true)?.find(item => item.id === i)
+        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+      })
+      list.push({
+        key: 'shipper_ids',
+        name: 'Đối tác giao hàng',
+        value: textAccount
       })
     }
     if (initialValues.expected_receive_predefined) {
@@ -1187,10 +1203,10 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
                 <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
-                  <Panel header="ĐỐI TÁC GIAO HÀNG" key="1" className="header-filter">
+                  <Panel header="ĐƠN VỊ VẬN CHUYỂN" key="1" className="header-filter">
                     <Item name="delivery_provider_ids">
                     <Select
-                      mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
+                      mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
                       notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                       optionFilterProp="children"
                       getPopupContainer={trigger => trigger.parentNode}
@@ -1198,6 +1214,28 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       {deliveryService?.map((item) => (
                         <Option key={item.id} value={item.id}>
                           {item.name}
+                        </Option>
+                      ))}
+                    </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={initialValues.shipper_ids.length ? ["1"]: []}>
+                  <Panel header="ĐỐI TÁC GIAO HÀNG" key="1" className="header-filter">
+                    <Item name="shipper_ids">
+                    <Select
+                      mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
+                      notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                      optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
+                    >
+                      {accounts.filter(account => account.is_shipper === true)?.map((account) => (
+                        <Option key={account.id} value={account.id}>
+                          {account.full_name} - {account.code}
                         </Option>
                       ))}
                     </Select>
