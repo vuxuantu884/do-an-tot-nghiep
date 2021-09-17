@@ -1,10 +1,11 @@
 import BaseAction from 'base/base.action';
 import BaseResponse from 'base/base.response';
-import { LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType } from 'domain/types/loyalty.type';
+import { LoyaltyPointsType, LoyaltyProgramType, LoyaltyRateType, LoyaltyUsageType } from 'domain/types/loyalty.type';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { BaseQuery } from 'model/base/base.query';
 import { CreateLoyaltyAccumulationRequest } from 'model/request/loyalty/create-loyalty-accumulation.request';
 import { LoyaltyAccumulationProgramResponse } from 'model/response/loyalty/loyalty-accumulation.response';
+import { LoyaltyPoint } from 'model/response/loyalty/loyalty-points.response';
 import { LoyaltyRateResponse } from 'model/response/loyalty/loyalty-rate.response';
 import { LoyaltyUsageResponse } from 'model/response/loyalty/loyalty-usage.response';
 
@@ -40,6 +41,10 @@ const createLoyaltyUsage = (query: Array<LoyaltyUsageResponse>, setData: (data: 
   return BaseAction(LoyaltyUsageType.CREATE_LOYALTY_USAGE_REQUEST, { query, setData });
 }
 
+const getLoyaltyPoint= (customerId: number|null, setData: (data: LoyaltyPoint) => void) => {
+  return BaseAction(LoyaltyPointsType.GET_LOYALTY_POINT, { customerId, setData });
+}
+
 export {
   createLoyaltyAccumulationProgram,
   getLoyaltyAccumulationProgram,
@@ -48,5 +53,6 @@ export {
   createLoyaltyRate,
   getLoyaltyUsage,
   createLoyaltyUsage,
-  getListLoyaltyAccumulationProgram
+  getListLoyaltyAccumulationProgram,
+  getLoyaltyPoint
 };

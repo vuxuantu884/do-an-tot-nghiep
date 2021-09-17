@@ -65,6 +65,8 @@ import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CustomerShippingAddressOrder from "./customer-shipping";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import { getLoyaltyPoint } from "domain/actions/loyalty/loyalty.action";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 //#end region
 
 type CustomerCardProps = {
@@ -95,7 +97,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   props: CustomerCardProps
 ) => {
   const { customer, handleCustomer } = props;
-
+  console.log(customer)
   //State
   const dispatch = useDispatch();
   const [isVisibleAddress, setVisibleAddress] = useState(false);
@@ -109,6 +111,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [wards, setWards] = React.useState<Array<WardResponse>>([]);
   const [groups, setGroups] = React.useState<Array<any>>([]);
+  const [loyaltyPoint, setLoyaltyPoint]= useState<LoyaltyPoint|null>(null);
 
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
@@ -306,6 +309,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
       setDistrictId(districtId);
     }
   };
+  
 
   const handleChangeCustomer = (customers: any) => {
     if (customers) {
@@ -334,6 +338,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (
         );
     }
   };
+
+  useEffect(() => {
+    if (customer) {
+      dispatch(getLoyaltyPoint(customer.id,setLoyaltyPoint));
+    }
+    else {setLoyaltyPoint(null)}
+}, [dispatch, customer]);
 
   return (
     <Card
@@ -482,7 +493,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (
                     style={{ color: "#FCAF17", marginLeft: "5px" }}
                     strong
                   >
-                    {customer?.loyalty === undefined ? "0" : customer?.loyalty}
+                    {loyaltyPoint?.point === undefined ? "0" : loyaltyPoint?.point}
                   </Typography.Text>
                 </span>
               </Space>

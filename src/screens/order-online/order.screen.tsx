@@ -7,6 +7,7 @@ import UrlConfig from "config/url.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { CustomerDetail } from "domain/actions/customer/customer.action";
+import { getLoyaltyPoint } from "domain/actions/loyalty/loyalty.action";
 import {
   orderCreateAction,
   OrderDetailAction,
@@ -26,6 +27,7 @@ import {
   ShippingAddress,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
+import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import {
   FulFillmentResponse,
   // OrderLineItemResponse,
@@ -81,6 +83,7 @@ export default function Order() {
   const [paymentMethod, setPaymentMethod] = useState<number>(
     PaymentMethodOption.PREPAYMENT
   );
+  const [loyaltyPoint, setLoyaltyPoint]= useState<LoyaltyPoint|null>(null);
   const [hvc, setHvc] = useState<number | null>(null);
   const [feeGhtk, setFeeGhtk] = useState<number | null>(null);
   const [shippingFeeCustomer, setShippingFeeCustomer] = useState<number | null>(
@@ -415,6 +418,21 @@ export default function Order() {
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount =
       getTotalAmountAfferDiscount(items);
+    
+    let checkPointfocus = payments.find(
+        (p) => p.code === "point"
+    );
+    if (checkPointfocus) {
+        let curenPoint = 0;
+        if (loyaltyPoint)
+            curenPoint = loyaltyPoint.point === null ? 0 : loyaltyPoint.point;
+        let point =checkPointfocus.point === undefined ? 0 : checkPointfocus.point;
+
+        if (point > curenPoint) {
+            showError("Số điểm tiêu vượt quá số điểm hiện có");
+            return;
+        }
+    }
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
       values.fulfillments = [];
@@ -702,6 +720,12 @@ export default function Order() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cloneIdParam, dispatch, isCloneOrder]);
 
+  useEffect(() => {
+    if (customer) {
+      dispatch(getLoyaltyPoint(customer.id,setLoyaltyPoint));
+    }
+    else {setLoyaltyPoint(null)}
+}, [dispatch, customer]);
   return (
     <React.Fragment>
       <ContentContainer
