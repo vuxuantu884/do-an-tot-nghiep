@@ -8,7 +8,6 @@ import {
 import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
 import IconConnect from "./images/connect.svg";

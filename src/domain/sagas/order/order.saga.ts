@@ -10,7 +10,6 @@ import {
   ErrorLogResponse,
   GHNFeeResponse,
   OrderResponse,
-  OrderSubStatusResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
   VTPFeeResponse,

@@ -23,13 +23,12 @@ import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
 import { showError } from "utils/ToastUtils";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
 import IconClose from "./images/iconClose.svg";
-import IconDHL from "./images/iconDHL.svg";
 import { StyledComponent } from "./styles";
 
 type PropType = {};
 
 function SingleThirdPartyLogisticDHL(props: PropType) {
-  const external_service_code = "htl";
+  const external_service_code = "dhl";
   const urlGuide = "https://yody.vn/";
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -46,7 +45,7 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
 
-  const [inputTokenApi, setInputTokenApi] = useState<string>("");
+  const [inputTokenApi] = useState<string>("");
   const [inputStoreIdValue, setInputStoreIdValue] = useState<
     string | undefined
   >(undefined);
