@@ -1,78 +1,111 @@
 import { Checkbox, Form, Input } from "antd";
-import { DeliveryServicesGetList } from "domain/actions/order/order.action";
-import { UpdateConfig3rdPartyLogisticsReQuestModel } from "model/request/settings/third-party-logistics-settings.resquest";
-import { DeliveryServiceResponse } from "model/response/order/order.response";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import UrlConfig from "config/url.config";
+import {
+  DeliveryServicesGetList,
+  getDeliveryTransportTypesAction,
+  updateDeliveryConfigurationAction,
+} from "domain/actions/order/order.action";
+import {
+  DeliveryServiceResponse,
+  DeliveryServiceTransportType,
+} from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useHistory } from "react-router";
 import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
-import IconGiaoHangTietKiem from "./images/iconGiaoHangTietKiem.svg";
 import { StyledComponent } from "./styles";
 
 type PropType = {};
 
 function SingleThirdPartyLogistic(props: PropType) {
-  const CODE = "ghtk";
+  const external_service_code = "ghtk";
+  const urlGuide = "https://yody.vn/";
   const [form] = Form.useForm();
-
-  const [currentThirdPartyLogistic, setCurrentThirdPartyLogistic] =
-    useState<DeliveryServiceResponse | null>(null);
   const dispatch = useDispatch();
+  const history = useHistory();
+
+  const [thirdPartyLogistics, setThirdPartyLogistics] =
+    useState<DeliveryServiceResponse | null>(null);
+  const [listServices, setListServices] = useState<
+    DeliveryServiceTransportType[]
+  >([]);
+  const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
+  const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
 
   const initialFormValue = {
-    token_api: "",
-    shop_id: "",
-    service: "",
-    cuaHangApDung: [],
+    username: "",
+    password: "",
     transport_types: [],
   };
 
   const handleSubmit = () => {
-    if (!currentThirdPartyLogistic?.config) {
-      return;
-    }
     const formComponentValue = form.getFieldsValue();
-    console.log("formComponentValue", formComponentValue);
-    let transport_types_value = currentThirdPartyLogistic.transport_types.map(
-      (single) => {
-        if (formComponentValue.transport_types.includes(single.id)) {
-          return {
-            id: single.id,
-            status: DELIVER_SERVICE_STATUS.active,
-          };
-        } else {
-          return {
-            id: single.id,
-            status: DELIVER_SERVICE_STATUS.inactive,
-          };
-        }
-      }
-    );
-
-    const formattedFormValue: UpdateConfig3rdPartyLogisticsReQuestModel = {
-      external_service_id:
-        currentThirdPartyLogistic?.config.external_service_id,
-      external_service_code:
-        currentThirdPartyLogistic?.config.external_service_code,
-      base_url: currentThirdPartyLogistic?.config.base_url,
-      status: currentThirdPartyLogistic?.config.status,
-      transport_types: transport_types_value,
+    let transport_types = listServices.map((single) => {
+      return {
+        ...single,
+        active: formComponentValue.transport_types.includes(single.code)
+          ? DELIVER_SERVICE_STATUS.active
+          : DELIVER_SERVICE_STATUS.inactive,
+      };
+    });
+    const formValueFormatted = {
+      external_service_id: thirdPartyLogistics?.id,
+      username: formComponentValue.username,
+      password: formComponentValue.password,
+      transport_types,
     };
-    console.log("formattedFormValue", formattedFormValue);
+    console.log("formValueFormatted", formValueFormatted);
+    dispatch(
+      updateDeliveryConfigurationAction(formValueFormatted, () => {
+        history.push(`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`);
+      })
+    );
   };
 
-  const handleCancelConnect = () => {
-    console.log("cancelConnect");
+  const handleCancelConnect3PL = () => {
+    setConfirmSubTitle(
+      <React.Fragment>
+        Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
+        <strong>{thirdPartyLogistics?.name}</strong>" ?
+      </React.Fragment>
+    );
+    setIsShowConfirmDisconnect(true);
+  };
+
+  const cancelConnect3PL = (thirdPartyLogisticId: number | undefined) => {
+    if (!thirdPartyLogisticId) {
+      return;
+    }
+    const params = {
+      external_service_id: thirdPartyLogisticId,
+      status: DELIVER_SERVICE_STATUS.inactive,
+    };
+    dispatch(
+      updateDeliveryConfigurationAction(params, () => {
+        history.push(`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`);
+      })
+    );
   };
 
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        let current = response.find((single) => {
-          return (single.code = CODE);
-        });
-        if (current) {
-          setCurrentThirdPartyLogistic(current);
+        if (response) {
+          let result = response.find((single) => {
+            return single.external_service_code === external_service_code;
+          });
+          if (result) {
+            setThirdPartyLogistics(result);
+            dispatch(
+              getDeliveryTransportTypesAction(result.id, (response) => {
+                if (response) {
+                  setListServices(response);
+                }
+              })
+            );
+          }
         }
       })
     );
@@ -81,10 +114,11 @@ function SingleThirdPartyLogistic(props: PropType) {
   return (
     <StyledComponent>
       <SingleThirdPartyLogisticLayout
-        logoSingleThirdPartyLogistic={IconGiaoHangTietKiem}
-        nameSingleThirdPartyLogistic="Giao hàng tiết kiệm"
+        logoSingleThirdPartyLogistic={thirdPartyLogistics?.logo}
+        nameSingleThirdPartyLogistic={thirdPartyLogistics?.name}
         onSubmit={handleSubmit}
-        onCancelConnect={handleCancelConnect}
+        onCancelConnect={() => handleCancelConnect3PL()}
+        urlGuide={urlGuide}
       >
         <Form
           form={form}
@@ -93,14 +127,32 @@ function SingleThirdPartyLogistic(props: PropType) {
           initialValues={initialFormValue}
           style={{ width: "377px", maxWidth: "100%" }}
         >
-          <Form.Item name="account" label="Tài khoản: ">
+          <Form.Item
+            name="username"
+            label="Tài khoản: "
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập tài khoản!",
+              },
+            ]}
+          >
             <Input
               type="text"
               placeholder="Nhập tài khoản"
               style={{ width: "100%" }}
             />
           </Form.Item>
-          <Form.Item name="password" label="Mật khẩu: ">
+          <Form.Item
+            name="password"
+            label="Mật khẩu: "
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập mật khẩu!",
+              },
+            ]}
+          >
             <Input
               type="password"
               placeholder="Nhập mật khẩu"
@@ -112,23 +164,28 @@ function SingleThirdPartyLogistic(props: PropType) {
             label="Chọn dịch vụ đã kí hợp đồng với hãng vận chuyển:"
           >
             <Checkbox.Group>
-              {currentThirdPartyLogistic?.transport_types &&
-                currentThirdPartyLogistic?.transport_types.length > 0 &&
-                currentThirdPartyLogistic?.transport_types.map(
-                  (singleService) => {
-                    return (
-                      <div key={singleService.id}>
-                        <Checkbox value={singleService.id}>
-                          {singleService.name}
-                        </Checkbox>
-                      </div>
-                    );
-                  }
-                )}
+              {listServices &&
+                listServices.length > 0 &&
+                listServices.map((singleService) => {
+                  return (
+                    <div key={singleService.code}>
+                      <Checkbox value={singleService.code}>
+                        {singleService.name}
+                      </Checkbox>
+                    </div>
+                  );
+                })}
             </Checkbox.Group>
           </Form.Item>
         </Form>
       </SingleThirdPartyLogisticLayout>
+      <ModalDeleteConfirm
+        visible={isShowConfirmDisconnect}
+        onOk={() => cancelConnect3PL(thirdPartyLogistics?.id)}
+        onCancel={() => setIsShowConfirmDisconnect(false)}
+        title="Xác nhận"
+        subTitle={confirmSubTitle}
+      />
     </StyledComponent>
   );
 }

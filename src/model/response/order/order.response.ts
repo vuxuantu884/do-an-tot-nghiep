@@ -263,6 +263,26 @@ export interface DeliveryServiceResponse {
   }[];
 }
 
+export type DeliveryServiceTransportType = {
+  code: string;
+  name: string;
+  description: string;
+  active: boolean;
+};
+
+export type DeliveryTransportTypesResponse = {
+  code: string;
+  name: string;
+  description: string;
+  active: boolean;
+};
+
+export type DeliveryMappedStoreType = {
+  store_id: number;
+  name: string;
+  shop_id: number;
+};
+
 export interface ShippingGHTKResponse {
   name: string;
   fee: number;

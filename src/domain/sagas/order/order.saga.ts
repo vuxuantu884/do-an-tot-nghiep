@@ -4,7 +4,9 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { OrderModel } from "model/order/order.model";
 import { ShipmentModel } from "model/order/shipment.model";
 import {
+  DeliveryMappedStoreType,
   DeliveryServiceResponse,
+  DeliveryTransportTypesResponse,
   ErrorLogResponse,
   GHNFeeResponse,
   OrderResponse,
@@ -13,14 +15,20 @@ import {
   TrackingLogFulfillmentResponse,
   VTPFeeResponse,
 } from "model/response/order/order.response";
+import { ChannelResponse } from "model/response/product/channel.response";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { getAmountPayment } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { YodyAction } from "../../../base/base.action";
 import {
+  createDeliveryMappedStoreServices,
+  deleteDeliveryMappedStoreServices,
   getChannelApi,
+  getDeliveryMappedStoresServices,
+  getDeliveryTransportTypesServices,
   getPaymentMethod,
   orderPostApi,
+  updateDeliveryConnectService,
 } from "../../../service/order/order.service";
 import { OrderType } from "../../types/order.type";
 import { PaymentMethodResponse } from "./../../../model/response/order/paymentmethod.response";
@@ -31,6 +39,7 @@ import {
   getInfoDeliveryGHTK,
   getInfoDeliveryVTP,
   getListOrderApi,
+  getListOrderCustomerApi,
   getOrderDetail,
   getOrderSubStatusService,
   getShipmentApi,
@@ -41,10 +50,8 @@ import {
   updateFulFillmentStatus,
   updatePayment,
   updateShipment,
-  getListOrderCustomerApi
 } from "./../../../service/order/order.service";
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
-import { ChannelResponse } from "model/response/product/channel.response";
 
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
@@ -129,7 +136,7 @@ function* orderFpageCreateSaga(action: YodyAction) {
         setData(response.data);
         break;
       default:
-        setDisable(false)
+        setDisable(false);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -137,8 +144,6 @@ function* orderFpageCreateSaga(action: YodyAction) {
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
-
-
 
 function* InfoGHTKSaga(action: YodyAction) {
   const { request, setData } = action.payload;
@@ -378,6 +383,7 @@ function* ListDeliveryServicesSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
+        response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
@@ -385,10 +391,140 @@ function* ListDeliveryServicesSaga(action: YodyAction) {
   }
 }
 
+function* getDeliveryTransportTypeSaga(action: YodyAction) {
+  let { id, handleData } = action.payload;
+  try {
+    let response: BaseResponse<Array<DeliveryTransportTypesResponse>> =
+      yield call(getDeliveryTransportTypesServices, id);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getDeliveryMappedStoresSaga(action: YodyAction) {
+  let { id, handleData } = action.payload;
+  try {
+    let response: BaseResponse<Array<DeliveryMappedStoreType>> = yield call(
+      getDeliveryMappedStoresServices,
+      id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* createDeliveryMappedStoreSaga(action: YodyAction) {
+  yield put(showLoading());
+  let { idDelivery, shop_id, store_id, token, handleData } = action.payload;
+  try {
+    let response: BaseResponse<any> = yield call(
+      createDeliveryMappedStoreServices,
+      idDelivery,
+      shop_id,
+      store_id,
+      token
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+        showSuccess("Thêm mapping store thành công!");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* deleteDeliveryMappedStoreSaga(action: YodyAction) {
+  yield put(showLoading());
+  let { idDelivery, shop_id, store_id, handleData } = action.payload;
+  try {
+    let response: BaseResponse<Array<DeliveryMappedStoreType>> = yield call(
+      deleteDeliveryMappedStoreServices,
+      idDelivery,
+      shop_id,
+      store_id
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+        showSuccess("Xóa mapping store thành công!");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* updateDeliveryConfigurationSaga(action: YodyAction) {
+  yield put(showLoading());
+  let { params, handleData } = action.payload;
+  try {
+    let response: BaseResponse<any> = yield call(
+      updateDeliveryConnectService,
+      params
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        handleData(response.data);
+        showSuccess("Cập nhật thành công!");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
 function* getListSubStatusSaga(action: YodyAction) {
   let { status, handleData } = action.payload;
   try {
-    let response: BaseResponse<Array<OrderSubStatusResponse[]>> = yield call(
+    let response: BaseResponse<any> = yield call(
       getOrderSubStatusService,
       status
     );
@@ -400,6 +536,7 @@ function* getListSubStatusSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
+        response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {}
@@ -425,6 +562,7 @@ function* setSubStatusSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
+        response.errors.forEach((e) => showError(e));
         break;
     }
   } catch (error) {
@@ -458,7 +596,10 @@ function* getAllChannelSaga(action: YodyAction) {
 
 export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
-  yield takeLatest(OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST, getListOrderCustomerSaga);
+  yield takeLatest(
+    OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST,
+    getListOrderCustomerSaga
+  );
   yield takeLatest(OrderType.GET_SHIPMENTS_REQUEST, getShipmentsSaga);
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
   yield takeLatest(OrderType.CREATE_FPAGE_ORDER_REQUEST, orderFpageCreateSaga);
@@ -474,6 +615,21 @@ export function* OrderOnlineSaga() {
     OrderType.GET_LIST_DELIVERY_SERVICE,
     ListDeliveryServicesSaga
   );
+  yield takeLatest(OrderType.GET_TRANSPORT_TYPES, getDeliveryTransportTypeSaga);
+  yield takeLatest(OrderType.GET_MAPPED_STORES, getDeliveryMappedStoresSaga);
+  yield takeLatest(
+    OrderType.CREATE_MAPPED_STORE,
+    createDeliveryMappedStoreSaga
+  );
+  yield takeLatest(
+    OrderType.DELETE_MAPPED_STORE,
+    deleteDeliveryMappedStoreSaga
+  );
+  yield takeLatest(
+    OrderType.UPDATE_3RD_PL_CONNECT,
+    updateDeliveryConfigurationSaga
+  );
+
   yield takeLatest(OrderType.UPDATE_PAYMENT_METHOD, updatePaymentSaga);
   yield takeLatest(OrderType.GET_INFO_DELIVERY_GHTK, InfoGHTKSaga);
   yield takeLatest(OrderType.GET_INFO_GHN_FEE, InfoGHNSaga);

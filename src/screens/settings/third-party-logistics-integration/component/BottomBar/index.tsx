@@ -21,7 +21,7 @@ function BottomBar(props: PropType) {
             to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`}
             className="back"
           >
-            <img src={IconBack} alt="" style={{ marginRight: 5 }} />
+            <img src={IconBack} alt="" style={{ marginRight: 10 }} />
             Quay lại danh sách
           </Link>
         </div>

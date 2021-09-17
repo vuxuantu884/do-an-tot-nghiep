@@ -19,7 +19,9 @@ import {
   OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import {
+  DeliveryMappedStoreType,
   DeliveryServiceResponse,
+  DeliveryTransportTypesResponse,
   ErrorLogResponse,
   GHNFeeResponse,
   OrderResponse,
@@ -123,6 +125,63 @@ export const getDeliverieServices = (): Promise<
   BaseResponse<Array<DeliveryServiceResponse>>
 > => {
   return BaseAxios.get(`${ApiConfig.ORDER}/shipping/delivery-services`);
+};
+
+export const getDeliveryTransportTypesServices = (
+  id: number
+): Promise<BaseResponse<Array<DeliveryTransportTypesResponse>>> => {
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/external-service/${id}/transport-types`
+  );
+};
+
+export const getDeliveryMappedStoresServices = (
+  id: number
+): Promise<BaseResponse<Array<DeliveryMappedStoreType>>> => {
+  return BaseAxios.get(
+    `${ApiConfig.ORDER}/external-service/${id}/mapped-stores`
+  );
+};
+
+export const deleteDeliveryMappedStoreServices = (
+  idDelivery: number,
+  shop_id: number,
+  store_id: number
+): Promise<BaseResponse<any>> => {
+  const params = {
+    shop_id,
+    store_id,
+  };
+  return BaseAxios.post(
+    `${ApiConfig.ORDER}/external-service/${idDelivery}/delete-mapped-store`,
+    params
+  );
+};
+
+export const createDeliveryMappedStoreServices = (
+  idDelivery: number,
+  shop_id: number,
+  store_id: number,
+  token: string
+): Promise<BaseResponse<any>> => {
+  const params = {
+    shop_id,
+    store_id,
+    token,
+  };
+  return BaseAxios.post(
+    `${ApiConfig.ORDER}/external-service/${idDelivery}/mapping-store`,
+    params
+  );
+};
+
+export const updateDeliveryConnectService = (
+  params: any
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(
+    `${ApiConfig.ORDER}/external-service/update-config`,
+    params
+  );
 };
 
 /**
