@@ -27,7 +27,17 @@ const AddMaterial: React.FC = () => {
   }, [history]);
   const onFinish = useCallback(
     (values: MaterialCreateRequest) => {
-      dispatch(createMaterialAction(values, onSuccess));
+      const newValue = {...values,
+        code: values.code.trim(),
+        component: values.component.trim(),
+        description: values.description.trim(),
+        name: values.name.trim(),
+        advantages: values.advantages.trim(),
+        defect: values.defect.trim(),
+        preserve: values.preserve.trim(),
+      }
+      
+      dispatch(createMaterialAction(newValue, onSuccess));
     },
     [dispatch, onSuccess]
   );
@@ -68,37 +78,7 @@ const AddMaterial: React.FC = () => {
                 <Form.Item
                   rules={[
                     {
-                      required: true,
-                      message: 'Vui lòng nhập tên chất liệu',
-                    },
-                    {
-                      max: 50,
-                      message: 'Tên chất liệu không vượt quá 50 ký tự',
-                    },
-                  ]}
-                  label="Tên chất liệu:"
-                  name="name"
-                >
-                  <Input maxLength={50} placeholder="Cotton" />
-                </Form.Item>
-              </Col>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Form.Item
-                  name="component"
-                  label="Thành phần:"
-                  rules={[
-                    {max: 50, message: 'Thành phần không quá 50 kí tự'}
-                  ]}
-                >
-                  <Input maxLength={50} placeholder="Nhập thành phần" />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={50}>
-              <Col span={24} lg={8} md={12} sm={24}>
-                <Form.Item
-                  rules={[
-                    {
+                      whitespace: true,
                       required: true,
                       message: 'Vui lòng nhập mã chất liệu',
                     },
@@ -114,7 +94,39 @@ const AddMaterial: React.FC = () => {
                   name="code"
                   label="Mã chất liệu:"
                 >
-                  <Input placeholder="CTN01" maxLength={5} />
+                  <Input placeholder="Nhập mã chất liệu" maxLength={5} />
+                </Form.Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item
+                  rules={[
+                    {
+                      whitespace: true,
+                      required: true,
+                      message: 'Vui lòng nhập mã chất liệu',
+                    },
+                    {
+                      max: 50,
+                      message: 'Tên chất liệu không vượt quá 50 ký tự',
+                    },
+                  ]}
+                  label="Tên chất liệu:"
+                  name="name"
+                >
+                  <Input maxLength={50} placeholder="Tên chất liệu" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item
+                  name="component"
+                  label="Thành phần:"
+                  rules={[
+                    {max: 50, message: 'Thành phần không quá 50 kí tự'}
+                  ]}
+                >
+                  <Input maxLength={50} placeholder="Nhập thành phần" />
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -153,7 +165,7 @@ const AddMaterial: React.FC = () => {
               <Col span={24} lg={16}>
                 <Form.Item rules={[
                     {max: 250, message: 'Ghi chú không quá 150 kí tự'}
-                  ]} name="description" label="Ghi chú">
+                  ]} name="description" label="Ghi chú:">
                   <Input.TextArea
                     autoSize={{ minRows: 3, maxRows: 5 }}
                     maxLength={250}

@@ -41,8 +41,18 @@ const UpdateMaterial: React.FC = () => {
   const onFinish = useCallback(
     (values: MaterialUpdateRequest) => {
       let idNumber = parseInt(id);
+      const newValue = {
+        ...values,
+        code: values.code.trim(),
+        component: values.component.trim(),
+        description: values.description.trim(),
+        name: values.name.trim(),
+        advantages: values.advantages.trim(),
+        defect: values.defect.trim(),
+        preserve: values.preserve.trim(),
+      }
       setLoading(true);
-      dispatch(updateMaterialAction(idNumber, values, onUpdate));
+      dispatch(updateMaterialAction(idNumber, newValue, onUpdate));
       
     },
     [dispatch, id, onUpdate]
@@ -106,6 +116,31 @@ const UpdateMaterial: React.FC = () => {
                   <Form.Item
                     rules={[
                       {
+                        whitespace: true,
+                        required: true,
+                        message: 'Vui lòng nhập mã chất liệu'
+                      },
+                      {
+                        pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                        message: 'Mã chất liệu không chứa ký tự đặc biệt',
+                      },
+                    ]}
+                    name="code"
+                    labelAlign="right"
+                    label="Mã chất liệu:"
+                  >
+                    <Input
+                      placeholder="Nhập mã chất liệu"
+                      size="large"
+                      maxLength={5}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={24} lg={8} md={12} sm={24}>
+                  <Form.Item
+                    rules={[
+                      {
+                        whitespace: true,
                         required: true,
                         message: 'Vui lòng nhập tên chất liệu',
                       },
@@ -114,22 +149,10 @@ const UpdateMaterial: React.FC = () => {
                         message: 'Tên chất liệu không vượt quá 50 ký tự',
                       },
                     ]}
-                    label="Tên chất liệu"
+                    label="Tên chất liệu:"
                     name="name"
                   >
-                    <Input maxLength={50} placeholder="Tên danh mục" />
-                  </Form.Item>
-                </Col>
-                <Col span={24} lg={8} md={12} sm={24}>
-                  <Form.Item
-                    rules={[
-                      {max: 50, message: 'Thành phần không quá 50 kí tự'},
-                      {max: 50},
-                    ]}
-                    name="component"
-                    label="Thành phần"
-                  >
-                    <Input placeholder="Thành phần" />
+                    <Input maxLength={50} placeholder="Tên chất liệu" />
                   </Form.Item>
                 </Col>
               </Row>
@@ -137,21 +160,13 @@ const UpdateMaterial: React.FC = () => {
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Form.Item
                     rules={[
-                      {required: true, message: 'Vui lòng nhập mã chất liệu'},
-                      {
-                        pattern: RegUtil.NO_SPECICAL_CHARACTER,
-                        message: 'Mã chất liệu không chứa ký tự đặc biệt',
-                      },
+                      {max: 50, message: 'Thành phần không quá 50 kí tự'},
+                      {max: 50},
                     ]}
-                    name="code"
-                    labelAlign="right"
-                    label="Mã chất liệu"
+                    name="component"
+                    label="Thành phần:"
                   >
-                    <Input
-                      placeholder="Mã chất liệu"
-                      size="large"
-                      maxLength={5}
-                    />
+                    <Input placeholder="Thành phần" />
                   </Form.Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
@@ -190,7 +205,7 @@ const UpdateMaterial: React.FC = () => {
               <Col span={24} lg={16}>
                 <Form.Item rules={[
                     {max: 250, message: 'Ghi chú không quá 150 kí tự'}
-                  ]} name="description" label="Ghi chú">
+                  ]} name="description" label="Ghi chú:">
                   <Input.TextArea
                     autoSize={{ minRows: 3, maxRows: 5 }}
                     maxLength={250} 

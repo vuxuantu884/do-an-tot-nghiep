@@ -68,7 +68,7 @@ export const createProductApi = (request: ProductRequest) => {
 
 export const productGetHistory = (query: ProductHistoryQuery): Promise<BaseResponse<PageResponse<ProductHistoryResponse>>> => {
   const queryString = generateQuery(query);
-  return BaseAxios.get(`${ApiConfig.PRODUCT}/products/history?${queryString}`);
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/products/histories?${queryString}`);
 };
 
 export const productDetailApi = (id: number) => {
