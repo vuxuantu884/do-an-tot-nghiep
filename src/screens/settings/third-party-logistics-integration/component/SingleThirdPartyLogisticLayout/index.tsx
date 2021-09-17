@@ -7,10 +7,11 @@ import SingleLogisticCardHeader from "../CardHeader";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  logoSingleThirdPartyLogistic: string;
-  nameSingleThirdPartyLogistic: string;
+  logoSingleThirdPartyLogistic?: string;
+  nameSingleThirdPartyLogistic?: string;
   onSubmit: () => void;
   onCancelConnect: () => void;
+  urlGuide: string;
   children: React.ReactElement;
 };
 
@@ -20,12 +21,14 @@ function SingleThirdPartyLogisticLayout(props: PropType) {
     nameSingleThirdPartyLogistic,
     onSubmit,
     onCancelConnect,
+    urlGuide,
   } = props;
   const renderCardTitle = () => {
     return (
       <SingleLogisticCardHeader
         title={nameSingleThirdPartyLogistic}
         logoUrl={logoSingleThirdPartyLogistic}
+        urlGuide={urlGuide}
       />
     );
   };
@@ -47,7 +50,7 @@ function SingleThirdPartyLogisticLayout(props: PropType) {
             path: UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION,
           },
           {
-            name: nameSingleThirdPartyLogistic,
+            name: nameSingleThirdPartyLogistic || "",
           },
         ]}
       >
