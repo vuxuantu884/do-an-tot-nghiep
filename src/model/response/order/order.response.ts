@@ -57,6 +57,7 @@ export interface OrderResponse extends BaseObject {
   shipping_address: ShippingAddress | null;
   billing_address: BillingAddress | null;
   fulfillments: Array<FulFillmentResponse> | null | undefined;
+  sub_status_id?: number | null;
 }
 
 export interface OrderLineItemResponse {
@@ -80,7 +81,7 @@ export interface OrderLineItemResponse {
   weight_unit: string;
   warranty: string;
   tax_rate: number;
-  tax_include: boolean;
+  tax_include: boolean | null;
   line_amount_after_line_discount: number;
   discount_items: Array<OrderItemDiscountResponse>;
   discount_rate: number;
@@ -88,6 +89,10 @@ export interface OrderLineItemResponse {
   discount_amount: number;
   position?: number;
   gifts: Array<OrderLineItemResponse>;
+}
+
+export interface ReturnProductModel extends OrderLineItemResponse {
+  maxQuantity: number;
 }
 
 export interface FulFillmentResponse {
@@ -137,11 +142,19 @@ export interface OrderDiscountResponse {
   source: string | null;
 }
 
+// export interface OrderItemDiscountResponse {
+//   rate: number | null;
+//   value: number;
+//   amount: number | null;
+//   promotion_id?: number | null;
+//   reason: string | null;
+// }
+
 export interface OrderItemDiscountResponse {
-  rate: number | null;
+  rate: number;
   value: number;
-  amount: number | null;
-  promotion_id?: number | null;
+  amount: number;
+  promotion_id?: number;
   reason: string | null;
 }
 
@@ -230,8 +243,24 @@ export interface ShipmentResponse extends BaseObject {
 export interface DeliveryServiceResponse {
   id: number;
   code: string;
+  status: string;
+  external_service_code: string;
   name: string;
   logo: string;
+  config: {
+    id: number;
+    external_service_id: number;
+    external_service_code: string;
+    base_url: string;
+    status: string;
+  } | null;
+  transport_types: {
+    id: number;
+    external_service_id: number;
+    external_service_code: string;
+    name: string;
+    status: string;
+  }[];
 }
 
 export interface ShippingGHTKResponse {

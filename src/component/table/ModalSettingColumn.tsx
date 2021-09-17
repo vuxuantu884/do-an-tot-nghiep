@@ -23,7 +23,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
   const onDrag = useCallback(
     (fromIndex, toIndex) => {
       if (toIndex < 0 || toIndex > columns.length - 1) return; // Ignores if outside designated area
-      const items = [...columns];
+      const items = [...JSON.parse(JSON.stringify(columns))];
       const item = items.splice(fromIndex, 1)[0];
       items.splice(toIndex, 0, item);
       setColumn(items);
@@ -34,7 +34,7 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
     (index, e) => {
       if (index < 0 || index > columns.length - 1) return; // Ignores if outside designated area
       const items = [...columns];
-      items[index].visible = e.target.checked;
+      items[index] = {...items[index], visible: e.target.checked}
       setColumn(items);
     },
     [columns]
@@ -48,7 +48,10 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
       closable={false}
       visible={visible}
       onOk={() => onOk(columns)}
-      onCancel={onCancel}
+      onCancel={() => {
+        setColumn(data);
+        onCancel && onCancel();
+      }}
       okText="Lưu"
       cancelText="Huỷ"
     >

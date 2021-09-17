@@ -1,11 +1,13 @@
 import { Button } from "antd";
 import { actionFetchPrintFormByOrderIds } from "domain/actions/printer/printer.action";
+import purify from "dompurify";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { FulFillmentResponse } from "model/response/order/order.response";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useReactToPrint } from "react-to-print";
 import { FulFillmentStatus } from "utils/Constants";
+import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
 import IconPrint from "./images/iconPrint.svg";
 import { StyledComponent } from "./styles";
 
@@ -36,16 +38,16 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
     }
     switch (fulfillment.status) {
       case FulFillmentStatus.UNSHIPPED:
-        printType = "shipment";
+        printType = LIST_PRINTER_TYPES.shipment;
         break;
       case FulFillmentStatus.PICKED:
-        printType = "shipment";
+        printType = LIST_PRINTER_TYPES.shipment;
         break;
       case FulFillmentStatus.PACKED:
-        printType = "stock_export";
+        printType = LIST_PRINTER_TYPES.stock_export;
         break;
       default:
-        printType = "order";
+        printType = LIST_PRINTER_TYPES.order;
         break;
     }
   };
@@ -98,7 +100,7 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
 
   useEffect(() => {
     const onAfterPrint = () => {
-      console.log("Printing completed...");
+      alert("Printing completed...");
     };
     //for chrome
     window.matchMedia("print").addListener(function (mql) {
@@ -145,7 +147,8 @@ const PrintShippingLabel: React.FC<PropType> = (props: PropType) => {
             <div className="printContent333" ref={printElementRef}>
               <div
                 dangerouslySetInnerHTML={{
-                  __html: renderHtml(printerContentHtml()),
+                  // __html: renderHtml(printerContentHtml()),
+                  __html: purify.sanitize(renderHtml(printerContentHtml())),
                 }}
               ></div>
             </div>

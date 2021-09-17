@@ -11,6 +11,7 @@ import {
   CustomerTypes,
   CreateNote,
   DeleteNote,
+  UpdateCustomer,
 } from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
 import { WardResponse } from "model/content/ward.model";
@@ -18,7 +19,7 @@ import {
   CustomerModel,
   CustomerContactClass,
 } from "model/request/customer.request";
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { showSuccess, showError } from "utils/ToastUtils";
@@ -33,12 +34,18 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import moment from "moment";
-import {
-  formatCurrency,
-} from "utils/AppUtils";
+import { formatCurrency } from "utils/AppUtils";
+import { FpageCustomerSearchQuery } from "model/query/customer.query";
+import { CustomerSearchByPhone } from "domain/actions/customer/customer.action";
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
+};
+const initQueryCustomer: FpageCustomerSearchQuery = {
+  request: "",
+  phone: null,
+  limit: 10,
+  page: 1,
 };
 const CustomerAdd = (props: any) => {
   const {
@@ -49,6 +56,11 @@ const CustomerAdd = (props: any) => {
     setCustomerPhoneList,
     getCustomerWhenPhoneChange,
     orderHistory,
+    setIsClearOrderField,
+    customerPhone,
+    deletePhone,
+    metaData,
+    onPageChange,customerFbName
   } = props;
   const [customerForm] = Form.useForm();
   const history = useHistory();
@@ -64,7 +76,7 @@ const CustomerAdd = (props: any) => {
   const [status, setStatus] = React.useState<string>("active");
   const notes = customerDetail && customerDetail.notes;
   const customerId = customerDetail && customerDetail.id;
-
+  
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -83,6 +95,11 @@ const CustomerAdd = (props: any) => {
     [dispatch, setDataAccounts]
   );
   //m
+  React.useEffect(() => {
+    if (customerDetail?.district_id) {
+      dispatch(WardGetByDistrictAction(customerDetail.district_id, setWards));
+    }
+  }, [dispatch, customerDetail]);
 
   const status_order = [
     {
@@ -145,13 +162,13 @@ const CustomerAdd = (props: any) => {
       },
     },
     {
-      title: "Tổng thu", 
+      title: "Tổng thu",
       align: "center",
       render: (value: any, row: any, index: any) => {
         return (
           <div>{formatCurrency(row.total_line_amount_after_line_discount)}</div>
-        )
-      }
+        );
+      },
     },
     {
       title: "Trạng thái",
@@ -221,34 +238,33 @@ const CustomerAdd = (props: any) => {
   React.useEffect(() => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
-
   React.useEffect(() => {
     dispatch(CustomerGroups(setGroups));
     dispatch(CountryGetAllAction(setCountries));
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
   React.useEffect(() => {
-    let customer_type_id = 2;
-    customerForm.setFieldsValue({ ...new CustomerModel(), customer_type_id });
+    customerForm.setFieldsValue({ ...new CustomerModel()});
   }, [customerForm]);
   React.useEffect(() => {
     if (customerDetail) {
       const field = {
         full_name: customerDetail.full_name,
         birthday: customerDetail.birthday
-          ? moment(customerDetail.birthday, "YYYY-MM-DD")
+          ? moment(customerDetail.birthday)
           : "",
         phone: customerDetail.phone,
         email: customerDetail.email,
         gender: customerDetail.gender,
         district_id: customerDetail.district_id,
-        ward_id: customerDetail.ward,
+        ward_id: customerDetail.ward_id,
         full_address: customerDetail.full_address,
+        city_id: customerDetail.city_id,
       };
       customerForm.setFieldsValue(field);
     } else {
       const field = {
-        full_name: null,
+        full_name: customerFbName || null,
         birthday: "",
         email: null,
         gender: null,
@@ -258,19 +274,39 @@ const CustomerAdd = (props: any) => {
       };
       customerForm.setFieldsValue(field);
     }
-  }, [customerDetail, customerForm]);
-  const setResult = React.useCallback(
+  }, [customerDetail, customerForm,customerFbName]);
+  const setResultUpdate = React.useCallback(
     (result) => {
       if (result) {
-        showSuccess("Thêm khách hàng thành công");
-        setCustomerDetail(result);
-        setIsButtonSelected(true);
+        if (result) {
+          showSuccess("Sửa thông tin khách hàng thành công");
+          setCustomerDetail(result);
+          setIsClearOrderField(false);
+        }
       }
     },
-    [history, setCustomerDetail, setIsButtonSelected]
+    [setCustomerDetail, setIsClearOrderField]
   );
-
-  const handleSubmit = (values: any) => {
+  const setResultCreate = React.useCallback(
+    (result) => {
+      if (result) {
+        if (result) {
+          showSuccess("Tạo khách hàng thành công");
+          setCustomerDetail(result);
+          setIsButtonSelected(2);
+        }
+      }
+    },
+    [setCustomerDetail, setIsButtonSelected]
+  );
+  const handleSubmitOption = (values: any) => {
+    if (customerDetail) {
+      handleSubmitUpdate(values);
+    } else {
+      handleSubmitCreate(values);
+    }
+  };
+  const handleSubmitCreate = (values: any) => {
     let area = areas.find((area) => area.id === districtId);
     let piece = {
       ...values,
@@ -292,28 +328,59 @@ const CustomerAdd = (props: any) => {
         },
       ],
     };
-    dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
+    dispatch(
+      CreateCustomer({ ...new CustomerModel(), ...piece }, setResultCreate)
+    );
+  };
+  const handleSubmitUpdate = (values: any) => {
+    const processValue = {
+      ...values,
+      birthday: values.birthday
+        ? new Date(values.birthday).toUTCString()
+        : null,
+      wedding_date: values.wedding_date
+        ? new Date(values.wedding_date).toUTCString()
+        : null,
+      status: status,
+      version: customerDetail.version,
+      shipping_addresses: customerDetail.shipping_addresses.map((item: any) => {
+        let _item = { ...item };
+        _item.is_default = _item.default;
+        return _item;
+      }),
+      billing_addresses: customerDetail.billing_addresses.map((item: any) => {
+        let _item = { ...item };
+        _item.is_default = _item.default;
+        return _item;
+      }),
+      contacts: customerDetail.contacts,
+    };
+    dispatch(UpdateCustomer(customerDetail.id, processValue, setResultUpdate));
   };
   const handleSubmitFail = (errorInfo: any) => {
     console.error("Failed:", errorInfo);
   };
-  
+
   const reloadPage = () => {
     getCustomerWhenPhoneChange(customerDetail.phone);
-  }
-  
+  };
+
   const handleNote = {
     create: (noteContent: any) => {
       if (noteContent && customerDetail) {
         dispatch(
-          CreateNote(customerDetail.id, {content: noteContent}, (data: any) => {
-            if (data) {
-              showSuccess("Thêm mới ghi chú thành công")
-              reloadPage();
-            } else {
-              showError("Thêm mới ghi chú thất bại");
+          CreateNote(
+            customerDetail.id,
+            { content: noteContent },
+            (data: any) => {
+              if (data) {
+                showSuccess("Thêm mới ghi chú thành công");
+                reloadPage();
+              } else {
+                showError("Thêm mới ghi chú thất bại");
+              }
             }
-          })
+          )
         );
       }
     },
@@ -322,7 +389,7 @@ const CustomerAdd = (props: any) => {
         dispatch(
           DeleteNote(note.id, customerId, (data: any) => {
             if (data) {
-              showSuccess("Xóa ghi chú thành công")
+              showSuccess("Xóa ghi chú thành công");
               reloadPage();
             } else {
               showError("Xóa ghi chú thất bại");
@@ -330,8 +397,26 @@ const CustomerAdd = (props: any) => {
           })
         );
       }
-    }
+    },
   };
+
+  const searchByPhoneCallback = useCallback(
+    (value: any) => {
+      if (value !== undefined) {
+        setCustomerDetail(value);
+      } else {
+        setCustomerDetail(undefined);
+      }
+    },
+    [setCustomerDetail]
+  );
+
+  useEffect(() => {
+    if (customerPhone) {
+      initQueryCustomer.phone = customerPhone;
+      dispatch(CustomerSearchByPhone(initQueryCustomer, searchByPhoneCallback));
+    }
+  }, [dispatch, customerPhone, searchByPhoneCallback]);
 
   return (
     <ContentContainer
@@ -353,7 +438,7 @@ const CustomerAdd = (props: any) => {
       <Form
         form={customerForm}
         name="customer_add"
-        onFinish={handleSubmit}
+        onFinish={handleSubmitOption}
         onFinishFailed={handleSubmitFail}
         layout="vertical"
       >
@@ -379,6 +464,7 @@ const CustomerAdd = (props: any) => {
               notes={notes}
               handleNote={handleNote}
               customerDetail={customerDetail}
+              deletePhone={deletePhone}
             />
           </Col>
         </Row>
@@ -394,7 +480,15 @@ const CustomerAdd = (props: any) => {
           <Table
             columns={recentOrder}
             dataSource={orderHistory}
-            pagination={false}
+            pagination={{
+              pageSize: metaData?.limit,
+              total: metaData?.total,
+              current: metaData?.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            rowKey={(data) => data.id}
           />
         </Card>
         <div className="customer-bottom-button">
@@ -405,12 +499,16 @@ const CustomerAdd = (props: any) => {
           >
             Hủy
           </Button>
-         {!customerDetail &&  <Button type="primary" htmlType="submit">
-            Tạo mới khách hàng
-          </Button>}
-          {customerDetail &&  <Button type="primary" htmlType="submit">
-          Lưu khách hàng
-          </Button>}
+          {!customerDetail && (
+            <Button type="primary" htmlType="submit">
+              Tạo mới khách hàng
+            </Button>
+          )}
+          {customerDetail && (
+            <Button type="primary" htmlType="submit">
+              Lưu khách hàng
+            </Button>
+          )}
         </div>
       </Form>
     </ContentContainer>

@@ -39,9 +39,9 @@ const StyledButton = ({ children, className, onClick }: BtnProps) => {
 const getRange = (distance: number, unit: "day" | "month" | "week") => {
   let dateFrom = getDateFromNow(distance, unit),
     dateTo = getDateFromNow(distance, unit);
-  
+
   let searchUnit: any = unit;
-  if (searchUnit === 'week') searchUnit = 'isoWeek';
+  if (searchUnit === "week") searchUnit = "isoWeek";
   let from = dateFrom.startOf(searchUnit),
     to = dateTo.endOf(searchUnit);
   return [from.utc().format(), to.utc().format()];
@@ -52,17 +52,28 @@ const CustomRangepicker: React.FC<CustomRangepickerProps> = (
 ) => {
   const { value, onChange, style } = props;
   const convertValue: [Moment, Moment] | undefined = useMemo(() => {
-    if (_.isEqual(getRange(1, "day"), value) || _.isEqual(getRange(0, "day"), value) 
-        || _.isEqual(getRange(1, "week"), value) || _.isEqual(getRange(0, "week"), value)
-        || _.isEqual(getRange(1, "month"), value) || _.isEqual(getRange(0, "month"), value))
+    if (
+      _.isEqual(getRange(1, "day"), value) ||
+      _.isEqual(getRange(0, "day"), value) ||
+      _.isEqual(getRange(1, "week"), value) ||
+      _.isEqual(getRange(0, "week"), value) ||
+      _.isEqual(getRange(1, "month"), value) ||
+      _.isEqual(getRange(0, "month"), value)
+    ) {
+      console.log('vào đây')
       return undefined;
+    }
     if (value && value.length > 0) {
       const from = value[0],
         to = value[1];
+      console.log('vào đây 1')
+
       return [moment(from), moment(to)];
-    };
+    }
+    console.log('vào đây 2')
+
     return undefined;
-  }, [value])
+  }, [value]);
   return (
     <Fragment>
       <Row gutter={[5, 5]}>
@@ -145,6 +156,10 @@ const CustomRangepicker: React.FC<CustomRangepickerProps> = (
         onChange={(dates, dateStrings) => {
           let from = null,
             to = null;
+          if (dates === null) {
+            onChange && onChange(undefined);
+            return;
+          }
           if (dates && dates.length > 0) {
             from = dates[0] ? dates[0].startOf("day").utc().format() : null;
             to = dates[1] ? dates[1].endOf("day").utc().format() : null;

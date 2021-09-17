@@ -92,7 +92,6 @@ const CustomerUpdate = (props: any) => {
       customerForm.setFieldsValue(value);
     }
   };
-  console.log(customer);
   React.useEffect(() => {
     if (districtId) {
       dispatch(WardGetByDistrictAction(districtId, setWards));
@@ -114,27 +113,31 @@ const CustomerUpdate = (props: any) => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
+
   React.useEffect(() => {
     dispatch(CustomerDetail(params.id, setCustomer));
   }, [dispatch, params]);
 
   React.useEffect(() => {
-    if (customer) {
+    if (customer) { 
       customerForm.setFieldsValue({
         ...customer,
+        country_id: countryId,
         birthday: customer.birthday
-          ? moment(customer.birthday, "YYYY-MM-DD")
+          ? moment(customer.birthday)
           : null,
         wedding_date: customer.wedding_date
-          ? moment(customer.wedding_date, "YYYY-MM-DD")
+          ? moment(customer.wedding_date)
           : null,
       });
       setStatus(customer.status);
     }
-  }, [customer, customerForm]);
-  // const reload = React.useCallback(() => {
-  //   dispatch(CustomerDetail(params.id, setCustomer));
-  // }, [dispatch, params.id]);
+  }, [customer, customerForm, countryId]);
+
+  const reload = React.useCallback(() => {
+    dispatch(CustomerDetail(params.id, setCustomer));
+  }, [dispatch, params.id]);
+
   const setResult = React.useCallback(
     (result) => {
       if (result) {
@@ -145,7 +148,6 @@ const CustomerUpdate = (props: any) => {
     [history]
   );
   const handleSubmit = (values: any) => {
-    console.log("Success:", values);
     values.full_name = values.full_name.trim();
     if (!values.full_name) return showError("Vui lòng nhập họ tên khách hàng");
     const processValue = {
@@ -231,7 +233,7 @@ const CustomerUpdate = (props: any) => {
           </Link>
           <div>
             <Button
-              onClick={() => history.goBack()}
+              onClick={() => reload()}
               style={{ marginLeft: ".75rem", marginRight: ".75rem" }}
               type="ghost"
             >

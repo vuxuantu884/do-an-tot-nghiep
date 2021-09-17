@@ -66,7 +66,6 @@ function CustomerNoteInfo(props: any) {
 
   const handleNoteForm = {
     create: (formValue: CustomerNote) => {
-      console.log(formValue);
       if (customer)
         dispatch(
           CreateNote(customer.id, formValue, (data: note) => {
@@ -157,13 +156,12 @@ function CustomerNoteInfo(props: any) {
         <CustomTable
           showColumnSetting={false}
           pagination={false}
-          dataSource={customer ? customer.notes : []}
+          dataSource={customer ? customer.notes.reverse() : []}
           columns={noteColumnFinal()}
           rowKey={(item: CustomerNote) => item.id}
           onRow={(record: CustomerNote) => {
             return {
               onClick: (event) => {
-                console.log(record);
                 setModalNote(record);
                 setModalAction("edit");
                 // setIsShowModalNote(true);

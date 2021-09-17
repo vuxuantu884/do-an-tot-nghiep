@@ -11,9 +11,9 @@ import {
 } from "antd";
 import { RegUtil } from "utils/RegUtils";
 import CustomInput from "./customInput";
+import "moment/locale/vi";
 
 const { Option } = Select;
-
 const GeneralInformation = (props: any) => {
   const {
     form,
@@ -27,6 +27,7 @@ const GeneralInformation = (props: any) => {
     AccountChangeSearch,
   } = props;
 
+  const handleDateChange = (e: any) => {};
   return (
     <Row gutter={24}>
       <Col span={18}>
@@ -64,7 +65,7 @@ const GeneralInformation = (props: any) => {
             <Col span={24}>
               <CustomInput
                 name="full_name"
-                label="Họ tên khách hàng:"
+                label={<b>Họ tên khách hàng:</b>}
                 form={form}
                 message="Vui lòng nhập họ tên khách hàng"
                 placeholder="Nhập họ và tên khách hàng"
@@ -160,6 +161,7 @@ const GeneralInformation = (props: any) => {
                       style={{ width: "100%" }}
                       placeholder="Chọn ngày cưới"
                       format={"DD/MM/YYYY"}
+                      onChange={handleDateChange}
                     />
                   </Form.Item>
                 </Col>
@@ -278,14 +280,14 @@ const GeneralInformation = (props: any) => {
                     />
                   </Form.Item> */}
                   <CustomInput
-                name="full_address"
-                label="Địa chỉ chi tiết:"
-                form={form}
-                message="Vui lòng nhập địa chỉ"
-                placeholder="Nhập địa chỉ chi tiết"
-                maxLength={500}
-                isRequired={false}
-              />
+                    name="full_address"
+                    label={<b>Địa chỉ chi tiết:</b>}
+                    form={form}
+                    message="Vui lòng nhập địa chỉ"
+                    placeholder="Nhập địa chỉ chi tiết"
+                    maxLength={500}
+                    isRequired={false}
+                  />
                 </Col>
               </Row>
             </Col>

@@ -30,10 +30,10 @@ import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import storeBluecon from "assets/img/storeBlue.svg";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import UrlConfig from "config/url.config";
 import { ShipperGetListAction } from "domain/actions/account/account.action";
 import {
   DeliveryServicesGetList,
-  getTrackingLogError,
   getTrackingLogFulfillmentAction,
   InfoGHTKAction,
   UpdateFulFillmentStatusAction,
@@ -53,7 +53,6 @@ import {
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   DeliveryServiceResponse,
-  ErrorLogResponse,
   OrderResponse,
   ShippingGHTKResponse,
   TrackingLogFulfillmentResponse,
@@ -61,6 +60,7 @@ import {
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
 import { setTimeout } from "timers";
 import {
   checkPaymentStatusToShow,
@@ -127,6 +127,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     orderSettings,
   } = props;
 
+  const history = useHistory();
   // node dom
   const formRef = createRef<FormInstance>();
   // action
@@ -147,15 +148,13 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     useState<Array<DeliveryServiceResponse> | null>(null);
   const [trackingLogFulfillment, setTrackingLogFulfillment] =
     useState<Array<TrackingLogFulfillmentResponse> | null>(null);
-  const [errorLogFulfillment, setErrorLogFulfillment] =
-    useState<Array<ErrorLogResponse> | null>(null);
+  // const [errorLogFulfillment, setErrorLogFulfillment] =
+  //   useState<Array<ErrorLogResponse> | null>(null);
   const [infoGHTK, setInfoGHTK] = useState<Array<ShippingGHTKResponse>>([]);
   const [hvc, setHvc] = useState<number | null>(null);
   const [serviceType, setServiceType] = useState<string>();
   const [feeGhtk, setFeeGhtk] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>("");
-
-  console.log("props", props);
   useEffect(() => {
     dispatch(DeliveryServicesGetList(setDeliveryServices));
   }, [dispatch]);
@@ -286,16 +285,15 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
       props.OrderDetail.fulfillments[0].shipment &&
       props.OrderDetail.fulfillments[0].shipment.pushing_status === "failed"
     ) {
-      dispatch(
-        getTrackingLogError(
-          props.OrderDetail.fulfillments[0].code,
-          setErrorLogFulfillment
-        )
-      );
+      // dispatch(
+      //   getTrackingLogError(
+      //     props.OrderDetail.fulfillments[0].code,
+      //     setErrorLogFulfillment
+      //   )
+      // );
     }
   }, [dispatch, props.OrderDetail]);
   //#endregion
-  console.log(cancelReason);
 
   //#region Update Fulfillment Status
   let timeout = 500;
@@ -379,30 +377,37 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     switch (type) {
       case 1:
         value.status = FulFillmentStatus.PICKED;
+        value.action = FulFillmentStatus.PICKED;
         dispatch(UpdateFulFillmentStatusAction(value, onPickSuccess));
         break;
       case 2:
         value.status = FulFillmentStatus.PACKED;
+        value.action = FulFillmentStatus.PACKED;
         dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess));
         break;
       case 3:
         value.status = FulFillmentStatus.SHIPPING;
+        value.action = FulFillmentStatus.SHIPPING;
         dispatch(UpdateFulFillmentStatusAction(value, onShippingSuccess));
         break;
       case 4:
         value.status = FulFillmentStatus.SHIPPED;
+        value.action = FulFillmentStatus.SHIPPED;
         dispatch(UpdateFulFillmentStatusAction(value, onShipedSuccess));
         break;
       case 5:
         value.status = FulFillmentStatus.CANCELLED;
+        value.action = FulFillmentStatus.CANCELLED;
         dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
         break;
       case 6:
         value.status = FulFillmentStatus.RETURNING;
+        value.action = FulFillmentStatus.RETURNING;
         dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
         break;
       case 7:
         value.status = FulFillmentStatus.RETURNED;
+        value.action = FulFillmentStatus.RETURNED;
         dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess));
         break;
       default:
@@ -633,6 +638,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
     let UpdateLineFulFillment: UpdateLineFulFillment = {
       order_id: FulFillmentRequest.order_id,
       fulfillment: FulFillmentRequest,
+      action: OrderStatus.FINALIZED,
     };
     if (
       shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
@@ -1079,7 +1085,9 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         <Row gutter={24}>
                           <Col md={5}>
                             <Col span={24}>
-                              <p className="text-field">Đối tác giao hàng:</p>
+                              <p className="text-field">
+                                Đối tác giao hàng: 33
+                              </p>
                             </Col>
                             <Col span={24}>
                               <b>
@@ -1480,7 +1488,11 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
               type="primary"
               style={{ marginLeft: "10px", padding: "0 25px" }}
               className="create-button-custom ant-btn-outline fixed-button"
-              // onClick={onOkShippingConfirm}
+              onClick={() => {
+                history.push(
+                  `${UrlConfig.ORDER}/order-return/create?orderID=${OrderDetail?.id}`
+                );
+              }}
             >
               Đổi trả hàng
             </Button>
@@ -1983,7 +1995,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                         }}
                         htmlType="submit"
                       >
-                        Tạo đơn giao hàng
+                        Tạo đơn giao hàng 1
                       </Button>
                       <Button
                         className="ant-btn-outline fixed-button cancle-button create-button-custom"
@@ -2007,7 +2019,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                   <Row gutter={24}>
                     <Col md={12}>
                       <Form.Item
-                        label="Đối tác giao hàng"
+                        label="Đối tác giao hàng 12"
                         name="shipper_code"
                         rules={[
                           {
@@ -2111,7 +2123,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           style={{ float: "right" }}
                           htmlType="submit"
                         >
-                          Tạo đơn giao hàng
+                          Tạo đơn giao hàng 2
                         </Button>
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"
@@ -2172,7 +2184,7 @@ const UpdateShipmentCard: React.FC<UpdateShipmentCardProps> = (
                           style={{ float: "right" }}
                           htmlType="submit"
                         >
-                          Tạo đơn giao hàng
+                          Tạo đơn giao hàng 3
                         </Button>
                         <Button
                           className="ant-btn-outline fixed-button cancle-button create-button-custom"

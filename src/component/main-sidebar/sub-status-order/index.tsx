@@ -12,20 +12,29 @@ import { useDispatch } from "react-redux";
 import { OrderStatus } from "utils/Constants";
 
 type PropType = {
+  subStatusId?: number | null;
   status?: string | null;
-  orderId: number;
+  orderId?: number;
   fulfillments?: FulFillmentResponse[] | null;
+  handleChangeSubStatus: () => void;
 };
 
 function SubStatusOrder(props: PropType): React.ReactElement {
-  const { status, orderId, fulfillments } = props;
+  const { status, orderId, fulfillments, subStatusId, handleChangeSubStatus } =
+    props;
   const dispatch = useDispatch();
   const [listOrderSubStatus, setListOrderSubStatus] = useState<
     OrderSubStatusResponse[]
   >([]);
+  const [valueSubStatusId, setValueSubStatusId] = useState<number | undefined>(
+    undefined
+  );
 
   const handleChange = (statusId: number) => {
-    dispatch(setSubStatusAction(orderId, statusId));
+    if (orderId) {
+      setValueSubStatusId(statusId);
+      dispatch(setSubStatusAction(orderId, statusId, handleChangeSubStatus));
+    }
   };
 
   useEffect(() => {
@@ -41,7 +50,11 @@ function SubStatusOrder(props: PropType): React.ReactElement {
     };
     if (status) {
       let resultStatus = status;
-      if (status === OrderStatus.FINALIZED && fulfillments && fulfillments.length > 0) {
+      if (
+        status === OrderStatus.FINALIZED &&
+        fulfillments &&
+        fulfillments.length > 0
+      ) {
         switch (fulfillments[0].status) {
           case listFulfillmentMapSubStatus.packed.fulfillmentStatus:
             resultStatus = listFulfillmentMapSubStatus.packed.subStatus;
@@ -63,6 +76,13 @@ function SubStatusOrder(props: PropType): React.ReactElement {
       );
     }
   }, [dispatch, fulfillments, status]);
+
+  useEffect(() => {
+    if (subStatusId) {
+      setValueSubStatusId(subStatusId);
+    }
+  }, [subStatusId]);
+
   return (
     <Card
       className="margin-top-20"
@@ -83,6 +103,7 @@ function SubStatusOrder(props: PropType): React.ReactElement {
           }
           onChange={handleChange}
           notFoundContent="Không tìm thấy trạng thái phụ"
+          value={valueSubStatusId}
         >
           {listOrderSubStatus &&
             listOrderSubStatus.map((single) => {

@@ -1,0 +1,45 @@
+.range {
+  .number-r {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid #cfdce9;
+    height: 38px;
+    border-radius: 5px;
+    position: relative;
+    .r-input {
+      border: none;
+      height: 30px;
+      margin-left: 14px;
+      margin-right: 14px;
+    }
+    .img {
+      width: 30px;
+      align-items: center;
+    }
+
+    .line-focus {
+      position: absolute;
+      height: 2px;
+      bottom: -1px;
+      background: #1890ff;
+      transition: all 0.3s ease-out;
+      left: 14px;
+      opacity: 0;
+    }
+
+    &.focus {
+      border-color: $primary-color;
+      .line-focus {
+        opacity: 1;
+      }
+    }
+  }
+  p {
+    font-size: 13px;
+    color: red;
+    margin-top: 5px;
+    margin-left: 2px;
+    margin-bottom: 0;
+  }
+}

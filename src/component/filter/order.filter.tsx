@@ -7,7 +7,6 @@ import {
   Input,
   Row,
   Select,
-  Tooltip,
   Collapse,
   Tag,
   InputNumber,
@@ -20,7 +19,7 @@ import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { AccountResponse } from "model/account/account.model";
 import CustomFilter from "component/table/custom.filter";
-import { StarOutlined, SettingOutlined, FilterOutlined } from "@ant-design/icons";
+import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
 import { OrderSearchQuery } from "model/order/order.model";
@@ -77,14 +76,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   ], []);
   const fulfillmentStatus = useMemo(() => [
     {name: "Chưa giao", value: "unshipped"},
-    {name: "Đã lấy hàng", value: "picked"},
-    {name: "Giao một phần", value: "partial"},
-    {name: "Đã đóng gói", value: "packed"},
+    // {name: "Đã lấy hàng", value: "picked"},
+    // {name: "Giao một phần", value: "partial"},
+    // {name: "Đã đóng gói", value: "packed"},
     {name: "Đang giao", value: "shipping"},
     {name: "Đã giao", value: "shipped"},
-    {name: "Đã hủy", value: "cancelled"},
-    {name: "Đang trả lại", value: "returning"},
-    {name: "Đã trả lại", value: "returned"}
+    // {name: "Đã hủy", value: "cancelled"},
+    // {name: "Đang trả lại", value: "returning"},
+    // {name: "Đã trả lại", value: "returned"}
   ], []);
   const paymentStatus =  useMemo(() => [
     {name: "Chưa trả", value: "unpaid"},
@@ -98,6 +97,21 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     {name: "QR Pay", value: 4},
     {name: "Tiêu điểm", value: 5},
     {name: "COD", value: 0},
+  ], []);
+
+  const serviceType = useMemo(() => [
+    {
+      name: 'Tự vận chuyển',
+      value: 'shipper',
+    },
+    {
+      name: 'Nhận tại cửa hàng',
+      value: 'pick_at_store',
+    },
+    {
+      name: 'Hãng vận chuyển',
+      value: 'external_service',
+    },
   ], []);
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
@@ -128,22 +142,27 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       console.log(dates, dateString, type)
       switch(type) {
         case 'issued':
+          setIssuedClick('')
           setIssuedOnMin(dateString[0])
           setIssuedOnMax(dateString[1])
           break;
-        case 'ship':
-          setShipOnMin(dateString[0])
-          setShipOnMax(dateString[1])
+        case 'finalized':
+          setFinalizedClick('')
+          setFinalizedOnMin(dateString[0])
+          setFinalizedOnMax(dateString[1])
           break;
         case 'completed':
+          setCompletedClick('')
           setCompletedOnMin(dateString[0])
           setCompletedOnMax(dateString[1])
           break;
         case 'cancelled':
+          setCancelledClick('')
           setCancelledOnMin(dateString[0])
           setCancelledOnMax(dateString[1])
           break;
         case 'expected':
+          setExpectedClick('')
           setExpectedReceiveOnMin(dateString[0])
           setExpectedReceiveOnMax(dateString[1])
           break;   
@@ -166,26 +185,31 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           onFilter && onFilter({...params, source_ids: []});
           break;
         case 'issued':
+          setIssuedClick('')
           setIssuedOnMin(null)
           setIssuedOnMax(null)
           onFilter && onFilter({...params, issued_on_min: null, issued_on_max: null});
           break;
-        case 'ship':
-          setShipOnMin(null)
-          setShipOnMax(null)
-          onFilter && onFilter({...params, ship_on_min: null, ship_on_max: null});
+        case 'finalized':
+          setFinalizedClick('')
+          setFinalizedOnMin(null)
+          setFinalizedOnMax(null)
+          onFilter && onFilter({...params, finalized_on_min: null, finalized_on_max: null});
           break;
         case 'completed':
+          setCompletedClick('')
           setCompletedOnMin(null)
           setCompletedOnMax(null)
           onFilter && onFilter({...params, completed_on_min: null, completed_on_max: null});
           break;
         case 'cancelled':
+          setCancelledClick('')
           setCancelledOnMin(null)
           setCancelledOnMax(null)
           onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
           break;
         case 'expected':
+          setExpectedClick('')
           setExpectedReceiveOnMin(null)
           setExpectedReceiveOnMax(null)
           onFilter && onFilter({...params, expected_receive_on_min: null, expected_receive_on_max: null});
@@ -202,11 +226,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         case 'payment_status':
           onFilter && onFilter({...params, payment_status: []});
           break;
-        case 'assignee':
-          onFilter && onFilter({...params, assignee: []});
+        case 'assignee_codes':
+          onFilter && onFilter({...params, assignee_codes: []});
           break;
-        case 'account':
-          onFilter && onFilter({...params, account: []});
+        case 'account_codes':
+          onFilter && onFilter({...params, account_codes: []});
           break;
         case 'price':
           onFilter && onFilter({...params, price_min: null, price_max: null});
@@ -218,7 +242,13 @@ const OrderFilter: React.FC<OrderFilterProps> = (
           onFilter && onFilter({...params, expected_receive_predefined: ""});
           break;
         case 'delivery_types':
-          onFilter && onFilter({...params, delivery_types: ""});
+          onFilter && onFilter({...params, delivery_types: []});
+          break;  
+        case 'delivery_provider_ids':
+          onFilter && onFilter({...params, delivery_provider_ids: []});
+          break;
+        case 'shipper_ids':
+          onFilter && onFilter({...params, shipper_ids: []});
           break;
         case 'note':
           onFilter && onFilter({...params, note: ""});
@@ -239,7 +269,11 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     },
     [onFilter, params]
   );
-  
+  const [issuedClick, setIssuedClick] = useState('');
+  const [finalizedClick, setFinalizedClick] = useState('');
+  const [completedClick, setCompletedClick] = useState('');
+  const [cancelledClick, setCancelledClick] = useState('');
+  const [expectedClick, setExpectedClick] = useState('');
 
   const clickOptionDate = useCallback(
     (type, value) => {
@@ -281,33 +315,74 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     
     switch(type) {
       case 'issued':
-        setIssuedOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setIssuedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        
+        if (issuedClick === value ) {
+          setIssuedClick('')
+          setIssuedOnMin(null)
+          setIssuedOnMax(null)
+        } else {
+          setIssuedClick(value)
+          setIssuedOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setIssuedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        }
         break
-      case 'ship':
-        setShipOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setShipOnMax(moment(maxValue, 'DD-MM-YYYY'))
+      case 'finalized':
+        
+        if (finalizedClick === value ) {
+          setFinalizedClick('')
+          setFinalizedOnMin(null)
+          setFinalizedOnMax(null)
+        } else {
+          setFinalizedClick(value)
+          setFinalizedOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setFinalizedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        }
         break
       case 'completed':
-        setCompletedOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setCompletedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        
+        if (completedClick === value ) {
+          setCompletedClick('')
+          setCompletedOnMin(null)
+          setCompletedOnMax(null)
+        } else {
+          setCompletedClick(value)
+          setCompletedOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setCompletedOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        }
         break
       case 'cancelled':
-        setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        
+        if (cancelledClick === value ) {
+          setCancelledClick('')
+          setCancelledOnMin(null)
+          setCancelledOnMax(null)
+        } else {
+          setCancelledClick(value)
+          setCancelledOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setCancelledOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        }
         break
       case 'expected':
-        setExpectedReceiveOnMin(moment(minValue, 'DD-MM-YYYY'))
-        setExpectedReceiveOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        
+        if (expectedClick === value ) {
+          setExpectedClick('')
+          setExpectedReceiveOnMin(null)
+          setExpectedReceiveOnMax(null)
+        } else {
+          setExpectedClick(value)
+          setExpectedReceiveOnMin(moment(minValue, 'DD-MM-YYYY'))
+          setExpectedReceiveOnMax(moment(maxValue, 'DD-MM-YYYY'))
+        }
         break  
       default:
         break
     }
-  }, []);
+  }, [cancelledClick, completedClick, expectedClick, issuedClick, finalizedClick]);
 
   const listSources = useMemo(() => {
     return listSource.filter((item) => item.code !== "pos");
   }, [listSource]);
+  
   const initialValues = useMemo(() => {
     return {
       ...params,
@@ -319,14 +394,16 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       payment_status: Array.isArray(params.payment_status) ? params.payment_status : [params.payment_status],
       return_status: Array.isArray(params.return_status) ? params.return_status : [params.return_status],
       payment_method_ids: Array.isArray(params.payment_method_ids) ? params.payment_method_ids : [params.payment_method_ids],
+      delivery_provider_ids: Array.isArray(params.delivery_provider_ids) ? params.delivery_provider_ids : [params.delivery_provider_ids],
+      shipper_ids: Array.isArray(params.shipper_ids) ? params.shipper_ids : [params.shipper_ids],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
-      assignee: Array.isArray(params.assignee) ? params.assignee : [params.assignee],
-      account: Array.isArray(params.account) ? params.account : [params.account],
+      assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
+      account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
   }}, [params])
   const [issuedOnMin, setIssuedOnMin] = useState(initialValues.issued_on_min? moment(initialValues.issued_on_min, "DD-MM-YYYY") : null);
   const [issuedOnMax, setIssuedOnMax] = useState(initialValues.issued_on_max? moment(initialValues.issued_on_max, "DD-MM-YYYY") : null);
-  const [shipOnMin, setShipOnMin] = useState(initialValues.ship_on_min? moment(initialValues.ship_on_min, "DD-MM-YYYY") : null);
-  const [shipOnMax, setShipOnMax] = useState(initialValues.ship_on_max? moment(initialValues.ship_on_max, "DD-MM-YYYY") : null);
+  const [finalizedOnMin, setFinalizedOnMin] = useState(initialValues.finalized_on_min? moment(initialValues.finalized_on_min, "DD-MM-YYYY") : null);
+  const [finalizedOnMax, setFinalizedOnMax] = useState(initialValues.finalized_on_max? moment(initialValues.finalized_on_max, "DD-MM-YYYY") : null);
   const [completedOnMin, setCompletedOnMin] = useState(initialValues.completed_on_min? moment(initialValues.completed_on_min, "DD-MM-YYYY") : null);
   const [completedOnMax, setCompletedOnMax] = useState(initialValues.completed_on_max? moment(initialValues.completed_on_max, "DD-MM-YYYY") : null);
   const [cancelledOnMin, setCancelledOnMin] = useState(initialValues.cancelled_on_min? moment(initialValues.cancelled_on_min, "DD-MM-YYYY") : null);
@@ -347,8 +424,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         ...values,
         issued_on_min: issuedOnMin ? moment(issuedOnMin, 'DD-MM-YYYY')?.format('DD-MM-YYYY') : null,
         issued_on_max: issuedOnMax ? moment(issuedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        ship_on_min: shipOnMin ? moment(shipOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
-        ship_on_max: shipOnMax ? moment(shipOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        finalized_on_min: finalizedOnMin ? moment(finalizedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
+        finalized_on_max: finalizedOnMax ? moment(finalizedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
         completed_on_min: completedOnMin ? moment(completedOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
         completed_on_max: completedOnMax ? moment(completedOnMax, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
         cancelled_on_min: cancelledOnMin ? moment(cancelledOnMin, 'DD-MM-YYYY').format('DD-MM-YYYY') : null,
@@ -358,7 +435,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       }
       onFilter && onFilter(valuesForm);
     },
-    [cancelledOnMax, cancelledOnMin, completedOnMax, completedOnMin, expectedReceiveOnMax, expectedReceiveOnMin, issuedOnMax, issuedOnMin, onFilter, shipOnMax, shipOnMin]
+    [cancelledOnMax, cancelledOnMin, completedOnMax, completedOnMin, expectedReceiveOnMax, expectedReceiveOnMin, issuedOnMax, issuedOnMin, onFilter, finalizedOnMax, finalizedOnMin]
   );
   let filters = useMemo(() => {
     let list = []
@@ -395,12 +472,12 @@ const OrderFilter: React.FC<OrderFilterProps> = (
         value: textOrderCreateDate
       })
     }
-    if (initialValues.ship_on_min || initialValues.ship_on_max) {
-      let textOrderShipDate = (initialValues.ship_on_min ? initialValues.ship_on_min : '??') + " ~ " + (initialValues.ship_on_max ? initialValues.ship_on_max : '??')
+    if (initialValues.finalized_on_min || initialValues.finalized_on_max) {
+      let textOrderFinalizedDate = (initialValues.finalized_on_min ? initialValues.finalized_on_min : '??') + " ~ " + (initialValues.finalized_on_max ? initialValues.finalized_on_max : '??')
       list.push({
-        key: 'ship',
+        key: 'finalized',
         name: 'Ngày duyệt đơn',
-        value: textOrderShipDate
+        value: textOrderFinalizedDate
       })
     }
     if (initialValues.completed_on_min || initialValues.completed_on_max) {
@@ -479,27 +556,27 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
 
-    if (initialValues.assignee.length) {
+    if (initialValues.assignee_codes.length) {
       let textAccount = ""
-      initialValues.assignee.forEach(i => {
+      initialValues.assignee_codes.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
       })
       list.push({
-        key: 'assignee',
+        key: 'assignee_codes',
         name: 'Nhân viên bán hàng',
         value: textAccount
       })
     }
 
-    if (initialValues.account.length) {
+    if (initialValues.account_codes.length) {
       let textAccount = ""
-      initialValues.account.forEach(i => {
+      initialValues.account_codes.forEach(i => {
         const findAccount = accounts?.find(item => item.code === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
       })
       list.push({
-        key: 'account',
+        key: 'account_codes',
         name: 'Nhân viên tạo đơn',
         value: textAccount
       })
@@ -527,11 +604,39 @@ const OrderFilter: React.FC<OrderFilterProps> = (
       })
     }
     if (initialValues.delivery_types.length) {
-      const findSerivice = deliveryService.find(item => item.id.toString() === initialValues.delivery_types)
+      let textType = ""
+      initialValues.delivery_types.forEach(i => {
+        const findType = serviceType?.find(item => item.value === i)
+        textType = findType ? textType + findType.name + ";" : textType
+      })
       list.push({
         key: 'delivery_types',
         name: 'Hình thức vận chuyển',
-        value: findSerivice?.name
+        value: textType
+      })
+    }
+    if (initialValues.delivery_provider_ids.length) {
+      let textType = ""
+      initialValues.delivery_provider_ids.forEach((i: any) => {
+        const findType = deliveryService?.find(item => item.id.toString() === i.toString())
+        textType = findType ? textType + findType.name + ";" : textType
+      })
+      list.push({
+        key: 'delivery_provider_ids',
+        name: 'Đơn vị vận chuyển',
+        value: textType
+      })
+    }
+    if (initialValues.shipper_ids.length) {
+      let textAccount = ""
+      initialValues.shipper_ids.forEach(i => {
+        const findAccount = accounts.filter(item => item.is_shipper === true)?.find(item => item.id === i)
+        textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + ";" : textAccount
+      })
+      list.push({
+        key: 'shipper_ids',
+        name: 'Đối tác giao hàng',
+        value: textAccount
       })
     }
     if (initialValues.expected_receive_predefined) {
@@ -578,7 +683,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
     }
     // console.log('filters list', list);
     return list
-  }, [accounts, deliveryService, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status, subStatus]);
+  }, [accounts, deliveryService, serviceType, fulfillmentStatus, initialValues, listSources, listStore, paymentStatus, paymentType, status, subStatus]);
 
   
 
@@ -591,7 +696,8 @@ const OrderFilter: React.FC<OrderFilterProps> = (
   return (
     <div>
       <div className="order-options">
-        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="true">
+        <Radio.Group onChange={(e) => onChangeOrderOptions(e)} defaultValue="">
+          <Radio.Button value="">Tất cả đơn hàng</Radio.Button>
           <Radio.Button value="true">Đơn hàng online</Radio.Button>
           <Radio.Button value="false">Đơn hàng offline</Radio.Button>
         </Radio.Group>
@@ -658,6 +764,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                           width: '100%'
                         }}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {listStore?.map((item) => (
                           <CustomSelect.Option key={item.id} value={item.id.toString()}>
@@ -683,6 +790,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         placeholder="Nguồn đơn hàng"
                         notFoundContent="Không tìm thấy kết quả"
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {listSources.map((item, index) => (
                           <CustomSelect.Option
@@ -705,14 +813,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.issued_on_min && initialValues.issued_on_max ? ["1"]: []}>
                   <Panel header="NGÀY TẠO ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('issued', 'yesterday')}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('issued', 'today')}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('issued', 'thisweek')}>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'yesterday')} className={issuedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'today')} className={issuedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'thisweek')} className={issuedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('issued', 'lastweek')}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('issued', 'thismonth')}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('issued', 'lastmonth')}>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'lastweek')} className={issuedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'thismonth')} className={issuedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('issued', 'lastmonth')} className={issuedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                     <DatePicker.RangePicker
@@ -728,24 +836,24 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.ship_on_min && initialValues.ship_on_max ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.finalized_on_min && initialValues.finalized_on_max ? ["1"]: []}>
                   <Panel header="NGÀY DUYỆT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('ship', 'yesterday')}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'today')}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'thisweek')}>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'yesterday')} className={finalizedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'today')} className={finalizedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'thisweek')} className={finalizedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('ship', 'lastweek')}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'thismonth')}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('ship', 'lastmonth')}>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'lastweek')} className={finalizedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'thismonth')} className={finalizedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('finalized', 'lastmonth')} className={finalizedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                     <DatePicker.RangePicker
                       format="DD-MM-YYYY"
                       style={{width: "100%"}}
-                      value={[shipOnMin? moment(shipOnMin, "DD-MM-YYYY") : null, shipOnMax? moment(shipOnMax, "DD-MM-YYYY") : null]}
-                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'ship')}
+                      value={[finalizedOnMin? moment(finalizedOnMin, "DD-MM-YYYY") : null, finalizedOnMax? moment(finalizedOnMax, "DD-MM-YYYY") : null]}
+                      onChange={(date, dateString) => onChangeRangeDate(date, dateString, 'finalized')}
                     />
                   </Panel>
                 </Collapse>
@@ -756,14 +864,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.completed_on_min && initialValues.completed_on_max ? ["1"]: []}>
                   <Panel header="NGÀY HOÀN TẤT ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('completed', 'yesterday')}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('completed', 'today')}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('completed', 'thisweek')}>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'yesterday')} className={completedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'today')} className={completedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'thisweek')} className={completedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('completed', 'lastweek')}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('completed', 'thismonth')}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('completed', 'lastmonth')}>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'lastweek')} className={completedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'thismonth')} className={completedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('completed', 'lastmonth')} className={completedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                     <DatePicker.RangePicker
@@ -781,14 +889,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.cancelled_on_min && initialValues.cancelled_on_max ? ["1"]: []}>
                   <Panel header="NGÀY HUỶ ĐƠN" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('cancelled', 'yesterday')}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'today')}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'thisweek')}>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'yesterday')} className={cancelledClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'today')} className={cancelledClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'thisweek')} className={cancelledClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('cancelled', 'lastweek')}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'thismonth')}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('cancelled', 'lastmonth')}>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'lastweek')} className={cancelledClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'thismonth')} className={cancelledClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('cancelled', 'lastmonth')} className={cancelledClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                     <DatePicker.RangePicker
@@ -811,6 +919,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       showSearch placeholder="Chọn trạng thái đơn hàng"
                       notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                       optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
                     >
                       {status?.map((item) => (
                         <Option key={item.value} value={item.value.toString()}>
@@ -836,6 +945,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       notFoundContent="Không tìm thấy kết quả"
                       style={{width: '100%'}}
                       optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
                     >
                       {subStatus?.map((item: any) => (
                         <Option key={item.id} value={item.id}>
@@ -858,6 +968,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         mode="multiple" showSearch placeholder="Chọn trạng thái giao hàng"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                           {fulfillmentStatus.map((item, index) => (
                             <Option
@@ -883,6 +994,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         showSearch placeholder="Chọn trạng thái thanh toán"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {paymentStatus.map((item, index) => (
                           <Option
@@ -908,6 +1020,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                         mode="multiple" showSearch placeholder="Chọn trạng thái trả hàng"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         <Option
                           style={{ width: "100%" }}
@@ -924,13 +1037,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.assignee.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.assignee_codes.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN BÁN HÀNG" key="1" className="header-filter">
-                    <Item name="assignee">
+                    <Item name="assignee_codes">
                       <Select
                         mode="multiple" showSearch placeholder="Chọn nhân viên bán hàng"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                           {accounts.map((item, index) => (
                             <Option
@@ -949,13 +1063,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.account.length ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.account_codes.length ? ["1"]: []}>
                   <Panel header="NHÂN VIÊN TẠO ĐƠN" key="1" className="header-filter">
-                    <Item name="account">
+                    <Item name="account_codes">
                       <Select
                         mode="multiple" showSearch placeholder="Chọn nhân viên tạo đơn"
                         notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
                         optionFilterProp="children"
+                        getPopupContainer={trigger => trigger.parentNode}
                       >
                         {accounts.map((item, index) => (
                           <Option
@@ -980,7 +1095,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Item name="price_min" style={{ width: '45%', textAlign: 'center' }}>
                         <InputNumber
                           className="price_min"
-                          placeholder="Minimum"
+                          placeholder="Từ"
                           min="0"
                           max="100000000"
                         />
@@ -1000,7 +1115,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       <Item name="price_max" style={{width: '45%',textAlign: 'center'}}>
                         <InputNumber
                           className="site-input-right price_max"
-                          placeholder="Maximum"
+                          placeholder="Đến"
                           min="0"
                           max="1000000000"
                         />
@@ -1019,6 +1134,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                       mode="multiple" optionFilterProp="children" showSearch
                       notFoundContent="Không tìm thấy kết quả"
                       placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}
+                      getPopupContainer={trigger => trigger.parentNode}
                     >
                       {paymentType.map((item, index) => (
                         <Option
@@ -1040,14 +1156,14 @@ const OrderFilter: React.FC<OrderFilterProps> = (
                 <Collapse defaultActiveKey={initialValues.expected_receive_on_min && initialValues.expected_receive_on_max ? ["1"]: []}>
                   <Panel header="NGÀY DỰ KIẾN NHÂN HÀNG" key="1" className="header-filter">
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('expected', 'yesterday')}>Hôm qua</Button>
-                      <Button onClick={() => clickOptionDate('expected', 'today')}>Hôm nay</Button>
-                      <Button onClick={() => clickOptionDate('expected', 'thisweek')}>Tuần này</Button>
+                      <Button onClick={() => clickOptionDate('expected', 'yesterday')} className={expectedClick === 'yesterday' ? 'active' : 'deactive'}>Hôm qua</Button>
+                      <Button onClick={() => clickOptionDate('expected', 'today')} className={expectedClick === 'today' ? 'active' : 'deactive'}>Hôm nay</Button>
+                      <Button onClick={() => clickOptionDate('expected', 'thisweek')} className={expectedClick === 'thisweek' ? 'active' : 'deactive'}>Tuần này</Button>
                     </div>
                     <div className="date-option">
-                      <Button onClick={() => clickOptionDate('expected', 'lastweek')}>Tuần trước</Button>
-                      <Button onClick={() => clickOptionDate('expected', 'thismonth')}>Tháng này</Button>
-                      <Button onClick={() => clickOptionDate('expected', 'lastmonth')}>Tháng trước</Button>
+                      <Button onClick={() => clickOptionDate('expected', 'lastweek')} className={expectedClick === 'lastweek' ? 'active' : 'deactive'}>Tuần trước</Button>
+                      <Button onClick={() => clickOptionDate('expected', 'thismonth')} className={expectedClick === 'thismonth' ? 'active' : 'deactive'}>Tháng này</Button>
+                      <Button onClick={() => clickOptionDate('expected', 'lastmonth')} className={expectedClick === 'lastmonth' ? 'active' : 'deactive'}>Tháng trước</Button>
                     </div>
                     <p><SettingOutlined style={{marginRight: "10px"}}/>Tuỳ chọn khoảng thời gian:</p>
                     <DatePicker.RangePicker
@@ -1062,20 +1178,67 @@ const OrderFilter: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={24}>
-                <Collapse defaultActiveKey={initialValues.delivery_types ? ["1"]: []}>
+                <Collapse defaultActiveKey={initialValues.delivery_types.length ? ["1"]: []}>
                   <Panel header="HÌNH THỨC VẬN CHUYỂN" key="1" className="header-filter">
                     <Item name="delivery_types">
                       <Select
+                        mode="multiple"
                         optionFilterProp="children" showSearch
-                        notFoundContent="Không tìm thấy kết quả" mode="multiple"
-                        placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}>
+                        notFoundContent="Không tìm thấy kết quả"
+                        placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
+                        getPopupContainer={trigger => trigger.parentNode}
+                      >
                         {/* <Option value="">Hình thức vận chuyển</Option> */}
-                        {deliveryService?.map((item) => (
-                          <Option key={item.id} value={item.id.toString()}>
+                        {serviceType?.map((item) => (
+                          <Option key={item.value} value={item.value}>
                             {item.name}
                           </Option>
                         ))}
                       </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={initialValues.delivery_provider_ids.length ? ["1"]: []}>
+                  <Panel header="ĐƠN VỊ VẬN CHUYỂN" key="1" className="header-filter">
+                    <Item name="delivery_provider_ids">
+                    <Select
+                      mode="multiple" showSearch placeholder="Chọn đơn vị vận chuyển"
+                      notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                      optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
+                    >
+                      {deliveryService?.map((item) => (
+                        <Option key={item.id} value={item.id}>
+                          {item.name}
+                        </Option>
+                      ))}
+                    </Select>
+                    </Item>
+                  </Panel>
+                </Collapse>
+              </Col>
+            </Row>
+            <Row gutter={12} style={{marginTop: '10px'}}>
+              <Col span={24}>
+                <Collapse defaultActiveKey={initialValues.shipper_ids.length ? ["1"]: []}>
+                  <Panel header="ĐỐI TÁC GIAO HÀNG" key="1" className="header-filter">
+                    <Item name="shipper_ids">
+                    <Select
+                      mode="multiple" showSearch placeholder="Chọn đối tác giao hàng"
+                      notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                      optionFilterProp="children"
+                      getPopupContainer={trigger => trigger.parentNode}
+                    >
+                      {accounts.filter(account => account.is_shipper === true)?.map((account) => (
+                        <Option key={account.id} value={account.id}>
+                          {account.full_name} - {account.code}
+                        </Option>
+                      ))}
+                    </Select>
                     </Item>
                   </Panel>
                 </Collapse>

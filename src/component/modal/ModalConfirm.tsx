@@ -1,7 +1,7 @@
 import { Modal } from "antd";
 import { TiWarningOutline } from "react-icons/ti";
 
-type ModalConfirmProps = {
+export interface ModalConfirmProps {
   visible?: boolean;
   onOk?: () => void;
   onCancel?: () => void;
@@ -47,7 +47,7 @@ const ModalConfirm: React.FC<ModalConfirmProps> = (
         <div className="modal-confirm-right margin-left-20">
           <div className="modal-confirm-title">{title}</div>
           {subTitle !== "" && (
-            <i className="modal-confirm-sub-title">{subTitle}</i>
+            <div className="modal-confirm-sub-title">{subTitle}</div>
           )}
         </div>
       </div>

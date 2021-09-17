@@ -1,0 +1,127 @@
+.loyalty-accumulation-detail {
+  color: #222222;
+
+  .ant-card-head {
+    padding-left: 31px;
+  }
+
+  .d-flex {
+    display: flex;
+
+    .title-card {
+      flex: 1;
+      align-self: center;
+    }
+  }
+
+  .row-item {
+    display: flex;
+    margin-bottom: 24px;
+  }
+
+  .program-info {
+    padding: 23px 25px 70px;
+    line-height: 16px;
+
+    .info-label {
+      color: #666666;
+      width: 155px;
+      min-width: 155px;
+      align-self: center;
+      align-self: auto;
+    }
+
+    .align-center {
+      align-self: center;
+    }
+
+    .scroll-box {
+      border: 1px solid #E5E5E5;
+      border-radius: 4px;
+      min-width: 340px;
+      padding: 12px 14px;
+      overflow-y: auto;
+      max-height: 156px;
+
+      &__item {
+        padding: 5px 0;
+        color: #666666;
+      }
+    }
+
+    .info-content {
+      font-weight: 500;
+      align-self: auto;
+
+      .load-products {
+        font-style: italic;
+        font-size: 14px;
+        line-height: 16px;
+        text-decoration-line: underline;
+        color: #2A2A86;
+        margin-left: 15px;
+        cursor: pointer;
+      }
+
+      ul {
+        padding-left: 20px;
+
+        li {
+          margin-bottom: 12px;
+        }
+      }
+    }
+
+    .info-status {
+      font-weight: 500;
+
+      &__ACTIVE {
+        color: #27AE60;
+      }
+
+      &__INACTIVE {
+        color: #FF0000;
+      }
+    }
+
+    .priority {
+      border-radius: 100px;
+      padding: 5px 11px 3.5px;
+      color: white;
+
+      &__HIGH {
+        background: #FF0000;
+      }
+
+      &__LOW {
+        background: #F5F5F5;
+        color: #222222;
+      }
+    }
+  }
+
+  .rules table {
+    width: 100%;
+  }
+}
+
+.products-modal {
+  .search-input {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .item-wrapper {
+    overflow-y: auto;
+    max-height: 600px;
+    .product-item {
+      padding: 13px 9px;
+      box-shadow: 0px 1px 0px #F5F5F5;
+      margin-right: 2px;
+
+      &:hover {
+        background: #F3F3FF;
+      }
+    }
+  }
+}

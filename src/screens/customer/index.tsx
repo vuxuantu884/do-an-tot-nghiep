@@ -9,13 +9,13 @@ import {
   Select,
 } from "antd";
 import CustomFilter from "component/table/custom.filter";
-
+import "./customer.scss";
 import BaseFilter from "../../component/filter/base.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { SearchOutlined } from "@ant-design/icons";
 
 import ContentContainer from "component/container/content.container";
-import CustomDatepicker from "component/custom/date-picker.custom";
+import CustomDatePicker from "component/custom/date-picker.custom";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import CustomerAdd from "./customer.create";
@@ -31,7 +31,7 @@ import CustomTable, {
   ICustomTableColumType,
 } from "component/table/CustomTable";
 import { Link } from "react-router-dom";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -57,21 +57,24 @@ const Customer = () => {
     (state: RootReducerType) => state.bootstrapReducer
   );
   const LIST_GENDER = bootstrapReducer.data?.gender;
-  const params: CustomerSearchQuery = useMemo(() => ({
-    request: "",
-    page: 1,
-    limit: 30,
-    gender: null,
-    from_birthday: null,
-    to_birthday: null,
-    company: null,
-    from_wedding_date: null,
-    to_wedding_date: null,
-    customer_type_id: null,
-    customer_group_id: null,
-    customer_level_id: null,
-    responsible_staff_code: null,
-  }), []);
+  const params: CustomerSearchQuery = useMemo(
+    () => ({
+      request: "",
+      page: 1,
+      limit: 30,
+      gender: null,
+      from_birthday: null,
+      to_birthday: null,
+      company: null,
+      from_wedding_date: null,
+      to_wedding_date: null,
+      customer_type_id: null,
+      customer_group_id: null,
+      customer_level_id: null,
+      responsible_staff_code: null,
+    }),
+    []
+  );
   const [query, setQuery] = React.useState<CustomerSearchQuery>({
     page: 1,
     limit: 30,
@@ -94,8 +97,8 @@ const Customer = () => {
   const genreEnum: any = {
     male: "Nam",
     female: "Nữ",
-    other: "Khác"
-  }
+    other: "Khác",
+  };
   const [columns, setColumn] = React.useState<
     Array<ICustomTableColumType<any>>
   >([
@@ -126,7 +129,7 @@ const Customer = () => {
       width: 150,
       render: (value: string, i: any) => (
         <span className="customer-name-textoverflow">{i.full_name}</span>
-      )
+      ),
     },
     {
       title: "SĐT",
@@ -139,11 +142,9 @@ const Customer = () => {
       title: "Giới tính",
       dataIndex: "gender",
       // align: "center",
-      render: (value: any, item: any) => (
-        <div>{genreEnum[value]}</div>
-      ),
+      render: (value: any, item: any) => <div>{genreEnum[value]}</div>,
       visible: true,
-      width: 100
+      width: 100,
     },
     {
       title: "Nhóm khách hàng",
@@ -200,17 +201,21 @@ const Customer = () => {
       title: "Ngày sinh",
       dataIndex: "birthday",
       // align: "center",
-      visible: false,
+      visible: true,
       width: 150,
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (value: string) => (
+        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
     },
     {
       title: "Ngày cưới",
-      dataIndex: "wedding_date",
+      // dataIndex: "wedding_date",
       // align: "center",
-      visible: false,
+      visible: true,
       width: 150,
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
+      render: (value: string) => (
+        <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
+      ),
     },
     {
       title: "website/facebook",
@@ -270,7 +275,6 @@ const Customer = () => {
     },
     items: [],
   });
-  console.log(data);
   const [tableLoading, setTableLoading] = React.useState<boolean>(true);
 
   const onPageChange = React.useCallback(
@@ -353,13 +357,17 @@ const Customer = () => {
   }, []);
 
   const onSearch = (value: CustomerSearchQuery) => {
+    query.request = value && value.request;
     const querySearch: CustomerSearchQuery = value;
     dispatch(CustomerList(querySearch, setData));
   };
 
-  const initQueryAccount: AccountSearchQuery = useMemo(() => ({
-    info: "",
-  }), [])
+  const initQueryAccount: AccountSearchQuery = useMemo(
+    () => ({
+      info: "",
+    }),
+    []
+  );
 
   // const AccountRenderSearchResult = (item: AccountResponse) => {
   //   return (
@@ -405,14 +413,11 @@ const Customer = () => {
     (value, o) => {
       let index: number = -1;
       if (resultSearch) {
-        console.log(resultSearch);
         index = resultSearch.items.findIndex(
           (accountResponse: AccountResponse) =>
             accountResponse.id && accountResponse.id.toString() === value
         );
         if (index !== -1) {
-          console.log(index);
-
           setKeySearchAccount(
             resultSearch.items[index].code +
               "-" +
@@ -426,11 +431,11 @@ const Customer = () => {
   );
 
   const onFinish = (value: CustomerSearchQuery) => {
-    value.responsible_staff_code = value.responsible_staff_code? value.responsible_staff_code.split(" - ")[0]: null;
+    value.responsible_staff_code = value.responsible_staff_code
+      ? value.responsible_staff_code.split(" - ")[0]
+      : null;
     onSearch(value);
   };
-
-
 
   const actions: Array<MenuAction> = [
     {
@@ -500,7 +505,7 @@ const Customer = () => {
           <CustomTable
             isRowSelection
             isLoading={tableLoading}
-            scroll={{ x: 2500 }}
+            scroll={{ x: 2000 }}
             sticky={{ offsetScroll: 5 }}
             pagination={{
               pageSize: data.metadata.limit,
@@ -510,7 +515,7 @@ const Customer = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            dataSource={data.items.sort((a: any,b: any) => b.id - a.id)}
+            dataSource={data.items}
             columns={columnFinal}
             rowKey={(item: any) => item.id}
           />
@@ -602,24 +607,24 @@ const Customer = () => {
           <Row gutter={24}>
             <Col span={12}>
               <Form.Item name="from_birthday" label="Ngày sinh từ">
-                <CustomDatepicker placeholder="Ngày sinh từ" />
+                <CustomDatePicker placeholder="Ngày sinh từ" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item label="Đến" name="to_birthday">
-                <CustomDatepicker placeholder="Ngày sinh đến" />
+                <CustomDatePicker placeholder="Ngày sinh đến" />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={24}>
             <Col span={12}>
               <Form.Item name="from_wedding_date" label="Ngày cưới từ">
-                <CustomDatepicker placeholder="Ngày cưới từ" />
+                <CustomDatePicker placeholder="Ngày cưới từ" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item label="Đến" name="to_wedding_date">
-                <CustomDatepicker placeholder="Ngày cưới đến" />
+                <CustomDatePicker placeholder="Ngày cưới đến" />
               </Form.Item>
             </Col>
           </Row>
@@ -669,7 +674,9 @@ const Customer = () => {
       </BaseFilter>
       <ModalSettingColumn
         visible={showSettingColumn}
-        onCancel={() => setShowSettingColumn(false)}
+        onCancel={() => {
+          setShowSettingColumn(false);
+        }}
         onOk={(data) => {
           setShowSettingColumn(false);
           setColumn(data);

@@ -2,7 +2,6 @@ import { ConvertDateToUtc } from "./DateUtils";
 import { AccountStoreResponse } from "model/account/account.model";
 import { DistrictResponse } from "model/content/district.model";
 import { CityView } from "model/content/district.model";
-import { AppConfig } from "config/app.config";
 import { RouteMenu } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import moment from "moment";
@@ -10,6 +9,7 @@ import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
   ProductRequest,
   ProductRequestView,
+  ProductResponse,
   VariantImage,
   VariantPriceRequest,
   VariantPricesResponse,
@@ -20,7 +20,6 @@ import {
   VariantUpdateRequest,
   VariantUpdateView,
 } from "model/product/product.model";
-import { PriceConfig } from "config/price.config.";
 import {
   DeliveryServiceResponse,
   OrderLineItemResponse,
@@ -298,11 +297,8 @@ export const findPriceInVariant = (
 ): number => {
   let price: number = 0;
   variantPrices.forEach((v) => {
-    if (
-      v.currency_code === currency_code &&
-      v.price_type === AppConfig.price_type
-    ) {
-      price = v.price;
+    if (v.currency_code === currency_code) {
+      price = v.retail_price;
     }
   });
   return price;
@@ -314,10 +310,7 @@ export const findTaxInVariant = (
 ): number => {
   let tax: number | null = 0;
   variantPrices.forEach((v) => {
-    if (
-      v.currency_code === currency_code &&
-      v.price_type === AppConfig.price_type
-    ) {
+    if (v.currency_code === currency_code) {
       tax = v.tax_percent;
     }
   });
@@ -330,11 +323,8 @@ export const findPrice = (
 ): string => {
   let price: string = "0";
   variantPrices.forEach((v) => {
-    if (
-      v.currency_code === currency_code &&
-      v.price_type === AppConfig.price_type
-    ) {
-      price = v.price.toString();
+    if (v.currency_code === currency_code) {
+      price = v.retail_price.toString();
     }
   });
   return price.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
@@ -386,34 +376,14 @@ export const Products = {
   ) => {
     let variant_prices: Array<VariantPriceRequest> = [];
     priceView.forEach((item) => {
-      let retail_price = parseInt(item.retail_price);
-      let import_price = parseInt(item.import_price);
-      let whole_sale_price = parseInt(item.whole_sale_price);
-      let tax_percent = parseInt(item.tax_percent ? item.tax_percent : "0");
-      if (!isNaN(retail_price)) {
-        variant_prices.push({
-          price: retail_price,
-          price_type: PriceConfig.RETAIL,
-          currency_code: item.currency,
-          tax_percent: tax_percent,
-        });
-      }
-      if (!isNaN(import_price)) {
-        variant_prices.push({
-          price: import_price,
-          price_type: PriceConfig.IMPORT,
-          currency_code: item.currency,
-          tax_percent: tax_percent,
-        });
-      }
-      if (!isNaN(whole_sale_price)) {
-        variant_prices.push({
-          price: whole_sale_price,
-          price_type: PriceConfig.WHOLE_SALE,
-          currency_code: item.currency,
-          tax_percent: tax_percent,
-        });
-      }
+      variant_prices.push({
+        cost_price: item.cost_price === "" ? null : item.cost_price,
+        currency_code: item.currency,
+        import_price: item.import_price === "" ? null : item.import_price,
+        retail_price: item.retail_price === "" ? null : item.retail_price,
+        tax_percent: item.tax_percent === "" ? null : item.tax_percent,
+        wholesale_price: item.wholesale_price === "" ? null : item.wholesale_price
+      })
     });
     return variant_prices;
   },
@@ -425,34 +395,14 @@ export const Products = {
     let variants: Array<VariantRequest> = [];
     let variant_prices: Array<VariantPriceRequest> = [];
     pr.variant_prices.forEach((item) => {
-      let retail_price = parseInt(item.retail_price);
-      let import_price = parseInt(item.import_price);
-      let whole_sale_price = parseInt(item.whole_sale_price);
-      let tax_percent = parseInt(item.tax_percent ? item.tax_percent : "0");
-      if (!isNaN(retail_price)) {
-        variant_prices.push({
-          price: retail_price,
-          price_type: PriceConfig.RETAIL,
-          currency_code: item.currency,
-          tax_percent: tax_percent,
-        });
-      }
-      if (!isNaN(import_price)) {
-        variant_prices.push({
-          price: import_price,
-          price_type: PriceConfig.IMPORT,
-          currency_code: item.currency,
-          tax_percent: tax_percent,
-        });
-      }
-      if (!isNaN(whole_sale_price)) {
-        variant_prices.push({
-          price: whole_sale_price,
-          price_type: PriceConfig.WHOLE_SALE,
-          currency_code: item.currency,
-          tax_percent: tax_percent,
-        });
-      }
+      variant_prices.push({
+        cost_price: item.cost_price === "" ? null : item.cost_price,
+        currency_code: item.currency,
+        import_price: item.import_price === "" ? null : item.import_price,
+        retail_price: item.retail_price === "" ? null : item.retail_price,
+        tax_percent: item.tax_percent === "" ? null : item.tax_percent,
+        wholesale_price: item.wholesale_price === "" ? null : item.wholesale_price
+      })
     });
     arrVariants.forEach((item) => {
       variants.push({
@@ -472,7 +422,7 @@ export const Products = {
         weight: pr.weight,
         weight_unit: pr.weight_unit,
         variant_prices: variant_prices,
-        variant_images: [],
+        variant_images: item.variant_images,
         inventory: 0,
         supplier_id: pr.supplier_id,
       });
@@ -485,7 +435,6 @@ export const Products = {
       description: pr.description,
       designer_code: pr.designer_code,
       goods: pr.goods,
-
       made_in_id: pr.made_in_id,
       merchandiser_code: pr.merchandiser_code,
       name: pr.name,
@@ -493,7 +442,7 @@ export const Products = {
       specifications: pr.specifications,
       product_type: pr.product_type ? pr.product_type : "",
       status: status,
-      tags: pr.tags.join(","),
+      tags: pr.tags,
       variants: variants,
       unit: pr.unit,
       supplier_id: pr.supplier_id,
@@ -504,9 +453,9 @@ export const Products = {
   },
   findAvatar: (images: Array<VariantImage>): VariantImage | null => {
     let image: VariantImage | null = null;
-    images.forEach((imagerRequest) => {
-      if (imagerRequest.variant_avatar) {
-        image = imagerRequest;
+    images.forEach((imageRequest) => {
+      if (imageRequest.variant_avatar) {
+        image = imageRequest;
       }
     });
     return image;
@@ -529,45 +478,6 @@ export const Products = {
   },
   convertVariantRequestToView: (variant: VariantResponse) => {
     let variantPrices: Array<VariantPriceViewRequest> = [];
-    variant.variant_prices.forEach((item) => {
-      let index = variantPrices.findIndex(
-        (v) => v.currency === item.currency_code
-      );
-      let price = item.price;
-      let type = item.price_type;
-      let tax_percent = item.tax_percent;
-      let temp: VariantPriceViewRequest | null = null;
-      if (index === -1) {
-        temp = {
-          currency: item.currency_code,
-          retail_price: "",
-          import_price: "",
-          tax_percent: tax_percent ? tax_percent.toString() : "0",
-          whole_sale_price: "",
-        };
-        if (type === PriceConfig.RETAIL) {
-          temp.retail_price = price.toString();
-        }
-        if (type === PriceConfig.IMPORT) {
-          temp.import_price = price.toString();
-        }
-        if (type === PriceConfig.WHOLE_SALE) {
-          temp.whole_sale_price = price.toString();
-        }
-        variantPrices.push(temp);
-      } else {
-        temp = variantPrices[index];
-        if (type === PriceConfig.RETAIL) {
-          temp.retail_price = price.toString();
-        }
-        if (type === PriceConfig.IMPORT) {
-          temp.import_price = price.toString();
-        }
-        if (type === PriceConfig.WHOLE_SALE) {
-          temp.whole_sale_price = price.toString();
-        }
-      }
-    });
     let variantUpdateView: VariantUpdateView = {
       id: variant.id,
       product_id: variant.product_id,
@@ -612,7 +522,7 @@ export const Products = {
     };
     return variantUpdateView;
   },
-  converVariantResponseToRequest: (variant: VariantResponse) => {
+  convertVariantResponseToRequest: (variant: VariantResponse) => {
     let variantUpadteRequest: VariantUpdateRequest = {
       id: variant.id,
       composite: variant.composite,
@@ -633,11 +543,24 @@ export const Products = {
       length_unit: variant.length_unit,
       weight: variant.weight,
       weight_unit: variant.weight_unit,
-      variant_prices: variant.variant_prices,
+      variant_prices: [],
       variant_images: variant.variant_images,
     };
     return variantUpadteRequest;
   },
+  findAvatarProduct: (product: ProductResponse|null) => {
+    let avatar = null;
+    if(product) {
+      product.variants.forEach((variant) => {
+        variant.variant_images.forEach((variantImage) => {
+          if(variantImage.product_avatar) {
+            avatar = variantImage.url;
+          }
+        })
+      }, [])
+    }
+    return avatar;
+  }
 };
 
 export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {

@@ -4,7 +4,12 @@ import { ApiConfig } from "config/api.config";
 import { generateQuery } from "utils/AppUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
+  ProductHistoryQuery,
+  ProductHistoryResponse,
   ProductRequest,
+  ProductWrapperUpdateRequest,
+  ProductWrapperResponse,
+  ProductWrapperSearchQuery,
   VariantResponse,
   VariantSearchQuery,
 } from "model/product/product.model";
@@ -21,6 +26,24 @@ export const getVariantApi = (
   id: string
 ): Promise<BaseResponse<VariantResponse>> => {
   return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/${id}`);
+};
+
+export const searchProductWrapperApi = (
+  query: ProductWrapperSearchQuery
+): Promise<BaseResponse<PageResponse<ProductWrapperResponse>>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/products?${queryString}`);
+};
+
+export const productWrapperDeleteApi = (id: number): Promise<BaseResponse<string>> => {
+  return BaseAxios.delete(`${ApiConfig.PRODUCT}/products/${id}`);
+}
+
+export const productWrapperPutApi = (
+  id: number,
+  request: ProductWrapperUpdateRequest
+): Promise<BaseResponse<ProductWrapperResponse>> => {
+  return BaseAxios.put(`${ApiConfig.PRODUCT}/products/${id}`, request);
 };
 
 export const productUploadApi = (
@@ -40,3 +63,16 @@ export const productUploadApi = (
 export const createProductApi = (request: ProductRequest) => {
   return BaseAxios.post(`${ApiConfig.PRODUCT}/products`, request);
 };
+
+
+export const productGetHistory = (query: ProductHistoryQuery): Promise<BaseResponse<PageResponse<ProductHistoryResponse>>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/products/history?${queryString}`);
+};
+
+export const productDetailApi = (id: number) => {
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/products/${id}`);
+}
+export const productUpdateApi = (id: number, request: ProductRequest) => {
+  return BaseAxios.put(`${ApiConfig.PRODUCT}/products/${id}`, request);
+}

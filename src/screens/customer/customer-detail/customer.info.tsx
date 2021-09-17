@@ -1,7 +1,7 @@
 import { Row, Col, Card, Collapse, Tag } from "antd";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
-import moment from "moment";
+import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 
 const { Panel } = Collapse;
 
@@ -17,6 +17,7 @@ function CustomerInfo(props: any) {
   const [customerDetailCollapse, setCustomerDetailCollapse] = React.useState(
     []
   ) as any;
+
   React.useEffect(() => {
     let details: any = [];
     if (customer) {
@@ -49,7 +50,7 @@ function CustomerInfo(props: any) {
         {
           name: "Ngày sinh",
           value: customer.birthday
-            ? moment(customer.birthday).format("DD/MM/YYYY")
+            ? ConvertUtcToLocalDate(customer.birthday, DATE_FORMAT.DDMMYYY)
             : null,
           position: "left",
           key: "14",
@@ -99,7 +100,7 @@ function CustomerInfo(props: any) {
         {
           name: "Ngày cưới",
           value: customer.wedding_date
-            ? moment(customer.wedding_date).format("DD/MM/YYYY")
+            ? ConvertUtcToLocalDate(customer.wedding_date, DATE_FORMAT.DDMMYYY)
             : null,
           position: "left",
           key: "4",
@@ -147,7 +148,7 @@ function CustomerInfo(props: any) {
     <Card
       className="customer-information-card"
       title={
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div  style={{ display: "flex", alignItems: "center" }}>
           <span className="title-card">THÔNG TIN CÁ NHÂN</span>
           {customer && customer.status === "active" ? (
             <Tag
@@ -180,7 +181,7 @@ function CustomerInfo(props: any) {
           )}
         </div>
       }
-      extra={[<Link to={`/customers/edit/${params.id}`}>Cập nhật</Link>]}
+      extra={[<Link key={params.id} to={`/customers/${params.id}/edit`}>Cập nhật</Link>]}
     >
       <Row gutter={30} style={{ paddingTop: 16 }}>
         <Col span={12}>
@@ -189,11 +190,11 @@ function CustomerInfo(props: any) {
               .filter((detail: any) => detail.position === "left")
               .map((detail: any, index: number) => (
                 <Col
-                  key={detail.key}
+                  key={index}
                   span={24}
                   style={{
                     display: "flex",
-                    marginBottom: 20,
+                    marginBottom: 10,
                     color: "#222222",
                   }}
                 >
@@ -231,7 +232,7 @@ function CustomerInfo(props: any) {
                   span={24}
                   style={{
                     display: "flex",
-                    marginBottom: 20,
+                    marginBottom: 10,
                     color: "#222222",
                   }}
                 >
@@ -265,7 +266,7 @@ function CustomerInfo(props: any) {
           <Collapse ghost>
             <Panel
               key="1"
-              header={[<span style={{ color: "#5656A1" }}>Xem thêm</span>]}
+              header={[<span key="1" style={{ color: "#5656A1" }}>Xem thêm</span>]}
             >
               <Row gutter={30}>
                 <Col span={12}>
@@ -278,7 +279,7 @@ function CustomerInfo(props: any) {
                           span={24}
                           style={{
                             display: "flex",
-                            marginBottom: 20,
+                            marginBottom: 10,
                             color: "#222222",
                           }}
                         >
@@ -316,7 +317,7 @@ function CustomerInfo(props: any) {
                           span={24}
                           style={{
                             display: "flex",
-                            marginBottom: 20,
+                            marginBottom: 10,
                             color: "#222222",
                           }}
                         >

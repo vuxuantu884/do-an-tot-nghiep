@@ -8,6 +8,9 @@
     width: 100px;
     border-radius: 100px
   }
+  .ant-card-extra {
+    width: 100%;
+  }
   .fpage-order-screen{
     .ant-row{
       margin-bottom: 4px !important;
@@ -22,17 +25,6 @@
     .radio-container{
       margin-left: 8px !important;
     }
-  }
-  .fpage-order-product{
-    .ant-card-head{
-      .ant-row{
-        justify-content: flex-end;
-      }
-      .ant-space-item{
-        width: 50%;
-      }
-    }
-    
   }
   .fpage-order-email {
     .ant-form-item-control {
@@ -168,9 +160,8 @@
   .login {
     width: 400px !important;
   }
-  .ct-toast {
-    position: fixed !important;
-    top: 50px !important;
+  #ct-container{
+    top: 50px !important
   }
   .ant-form-item {
     flex-direction: row !important;
@@ -256,5 +247,100 @@
   }
   .customer-field-label {
     font-weight: 500;
+  }
+}
+
+.fpage-order {
+  margin-bottom: 70px;
+
+  .ant-card {
+    margin-top: 5px;
+  }
+
+  .card-body {
+      padding: 12px 24px;
+  }
+
+  .product {
+    .ant-card-head {
+      margin-top: 10px;
+    }
+    .select-price-type {
+      margin: 0;
+      width: 130px;
+    }
+    .product-content {
+      padding: 12px 24px 0px;
+    }
+    .product-table {
+      .total-text {
+        width: 40%;
+        float: left;
+        font-weight: 700;
+      }
+      .total-value-1 {
+        width: 40%;
+        text-align: center;
+      }
+      .total-value-2 {
+        width: 20%;
+        text-align: center;
+        font-weight: 700;
+      }
+    }
+    .product-payment {
+      padding: 12px 24px;
+      .payment-style {
+        justify-content: space-between;
+      }
+    }
+  }
+
+  .note-input {
+      min-height: 130px;
+  }
+
+  .footer {
+      display: flex;
+      justify-content: space-between;
+      position: fixed;
+      width: 80%;
+      height: 55px;
+      bottom: 0;
+      margin: 10px -12px 5px -12px;
+      background-color: #FFFFFF;
+      z-index: 99999;
+
+      .order-step {
+          padding: 3px;
+          margin-left: -20px;
+          margin-top: 3px;
+      }
+
+      .order-button {
+          display: flex;
+          justify-content: space-between;
+          height: 100%;
+          box-shadow: 0px -1px 8px rgba(0, 0, 0, 0.1);
+          align-items: center;
+          padding: 0 32px;
+          background-color: white;
+          &-width {
+              width: 45%;
+          }
+      }
+  }
+}
+
+.add-new-item-dropdown {
+  display: flex;
+  min-height: 42px;
+  line-height: 50px;
+  cursor: pointer;
+  .search-icon {
+    margin-left: 20px;
+  }
+  .text {
+    margin-left: 20px;
   }
 }

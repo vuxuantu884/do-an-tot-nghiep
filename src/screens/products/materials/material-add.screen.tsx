@@ -13,6 +13,9 @@ let initialRequest: MaterialCreateRequest = {
   component: '',
   description: '',
   name: '',
+  advantages: '',
+  defect: '',
+  preserve: '',
 };
 
 const AddMaterial: React.FC = () => {
@@ -73,7 +76,7 @@ const AddMaterial: React.FC = () => {
                       message: 'Tên chất liệu không vượt quá 50 ký tự',
                     },
                   ]}
-                  label="Tên chất liệu"
+                  label="Tên chất liệu:"
                   name="name"
                 >
                   <Input maxLength={50} placeholder="Cotton" />
@@ -82,7 +85,7 @@ const AddMaterial: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item
                   name="component"
-                  label="Thành phần"
+                  label="Thành phần:"
                   rules={[
                     {max: 50, message: 'Thành phần không quá 50 kí tự'}
                   ]}
@@ -109,16 +112,53 @@ const AddMaterial: React.FC = () => {
 										},
                   ]}
                   name="code"
-                  label="Mã chất liệu"
+                  label="Mã chất liệu:"
                 >
                   <Input placeholder="CTN01" maxLength={5} />
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item rules={[
-                    {max: 50, message: 'Thành phần không quá 50 kí tự'}
-                  ]} name="description" label="Ghi chú">
-                  <Input maxLength={100} placeholder="Nhập ghi chú" />
+                    {max: 150, message: 'Thông tin bảo quản không quá 150 kí tự'}
+                  ]} name="preserve" label="Thông tin bảo quản:">
+                  <Input maxLength={150} placeholder="Thông tin bảo quản" />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item rules={[
+                    {max: 150, message: 'Ưu điểm không quá 150 kí tự'}
+                  ]} name="advantages" label="Ưu điểm:">
+                  <Input.TextArea
+                    autoSize={{ minRows: 3, maxRows: 5 }}
+                    maxLength={150}
+                    placeholder="Ưu điểm"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item rules={[
+                    {max: 150, message: 'Nhược điểm không quá 150 kí tự'}
+                  ]} name="defect" label="Nhược điểm:">
+                  <Input.TextArea
+                    autoSize={{ minRows: 3, maxRows: 5 }}
+                    maxLength={150}
+                    placeholder="Nhược điểm"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={16}>
+                <Form.Item rules={[
+                    {max: 250, message: 'Ghi chú không quá 150 kí tự'}
+                  ]} name="description" label="Ghi chú:">
+                  <Input.TextArea
+                    autoSize={{ minRows: 3, maxRows: 5 }}
+                    maxLength={250}
+                    placeholder="Nhập ghi chú"
+                  />
                 </Form.Item>
               </Col>
             </Row>

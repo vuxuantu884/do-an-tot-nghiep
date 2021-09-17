@@ -26,6 +26,7 @@ import {
   VTPFeeResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { ChannelResponse } from "model/response/product/channel.response";
 import { OrderType } from "../../types/order.type";
 
 export const orderCreateAction = (
@@ -33,6 +34,15 @@ export const orderCreateAction = (
   setData: (data: OrderResponse) => void
 ) => {
   return BaseAction(OrderType.CREATE_ORDER_REQUEST, { request, setData });
+};
+
+export const orderFpageCreateAction = (
+  request: OrderRequest,
+  setData: (data: OrderResponse) => void,
+  setDisable: (data: any) => void
+
+) => {
+  return BaseAction(OrderType.CREATE_FPAGE_ORDER_REQUEST, { request, setData, setDisable });
 };
 
 export const InfoGHTKAction = (
@@ -128,8 +138,21 @@ export const getListSubStatusAction = (
   return BaseAction(OrderType.GET_LIST_SUB_STATUS, { status, handleData });
 };
 
-export const setSubStatusAction = (order_id: number, statusId: number) => {
-  return BaseAction(OrderType.SET_SUB_STATUS, { order_id, statusId });
+export const setSubStatusAction = (
+  order_id: number,
+  statusId: number,
+  handleData: () => void,
+  action: string = "Chuyển trạng thái phụ"
+) => {
+  return {
+    type: OrderType.SET_SUB_STATUS,
+    payload: {
+      order_id,
+      statusId,
+      action,
+      handleData,
+    },
+  };
 };
 
 export const getListOrderAction = (
@@ -137,6 +160,26 @@ export const getListOrderAction = (
   setData: (data: PageResponse<OrderModel> | false) => void
 ) => {
   return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
+    query,
+    setData,
+  });
+};
+
+export const getListOrderActionFpage = (
+  query: any,
+  setData: (data: PageResponse<OrderModel> | false) => void
+) => {
+  return BaseAction(OrderType.GET_LIST_ORDER_REQUEST, {
+    query,
+    setData,
+  });
+};
+
+export const GetListOrderCustomerAction = (
+  query: any,
+  setData: (data: PageResponse<OrderModel>|false) => void
+) => {
+  return BaseAction(OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST, {
     query,
     setData,
   });
@@ -176,4 +219,9 @@ export const actionGetActionLogDetail = (
       handleData,
     },
   };
+};
+export const getListChannelRequest = (
+  setData: (data: Array<ChannelResponse>) => void
+) => {
+  return BaseAction(OrderType.GET_LIST_CHANNEL_REQUEST, { setData });
 };

@@ -1,4 +1,4 @@
-import { CustomerSearchQuery } from 'model/query/customer.query';
+import { CustomerSearchQuery, FpageCustomerSearchQuery } from 'model/query/customer.query';
 import BaseAction from 'base/base.action';
 import { CustomerType } from 'domain/types/customer.type';
 import { CustomerResponse } from 'model/response/customer/customer.response';
@@ -12,7 +12,7 @@ export const CustomerSearch = (query: CustomerSearchQuery, setData: (data: Array
     return BaseAction(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE, { query, setData });
 }
 
-export const CustomerSearchByPhone = (query: CustomerSearchQuery, setData: (data: CustomerResponse) => void) => {
+export const CustomerSearchByPhone = (query: FpageCustomerSearchQuery, setData: (data: CustomerResponse) => void) => {
   return BaseAction(CustomerType.CUSTOMER_SEARCH_BY_PHONE, { query, setData });
 }
 
@@ -95,12 +95,12 @@ export const CustomerTypes = (setData: (data: any) => void) => {
     return BaseAction(CustomerType.CUSTOMER_TYPES, { setData });
 }
 
-export const CreateCustomer= (customer: any, setResult: (data: any) => void) => {
-    return BaseAction(CustomerType.CREATE_CUSTOMER, { customer, setResult });
+export const CreateCustomer= (request: any, setResult: (data: any) => void) => {
+    return BaseAction(CustomerType.CREATE_CUSTOMER, { request, setResult });
 }
 
-export const UpdateCustomer = (id: number, customer:any, setResult: (data: any) => void) => {
-    return BaseAction(CustomerType.UPDATE_CUSTOMER, { id, customer, setResult });
+export const UpdateCustomer = (id: number, request:any, setResult: (data: any) => void) => {
+    return BaseAction(CustomerType.UPDATE_CUSTOMER, { id, request, setResult });
 }
 
 export const CreateShippingAddress = (customerId:number, address: any, setResult: (data: any) => void) => {
@@ -151,3 +151,17 @@ export const DeleteNote = (id: number,customerId:number, setResult: (data: any) 
   return BaseAction(CustomerType.DELETE_NOTE, { id, customerId, setResult });
 }
 
+export const CustomerCreateAction = (
+  request: any,
+  setResult: (data: CustomerResponse) => void
+) => {
+  return BaseAction(CustomerType.CREATE_CUSTOMER, { request, setResult });
+};
+
+export const CustomerUpdateAction = (
+  id: number,
+  request: any,
+  setResult: (data: CustomerResponse) => void
+) => {
+  return BaseAction(CustomerType.UPDATE_CUSTOMER, { id, request, setResult });
+};

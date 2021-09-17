@@ -55,9 +55,9 @@ import CustomSelect from "component/custom/select.custom";
 import {
   ProductRequest,
   ProductRequestView,
+  ProductResponse,
   VariantImage,
   VariantRequestView,
-  VariantResponse,
 } from "model/product/product.model";
 import NumberInput from "component/custom/number-input.custom";
 import { AccountSearchAction } from "domain/actions/account/account.action";
@@ -91,7 +91,7 @@ const initialRequest: ProductRequestView = {
   length_unit: null,
   weight: null,
   weight_unit: null,
-  tags: [],
+  tags: "",
   unit: null,
   brand: null,
   content: null,
@@ -108,8 +108,9 @@ const initialRequest: ProductRequestView = {
       retail_price: "",
       currency: AppConfig.currency,
       import_price: "",
-      whole_sale_price: "",
-      tax_percent: "0",
+      cost_price: "",
+      wholesale_price: "",
+      tax_percent: 0,
     },
   ],
   material_id: null,
@@ -223,7 +224,7 @@ const ProductCreateScreen: React.FC = () => {
     return listCategory.filter((item) => item.goods === selectedGood);
   }, [listCategory, selectedGood]);
   const createCallback = useCallback(
-    (result: VariantResponse) => {
+    (result: ProductResponse) => {
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
         history.push(UrlConfig.PRODUCT);
@@ -1261,7 +1262,7 @@ const ProductCreateScreen: React.FC = () => {
         </div>
       </Form>
       <UploadImageModal
-        onCancle={() => {
+        onCancel={() => {
           setVisibleUpload(false);
         }}
         visible={isVisibleUpload}

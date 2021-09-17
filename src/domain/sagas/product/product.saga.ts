@@ -1,4 +1,9 @@
-import { VariantResponse } from "model/product/product.model";
+import { productDetailApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi } from 'service/product/product.service';
+import {
+  ProductHistoryResponse,
+  ProductResponse,
+  VariantResponse,
+} from "model/product/product.model";
 import { call, put, takeEvery, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
@@ -7,7 +12,9 @@ import { ProductType } from "domain/types/product.type";
 import {
   createProductApi,
   getVariantApi,
+  productGetHistory,
   productUploadApi,
+  searchProductWrapperApi,
   searchVariantsApi,
 } from "service/product/product.service";
 import { showError } from "utils/ToastUtils";
@@ -37,6 +44,79 @@ function* searchVariantSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* searchProductWrapperSaga(action: YodyAction) {
+  const { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
+      searchProductWrapperApi,
+      query
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* productWrapperDeleteSaga(action: YodyAction) {
+  const {id, onDeleteSuccess} = action.payload;
+  try {
+    let response: BaseResponse<string> = yield call(productWrapperDeleteApi, id);
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onDeleteSuccess();
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError('Có lỗi vui lòng thử lại sau');
+  }
+}
+
+function* productWrapperUpdateSaga(action: YodyAction) {
+  const { id, request, onUpdateSuccess } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
+      productWrapperPutApi,
+      id,
+      request
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onUpdateSuccess(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onUpdateSuccess(null);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onUpdateSuccess(null);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onUpdateSuccess(null);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -166,7 +246,77 @@ function* variantUpdateSaga(action: YodyAction) {
     }
   } catch (error) {
     onUpdateSuccess(null);
-    console.log("Update Variant: " + error);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getHistorySaga(action: YodyAction) {
+  const { query, onResult } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<ProductHistoryResponse>> =
+      yield call(productGetHistory, query);
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getProductDetail(action: YodyAction){
+  const { id, onResult } = action.payload;
+  try {
+    let response: BaseResponse<ProductResponse> =yield call(productDetailApi, id);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* putProductUpdate(action: YodyAction){
+  const { id, request, onResult } = action.payload;
+  try {
+    let response: BaseResponse<ProductResponse> =yield call(productUpdateApi, id, request);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
@@ -174,11 +324,23 @@ function* variantUpdateSaga(action: YodyAction) {
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
   yield takeLatest(
+    ProductType.SEARCH_PRODUCT_WRAPPER_REQUEST,
+    searchProductWrapperSaga);
+  yield takeLatest(
+    ProductType.DELETE_PRODUCT_WRAPPER_REQUEST,
+    productWrapperDeleteSaga);
+  yield takeLatest(
+    ProductType.UPDATE_PRODUCT_WRAPPER_REQUEST,
+    productWrapperUpdateSaga);
+  yield takeLatest(
     ProductType.SEARCH_PRODUCT_FOR_ORDER_REQUEST,
     searchVariantOrderSaga
   );
-  yield takeLatest(ProductType.CREATE_PRODUCT_REQEUST, createProductSaga);
+  yield takeLatest(ProductType.CREATE_PRODUCT_REQUEST, createProductSaga);
   yield takeLatest(ProductType.VARIANT_DETAIL_REQUEST, variantDetailSaga);
   yield takeLatest(ProductType.VARIANT_UPDATE_REQUEST, variantUpdateSaga);
   yield takeEvery(ProductType.UPLOAD_PRODUCT_REQUEST, uploadProductSaga);
+  yield takeLatest(ProductType.GET_HISTORY, getHistorySaga);
+  yield takeLatest(ProductType.PRODUCT_DETAIL, getProductDetail);
+  yield takeLatest(ProductType.PRODUCT_UPDATE, putProductUpdate);
 }

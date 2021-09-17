@@ -17,7 +17,6 @@ import { SearchOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import React, { useMemo } from "react";
-import Popup from "./popup";
 import { useSelector } from "react-redux";
 import CustomerAdd from "./create.customer";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -277,7 +276,6 @@ const Customer = () => {
     },
     items: [],
   });
-  console.log(data);
   const [tableLoading, setTableLoading] = React.useState<boolean>(true);
 
   const onPageChange = React.useCallback(
@@ -415,14 +413,11 @@ const Customer = () => {
     (value, o) => {
       let index: number = -1;
       if (resultSearch) {
-        console.log(resultSearch);
         index = resultSearch.items.findIndex(
           (accountResponse: AccountResponse) =>
             accountResponse.id && accountResponse.id.toString() === value
         );
         if (index !== -1) {
-          console.log(index);
-
           setKeySearchAccount(
             resultSearch.items[index].code +
               "-" +
@@ -534,7 +529,6 @@ const Customer = () => {
             columns={columnFinal}
             rowKey={(item: any) => item.id}
           />
-          <Popup {...popup} />
         </div>
       </Card>
 

@@ -1,5 +1,11 @@
 import {
+  ProductHistoryQuery,
+  ProductHistoryResponse,
   ProductRequest,
+  ProductResponse,
+  ProductWrapperUpdateRequest,
+  ProductWrapperResponse,
+  ProductWrapperSearchQuery,
   VariantResponse,
   VariantSearchQuery,
   VariantUpdateRequest,
@@ -18,6 +24,33 @@ export const searchVariantsRequestAction = (
     setData,
   });
 };
+
+export const searchProductWrapperRequestAction = (
+  query: ProductWrapperSearchQuery,
+  setData: (data: PageResponse<ProductWrapperResponse>|false) => void
+) => {
+  return BaseAction(ProductType.SEARCH_PRODUCT_WRAPPER_REQUEST, {
+    query,
+    setData,
+  });
+};
+
+export const productWrapperDeleteAction = (id: number, onDeleteSuccess: () => void) => {
+  return BaseAction(ProductType.DELETE_PRODUCT_WRAPPER_REQUEST, {id, onDeleteSuccess});
+}
+
+export const productWrapperUpdateAction = (
+  id: number|null,
+  request: ProductWrapperUpdateRequest,
+  onUpdateSuccess: (result:ProductWrapperUpdateRequest) => void
+) => {
+  return BaseAction(ProductType.UPDATE_PRODUCT_WRAPPER_REQUEST, {
+    id,
+    request,
+    onUpdateSuccess,
+  });
+};
+
 
 export const searchVariantsOrderRequestAction = (
   query: VariantSearchQuery,
@@ -43,9 +76,9 @@ export const productUploadAction = (
 
 export const productCreateAction = (
   request: ProductRequest|null,
-  createCallback: (result:VariantResponse) => void
+  createCallback: (result: ProductResponse) => void
 ) => {
-  return BaseAction(ProductType.CREATE_PRODUCT_REQEUST, {
+  return BaseAction(ProductType.CREATE_PRODUCT_REQUEST, {
     request,
     createCallback,
   });
@@ -69,3 +102,21 @@ export const variantUpdateAction = (
     onUpdateSuccess,
   });
 };
+
+export const productGetHistoryAction = (
+  query: ProductHistoryQuery,
+  onResult: (result: PageResponse<ProductHistoryResponse>|false) => void
+) => {
+  return BaseAction(ProductType.GET_HISTORY, {
+    query,
+    onResult,
+  });
+};
+
+export const productGetDetail = (id: number, onResult: (result: ProductResponse|false) => void) => {
+  return BaseAction(ProductType.PRODUCT_DETAIL, {id, onResult});
+}
+
+export const productUpdateAction = (id: number, request: ProductRequest|ProductResponse, onResult: (result: ProductResponse|false) => void) => {
+  return BaseAction(ProductType.PRODUCT_UPDATE, {id, request, onResult});
+}

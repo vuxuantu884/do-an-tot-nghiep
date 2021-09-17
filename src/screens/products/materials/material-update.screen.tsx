@@ -1,4 +1,4 @@
-import {Button, Card, Col, Form, FormInstance, Input, Row, Space} from 'antd';
+import {Button, Card, Col, Form, FormInstance, Input, Row, Space } from 'antd';
 import ContentContainer from 'component/container/content.container';
 import UrlConfig from 'config/url.config';
 import {
@@ -25,9 +25,11 @@ const UpdateMaterial: React.FC = () => {
   const [isLoadData, setLoadData] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [isError, setError] = useState<boolean>(false);
+
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
+
   const onUpdate = useCallback((material: MaterialResponse|false) => {
     setLoading(false);
     if(!!material) {
@@ -35,6 +37,7 @@ const UpdateMaterial: React.FC = () => {
       history.push(`${UrlConfig.MATERIALS}`)
     }
   }, [history]);
+
   const onFinish = useCallback(
     (values: MaterialUpdateRequest) => {
       let idNumber = parseInt(id);
@@ -44,9 +47,11 @@ const UpdateMaterial: React.FC = () => {
     },
     [dispatch, id, onUpdate]
   );
+
   const onCancel = useCallback(() => {
     history.goBack();
   }, [history]);
+
   const onGetDetail = useCallback((material: MaterialResponse|false) => {
     setLoadData(false);
     if(!material) {
@@ -55,12 +60,14 @@ const UpdateMaterial: React.FC = () => {
       setData(material);
     }
   }, []);
+
   useEffect(() => {
     let idNumber = parseInt(id);
     if (!Number.isNaN(idNumber)) {
       dispatch(detailMaterialAction(idNumber, onGetDetail));
     }
   }, [dispatch, id, onGetDetail]);
+
   return (
     <ContentContainer
       isError={isError}
@@ -107,7 +114,7 @@ const UpdateMaterial: React.FC = () => {
                         message: 'Tên chất liệu không vượt quá 50 ký tự',
                       },
                     ]}
-                    label="Tên chất liệu"
+                    label="Tên chất liệu:"
                     name="name"
                   >
                     <Input maxLength={50} placeholder="Tên danh mục" />
@@ -120,7 +127,7 @@ const UpdateMaterial: React.FC = () => {
                       {max: 50},
                     ]}
                     name="component"
-                    label="Thành phần"
+                    label="Thành phần:"
                   >
                     <Input placeholder="Thành phần" />
                   </Form.Item>
@@ -138,7 +145,7 @@ const UpdateMaterial: React.FC = () => {
                     ]}
                     name="code"
                     labelAlign="right"
-                    label="Mã chất liệu"
+                    label="Mã chất liệu:"
                   >
                     <Input
                       placeholder="Mã chất liệu"
@@ -148,14 +155,53 @@ const UpdateMaterial: React.FC = () => {
                   </Form.Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Form.Item name="description" label="Ghi chú">
-                    <Input placeholder="Nhập ghi chú" size="large" />
-                  </Form.Item>
-                  <Form.Item noStyle hidden name="version">
-                    <Input />
+                  <Form.Item rules={[
+                      {max: 150, message: 'Thông tin bảo quản không quá 150 kí tự'}
+                    ]} name="preserve" label="Thông tin bảo quản:">
+                    <Input size="large" maxLength={150} placeholder="Thông tin bảo quản" />
                   </Form.Item>
                 </Col>
               </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item rules={[
+                    {max: 150, message: 'Ưu điểm không quá 150 kí tự'}
+                  ]} name="advantages" label="Ưu điểm:">
+                  <Input.TextArea
+                    autoSize={{ minRows: 3, maxRows: 5 }}
+                    maxLength={150} 
+                    placeholder="Ưu điểm"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={24} lg={8} md={12} sm={24}>
+                <Form.Item rules={[
+                    {max: 150, message: 'Nhược điểm không quá 150 kí tự'}
+                  ]} name="defect" label="Nhược điểm:">
+                  <Input.TextArea
+                    autoSize={{ minRows: 3, maxRows: 5 }}
+                    maxLength={150} 
+                    placeholder="Nhược điểm"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={50}>
+              <Col span={24} lg={16}>
+                <Form.Item rules={[
+                    {max: 250, message: 'Ghi chú không quá 150 kí tự'}
+                  ]} name="description" label="Ghi chú:">
+                  <Input.TextArea
+                    autoSize={{ minRows: 3, maxRows: 5 }}
+                    maxLength={250} 
+                    placeholder="Nhập ghi chú"
+                  />
+                </Form.Item>
+                <Form.Item noStyle hidden name="version">
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
             </div>
           </Card>
           <div className="margin-top-10" style={{textAlign: 'right'}}>

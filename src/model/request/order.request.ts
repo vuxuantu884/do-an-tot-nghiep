@@ -80,6 +80,7 @@ export interface UpdateFulFillmentRequest {
 export interface UpdateLineFulFillment {
   order_id: number | null;
   fulfillment: UpdateFulFillmentRequest;
+  action?: string | null;
 }
 
 export interface BillingAddress {
@@ -185,7 +186,7 @@ export interface OrderPaymentRequest {
   return_amount: number;
   status: string;
   name?: string;
-  code?: string;
+  code: string;
   point?: number;
   customer_id: number | null;
   type: string;
@@ -203,7 +204,7 @@ export interface UpdateOrderPaymentRequest {
   return_amount: number;
   status: string;
   name?: string;
-  code?: string;
+  code: string;
   point?: number;
   customer_id: number | null;
   type: string;
@@ -235,10 +236,10 @@ export interface OrderLineItemRequest {
   weight_unit: string;
   warranty: string;
   tax_rate: number;
-  tax_include: boolean;
-  composite: boolean;
+  tax_include: boolean | null;
+  composite?: boolean;
   product: string;
-  is_composite: boolean;
+  is_composite?: boolean;
   line_amount_after_line_discount: number;
   discount_items: Array<OrderItemDiscountRequest>;
   discount_rate: number;
@@ -270,6 +271,7 @@ export interface UpdateFulFillmentStatusRequest {
   fulfillment_id: number | null;
   status: string | null;
   cancel_reason?: string | null;
+  action?: string | null;
 }
 
 export interface ShippingGHTKRequest {

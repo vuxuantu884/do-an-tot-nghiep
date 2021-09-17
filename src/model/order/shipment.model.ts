@@ -34,7 +34,7 @@ export interface ShipmentModel {
   total_discount: string|null;
   total_quantity: number;
   items: Array<Item>;
-  
+  created_date: string|null;
   packed_on: string|null;
   shipped_on: string|null;
   export_on: string|null;
@@ -56,8 +56,9 @@ export interface ShipmentSearchQuery {
   search_term: string|null;
   status: [];
   stock_location_ids: [];
-  delivery_service_provider_ids: [];
-  delivery_service_provider_types: [];
+  shipper_ids: [];
+  delivery_provider_ids: [];
+  delivery_types: [];
   reference_status: [];
 
   packed_on_min: string|null;
@@ -75,10 +76,10 @@ export interface ShipmentSearchQuery {
   cancelled_on_min: string|null;
   cancelled_on_max: string|null;
   cancelled_on_predefined: string|null;
-  print_status: [];
+  print_status: string[];
   store_ids: [],
-  sources: [];
-  assignees: [];
+  source_ids: [];
+  account_codes: [];
   shipping_address: string|null;
   variant_ids: [];
   note: string|null;

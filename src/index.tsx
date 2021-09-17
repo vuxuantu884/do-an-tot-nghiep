@@ -1,6 +1,8 @@
 import { ConfigProvider } from "antd";
 import "antd/dist/antd.min.css";
-import viVN from "antd/lib/locale/vi_VN";
+import locale from "antd/lib/locale/vi_VN";
+import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick-theme.css";
 import "assets/css/app.scss";
 import "assets/font/iconmon/font.css";
 import store from "domain/store";
@@ -12,7 +14,7 @@ import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
   <Provider store={store}>
-    <ConfigProvider locale={viVN}>
+    <ConfigProvider locale={locale}>
       <App />
     </ConfigProvider>
   </Provider>,

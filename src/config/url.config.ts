@@ -24,7 +24,10 @@ const UrlConfig = {
   CUSTOMER2: `/customer`,
   SHIPMENTS: `/shipments`,
   FPAGE: `/fpage`,
-  INVENTORY: "/inventory"
+  INVENTORY: "/inventory",
+  ECOMMERCE: "/ecommerce",
+  PROMOTION: "/promotion",
+  LOYALTY: `/loyalty-programs`,
 };
 
 export default UrlConfig;

@@ -60,8 +60,8 @@ const OrderDetail = (props: PropType) => {
   const isFirstLoad = useRef(true);
 
   const dispatch = useDispatch();
-  const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
+  // const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
+  // const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
   const [paymentType, setPaymentType] = useState<number>(3);
   const [isVisibleUpdatePayment, setVisibleUpdatePayment] = useState(false);
@@ -80,7 +80,8 @@ const OrderDetail = (props: PropType) => {
   );
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
     useState<number>(0);
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  // const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
 
@@ -92,7 +93,7 @@ const OrderDetail = (props: PropType) => {
   };
 
   const onPayments = (value: Array<OrderPaymentRequest>) => {
-    setPayments(value);
+    // setPayments(value);
   };
   const changeShippingFeeInformedCustomer = (value: number | null) => {
     if (value !== null) {
@@ -162,7 +163,7 @@ const OrderDetail = (props: PropType) => {
       if (!data) {
         return;
       }
-      setAccounts(data.items);
+      // setAccounts(data.items);
     },
     []
   );
@@ -182,6 +183,10 @@ const OrderDetail = (props: PropType) => {
       setOrderDetailAllFullfilment(data);
     }
   }, []);
+
+  const handleChangeSubStatus = () => {
+    setCountChangeSubStatus(countChangeSubStatus + 1);
+  };
 
   useEffect(() => {
     if (isFirstLoad.current) {
@@ -253,9 +258,9 @@ const OrderDetail = (props: PropType) => {
   // end
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
+      // setIsShowBillStep(true);
     } else {
-      setIsShowBillStep(false);
+      // setIsShowBillStep(false);
     }
   }, []);
 
@@ -341,7 +346,7 @@ const OrderDetail = (props: PropType) => {
                       </div>
                       {checkPaymentStatusToShow(OrderDetail) === -1 && (
                         <Tag className="orders-tag orders-tag-default">
-                          Chưa thanh toán
+                          Chưa thanh toán 2
                         </Tag>
                       )}
                       {checkPaymentStatusToShow(OrderDetail) === 0 && (
@@ -623,7 +628,7 @@ const OrderDetail = (props: PropType) => {
                   title={
                     <Space>
                       <div className="d-flex">
-                        <span className="title-card">THANH TOÁN</span>
+                        <span className="title-card">THANH TOÁN 2</span>
                       </div>
                       {/* {checkPaymentStatusToShow(OrderDetail) === -1 && (
                         <Tag className="orders-tag orders-tag-default">
@@ -855,9 +860,11 @@ const OrderDetail = (props: PropType) => {
               </div>
             </Card>
             <SubStatusOrder
+              subStatusId={OrderDetail?.sub_status_id}
               status={OrderDetail?.status}
               orderId={OrderId}
               fulfillments={OrderDetail?.fulfillments}
+              handleChangeSubStatus={handleChangeSubStatus}
             />
             <Card
               className="margin-top-20"
@@ -918,7 +925,10 @@ const OrderDetail = (props: PropType) => {
                 </Row>
               </div>
             </Card>
-            <ActionHistory orderId={id} />
+            <ActionHistory
+              orderId={id}
+              countChangeSubStatus={countChangeSubStatus}
+            />
           </Col>
         </Row>
         <OrderDetailBottomBar

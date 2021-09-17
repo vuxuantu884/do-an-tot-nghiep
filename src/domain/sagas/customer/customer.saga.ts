@@ -23,8 +23,8 @@ import {
   updateShippingAddress,
   createNote,
   updateNote,
-  deleteNote
-} from "service/cusomer/customer.service";
+  deleteNote,
+} from "service/customer/customer.service";
 import { CustomerType } from "domain/types/customer.type";
 import { showError } from "utils/ToastUtils";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
@@ -87,15 +87,15 @@ function* getCustomerByPhone(action: YodyAction) {
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
-        console.log(response.data)
+        console.log(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
         break;
       default:
-        setData(undefined)
-        response.errors.forEach((e) =>showError(e));
-        
+        setData(undefined);
+        response.errors.forEach((e) => showError(e));
+
         break;
     }
   } catch (error) {
@@ -130,7 +130,7 @@ function* CustomerGroups(action: YodyAction) {
   const { setData } = action.payload;
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
-      getCustomerGroups,
+      getCustomerGroups
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -152,7 +152,7 @@ function* CustomerLevels(action: YodyAction) {
   const { setData } = action.payload;
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
-      getCustomerLevels,
+      getCustomerLevels
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -174,7 +174,7 @@ function* CustomerTypes(action: YodyAction) {
   const { setData } = action.payload;
   try {
     const response: BaseResponse<CustomerResponse> = yield call(
-      getCustomerTypes,
+      getCustomerTypes
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -193,12 +193,9 @@ function* CustomerTypes(action: YodyAction) {
 }
 
 function* CreateCustomer(action: YodyAction) {
-  const { customer, setResult } = action.payload;
+  const { request, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      createCustomer,
-      customer
-    );
+    const response: BaseResponse<any> = yield call(createCustomer, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data);
@@ -218,13 +215,9 @@ function* CreateCustomer(action: YodyAction) {
 }
 
 function* UpdateCustomer(action: YodyAction) {
-  const { customer, id, setResult } = action.payload;
+  const { id, request, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      updateCustomer,
-      id,
-      customer,
-    );
+    const response: BaseResponse<any> = yield call(updateCustomer, id, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data);
@@ -257,11 +250,11 @@ function* UpdateBillingAddress(action: YodyAction) {
         setResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -283,11 +276,11 @@ function* CreateBillingAddress(action: YodyAction) {
         setResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -310,11 +303,11 @@ function* UpdateShippingAddress(action: YodyAction) {
         setResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -337,11 +330,11 @@ function* UpdateNote(action: YodyAction) {
         setResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -363,11 +356,11 @@ function* CreateNote(action: YodyAction) {
         setResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -389,11 +382,11 @@ function* CreateShippingAddress(action: YodyAction) {
         setResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -416,11 +409,11 @@ function* UpdateContact(action: YodyAction) {
         setResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -442,11 +435,11 @@ function* CreateContact(action: YodyAction) {
         setResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -461,18 +454,18 @@ function* DeleteBillingAddress(action: YodyAction) {
     const response: BaseResponse<any> = yield call(
       deleteBillingAddress,
       id,
-      customerId,
+      customerId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setResult(response.data || 'OK');
+        setResult(response.data || "OK");
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -487,18 +480,18 @@ function* DeleteContact(action: YodyAction) {
     const response: BaseResponse<any> = yield call(
       deleteContact,
       id,
-      customerId,
+      customerId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setResult(response.data || 'OK');
+        setResult(response.data || "OK");
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -513,18 +506,18 @@ function* DeleteShippingAddress(action: YodyAction) {
     const response: BaseResponse<any> = yield call(
       deleteShippingAddress,
       id,
-      customerId,
+      customerId
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setResult(response.data || 'OK');
+        setResult(response.data || "OK");
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -536,21 +529,17 @@ function* DeleteShippingAddress(action: YodyAction) {
 function* DeleteNote(action: YodyAction) {
   const { customerId, id, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      deleteNote,
-      id,
-      customerId,
-    );
+    const response: BaseResponse<any> = yield call(deleteNote, id, customerId);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        setResult(response.data || 'OK');
+        setResult(response.data || "OK");
         break;
       case HttpStatus.UNAUTHORIZED:
-        setResult(null)
+        setResult(null);
         yield put(unauthorizedAction());
         break;
       default:
-        setResult(null)
+        setResult(null);
         response.errors.forEach((e) => showError(e));
         break;
     }
@@ -564,12 +553,8 @@ export default function* customerSagas() {
     CustomerType.KEY_SEARCH_CUSTOMER_CHANGE,
     onKeySearchCustomerChange
   );
-  yield takeLatest(
-    CustomerType.CUSTOMER_LIST,
-    getCustomerList
-  );
+  yield takeLatest(CustomerType.CUSTOMER_LIST, getCustomerList);
 
-  
   yield takeLatest(CustomerType.CUSTOMER_SEARCH_BY_PHONE, getCustomerByPhone);
   yield takeLatest(CustomerType.CUSTOMER_DETAIL, CustomerDetail);
   yield takeLatest(CustomerType.CREATE_CUSTOMER, CreateCustomer);

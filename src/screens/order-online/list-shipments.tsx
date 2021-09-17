@@ -11,10 +11,7 @@ import ShipmentFilter from "component/filter/shipment.filter";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { Item, Shipment, ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
-import {
-  AccountResponse,
-  AccountSearchQuery,
-} from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
 import UrlConfig from "config/url.config";
@@ -22,9 +19,8 @@ import ButtonCreate from "component/header/ButtonCreate";
 import ContentContainer from "component/container/content.container";
 // import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { DeliveryServicesGetList, getShipmentsAction } from "domain/actions/order/order.action";
+import { getShipmentsAction } from "domain/actions/order/order.action";
 import './scss/index.screen.scss'
-import { DeliveryServiceResponse } from "model/response/order/order.response";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -54,8 +50,9 @@ const initQuery: ShipmentSearchQuery = {
   search_term: null,
   status: [],
   stock_location_ids: [],
-  delivery_service_provider_ids: [],
-  delivery_service_provider_types: [],
+  delivery_provider_ids: [],
+  delivery_types: [],
+  shipper_ids: [],
   reference_status: [],
   packed_on_min: null,
   packed_on_max: null,
@@ -74,18 +71,14 @@ const initQuery: ShipmentSearchQuery = {
   cancelled_on_predefined: null,
   print_status: [],
   store_ids: [],
-  sources: [],
-  assignees: [],
+  source_ids: [],
+  account_codes: [],
   shipping_address: null,
   variant_ids: [],
   note: null,
   customer_note: null,
   tags: [],
   cancel_reason: [],
-};
-
-const initAccountQuery: AccountSearchQuery = {
-  department_ids: [4],
 };
 
 const ListOrderScreen: React.FC = () => {
@@ -111,6 +104,7 @@ const ListOrderScreen: React.FC = () => {
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
+  
   const [data, setData] = useState<PageResponse<ShipmentModel>>({
     metadata: {
       limit: 30,
@@ -119,8 +113,7 @@ const ListOrderScreen: React.FC = () => {
     },
     items: [],
   });
-  const [deliveryServices, setDeliveryServices] =
-    useState<Array<DeliveryServiceResponse>>([]);
+  
   const status_order = [
     {name: "Nháp", value: "draft"},
     {name: "Đóng gói", value: "packed"},
@@ -160,12 +153,27 @@ const ListOrderScreen: React.FC = () => {
   const [columns, setColumn]  = useState<Array<ICustomTableColumType<ShipmentModel>>>([
     {
       title: "Mã đơn giao",
-      dataIndex: "order_id",
-      render: (value: string, i: ShipmentModel) => (
-        <Link to={`#`}>{value}</Link>
+      // dataIndex: "code",
+      // render: (value: string, i: ShipmentModel) => (
+      //   <Link to={`${UrlConfig.ORDER}/${i.id}`}>{value}</Link>
+      // ),
+      render: (record: ShipmentModel) => (
+        <div>
+          <Link to={`${UrlConfig.ORDER}/${record.id}`}>{record.code}</Link>
+          <div>{record.created_date ? ConvertUtcToLocalDate(record.created_date) : ''}</div>
+        </div>
       ),
       visible: true,
       fixed: 'left',
+      width:"120px",
+    },
+    {
+      title: "Mã vận đơn",
+      dataIndex: "shipment",
+      render: (shipment: any) => (
+        shipment?.tracking_code
+      ),
+      visible: true,
       width:"120px",
     },
     {
@@ -174,7 +182,7 @@ const ListOrderScreen: React.FC = () => {
       render: (shipping_address: any) => (
         shipping_address && (
         <div className="customer">
-          <div className="name p-b-3">{shipping_address.name}</div>
+          <div className="name p-b-3" style={{ color: "#2A2A86" }}>{shipping_address.name}</div>
           <div className="p-b-3">{shipping_address.phone}</div>
           <div className="p-b-3">{shipping_address.full_address}</div>
         </div>
@@ -296,22 +304,22 @@ const ListOrderScreen: React.FC = () => {
     
     {
       title: "Ngày giao hàng",
-      dataIndex: "received_on",
+      dataIndex: "shipped_on",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-      key: "received_on",
+      key: "shipped_on",
       visible: true,
       align: "center",
     },
     {
       title: "Nhân viên tạo đơn giao",
-      dataIndex: "account",
-      key: "account",
+      dataIndex: "account_code",
+      key: "account_code",
       visible: true,
       align: "center",
     },
     {
       title: "Ngày tạo đơn",
-      dataIndex: "shipped_on",
+      dataIndex: "created_date",
       render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
       key: "shipped_on",
       visible: true,
@@ -331,6 +339,13 @@ const ListOrderScreen: React.FC = () => {
       visible: true,
     },
     {
+      title: "Lý do huỷ giao",
+      dataIndex: "shipment",
+      render: (shipment: any) => <div>{shipment.cancel_reason}</div>,
+      key: "cancel_date",
+      visible: true,
+    },
+    {
       title: "Ghi chú",
       dataIndex: "shipment.note_to_shipper",
       key: "note_to_shipper",
@@ -338,14 +353,18 @@ const ListOrderScreen: React.FC = () => {
     },
     {
       title: "Tỉnh thành",
-      dataIndex: "customer_note",
-      key: "customer_note",
+      dataIndex: "shipping_address",
+      render: (shipping_address: any) => (
+        shipping_address && (shipping_address.city)),
+      key: "city",
       visible: true,
     },
     {
       title: "Quận huyện",
-      dataIndex: "tags",
-      key: "tags",
+      dataIndex: "shipping_address",
+      render: (shipping_address: any) => (
+        shipping_address && (shipping_address.district)),
+      key: "district",
       visible: true,
     },
     {
@@ -381,8 +400,6 @@ const ListOrderScreen: React.FC = () => {
 
   const setSearchResult = useCallback(
     (result: PageResponse<ShipmentModel>|false) => {
-      // console.log('result', result)
-      // console.log('deliveryServices', deliveryServices)
       setTableLoading(false);
       if(!!result) {
         setData(result);
@@ -391,16 +408,6 @@ const ListOrderScreen: React.FC = () => {
     []
   );
   
-  // const onGetDeliverService = useCallback(
-  //   (id: number|null,) => {
-  //     console.log('onGetDeliverService', id,  deliveryServices)
-
-  //     const service = deliveryServices?.find(service => service.id === id)
-  //     return service?.logo
-  //   },
-  //   [deliveryServices]
-  // );
-
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
   
   const setDataAccounts = useCallback(
@@ -415,10 +422,6 @@ const ListOrderScreen: React.FC = () => {
   
   useEffect(() => {
     if (isFirstLoad.current) {
-      dispatch(DeliveryServicesGetList(setDeliveryServices));
-      // (async () => {
-      //   await dispatch(DeliveryServicesGetList(setDeliveryServices));
-      // })()
       setTableLoading(true);
     }
     isFirstLoad.current = false;
@@ -442,14 +445,14 @@ const ListOrderScreen: React.FC = () => {
   
   return (
     <ContentContainer
-      title="Quản lý đơn hàng"
+      title="Danh sách đơn giao hàng"
       breadcrumb={[
         {
           name: "Tổng quan",
          path: UrlConfig.HOME,
         },
         {
-          name: "Danh sách đơn hàng",
+          name: "Danh sách đơn giao hàng",
         },
       ]}
       extra={

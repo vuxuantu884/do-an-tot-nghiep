@@ -97,12 +97,14 @@ export interface OrderSearchQuery {
   fulfillment_status: [];
   payment_status: [];
   return_status: [];
-  account?: [];
-  assignee?: [];
+  account_codes?: [];
+  assignee_codes?: [];
   price_min: number|undefined;
   price_max: number|undefined;
   payment_method_ids: [];
   delivery_types: [];
+  delivery_provider_ids: [];
+  shipper_ids: [];
   note: string|null;
   customer_note: string|null;
   tags: [];

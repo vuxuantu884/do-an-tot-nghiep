@@ -88,6 +88,13 @@ function CustomerShippingAddressInfo(props: any) {
       dataIndex: "name",
       visible: true,
       width: "20%",
+      render: (value, row, index) => {
+        return (
+          <span style={{ wordWrap: "break-word", wordBreak: "break-all" }}>
+            {row.name}
+          </span>
+        );
+      },
     },
     {
       title: "Số điện thoại",
@@ -259,13 +266,12 @@ function CustomerShippingAddressInfo(props: any) {
           //   // onShowSizeChange: onPageChange,
           // }}
           pagination={false}
-          dataSource={customer ? customer.shipping_addresses : []}
+          dataSource={customer ? customer.shipping_addresses.reverse() : []}
           columns={shippingColumnFinal()}
           rowKey={(item: shippingAddress) => item.id}
           onRow={(record: CustomerShippingAddress) => {
             return {
               onClick: (event) => {
-                console.log(record);
                 setModalShippingAddress(record);
                 setModalAction("edit");
                 // setIsShowModalShipping(true);

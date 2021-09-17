@@ -19,7 +19,7 @@ import arrowLeft from "../../assets/icon/arrow-left.svg";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { showSuccess } from "utils/ToastUtils";
+import { showSuccess, showError } from "utils/ToastUtils";
 import "./customer.scss";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -68,8 +68,6 @@ const CustomerCreate = (props: any) => {
     [dispatch, setDataAccounts]
   );
 
- 
-
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
@@ -105,8 +103,8 @@ const CustomerCreate = (props: any) => {
     dispatch(CustomerTypes(setTypes));
   }, [dispatch]);
   React.useEffect(() => {
-    let customer_type_id = 2
-    customerForm.setFieldsValue({...new CustomerModel(), customer_type_id});
+    let customer_type_id = 2;
+    customerForm.setFieldsValue({ ...new CustomerModel(), customer_type_id });
   }, [customerForm]);
   const setResult = React.useCallback(
     (result) => {
@@ -117,14 +115,13 @@ const CustomerCreate = (props: any) => {
     },
     [history]
   );
-
   const handleSubmit = (values: any) => {
     let area = areas.find((area) => area.id === districtId);
     let piece = {
       ...values,
       birthday: values.birthday
-      ? new Date(values.birthday).toUTCString()
-      : null,
+        ? new Date(values.birthday).toISOString()
+        : null,
       wedding_date: values.wedding_date
         ? new Date(values.wedding_date).toUTCString()
         : null,
@@ -142,8 +139,17 @@ const CustomerCreate = (props: any) => {
     };
     dispatch(CreateCustomer({ ...new CustomerModel(), ...piece }, setResult));
   };
-  const handleSubmitFail = (errorInfo: any) => {
-    console.error("Failed:", errorInfo);
+  const [isCollapseActive, setCollapseActive] = React.useState<boolean>(true);
+
+  const handleSubmitFail = (errorFields: any) => {
+    const fieldName = errorFields[0].name.join("");
+    if (fieldName === "contact_name" || fieldName === "contact_phone") {
+      showError("Vui lòng nhập thông tin liên hệ");
+      setCollapseActive(true);
+    }
+  };
+  const handleCollapseChage = () => {
+    setCollapseActive(!isCollapseActive);
   };
   return (
     <ContentContainer
@@ -166,7 +172,7 @@ const CustomerCreate = (props: any) => {
         form={customerForm}
         name="customer_add"
         onFinish={handleSubmit}
-        onFinishFailed={handleSubmitFail}
+        onFinishFailed={({ errorFields }) => handleSubmitFail(errorFields)}
         layout="vertical"
       >
         <Row gutter={24}>
@@ -190,10 +196,11 @@ const CustomerCreate = (props: any) => {
         <Row gutter={24}>
           <Col span={18}>
             <Collapse
+              onChange={handleCollapseChage}
               className="customer-contact-collapse"
               style={{ backgroundColor: "white", marginTop: 16 }}
               expandIconPosition="right"
-              defaultActiveKey={["1"]}
+              activeKey={[isCollapseActive ? "1" : ""]}
             >
               <Panel
                 className=""
@@ -211,7 +218,7 @@ const CustomerCreate = (props: any) => {
                 key="1"
               >
                 <Row gutter={30} style={{ padding: "0 15px" }}>
-                  <CustomInputContact  form={customerForm}/>
+                  <CustomInputContact form={customerForm} />
                 </Row>
               </Panel>
             </Collapse>

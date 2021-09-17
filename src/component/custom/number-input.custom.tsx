@@ -22,6 +22,7 @@ interface NumberInputProps {
   default?: number;
   prefix?: React.ReactNode;
   autoFocus?: boolean;
+  onFocus?: () => void
 }
 
 const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
@@ -40,29 +41,31 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     className,
     prefix,
     id,
+    onFocus
   } = props;
   const [data, setData] = useState<string>('');
   const onChangeText = useCallback(
     (e) => {
       let newValue: string = e.target.value;
-      let value = format ? (replace ? replace(newValue) : newValue) : newValue;
-      if (value === "") {
-        setData(value);
+      let valueS = format ? (replace ? replace(newValue) : newValue) : newValue;
+      if (valueS === "") {
+        setData(valueS);
         onChange && onChange(null);
         return;
       }
       if (isFloat) {
-        if (RegUtil.FLOATREG.test(value)) {
-          setData(value);
-          if(value[value.length - 1] !== '.') {
-            onChange && onChange(parseFloat(value));
+        if (RegUtil.FLOATREG.test(valueS)) {
+          console.log('vào đây FLOATREG');
+          setData(valueS);
+          if(valueS[valueS.length - 1] !== '.') {
+            onChange && onChange(parseFloat(valueS));
           }
           return;
         }
       }
-      if (RegUtil.NUMBERREG.test(value)) {
-        setData(value);
-        onChange && onChange(parseInt(value));
+      if (RegUtil.NUMBERREG.test(valueS)) {
+        setData(valueS);
+        onChange && onChange(parseInt(valueS));
         return;
       }
     },
@@ -95,7 +98,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     [onBlur, onChange, props, value]
   );
   useEffect(() => {
-    setData(value ? value.toString() : '');
+    setData(value !== undefined && value !== null ? value.toString() : '');
   }, [value]);
   return (
     <Input
@@ -111,6 +114,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       minLength={minLength}
       onFocus={(e) => {
         e.target.select();
+        onFocus && onFocus();
       }}
       prefix={prefix}
       autoFocus={props.autoFocus}

@@ -79,8 +79,15 @@ const SingleThirdPartyLogisticsIntegrationScreen_GiaoHangTietKiem = React.lazy(
 const OrderSettingsScreen = React.lazy(
   () => import("screens/settings/order-settings")
 );
-const OrderSettingsCreateScreen = React.lazy(
-  () => import("screens/settings/order-settings/create")
+const OrderSettingsCreateShippingServicesAndShippingFeeScreen = React.lazy(
+  () =>
+    import(
+      "screens/settings/order-settings/ShippingServicesAndShippingFee/create"
+    )
+);
+const OrderSettingsCreateShippingServicesAndShippingDetailScreen = React.lazy(
+  () =>
+    import("screens/settings/order-settings/ShippingServicesAndShippingFee/id")
 );
 const setting: Array<RouteMenu> = [
   {
@@ -283,7 +290,7 @@ const setting: Array<RouteMenu> = [
     header: null,
     subMenu: [
       {
-        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/giao-hang-nhanh`,
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/ghn`,
         exact: true,
         title: "Giao hàng nhanh",
         icon: "icon-dot",
@@ -295,7 +302,7 @@ const setting: Array<RouteMenu> = [
         pathIgnore: ["create"],
       },
       {
-        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/viettel-post`,
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/vtp`,
         exact: true,
         title: "Viettel Post",
         icon: "icon-dot",
@@ -319,7 +326,7 @@ const setting: Array<RouteMenu> = [
         pathIgnore: ["create"],
       },
       {
-        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/giao-hang-tiet-kiem`,
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/ghtk`,
         exact: true,
         title: "Giao hàng tiết kiệm",
         icon: "icon-dot",
@@ -348,8 +355,19 @@ const setting: Array<RouteMenu> = [
         exact: true,
         title: "Thêm cài đặt dịch vụ vận chuyển & phí ship báo khách",
         icon: "icon-dot",
-        component: OrderSettingsCreateScreen,
+        component: OrderSettingsCreateShippingServicesAndShippingFeeScreen,
         key: "create-order-setting",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/:id`,
+        exact: true,
+        title: "Chi tiết dịch vụ vận chuyển & phí ship báo khách",
+        icon: "icon-dot",
+        component: OrderSettingsCreateShippingServicesAndShippingDetailScreen,
+        key: "detail-order-setting",
         isShow: true,
         header: null,
         subMenu: [],

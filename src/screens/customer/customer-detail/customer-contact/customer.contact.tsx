@@ -1,7 +1,4 @@
-import {
-  Row,
-  Col,
-} from "antd";
+import { Row, Col } from "antd";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { PlusOutlined } from "@ant-design/icons";
@@ -14,25 +11,20 @@ import {
 } from "domain/actions/customer/customer.action";
 import React from "react";
 import { useDispatch } from "react-redux";
-import { useHistory} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { showSuccess, showError } from "utils/ToastUtils";
 import UrlConfig from "config/url.config";
-import {
-  contact
-} from "model/response/customer/customer.response";
-import {
-  CustomerContact,
-} from "model/request/customer.request";
+import { contact } from "model/response/customer/customer.response";
+import { CustomerContact } from "model/request/customer.request";
 import FormCustomerContact from "screens/customer/customer-detail/customer-contact/contact.form.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import actionColumn from '../../common/action.column';
+import actionColumn from "../../common/action.column";
 
 function CustomerContactInfo(props: any) {
   const { customer, customerDetailState, setModalAction, modalAction } = props;
   const dispatch = useDispatch();
   const history = useHistory();
-
   const [isShowModalContacts, setIsShowModalContacts] = React.useState(false);
   const [isVisibleContactModal, setIsVisibleContactModal] =
     React.useState<boolean>(false);
@@ -51,7 +43,6 @@ function CustomerContactInfo(props: any) {
     setIsVisibleContactModal(true);
   };
 
-
   const columns: Array<ICustomTableColumType<contact>> = [
     {
       title: "STT",
@@ -63,12 +54,7 @@ function CustomerContactInfo(props: any) {
         return <span>{index + 1}</span>;
       },
     },
-    {
-      title: "Chức vụ/phòng ban",
-      dataIndex: "title",
-      visible: true,
-      // width: "20%",
-    },
+
     {
       title: "Tên người liên hệ",
       dataIndex: "",
@@ -89,6 +75,12 @@ function CustomerContactInfo(props: any) {
     {
       title: "Số điện thoại",
       dataIndex: "phone",
+      visible: true,
+      // width: "20%",
+    },
+    {
+      title: "Chức vụ/phòng ban",
+      dataIndex: "title",
       visible: true,
       // width: "20%",
     },
@@ -138,7 +130,6 @@ function CustomerContactInfo(props: any) {
         );
     },
     edit: (formValue: CustomerContact) => {
-      console.log(formValue);
       if (modalSingleContact) {
         if (customer)
           dispatch(
@@ -185,24 +176,8 @@ function CustomerContactInfo(props: any) {
   };
   return (
     <Row style={{ marginTop: 16 }}>
-      <div
-        style={{
-          padding: "0 16px 10px 0",
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          width: "100%",
-          color: "#2A2A86",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            cursor: "pointer",
-          }}
-        >
+      <div className="customer-create-info">
+        <div className="customer-create-info-btn">
           <div>
             <PlusOutlined />
           </div>
@@ -240,13 +215,14 @@ function CustomerContactInfo(props: any) {
           //   // onShowSizeChange: onPageChange,
           // }}
           pagination={false}
-          dataSource={customerContactFiltered ? customerContactFiltered : []}
+          dataSource={
+            customerContactFiltered ? customerContactFiltered.reverse() : []
+          }
           columns={columnFinal()}
           rowKey={(item: contact) => item.id}
           onRow={(record: CustomerContact) => {
             return {
               onClick: (event) => {
-                console.log(record);
                 setModalSingleContact(record);
                 setModalAction("edit");
               }, // click row

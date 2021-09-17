@@ -8,7 +8,7 @@ const Category = React.lazy(
   () => import("screens/products/category/category-list.screen")
 );
 const ProductCreateScreen = React.lazy(
-  () => import("screens/products/product/product-create.screen")
+  () => import("screens/products/product/ProductCreateScreen")
 );
 const ColorListScreen = React.lazy(
   () => import("screens/products/color/color-list.screen")
@@ -57,8 +57,14 @@ const Product = React.lazy(
 const VariantUpdateScreen = React.lazy(
   () => import("screens/products/product/variant-update.screen")
 );
+const ProductDetailScreen = React.lazy(
+  () => import("screens/products/product/ProductDetailScreen")
+);
 const ProductUpdateScreen = React.lazy(
-  () => import("screens/products/product/product-update.screen")
+  () => import("screens/products/product/ProductUpdateScreen")
+);
+const ProductImportScreen = React.lazy(
+  () => import("screens/products/product/product-import.screen")
 );
 
 //PO
@@ -102,6 +108,7 @@ const product: Array<RouteMenu> = [
         header: null,
         subMenu: [],
       },
+      
       {
         path: `${UrlConfig.PRODUCT}/variants/:id`,
         exact: true,
@@ -114,12 +121,36 @@ const product: Array<RouteMenu> = [
         subMenu: [],
       },
       {
+        path: `${UrlConfig.PRODUCT}/import`,
+        exact: true,
+        title: "Nhập file",
+        icon: "icon-dot",
+        component: ProductImportScreen,
+        key: "submenu214",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+     
+      {
         path: `${UrlConfig.PRODUCT}/:id`,
         exact: true,
         title: "Sửa sản phẩm",
         icon: "icon-dot",
-        component: ProductUpdateScreen,
+        component: ProductDetailScreen,
         key: "submenu213",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.PRODUCT}/:id/edit`,
+        exact: true,
+        title: "Sửa sản phẩm",
+        icon: "icon-dot",
+        component: ProductUpdateScreen,
+        key: "submenu215",
         isShow: true,
         header: null,
         subMenu: [],

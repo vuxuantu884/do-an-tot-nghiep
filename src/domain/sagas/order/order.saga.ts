@@ -4,10 +4,6 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { OrderModel } from "model/order/order.model";
 import { ShipmentModel } from "model/order/shipment.model";
 import {
-  ActionLogDetailResponse,
-  OrderActionLogResponse,
-} from "model/response/order/action-log.response";
-import {
   DeliveryServiceResponse,
   ErrorLogResponse,
   GHNFeeResponse,
@@ -22,7 +18,7 @@ import { getAmountPayment } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { YodyAction } from "../../../base/base.action";
 import {
-  getActionLogDetailService,
+  getChannelApi,
   getPaymentMethod,
   orderPostApi,
 } from "../../../service/order/order.service";
@@ -35,7 +31,6 @@ import {
   getInfoDeliveryGHTK,
   getInfoDeliveryVTP,
   getListOrderApi,
-  getOrderActionLogsService,
   getOrderDetail,
   getOrderSubStatusService,
   getShipmentApi,
@@ -46,14 +41,33 @@ import {
   updateFulFillmentStatus,
   updatePayment,
   updateShipment,
+  getListOrderCustomerApi
 } from "./../../../service/order/order.service";
 import { unauthorizedAction } from "./../../actions/auth/auth.action";
+import { ChannelResponse } from "model/response/product/channel.response";
 
 function* getListOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
     let response: BaseResponse<Array<OrderModel>> = yield call(
       getListOrderApi,
+      query
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        break;
+    }
+  } catch (error) {}
+}
+
+function* getListOrderCustomerSaga(action: YodyAction) {
+  let { query, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<OrderModel>> = yield call(
+      getListOrderCustomerApi,
       query
     );
     switch (response.code) {
@@ -102,6 +116,29 @@ function* orderCreateSaga(action: YodyAction) {
     showError("Có lỗi vui lòng thử lại sau");
   }
 }
+
+function* orderFpageCreateSaga(action: YodyAction) {
+  const { request, setData, setDisable } = action.payload;
+  try {
+    let response: BaseResponse<OrderResponse> = yield call(
+      orderPostApi,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      default:
+        setDisable(false)
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+
 
 function* InfoGHTKSaga(action: YodyAction) {
   const { request, setData } = action.payload;
@@ -369,17 +406,20 @@ function* getListSubStatusSaga(action: YodyAction) {
 }
 
 function* setSubStatusSaga(action: YodyAction) {
-  let { order_id, statusId } = action.payload;
+  let { order_id, statusId, handleData } = action.payload;
+  const actionText = action.payload.action;
   yield put(showLoading());
   try {
     let response: BaseResponse<Array<DeliveryServiceResponse>> = yield call(
       setSubStatusService,
       order_id,
-      statusId
+      statusId,
+      actionText
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         showSuccess("Cập nhật trạng thái thành công");
+        handleData();
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -394,18 +434,15 @@ function* setSubStatusSaga(action: YodyAction) {
   }
 }
 
-function* getOrderActionLogsSaga(action: YodyAction) {
-  const { id, handleData } = action.payload;
-  yield put(showLoading());
+function* getAllChannelSaga(action: YodyAction) {
+  const { setData } = action.payload;
   try {
-    let response: BaseResponse<OrderActionLogResponse[]> = yield call(
-      getOrderActionLogsService,
-      id
+    let response: BaseResponse<Array<ChannelResponse>> = yield call(
+      getChannelApi
     );
-
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        handleData(response.data);
+        setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -415,45 +452,16 @@ function* getOrderActionLogsSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    console.log("error", error);
     showError("Có lỗi vui lòng thử lại sau");
-  } finally {
-    yield put(hideLoading());
   }
 }
 
-function* getActionLogDetailsSaga(action: YodyAction) {
-  const { id, handleData } = action.payload;
-  yield put(showLoading());
-  try {
-    let response: BaseResponse<ActionLogDetailResponse> = yield call(
-      getActionLogDetailService,
-      id
-    );
-
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        handleData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    console.log("error", error);
-    showError("Có lỗi vui lòng thử lại sau");
-  } finally {
-    yield put(hideLoading());
-  }
-}
-
-function* OrderOnlineSaga() {
+export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_ORDER_REQUEST, getListOrderSaga);
+  yield takeLatest(OrderType.GET_LIST_ORDER_CUSTOMER_REQUEST, getListOrderCustomerSaga);
   yield takeLatest(OrderType.GET_SHIPMENTS_REQUEST, getShipmentsSaga);
   yield takeLatest(OrderType.CREATE_ORDER_REQUEST, orderCreateSaga);
+  yield takeLatest(OrderType.CREATE_FPAGE_ORDER_REQUEST, orderFpageCreateSaga);
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
   yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga);
@@ -477,8 +485,5 @@ function* OrderOnlineSaga() {
   );
   yield takeLatest(OrderType.GET_TRACKING_LOG_ERROR, getTRackingLogErrorSaga);
   yield takeLatest(OrderType.SET_SUB_STATUS, setSubStatusSaga);
-  yield takeLatest(OrderType.GET_ORDER_ACTION_LOGS, getOrderActionLogsSaga);
-  yield takeLatest(OrderType.GET_ACTION_LOG_DETAILS, getActionLogDetailsSaga);
+  yield takeLatest(OrderType.GET_LIST_CHANNEL_REQUEST, getAllChannelSaga);
 }
-
-export default OrderOnlineSaga;
