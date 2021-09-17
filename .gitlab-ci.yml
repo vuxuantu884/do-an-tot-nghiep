@@ -22,8 +22,6 @@ stages:
 
 docker build:
   stage: docker_build
-  tags:
-    - nonprod-dev
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
   only:
     refs:
@@ -38,8 +36,6 @@ docker build:
 
 docker build uat:
   stage: docker_build
-  tags:
-    - nonprod-dev
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
   only:
     refs:
@@ -90,8 +86,6 @@ deploy to uat:
 tag:
   stage: tag
   image: public.ecr.aws/d7d0w7j6/aws-deployer:1.4
-  tags:
-    - nonprod-dev
   only:
     - tags
   variables:
