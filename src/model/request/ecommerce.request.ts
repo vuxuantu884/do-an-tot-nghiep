@@ -8,7 +8,7 @@ interface BaseObject {
   }
 
   export interface EcommerceSearchQuery {
-    shopee_name: string | null;
+    shop_id: string | null;
     code: string | null;
   }
   export interface EcommerceShopInventoryDto {

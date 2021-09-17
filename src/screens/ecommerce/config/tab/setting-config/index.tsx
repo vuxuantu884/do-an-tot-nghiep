@@ -15,7 +15,10 @@ import {
   EcommerceRequest,
   EcommerceShopInventoryDto,
 } from "model/request/ecommerce.request";
-import { ecommerceConfigUpdateAction } from "domain/actions/ecommerce/ecommerce.actions";
+import {
+  ecommerceConfigUpdateAction,
+  ecommerceConfigCreateAction,
+} from "domain/actions/ecommerce/ecommerce.actions";
 import { useDispatch } from "react-redux";
 import { showSuccess } from "utils/ToastUtils";
 
@@ -63,8 +66,15 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     setConfigDetail(value);
     showSuccess("Cập nhật cấu hình thành công");
   }, []);
+  const handleCreateConfigCallback = React.useCallback(
+    (value: EcommerceResponse) => {
+      console.log("123")
+    },
+    []
+  );
   const handleUpdateConfig = React.useCallback(
     (value: EcommerceRequest) => {
+      
       if (configDetail) {
         let request = {
           ...configDetail,
@@ -75,12 +85,27 @@ const SettingConfig: React.FC<SettingConfigProps> = (
               ?.full_name || "",
         };
         const id = configDetail?.id;
-        dispatch(
-          ecommerceConfigUpdateAction(id, request, handleConfigCallback)
+        const index = configData.find((item) => item.id === id);
+        if (index) {
+          dispatch(
+            ecommerceConfigUpdateAction(id, request, handleConfigCallback)
+          );
+        }else{
+          dispatch(
+          ecommerceConfigCreateAction(request, handleCreateConfigCallback)
         );
+        }
       }
     },
-    [dispatch, handleConfigCallback, configDetail, inventories, accounts]
+    [
+      dispatch,
+      handleConfigCallback,
+      handleCreateConfigCallback,
+      configDetail,
+      inventories,
+      accounts,
+      configData,
+    ]
   );
 
   const handleStoreChange = (event: any) => {
@@ -99,7 +124,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
 
   React.useEffect(() => {
     if (configDetail) {
-      const _inventories = configDetail.inventories.filter(
+      const _inventories = configDetail.inventories?.filter(
         (item: any) => !item.deleted
       );
       setInventories(_inventories);
@@ -118,7 +143,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
       setInventories([]);
     }
   }, [configDetail, form, setInventories]);
-  
+
   const handleShopChange = React.useCallback(
     (id: any) => {
       let _configData = [...configData];
@@ -127,7 +152,7 @@ const SettingConfig: React.FC<SettingConfigProps> = (
     },
     [configData, setConfigDetail]
   );
-  
+
   const convertToCapitalizedString = () => {
     if (configDetail) {
       return (
@@ -201,15 +226,23 @@ const SettingConfig: React.FC<SettingConfigProps> = (
             <div className="ecommerce-user-detail">
               <Row>
                 <Col span={5}>Tên Shop</Col>
-                <Col span={19}><span className="fw-500">: {configDetail?.name || "---"}</span></Col>
+                <Col span={19}>
+                  <span className="fw-500">
+                    : {configDetail?.name || "---"}
+                  </span>
+                </Col>
               </Row>
               <Row>
                 <Col span={5}>ID Shop</Col>
-                <Col span={19}><span className="fw-500">: {configDetail?.id || "---"}</span></Col>
+                <Col span={19}>
+                  <span className="fw-500">: {configDetail?.id || "---"}</span>
+                </Col>
               </Row>
               <Row>
                 <Col span={5}>Username</Col>
-                <Col span={19}><span className="fw-500">: ---</span></Col>
+                <Col span={19}>
+                  <span className="fw-500">: ---</span>
+                </Col>
               </Row>
             </div>
           </Col>
@@ -361,7 +394,9 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 placeholder="Chọn kiểu đồng bộ tồn kho"
                 disabled={configDetail ? false : true}
               >
-                <Option value={"auto"}><span style={{color: "#27AE60"}}>Tự động</span></Option>
+                <Option value={"auto"}>
+                  <span style={{ color: "#27AE60" }}>Tự động</span>
+                </Option>
                 <Option value={"manual"}>Thủ công</Option>
               </Select>
             </Form.Item>
@@ -389,7 +424,9 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 placeholder="Chọn kiểu đồng bộ đơn hàng"
                 disabled={configDetail ? false : true}
               >
-                <Option value={"auto"}><span style={{color: "#27AE60"}}>Tự động</span></Option>
+                <Option value={"auto"}>
+                  <span style={{ color: "#27AE60" }}>Tự động</span>
+                </Option>
                 <Option value={"manual"}>Thủ công</Option>
               </Select>
             </Form.Item>
@@ -410,7 +447,11 @@ const SettingConfig: React.FC<SettingConfigProps> = (
                 <Option value={"auto"}>{`Luôn lấy sản phẩm từ ${
                   convertToCapitalizedString() || "sàn"
                 } về`}</Option>
-                <Option value={"manual"}><span style={{color: "#27AE60"}}>Đợi ghép sản phẩm giữa 2 bên</span></Option>
+                <Option value={"manual"}>
+                  <span style={{ color: "#27AE60" }}>
+                    Đợi ghép sản phẩm giữa 2 bên
+                  </span>
+                </Option>
               </Select>
             </Form.Item>
           </Col>

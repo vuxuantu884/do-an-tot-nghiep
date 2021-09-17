@@ -9,7 +9,7 @@ import { NotConnectedItemsQuery} from "model/query/ecommerce.query";
 // config
 export const ecommerceConfigCreateAction = (
   request: EcommerceRequest,
-  setData: (data: Array<EcommerceResponse>) => void
+  setData: (data: EcommerceResponse) => void
 ) => {
   return BaseAction(EcommerceType.CREATE_ECOMMERCE_CONFIG_REQUEST, {
     request,
@@ -54,6 +54,26 @@ export const ecommerceConfigDeleteAction = (
     deleteCallback,
   });
 };
+// connect to ecommerce
+
+export const ecommerceConnectAction = (
+  setData: (result: any) => void
+) => {
+  return BaseAction(EcommerceType.CONNECT_ECOMMERCE_CONFIG_REQUEST, {
+    setData,
+  });
+};
+
+export const ecommerceConfigInfoAction = (
+  query: any,
+  setData: (result: EcommerceResponse ) => void
+) => {
+  return BaseAction(EcommerceType.GET_ECOMMERCE_CONFIG_INFO_REQUEST, {
+    query,
+    setData,
+  });
+};
+
 
 export const TotalItemsEcommerceList = (query: TotalItemsEcommerceQuery, setData: (data: any) => void) => {
   //thai need todo

@@ -251,7 +251,13 @@
 }
 
 .fpage-order {
-
+  .ant-space-horizontal{
+    width: 100%;
+    justify-content: space-between;
+    .ant-form-item{
+      justify-content: flex-end;
+    }
+  }
   .ant-card {
     margin-top: 5px;
   }

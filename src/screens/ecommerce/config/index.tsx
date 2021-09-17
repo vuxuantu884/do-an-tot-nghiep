@@ -2,8 +2,8 @@ import React from "react";
 import { Card, Tabs, Form, Button } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { useEffect, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import {useState } from "react";
+import { useHistory } from "react-router-dom";
 import SyncEcommerce from "./tab/sync-ecommerce";
 import SettingConfig from "./tab/setting-config";
 import { StyledComponent } from "./styles";
@@ -17,21 +17,22 @@ import {
 import { PageResponse } from "model/base/base-metadata.response";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import {
-  ecommerceConfigGetAction,
-  ecommerceConnectAction,
-} from "domain/actions/ecommerce/ecommerce.actions";
+import { ecommerceConfigGetAction } from "domain/actions/ecommerce/ecommerce.actions";
 import { useQuery } from "utils/useQuery";
 import { EcommerceSearchQuery } from "model/request/ecommerce.request";
 import { PlusOutlined } from "@ant-design/icons";
+import {
+  ecommerceConnectAction,
+  ecommerceConfigInfoAction,
+} from "domain/actions/ecommerce/ecommerce.actions";
 
 const { TabPane } = Tabs;
 const initQueryAccount: AccountSearchQuery = {
   info: "",
 };
 
-const initQueryEcommerceConnect: EcommerceSearchQuery = {
-  shopee_name: "",
+const initQueryConnect: EcommerceSearchQuery = {
+  shop_id: "",
   code: null,
 };
 
@@ -57,20 +58,35 @@ const EcommerceConfig: React.FC = () => {
     },
     []
   );
-  // làm sau
+  // link to ecommerce
   const redirectCallback = React.useCallback((value: any) => {
-    if (value) {}
+    if (value) {
+      window.open(`${value}`, "_blank");
+    }
   }, []);
-  React.useEffect(() => {
+  const handleConnectEcommerce = React.useCallback(() => {
     dispatch(ecommerceConnectAction(redirectCallback));
-  });
+  }, [dispatch, redirectCallback]);
+
+  const configInfoCallback = React.useCallback((value: any) => {
+      if(value) {
+        console.log(value)
+        setConfigToView(value)
+        history.replace(`${history.location.pathname}#setting`);
+      }
+  }, [history])
 
   React.useEffect(() => {
-    initQueryEcommerceConnect.shopee_name = connectQuery.get("shopee_name");
-    initQueryEcommerceConnect.code = connectQuery.get("code");
-    // dispatch(ecommerceConfigAction)
-  }, [connectQuery]);
-  //
+    initQueryConnect.shop_id = connectQuery.get("shop_id");
+    initQueryConnect.code = connectQuery.get("code");
+    if (initQueryConnect.shop_id && initQueryConnect.code) {
+      dispatch(
+        ecommerceConfigInfoAction(initQueryConnect, configInfoCallback)
+      );
+    }
+  }, [dispatch, connectQuery, configInfoCallback]);
+
+  // get all ecommerce
   React.useEffect(() => {
     dispatch(ecommerceConfigGetAction(setConfigData));
   }, [dispatch]);
@@ -89,7 +105,7 @@ const EcommerceConfig: React.FC = () => {
     dispatch(AccountSearchAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     dispatch(
       getListStoresSimpleAction((stores) => {
         setStores(stores);
@@ -97,7 +113,7 @@ const EcommerceConfig: React.FC = () => {
     );
   }, [dispatch]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (history.location.hash) {
       switch (history.location.hash) {
         case "#sync":
@@ -129,15 +145,14 @@ const EcommerceConfig: React.FC = () => {
       extra={
         <>
           {activeTab === "sync" && (
-             <Link to={`${UrlConfig.CUSTOMER}/create`}>
-             <Button
-               className="ant-btn-outline ant-btn-primary"
-               size="large"
-               icon={<PlusOutlined />}
-             >
-               Thêm kết nối mới
-             </Button>
-           </Link>
+            <Button
+              className="ant-btn-outline ant-btn-primary"
+              size="large"
+              icon={<PlusOutlined />}
+              onClick={handleConnectEcommerce}
+            >
+              Thêm kết nối mới
+            </Button>
           )}
         </>
       }
