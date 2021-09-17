@@ -9,6 +9,7 @@ import ButtonSetting from "component/table/ButtonSetting";
 interface HistoryProductFIlterProps {
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
+  onShowColumnSetting?: () => void;
 }
 
 const { Item } = Form;
@@ -16,7 +17,7 @@ const { Item } = Form;
 const HistoryProductFIlter: React.FC<HistoryProductFIlterProps> = (
   props: HistoryProductFIlterProps
 ) => {
-  const { actions, onMenuClick } = props;
+  const { actions, onMenuClick, onShowColumnSetting } = props;
   const onActionClick = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
@@ -42,7 +43,7 @@ const HistoryProductFIlter: React.FC<HistoryProductFIlterProps> = (
               </Button>
             </Item>
             <Item>
-              <ButtonSetting />
+              <ButtonSetting onClick={onShowColumnSetting} />
             </Item>
           </Form>
         </CustomFilter>
