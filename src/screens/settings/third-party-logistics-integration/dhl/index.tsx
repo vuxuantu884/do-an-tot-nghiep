@@ -1,4 +1,4 @@
-import { Button, Card, Col, Form, Input, Row, Select } from "antd";
+import { Button, Card, Col, Form, Input, Row, Select, Checkbox } from "antd";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import UrlConfig from "config/url.config";
 import { StoreGetListAction } from "domain/actions/core/store.action";
@@ -64,7 +64,8 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
     useState(listShopIsSelected);
 
   const initialFormValue = {
-    token: "",
+    client_id: "",
+    password: "",
     transport_types: "",
   };
 
@@ -91,8 +92,8 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
       };
     });
     const formValueFormatted = {
-      external_service_id: thirdPartyLogistics?.id,
-      token: formComponentValue.token,
+      username: formComponentValue?.client_id,
+      password: formComponentValue.password,
       transport_types,
     };
     dispatch(
@@ -243,13 +244,6 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
         >
           <Row gutter={20}>
             <Col span={12}>
-              <Form.Item name="account" label="Account:">
-                <Input
-                  type="text"
-                  placeholder="Nhập account"
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
               <Form.Item name="client_id" label="Client Id: ">
                 <Input
                   type="text"
@@ -257,12 +251,30 @@ function SingleThirdPartyLogisticDHL(props: PropType) {
                   style={{ width: "100%" }}
                 />
               </Form.Item>
-              <Form.Item name="client_id" label="Password: ">
+              <Form.Item name="password" label="Password: ">
                 <Input
                   type="password"
                   placeholder="Nhập password"
                   style={{ width: "100%" }}
                 />
+              </Form.Item>
+              <Form.Item
+                name="transport_types"
+                label="Chọn dịch vụ đã kí hợp đồng với hãng vận chuyển:"
+              >
+                <Checkbox.Group>
+                  {listServices &&
+                    listServices.length > 0 &&
+                    listServices.map((singleService) => {
+                      return (
+                        <div key={singleService.code}>
+                          <Checkbox value={singleService.code}>
+                            {singleService.name}
+                          </Checkbox>
+                        </div>
+                      );
+                    })}
+                </Checkbox.Group>
               </Form.Item>
             </Col>
             <Col span={12}>
