@@ -397,6 +397,7 @@ export interface ProductHistoryResponse extends BaseObject {
 
 export interface ProductHistoryQuery extends BaseQuery {
   condition?: string
+  history_type?: string,
 }
 
 export interface ProductBarcodeRequest {
@@ -405,8 +406,6 @@ export interface ProductBarcodeRequest {
 }
 
 export interface ProductBarcodeItem {
-  products: number,
+  product_id: number,
   quantity_req: number,
-  condition?: string,
-  history_type?: string,
 }

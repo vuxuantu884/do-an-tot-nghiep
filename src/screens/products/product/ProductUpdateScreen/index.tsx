@@ -348,7 +348,9 @@ const ProductDetailScreen: React.FC = () => {
                           <Switch
                             onChange={(checked) => {
                               setStatus(checked ? "active" : "inactive");
-                              form.setFieldsValue({status: checked ? "active" : "inactive"})
+                              form.setFieldsValue({
+                                status: checked ? "active" : "inactive",
+                              });
                             }}
                             className="ant-switch-success"
                             defaultChecked
@@ -1206,6 +1208,13 @@ const ProductDetailScreen: React.FC = () => {
                                               <NumberInput
                                                 onChange={onChange}
                                                 isFloat
+                                                maxLength={6}
+                                                format={(a) =>
+                                                  formatCurrency(a)
+                                                }
+                                                replace={(a) =>
+                                                  replaceFormatString(a)
+                                                }
                                                 style={{
                                                   width:
                                                     "calc((100% - 100px) / 3)",
@@ -1220,6 +1229,13 @@ const ProductDetailScreen: React.FC = () => {
                                               <NumberInput
                                                 onChange={onChange}
                                                 isFloat
+                                                maxLength={6}
+                                                format={(a) =>
+                                                  formatCurrency(a)
+                                                }
+                                                replace={(a) =>
+                                                  replaceFormatString(a)
+                                                }
                                                 style={{
                                                   width:
                                                     "calc((100% - 100px) / 3)",
@@ -1234,6 +1250,13 @@ const ProductDetailScreen: React.FC = () => {
                                               <NumberInput
                                                 onChange={onChange}
                                                 isFloat
+                                                maxLength={6}
+                                                format={(a) =>
+                                                  formatCurrency(a)
+                                                }
+                                                replace={(a) =>
+                                                  replaceFormatString(a)
+                                                }
                                                 placeholder="Cao"
                                                 style={{
                                                   width:
@@ -1286,6 +1309,13 @@ const ProductDetailScreen: React.FC = () => {
                                               <NumberInput
                                                 onChange={onChange}
                                                 isFloat
+                                                maxLength={6}
+                                                format={(a) =>
+                                                  formatCurrency(a)
+                                                }
+                                                replace={(a) =>
+                                                  replaceFormatString(a)
+                                                }
                                                 placeholder="Khối lượng"
                                                 style={{
                                                   width: "calc(100% - 100px)",

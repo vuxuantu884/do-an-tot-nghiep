@@ -8,8 +8,10 @@ import { StyledComponent } from "./style";
 import { BiAddToQueue } from "react-icons/bi";
 import { useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { searchVariantsRequestAction } from "domain/actions/product/products.action";
+import { productBarcodeAction, searchVariantsRequestAction } from "domain/actions/product/products.action";
 import {
+  ProductBarcodeItem,
+  ProductBarcodeRequest,
   VariantPricesResponse,
   VariantResponse,
 } from "model/product/product.model";
@@ -18,14 +20,17 @@ import BarcodeLineItem from "../component/BarcodeLineItem";
 import { formatCurrency, Products } from "utils/AppUtils";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import { AppConfig } from "config/app.config";
+import NumberInput from "component/custom/number-input.custom";
+import { showSuccess } from "utils/ToastUtils";
 
 export interface VariantBarcodeLineItem extends VariantResponse {
-  quantity_req: number | "";
+  quantity_req: number | null;
 }
 
 const BarcodeProductScreen: React.FC = () => {
   const dispatch = useDispatch();
   const [data, setData] = useState<Array<VariantResponse>>([]);
+  const [loadingButton, setLoadingButton] = useState<boolean>(false);
   const [dataSelected, setDataSelected] = useState<
     Array<VariantBarcodeLineItem>
   >([]);
@@ -69,6 +74,33 @@ const BarcodeProductScreen: React.FC = () => {
     },
     [dispatch, onResultSearch]
   );
+
+  const onResult = useCallback((data: string|false) => {
+    setLoadingButton(false);
+    if(!data) {
+
+    } else {
+      window.open(data);
+      setDataSelected([]);
+      showSuccess("Xuất excel thành công")
+    }
+  }, []);
+
+  const onInTemp = useCallback(() => {
+    setLoadingButton(true);
+    let array: Array<ProductBarcodeItem> = [];
+    dataSelected.forEach((item) => {
+      array.push({
+        product_id: item.id,
+        quantity_req: item.quantity_req ? item.quantity_req : 1,
+      })
+    })
+    let request: ProductBarcodeRequest = {
+      type: 'excel',
+      products: array,
+    }
+    dispatch(productBarcodeAction(request, onResult))
+  }, [dataSelected, dispatch, onResult]);
   const onSelectProduct = useCallback(
     (value: string) => {
       let index = data.findIndex((item) => item.id.toString() === value);
@@ -128,6 +160,7 @@ const BarcodeProductScreen: React.FC = () => {
               </Button>
             </Input.Group>
             <CustomTable
+              rowKey={(record) => record.id}
               dataSource={dataSelected}
               className="margin-top-20"
               pagination={false}
@@ -159,9 +192,24 @@ const BarcodeProductScreen: React.FC = () => {
                   dataIndex: "variant_prices",
                   render: (value: Array<VariantPricesResponse>) => {
                     let price = Products.findPrice(value, AppConfig.currency);
+                    console.log(price);
                     return price == null
                       ? 0
-                      : formatCurrency(price?.import_price);
+                      : formatCurrency(price?.retail_price);
+                  },
+                },
+                {
+                  title: "Số lượng tem",
+                  dataIndex: "quantity_req",
+                  width: 140,
+                  render: (value: number, record, index) => {
+                    return <NumberInput 
+                      value={value}
+                      onChange={(v) => {
+                        dataSelected[index].quantity_req = v;
+                        setDataSelected([...dataSelected]);
+                      }}
+                    />
                   },
                 },
               ]}
@@ -170,7 +218,7 @@ const BarcodeProductScreen: React.FC = () => {
         </Card>
         <BottomBarContainer
           back="Quay lại sản phẩm"
-          rightComponent={<Button type="primary">Xuất Excel</Button>}
+          rightComponent={<Button onClick={onInTemp} loading={loadingButton} type="primary">Xuất Excel</Button>}
         />
       </StyledComponent>
     </ContentContainer>

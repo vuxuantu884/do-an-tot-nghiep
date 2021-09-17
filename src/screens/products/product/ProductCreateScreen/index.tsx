@@ -16,7 +16,7 @@ import {
   Space,
   Switch,
   Table,
-  Image 
+  Image,
 } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
@@ -775,6 +775,9 @@ const ProductCreateScreen: React.FC = () => {
                         <Input.Group compact>
                           <Item name="length" noStyle>
                             <NumberInput
+                              format={(a) => formatCurrency(a)}
+                              replace={(a) => replaceFormatString(a)}
+                              maxLength={6}
                               isFloat
                               style={{ width: "calc((100% - 100px) / 3)" }}
                               placeholder="Dài"
@@ -782,6 +785,9 @@ const ProductCreateScreen: React.FC = () => {
                           </Item>
                           <Item name="width" noStyle>
                             <NumberInput
+                              format={(a) => formatCurrency(a)}
+                              replace={(a) => replaceFormatString(a)}
+                              maxLength={6}
                               isFloat
                               style={{ width: "calc((100% - 100px) / 3)" }}
                               placeholder="Rộng"
@@ -789,6 +795,9 @@ const ProductCreateScreen: React.FC = () => {
                           </Item>
                           <Item name="height" noStyle>
                             <NumberInput
+                              format={(a) => formatCurrency(a)}
+                              replace={(a) => replaceFormatString(a)}
+                              maxLength={6}
                               isFloat
                               placeholder="Cao"
                               style={{ width: "calc((100% - 100px) / 3)" }}
@@ -833,6 +842,9 @@ const ProductCreateScreen: React.FC = () => {
                             noStyle
                           >
                             <NumberInput
+                              format={(a) => formatCurrency(a)}
+                              replace={(a) => replaceFormatString(a)}
+                              maxLength={6}
                               isFloat
                               placeholder="Khối lượng"
                               style={{ width: "calc(100% - 100px)" }}
@@ -1072,6 +1084,7 @@ const ProductCreateScreen: React.FC = () => {
                                   fieldKey={[fieldKey, "tax_percent"]}
                                 >
                                   <NumberInput
+                                    isFloat
                                     placeholder="VD: 10"
                                     suffix={<span>%</span>}
                                   />

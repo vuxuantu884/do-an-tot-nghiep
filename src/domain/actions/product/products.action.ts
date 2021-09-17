@@ -1,3 +1,4 @@
+import { ProductBarcodeRequest } from 'model/product/product.model';
 import {
   ProductHistoryQuery,
   ProductHistoryResponse,
@@ -119,4 +120,8 @@ export const productGetDetail = (id: number, onResult: (result: ProductResponse|
 
 export const productUpdateAction = (id: number, request: ProductRequest|ProductResponse, onResult: (result: ProductResponse|false) => void) => {
   return BaseAction(ProductType.PRODUCT_UPDATE, {id, request, onResult});
+}
+
+export const productBarcodeAction = (request: ProductBarcodeRequest, onResult: (result: string|false) => void) => {
+  return BaseAction(ProductType.PRODUCT_BARCODE, {request, onResult});
 }
