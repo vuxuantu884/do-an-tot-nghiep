@@ -1,7 +1,8 @@
-import ContentContainer from "component/container/content.container";
-import UrlConfig from "config/url.config"
+import ContentContainer from "component/container/content.container"
+import UrlConfig from "config/url.config";
+import {StyledComponent} from './style';
 
-const ProductImportScreen: React.FC = () => {
+const ImportProductScreen: React.FC = () => {
   return (
     <ContentContainer
       title="Nhập File"
@@ -19,9 +20,11 @@ const ProductImportScreen: React.FC = () => {
         },
       ]}
     >
+      <StyledComponent>
 
+      </StyledComponent>
     </ContentContainer>
   )
-}
+};
 
-export default ProductImportScreen;
+export default ImportProductScreen;

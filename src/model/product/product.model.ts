@@ -22,7 +22,9 @@ export interface VariantImage  {
 export interface VariantPricesResponse  {
   id:number,
   price_type:string,
-  price:number,
+  import_price:number,
+  wholesale_price: number,
+  cost_price: number,
   variant_id:number,
   currency_code:string,
   currency_symbol:string,
@@ -387,4 +389,14 @@ export interface ProductHistoryResponse extends BaseObject {
 
 export interface ProductHistoryQuery extends BaseQuery {
   condition?: string
+}
+
+export interface ProductBarcodeRequest {
+  type: string,
+  products: Array<ProductBarcodeItem>,
+}
+
+export interface ProductBarcodeItem {
+  products: number,
+  quantity_req: number,
 }

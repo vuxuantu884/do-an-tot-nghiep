@@ -64,8 +64,13 @@ const ProductUpdateScreen = React.lazy(
   () => import("screens/products/product/ProductUpdateScreen")
 );
 const ProductImportScreen = React.lazy(
-  () => import("screens/products/product/product-import.screen")
+  () => import("screens/products/product/ImportProductScreen")
 );
+const ProductBarcodeScreen = React.lazy(
+  () => import("screens/products/product/BarcodeProductScreen")
+);
+
+
 
 //PO
 const PurchaseOrderListScreen = React.lazy(
@@ -131,7 +136,17 @@ const product: Array<RouteMenu> = [
         header: null,
         subMenu: [],
       },
-     
+      {
+        path: `${UrlConfig.PRODUCT}/barcode`,
+        exact: true,
+        title: "Nhập file",
+        icon: "icon-dot",
+        component: ProductBarcodeScreen,
+        key: "submenu214",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
       {
         path: `${UrlConfig.PRODUCT}/:id`,
         exact: true,

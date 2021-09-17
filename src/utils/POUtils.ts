@@ -149,11 +149,10 @@ const POUtils = {
       let newId = `${variant.sku}${new Date().getTime()}`;
       let price_response = Products.findPrice(
         variant.variant_prices,
-        AppConfig.import_price,
         AppConfig.currency
       );
       let variant_image = Products.findAvatar(variant.variant_images);
-      let price = price_response !== null ? price_response.price : 0;
+      let price = price_response !== null ? price_response.import_price : 0;
       let newItem: PurchaseOrderLineItem = {
         sku: variant.sku,
         variant_id: variant.id,

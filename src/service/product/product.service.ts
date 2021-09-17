@@ -12,6 +12,7 @@ import {
   ProductWrapperSearchQuery,
   VariantResponse,
   VariantSearchQuery,
+  ProductBarcodeRequest,
 } from "model/product/product.model";
 import { ProductUploadModel } from "model/product/product-upload.model";
 
@@ -73,6 +74,11 @@ export const productGetHistory = (query: ProductHistoryQuery): Promise<BaseRespo
 export const productDetailApi = (id: number) => {
   return BaseAxios.get(`${ApiConfig.PRODUCT}/products/${id}`);
 }
+
 export const productUpdateApi = (id: number, request: ProductRequest) => {
   return BaseAxios.put(`${ApiConfig.PRODUCT}/products/${id}`, request);
+}
+
+export const productBarcodeApi = (request: ProductBarcodeRequest) => {
+  return BaseAxios.post(`${ApiConfig.PRODUCT}/products/print`, request);
 }

@@ -346,9 +346,10 @@ const ProductDetailScreen: React.FC = () => {
                         <Item noStyle>
                           <b>Trạng thái:</b>
                           <Switch
-                            onChange={(checked) =>
-                              setStatus(checked ? "active" : "inactive")
-                            }
+                            onChange={(checked) => {
+                              setStatus(checked ? "active" : "inactive");
+                              form.setFieldsValue({status: checked ? "active" : "inactive"})
+                            }}
                             className="ant-switch-success"
                             defaultChecked
                           />
@@ -817,7 +818,7 @@ const ProductDetailScreen: React.FC = () => {
                                             <Col span={24} md={12}>
                                               <Item
                                                 name={[name, "sku"]}
-                                                rules={[{ required: true}]}
+                                                rules={[{ required: true }]}
                                                 label="Mã sản phẩm"
                                               >
                                                 <Input

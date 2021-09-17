@@ -382,8 +382,9 @@ export const Products = {
         import_price: item.import_price === "" ? null : item.import_price,
         retail_price: item.retail_price === "" ? null : item.retail_price,
         tax_percent: item.tax_percent === "" ? null : item.tax_percent,
-        wholesale_price: item.wholesale_price === "" ? null : item.wholesale_price
-      })
+        wholesale_price:
+          item.wholesale_price === "" ? null : item.wholesale_price,
+      });
     });
     return variant_prices;
   },
@@ -401,8 +402,9 @@ export const Products = {
         import_price: item.import_price === "" ? null : item.import_price,
         retail_price: item.retail_price === "" ? null : item.retail_price,
         tax_percent: item.tax_percent === "" ? null : item.tax_percent,
-        wholesale_price: item.wholesale_price === "" ? null : item.wholesale_price
-      })
+        wholesale_price:
+          item.wholesale_price === "" ? null : item.wholesale_price,
+      });
     });
     arrVariants.forEach((item) => {
       variants.push({
@@ -462,15 +464,11 @@ export const Products = {
   },
   findPrice: (
     prices: Array<VariantPricesResponse>,
-    price_type: string,
     currency: string
   ): VariantPricesResponse | null => {
     let price: VariantPricesResponse | null = null;
     prices.forEach((priceResponse) => {
-      if (
-        priceResponse.currency_code === currency &&
-        priceResponse.price_type === price_type
-      ) {
+      if (priceResponse.currency_code === currency) {
         price = priceResponse;
       }
     });
@@ -548,19 +546,19 @@ export const Products = {
     };
     return variantUpadteRequest;
   },
-  findAvatarProduct: (product: ProductResponse|null) => {
+  findAvatarProduct: (product: ProductResponse | null) => {
     let avatar = null;
-    if(product) {
+    if (product) {
       product.variants.forEach((variant) => {
         variant.variant_images.forEach((variantImage) => {
-          if(variantImage.product_avatar) {
+          if (variantImage.product_avatar) {
             avatar = variantImage.url;
           }
-        })
-      }, [])
+        });
+      }, []);
     }
     return avatar;
-  }
+  },
 };
 
 export const getAmountDiscount = (items: Array<OrderLineItemRequest>) => {
