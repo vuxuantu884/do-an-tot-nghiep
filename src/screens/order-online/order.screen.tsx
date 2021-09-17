@@ -679,6 +679,9 @@ export default function Order() {
                 }
                 setShipmentMethod(newShipmentMethod);
                 setFulfillments(response.fulfillments);
+                setShippingFeeCustomer(
+                  response.shipping_fee_informed_to_customer
+                );
                 if (response.store_id) {
                   setStoreId(response.store_id);
                 }
