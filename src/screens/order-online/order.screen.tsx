@@ -164,6 +164,8 @@ export default function Order() {
     setShipmentMethod(value);
   };
 
+  const [isLoadForm, setIsLoadForm] = useState(false);
+
   let initialRequest: OrderRequest = {
     action: "", //finalized
     store_id: null,
@@ -680,6 +682,7 @@ export default function Order() {
                 ) {
                   setOfficeTime(true);
                 }
+                setIsLoadForm(true);
               }
             }
           })
@@ -695,7 +698,7 @@ export default function Order() {
         setOfficeTime(false);
         setStoreId(null);
         setTag("");
-        formRef.current?.resetFields();
+        setIsLoadForm(true);
       }
     };
     fetchData();
@@ -721,121 +724,123 @@ export default function Order() {
         extra={<CreateBillStep status="draff" orderDetail={null} />}
       >
         <div className="orders">
-          <Form
-            layout="vertical"
-            initialValues={initialForm}
-            ref={formRef}
-            onFinishFailed={({ errorFields }: any) => {
-              const element: any = document.getElementById(
-                errorFields[0].name.join("")
-              );
-              element?.focus();
-              const y =
-                element?.getBoundingClientRect()?.top +
-                window.pageYOffset +
-                -250;
-              window.scrollTo({ top: y, behavior: "smooth" });
-            }}
-            onFinish={onFinish}
-          >
-            <Form.Item noStyle hidden name="action">
-              <Input />
-            </Form.Item>
-            <Form.Item noStyle hidden name="currency">
-              <Input />
-            </Form.Item>
-            <Form.Item noStyle hidden name="account_code">
-              <Input />
-            </Form.Item>
-            <Form.Item noStyle hidden name="tax_treatment">
-              <Input />
-            </Form.Item>
-            <Form.Item noStyle hidden name="tags">
-              <Input />
-            </Form.Item>
-            <Row gutter={20} style={{ marginBottom: "70px" }}>
-              <Col md={18}>
-                <CardCustomer
-                  customer={customer}
-                  handleCustomer={handleCustomer}
-                  ShippingAddressChange={onChangeShippingAddress}
-                  BillingAddressChange={onChangeBillingAddress}
-                />
-                <CardProduct
-                  changeInfo={onChangeInfoProduct}
-                  selectStore={onStoreSelect}
-                  storeId={storeId}
-                  shippingFeeCustomer={shippingFeeCustomer}
-                  setItemGift={setItemGifts}
-                  orderSettings={orderSettings}
+          {isLoadForm && (
+            <Form
+              layout="vertical"
+              initialValues={initialForm}
+              ref={formRef}
+              onFinishFailed={({ errorFields }: any) => {
+                const element: any = document.getElementById(
+                  errorFields[0].name.join("")
+                );
+                element?.focus();
+                const y =
+                  element?.getBoundingClientRect()?.top +
+                  window.pageYOffset +
+                  -250;
+                window.scrollTo({ top: y, behavior: "smooth" });
+              }}
+              onFinish={onFinish}
+            >
+              <Form.Item noStyle hidden name="action">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="currency">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="account_code">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="tax_treatment">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="tags">
+                <Input />
+              </Form.Item>
+              <Row gutter={20} style={{ marginBottom: "70px" }}>
+                <Col md={18}>
+                  <CardCustomer
+                    customer={customer}
+                    handleCustomer={handleCustomer}
+                    ShippingAddressChange={onChangeShippingAddress}
+                    BillingAddressChange={onChangeBillingAddress}
+                  />
+                  <CardProduct
+                    changeInfo={onChangeInfoProduct}
+                    selectStore={onStoreSelect}
+                    storeId={storeId}
+                    shippingFeeCustomer={shippingFeeCustomer}
+                    setItemGift={setItemGifts}
+                    orderSettings={orderSettings}
+                    formRef={formRef}
+                    onChangeProduct={(value: string) =>
+                      handleChangeProduct(value)
+                    }
+                    items={items}
+                    handleCardItems={handleCardItems}
+                    isCloneOrder={isCloneOrder}
+                    discountRateParent={discountRate}
+                    discountValueParent={discountValue}
+                  />
+                  <CardShipment
+                    setShipmentMethodProps={onShipmentSelect}
+                    shipmentMethod={shipmentMethod}
+                    storeDetail={storeDetail}
+                    setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
+                    setShippingFeeInformedCustomerHVC={
+                      ChangeShippingFeeCustomerHVC
+                    }
+                    amount={orderAmount}
+                    setPaymentMethod={setPaymentMethod}
+                    paymentMethod={paymentMethod}
+                    shippingFeeCustomer={shippingFeeCustomer}
+                    shippingFeeCustomerHVC={shippingFeeCustomerHVC}
+                    customerInfo={customer}
+                    items={items}
+                    discountValue={discountValue}
+                    setOfficeTime={setOfficeTime}
+                    officeTime={officeTime}
+                    setServiceType={setServiceType}
+                    setHVC={setHvc}
+                    setFeeGhtk={setFeeGhtk}
+                    payments={payments}
+                    onPayments={onPayments}
+                    fulfillments={fulfillments}
+                    isCloneOrder={isCloneOrder}
+                  />
+                  <CardPayments
+                    setSelectedPaymentMethod={handlePaymentMethod}
+                    payments={payments}
+                    setPayments={onPayments}
+                    paymentMethod={paymentMethod}
+                    shipmentMethod={shipmentMethod}
+                    amount={
+                      orderAmount +
+                      (shippingFeeCustomer ? shippingFeeCustomer : 0) -
+                      discountValue
+                    }
+                    isCloneOrder={isCloneOrder}
+                  />
+                </Col>
+                <Col md={6}>
+                  <OrderDetailSidebar
+                    accounts={accounts}
+                    tags={tags}
+                    isCloneOrder={isCloneOrder}
+                    onChangeTag={onChangeTag}
+                  />
+                </Col>
+              </Row>
+              {isShowBillStep && (
+                <OrderDetailBottomBar
                   formRef={formRef}
-                  onChangeProduct={(value: string) =>
-                    handleChangeProduct(value)
-                  }
-                  items={items}
-                  handleCardItems={handleCardItems}
-                  isCloneOrder={isCloneOrder}
-                  discountRateParent={discountRate}
-                  discountValueParent={discountValue}
+                  handleTypeButton={handleTypeButton}
+                  isVisibleGroupButtons={true}
+                  showSaveAndConfirmModal={showSaveAndConfirmModal}
                 />
-                <CardShipment
-                  setShipmentMethodProps={onShipmentSelect}
-                  shipmentMethod={shipmentMethod}
-                  storeDetail={storeDetail}
-                  setShippingFeeInformedCustomer={ChangeShippingFeeCustomer}
-                  setShippingFeeInformedCustomerHVC={
-                    ChangeShippingFeeCustomerHVC
-                  }
-                  amount={orderAmount}
-                  setPaymentMethod={setPaymentMethod}
-                  paymentMethod={paymentMethod}
-                  shippingFeeCustomer={shippingFeeCustomer}
-                  shippingFeeCustomerHVC={shippingFeeCustomerHVC}
-                  customerInfo={customer}
-                  items={items}
-                  discountValue={discountValue}
-                  setOfficeTime={setOfficeTime}
-                  officeTime={officeTime}
-                  setServiceType={setServiceType}
-                  setHVC={setHvc}
-                  setFeeGhtk={setFeeGhtk}
-                  payments={payments}
-                  onPayments={onPayments}
-                  fulfillments={fulfillments}
-                  isCloneOrder={isCloneOrder}
-                />
-                <CardPayments
-                  setSelectedPaymentMethod={handlePaymentMethod}
-                  payments={payments}
-                  setPayments={onPayments}
-                  paymentMethod={paymentMethod}
-                  shipmentMethod={shipmentMethod}
-                  amount={
-                    orderAmount +
-                    (shippingFeeCustomer ? shippingFeeCustomer : 0) -
-                    discountValue
-                  }
-                  isCloneOrder={isCloneOrder}
-                />
-              </Col>
-              <Col md={6}>
-                <OrderDetailSidebar
-                  accounts={accounts}
-                  tags={tags}
-                  isCloneOrder={isCloneOrder}
-                  onChangeTag={onChangeTag}
-                />
-              </Col>
-            </Row>
-            {isShowBillStep && (
-              <OrderDetailBottomBar
-                formRef={formRef}
-                handleTypeButton={handleTypeButton}
-                isVisibleGroupButtons={true}
-                showSaveAndConfirmModal={showSaveAndConfirmModal}
-              />
-            )}
-          </Form>
+              )}
+            </Form>
+          )}
         </div>
         <SaveAndConfirmOrder
           onCancel={onCancelSaveAndConfirm}
